@@ -157569,3 +157569,107 @@ class TestDissectUci:
         rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {170, 171}',
                            ('frame.number', '_ws.col.protocol', '_ws.col.info'), ('-o', 'uci.tcp.port:7001'))
         assert rows == [['170', 'UCI', 'Core Get Device Info Cmd'], ['171', 'UCI', 'Core Device Reset Rsp']]
+
+
+class TestDissectUcp:
+    '''UCP (the SMSC Universal Computer Protocol) from the synthetic capture
+    ucp_coverage.pcap.gz: one TCP connection on unregistered ports that the
+    UCP heuristic dissector finds, with every operation (00-24, 30, 31,
+    51-58, 60, 61) and its results, PDUs in the same segment and split over
+    segments, an invalid checksum and an unknown operation.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('ucp_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ucp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''126 of the 134 frames are UCP (the others are the TCP handshake
+        and close), none is malformed or has a warning, in one and two
+        passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, None, ('_ws.col.protocol',))
+        assert len(rows) == 134
+        assert rows.count(['UCP']) == 126 and rows.count(['TCP']) == 8
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= warning',
+                               ('frame.number',), passes)
+            assert rows == []
+
+    def test_ucp_one_pass_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The columns and UCP fields are the same in one and two passes.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(self.fields(cmd_tshark, capture_file, test_env, 'ucp',
+                                    ('frame.number', '_ws.col.info', 'ucp.hdr.TRN', 'ucp.parm.AMsg',
+                                     'ucp.parm.OAdC', 'ucp.parm.EC'), passes))
+        assert outs[0] == outs[1]
+
+    def test_ucp_ivr5x_string(self, cmd_tshark, capture_file, test_env):
+        '''The result of a UCP version status request (operation 23, frame
+        78) shows the IVR5x parameter as a string; it used to raise a
+        dissector bug ("UCP: Fix a dissector bug in 23R and some length
+        handling"), which aborts with WIRESHARK_ABORT_ON_DISSECTOR_BUG.'''
+        env = dict(test_env, WIRESHARK_ABORT_ON_DISSECTOR_BUG='1')
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('ucp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {77, 78}', '-V', '-O', 'ucp'),
+            encoding='utf-8', env=env, timeout=120)
+        assert 'Dissector bug' not in stdout
+        assert 'IVR5x: 5' in stdout
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {77, 78}',
+                           ('frame.number', 'ucp.parm.IVR5x', 'ucp.parm.NPL', 'ucp.hdr.OT'))
+        assert rows == [['77', '5', '', '23'], ['78', '5', '2', '23,51,52']]
+
+    def test_ucp_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column and header fields: operations and results, an
+        invalid checksum, an unknown operation type.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {4, 5, 8, 77, 127, 128, 129, 130}',
+                           ('frame.number', '_ws.col.info', 'ucp.hdr.TRN', 'ucp.hdr.O_R', 'ucp.hdr.OT'))
+        assert rows == [
+            ['4', 'Enquiry (Operation)', '1', "'O'", '0'],
+            ['5', 'Enquiry (Result)', '1', "'R'", '0'],
+            ['8', 'Call input (Operation)', '3', "'O'", '1'],
+            ['77', 'UCP version status request (Operation)', '35', "'O'", '23'],
+            ['127', 'Advice of accumulated charges (Operation) [checksum invalid]', '93', "'O'", '6'],
+            ['128', 'Advice of accumulated charges (Result) [checksum invalid]', '93', "'R'", '6'],
+            ['129', '(proprietary) (Operation)', '94', "'O'", '99'],
+            ['130', '(proprietary) (Result)', '94', "'R'", '99'],
+        ]
+
+    def test_ucp_strings(self, cmd_tshark, capture_file, test_env):
+        '''IRA (hex) message text, and the alphanumeric originator address
+        (OTOA 5039) with the extended services fields.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {12, 110, 113, 114}',
+                           ('frame.number', 'ucp.parm.AMsg', 'ucp.parm.OAdC', 'ucp.parm.OTOA',
+                            'ucp.xser.service', 'ucp.xser.length', 'ucp.xser.data'))
+        assert rows == [
+            ['12', 'Hello world', '0687654321', '', '', '', ''],
+            ['110', 'Hello world', '0AC8329BFD06,Hello', '5039', '', '', ''],
+            ['113', 'Hello world', '0AC8329BFD06,Hello', '5039', '0x01,0x03', '2,0', '01AA,'],
+            ['114', 'Hello world', '0687654321', '', '0x01,0x03', '2,0', 'ABCD,'],
+        ]
+
+    def test_ucp_stats(self, cmd_tshark, capture_file, test_env):
+        '''The UCP messages statistics (tap): 62 operations and 66 results.'''
+        stdout = subprocess.check_output((cmd_tshark, '-q', '-z', 'ucp_messages,tree',
+                '-r', capture_file('ucp_coverage.pcap.gz')), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.split() for l in stdout.splitlines()]
+        assert ['UCP', 'Messages', '128'] == [l for l in lines if l[:2] == ['UCP', 'Messages']][0][:3]
+        assert ['Operations', '62'] == [l for l in lines if l[:1] == ['Operations']][0][:2]
+        assert ['Results', '66'] == [l for l in lines if l[:1] == ['Results']][0][:2]
+        assert ['Call', 'input', '10'] == [l for l in lines if l[:3] == ['Call', 'input', '10']][0][:3]
+
+    def test_ucp_split_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Two PDUs in a segment (frames 121-122, the Info column shows the
+        last) and a PDU in three segments (123-125, shown in the last).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 121 && frame.number <= 128',
+                           ('frame.number', 'ucp.hdr.TRN'))
+        assert [r for r in rows if r[1]] == [
+            ['121', '90,91'], ['122', '90,91'], ['125', '92'], ['126', '92'], ['127', '93'], ['128', '93']]
