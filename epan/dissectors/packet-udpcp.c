@@ -415,7 +415,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             /* Set initial values */
             p_conv_data->first_dest_port = pinfo->destport;
-            copy_address(&p_conv_data->first_dest_address, &pinfo->dst);
+            copy_address_wmem(wmem_file_scope(), &p_conv_data->first_dest_address, &pinfo->dst);
             p_conv_data->next_message_id_first = 0;
             p_conv_data->next_message_id_second = 0;
 
