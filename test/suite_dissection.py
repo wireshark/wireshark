@@ -150224,3 +150224,85 @@ class TestDissectYhoo:
             '42\tYPNS\t999\t1\tRequest: Unknown Service: 999',
             '43\tYHOO\t6\t4\tResponse: Message',
         ]
+
+
+class TestDissectYmsg:
+    '''YMSG is disabled by default (protocol and heuristic) and has no port
+    of its own; port 5050 belongs to another dissector.'''
+    OPTS = ('--enable-protocol', 'ymsg', '--enable-heuristic', 'ymsg_tcp',
+            '-o', 'tcp.try_heuristic_first:TRUE')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, opts, *fields, args=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts, *args,
+                '-r', capture_file('ymsg_coverage.pcap.gz'),
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_ymsg_protocols(self, cmd_tshark, capture_file, test_env):
+        '''196 frames: 193 YMSG and the 3 first segments of PDUs that are
+        reassembled (frames 188, 190, 191); none is YMSG by default; none is
+        malformed or has an expert info, in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.OPTS,
+                'frame.number', '_ws.col.protocol')
+        assert len(lines) == 196
+        assert [l.split('\t')[0] for l in lines if l.endswith('TCP')] == ['188', '190', '191']
+        assert sum(1 for l in lines if l.endswith('YMSG')) == 193
+        lines = self._fields(cmd_tshark, capture_file, test_env, (), '_ws.col.protocol')
+        assert len(lines) == 196
+        assert 'YMSG' not in lines
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, self.OPTS,
+                    'frame.number',
+                    args=(*passes, '-Y', '_ws.malformed || _ws.expert'))
+            assert lines == []
+
+    def test_ymsg_header(self, cmd_tshark, capture_file, test_env):
+        '''Header fields, commands and statuses (also unknown ones).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.OPTS,
+                'frame.number', '_ws.col.info', 'ymsg.version', 'ymsg.vendor',
+                'ymsg.len', 'ymsg.command', 'ymsg.status', 'ymsg.session_id',
+                args=('-Y', 'frame.number in {1,2,155,156,185}'))
+        assert [' '.join(l.split()) for l in lines] == [
+            '1 User Login (status=Ok) 16 0 31 1 0 0x00001000',
+            '2 User Logoff (status=Notify) 16 0 31 2 1 0x00001001',
+            '155 Unknown Command: 9999 (status=BuddyOf Denied) 16 0 6 9999 7 0x11223344',
+            '156 User Login (status=BuddyOf Denied) 16 0 0 1 7 0x11223344',
+            '185 Send Port Check (status=Ok) 16 255 6 76 0 0x11223344',
+        ]
+
+    def test_ymsg_content(self, cmd_tshark, capture_file, test_env):
+        '''Content lines: field names, unknown keys, and the fields whose
+        value is itself a field (list and record markers).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('ymsg_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,157,180,181}', '-V', '-O', 'ymsg',
+            ), encoding='utf-8', env=test_env)
+        for line in ('        Username: alice', '        CurrentId: bob', '        Msg: hello 1',
+                     '        Unknown(4000): no such field',
+                     '        StartOfRecord: GroupsRecordList',
+                     '        EndOfRecord: BuddiesRecordList',
+                     '        StartOfList: IgnoredBuddiesRecordList',
+                     '        EndOfList: Preferences',
+                     '        StartOfRecord: Unknown(99999)',
+                     '        StartOfList: notanumber'):
+            assert line in stdout.splitlines()
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.OPTS,
+                'ymsg.content-line.key', 'ymsg.content-line.value',
+                args=('-Y', 'frame.number == 157'))
+        assert lines == ['0,1,2,3,4,5,6,7,8,9,10,11\t' + ','.join('value%d' % i for i in range(12))]
+
+    def test_ymsg_pdus_and_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two or three PDUs in one segment (frames 186, 187), and a PDU
+        reassembled from two segments (192), from three segments split
+        inside the header (193 is the next PDU) and followed by the start of the
+        next PDU in the same segment (194).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.OPTS,
+                'frame.number', 'ymsg.command', 'ymsg.content-line.value',
+                args=('-Y', 'frame.number in {186,187,192,194}'))
+        assert lines[0] == '186\t75,75\tone,two,dos'
+        assert lines[1] == '187\t75,75,75\tone,two,dos'
+        split = ','.join('split %d' % i for i in range(20, 30))
+        assert lines[2] == '192\t85\t' + split
+        assert lines[3] == '194\t85\t' + split
