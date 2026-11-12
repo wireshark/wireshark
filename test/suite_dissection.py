@@ -157731,3 +157731,132 @@ class TestDissectUdld:
         assert lines[6] == '7\t0x0042\t4\t\t\t'
         assert lines[7] == '8\t0x0002\t9\t\tGi0/3xyz\t'
         assert lines[10] == '11\t0x0001\t105\t' + 'a' * 100 + '\t\t'
+
+
+class TestDissectUdp:
+    '''UDP and UDP-Lite from the synthetic capture udp_coverage.pcapng.gz
+    (Ethernet, IPv4 and IPv6, and three Exported PDU frames, 37-39, that
+    name "udp" without IP addresses). 44 frames.'''
+
+    ERROR = '_ws.expert.severity >= 0x00800000'
+    CHECK = ('-o', 'udp.check_checksum:TRUE', '-o', 'udplite.check_checksum:TRUE')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('udp_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_udp_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packet and no error expert info, in one and two
+        passes, with and without checksum verification. Every checksum of
+        the capture is valid, the partial (offload) one is a note.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number')
+        assert len(lines) == 44
+        for passes in ((), ('-2',)):
+            for prefs in ((), self.CHECK):
+                lines = self.fields(cmd_tshark, capture_file, test_env, *passes, *prefs,
+                        '-Y', '_ws.malformed || ' + self.ERROR, '-Tfields', '-eframe.number')
+                assert count_output('\n'.join(lines)) == 0
+
+    def test_udp_checksum_status(self, cmd_tshark, capture_file, test_env):
+        '''With verification on: valid checksums are good (1), zero over
+        IPv4 and in the Exported PDU frame is not present (3), truncated
+        and Exported PDU frames without IP addresses are unverified (2;
+        the latter used to reach DISSECTOR_ASSERT_NOT_REACHED in the
+        checksum code). Frame 9 holds the partial checksum of a
+        checksum offload and carries the note.'''
+        env = dict(test_env, WIRESHARK_ABORT_ON_DISSECTOR_BUG='1')
+        lines = self.fields(cmd_tshark, capture_file, env, *self.CHECK,
+                '-Tfields', '-eframe.number', '-eudp.checksum.status')
+        status = {int(l.split('\t')[0]): l.split('\t')[1] for l in lines if '\t' in l}
+        assert status[1] == status[14] == status[32] == status[35] == '1'
+        assert status[3] == '3'
+        assert status[31] == '2'
+        assert status[37] == '2' and status[38] == '3' and status[39] == '2'
+        lines = self.fields(cmd_tshark, capture_file, env, *self.CHECK,
+                '-Y', 'udp.checksum.partial', '-Tfields', '-eframe.number')
+        assert lines == ['9']
+
+    def test_udp_length_and_jumbogram(self, cmd_tshark, capture_file, test_env):
+        '''Length shorter than the IP payload (frame 5: the UDP payload is
+        12 octets), empty payload with Ethernet padding (4), the IPv6
+        jumbogram whose UDP length field is 0 (14) and the reassembled
+        3000 octet datagram (30).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 5, 14, 30}', '-Tfields', '-eframe.number',
+                '-eudp.length', '-e_ws.col.info')
+        assert [' '.join(l.split()) for l in lines] == [
+            '4 8 40000 → 40001 Len=0',
+            '5 20 40002 → 40003 Len=12',
+            '14 0 40130 → 40131 Len=65792 [Jumbogram]',
+            '30 3008 41010 → 41011 Len=3000',
+        ]
+
+    def test_udp_subdissectors(self, cmd_tshark, capture_file, test_env):
+        '''Port, conversation (the TFTP data port) and heuristic (STUN on
+        port 41000) dissectors, in one and two passes (the heuristic
+        entry is remembered for the second pass), and PDU loops.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {1, 11, 12, 22, 23, 24, 25, 26, 27, 28}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+            assert lines == ['1\tDNS', '11\tNTP', '12\tNTP', '22\tTFTP', '23\tTFTP',
+                             '24\tUDP', '25\tSTUN', '26\tSTUN', '27\tSTUN',
+                             '28\tKNXnet/IP']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {27, 28}', '-Tfields', '-eframe.number',
+                '-eudp.pdu.size', '-estun.type', '-eknxip.service')
+        assert lines[0].startswith('27\t20\t0x0001')
+        assert lines[1].startswith('28\t14,14,16\t')
+
+    def test_udp_streams(self, cmd_tshark, capture_file, test_env):
+        '''A flow is one stream with per-stream packet numbers in both
+        directions (frames 7-8: both addresses equal, the direction comes
+        from the ports; frame 6 has source port 0).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 3, 4, 6, 7, 8}', '-Tfields',
+                '-eframe.number', '-eudp.stream', '-eudp.stream.pnum')
+        assert lines == ['1\t0\t1', '2\t0\t2', '3\t1\t1', '4\t1\t2', '6\t3\t1',
+                         '7\t4\t1', '8\t4\t2']
+
+    def test_udp_error_packets(self, cmd_tshark, capture_file, test_env):
+        '''UDP headers inside ICMP errors (frames 18-20) join the stream of
+        the probe that caused them (10 and 12). The probes carry the
+        traceroute chat expert info (destination port 33435-33464; also a
+        source port, frame 21).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'icmp', '-Tfields', '-eframe.number', '-eudp.stream')
+        assert lines == ['18\t10', '19\t12', '20\t12']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'udp.possible_traceroute', '-Tfields', '-eframe.number')
+        assert lines == ['15', '16', '17', '18', '19', '20', '21']
+
+    def test_udp_lite(self, cmd_tshark, capture_file, test_env):
+        '''UDP-Lite over IPv4 and IPv6: coverage 12, 0 (whole datagram), the
+        full length, and 16 (IPv6), all with valid checksums.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.CHECK,
+                '-Y', 'udplite', '-Tfields', '-eframe.number',
+                '-eudp.checksum_coverage', '-eudp.length', '-eudp.checksum.status')
+        assert lines == ['32\t12\t32\t1', '33\t0\t32\t1', '34\t32\t32\t1',
+                         '35\t16\t32\t1', '36\t0\t32\t1']
+
+    def test_udp_process_info(self, cmd_tshark, capture_file, test_env):
+        '''An IPFIX record with the CACE process fields (frame 42) is
+        attached to the UDP flow of frames 40-41 when udp.process_info is
+        on (it shows on the frames after the record, 43-44, in one pass and
+        on all of them in two).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'udp.process_info:TRUE',
+                '-Y', 'udp.proc.dstpid', '-Tfields', '-eframe.number',
+                '-eudp.proc.dstpid', '-eudp.proc.dstuname', '-eudp.proc.srcpid',
+                '-eudp.proc.srccmd')
+        assert lines == ['43\t99\troot\t4321\t/usr/bin/dnsprobe',
+                         '44\t4321\talice\t99\tdaemon']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-o', 'udp.process_info:TRUE',
+                '-Y', 'udp.proc.dstpid', '-Tfields', '-eframe.number')
+        assert lines == ['40', '41', '43', '44']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'udp.proc.dstpid', '-Tfields', '-eframe.number')
+        assert lines == []
