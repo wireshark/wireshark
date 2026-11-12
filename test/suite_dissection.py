@@ -152478,3 +152478,86 @@ class TestDissectZbeeZclProtoIface:
         two = self.fields(cmd_tshark, capture_file, test_env, '-2',
                           '-Tfields', '-e_ws.col.info', '-eframe.protocols')
         assert one == two
+
+
+class TestDissectZbeeZclSas:
+    CAP = 'zbee-zcl-sas_coverage.pcap.gz'
+
+    def test_zbee_zcl_sas_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ZigBee ZCL (reached through the 802.15.4 and
+        ZigBee NWK/APS dissectors), the cluster dissectors get their
+        frames, and nothing is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = [line.split(':')[-1] for line in stdout.splitlines()]
+        assert len(protocols) == 142
+        assert {p: protocols.count(p) for p in set(protocols)} == {'zbee_zcl': 43, 'zbee_zcl_ias.ace': 82, 'zbee_zcl_ias.wd': 17}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_zbee_zcl_sas_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the first frames of each cluster dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(line.split('\t') for line in stdout.splitlines())
+        assert [info[n] for n in ['1', '2', '87']] == [
+            'ZCL IAS ACE: Arm, Seq: 1',
+            'ZCL IAS ACE: Arm, Seq: 1',
+            'ZCL IAS WD: Start Warning, Seq: 1',
+        ]
+
+    def test_zbee_zcl_sas_commands(self, cmd_tshark, capture_file, test_env):
+        '''The cluster specific commands that are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'not frame.protocols ~ "zbee_zcl$"',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        commands = {line.rsplit(', Seq: ', 1)[0] for line in stdout.splitlines()}
+        assert sorted(commands) == [
+            'ZCL IAS ACE: Arm',
+            'ZCL IAS ACE: Arm Response',
+            'ZCL IAS ACE: Bypass',
+            'ZCL IAS ACE: Bypass Response',
+            'ZCL IAS ACE: Emergency',
+            'ZCL IAS ACE: Fire',
+            'ZCL IAS ACE: Get Bypassed Zone List',
+            'ZCL IAS ACE: Get Panel Status',
+            'ZCL IAS ACE: Get Panel Status Response',
+            'ZCL IAS ACE: Get Zone ID Map',
+            'ZCL IAS ACE: Get Zone ID Map Response',
+            'ZCL IAS ACE: Get Zone Information',
+            'ZCL IAS ACE: Get Zone Information Response',
+            'ZCL IAS ACE: Get Zone Status',
+            'ZCL IAS ACE: Get Zone Status Response',
+            'ZCL IAS ACE: Panel Status Changed',
+            'ZCL IAS ACE: Panic',
+            'ZCL IAS ACE: Set Bypassed Zone List',
+            'ZCL IAS ACE: Unknown Command',
+            'ZCL IAS ACE: Zone Status Changed',
+            'ZCL IAS WD: Squawk',
+            'ZCL IAS WD: Start Warning',
+            'ZCL IAS WD: Unknown Command',
+        ]
+
+    def test_zbee_zcl_sas_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The attribute names the cluster dissectors know (1 of
+        them are shown with their name in the capture).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        names = {line.strip() for line in stdout.splitlines()
+                 if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
+        assert len(names) == 1
+        assert {'Attribute: Maximum Duration (0x0000)'} <= names
