@@ -151094,3 +151094,131 @@ class TestDissectZbeeAps:
         assert lines[1] == '113\tZigBee HA\t0x02\t2'
         assert lines[2].startswith('114\tZigBee ')
         assert lines[6] == '118\tZigBee HA\t0x01\t11'
+
+
+class TestDissectZbeeDirect:
+    '''ZigBee Direct (packet-zbee-direct.c) from the synthetic capture
+    zbee_direct_coverage.pcapng.gz: ZigBee Direct over Bluetooth ATT and
+    the ZBD Configuration cluster over IEEE 802.15.4. "Encrypted" frames
+    are filler and never decrypt; the session keys of the Dump Info
+    notifications are made-up constants.'''
+
+    @staticmethod
+    def zbd_fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('zbee_direct_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number']
+        args += ['-e' + f for f in fields]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_zbee_direct_protocols(self, cmd_tshark, capture_file, test_env):
+        '''114 frames: 93 ZigBee Direct messages, two tunnelled ZigBee
+        frames, 13 ZCL frames; no malformed frame or error expert info in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zbee_direct_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 114
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['ZBD'] == 93
+        assert counts['ZBD/ZigBee'] == 2
+        assert counts['ZigBee HA'] == 13
+        assert counts['ATT'] == 5 and counts['HCI_EVT'] == 1
+        for passes in ((), ('-2',)):
+            lines = self.zbd_fields(cmd_tshark, capture_file, test_env,
+                '_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert lines == []
+
+    def test_zbee_direct_commissioning(self, cmd_tshark, capture_file, test_env):
+        '''Permit Joining, Leave, Identify and Finding & Binding show
+        their values in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zbee_direct_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {7, 8, 9, 10, 11, 12, 13, 14}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            'PERMIT JOIN Request: open for 60s',
+            'PERMIT JOIN Request: close',
+            'LEAVE Request (remove children: TRUE, rejoin: TRUE)',
+            'LEAVE Request (remove children: FALSE, rejoin: FALSE)',
+            'IDENTIFY Request: start for 30s',
+            'IDENTIFY Request: stop',
+            'FINDING & BINDING Request (endpoint: 10, initiator: TRUE)',
+            'FINDING & BINDING Request (endpoint: 1, initiator: FALSE)',
+        ]
+
+    def test_zbee_direct_dump_info(self, cmd_tshark, capture_file, test_env):
+        '''Dump Info notifications: a key reported over the air with its
+        ZDD and ZVD IEEE addresses (frames 35-38; 37 repeats 35) and
+        encryption switched on and off (39-40 on, 50-51 off).'''
+        lines = self.zbd_fields(cmd_tshark, capture_file, test_env,
+            'frame.number in {35, 36, 38, 39, 50}', 'zbd.dump_info.type',
+            'zbd.dump_info.zdd_addr', 'zbd.dump_info.zvd_addr', 'zbd.encryption_status')
+        assert lines == [
+            '35\t1\t0x00124b0001020304\t0x00124b00aabbccdd\t',
+            '36\t1\t0x00124b00000000a1\t0x00124b00aabbccdd\t',
+            '38\t1\t0x00124b0001020304\t0x00124b00000000b2\t',
+            '39\t2\t\t\tTrue',
+            '50\t2\t\t\tFalse',
+        ]
+
+    def test_zbee_direct_encryption(self, cmd_tshark, capture_file, test_env):
+        '''While encryption is on, every characteristic except the
+        security service is decrypted; the filler frames fail with an
+        expert info (41-45, 56-57, 61, 98-99), frames shorter than the
+        counter and MIC say so (46, 47), security service frames (48-49,
+        58, 60) are left alone, and after encryption is switched off
+        (50-51, 62) the frames decode in the clear again (52-53, 59, 101).'''
+        for passes in ((), ('-2',)):
+            lines = self.zbd_fields(cmd_tshark, capture_file, test_env,
+                'zbd.error.decryption && frame.number < 91', '_ws.expert.message', passes=passes)
+            assert [l.split('\t')[0] for l in lines] == [
+                '41', '42', '43', '44', '45', '46', '47', '56', '57', '61']
+            assert lines[5].endswith('Packet is too short to decrypt (3 < 8)')
+            assert lines[6].endswith('Packet is too short to decrypt (6 < 8)')
+            assert all(l.endswith('Decryption failure') for l in lines[:5] + lines[7:])
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zbee_direct_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {52, 59, 101}', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            'PERMIT JOIN Request: open for 5s',
+            'FINDING & BINDING Request (endpoint: 1, initiator: TRUE)',
+            'COMM STATUS Notification',
+        ]
+
+    def test_zbee_direct_key_cap(self, cmd_tshark, capture_file, test_env):
+        '''At most 32 keys reported over the air are kept ("ZigBee
+        Direct: Bound the keys of Dump Info"): frames 63-96 report 34
+        keys on top of the four known ones; the 29th new key on and the
+        repeat of a key that did not fit (91-94, 96) are refused with an
+        expert info, a key that is already known (frame 64) is not
+        counted. The encrypted frames after them (98, 99) still fail
+        normally.'''
+        for passes in ((), ('-2',)):
+            lines = self.zbd_fields(cmd_tshark, capture_file, test_env,
+                'zbd.error.decryption && frame.number > 62', '_ws.expert.message', passes=passes)
+            assert [l.split('\t')[0] for l in lines] == ['91', '92', '93', '94', '96', '98', '99']
+            assert all(l.endswith('Too many keys reported over the air (maximum 32), key ignored')
+                       for l in lines[:5])
+            assert all(l.endswith('Decryption failure') for l in lines[5:])
+
+    def test_zbee_direct_configuration_cluster(self, cmd_tshark, capture_file, test_env):
+        '''The ZBD Configuration cluster: commands to and from the
+        server, and its attributes in foundation commands (frames
+        102-114).'''
+        lines = self.zbd_fields(cmd_tshark, capture_file, test_env,
+            'frame.number in {102, 103, 104, 106, 110, 111}', 'zbd.configuration.rx_cmd_id',
+            'zbd.configuration.tx_cmd_id', 'zbd.configuration.attr.anonymous_join_timeout',
+            'zbd.configuration.attr.interface_state', 'zbd.configuration.interface_state.status')
+        assert lines == [
+            '102\t0x00\t\t\t0x01\t',
+            '103\t0x00\t\t\t0xfe\t',
+            '104\t0x01\t\t0x000258\t\t',
+            '106\t\t0x00\t\t0x01\t0x00',
+            '110\t\t\t0x000258\t0x01\t',
+            '111\t\t\t0x00012c\t0x00\t',
+        ]
