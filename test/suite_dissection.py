@@ -158614,3 +158614,85 @@ class TestDissectUftp4:
         lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 59',
                 '-euftp4.abort.message', '-euftp4.abort.flags')
         assert lines == ['transfer aborted\t0x01']
+
+
+class TestDissectUftp5:
+    CAP = 'uftp5_coverage.pcap.gz'
+    FUNCS = ('1 1 1 1 1 1 2 2 3 3 3 3 4 4 5 5 6 6 7 7 7 7 8 8 9 9 9 9 9 10 10 '
+             '11 11 11 11 12 12 12 13 13 14 14 14 14 15 15 15 17 17 17 17 20 20 '
+             '21 21 21 18 18 19 19 5 20 1').split()
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('uftp5_coverage.pcap.gz'),
+                '-Tfields', *args), encoding='utf-8', env=test_env).splitlines()
+
+    def test_uftp5_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is UFTP version 5, with the expected message type,
+        and none is malformed or has an expert info, in one and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert lines == ['UFTP'] * 63
+        assert self.fields(cmd_tshark, capture_file, test_env, '-euftp5.func') == self.FUNCS
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_uftp5_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the message and the group, with the file
+        id, section and block for the file transfer messages.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-eframe.number', '-e_ws.col.info')
+        info = {int(l.split('\t')[0]): ' '.join(l.split('\t')[1].split()) for l in lines}
+        assert info[1] == 'ANNOUNCE ID=11223344'
+        assert info[19] == 'FILEINFO ID=11223344:0001'
+        assert info[27] == 'FILESEG ID=11223344:0001 Section=1 Block=2'
+        assert info[30] == 'DONE ID=11223344:0001 Section=0'
+        assert info[41] == 'HB_REQ'
+        assert info[59] == 'ABORT ID=11223344'
+
+    def test_uftp5_announce_encinfo(self, cmd_tshark, capture_file, test_env):
+        '''The ANNOUNCE of frame 2 carries an encryption info extension
+        with an RSA key blob, an EC Diffie-Hellman blob and a signature.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 2',
+                '-euftp5.encinfo.keytype', '-euftp5.encinfo.hashtype', '-euftp5.rsablob.modlen',
+                '-euftp5.ecblob.curve', '-euftp5.ecblob.keylen', '-euftp5.encinfo.flags.client_auth',
+                '-euftp5.encinfo.siglen')
+        assert lines == ['3\t3\t128\t23\t64\tTrue\t64']
+
+    def test_uftp5_extension_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Fix: an extension parser returns the length from its own header,
+        so two TFMCC data extensions, the first longer than the fixed size,
+        are both decoded (frame 28), and a TFMCC rate whose value does not
+        fit in 32 bits is clamped (frame 27).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 26 && frame.number <= 28',
+                '-eframe.number', '-euftp5.tfmccdata.cc_rate', '-euftp5.tfmccdata.send_rate')
+        assert lines == ['26\t16\t7104', '27\t4294967295\t7104', '28\t16,16\t7104,7104']
+
+    def test_uftp5_counts_over_255(self, cmd_tshark, capture_file, test_env):
+        '''Fix: a KEYINFO with 260 destination keys and a CONG_CTRL with 300
+        items show every entry (the counts were uint8_t).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 61 && frame.number <= 62',
+                '-eframe.number', '-euftp5.keyinfo.destid', '-euftp5.congctrl.item.destid')
+        counts = [(l.split('\t')[0], [len(c.split(',')) if c else 0 for c in l.split('\t')[1:]]) for l in lines]
+        assert counts == [('61', [260, 0]), ('62', [0, 300])]
+
+    def test_uftp5_values(self, cmd_tshark, capture_file, test_env):
+        '''File information, key info acknowledgement, congestion control items
+        and abort message.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 20',
+                '-euftp5.fileinfo.name', '-euftp5.fileinfo.link', '-euftp5.fileinfo.fsize')
+        assert lines == ['link\t/target/path\t1108152157446']
+        # fix: the verify length is the whole 16 bit field (the high octet only
+        # was read, so the verify data of 32 octets was not shown)
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 17',
+                '-euftp5.keyinfoack.verify_len', '-euftp5.keyinfoack.verify_data')
+        assert lines == ['32\t080f161d242b323940474e555c636a71787f868d949ba2a9b0b7bec5ccd3dae1']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 52',
+                '-euftp5.congctrl.item.flags')
+        assert lines == ['0x01,0x0a,0x04,0x08']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 59',
+                '-euftp5.abort.message', '-euftp5.abort.flags')
+        assert lines == ['transfer aborted\t0x01']
