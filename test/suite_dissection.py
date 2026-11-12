@@ -151954,3 +151954,120 @@ class TestDissectZbeeZclClosures:
                  if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
         assert len(names) == 15
         assert {'Attribute: Actuator Enabled (0x0002)', 'Attribute: Closed Limit (0x0010)', 'Attribute: Current position lift percentage (0x0008)', 'Attribute: Current position tilt percentage (0x0009)'} <= names
+
+
+class TestDissectZbeeZclGeneral:
+    '''ZigBee ZCL General clusters (packet-zbee-zcl-general.c) from the
+    synthetic capture zbee_zcl_general_coverage.pcap.gz: ZEP v2 on UDP
+    17754, 802.15.4, ZigBee NWK and APS, then the cluster dissector. The
+    GP and Touchlink keys are filler bytes, nothing is decrypted.'''
+
+    CAP = 'zbee_zcl_general_coverage.pcap.gz'
+    # Frames per APS cluster id
+    CLUSTERS = {
+        '0x0000': 59, '0x0001': 52, '0x0002': 38, '0x0003': 10, '0x0004': 23,
+        '0x0005': 53, '0x0006': 30, '0x0007': 9, '0x0008': 26, '0x0009': 14,
+        '0x000a': 42, '0x000b': 77, '0x000c': 41, '0x000d': 46, '0x000e': 34,
+        '0x000f': 36, '0x0010': 49, '0x0011': 46, '0x0012': 33, '0x0013': 38,
+        '0x0014': 38, '0x0015': 105, '0x0016': 50, '0x0019': 64, '0x001a': 41,
+        '0x001b': 20, '0x0020': 36, '0x0021': 108, '0x1000': 25,
+    }
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectZbeeZclGeneral.CAP), *args),
+                encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_zbee_zcl_general_clusters(self, cmd_tshark, capture_file, test_env):
+        '''Every cluster of the file is reached; no malformed packet and no
+        error expert info in one or two passes. The two warnings are the
+        Touchlink Network Join Requests whose key cannot be derived (master
+        key not in the keyring, unused key index).'''
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-ezbee_aps.cluster', passes=passes)
+            counts = {}
+            for r in rows:
+                counts[r[0]] = counts.get(r[0], 0) + 1
+            assert counts == self.CLUSTERS
+            rows = self._rows(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert rows == []
+            rows = self._rows(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                    passes=passes)
+            assert rows == [
+                ['1122', "No key named 'Touchlink Master Key' found, cannot decrypt transport key"],
+                ['1123', 'Unsupported key 7, cannot decrypt transport key'],
+            ]
+
+    def test_zbee_zcl_general_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The full tree is the same in one pass and in two passes (the
+        Touchlink response id is kept per transaction).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP), '-V'),
+                    encoding='utf-8', env=test_env, timeout=300))
+        assert outputs[0] == outputs[1]
+
+    def test_zbee_zcl_general_gp_proxy_table(self, cmd_tshark, capture_file, test_env):
+        '''The proxy table entry options extension is one octet: frame
+        1239 ends with it (it was read as two octets, past the end of the
+        frame); frame 1110 has a table of several entries.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'zbee_zcl_general.gp.proxy_tbl.entry.ext_opt',
+                '-Tfields', '-eframe.number', '-ezbee_zcl_general.gp.proxy_tbl_len',
+                '-ezbee_zcl_general.gp.proxy_tbl.entry.ext_opt')
+        assert rows == [['1110', '83', '0x01'], ['1239', '8', '0x00']]
+
+    def test_zbee_zcl_general_touchlink_endpoint_list(self, cmd_tshark, capture_file, test_env):
+        '''Profile ID and Device ID of the Endpoint List Response records
+        are two octets each (they were one).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1134',
+                '-Tfields', '-ezbee_zcl_general.touchlink.profile_id',
+                '-ezbee_zcl_general.touchlink.device_id')
+        assert rows == [['0x0104,0x0104', '0x0100,0x0101']]
+
+    def test_zbee_zcl_general_touchlink_join(self, cmd_tshark, capture_file, test_env, features):
+        '''The Join Requests with the development key (frame 1118) and the
+        certification key (frame 1120) derive a network key from the
+        Scan Response of their transaction; the master key and an unused
+        key index do not. The key value is not checked.'''
+        if not features.have_gcrypt_1_10:
+            pytest.skip('Requires libgcrypt.')
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'zbee_zcl_general.touchlink.network_key',
+                '-Tfields', '-eframe.number')
+        assert rows == [['1118'], ['1120']]
+
+    def test_zbee_zcl_general_scenes(self, cmd_tshark, capture_file, test_env):
+        '''Scene extension field sets: one set per cluster, with the
+        unknown cluster skipped by its length.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {923, 924, 927, 928, 942}',
+                '-Tfields', '-eframe.number',
+                '-ezbee_zcl_general.scenes.extension_set.cluster',
+                '-ezbee_zcl_general.scenes.attr_str')
+        assert rows == [
+            ['923', '0x0006,0x0008', ''],
+            ['924', '0x0006,0x0008,0x0300,0x0101,0x0102,0x0201,0x0abc', 'all'],
+            ['927', '0x0101,0x0102', 'cl'],
+            ['928', '0x0201', 'th'],
+            ['942', '0x0006,0x0008', 'warm'],
+        ]
+
+    def test_zbee_zcl_general_ota_times(self, cmd_tshark, capture_file, test_env):
+        '''OTA Image Block Response (wait for data) and Upgrade End
+        Response times: an offset when the current time is zero.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1028, 1033, 1035}',
+                '-Tfields', '-eframe.number',
+                '-ezbee_zcl_general.ota.request_time_offset',
+                '-ezbee_zcl_general.ota.upgrade_time')
+        assert rows == [['1028', '60', ''], ['1033', '', '60'], ['1035', '', '4294967295']]
