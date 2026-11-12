@@ -159663,3 +159663,117 @@ class TestDissectUsbAudio:
             assert [r[0] for r in rows if r[2]] == ['2', '4']
             assert all(r[1] and r[2].startswith("Descriptor size is not") for r in rows if r[2])
             assert not any('Exception occurred' in line for line in stdout.splitlines())
+
+
+class TestDissectUsb:
+    '''USB (packet-usb.c) from the synthetic capture usb_coverage.pcapng.gz:
+    one interface per link type (Linux usbmon 64 and 48 octet headers,
+    USBPcap, FreeBSD, macOS) and USB/IP over TCP 3240, which needs Decode As.
+    Frames 1-173 usbmon 64 (interface 0), 174-197 usbmon 48, 198-236
+    USBPcap, 237-292 FreeBSD, 293-312 macOS, 313-333 USB/IP.'''
+
+    USBIP = ('-d', 'tcp.port==3240,usbip')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra, *TestDissectUsb.USBIP,
+                '-r', capture_file('usb_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_usb_coverage_frames(self, cmd_tshark, capture_file, test_env):
+        '''333 frames, one per interface/link type as listed in the class
+        description; no malformed frames and no warnings or errors in one
+        and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                            'frame.interface_id', '_ws.col.protocol')
+        assert len(rows) == 333
+        ifaces = [int(r.split('\t')[0]) for r in rows]
+        assert [ifaces.count(i) for i in range(6)] == [173, 24, 39, 56, 20, 21]
+        protos = [r.split('\t')[1] for r in rows]
+        assert protos.count('USBIP') == 3
+        assert protos.count('USB') == 313
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+
+    def test_usb_string_descriptor_wlength(self, cmd_tshark, capture_file, test_env):
+        '''String descriptor responses where the host asked for 4, 1 and 0
+        octets: the string is cut to wLength - 2 octets and wLength below 2
+        shows no string (it wrapped around to 254 octets and the frame was
+        malformed before "USB: Fix FreeBSD empty composite assert and
+        SET_INTERFACE slowdown").'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {18, 20, 22, 24}',
+                            'frame.number', 'usb.bString', '_ws.malformed')
+        assert rows == ['18\tAcme\t', '20\tT\t', '22\t\t', '24\t\t']
+
+    def test_usb_freebsd_empty_composite(self, cmd_tshark, capture_file, test_env):
+        '''FreeBSD control transfers whose data frames are all empty (frames
+        291 and 292) used to fail an assertion in tvb_composite_finalize();
+        they decode as control transfers without data.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {291, 292}',
+                            'frame.number', 'usb.frame.length', '_ws.malformed', '_ws.col.info')
+        assert rows == ['291\t0,0\t\tURB_CONTROL out', '292\t0,0\t\tURB_CONTROL out']
+
+    def test_usb_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''Configuration descriptor of the composite device (frame 10):
+        interface numbers and classes, endpoint companions, the BOS
+        descriptor with its platform capabilities (frame 163) and the
+        device identifiers of the six devices.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 10',
+                            'usb.bInterfaceNumber', 'usb.bInterfaceClass', 'usb.bMaxBurst')
+        assert rows == ['0,1,2,3,15,4,5,5,5,6,7,8,9,10,11,12,13,14,16,17\t'
+                        '0x02,0x0a,0x08,0x03,0x03,0x01,0x01,0x01,0x01,0xef,0xfe,0xfe,0xfe,0xfe,0x09,0xff,0x0b,0x12,0x00,0xe0\t'
+                        '0,15,15,1,0,0']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 163',
+                            'usb.bDevCapabilityType', 'usb.PlatformCapabilityUUID',
+                            'usb.webusb.bVendorCode', 'usb.msos20.bMS_VendorCode')
+        assert rows == ['0x02,0x03,0x05,0x05,0x05,0x0a\t'
+                        '3408b638-09a9-47a0-8bfd-a0768815b665,d8dd60df-4589-4cc7-9cd2-659d9e648a9f,'
+                        '03020100-0504-0706-0809-0a0b0c0d0e0f\t1\t2']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usb.idVendor',
+                            'frame.number', 'usb.idVendor')
+        assert rows == ['4\t0x1234', '159\t0x1234', '177\t0x0951', '202\t0x1d6b', '240\t0x1234',
+                        '262\t0x1234', '268\t0x1234', '274\t0x1234', '280\t0x1234', '296\t0x05ac',
+                        '314\t0x1234']
+
+    def test_usb_isochronous(self, cmd_tshark, capture_file, test_env):
+        '''Isochronous transfers on usbmon (64 and 48 octet headers),
+        USBPcap, FreeBSD, macOS and USB/IP.'''
+        assert self._fields(cmd_tshark, capture_file, test_env, 'usb.iso.numdesc > 0',
+                            'frame.number', 'usb.iso.numdesc') == [
+            '145\t2,2', '146\t3,3', '147\t2,2', '148\t2,2', '195\t1', '196\t1', '197\t1']
+        assert self._fields(cmd_tshark, capture_file, test_env, 'usb.win32.iso_num_packets',
+                            'frame.number', 'usb.win32.iso_num_packets') == [
+            '232\t2', '233\t2', '234\t2', '235\t2', '236\t2']
+        assert self._fields(cmd_tshark, capture_file, test_env, 'usb.darwin.iso.frame_number',
+                            'frame.number', 'usb.darwin.iso.frame_number') == [
+            '309\t0x0000000000000001,0x0000000000000002', '310\t0x0000000000000001,0x0000000000000002']
+
+    def test_usb_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are matched in all link types (second pass,
+        the response frame is only known then); USB/IP unlink and its response
+        point back at the submitted URB.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                            'frame.number', 'usb.request_in', 'usb.response_in', extra=('-2',))
+        links = {int(r.split('\t')[0]): r.split('\t')[1:] for r in rows}
+        assert links[1] == ['', '2'] and links[2] == ['1', '']
+        assert links[174] == ['', '175'] and links[175] == ['174', '']
+        assert links[198] == ['', '199'] and links[199] == ['198', '']
+        assert links[237] == ['', '238'] and links[238] == ['237', '']
+        assert links[293] == ['', '294'] and links[294] == ['293', '']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 330',
+                            'frame.number', 'usbip.cmd_frame', 'usbip.ret_frame', 'usbip.vic_frame',
+                            extra=('-2',))
+        assert rows[:2] == ['330\t330\t331\t329', '331\t330\t331\t329']
+
+    def test_usb_conversations(self, cmd_tshark, capture_file, test_env):
+        '''Conversation table of the USB address type.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.USBIP,
+                '-r', capture_file('usb_coverage.pcapng.gz'), '-q', '-z', 'conv,usb',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'host                 <-> 1.2.0' in stdout
+        assert 'host                 <-> 6.2.0' in stdout
