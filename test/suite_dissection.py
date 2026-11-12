@@ -76998,6 +76998,120 @@ class TestDissectIeee1609dot2:
         assert stdout.split() == ['21', '22', '23']
 
 
+class TestDissectWsa:
+    '''IEEE 1609.3 WAVE Service Advertisements (UPER) from the synthetic
+    captures wsa_coverage.pcap.gz and wsa_malformed.pcap.gz: Ethernet, WSMP
+    with PSID 0x87 and unsecured IEEE 1609.2 data. All values are
+    placeholders.'''
+
+    def test_wsa_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The four WSAs (header only, a typical roadside unit, every
+        extension with a routing advertisement, an unavailable location)
+        decode without malformed packets or expert infos at warning level or
+        above, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wsa_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['eth:ethertype:wsmp:ieee1609dot2:wsa'] * 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wsa_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wsa_services_and_channels(self, cmd_tshark, capture_file, test_env):
+        '''WSA identifier and content count, the 1-, 2-, 3- and 4-octet
+        PSIDs with their channel indexes, the provider service context and
+        the channel number, power and access.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wsa_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ewsa.id', '-ewsa.content_count',
+                '-ewsa.service.psid', '-ewsa.service.channel_index', '-ewsa.psc',
+                '-ewsa.channel.number', '-ewsa.channel.tx_power',
+                '-ewsa.channel_access',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t1\t\t\t\t\t\t',
+            '2\t2\t3\t0x00204096,0x00000083,0x00000020\t1,1,1\tSRMService\t183\t0\t0',
+            '3\t15\t15\t0x00000020,0x00004100,0x0000007f\t1,2,0\tctx\t172,178\t-10,33\t1',
+            '4\t3\t0\t\t\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wsa_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'psid-traffic-signal-request (0x204096, p-encoded 0xe0000016)' in stdout
+        assert 'Provider Service Context: "SRMService"' in stdout
+
+    def test_wsa_location(self, cmd_tshark, capture_file, test_env):
+        '''2D and 3D locations with their degree and meter formatting,
+        and the unavailable latitude and longitude.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wsa_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ewsa.latitude', '-ewsa.longitude',
+                '-ewsa.elevation',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t\t\t',
+            '2\t486000000\t22000000\t3000',
+            '3\t-330000000\t-1510000000\t',
+            '4\t900000001\t1800000001\t-4096',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wsa_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 4}', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert any(f'48{sep}6000000° (486000000)' in stdout for sep in '.,')
+        assert any(f'300{sep}0 m (3000)' in stdout for sep in '.,')
+        assert 'unavailable (900000001)' in stdout
+        assert 'unavailable (1800000001)' in stdout
+
+    def test_wsa_extensions_and_routing(self, cmd_tshark, capture_file, test_env):
+        '''Every extension element of frame 3, including an unknown one and
+        a 2-octet length, the EDCA parameter set and the WAVE routing
+        advertisement.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wsa_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3',
+                '-Tfields', '-ewsa.ext.id', '-ewsa.ext.len', '-ewsa.advertiser_id',
+                '-ewsa.repeat_rate', '-ewsa.port', '-ewsa.ipv6', '-ewsa.mac',
+                '-ewsa.protocol_type', '-ewsa.edca.aci', '-ewsa.edca.txop',
+                '-ewsa.wra.lifetime', '-ewsa.wra.prefix', '-ewsa.wra.prefix_len',
+                '-ewsa.wra.gateway', '-ewsa.wra.dns',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[0] == '17,5,7,8,9,10,11,19,20,22,24,26,85,120,12,21,13,14'
+        assert fields[1].split(',')[12] == '202'
+        assert fields[2:] == [
+            'TEST-RSU', '50', '4500', '2001:db8::1,2001:db8::54',
+            '02:00:00:00:00:01,02:00:00:00:00:02', '0x00000083', '0,1,2,3',
+            '0,0,94,47', '1800', '2001:db8::', '64', '2001:db8::1', '2001:db8::53',
+        ]
+
+    def test_wsa_malformed(self, cmd_tshark, capture_file, test_env):
+        '''One error per frame: unsupported version, truncation, a channel
+        index without a Channel Info, trailing data, non-zero fill bits, a
+        fragmented length, a PSID beyond four octets and an out of range
+        latitude.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wsa_malformed.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tUnsupported WSA version 2 (expected 3)',
+            '2\tMalformed Packet (Exception occurred)',
+            '3\tChannel index refers to a Channel Info instance that is not present',
+            '4\tTrailing data after the WSA',
+            '5\tFill bits are not zero',
+            '6\tFragmented UPER length determinant not supported',
+            '7\tPSID beyond the 4-octet range is not supported,Malformed Packet (Exception occurred)',
+            '8\tLatitude out of range',
+        ]
+
+
 class TestDissectIeee17221:
     '''IEEE 1722.1 (AVDECC: ADP, ACMP and AECP with AEM commands and
     descriptors) over Ethernet (ethertype 0x22f0) and UDP (port 17220), from

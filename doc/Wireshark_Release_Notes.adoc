@@ -142,6 +142,7 @@ determined per link.
 --
 Authentication Service Based on EAP for Use with CoAP (CoAP-EAP)
 ETSI TS 102 232-1 LI-PS-PDU (LI-PS-PDU)
+IEEE 1609.3 WAVE Service Advertisement (WSA)
 Network MIDI 2.0
 --
 
