@@ -154261,3 +154261,122 @@ class TestDissectTnef:
         assert lines[0] == '2\t0x223e9f78\tIPM.Note\t\t'
         assert lines[1] == '4\t0x223e9f78\t\tplain subject\t1'
         assert all(l.split('\t')[1] == '0x223e9f78' for l in lines)
+
+
+class TestDissectTnsCoverage:
+    '''TNS (Oracle Transparent Network Substrate) over TCP 1521, from the
+    synthetic captures tns_coverage.pcap.gz (valid traffic) and
+    tns_coverage_malformed.pcap.gz (limits and malformed structures).'''
+
+    @staticmethod
+    def tshark(cmd_tshark, test_env, cap, *args, passes=((),)):
+        '''Run tshark over cap once for every entry of passes.'''
+        return [subprocess.check_output((cmd_tshark, *p, '-r', cap, *args),
+                                        encoding='utf-8', env=test_env, timeout=120)
+                for p in passes]
+
+    def test_tns_coverage_protocols(self, cmd_tshark, capture_file, test_env):
+        '''62 TNS frames and the two TCP segments of the split Data
+        Descriptor headers; no malformed packets and no error expert infos
+        in one and two passes.'''
+        cap = capture_file('tns_coverage.pcap.gz')
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 64
+        assert protocols.count('TNS') == 62
+        assert protocols.count('TCP') == 2
+        for out in self.tshark(cmd_tshark, test_env, cap, '-Y',
+                '_ws.malformed || _ws.expert.severity == 0x00800000',
+                passes=((), ('-2',))):
+            assert out == ''
+
+    def test_tns_coverage_packet_types(self, cmd_tshark, capture_file, test_env):
+        '''Every packet type, both length forms and the Data Descriptors.'''
+        cap = capture_file('tns_coverage.pcap.gz')
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-Y', 'frame.number <= 22',
+                '-Tfields', '-e_ws.col.info')
+        info = stdout.splitlines()
+        for text in ('Connect (1)', 'Accept (2)', 'Refuse (4)', 'Redirect (5)', 'Abort (9)',
+                'Marker (12)', 'Attention (13)', 'Control (14)', 'Acknowledge (3)', 'Null (7)',
+                'Resend (11)', 'Unknown (16)', 'Unknown (19)'):
+            assert any(text in line for line in info), text
+        assert sum('Data Descriptor (15)' in line for line in info) == 5
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-Y', 'tns.data_descriptor.size_mismatch',
+                '-Tfields', '-eframe.number')
+        assert stdout.split() == ['18']
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-Y', 'tns.refuse_data',
+                '-Tfields', '-etns.refuse_data')
+        assert stdout.strip() == '(DESCRIPTION=(ERR=12514))'
+
+    def test_tns_coverage_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''A VECTOR bind whose image is shorter than its header says is not
+        read past its end (heap over-read, "TNS: Fix a Data Descriptor
+        assert and several bad reads and loops"), and an OSON string that
+        is not UTF-8 gives a valid label.'''
+        cap = capture_file('tns_coverage.pcap.gz')
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-V', '-Y', 'frame.number == 23')
+        assert 'Bind 1 (VECTOR): vector image, 9 bytes' in stdout
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-V', '-Y', 'frame.number == 24',
+                '--log-fatal-domains', 'UTF-8')
+        assert 'Bind 1 (JSON): "' in stdout
+
+    def test_tns_coverage_rows_under_limit(self, cmd_tshark, capture_file, test_env):
+        '''66 rows of 1500 columns without data (the 67th, empty, row
+        holds only its token): 99000 items without data, just under TNS_MAX_EMPTY_COLUMNS (100000).'''
+        cap = capture_file('tns_coverage.pcap.gz')
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-V', '-O', 'tns', '-Y', 'frame.number == 26')
+        assert stdout.count('Column 1500 (VARCHAR): NULL (no data length)') == 66
+        assert 'columns without data' not in stdout
+
+    def test_tns_coverage_json_values(self, cmd_tshark, capture_file, test_env):
+        '''OSON documents rendered as JSON.'''
+        cap = capture_file('tns_coverage.pcap.gz')
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-V', '-Y', 'frame.number >= 27 && frame.number <= 29')
+        for text in ('[null, true, false]', '["abc", "hi", "x", "quo\\"\\\\"]',
+                '["2020-01-15 10:30:00", "2020-01-15 10:30:00", "2020-01-15 10:30:00.123456789", '
+                '"2020-01-15 13:00:00.000000005 +02:30"]',
+                '[0.5, -1.25, "3-04", "2 03:04:05.000000007"]', '["abcd", "ff", ""]',
+                '["FLOAT32[2]: [1.5, -2.5]"]', '{"id": 7, "name": "bob"}', '[true, [false]]'):
+            assert 'Column 1 (JSON): ' + text in stdout, text
+        assert 'OSON image, 10 bytes' in stdout       # unknown scalar tag: no rendering
+
+    def test_tns_coverage_numbers(self, cmd_tshark, capture_file, test_env):
+        '''NUMBER values with an integer part, a fraction, leading zeros in
+        the fraction and a sign; VECTOR values over 16 elements are cut.'''
+        cap = capture_file('tns_coverage.pcap.gz')
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-V', '-Y', 'frame.number == 31')
+        for n in ('12.5', '0.5', '-1.5', '0.001', '-0.05', '100', '0', '123456.789', '-12.25'):
+            assert 'Column 1 (NUMBER): ' + n + '\n' in stdout, n
+        assert ', ...]' in stdout
+
+    def test_tns_coverage_piggybacks(self, cmd_tshark, capture_file, test_env):
+        '''Server piggybacks of every opcode, three of them in one packet.'''
+        cap = capture_file('tns_coverage.pcap.gz')
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-Y', 'frame.number >= 32 && frame.number <= 42',
+                '-Tfields', '-e_ws.col.info')
+        info = stdout.splitlines()
+        for text in ('Query Cache Invalidation', 'Trace Event', 'Logical Transaction Id',
+                'OS PID (shared server)', 'Session State Sync', 'Extended Sync',
+                'Application Continuity Replay Context', 'Session Return', 'Session Signature'):
+            assert any(text in line for line in info), text
+
+    def test_tns_coverage_queues(self, cmd_tshark, capture_file, test_env):
+        '''An enqueue with recipients and an exception queue, a dequeue of a
+        given message id and correlation, both at field version 24.'''
+        cap = capture_file('tns_coverage.pcap.gz')
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-V', '-Y', 'frame.number == 55 || frame.number == 57')
+        assert 'Exception Queue: EXCQ' in stdout
+        assert 'Correlation: corr-1' in stdout
+        assert 'Correlation: corr-2' in stdout
+        assert 'Message Id: 202122232425262728292a2b2c2d2e2f' in stdout
+        assert 'Condition: priority = 1' in stdout
+
+    def test_tns_coverage_malformed_limits(self, cmd_tshark, capture_file, test_env):
+        '''The Data Descriptor whose header length is 0 and the message
+        with more than 100000 columns without data give error expert infos
+        instead of an assertion or a long loop.'''
+        cap = capture_file('tns_coverage_malformed.pcap.gz')
+        stdout, = self.tshark(cmd_tshark, test_env, cap, '-Y', '_ws.expert.message',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert 'Header length 0 is below the minimum of 8' in stdout
+        assert 'More than 100000 columns without data in one message, stopping' in stdout
