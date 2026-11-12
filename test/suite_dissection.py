@@ -155986,3 +155986,104 @@ class TestDissectTuxedo:
         assert lines[29] == '31\t0x73903842\t0x00000001\tCALL'
         assert lines[30] == '32\t0x73903842\t0x00000002\tREPLY'
         assert lines[31] == '33\t\t\tContinuation'
+
+
+class TestDissectTwamp:
+    # OWAMP-Test is reached only through Decode As; TWAMP-Control is on TCP
+    # port 862 and TWAMP-Test on the UDP ports of the accepted sessions.
+    OPTS = ('-d', 'udp.port==8760,owamp.test')
+
+    def test_twamp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Control messages, test packets of the accepted sessions (over
+        IPv4 and IPv6) and OWAMP-Test packets; nothing is malformed and
+        there are no expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('twamp_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 52
+            assert protocols.count('TWAMP-Control') == 41
+            assert protocols.count('TWAMP-Test') == 7
+            assert protocols.count('OWAMP-Test') == 3
+            assert protocols.count('TCP') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('twamp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_twamp_control_states(self, cmd_tshark, capture_file, test_env):
+        '''The state machine: greeting, setup response, server start,
+        request session, accept session, start sessions, ack and stop; the
+        Info column names each state with the accept value. A greeting split
+        over two segments is reassembled (frame 14 is the first part).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('twamp_coverage.pcap.gz'),
+                '-Y', 'twamp.control',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert [info[str(i)] for i in range(1, 8)] == [
+            'Server Greeting', 'Setup Response', 'Server Start, (OK)',
+            'Request Session', 'Accept Session, (OK)', 'Start Sessions',
+            'Start Sessions ACK, (OK)']
+        assert info['12'] == info['13'] == 'Stop Session'
+        assert '14' not in info and info['15'] == 'Server Greeting'
+        assert info['17'] == 'Server Start, (Error: Some aspect of request is not supported)'
+        assert info['20'] == 'Accept Session, (Error: Cannot perform request due to permanent resource limitations)'
+        assert info['21'] == 'Request Session'
+        assert info['24'] == 'Start Sessions ACK, (Error: Failure, reason unspecified (catch-all))'
+        assert info['36'] == 'Server Start, (Error: 77)'
+        assert info['42'] == 'Accept Session, (Error: Internal error)'
+
+    def test_twamp_control_fields(self, cmd_tshark, capture_file, test_env):
+        '''Modes of the greeting, ports, address family and addresses of the
+        session requests (IPv4, IPv6, zero), the stop message.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('twamp_coverage.pcap.gz'),
+                '-Y', 'twamp.control.sender_port || twamp.control.numsessions || twamp.control.modes',
+                '-Tfields', '-eframe.number', '-etwamp.control.modes',
+                '-etwamp.control.ipvn', '-etwamp.control.sender_port',
+                '-etwamp.control.receiver_port',
+                '-etwamp.control.sender_ipv4', '-etwamp.control.sender_ipv6',
+                '-etwamp.control.numsessions',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t') for l in stdout.splitlines()}
+        assert rows['1'][1] == '7'
+        assert rows['15'][1] == '1'
+        assert rows['4'][2:] == ['4', '41000', '5000', '0.0.0.0', '', '']
+        assert rows['18'][2:] == ['6', '42000', '5001', '', '2001:db8::1', '']
+        assert rows['30'][2:] == ['4', '43000', '5002', '192.0.2.77', '', '']
+        assert rows['37'][2:] == ['4', '44000', '5003', '192.0.2.5', '', '']
+        assert rows['46'][2:] == ['6', '45000', '5004', '', '::', '']
+        assert rows['12'][7] == '1' and rows['26'][7] == '3'
+
+    def test_twamp_test_packets(self, cmd_tshark, capture_file, test_env):
+        '''Test packets of the sessions accepted by the control connection
+        (UDP conversations set up in the first pass), sender and reflected
+        packets, the S, Z, scale and multiplier of the error estimate.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('twamp_coverage.pcap.gz'),
+                    '-Y', 'twamp.test || owamp.test',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-etwamp.test.seq_number', '-etwamp.test.sender_seq_number',
+                    '-etwamp.test.sender_ttl', '-etwamp.test.error_estimate.z',
+                    '-etwamp.test.error_estimate.scale',
+                    '-etwamp.test.error_estimate.multiplier',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '8\tTWAMP-Test\t1\t\t\tFalse\t5\t3',
+                '9\tTWAMP-Test\t1\t0\t255\tFalse,False\t3,5\t5,3',
+                '10\tTWAMP-Test\t2\t0\t0\tTrue,False\t1,0\t2,0',
+                '11\tTWAMP-Test\t2\t1\t255\tTrue,True\t0,0\t0,0',
+                '25\tTWAMP-Test\t7\t\t\tFalse\t1\t1',
+                '48\tTWAMP-Test\t1\t\t\tFalse\t0\t0',
+                '49\tTWAMP-Test\t1\t0\t255\tFalse,False\t0,0\t0,0',
+                '50\tOWAMP-Test\t1\t\t\tFalse\t5\t3',
+                '51\tOWAMP-Test\t2\t\t\tTrue\t5\t3',
+                '52\tOWAMP-Test\t3\t\t\tFalse\t0\t0',
+            ]
