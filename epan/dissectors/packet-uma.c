@@ -1224,7 +1224,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
 		/* 11.2.56 Mobile Station Classmark 3
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present
 		 */
-		de_ms_cm_3(tvb, urr_ie_tree, pinfo, offset, ie_len, NULL, 0);
+		de_ms_cm_3(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 57:
 		/* 11.2.57 LLC-PDU
@@ -1300,7 +1300,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
 		/* 11.2.65 Classmark Enquiry Mask
 		 * The rest of the IE is the Classmark Enquiry Mask coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		de_rr_cm_enq_mask(tvb, urr_ie_tree, pinfo, offset, ie_len, NULL, 0);
+		de_rr_cm_enq_mask(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 66:
 		/* 11.2.66 UTRAN Cell Identifier List
