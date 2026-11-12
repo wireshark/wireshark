@@ -152408,3 +152408,73 @@ class TestDissectZbeeZclMisc:
                  if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
         assert len(names) == 54
         assert {'Attribute: AbsMaxCoolSetpointLimit (0x0006)', 'Attribute: AbsMaxHeatSetpointLimit (0x0004)', 'Attribute: AbsMinCoolSetpointLimit (0x0005)', 'Attribute: AbsMinHeatSetpointLimit (0x0003)'} <= names
+
+
+class TestDissectZbeeZclProtoIface:
+    '''ZigBee ZCL Generic Tunnel cluster (0x0600) from the synthetic capture
+    zbee_zcl_proto_iface_coverage.pcapng.gz: ZEP on UDP 17754 (default), the
+    802.15.4 frames carry NWK, APS (Home Automation profile) and ZCL. There
+    is no security.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zbee_zcl_proto_iface_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_zbee_zcl_proto_iface_protocols(self, cmd_tshark, capture_file, test_env):
+        '''22 frames: 14 carry a Generic Tunnel command, 8 are attribute
+        commands; no malformed packets, expert infos or exceptions in one
+        and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            '-Tfields', '-eframe.protocols')
+        assert len(lines) == 22
+        tunnel = [l for l in lines if l.endswith('zbee_zcl_proto_iface.generic_tunnel')]
+        assert len(tunnel) == 14
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes, '-V')
+            assert not any('Malformed Packet' in l for l in lines)
+
+    def test_zbee_zcl_proto_iface_commands(self, cmd_tshark, capture_file, test_env):
+        '''Match Protocol Address (client to server), its response with the
+        responding device EUI-64 and the protocol address, and Advertise
+        Protocol Address; a response shorter than 9 octets decodes nothing.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 14', '-Tfields', '-eframe.number',
+                '-e_ws.col.info',
+                '-ezbee_zcl_proto_iface.generic_tunnel.responding_device_eui64',
+                '-ezbee_zcl_proto_iface.generic_tunnel.attr.proto_addr')
+        cols = [l.split('\t') for l in lines]
+        assert cols[0][1:] == ['ZCL Generic Tunnel: Match Protocol Address, Seq: 1', '', '0a:00:00:01']
+        assert cols[5][1:] == ['ZCL Generic Tunnel: Match Protocol Address Response, Seq: 6',
+                               '04:03:02:01:00:4b:12:00', '0a:00:00:01']
+        assert cols[7][1:] == ['ZCL Generic Tunnel: Match Protocol Address Response, Seq: 8', '', '']
+        assert cols[9][1:] == ['ZCL Generic Tunnel: Advertise Protocol Address, Seq: 10',
+                               '', '20:01:0d:b8:00:00:00:01']
+        assert cols[3][1] == 'ZCL Generic Tunnel: Unknown Command, Seq: 4'
+
+    def test_zbee_zcl_proto_iface_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The three attributes (maximum incoming/outgoing transfer size and
+        the protocol address) in Read Attributes Response, Report
+        Attributes and Write Attributes, from either direction.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {15, 18, 19, 20}', '-Tfields', '-eframe.number',
+                '-ezbee_zcl_proto_iface.generic_tunnel.attr.max_in_transfer_size',
+                '-ezbee_zcl_proto_iface.generic_tunnel.attr.max_out_transfer_size',
+                '-ezbee_zcl_proto_iface.generic_tunnel.attr.proto_addr')
+        assert lines == ['15\t0x05dc\t0x0500\tc0:a8:00:01',
+                         '18\t0x0240\t\t01:02',
+                         '19\t\t0x0240\t',
+                         '20\t0x0384\t\t09:08:07']
+
+    def test_zbee_zcl_proto_iface_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes give the same Info column and protocols.'''
+        one = self.fields(cmd_tshark, capture_file, test_env,
+                          '-Tfields', '-e_ws.col.info', '-eframe.protocols')
+        two = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                          '-Tfields', '-e_ws.col.info', '-eframe.protocols')
+        assert one == two
