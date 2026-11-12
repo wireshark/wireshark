@@ -154724,3 +154724,118 @@ class TestDissectTpncp:
                 '-2', '-Y', 'frame.number in {1355, 1356, 1357}', '-Tfields',
                 '-eframe.number', '-etcp.reassembled_in', '-etpncp.command_id')
         assert lines == ['1355\t1357\t', '1356\t1357\t', '1357\t\t1615']
+
+
+class TestDissectTr:
+    '''Token-Ring (pcap linktype 6) from the synthetic captures
+    tr_coverage.pcap.gz (default preferences) and tr_coverage_linux.pcap.gz
+    (frames mangled the way Linux 2.0.x drivers did, decoded with
+    tr.fix_linux_botches).'''
+
+    LINUX = ('-o', 'tr.fix_linux_botches:TRUE')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, name, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_tr_clean(self, cmd_tshark, capture_file, test_env):
+        '''The 29 frames of the main capture have no malformed packets or
+        error expert infos in one and two passes; the Linux capture has
+        none with the preference on.'''
+        for name, opts in (('tr_coverage.pcap.gz', ()),
+                           ('tr_coverage_linux.pcap.gz', self.LINUX)):
+            for passes in ((), ('-2',)):
+                lines = self.fields(cmd_tshark, capture_file, test_env, name,
+                        *passes, *opts,
+                        '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                        '-Tfields', '-eframe.number')
+                assert lines == []
+
+    def test_tr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The LLC payloads: SNAP IPv4 and ARP, NetBIOS, IPX, TEST, XID,
+        spanning tree, MAC and the reserved frame types.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tr_coverage.pcap.gz', '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 29
+        counts = {p: lines.count(p) for p in set(lines)}
+        assert counts == {'UDP': 20, 'ARP': 1, 'IPX': 1, 'LLC': 1,
+                          'NetBIOS': 1, 'STP': 1, 'TR MAC': 1, 'TR': 2,
+                          'XID': 1}
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tr_coverage.pcap.gz', '-Y', 'frame.number in {25, 26, 27}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-etr.frame_type')
+        assert lines == ['25\tActive Monitor Present\t0',
+                         '26\tToken-Ring Reserved\t2',
+                         '27\tToken-Ring Unknown\t3']
+
+    def test_tr_source_routing(self, cmd_tshark, capture_file, test_env):
+        '''RIF length, broadcast type, maximum frame size, direction and
+        the ring/bridge pairs of frames 3-12; RIF octets beyond the 30 the
+        dissector decodes are shown as extra bytes (frame 11).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tr_coverage.pcap.gz', '-2',
+                '-Y', 'frame.number in {1, 3, 4, 5, 11}', '-Tfields',
+                '-eframe.number', '-etr.sr', '-etr.rif_bytes',
+                '-etr.broadcast', '-etr.max_frame_size', '-etr.direction',
+                '-etr.rif', '-etr.rif.extra')
+        assert lines == [
+            '1\tFalse\t\t\t\t\t\t',
+            '3\tTrue\t2\t0\t0\t0\t\t',
+            '4\tTrue\t4\t32\t16\t128\t\t',
+            '5\tTrue\t6\t64\t32\t0\t031-4-253\t',
+            '11\tTrue\t31\t128\t16\t0\t031-4-253-6-475-8-697-A-8B9-C-ADB-E-CFE-0-F10-2-132-4-354-6-576-8-798-A-9BA-C-BDC\tdf',
+        ]
+        text = '\n'.join(self.fields(cmd_tshark, capture_file, test_env,
+                'tr_coverage.pcap.gz', '-V', '-Y', 'frame.number in {5, 6, 29}'))
+        assert 'Broadcast Type: Non-broadcast (64)' in text
+        assert 'Maximum Frame Size: 2052 (32)' in text
+        assert 'Direction: To originating station (<--) (128)' in text
+
+    def test_tr_access_and_frame_control(self, cmd_tshark, capture_file, test_env):
+        '''Priority, token/frame bit, monitor count, priority reservation
+        and PCF of frames 13-19.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tr_coverage.pcap.gz', '-Y', 'frame.number >= 13 && frame.number <= 19',
+                '-Tfields', '-eframe.number', '-etr.priority', '-etr.frame',
+                '-etr.monitor_cnt', '-etr.priority_reservation',
+                '-etr.frame_pcf')
+        assert lines == [
+            '13\t0\tFalse\t0\t0\t0', '14\t0\tTrue\t1\t7\t1',
+            '15\t1\tFalse\t0\t0\t2', '16\t7\tFalse\t0\t0\t3',
+            '17\t0\tFalse\t1\t0\t4', '18\t0\tFalse\t0\t7\t5',
+            '19\t7\tTrue\t1\t7\t6']
+
+    def test_tr_conversations(self, cmd_tshark, capture_file, test_env):
+        '''The Token-Ring conversation table.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tr_coverage.pcap.gz', '-q', '-zconv,tr')
+        text = '\n'.join(lines)
+        assert 'Token-Ring Conversations' in text
+        assert '80:00:00:00:00:02    <-> c0:00:00:00:00:01' in text
+        assert '40:00:00:00:00:09    <-> Broadcast' in text
+
+    def test_tr_linux_mangled_frames(self, cmd_tshark, capture_file, test_env):
+        '''With tr.fix_linux_botches the repeated leading octets are
+        skipped (frames 1-4), RIF-looking octets in a frame without the
+        routing bit are recognised before SNAP and IPX (5-7), the empty
+        18 octet RIF and the fake LLC and SNAP header are skipped (11-14).
+        Every frame, including the 16 to 19 octets long ones, is read
+        within the captured data.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tr_coverage_linux.pcap.gz', *self.LINUX, '-2',
+                '-Tfields', '-eframe.number', '-etr.sr', '-etr.rif_bytes',
+                '-e_ws.col.protocol', '-e_ws.expert.message')
+        note = 'Empty RIF from Linux 2.0.x driver. The sniffing NIC is also running a protocol stack.'
+        assert lines == [
+            '1\tFalse\t\tUDP\t', '2\tFalse\t\tUDP\t', '3\tFalse\t\tUDP\t',
+            '4\tFalse\t\tUDP\t', '5\tTrue\t2\tUDP\t', '6\tTrue\t2\tIPX\t',
+            '7\tTrue\t2\tIPX\t', '8\tFalse\t\tLLC\t', '9\tFalse\t\tLLC\t',
+            '10\tFalse\t\tLLC\t', f'11\tFalse\t\tUDP\t{note}',
+            f'12\tFalse\t\tIPX\t{note}',
+            f'13\tFalse\t\tUDP\t{note},Linux 2.0.x fake LLC and SNAP header',
+            f'14\tTrue\t2\tUDP\t{note}', '15\tTrue\t4\tUDP\t',
+            '16\tFalse\t\tLLC\t', '17\tFalse\t\tLLC\t']
