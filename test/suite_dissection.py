@@ -157966,3 +157966,132 @@ class TestDissectUdpcp:
                 '-eudpcp.c', '-eudpcp.checksum', '-exml.tag')
         assert lines[0].startswith('2\t0x00\t0x00000000\t')
         assert lines[1].startswith('8\t0x01\t0x12345678')
+
+
+class TestDissectUds:
+    '''UDS from the synthetic capture uds_coverage.pcapng.gz: DoIP
+    diagnostic messages over TCP 13400 (frames 1-250: 134 requests, 114
+    replies from ECU 0x1010 to tester 0x0e80, and a second ECU) and nine
+    Exported PDU frames naming "uds" (251-259, no addresses).'''
+
+    ERROR = '_ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('uds_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_uds_protocols(self, cmd_tshark, capture_file, test_env):
+        '''259 frames: 254 UDS and 5 OBD-II (service identifiers below 0x10
+        go to the OBD-II dissector by default). No malformed packet and no
+        error expert info, in one and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 259
+        assert lines.count('UDS') == 254 and lines.count('OBD-II') == 5
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || ' + self.ERROR, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'uds.dissect_small_sids_with_obd_ii:FALSE',
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines.count('UDS') == 259
+
+    def test_uds_services(self, cmd_tshark, capture_file, test_env):
+        '''Every service of the capture and how many frames carry it.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-euds.sid')
+        counts = {}
+        for l in lines:
+            for sid in l.split(','):
+                if sid:
+                    counts[sid] = counts.get(sid, 0) + 1
+        assert counts == {
+            '0x10': 6, '0x11': 6, '0x14': 3, '0x19': 68, '0x22': 11, '0x23': 3,
+            '0x24': 3, '0x27': 18, '0x28': 6, '0x29': 29, '0x2a': 5, '0x2c': 8,
+            '0x2e': 3, '0x2f': 7, '0x31': 9, '0x34': 3, '0x35': 2, '0x36': 4,
+            '0x37': 4, '0x38': 12, '0x3d': 2, '0x3e': 6, '0x3f': 4, '0x84': 4,
+            '0x85': 5, '0x86': 14, '0x87': 7, '0x99': 2,
+        }
+
+    def test_uds_values(self, cmd_tshark, capture_file, test_env):
+        '''Addresses from DoIP (source and target, hex), the enhanced P2
+        timer (x10), the VIN of a Read Data By Identifier reply, and the
+        Exported PDU frames, which have no addresses.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 135, 252, 254}', '-Tfields', '-eframe.number',
+                '-euds.diag_addr_source', '-euds.diag_addr_target',
+                '-euds.dsc.p2_server_time_enhanced', '-euds.did_f190.vin')
+        assert lines == [
+            '1\t0x0e80\t0x1010\t\t',
+            '135\t0x1010\t0x0e80\t5000\t',
+            '252\t\t\t5000\t',
+            '254\t\t\t\tWVWZZZ1JZXW000001',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'uds.er.power_down_time == 255', '-Tfields', '-eframe.number')
+        assert len(lines) == 1
+
+    def test_uds_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of a request and a reply, and the one line variant.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 135}', '-Tfields', '-e_ws.col.info')
+        assert [' '.join(l.split()) for l in lines] == [
+            'Diagnostic message Request Diagnostic Session Control Extended Diagnostic Session',
+            'Diagnostic message Reply Diagnostic Session Control Extended Diagnostic Session '
+            'P2-default: 50ms P2-enhanced: 5000ms',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'uds.do_clear_info_col:TRUE',
+                '-Y', 'frame.number == 1', '-Tfields', '-e_ws.col.info')
+        assert ' '.join(lines[0].split()) == 'Request Diagnostic Session Control Extended Diagnostic Session'
+
+    def test_uds_names(self, cmd_tshark, capture_file, test_env):
+        '''Names from the UAT tables show in the tree and the Info column
+        (data identifier 0xf190 of ECU 0x1010; "any" ECU for the
+        session identifier) and for the ECU address.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'uat:UDS_data_identifiers:"1010","f190","My VIN"',
+                '-o', 'uat:UDS_data_identifiers:"ffffffff","f186","Any session"',
+                '-o', 'uat:UDS_diagnostic_addresses:"1010","Engine ECU"',
+                '-Y', 'frame.number in {39, 40}', '-Tfields', '-eframe.number',
+                '-euds.diag_addr_target_name', '-e_ws.col.info')
+        assert lines[0].startswith('39\tEngine ECU\t')
+        assert '0xf190 (My VIN)' in lines[0]
+        assert '0xf186 (Any session)' in lines[1]
+
+    def test_uds_certificates(self, cmd_tshark, capture_file, test_env):
+        '''The certificates of the Authentication service are bytes by
+        default; with a decoding strategy they are dissected as X.509
+        (hand made certificates, filler signature).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'x509af.serialNumber', '-Tfields', '-eframe.number')
+        assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'uds.cert_decode_strategy:0',
+                '-Y', 'x509af.serialNumber', '-Tfields', '-eframe.number',
+                '-ex509af.serialNumber')
+        assert [l.split('\t')[0] for l in lines] == ['59', '60', '61', '62', '200', '201']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'uds.cert_decode_strategy:0', '-Y', '_ws.malformed || ' + self.ERROR,
+                '-Tfields', '-eframe.number')
+        assert lines == []
+
+    def test_uds_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''UDS keeps no state: the Info column and the main fields are the
+        same in both passes.'''
+        args = ('-Tfields', '-e_ws.col.info', '-euds.sid', '-euds.diag_addr')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert len(one) == 259
+        assert one == two
+
+    def test_uds_dtc_severity_record(self, cmd_tshark, capture_file, test_env):
+        '''The "DTC and Severity Record" subtree covers the whole record:
+        6 octets with severity and functional unit, 5 octets without (it
+        was always 4 before "UDS: Limit Algorithm Indicator BER decoding to its 16 bytes")'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'uds.rdtci.dtc_severity', '-T', 'pdml')
+        sizes = [int(l.split('size="')[1].split('"')[0]) for l in lines
+                 if 'show="DTC and Severity Record' in l]
+        assert sizes == [6, 6, 6, 5, 5]
