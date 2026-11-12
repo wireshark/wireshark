@@ -152192,3 +152192,82 @@ class TestDissectZbeeZclHvac:
                  if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
         assert len(names) == 36
         assert {'Attribute: Alarm Mask (0x0022)', 'Attribute: Capacity (0x0013)', 'Attribute: Control Mode (0x0021)', 'Attribute: Dehumidification Cooling (0x0001)'} <= names
+
+
+class TestDissectZbeeZclLighting:
+    CAP = 'zbee-zcl-lighting_coverage.pcap.gz'
+
+    def test_zbee_zcl_lighting_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ZigBee ZCL (reached through the 802.15.4 and
+        ZigBee NWK/APS dissectors), the cluster dissectors get their
+        frames, and nothing is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = [line.split(':')[-1] for line in stdout.splitlines()]
+        assert len(protocols) == 1237
+        assert {p: protocols.count(p) for p in set(protocols)} == {'zbee_zcl': 1160, 'zbee_zcl_lighting.color_ctrl': 77}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_zbee_zcl_lighting_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the first frames of each cluster dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(line.split('\t') for line in stdout.splitlines())
+        assert [info[n] for n in ['1', '2']] == [
+            'ZCL Color Control: Move to Hue, Seq: 1',
+            'ZCL Color Control: Move to Hue, Seq: 1',
+        ]
+
+    def test_zbee_zcl_lighting_commands(self, cmd_tshark, capture_file, test_env):
+        '''The cluster specific commands that are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'not frame.protocols ~ "zbee_zcl$"',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        commands = {line.rsplit(', Seq: ', 1)[0] for line in stdout.splitlines()}
+        assert sorted(commands) == [
+            'ZCL Color Control: Color Loop Set',
+            'ZCL Color Control: Enhanced Move Hue',
+            'ZCL Color Control: Enhanced Move to Hue',
+            'ZCL Color Control: Enhanced Move to Hue and Saturation',
+            'ZCL Color Control: Enhanced Step Hue',
+            'ZCL Color Control: Move Color',
+            'ZCL Color Control: Move Color Temperature',
+            'ZCL Color Control: Move Hue',
+            'ZCL Color Control: Move Saturation',
+            'ZCL Color Control: Move to Color',
+            'ZCL Color Control: Move to Color Temperature',
+            'ZCL Color Control: Move to Hue',
+            'ZCL Color Control: Move to Hue and Saturation',
+            'ZCL Color Control: Move to Saturation',
+            'ZCL Color Control: Step Color',
+            'ZCL Color Control: Step Color Temperature',
+            'ZCL Color Control: Step Hue',
+            'ZCL Color Control: Step Saturation',
+            'ZCL Color Control: Stop Move Step',
+            'ZCL Color Control: Unknown Command',
+        ]
+
+    def test_zbee_zcl_lighting_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The attribute names the cluster dissectors know (66 of
+        them are shown with their name in the capture).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        names = {line.strip() for line in stdout.splitlines()
+                 if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
+        assert len(names) == 66
+        assert {'Attribute: Ballast Factor Adjustment (0x0015)', 'Attribute: Ballast Status (0x0002)', 'Attribute: Color Capabilities (0x400a)', 'Attribute: Color Loop Active (0x4002)'} <= names
