@@ -22684,18 +22684,17 @@ class TestDissectC15ch:
 class TestDissectC2p:
     def test_c2p_protocols(self, cmd_tshark, capture_file, test_env):
         '''Every C2P message type decodes without malformed packets or
-        warnings, in one and two passes.'''
-        stdout = subprocess.check_output((cmd_tshark,
+        warnings, in one and two passes. Only C2P and the layers below it
+        are enabled, so the result does not change when a dissector is
+        added for one of the payloads C2P hands off.'''
+        only_c2p = ('--only-protocols', 'eth,ethertype,ip,udp,c2p')
+        stdout = subprocess.check_output((cmd_tshark, *only_c2p,
                 '-r', capture_file('c2p_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
-        protocols = stdout.split()
-        assert len(protocols) == 40
-        assert protocols.count('C2P') == 28
-        assert protocols.count('DISCARD') == 9
-        assert protocols.count('MAPEM') == 3
+        assert stdout.split() == ['C2P'] * 40
         for passes in ((), ('-2',)):
-            stdout = subprocess.check_output((cmd_tshark, *passes,
+            stdout = subprocess.check_output((cmd_tshark, *passes, *only_c2p,
                     '-r', capture_file('c2p_coverage.pcap.gz'),
                     '-Y', '_ws.malformed || _ws.expert.severity >= warning',
                     '-Tfields', '-eframe.number',
@@ -22771,26 +22770,27 @@ class TestDissectC2p:
         assert 'Type: Unknown (160)' in stdout
 
     def test_c2p_fac_inject(self, cmd_tshark, capture_file, test_env):
-        '''Injected facility packets: EU messages go to ITS, other message
-        sets (no dissector available) to data; PSIDs are shown p-encoded.'''
+        '''Injected facility packets: EU messages go to ITS; PSIDs are
+        shown p-encoded. Which other payloads have a dissector changes over
+        time, so the test does not look at them.'''
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('c2p_coverage.pcap.gz'),
                 '-Y', 'c2p.fac.msg_type',
                 '-Tfields', '-ec2p.fac.msg_type', '-ec2p.fac.payload_length',
-                '-eits.stationId', '-edsrc.msgIssueRevision', '-edata.len',
+                '-eits.stationId', '-edsrc.msgIssueRevision',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == [
-            '3\t8\t1234\t42\t',
-            '5\t8\t4294967295\t127\t',
-            '111\t11\t\t\t11',
-            '100\t11\t\t\t11',
-            '132\t12\t\t\t12',
-            '202\t15\t\t\t15',
-            '0\t6\t\t\t6',
-            '50\t7\t\t\t7',
-            '150\t8\t\t\t8',
-            '300\t0\t\t\t',
-            '10\t8\t0\t42\t',
+            '3\t8\t1234\t42',
+            '5\t8\t4294967295\t127',
+            '111\t11\t\t',
+            '100\t11\t\t',
+            '132\t12\t\t',
+            '202\t15\t\t',
+            '0\t6\t\t',
+            '50\t7\t\t',
+            '150\t8\t\t',
+            '300\t0\t\t',
+            '10\t8\t0\t42',
         ]
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('c2p_coverage.pcap.gz'),
