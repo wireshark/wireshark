@@ -132,6 +132,7 @@ static int proto_pn_io_parameterserver;
 static int proto_pn_io_implicitar;
 int proto_pn_io_apdu_status;
 int proto_pn_io_time_aware_status;
+int proto_pn_io_station_info;
 
 static int hf_pn_io_opnum;
 static int hf_pn_io_reserved16;
@@ -5794,7 +5795,7 @@ static bool gen_conversations(packet_info *pinfo, uint32_t current_fake_aruuid) 
                         stationInfo* station_info = wmem_new0(wmem_file_scope(), stationInfo);
                         init_pnio_rtc1_station(station_info);
                         station_info->filled_with_objects = false;
-                        conversation_add_proto_data(conversation, current_fake_aruuid, station_info);
+                        pn_add_station_info(conversation, current_fake_aruuid, station_info);
                     }
                 }
             }
@@ -5859,7 +5860,7 @@ static void extract_pnio_objects_withoutAR(packet_info* pinfo)
            Write/read request frames create a conversation_t, but response frames don't */
         conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
         if (conversation != NULL) {
-            station_info = (stationInfo*)conversation_get_proto_data(conversation, current_fake_aruuid);
+            station_info = pn_find_station_info(conversation, current_fake_aruuid);
         }
         if (conversation == NULL || station_info == NULL) {
             for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
@@ -5875,7 +5876,7 @@ static void extract_pnio_objects_withoutAR(packet_info* pinfo)
                         station_info = wmem_new0(wmem_file_scope(), stationInfo);
                         init_pnio_rtc1_station(station_info);
                         station_info->filled_with_objects = false;
-                        conversation_add_proto_data(conversation, current_fake_aruuid, station_info);
+                        pn_add_station_info(conversation, current_fake_aruuid, station_info);
                     }
                     else if (memcmp(stored_conversation->device->data, pinfo->dl_dst.data, 6) == 0 &&
                         memcmp(stored_conversation->controller->data, pinfo->dl_src.data, 6) == 0) {
@@ -5883,7 +5884,7 @@ static void extract_pnio_objects_withoutAR(packet_info* pinfo)
                         station_info = wmem_new0(wmem_file_scope(), stationInfo);
                         init_pnio_rtc1_station(station_info);
                         station_info->filled_with_objects = false;
-                        conversation_add_proto_data(conversation, current_fake_aruuid, station_info);
+                        pn_add_station_info(conversation, current_fake_aruuid, station_info);
                     }
                 }
             }
@@ -5891,7 +5892,7 @@ static void extract_pnio_objects_withoutAR(packet_info* pinfo)
     }
     conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
     if (conversation != NULL) {
-        station_info = (stationInfo*)conversation_get_proto_data(conversation, current_fake_aruuid);
+        station_info = pn_find_station_info(conversation, current_fake_aruuid);
         if (station_info != NULL) {
             if (!station_info->filled_with_objects) {
                 /* XXX - Opening a file and parsing it can be slow. We should
@@ -15058,11 +15059,11 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                 }
             }
 
-            station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+            station_info = pn_find_station_info(conversation, current_aruuid);
             if (station_info == NULL) {
                 station_info = wmem_new0(wmem_file_scope(), stationInfo);
                 init_pnio_rtc1_station(station_info);
-                conversation_add_proto_data(conversation, current_aruuid, station_info);
+                pn_add_station_info(conversation, current_aruuid, station_info);
             }
             u16NumberOfIODataObjectsInCR += u16NumberOfIODataObjectsInAPI;
 
@@ -16040,7 +16041,7 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
             current_aruuid = current_aruuid_frame->aruuid.data1;
         }
 
-        station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+        station_info = pn_find_station_info(conversation, current_aruuid);
 
         if (station_info != NULL) {
             pn_find_dcp_station_info(station_info, conversation);
@@ -16248,7 +16249,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
         current_aruuid = current_aruuid_frame->aruuid.data1;
     }
 
-    station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+    station_info = pn_find_station_info(conversation, current_aruuid);
 
     if (station_info != NULL) {
         pn_find_dcp_station_info(station_info, conversation);
@@ -16515,7 +16516,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
                     current_aruuid = current_aruuid_frame->aruuid.data1;
                 }
 
-                station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+                station_info = pn_find_station_info(conversation, current_aruuid);
 
                 if (station_info != NULL) {
                     pn_find_dcp_station_info(station_info, conversation);
@@ -19289,7 +19290,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
             current_aruuid = current_aruuid_frame->aruuid.data1;
         }
 
-        station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+        station_info = pn_find_station_info(conversation, current_aruuid);
 
         if (station_info != NULL) {
             pn_find_dcp_station_info(station_info, conversation);
@@ -19373,7 +19374,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
         current_aruuid = current_aruuid_frame->aruuid.data1;
     }
 
-    station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+    station_info = pn_find_station_info(conversation, current_aruuid);
 
     if (station_info != NULL) {
         pn_find_dcp_station_info(station_info, conversation);
@@ -24934,6 +24935,7 @@ proto_register_pn_io (void)
     proto_pn_io_implicitar = proto_register_protocol_in_name_only("PROFINET IO (Implicit Ar)", "PNIO (Implicit Ar)", "pn_io_implicitar", proto_pn_io, FT_PROTOCOL);
     proto_pn_io_apdu_status = proto_register_protocol_in_name_only("PROFINET IO (Apdu Status)", "PNIO (Apdu Status)", "pn_io_apdu_status", proto_pn_io, FT_PROTOCOL);
     proto_pn_io_time_aware_status = proto_register_protocol_in_name_only("PROFINET IO (Time Aware Status)", "PNIO (Time Aware Status)", "pn_io_time_aware_status", proto_pn_io, FT_PROTOCOL);
+    proto_pn_io_station_info = proto_register_protocol_in_name_only("PROFINET IO (Station Info)", "PNIO (Station Info)", "pn_io_station_info", proto_pn_io, FT_PROTOCOL);
 
     proto_register_field_array (proto_pn_io, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
