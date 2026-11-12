@@ -155061,3 +155061,88 @@ class TestDissectTrel:
                 if field.get('show') == 'Header':
                     sizes.append(field.get('size'))
         assert sizes == ['16', '24']
+
+
+class TestDissectTrill:
+    '''TRILL (ethertype 0x22f3) from the synthetic capture
+    trill_coverage.pcap.gz: every version, reserved, multi-destination,
+    option length and nickname range, nested TRILL and several inner
+    frame types.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('trill_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_trill_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 29 frames are TRILL; no malformed packets or error or
+        warning expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'trill', '-Tfields', '-eframe.number')
+        assert len(lines) == 29
+
+    def test_trill_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''Version, reserved, multi-destination, option length and hop
+        count of a few frames, and the options bytes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 4, 7, 10, 25}', '-Tfields',
+                '-eframe.number', '-etrill.version', '-etrill.reserved',
+                '-etrill.multi_dst', '-etrill.op_len', '-etrill.hop_cnt',
+                '-etrill.options')
+        assert lines == [
+            '1\t0\t0\tFalse\t0\t63\t',
+            '2\t0\t0\tTrue\t0\t10\t',
+            '4\t2\t0\tFalse\t0\t63\t',
+            '7\t0\t2\tFalse\t0\t63\t',
+            '10\t0\t0\tFalse\t2\t63\t00070e151c232a31',
+            lines[5],
+        ]
+        assert lines[5].startswith('25\t2\t3\tTrue\t31\t63\t00070e15')
+        assert len(lines[5].split('\t')[6]) == 31 * 4 * 2
+
+    def test_trill_nicknames(self, cmd_tshark, capture_file, test_env):
+        '''Every nickname range (frames 14-23): not specified, valid,
+        Any RBridge, OOMF, reserved and permanently reserved.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {14, 21, 22, 23}', '-Tfields',
+                '-eframe.number', '-etrill.egress_nick', '-etrill.ingress_nick')
+        assert lines == ['14\t0\t65471', '21\t65520\t0', '22\t65534\t1',
+                         '23\t65535\t4660']
+        text = '\n'.join(self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 7, 14, 16, 17, 18, 23}', '-V'))
+        for expected in (
+                'Version: Unallocated Version (2)',
+                'Reserved: Illegal Value (2)',
+                'Egress/Root RBridge Nickname: Nickname Not Specified (0)',
+                'Ingress RBridge Nickname: Valid Nickname (65471)',
+                'Egress/Root RBridge Nickname: Valid Nickname (4660)',
+                'Ingress RBridge Nickname: OOMF (65473)',
+                'Egress/Root RBridge Nickname: Any RBridge (65472)',
+                'Ingress RBridge Nickname: Reserved for Future Specification (65474)',
+                'Egress/Root RBridge Nickname: Permanently Reserved (65535)'):
+            assert expected in text
+
+    def test_trill_inner_frames(self, cmd_tshark, capture_file, test_env):
+        '''The inner Ethernet frame (no FCS) is dissected: ARP, UDP, a
+        VLAN tag, IPv6, an unknown ethertype and three nested TRILL
+        frames (frame 26).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 26, 28}', '-Tfields',
+                '-eframe.number', '-eframe.protocols', '-e_ws.col.protocol')
+        assert lines == [
+            '2\teth:ethertype:trill:eth:ethertype:arp\tARP',
+            '26\teth:ethertype:trill:eth:ethertype:trill:eth:ethertype:trill:'
+            'eth:ethertype:trill:eth:ethertype:ip:udp:data\tUDP',
+            '28\teth:ethertype:trill:eth:ethertype:data\t0x88b5',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {27, 29}', '-Tfields',
+                '-eframe.number', '-evlan.id', '-eipv6.nxt')
+        assert lines == ['27\t100\t', '29\t\t17']
