@@ -152791,3 +152791,108 @@ class TestDissectZbeeZdpBinding:
             '50\t3\t2\t\t',
             '51\t0\t0\t\t',
         ]
+
+
+class TestDissectZbeeZdp:
+    CAP = 'zbee_zdp_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, cap, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file(cap), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_zbee_zdp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 236 frames are ZigBee ZDP messages (one of every cluster, and
+        ZigBee 2004 frames) and none is malformed or has an error expert
+        info, in one and two passes; 90 of them are deprecated commands (a
+        warning).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['ZigBee ZDP'] * 236
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'zbee_zdp.zdo_command_deprecated', '-Tfields', '-eframe.number')
+        assert len(lines) == 90
+
+    def test_zbee_zdp_end_device_bind(self, cmd_tshark, capture_file, test_env):
+        '''End_Device_Bind_req: one octet cluster counts (they were read as
+        two octets and ended as a malformed packet).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'zbee_zdp.in_count && frame.number >= 95 && frame.number <= 98',
+                '-Tfields', '-eframe.number', '-ezbee_zdp.in_count', '-ezbee_zdp.in_cluster',
+                '-ezbee_zdp.out_count', '-ezbee_zdp.out_cluster')
+        assert lines == [
+            '95\t1\t0x0006\t1\t0x0008',
+            '96\t2\t0x0006,0x0008\t3\t0x0019,0x000a,0x000b',
+            '97\t0\t\t0\t',
+            '98\t1\t0x0006\t1\t0x0008',
+        ]
+
+    def test_zbee_zdp_channel_masks(self, cmd_tshark, capture_file, test_env):
+        '''Channel page and channel list of a Network Update Request.'''
+        stdout = '\n'.join(self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number >= 221 && frame.number <= 233', '-V', '-O', 'zbee_zdp'))
+        shown = [l.strip() for l in stdout.splitlines()
+                 if l.strip().startswith(('Channels:', 'Channel Page:'))]
+        assert shown == [
+            'Channel Page: 0', 'Channels: 11-26',
+            'Channel Page: 5', 'Channels: 11-26',
+            'Channel Page: 10', 'Channels: 11-26',
+            'Channel Page: 15', 'Channels: 11-26',
+            'Channel Page: 20', 'Channels: 11-26',
+            'Channel Page: 25', 'Channels: 11-26',
+            'Channel Page: 30', 'Channels: 11-26',
+            'Channel Page: 0', 'Channels: 11',
+            'Channel Page: 0', 'Channels: 11',
+            'Channel Page: 0', 'Channels: 11, 13, 20-21',
+            'Channel Page: 0', 'Channels: 26',
+            'Channel Page: 0', 'Channels: 0',
+            'Channel Page: 0', 'Channels: 0-26',
+        ]
+
+    def test_zbee_zdp_node_descriptor(self, cmd_tshark, capture_file, test_env):
+        '''Node descriptor: every node type (including the reserved one)
+        and the flags of an end device, and the stack compliance
+        revision in the Info column.'''
+        stdout = '\n'.join(self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number >= 216 && frame.number <= 219', '-V', '-O', 'zbee_zdp'))
+        for text in ('Type: 0 (Coordinator)', 'Type: 1 (Router)', 'Type: 2 (End Device)',
+                     'Type: 3 (Reserved)', '868MHz BPSK Band: True',
+                     'Fragmentation Supported: True'):
+            assert text in stdout
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 220', '-Tfields', '-e_ws.col.info')
+        assert lines == ['Node Descriptor Response, Rev: 23, Nwk Addr: 0x1234, Status: Success']
+
+    def test_zbee_zdp_unknown_cluster(self, cmd_tshark, capture_file, test_env):
+        '''A cluster that is not a ZDP cluster (also with the ZigBee 2004
+        response bit) is shown as unknown with the payload as data.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number >= 234', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-edata.data')
+        assert lines == [
+            '234\tUnknown Cluster\t010203',
+            '235\tUnknown Cluster\t010203',
+            '236\tUnknown Cluster\t0102',
+        ]
+
+    def test_zbee_zdp_zigbee_2004(self, cmd_tshark, capture_file, test_env):
+        '''ZigBee 2004 frames (one octet cluster ids and a response bit
+        mapped to the 2007 numbering, no extended addresses).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {6, 12, 19, 24, 98, 105, 182, 183}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '6\tNode Descriptor Request, Nwk Addr: 0x1201',
+            '12\tMatch Descriptor Request, Nwk Addr: 0xff07, Profile: 0x0104',
+            "19\tSet User Descriptor Request, Nwk Addr: 0x1211, Desc: 'kitchen lamp'",
+            '24\tStore Node Descriptor Request, Address: TexasInstrum_00:01:02:03:04',
+            '98\tEnd Device Bind Request, Target: 0x0008',
+            '105\tBind Request, On/Off (Cluster ID: 0x0006), Dst: TexasInstrum_00:aa:bb:cc:dd',
+            '182\tNetwork Discovery Response, Status: Success',
+            '183\tNetwork Discovery Response, Status: Reserved',
+        ]
