@@ -155563,3 +155563,210 @@ class TestDissectTtePcf:
             ), encoding='utf-8', env=test_env)
         assert 'Type: coldstart ack frame (0x8)' in stdout
         assert 'Type: coldstart frame (0x4)' in stdout
+
+
+class TestDissectTtl:
+    # The next layer (Ethernet, CAN, LIN, FlexRay payloads) is dissected only
+    # with this preference
+    OPTS = ('-o', 'ttl.dissect_next_layer:TRUE')
+
+    @staticmethod
+    def addr(cascade, device, function):
+        return (cascade << 10) | (device << 6) | function
+
+    def test_ttl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''TTL entries in Ethernet frames (ethertype 0x4040); with the next
+        layer preference the Ethernet payloads show as UDP. Nothing is
+        malformed and the only expert infos are the two warnings for the
+        nesting limit and the reserved status, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('ttl_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 70
+            assert protocols.count('TTL') == 57
+            assert protocols.count('UDP') == 13
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('ttl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('ttl_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '67\tnested segmented messages too deep',
+                '68\treserved value for segmented data entry status',
+            ]
+
+    def test_ttl_default_prefs(self, cmd_tshark, capture_file, test_env):
+        '''Without the next layer preference every frame stays TTL.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ttl_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 70
+        assert protocols.count('TTL') == 70
+
+    def test_ttl_entries(self, cmd_tshark, capture_file, test_env):
+        '''Entry types and the Info column: bus data per interface type
+        (Ethernet, CAN, LIN, FlexRay, unsupported), the other entry types
+        and unknown ones.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ttl_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ettl.trace_data.entry.type',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['1'] == ['0', 'TTL - Bus Data Entry (Ethernet)']
+        assert info['9'] == ['0', 'TTL - Bus Data Entry (Ethernet)']
+        assert all(info[str(i)][1] == 'TTL - Bus Data Entry (CAN)' for i in range(12, 16))
+        assert all(info[str(i)][1] == 'TTL - Bus Data Entry (LIN)' for i in range(16, 19))
+        assert all(info[str(i)][1].startswith('TTL - Bus Data Entry (FlexRay)') for i in range(19, 25))
+        assert info['25'][1] == 'TTL - Bus Data Entry (Unsupported)'
+        assert [info[str(i)][1] for i in range(26, 35)] == [
+            'TTL - Command Entry', 'TTL - Reserved', 'TTL - Journal Entry',
+            'TTL - Send-Frame Entry', 'TTL - Padding Entry',
+            'TTL - Software Data Entry', 'TTL - Dropped Frames Entry',
+            'TTL - Unknown Entry', 'TTL - Unknown Entry']
+        assert [info[str(i)][0] for i in range(26, 35)] == ['1', '2', '3', '5', '6', '7', '8', '9', '15']
+
+    def test_ttl_ethernet_status(self, cmd_tshark, capture_file, test_env):
+        '''The Ethernet status values, the PHY status entries (cascade 0
+        and from a TAP) and the dissected payloads.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('ttl_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ettl.trace_data.entry.status_info.eth_type',
+                '-ettl.trace_data.entry.eth_phy_status.data',
+                '-ettl.trace_data.entry.eth_phy_status.phy_addr',
+                '-ettl.trace_data.entry.eth_phy_status.valid',
+                '-eudp.dstport',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert [rows[str(i)][0] for i in range(1, 9)] == ['0x0001', '0x0002', '0x0004', '0x0008', '0x0010', '0x2000', '0x4000', '0x0100']
+        assert rows['9'][0] == '0x8000'
+        assert rows['9'][1] == '0x1234,0x00ff'
+        assert rows['9'][3] == 'True,False'
+        assert rows['10'][2:4] == ['0x02,0x0d', 'True,True']
+        assert rows['1'][4] == '45001'
+
+    def test_ttl_can_lin_flexray(self, cmd_tshark, capture_file, test_env):
+        '''CAN ids and flags, LIN identifiers and FlexRay item types.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('ttl_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 12 && frame.number <= 24',
+                '-Tfields', '-eframe.number', '-ettl.trace_data.entry.can_id',
+                '-ettl.trace_data.entry.status_info.can_dlc',
+                '-ettl.trace_data.entry.status_info.lin_id',
+                '-ettl.trace_data.entry.status_info.fr_type',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['12'][0:2] == ['291', '8']
+        assert rows['13'][0:2] == ['28036591', '4']
+        assert rows['14'][0:2] == ['119', '15']
+        assert rows['15'][0:2] == ['85', '0']
+        assert [rows[str(i)][2] for i in (16, 17, 18)] == ['2', '45', '1']
+        assert [rows[str(i)][3] for i in range(19, 25)] == ['0x0000', '0x0001', '0x0002', '0x0003', '0x0004', '0x0007']
+
+    def test_ttl_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Destination and source addresses of every logger device and of the
+        TAP devices (the padding entries 35-54).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ttl_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 35 && frame.number <= 54',
+                '-Tfields', '-eframe.number', '-ettl.trace_data.entry.dst_addr',
+                '-ettl.trace_data.entry.src_addr',
+                '-ettl.trace_data.entry.ackmode',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        dsts = [self.addr(0, d, 1) for d in range(8)] + [self.addr(0, 8, 1), self.addr(0, 15, 63)]
+        srcs = [self.addr(1 + (i % 7), d, (i * 5) % 40 + 1) for i, d in enumerate(range(10))]
+        for i in range(10):
+            assert rows[i][1:3] == [str(dsts[i]), str(srcs[i])]
+            assert rows[i][3] == str(i % 8)
+        srcs2 = [self.addr(0, d, 2) for d in range(8)] + [self.addr(0, 8, 0), self.addr(0, 15, 1)]
+        dsts2 = [self.addr(1 + (i % 7), d, (i * 3) % 30 + 1) for i, d in enumerate(range(10))]
+        for i in range(10):
+            assert rows[10 + i][1:3] == [str(dsts2[i]), str(srcs2[i])]
+
+    def test_ttl_segmented(self, cmd_tshark, capture_file, test_env):
+        '''Segmented messages: a single fragment, a nested frame in two
+        fragments (reassembled and dissected in both passes), a fragment
+        without a header, a new header that replaces one in progress.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('ttl_coverage.pcap.gz'),
+                    '-Y', 'ttl.trace_data.entry.type == 4',
+                    '-Tfields', '-eframe.number', '-ettl.trace_data.entry.segment_key',
+                    '-ettl.trace_data.entry.segment_size',
+                    '-ettl.trace_data.entry.segment_type',
+                    '-ettl.trace_data.entry.type',
+                ), encoding='utf-8', env=test_env)
+            rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+            assert rows['58'] == ['0x00020012', '13', '0x00000002', '4']
+            assert rows['59'][0:3] == ['0x00040013', '76', '0x00000003']
+            assert rows['60'][0] == '0x00040013' and rows['60'][3] == '4,0'
+            assert rows['61'][0] == '0x00050014' and rows['61'][3] == '4'
+            assert rows['62'] == ['0x00070016', '12', '0x00000000', '4']
+            assert rows['63'] == ['0x00080017', '12', '0x0000004d', '4']
+
+    def test_ttl_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Nested segmented messages that reuse one key: four levels are
+        dissected (also in the second pass, where all levels used to fall
+        back to data), the fifth level is refused with a warning.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('ttl_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 64',
+                    '-Tfields', '-eframe.number', '-ettl.trace_data.entry.type',
+                ), encoding='utf-8', env=test_env)
+            rows = dict(l.split('\t') for l in stdout.splitlines())
+            assert rows['64'] == '4,0'
+            assert rows['65'] == '4,4,4,4,0'
+            assert rows['66'] == '4,4,4,0'
+            assert rows['67'] == '4,4,4,4,4'
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('ttl_coverage.pcap.gz'),
+                    '-Y', 'ttl.trace_data.entry.segmented_message_entry.nesting_too_deep',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['67']
+
+    def test_ttl_entry_size_too_short(self, cmd_tshark, test_env, tmp_path):
+        '''An entry size below the 16 byte entry header is reported as a
+        malformed entry instead of making a subset tvb of about 4 GB.'''
+        entry = struct.pack('<HHHH', (0 << 12) | 10, 0, 0x00c3, 0x0001) + struct.pack('<Q', 0) + b'\0\0'
+        frame = bytes.fromhex('020000000002020000000001') + b'\x40\x40' + entry
+        cap = tmp_path / 'ttl_short_size.pcap'
+        with open(cap, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 1))
+            f.write(struct.pack('<IIII', 0, 0, len(frame), len(frame)) + frame)
+        stdout = subprocess.check_output((cmd_tshark, '-r', str(cap),
+                '-Y', 'ttl.trace_data.entry_size_too_short',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '1\tentry size is too short'
+
+    def test_ttl_new_header_replaces_incomplete(self, cmd_tshark, capture_file, test_env):
+        '''A second segmented header (fragment 0) for a key whose message is
+        incomplete (frames 69 and 70) used to assert in tvb_free(NULL).'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        for passes in ((), ('-2',)):
+            proc = subprocess.run((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('ttl_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 69',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-ettl.trace_data.entry.segment_size',
+                ), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                encoding='utf-8', env=env)
+            assert proc.returncode == 0, proc.stderr
+            assert proc.stdout.splitlines() == [
+                '69\tTTL - Segmented Message Entry\t500',
+                '70\tTTL - Segmented Message Entry\t50']
