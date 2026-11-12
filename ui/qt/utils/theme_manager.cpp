@@ -242,8 +242,8 @@ ThemeManager::ThemeManager(QObject *parent)
     applyToStyleHints();
 
     // Initiate the FontManager singleton.  It owns all font state and policy
-    // (resolution, the systemwide regular-font push, zoom, OS-change
-    // handling, and the prefs.gui_font_name write-back).  ThemeManager only
+    // (resolution, the systemwide regular-font push, zoom and OS-change
+    // handling).  ThemeManager only
     // feeds it the configured font names during loadTheme().
     FontManager::instance();
 

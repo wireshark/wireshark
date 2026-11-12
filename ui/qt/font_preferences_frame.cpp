@@ -28,8 +28,10 @@ FontPreferencesFrame::FontPreferencesFrame(QWidget *parent) :
     ui->setupUi(this);
 
     pref_qt_gui_font_name_ = prefFromPrefPtr(&prefs.gui_font_name);
-    const QFont font = FontManager::fontFromName(
-        QString::fromUtf8(prefs_get_string_value(pref_qt_gui_font_name_, pref_stashed)));
+    const QString font_name =
+        QString::fromUtf8(prefs_get_string_value(pref_qt_gui_font_name_, pref_stashed));
+    const QFont font = font_name.isEmpty() ? FontManager::monospaceFont()
+                                           : FontManager::fontFromName(font_name);
 
     ui->fontSelectionWidget->setFontClass(FontSelectionWidget::FontClass::Monospace);
     ui->fontSelectionWidget->setSelectedFont(font);

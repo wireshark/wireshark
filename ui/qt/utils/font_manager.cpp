@@ -12,12 +12,8 @@
 
 #include "ui/qt/utils/font_manager.h"
 
-#include <ui/qt/main_application.h>
-
 #include <epan/prefs.h>
-#include <epan/wmem_scopes.h>
 
-#include <wsutil/wmem/wmem.h>
 #include <wsutil/wslog.h>
 
 #include <ui/recent.h>
@@ -205,14 +201,6 @@ FontManager::FontManager(QObject *parent)
 
         // Catch external (OS) font changes.  See eventFilter().
         qApp->installEventFilter(this);
-    }
-
-    // Mirror the resolved monospace font into prefs.gui_font_name once the
-    // app is up, so the preferences dialog and anything else reading the
-    // pref see a concrete value.  Previously done by a lambda in
-    // ThemeManager's constructor.
-    if (mainApp) {
-        mainApp->whenInitialized(this, [this]() { syncMonospacePref(); });
     }
 }
 
@@ -451,13 +439,6 @@ void FontManager::adoptRegularFont(const QFont &font)
 void FontManager::reapplyApplicationFonts()
 {
     applyApplicationFont(true);
-}
-
-void FontManager::syncMonospacePref()
-{
-    wmem_free(wmem_epan_scope(), prefs.gui_font_name);
-    prefs.gui_font_name = wmem_strdup(wmem_epan_scope(),
-                                      base_monospace_.toString().toUtf8().constData());
 }
 
 QFont FontManager::fontFromName(const QString &name)

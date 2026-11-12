@@ -244,7 +244,6 @@ private:
     /// @p force), then the per-class fonts, then notify all widgets.
     void  applyApplicationFont(bool force = false);
     void  applyZoom();                      ///< re-push + emit after a zoom change
-    void  syncMonospacePref();              ///< mirror base_monospace_ into prefs.gui_font_name
 };
 
 #endif /* FONT_MANAGER_H */
