@@ -156087,3 +156087,143 @@ class TestDissectTwamp:
                 '51\tOWAMP-Test\t2\t\t\tTrue\t5\t3',
                 '52\tOWAMP-Test\t3\t\t\tFalse\t0\t0',
             ]
+
+
+class TestDissectTzsp:
+    @staticmethod
+    def nested_capture(path, levels):
+        '''A pcap with one Ethernet/IPv4/UDP frame holding "levels" TZSP
+        packets nested as TZSP (encapsulation 7, raw IP) in UDP port 37008.'''
+        def csum(b):
+            if len(b) % 2:
+                b += b'\0'
+            s = sum(struct.unpack('>%dH' % (len(b) // 2), b))
+            while s >> 16:
+                s = (s & 0xffff) + (s >> 16)
+            return ~s & 0xffff
+
+        def ip(payload, ident):
+            h = struct.pack('>BBHHHBBH4s4s', 0x45, 0, 20 + len(payload), ident, 0,
+                            64, 17, 0, bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2]))
+            return h[:10] + struct.pack('>H', csum(h)) + h[12:] + payload
+
+        # innermost: a TZSP keepalive (type 4) without options
+        payload = struct.pack('>BBH', 1, 4, 1)
+        for i in range(levels):
+            payload = ip(struct.pack('>HHHH', 50000, 37008, 8 + len(payload), 0) + payload, i + 1)
+            payload = struct.pack('>BBH', 1, 0, 7) + b'\x01' + payload
+        # the outermost TZSP is carried in a UDP packet over Ethernet
+        udp = struct.pack('>HHHH', 50000, 37008, 8 + len(payload), 0) + payload
+        frame = (bytes.fromhex('020000000002020000000001') + b'\x08\x00' + ip(udp, 999))
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 1))
+            f.write(struct.pack('<IIII', 0, 0, len(frame), len(frame)) + frame)
+
+    def test_tzsp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''UDP port 37008 packets are TZSP, the payload is dissected by its
+        encapsulation (those that have no dissector are UNKNOWN); nothing is
+        malformed and there are no expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tzsp_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 25
+            assert protocols.count('TZSP') == 2
+            assert protocols.count('UNKNOWN') == 2
+            assert protocols.count('802.11') == 4
+            assert protocols.count('UDP') == 17
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tzsp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tzsp_types_and_encapsulations(self, cmd_tshark, capture_file, test_env):
+        '''Packet types, every encapsulation type of the table and an unknown
+        one, which is shown as "TZSP_ENCAP = n".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tzsp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-etzsp.type', '-etzsp.encap',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['4'] == ['4', '1', 'Ethernet']
+        assert rows['5'] == ['5', '1', 'Ethernet']
+        assert rows['3'][0:2] == ['3', '1']
+        assert rows['24'][0:2] == ['2', '1']
+        assert [rows[str(i)][1] for i in range(6, 16)] == [
+            '2', '3', '4', '5', '7', '18', '119', '126', '127', '99']
+        assert rows['7'][2] == 'TZSP_ENCAP = 3'
+        assert rows['15'][2] == 'TZSP_ENCAP = 99'
+        assert rows['11'][2].startswith('Null function (No data)')
+        assert rows['22'][0] == '0,0,0,0'
+
+    def test_tzsp_options(self, cmd_tshark, capture_file, test_env):
+        '''The option tags: the 802.11 radio options, sensor MAC, packet id,
+        original length, device name, location, information, capture id,
+        unknown tags and a two octet channel; and the FCS summary text.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tzsp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2,16,17,18,21,23}',
+                '-Tfields', '-eframe.number', '-etzsp.option_tag',
+                '-etzsp.wlan.signal', '-etzsp.wlan.silence',
+                '-etzsp.wlan.rate', '-etzsp.wlan.channel',
+                '-etzsp.sensormac', '-etzsp.packet_id',
+                '-etzsp.original_length', '-etzsp.device_name',
+                '-etzsp.capture_location', '-etzsp.device_info',
+                '-etzsp.device_id',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t') for l in stdout.splitlines()}
+        assert rows['1'][1:] == ['10,11,12,13,14,15,16,17,18,60,40,41,1', '-60',
+                                 '-90', '110', '6', '02:00:00:00:00:01', '77',
+                                 '1514', '', '', '', '']
+        assert rows['2'][1] == '0,0,0,1'
+        assert rows['16'][1:] == ['18,12,1', '', '', '20', '191', '', '', '',
+                                  '', '', '', '']
+        assert rows['17'][5] == '36'
+        assert rows['18'][9:] == ['sensor-1', 'lab', 'info text', '99']
+        assert rows['23'][6:9] == ['02:00:00:00:00:02', '1', '60']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tzsp_coverage.pcap.gz'),
+                '-V', '-O', 'tzsp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l for l in stdout.splitlines() if l.startswith('Tazmen Sniffer Protocol')]
+        assert lines[0] == 'Tazmen Sniffer Protocol: EthernetGood'
+        assert lines[18] == 'Tazmen Sniffer Protocol: EthernetFCS Error'
+        assert lines[19] == 'Tazmen Sniffer Protocol: EthernetEncrypted'
+        assert lines[11] == 'Tazmen Sniffer Protocol: IEEE 802.11 with Prism headers'
+
+    def test_tzsp_time_stamp(self, cmd_tshark, capture_file, test_env):
+        '''The time stamp option with eight (seconds, nanoseconds) and with
+        four octets (seconds only); the filter literals are in UTC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tzsp_coverage.pcap.gz'),
+                '-Y', 'tzsp.time_stamp == "2023-11-14T22:13:20.000005Z" || tzsp.time_stamp == "2023-11-14T22:13:21Z"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['18', '21']
+
+    def test_tzsp_nesting_limit(self, cmd_tshark, test_env, tmp_path):
+        '''TZSP nested far past the layer depth limit stops with the
+        "Maximum protocol layer depth" item instead of asserting (before the
+        fix tshark aborted when dissector bugs are fatal).'''
+        cap = tmp_path / 'tzsp_nested.pcap'
+        self.nested_capture(cap, 130)
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        proc = subprocess.run((cmd_tshark, '-r', str(cap), '-V'),
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              encoding='utf-8', env=env)
+        assert proc.returncode == 0
+        assert 'Maximum protocol layer depth' in proc.stdout
+        # a few levels are fine
+        self.nested_capture(cap, 3)
+        proc = subprocess.run((cmd_tshark, '-r', str(cap), '-V'),
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              encoding='utf-8', env=env)
+        assert proc.returncode == 0
+        assert 'Maximum protocol layer depth' not in proc.stdout
+        assert proc.stdout.count('Tazmen Sniffer Protocol') == 4
