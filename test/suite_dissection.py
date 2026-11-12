@@ -151383,3 +151383,185 @@ class TestDissectZbeeNwk:
                 '-Y', 'frame.number >= 93', '-Tfields', '-eframe.number',
                 '-e_ws.col.protocol', '-ezbee_nwk')
         assert lines == ['93\tIEEE 802.15.4\t', '94\tIEEE 802.15.4\t', '95\tIEEE 802.15.4\t', '96\tIEEE 802.15.4\t']
+
+
+class TestDissectZbeeNwkGp:
+    '''ZigBee Green Power frames over IEEE 802.15.4 (LINKTYPE 230, short
+    broadcast or extended destination), from the synthetic capture
+    zbee_nwk_gp_coverage.pcap.gz. The GP key ring is filled by plaintext
+    keys in Commissioning and Commissioning Reply frames; the encrypted
+    frames hold made-up bytes that no key decrypts.'''
+
+    CAPTURE = 'zbee_nwk_gp_coverage.pcap.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectZbeeNwkGp.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.rstrip('\r') for line in stdout.splitlines()]
+
+    def test_zbee_nwk_gp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''126 frames: 125 Green Power frames and the one to a unicast
+        address that the heuristic leaves to 802.15.4; no malformed packets
+        or error expert infos in one and two passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 126
+        assert protocols.count('ZigBee Green Power') == 125
+        assert protocols[19] == 'IEEE 802.15.4'
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_zbee_nwk_gp_headers(self, cmd_tshark, capture_file, test_env):
+        '''Source ID, endpoint, security level, frame counter and MIC for
+        the header variants of frames 1-25 (one pass and two passes agree).'''
+        expected = [
+            '1\t0x11223344\t\t\t\t\t',
+            '5\t0x00000000\t\t0x00\t\t\t',
+            '6\t0xffffffff\t\t0x00\t\t\t',
+            '7\t\t5\t0x00\t\t\t',
+            '10\t0x11223344\t\t0x01\t\t0xa5a5\t',
+            '11\t0x11223344\t\t0x02\t17\t\t0xa5a5a5a5',
+            '12\t\t241\t0x02\t256\t\t0xa5a5a5a5',
+            '21\t0x11223344\t\t0x03\t256\t\t0xa5a5a5a5',
+            '25\t\t\t0x03\t256\t\t0xa5a5a5a5',
+        ]
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {1, 5, 6, 7, 10, 11, 12, 21, 25}',
+                    '-Tfields', '-eframe.number', '-ezbee_nwk_gp.source_id',
+                    '-ezbee_nwk_gp.endpoint', '-ezbee_nwk_gp.fc_ext_security_level',
+                    '-ezbee_nwk_gp.security_frame_counter', '-ezbee_nwk_gp.security_mic2',
+                    '-ezbee_nwk_gp.security_mic4')
+            assert lines == expected
+
+    def test_zbee_nwk_gp_commands(self, cmd_tshark, capture_file, test_env):
+        '''Info column (the command) of a selection of frames.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'zbee_nwk_gp.command_id', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = dict(l.split('\t') for l in lines)
+        assert info['1'] == 'Toggle'
+        assert info['14'] == 'Decommissioning'
+        assert info['16'] == 'Channel Configuration'
+        assert info['42'] == 'Any GPD sensor command (0xA0 - 0xA3)'
+        assert info['45'] == 'Unknown command'
+        assert info['65'] == 'Move Color'
+        assert info['66'] == 'Step Color'
+        assert info['68'] == 'Channel Request'
+        assert info['71'] == 'Attribute reporting'
+        assert info['75'] == 'Manufacturer-specific multi-cluster reporting'
+        assert info['80'] == 'Read Attributes Response'
+        assert info['84'] == 'ZCL Tunneling'
+        assert info['86'] == 'Commissioning'
+        assert info['110'] == 'Commissioning Reply'
+        assert info['119'] == 'Application Description'
+
+    def test_zbee_nwk_gp_commissioning_keys(self, cmd_tshark, capture_file, test_env):
+        '''Plaintext keys of Commissioning and Commissioning Reply frames are
+        shown; the key ring keeps each key once ("ZigBee NWK GP: Bound the
+        key ring and fix length handling"), and a capture with a few keys
+        decodes identically in one and two passes.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'zbee_nwk_gp.cmd.comm.security_key',
+                    '-Tfields', '-eframe.number', '-ezbee_nwk_gp.cmd.comm.security_key'))
+        assert outputs[0] == outputs[1]
+        keys = dict(l.split('\t') for l in outputs[0])
+        assert keys['89'] == '010000005b5a5a5a040000000df00d60'
+        assert keys['89'] == keys['90']
+        assert keys['91'] == '02000000585a5a5a070000000df00d60'
+        assert keys['112'] == keys['113']
+        assert keys['114'] == '040000005e5a5a5a0d0000000df00d60'
+        assert keys['92'] == '707172737475767778797a7b7c7d7e7f'
+        assert keys['93'] == '808182838485868788898a8b8c8d8e8f'
+        assert len(keys) == 12
+
+    def test_zbee_nwk_gp_commissioning_options(self, cmd_tshark, capture_file, test_env):
+        '''Application info of the Commissioning command and the Commissioning
+        Reply fields.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 94 && frame.number <= 118',
+                '-Tfields', '-eframe.number', '-ezbee_nwk_gp.cmd.comm.manufacturer_model_id',
+                '-ezbee_nwk_gp.cmd.comm.gpd_cmd_num', '-ezbee_nwk_gp.cmd.comm.switch_info.length',
+                '-ezbee_nwk_gp.cmd.comm_reply.frame_counter', '-ezbee_nwk_gp.cmd.comm_reply.pan_id')
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert info['94'] == ['0x0001', '', '', '', '']
+        assert info['95'] == ['0x0042', '', '', '', '']
+        assert info['97'][1] == '3'
+        assert info['98'][1] == '0'
+        assert info['101'][2] == '1'
+        assert info['102'][2] == '2'
+        assert info['103'][2] == '4'
+        assert info['104'][2] == '0'
+        assert info['111'][4] == '0x1234'
+        assert info['114'][4] == '0x4321'
+        assert info['115'][3] == '0x00000055'
+        assert info['116'][3] == '0x00000056'
+
+    def test_zbee_nwk_gp_missing_counter(self, cmd_tshark, capture_file, test_env):
+        '''A Commissioning Reply with an encrypted key at security level 2
+        that ends before the outgoing frame counter gets a warning.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'zbee_nwk_gp.com_rep_no_out_cnt', '-Tfields', '-eframe.number')
+        assert lines == ['118']
+
+    def test_zbee_nwk_gp_payload_length(self, cmd_tshark, capture_file, test_env):
+        '''Payloads of 255, 256 and 300 octets decode ("Payload is missing"
+        was reported for exactly 256 octets, and longer ones were cut).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 122 && frame.number <= 124',
+                '-Tfields', '-eframe.number', '-ezbee_nwk_gp.command_id',
+                '-ezbee_nwk_gp.cmd.compact_attr_report.data_points')
+        sizes = {l.split('\t')[0]: len(l.split('\t')[2]) // 2 for l in lines}
+        assert sizes == {'122': 254, '123': 298, '124': 253}
+        assert all(l.split('\t')[1] == '0xa8' for l in lines)
+
+    def test_zbee_nwk_gp_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Read Attributes with two cluster records decodes three attribute
+        identifiers and both clusters.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 78', '-V')
+        attrs = [l.strip() for l in lines if l.strip().startswith('Attribute:')]
+        assert attrs == ['Attribute: Unknown (0x0001)', 'Attribute: Unknown (0x0002)',
+                         'Attribute: Measured Value (0x0000)']
+        clusters = [l.strip() for l in lines if l.strip().startswith('ZigBee Cluster ID:')]
+        assert clusters == ['ZigBee Cluster ID: On/Off (0x0006)',
+                            'ZigBee Cluster ID: Temperature Measurement (0x0402)']
+
+    def test_zbee_nwk_gp_odd_read_attributes(self, cmd_tshark, result_file, test_env):
+        '''A Read Attributes cluster record whose list length is 3 decodes one
+        attribute identifier, not two (the loop counter was a wrapping
+        uint8_t, and read one identifier too many for odd lengths). The two
+        octets left are then taken as a cluster record and run out of
+        data, so the frame is malformed either way; the made-up frame is
+        written to a temporary capture.'''
+        gp = bytes([0x0c | 0x80, 0x00]) + struct.pack('<I', 0x11223344)
+        payload = bytes([0xF2, 0x00]) + struct.pack('<HBHH', 0x0006, 3, 0x0001, 0x0002)
+        wpan = struct.pack('<HBHH', 0x0001 | (2 << 10), 1, 0xffff, 0xffff) + gp + payload
+        pcap = result_file('zbee_gp_read_attr_odd.pcap')
+        with open(pcap, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 230))
+            f.write(struct.pack('<IIII', 1700000000, 0, len(wpan), len(wpan)))
+            f.write(wpan)
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        attrs = [l.strip() for l in stdout.splitlines() if l.strip().startswith('Attribute:')]
+        assert attrs == ['Attribute: Unknown (0x0001)']
+        assert 'Malformed Packet' in stdout
+
+    def test_zbee_nwk_gp_encrypted_with_keys(self, cmd_tshark, capture_file, test_env):
+        '''With 4 keys in the ring the encrypted frames cannot be decrypted
+        (made-up bytes) and are shown as data, in one and two passes.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {21, 22, 23, 24, 25, 125, 126}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info', '-edata.len'))
+        assert outputs[0] == outputs[1]
+        assert outputs[0][0] == '21\tData, GPD Src ID: 0x11223344\t10'
+        assert outputs[0][-1] == '126\tData, Endpoint: 1\t10'
