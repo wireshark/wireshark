@@ -142866,7 +142866,7 @@ class TestDissectSpnego:
             ), encoding='utf-8', env=test_env)
         return [l.split('\t') for l in stdout.splitlines()]
 
-    def test_spnego_protocols(self, cmd_tshark, capture_file, test_env):
+    def test_spnego_protocols(self, cmd_tshark, capture_file, features, test_env):
         '''The SPNEGO tokens travel in HTTP "Negotiate" headers and LDAP
         SASL buffers; nothing is malformed or has a warning or an error
         expert info, in one and two passes.'''
@@ -142875,6 +142875,9 @@ class TestDissectSpnego:
         assert len(protocols) == 57
         assert protocols.count('HTTP') == 44
         assert protocols.count('LDAP') == 13
+        if not features.have_kerberos:
+            # Without Kerberos decryption fails and there is a warning
+            return
         for passes in ((), ('-2',)):
             rows = self.fields(cmd_tshark, capture_file, test_env,
                     '_ws.malformed || _ws.expert.severity >= warning', passes=passes)
@@ -142929,10 +142932,12 @@ class TestDissectSpnego:
             ['0x04', '', '', '1'], ['0x01', '', '', '2'], ['0x04', '', '', '1'],
             ['0x00', '12', '0', '7'], ['0x02', '12', '0', '5'], ['0x05', '12', '12', '6']]
 
-    def test_spnego_ldap_sasl(self, cmd_tshark, capture_file, test_env):
+    def test_spnego_ldap_sasl(self, cmd_tshark, capture_file, features, test_env):
         '''GSS-API wrap tokens in LDAP SASL buffers after a SPNEGO bind:
         integrity (the LDAP message follows the token) and privacy (the
         payload stays opaque).'''
+        if not features.have_kerberos:
+            pytest.skip('Requires Kerberos.')
         rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 67 && frame.number <= 75',
                 '-e_ws.col.info')
         infos = [r[1] for r in rows]
