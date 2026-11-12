@@ -142,7 +142,7 @@ get_turnchannel_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                             int offset, void *data _U_)
 {
 	uint16_t channel_id;
-	channel_id = tvb_get_ntohs(tvb, 0);
+	channel_id = tvb_get_ntohs(tvb, offset);
 	/* If the channel number is outside the range, either we missed
          * a TCP segment or this is STUN, DTLS, RTP, etc. multiplexed on
          * the same 5-tuple. Report the length as the rest of the packet
