@@ -1704,7 +1704,7 @@ dissect_uds_dtc_and_status_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree *entry_tree;
 
     if (severity_present) {
-        entry_tree = proto_tree_add_subtree(uds_tree, tvb, offset, 4, ett_uds_dtc_status_entry, &ti_status_record, "DTC and Severity Record");
+        entry_tree = proto_tree_add_subtree(uds_tree, tvb, offset, 4 + 1 + (func_unit_present ? 1 : 0), ett_uds_dtc_status_entry, &ti_status_record, "DTC and Severity Record");
 
         unsigned severity;
         proto_tree_add_item_ret_uint(entry_tree, hf_uds_rdtci_dtc_severity, tvb, offset, 1, ENC_NA, &severity);
@@ -2693,7 +2693,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
 
                     ti = proto_tree_add_item(uds_tree, hf_uds_ars_algo_indicator, tvb, offset, 16, ENC_NA);
                     algo_tree = proto_item_add_subtree(ti, ett_uds_ars_algo_indicator);
-                    dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
+                    dissect_unknown_ber(pinfo, tvb_new_subset_length(tvb, offset, 16), 0, algo_tree);
                     offset += 16;
 
                     proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_server, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
@@ -2717,7 +2717,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
 
                     ti = proto_tree_add_item(uds_tree, hf_uds_ars_algo_indicator, tvb, offset, 16, ENC_NA);
                     algo_tree = proto_item_add_subtree(ti, ett_uds_ars_algo_indicator);
-                    dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
+                    dissect_unknown_ber(pinfo, tvb_new_subset_length(tvb, offset, 16), 0, algo_tree);
                     offset += 16;
 
                     proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_session_key_info, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
@@ -2735,7 +2735,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
 
                     ti = proto_tree_add_item(uds_tree, hf_uds_ars_algo_indicator, tvb, offset, 16, ENC_NA);
                     algo_tree = proto_item_add_subtree(ti, ett_uds_ars_algo_indicator);
-                    dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
+                    dissect_unknown_ber(pinfo, tvb_new_subset_length(tvb, offset, 16), 0, algo_tree);
                     offset += 16;
 
                     proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_server, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
@@ -2827,7 +2827,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
 
                     ti = proto_tree_add_item(uds_tree, hf_uds_ars_algo_indicator, tvb, offset, 16, ENC_NA);
                     algo_tree = proto_item_add_subtree(ti, ett_uds_ars_algo_indicator);
-                    dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
+                    dissect_unknown_ber(pinfo, tvb_new_subset_length(tvb, offset, 16), 0, algo_tree);
                     offset += 16;
                 }
                     break;
@@ -2836,7 +2836,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                 case UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_BIDIR: {
                     ti = proto_tree_add_item(uds_tree, hf_uds_ars_algo_indicator, tvb, offset, 16, ENC_NA);
                     algo_tree = proto_item_add_subtree(ti, ett_uds_ars_algo_indicator);
-                    dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
+                    dissect_unknown_ber(pinfo, tvb_new_subset_length(tvb, offset, 16), 0, algo_tree);
                     offset += 16;
 
                     unsigned length_proof_of_ownership_client;
