@@ -158756,3 +158756,79 @@ class TestDissectUftp:
                            '-euftp.status.nak_count') == ['16']
         assert self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 44',
                            '-euftp.abort.message', '-euftp.abort.flags') == ['transfer aborted\t0x01']
+
+
+class TestDissectUhd:
+    '''UHD (USRP Hardware Driver control protocol) from the synthetic
+    capture uhd_coverage.pcap.gz. UHD has no default port (UDP 49152 is
+    only a Decode As entry), so the frames are Exported PDU frames that
+    name the "uhd" dissector.'''
+
+    def test_uhd_messages(self, cmd_tshark, capture_file, test_env):
+        '''All 48 frames decode as UHD, without malformed packets or error
+        expert infos, in one and two passes, and the Info column names
+        every message type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('uhd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [r.split('\t') for r in stdout.splitlines()]
+        assert len(rows) == 48
+        assert {r[0] for r in rows} == {'UHD'}
+        assert rows[0][1] == 'UMTRX REQUEST'
+        assert rows[4][1] == 'TRANSACT ME SOME SPI BRO'
+        assert rows[40][1] == 'HUH WHAT'
+        assert rows[41][1] == 'PEACE OUT'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('uhd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_uhd_bodies(self, cmd_tshark, capture_file, test_env):
+        '''The id specific part: IP address, SPI, I2C (with the number of
+        data bytes it announces), register access with its action names
+        and the echo length.'''
+        def fields(frame, *names):
+            args = []
+            for n in names:
+                args += ['-e', n]
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('uhd_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}', '-Tfields',
+                    '-E', 'occurrence=a', *args,
+                ), encoding='utf-8', env=test_env, timeout=120)
+            return stdout.rstrip('\n').split('\t')
+        assert fields(1, 'uhd.ip_addr') == ['192.168.10.2']
+        assert fields(5, 'uhd.spi_dev', 'uhd.spi_data', 'uhd.spi_num_bits') == \
+            ['0x00000010', '0xdeadbeef', '24']
+        assert fields(7, 'uhd.i2c_bytes', 'uhd.i2c_data') == ['0', '']
+        assert fields(9, 'uhd.i2c_addr', 'uhd.i2c_bytes', 'uhd.i2c_data') == \
+            ['0x55', '5', '0x30,0x31,0x32,0x33,0x34']
+        assert fields(10, 'uhd.i2c_bytes')[0] == '20'
+        assert len(fields(10, 'uhd.i2c_data')[0].split(',')) == 20
+        assert fields(23, 'uhd.reg_action') == ['0x01']
+        assert fields(28, 'uhd.reg_action') == ['0x06']
+        assert fields(39, 'uhd.echo_len') == ['64']
+
+    def test_uhd_unknown_id(self, cmd_tshark, capture_file, test_env):
+        '''A message id that is not in the table is shown as hex. The
+        item label and the Info column used to print the id with %c,
+        which put an invalid UTF-8 byte into the label ("UHD: Print the
+        message id as hex instead of %c"); the UTF-8 check aborts a
+        debug build on that.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '--log-fatal-domains=UTF-8',
+                '-r', capture_file('uhd_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 43', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        for ident in ('0x00000000', '0x00000141', '0x000000ff',
+                      '0x00000080', '0x12345678', '0xffffffff'):
+            assert grep_output(stdout, f'UHD id = Unknown \\({ident}\\)')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('uhd_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 43', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines()[3] == 'Unknown UHD message type (0x00000080)'
