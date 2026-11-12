@@ -150586,3 +150586,92 @@ class TestDissectYpxfr:
             '28 V1 proc-2 Call 2',
             '30 V2 proc-0 Call',
         ]
+
+
+class TestDissectZ21:
+    '''Z21 LAN protocol (UDP 21105/21106), from the synthetic capture
+    z21_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, cap, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', cap, '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    def test_z21_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 114 frames are Z21, without malformed packets or error
+        expert infos, in one and two passes; the only warning is the bad
+        X-BUS checksum of frame 112.'''
+        cap = capture_file('z21_coverage.pcap.gz')
+        assert len(self.fields(cmd_tshark, test_env, cap, 'z21', 'frame.number')) == 114
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, test_env, cap,
+                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                'frame.number', passes=passes) == []
+            assert self.fields(cmd_tshark, test_env, cap, 'z21.invalidchecksum',
+                'frame.number', passes=passes) == ['112']
+
+    def test_z21_zlink_name(self, cmd_tshark, capture_file, test_env):
+        '''The zLink name is 33 octets, so the reserved octet that follows
+        it is read from the right place and nothing is left undecoded
+        (the offset advanced by 18 before "Z21: Fix field lengths and
+        the empty name check").'''
+        cap = capture_file('z21_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap, 'frame.number == 58',
+            'z21.zlinkname', 'z21.zlinkmac', 'z21.zlinkreserved', 'z21.data') == [
+            'zLinkName\t02-00-00-00-00-05\t0xaa\t']
+
+    def test_z21_empty_names(self, cmd_tshark, capture_file, test_env):
+        '''A name that starts with 0xff is empty, not "ÿ", for the
+        booster and the decoder; others show the 32 octet field.'''
+        cap = capture_file('z21_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap, 'z21.boostername || z21.decodername',
+            'frame.number', 'z21.boostername', 'z21.decodername') == [
+            '34\tBooster One\t', '35\t\t', '36\tBooster Two\t',
+            '52\t\tSwitch Decoder', '53\t\t', '54\t\tSignal Decoder']
+
+    def test_z21_hwinfo(self, cmd_tshark, capture_file, test_env):
+        '''The hardware type and the firmware version of LAN_GET_HWINFO
+        are 4 octets each.'''
+        cap = capture_file('z21_coverage.pcap.gz')
+        out = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', 'frame.number == 5',
+            '-Tpdml'), encoding='utf-8', env=test_env, timeout=120)
+        for name in ('z21.hwtype', 'z21.firmwareversion'):
+            lines = [l for l in out.splitlines() if 'name="%s"' % name in l]
+            assert len(lines) == 1 and ' size="4"' in lines[0]
+        assert self.fields(cmd_tshark, test_env, cap, 'z21.hwtype',
+            'frame.number', 'z21.hwtype') == [
+            '5\t0x00000200', '6\t0x00000211', '7\t0x00000999']
+
+    def test_z21_xbus(self, cmd_tshark, capture_file, test_env):
+        '''X-BUS commands: one- and two-octet command forms, POM
+        sub-commands chosen by DB3, and the loco info variants.'''
+        cap = capture_file('z21_coverage.pcap.gz')
+        info = dict(l.split('\t', 1) for l in self.fields(cmd_tshark, test_env, cap,
+            'frame.number >= 59', 'frame.number', '_ws.col.info'))
+        assert info['76'] == 'Command=LAN_X_GET_FIRMWARE_VERSION, Version=1.43'
+        assert info['77'] == 'Command=unknown'
+        assert info['80'] == ('Command=LAN_X_LOCO_INFO, Loco=4 (28 speed steps), Reverse, '
+                              'Speed=0x05, in double traction')
+        assert info['85'] == 'Command=LAN_X_SET_LOCO_DRIVE, Loco=200 (128 SS), Forward, Speed=0x7f'
+        assert info['87'] == 'Command=LAN_X_SET_LOCO_FUNCTION, Loco=3, Function=31, State=Toggle'
+        assert info['92'] == ('Command=LAN_X_TURNOUT_INFO, Address=10, '
+                              'State=Turnout is in position "P=0"')
+        assert info['99'] == 'Command=LAN_X_CV_WRITE, CV29, Value=3'
+        assert info['104'] == 'Command=LAN_X_CV_POM_READ_BYTE, Loco=3, CV29'
+        assert info['105'] == ('Command=LAN_X_CV_POM_WRITE_BIT, Loco=3, CV29, '
+                               'Bit position=5, Value=1')
+        assert info['106'] == 'Command=LAN_X_CV_POM_WRITE_BYTE, Loco=3, CV29, Value=85'
+        assert info['107'] == 'Command=unknown'
+        assert info['110'] == ('Command=LAN_X_CV_POM_ACCESSORY_WRITE_BYTE, '
+                               '*** TO BE COMPLETED ***')
+
+    def test_z21_several_pdus(self, cmd_tshark, capture_file, test_env):
+        '''A datagram can carry several PDUs; UDP port 21106 is Z21 too.'''
+        cap = capture_file('z21_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap, 'frame.number >= 113',
+            'frame.number', 'z21.command', 'udp.dstport') == [
+            '113\t0x40002121,0x00001000,0x00003000\t21105',
+            '114\t0x00001000\t21106']
