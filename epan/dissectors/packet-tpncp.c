@@ -436,7 +436,7 @@ fgetline(char *buffer, int size, FILE *file)
     if (!fgets(buffer, size, file))
         return 0;
     size_t last = strlen(buffer);
-    if (buffer[last - 1] == '\n')
+    if (last > 0 && buffer[last - 1] == '\n')
         buffer[last - 1] = 0;
     return 1;
 }
@@ -452,7 +452,7 @@ fill_tpncp_id_vals(value_string **strings, FILE *file)
     line_in_file = (char *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
     vs_arr = wmem_array_new(NULL, sizeof **strings);
 
-    while (fgetline(line_in_file, MAX_TPNCP_DB_ENTRY_LEN, file) && !feof(file)) {
+    while (fgetline(line_in_file, MAX_TPNCP_DB_ENTRY_LEN, file)) {
         int tpncp_id = 0;
         char tpncp_name[256];
 
