@@ -159777,3 +159777,141 @@ class TestDissectUsb:
             ), encoding='utf-8', env=test_env, timeout=120)
         assert 'host                 <-> 1.2.0' in stdout
         assert 'host                 <-> 6.2.0' in stdout
+
+
+class TestDissectUsbCcid:
+    '''USB CCID (smart card readers, interface class 0x0b) from the
+    synthetic usbmon capture ccid_coverage.pcap.gz. The bulk messages
+    and the class descriptor are reached through the interface class of
+    the configuration descriptor; the interrupt messages (slot change,
+    hardware error) need Decode As of the device (CCID registers no
+    interrupt handler of its own).'''
+
+    OPTS = ('-d', 'usb.device==0x00010002,usbccid')
+
+    def test_usb_ccid_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Bulk messages decode as USBCCID by default; the four interrupt
+        messages as well with Decode As. No malformed packets or expert
+        infos in one and two passes.'''
+        for opts, count in (((), 37), (self.OPTS, 41)):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('ccid_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 90
+            assert protocols.count('USBCCID') == count
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                        '-r', capture_file('ccid_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.expert',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_usb_ccid_descriptor(self, cmd_tshark, capture_file, test_env):
+        '''The class descriptor of the first reader, and the one of the
+        second reader behind another (unknown) class descriptor.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccid_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4,86}',
+                '-Tfields', '-eframe.number', '-eusbccid.bcdCCID',
+                '-eusbccid.bMaxSlotIndex', '-eusbccid.dwProtocols',
+                '-eusbccid.dwDefaultClock', '-eusbccid.bNumClockSupported',
+                '-eusbccid.dwFeatures', '-eusbccid.dwMaxCCIDMessageLength',
+                '-eusbccid.hf_ccid_wLcdLayout.lines', '-eusbccid.hf_ccid_wLcdLayout.chars',
+                '-eusbccid.hf_ccid_bPINSupport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t0x0110\t0x03\t0x00000003\t4000\t0\t0x000207b2\t271\t2\t4\t0x03',
+            '86\t0x0110\t0x00\t0x00000001\t4000\t2\t0x00010010\t65538\t0\t0\t0x00',
+        ]
+
+    def test_usb_ccid_messages(self, cmd_tshark, capture_file, test_env):
+        '''The message types of the bulk transfers, in order.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccid_coverage.pcap.gz'),
+                '-Y', 'usbccid',
+                '-Tfields', '-eusbccid.bMessageType',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [
+            '0x61', '0x61', '0x61', '0x61', '0x62', '0x62', '0x62', '0x62',
+            '0x63', '0x65', '0x6c', '0x6f', '0x6f', '0x6b', '0x6b',
+            '0x69', '0x6a', '0x6d', '0x6e', '0x71', '0x72', '0x73',
+            '0x80', '0x80', '0x80', '0x81', '0x81', '0x81', '0x81',
+            '0x82', '0x82', '0x82', '0x82', '0x83', '0x83', '0x65', '0x81']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccid_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5,13,19,27,50,52}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\tCCID Packet - PC to Reader: Set Parameters',
+            '13\tCCID Packet - PC to Reader: ICC Power On',
+            '19\tCCID Packet - PC to Reader: ICC Power On',
+            '27\tCCID Packet - PC to Reader: Transfer Block',
+            '50\tCCID Packet - Reader to PC: Data Block',
+            '52\tCCID Packet - Reader to PC: Data Block',
+        ]
+
+    def test_usb_ccid_parameters(self, cmd_tshark, capture_file, test_env):
+        '''The protocol data structures of SetParameters and Parameters for
+        T=0, T=1 and another protocol (shown as data).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccid_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5,7,9,11,64,66,68,70}',
+                '-Tfields', '-eframe.number', '-eusbccid.bProtocolNum',
+                '-eusbccid.bmFindexDindex', '-eusbccid.bmTCCKST0',
+                '-eusbccid.bGuardTimeT0', '-eusbccid.bWaitingIntegerT0',
+                '-eusbccid.bmTCCKST1', '-eusbccid.bmWaitingIntegersT1',
+                '-eusbccid.bIFSC', '-eusbccid.bNadValue', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t0x00\t0x11\t0x00\t0x00\t0x0a\t\t\t\t\t',
+            '7\t0x00\t\t\t\t\t\t\t\t\t',
+            '9\t0x01\t0x11\t\t\t\t0x10\t0x4d\t0xfe\t0x00\t',
+            '11\t0x80\t\t\t\t\t\t\t\t\t01020304',
+            '64\t0x00\t0x11\t0x00\t0x00\t0x0a\t\t\t\t\t',
+            '66\t0x00\t\t\t\t\t\t\t\t\t',
+            '68\t0x01\t0x11\t\t\t\t0x10\t0x4d\t0xfe\t0x00\t',
+            '70\t0x80\t\t\t\t\t\t\t\t\t010203',
+        ]
+
+    def test_usb_ccid_status(self, cmd_tshark, capture_file, test_env):
+        '''The ICC and command status, clock status and the payload of
+        responses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccid_coverage.pcap.gz'),
+                '-Y', 'frame.number in {50,52,54,56,58,60,62}',
+                '-Tfields', '-eframe.number', '-eusbccid.bStatus.bmIccStatus',
+                '-eusbccid.bStatus.bmCommandStatus', '-eusbccid.bError',
+                '-eusbccid.bChainParameter', '-eusbccid.bClockStatus', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '50\t0\t0\t0\t0\t\t20',
+            '52\t0\t1\t254\t1\t\t2',
+            '54\t0\t2\t0\t0\t\t',
+            '56\t1\t0\t0\t\t0x00\t',
+            '58\t2\t0\t0\t\t0x01\t',
+            '60\t3\t0\t0\t\t0x02\t',
+            '62\t0\t0\t0\t\t0x03\t',
+        ]
+
+    def test_usb_ccid_interrupt(self, cmd_tshark, capture_file, test_env):
+        '''Slot change notifications with one and two state bytes, and a
+        hardware error (Decode As).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('ccid_coverage.pcap.gz'),
+                '-Y', 'frame.number in {76,78,80,82}',
+                '-Tfields', '-eframe.number', '-eusbccid.bMessageType',
+                '-eusbccid.hf_ccid_bmSlotICCState',
+                '-eusbccid.hf_ccid_bmSlotICCState.slot0Current',
+                '-eusbccid.hf_ccid_bmSlotICCState.slot7Changed',
+                '-eusbccid.hf_ccid_bHardwareErrorCode',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '76\t0x50\t0xff\tTrue\t\t',
+            '78\t0x50\t0x03,0xff\tTrue\tTrue\t',
+            '80\t0x50\t0x00\tFalse\t\t',
+            '82\t0x51\t\t\t\t0x2a',
+        ]
