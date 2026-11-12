@@ -157446,3 +157446,126 @@ class TestDissectUbxGpsL1Lnav:
                 '-Tfields', '-eframe.number', '-eubx.rxm.sfrbx.svid', '-egps_l1.how.subframe_id',
                 '-e_ws.col.info')
         assert lines == ['93\t\t1\tSubframe 1', '94\t\t2\tSubframe 2', '95\t\t\tSubframe 3']
+
+
+class TestDissectUci:
+    '''UCI (UWB Command Interface of FiRa) from the synthetic capture
+    uci_coverage.pcapng.gz: 149 UCI packets with the link type FIRA_UCI (299)
+    holding every command, response and notification, and two TCP
+    streams (port 7000 and 7001) with PDUs in the same segment and split
+    over segments. TCP port 7000 is also claimed by Gryphon, so the TCP
+    frames need Decode As (or the uci.tcp.port preference).'''
+
+    DECODE_AS = ('-d', 'tcp.port==7000,uci', '-d', 'tcp.port==7001,uci')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('uci_coverage.pcapng.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_uci_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The 149 FIRA_UCI frames are UCI (the two TCP data frames of port
+        7000 are Gryphon by default); with Decode As the TCP streams
+        add 10 more UCI PDU frames (159 in all) and there are no malformed
+        packets or warnings, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, None, ('_ws.col.protocol',))
+        assert len(rows) == 174
+        assert rows.count(['UCI']) == 149 and rows.count(['TCP']) == 23
+        assert rows.count(['Gryphon']) == 2     # the default dissector of TCP port 7000
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'uci', ('frame.number',), self.DECODE_AS)
+        assert len(rows) == 159
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= warning',
+                               ('frame.number',), passes + self.DECODE_AS)
+            assert rows == []
+
+    def test_uci_one_pass_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The columns and UCI fields are the same in one and two passes.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(self.fields(cmd_tshark, capture_file, test_env, 'uci',
+                                    ('frame.number', '_ws.col.info', 'uci.status', 'uci.session_id',
+                                     'uci.distance'), passes + self.DECODE_AS))
+        assert outs[0] == outs[1]
+
+    def test_uci_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the message, unknown opcodes and groups
+        too.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 2, 3, 8, 11, 22, 52, 77, 85, 92}',
+                           ('frame.number', '_ws.col.info'))
+        assert rows == [
+            ['1', 'Core Device Reset Cmd'], ['2', 'Core Device Reset Rsp'], ['3', 'Core Device Status Ntf'],
+            ['8', 'Core Get Device Info Rsp'], ['11', 'Core Get Caps Info Rsp'],
+            ['22', 'Core Generic Error Ntf'], ['52', 'Session Init Cmd'],
+            ['77', 'Session Update Controller Multicast List Cmd'], ['85', 'Range Data Ntf'],
+            ['92', 'Range Get Ranging Count Rsp'],
+        ]
+        infos = [r[0] for r in self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 93 && frame.number <= 149',
+                                           ('_ws.col.info',))]
+        assert 'Unknown Core Cmd (3e)' in infos
+        assert 'Unknown Session Config Rsp (3e)' in infos
+        assert 'Unknown Ranging Session Control Ntf (3e)' in infos
+        assert 'Unknown Data Control Cmd (3e)' in infos
+        assert 'Unknown Test Rsp (3e)' in infos
+        assert 'Unknown Vendor_09 Cmd (3e)' in infos
+        assert 'Unknown Vendor_0F Ntf (3e)' in infos
+
+    def test_uci_range_data(self, cmd_tshark, capture_file, test_env):
+        '''Range Data notifications with 2 and 8 octet MAC addresses,
+        several measurements, and none.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {85, 86, 87, 88}',
+                           ('frame.number', 'uci.ranging_measurement_count', 'uci.mac_address', 'uci.nlos',
+                            'uci.distance', 'uci.slot_index'))
+        assert rows == [
+            ['85', '1', '1234', '0x00', '150', '3'],
+            ['86', '2', '1011121314151617,1011121314151617', '0x00,0x01', '150,151', '3,4'],
+            ['87', '0', '', '', '', ''],
+            ['88', '7', ','.join(['1234'] * 7), '0x00,0x01,0x02,0x03,0x00,0x01,0x02',
+             '150,151,152,153,154,155,156', '3,4,5,6,7,8,9'],
+        ]
+
+    def test_uci_lists(self, cmd_tshark, capture_file, test_env):
+        '''Capability list, version bit fields and the controlee list.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {8, 11, 77}',
+                           ('frame.number', 'uci.generic_version', 'uci.vendor_specific_information',
+                            'uci.capability_parameter.type', 'uci.controlees_count',
+                            'uci.controlee.short_address'))
+        assert rows == [
+            ['8', '0x0001', '01020304', '', '', ''],
+            ['11', '', '', ','.join('0x%02x' % i for i in range(14)), '', ''],
+            ['77', '', '', '', '2', '0x0101,0x0202'],
+        ]
+
+    def test_uci_tcp_pdus(self, cmd_tshark, capture_file, test_env):
+        '''TCP port 7000: three PDUs in one segment, a header split over two
+        segments (frames 157-158) and a PDU split over three segments
+        (159-161), followed by a PDU in the same segment.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 153 && frame.number <= 163',
+                           ('frame.number', 'uci.mt', 'uci.gid', 'uci.oid', 'uci.session_id'), self.DECODE_AS)
+        assert [r for r in rows if r[1]] == [
+            ['153', '1', '0x00', '0x02', ''],
+            ['154', '2', '0x00', '0x02', ''],
+            ['155', '1,1,1', '0x00,0x01,0x00', '0x00,0x05,0x03', ''],
+            ['156', '2,2', '0x00,0x01', '0x00,0x05', ''],
+            ['158', '1', '0x01', '0x00', '0x00000055'],
+            ['161', '3,3', '0x02,0x00', '0x00,0x01', '0x00000055'],
+            ['162', '1', '0x02', '0x00', '0x00000055'],
+            ['163', '2', '0x02', '0x00', ''],
+        ]
+
+    def test_uci_tcp_port_preference(self, cmd_tshark, capture_file, test_env):
+        '''The TCP port preference selects UCI for the stream on port 7001
+        (frames 170 and 171); without it they are plain TCP.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {170, 171}',
+                           ('frame.number', '_ws.col.protocol'))
+        assert rows == [['170', 'TCP'], ['171', 'TCP']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {170, 171}',
+                           ('frame.number', '_ws.col.protocol', '_ws.col.info'), ('-o', 'uci.tcp.port:7001'))
+        assert rows == [['170', 'UCI', 'Core Get Device Info Cmd'], ['171', 'UCI', 'Core Device Reset Rsp']]
