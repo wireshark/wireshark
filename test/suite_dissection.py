@@ -150796,3 +150796,150 @@ class TestDissectZ3950:
                           'z3950.referenceId.printable')
         assert len(ids) == 54
         assert all(i.isprintable() for i in ids)
+
+
+class TestDissectZabbix:
+    '''Zabbix protocol (TCP 10050/10051), from the synthetic capture
+    zabbix_coverage.pcap.gz. Every TCP connection holds one request and
+    its response, so one and two passes give the same result.'''
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, cap, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', cap, '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    @staticmethod
+    def infos(cmd_tshark, test_env, cap, passes=()):
+        '''Info column without the ", Len=N (ports)" tail, by frame.'''
+        out = subprocess.check_output((cmd_tshark, *passes, '-r', cap, '-Y', 'zabbix',
+            '-Tfields', '-eframe.number', '-e_ws.col.info'),
+            encoding='utf-8', env=test_env, timeout=120)
+        res = {}
+        for line in out.splitlines():
+            num, info = line.split('\t')
+            res[int(num)] = info.split(', Len=')[0]
+        return res
+
+    def test_zabbix_protocols(self, cmd_tshark, capture_file, test_env):
+        '''140 frames are Zabbix (four more are TCP segments of one PDU),
+        without malformed packets or error expert infos in one and two
+        passes; the only warning is the oversized length of frame 140.'''
+        cap = capture_file('zabbix_coverage.pcap.gz')
+        assert len(self.fields(cmd_tshark, test_env, cap, 'zabbix', 'frame.number')) == 140
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, test_env, cap,
+                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                'frame.number', passes=passes) == []
+            assert self.fields(cmd_tshark, test_env, cap, 'zabbix.packet_too_large',
+                'frame.number', passes=passes) == ['140']
+        assert self.infos(cmd_tshark, test_env, cap) == self.infos(
+            cmd_tshark, test_env, cap, ('-2',))
+
+    def test_zabbix_info(self, cmd_tshark, capture_file, test_env):
+        '''Info text of the request and response types.'''
+        info = self.infos(cmd_tshark, test_env, capture_file('zabbix_coverage.pcap.gz'))
+        assert info[1] == 'Zabbix Agent request for active checks for "agent01"'
+        assert info[2] == 'Zabbix Server/proxy response for active checks for "agent01" (success)'
+        assert info[4] == 'Zabbix Server/proxy response for active checks for "agent02" (failed)'
+        assert info[12] == 'Zabbix Agent redirection for "agent05"'
+        assert info[13] == 'Zabbix Agent data from "agent06"'
+        assert info[15] == 'Zabbix Agent data from "agent07"'
+        assert info[21] == 'Zabbix Agent heartbeat from "agent08"'
+        assert info[27] == 'Zabbix Server/proxy request for passive agent checks'
+        assert info[28] == 'Zabbix Agent response for passive checks'
+        assert info[37] == 'Zabbix Server/proxy internal metrics request'
+        assert info[39] == 'Zabbix Proxy data from "proxy01"'
+        assert info[41] == 'Zabbix Proxy data request to passive proxy'
+        assert info[42] == 'Zabbix Passive proxy data response'
+        assert info[89] == 'Zabbix Sender data from "h1"'
+        assert info[91] == 'Zabbix Sender data from "<unknown>"'
+        assert info[95] == 'Zabbix System information request'
+        assert info[116] == 'Zabbix CEP rule reset response'
+
+    def test_zabbix_proxy_heartbeat_no_host(self, cmd_tshark, capture_file, test_env):
+        '''A proxy heartbeat without "host" shows "<unknown>" in the tree
+        and the Info column, not a NULL formatted with %s ("(null)"; fixed
+        by "Zabbix: Do not pass a NULL proxy name to the heartbeat text"),
+        and the response in the same connection does too.'''
+        cap = capture_file('zabbix_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            info = self.infos(cmd_tshark, test_env, cap, passes)
+            assert info[83] == 'Zabbix Proxy heartbeat from "<unknown>"'
+            assert info[84] == ('Zabbix Server response for active proxy heartbeat '
+                                'for "<unknown>" (success)')
+            out = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                '-Y', 'frame.number == 83', '-V', '-O', 'zabbix'),
+                encoding='utf-8', env=test_env, timeout=120)
+            assert 'Zabbix Proxy heartbeat from "<unknown>"' in out
+            assert '(null)' not in out
+
+    def test_zabbix_agent_fields(self, cmd_tshark, capture_file, test_env):
+        '''The fields of an active checks request (IPv4, IPv6, bad IPs),
+        the request name copied to the response, version, session and the
+        revisions.'''
+        cap = capture_file('zabbix_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap, 'frame.number <= 8',
+            'frame.number', 'zabbix.agent.name', 'zabbix.agent.listen_ipv4',
+            'zabbix.agent.listen_ipv6', 'zabbix.agent.listen_port',
+            'zabbix.agent.host_metadata', 'zabbix.agent.host_interface',
+            'zabbix.agent.variant', 'zabbix.version', 'zabbix.session',
+            'zabbix.config_revision', 'zabbix.hostmap_revision') == [
+            '1\tagent01\t192.0.2.77\t\t10050\tlinux web\teth0\t2\t7.0.1\tabcdef0123456789\t5\t3',
+            '2\tagent01\t\t\t\t\t\t\t\t\t6\t',
+            '3\tagent02\t\t2001:db8::77\t10050\t\t\t\t\t\t\t',
+            '4\tagent02\t\t\t\t\t\t\t\t\t\t',
+            '5\tagent03\t\t\t\t\t\t\t\t\t\t',
+            '6\tagent03\t\t\t\t\t\t\t\t\t\t',
+            '7\tagent04\t\t\t\t\t\t\t\t\t\t',
+            '8\tagent04\t\t\t\t\t\t\t\t\t\t']
+        assert self.fields(cmd_tshark, test_env, cap, 'zabbix.agent.redirection',
+            'frame.number') == ['12']
+        assert self.fields(cmd_tshark, test_env, cap, 'zabbix.agent.heartbeat_freq',
+            'frame.number', 'zabbix.agent.heartbeat_freq') == ['21\t60']
+
+    def test_zabbix_passive_agent(self, cmd_tshark, capture_file, test_env):
+        '''Pre-7.0 passive agent text, with and without ZBX_NOTSUPPORTED.'''
+        cap = capture_file('zabbix_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap, 'frame.number in {31, 32, 33, 34}',
+            'frame.number', 'zabbix.data', 'zabbix.error', 'zabbix.agent.passive') == [
+            '31\tagent.ping\t\tTrue',
+            '32\t1\t\tTrue',
+            '33\tsystem.uptime\t\tTrue',
+            '34\tZBX_NOTSUPPORTED\tUnsupported item key.\tTrue']
+
+    def test_zabbix_flags(self, cmd_tshark, capture_file, test_env):
+        '''Compressed, large and compressed large PDUs, reserved flag
+        bits, a PDU over several TCP segments and two PDUs in one segment.'''
+        cap = capture_file('zabbix_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap, 'frame.number in {122, 123, 124, 126, 128}',
+            'frame.number', 'zabbix.flags', 'zabbix.len', 'zabbix.uncompressed_len',
+            'zabbix.large.len', 'zabbix.large.uncompressed_len', 'zabbix.flags.reserved',
+            'zabbix.agent.name') == [
+            '122\t0x03\t176\t1840\t\t\t0\tagent10',
+            '123\t0x03\t30\t22\t\t\t0\tagent10',
+            '124\t0x05\t\t\t22\t\t0\t',
+            '126\t0x07\t\t\t176\t1840\t0\tagent10',
+            '128\t0x81\t44\t\t\t\t16\tagent11']
+        # The PDU of frames 132-135 is reassembled in frame 135
+        assert self.fields(cmd_tshark, test_env, cap, 'frame.number in {135, 137}',
+            'frame.number', 'zabbix.sender.name', 'tcp.reassembled.length') == [
+            '135\tseg\t62', '137\tseg\t35']
+        # Two PDUs in one segment (status.get, queue.get): the conversation flags
+        # of the first stay set, so both show System information
+        assert self.fields(cmd_tshark, test_env, cap, 'frame.number == 138',
+            'frame.number', 'zabbix.frontend.queueinfo', 'zabbix.frontend.sysinfo') == [
+            '138\t\tTrue,True']
+
+    def test_zabbix_proxy_config(self, cmd_tshark, capture_file, test_env):
+        '''Proxy config responses: full sync, pre-6.4 globalmacro,
+        incremental (a data array) and no change, for active and passive proxies.'''
+        cap = capture_file('zabbix_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap, 'zabbix.proxy.config && zabbix.response',
+            'frame.number', 'zabbix.proxy.full_sync', 'zabbix.proxy.incremental_config',
+            'zabbix.proxy.no_config_changes') == [
+            '56\tTrue\t\t', '58\t\t\t', '60\t\t\t', '62\t\t\tTrue', '64\t\tTrue\t',
+            '66\t\t\tTrue', '68\t\t\t', '70\tTrue\t\t', '72\t\t\t', '74\t\t\t',
+            '76\t\t\t']
