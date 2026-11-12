@@ -158832,3 +158832,115 @@ class TestDissectUhd:
                 '-Y', 'frame.number >= 43', '-Tfields', '-e_ws.col.info',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.splitlines()[3] == 'Unknown UHD message type (0x00000080)'
+
+
+class TestDissectUlp:
+    '''ULP (OMA SUPL, UserPlane Location Protocol) over TCP and UDP 7275,
+    HTTP and the TCP reassembly of PDUs, from the synthetic capture
+    ulp_coverage.pcap.gz (random but valid PDUs of every message type,
+    encoded with asn1tools; positioning payloads are LPP and RRLP).'''
+
+    MESSAGES = (
+        'msSUPLAUTHREQ', 'msSUPLAUTHRESP', 'msSUPLEND', 'msSUPLINIT',
+        'msSUPLNOTIFY', 'msSUPLNOTIFYRESPONSE', 'msSUPLPOS', 'msSUPLPOSINIT',
+        'msSUPLREPORT', 'msSUPLRESPONSE', 'msSUPLSETINIT', 'msSUPLSTART',
+        'msSUPLTRIGGEREDRESPONSE', 'msSUPLTRIGGEREDSTART', 'msSUPLTRIGGEREDSTOP',
+    )
+
+    def test_ulp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The capture decodes without malformed packets or error expert
+        infos, in one and two passes, with the same ULP decoding; every
+        message type, LPP and RRLP payloads and the HTTP carriers are in it.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ulp_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            protocols = [p.strip() for p in stdout.splitlines()]
+            assert len(protocols) == 408
+            counts = {p: protocols.count(p) for p in set(protocols)}
+            assert counts['ULP'] == 380
+            assert counts['ULP/LPP'] + counts['ULP/LPP/LPP'] == 6
+            assert counts['ULP/RRLP'] == 4
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ulp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ulp_coverage.pcap.gz'),
+                    '-O', 'ulp',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            outs.append(stdout)
+        assert outs[0] == outs[1]
+        infos = outs[0]
+        for message in self.MESSAGES:
+            assert 'message: %s (' % message in infos
+
+    def test_ulp_rsrq_top_value(self, cmd_tshark, capture_file, test_env):
+        '''RSRQ-Range 34 is the top value ("ULP: Fix the top RSRQ range
+        value and drop a garbled cnf line"; it was compared with 64).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ulp_coverage.pcap.gz'),
+                '-Y', 'ulp.rsrqResult == 34 && frame.number == 368',
+                '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'rsrqResult: RSRQ >= -3dB (34)' in stdout
+        assert 'RSRQ < -2' not in stdout
+        # Other custom field formats of the template: top values and spare values
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ulp_coverage.pcap.gz'),
+                '-Y', 'ulp.rsrpResult == 97 || ulp.utra_CarrierRSSI == 76 || ulp.cpich_RSCP == 91',
+                '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'RSRP >= -44dBm (97)' in stdout
+        assert 'RSSI >= -25dBm (76)' in stdout
+        assert 'CPICH RSCP >= -25dBm (91)' in stdout
+
+    def test_ulp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two PDUs in one segment, a PDU in two segments, in three segments
+        with the length field split, and PDUs that continue in the next
+        segment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ulp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 385 && frame.number <= 393',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-eulp.length',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '385\tULP\t30,12',
+            '386\tTCP\t',
+            '387\tULP\t15',
+            '388\tTCP\t',
+            '389\tTCP\t',
+            '390\tULP\t49',
+            '391\tULP\t22',
+            '392\tULP\t139,245',
+            '393\tULP\t57,531,21',
+        ]
+
+    def test_ulp_http(self, cmd_tshark, capture_file, test_env):
+        '''ULP PDUs carried in HTTP with the media types application/oma-supl-ulp
+        and application/vnd.omaloc-supl-init.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ulp_coverage.pcap.gz'),
+                '-Y', 'http && ulp',
+                '-Tfields', '-eframe.number', '-ehttp.content_type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [r.split('\t') for r in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['397', '398', '402', '403', '407', '408']
+        assert [r[1] for r in rows] == ['application/oma-supl-ulp'] * 2 + \
+            ['application/vnd.omaloc-supl-init'] * 2 + ['application/oma-supl-ulp'] * 2
+        assert [r[2].split()[0] for r in rows] == [
+            'msSUPLEND', 'msSUPLINIT', 'msSUPLAUTHREQ', 'msSUPLSTART',
+            'msSUPLAUTHRESP', 'msSUPLRESPONSE']
+
+    def test_ulp_positioning_payloads(self, cmd_tshark, capture_file, test_env):
+        '''RRLP and LPP payloads of SUPL POS and POS INIT go to their dissectors.'''
+        for proto, frames in (('rrlp', '38 283 328 381'), ('lpp', '67 82 96 196 343 357')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('ulp_coverage.pcap.gz'),
+                    '-Y', proto, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split() == frames.split()
