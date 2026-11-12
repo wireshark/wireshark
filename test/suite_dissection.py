@@ -151780,3 +151780,105 @@ class TestDissectZbeeTlv:
         assert 'Channels: None' in lines
         assert 'Channels: 0-9' in lines
         assert 'Channel Page: 5' in lines
+
+
+class TestDissectZbeeZcl:
+    CAP = 'zbee-zcl_coverage.pcap.gz'
+
+    def test_zbee_zcl_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ZigBee ZCL (reached through the 802.15.4 and
+        ZigBee NWK/APS dissectors), none is malformed, and the only expert
+        infos are the nesting limit of the array, set and bag types
+        (frames 544-547), in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = [line.split(':')[-1] for line in stdout.splitlines()]
+        assert len(protocols) == 573
+        assert {p: protocols.count(p) for p in set(protocols)} == {
+            'zbee_zcl': 561, 'data': 9, 'zbee_zcl_closures.door_lock': 2, 'zbee_zcl_general.pwrprof': 1}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-ezbee_zcl.too_deep',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['544', '1', '545', '1', '546', '1', '547', '1']
+
+    def test_zbee_zcl_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''Arrays, sets and bags nested 2 and 3 levels decode normally, 16
+        levels (the limit) too, and the 17th level ends the dissection
+        with an expert info instead of recursing further (frames 544-547
+        are 17 and 18 levels deep).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {532, 535, 538, 542, 543, 544, 545, 546, 547}',
+                '-Tfields', '-eframe.number',
+                '-ezbee_zcl.attr.array.elements_num',
+                '-ezbee_zcl.attr.set.elements_num',
+                '-ezbee_zcl.attr.bag.elements_num',
+                '-ezbee_zcl.too_deep',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [(r[0], sum(len(c.split(',')) for c in r[1:4] if c), r[4]) for r in rows] == [
+            ('532', 2, ''), ('535', 3, ''), ('538', 3, ''), ('542', 16, ''),
+            ('543', 16, ''), ('544', 17, '1'), ('545', 17, '1'), ('546', 17, '1'),
+            ('547', 17, '1'),
+        ]
+
+    def test_zbee_zcl_write_attr_struct(self, cmd_tshark, capture_file, test_env):
+        '''Write Attributes Structured and its response read the
+        indicator and the indexes at the current offset (they were read
+        from the frame control field before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {508, 509, 510, 512, 513}',
+                '-Tfields', '-eframe.number', '-ezbee_zcl.attr.ind',
+                '-ezbee_zcl.attr.index', '-ezbee_zcl.attr.data.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '508\t2\t1,2\t0x20',
+            '509\t0,1\t3\t0x21,0x42',
+            '510\t1\t1\t0x30',
+            '512\t1,0\t5\t',
+            '513\t1\t5\t',
+        ]
+
+    def test_zbee_zcl_config_report_tree(self, cmd_tshark, capture_file, test_env):
+        '''The reporting intervals are inside the Reporting Configuration
+        Record subtree.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 238',
+                '-V', '-O', 'zbee_zcl',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('    Reporting Configuration Record')
+        assert lines[start + 1:start + 6] == [
+            '        Direction: Reported (0x00)',
+            '        Attribute: 0x0021',
+            '        Data Type: No Data (0x00)',
+            '        Minimum Interval: 5',
+            '        Maximum Interval: 600',
+        ]
+
+    def test_zbee_zcl_data_types(self, cmd_tshark, capture_file, test_env):
+        '''Strings, UTC time and the discovered command identifiers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {49, 62, 496}',
+                '-Tfields', '-eframe.number', '-ezbee_zcl.attr.str',
+                '-ezbee_zcl.attr.utc', '-ezbee_zcl.cs.cmd.id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '49\thello\t\t',
+            '62\t\t2022-05-09T22:11:12.000000000Z\t',
+            '496\t\t\t0x00,0x01,0x02,0x03',
+        ]
