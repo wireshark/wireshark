@@ -153870,3 +153870,177 @@ class TestDissectZrtp:
                 ), encoding='utf-8', env=test_env)
             assert [l.split('\t') for l in stdout.splitlines()] == [
                 ['13', 'SRTP', '0x11223344'], ['14', 'SRTP', '0x55667788']]
+
+
+class TestDissectZvt:
+    # The TCP/IP form of ZVT has no default port; the serial form is in
+    # Exported PDU frames that name the "zvt" dissector.
+    OPTS = ('-o', 'zvt.tcp.port:20007')
+
+    def test_zvt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ZVT (TCP/IP form on port 20007, or Exported PDU) or
+        the first part of a split APDU or not ZVT (TCP); none is malformed, and the only
+        expert info is the too short authorisation (frame 22), in one and
+        two passes. Normal nesting of subsequences (up to 8 levels) does not
+        give the "nested too deeply" error.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('zvt_coverage.pcapng.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = [l.split('\t')[1] for l in stdout.splitlines()]
+            assert len(protocols) == 48
+            assert protocols.count('ZVT') == 44
+            assert protocols.count('TCP') == 4
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('zvt_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert || zvt.tlv.too_deep',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['22']
+
+    def test_zvt_info(self, cmd_tshark, capture_file, test_env):
+        '''Control fields and completions, and the terminal / ECR addresses
+        set from the direction of each APDU.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zvt_coverage.pcapng.gz'),
+                '-Y', 'zvt && frame.number <= 23',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-e_ws.col.def_src', '-e_ws.col.def_dst',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[:3] for r in rows] == [
+            ['1', 'Positive completion', ''],
+            ['2', 'Registration', 'ECR'], ['3', 'Positive completion', 'PT'],
+            ['4', 'Authorisation', 'ECR'], ['5', 'Intermediate Status Information', 'PT'],
+            ['6', 'Status Information', 'PT'], ['7', 'Positive completion', 'ECR'],
+            ['8', 'Abort', 'PT'], ['9', 'Reversal', 'ECR'],
+            ['10', 'Negative completion', 'PT'], ['11', 'Refund', 'ECR'],
+            ['12', 'Positive completion', 'PT'], ['13', 'End Of Day', 'ECR'],
+            ['14', 'End Of Day', 'ECR'], ['15', 'Diagnosis', 'ECR'],
+            ['16', 'Initialisation', 'ECR'], ['17', 'Print Line', 'PT'],
+            ['18', 'Print Text Block', 'PT'], ['19', 'Print Text Block', 'PT'],
+            ['20', 'Print Text Block', 'PT'], ['21', 'Print Text Block', 'PT'],
+            ['22', 'Authorisation', 'ECR'], ['23', 'Print Text Block', 'PT'],
+        ]
+        assert rows[0][3] == '192.0.2.1' or rows[0][3] == ''
+
+    def test_zvt_transactions(self, cmd_tshark, capture_file, test_env):
+        '''A completion is the response of the last request, shown in both
+        directions on the second pass; a completion before any request, and
+        the completion of a request with an unknown control field, link to
+        nothing / the unknown request.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2', *self.OPTS,
+                '-r', capture_file('zvt_coverage.pcapng.gz'),
+                '-Y', 'zvt.resp_in || zvt.resp_to',
+                '-Tfields', '-eframe.number', '-ezvt.resp_in', '-ezvt.resp_to',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[:4] == [['2', '3', ''], ['3', '', '2'], ['6', '7', ''], ['7', '', '6']]
+        assert ['34', '37', ''] in rows and ['37', '', '34'] in rows
+        assert ['38', '39', ''] in rows and ['39', '', '38'] in rows
+        # frame 1 is a completion without a request
+        assert not any(r[0] == '1' for r in rows)
+
+    def test_zvt_bitmaps(self, cmd_tshark, capture_file, test_env):
+        '''The bitmaps of a status information (amount, trace number, time,
+        date, expiry date, card number, terminal ID, currency, card type,
+        additional data, card name).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zvt_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 6',
+                '-Tfields', '-ezvt.amount', '-ezvt.time', '-ezvt.date',
+                '-ezvt.expiry_date', '-ezvt.card_number', '-ezvt.card_name',
+                '-ezvt.terminal_id', '-ezvt.cc', '-ezvt.card_type',
+                '-ezvt.additional_data', '-ezvt.trace_number',
+                '-ezvt.result_code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == [
+            '1250', '12:34:56', '04/12', '29/12', '4000123456789010', 'VISA',
+            '12345678', '0x0978', '10', 'ABCDEFG', '000123', '0x00\n']
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zvt_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {4, 5, 11}',
+                '-Tfields', '-eframe.number', '-ezvt.amount', '-ezvt.cc',
+                '-ezvt.int_status',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['4', '1250', '0x0978', ''], ['5', '', '', '0x0a'], ['11', '999', '0x0840', '']]
+
+    def test_zvt_bcd_stop_digit(self, cmd_tshark, capture_file, test_env):
+        '''A 0xf nibble ends a BCD value: a short or empty time, date and
+        expiry date is shown as it is (the missing digits were read from
+        uninitialised memory before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zvt_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {42, 43}',
+                '-Tfields', '-eframe.number', '-ezvt.time', '-ezvt.date',
+                '-ezvt.expiry_date',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['42', '', '', ''], ['43', '123', '041', '29']]
+
+    def test_zvt_tlv(self, cmd_tshark, capture_file, test_env):
+        '''TLV objects: the registration's permitted commands, text lines in
+        CP437, tags of one, two and three octets, a length byte that stops
+        the sequence (it used the length of the previous object before the
+        fix), a tag of more than four octets, and lengths in the 1, 2 and 3
+        octet forms.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zvt_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {2, 19, 20, 21}',
+                '-Tfields', '-eframe.number', '-ezvt.tlv.tag',
+                '-ezvt.tlv.permitted_command', '-ezvt.tlv.receipt_type',
+                '-ezvt.tlv.text_lines.line',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t') for l in stdout.splitlines()}
+        assert rows['2'][1] == '0x00000026,0x0000000a,0x0000000a,0x00000012,0x00000027'
+        assert rows['2'][2] == '0x0601,0x060f'
+        assert rows['19'][1].split(',')[-1] == '0x001f0001'
+        assert '0x00001f07' in rows['19'][1] and '0x00001f37' in rows['19'][1]
+        assert rows['19'][3] == '0x0002'
+        assert rows['19'][4].startswith('Zahlung ä ö ü,Betrag 12,50 EUR,')
+        # a length byte 0x83 after "abc" stops the sequence
+        assert rows['20'][1:] == ['0x00000007,0x00000007', '', '', 'abc']
+        assert rows['21'][1:] == ['0x00000007', '', '', 'ok']
+
+    def test_zvt_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Subsequences nested 3 and 8 levels deep (the limit) are decoded
+        completely; the depth is restored after each sequence.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zvt_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {46, 47, 48}',
+                '-Tfields', '-eframe.number', '-ezvt.tlv.tag',
+                '-ezvt.tlv.text_lines.line',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[1].split(',').count('0x00000024') for r in rows] == [3, 8, 6]
+        assert [r[2] for r in rows] == ['deepest', 'deepest', 'deepest,deepest,deepest']
+
+    def test_zvt_serial(self, cmd_tshark, capture_file, test_env):
+        '''Serial form: DLE STX, the APDU, DLE ETX and the CRC; single
+        ACK and NAK characters.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zvt_coverage.pcapng.gz'),
+                '-Y', 'zvt.serial_char',
+                '-Tfields', '-eframe.number', '-ezvt.serial_char', '-ezvt.crc',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[:2] for r in rows if r[1] != '0x10,0x02,0x10,0x03'] == [
+            ['33', '0x06'], ['35', '0x06'], ['36', '0x15']]
+        assert [r[0] for r in rows if r[1] == '0x10,0x02,0x10,0x03'] == ['32', '34', '37', '38', '39']
+
+    def test_zvt_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''APDUs split across TCP segments (inside the header, inside the
+        payload and inside the 3 octet length) and two APDUs in a segment.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2', *self.OPTS,
+                '-r', capture_file('zvt_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 24 && frame.number <= 31',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows if r[1] == 'TCP'] == ['24', '26', '28', '31']
+        assert [r[2] for r in rows if r[1] == 'ZVT'] == [
+            'Status Information', 'Status Information', 'Print Text Block',
+            'Status Information']
