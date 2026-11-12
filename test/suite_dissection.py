@@ -150943,3 +150943,154 @@ class TestDissectZabbix:
             '56\tTrue\t\t', '58\t\t\t', '60\t\t\t', '62\t\t\tTrue', '64\t\tTrue\t',
             '66\t\t\tTrue', '68\t\t\t', '70\tTrue\t\t', '72\t\t\t', '74\t\t\t',
             '76\t\t\t']
+
+
+class TestDissectZbeeAps:
+    '''ZigBee APS (data, acknowledgement and command frames, fragmentation,
+    Test Profile 2, inter-PAN, ZigBee 2004 application framework) inside
+    ZigBee NWK over IEEE 802.15.4, from the synthetic capture
+    zbee_aps_coverage.pcap.gz. The security frames hold made-up bytes
+    that no key decrypts.'''
+
+    CAPTURE = 'zbee_aps_coverage.pcap.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectZbeeAps.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.rstrip('\r') for line in stdout.splitlines()]
+
+    def test_zbee_aps_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 127 frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        protocols = [p.strip() for p in self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')]
+        assert len(protocols) == 127
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'ZigBee': 60, 'ZigBee HA': 43, 'ZigBee T2': 20, 'ZigBee ZDP': 2,
+                          'ZigBee SE': 1, 'ZigBee GP': 1}
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_zbee_aps_commands(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the APS commands (frames 65-103).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'zbee_aps.cmd.id && frame.number < 104', '-Tfields', '-eframe.number',
+                '-e_ws.col.info')
+        info = dict(l.split('\t') for l in lines)
+        assert info['65'] == 'SKKE-1'
+        assert info['68'] == 'SKKE-4'
+        assert info['69'] == 'Transport Key'
+        assert info['81'] == 'Update Device'
+        assert info['85'] == 'Remove Device'
+        assert info['89'] == 'Switch Key'
+        assert info['90'] == 'EA Initiator Challenge'
+        assert info['94'] == 'EA Responder MAC'
+        assert info['95'] == 'Verify Key'
+        assert info['96'] == 'Confirm Key, SUCCESS'
+        assert info['97'] == 'Confirm Key, ILLEGAL_REQUEST'
+        assert info['98'] == 'ZCL OnOff: On, Seq: 1, Relay'
+        assert info['99'] == 'Switch Key, Relay'
+        assert info['100'] == 'Unknown Command'
+
+    def test_zbee_aps_transport_keys(self, cmd_tshark, capture_file, test_env):
+        '''The plaintext keys of the Transport Key commands are shown, and a
+        capture with a few keys decodes identically in one and two passes
+        (the NWK key ring is bounded per PAN).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'zbee_aps.cmd.key', '-Tfields', '-eframe.number', '-ezbee_aps.cmd.key'))
+        assert outputs[0] == outputs[1]
+        keys = dict(l.split('\t') for l in outputs[0])
+        assert len(keys) == 12
+        assert keys['69'] == '010000005b5a5a5a040000000df00d60'
+        assert keys['70'] == '02000000585a5a5a070000000df00d60'
+        assert keys['55'] == '4d000000175a5a5ae80000000df00d60'   # from the reassembled command
+
+    def test_zbee_aps_fragmentation(self, cmd_tshark, capture_file, test_env):
+        '''Three in-order blocks are reassembled (63 octets, frame 47), blocks
+        arriving out of order are not, and a fragmented command is
+        reassembled and dissected as a Transport Key command.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {45, 46, 47, 48, 49, 50, 54, 55}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ezbee_aps.reassembled.length')
+        assert lines == [
+            '45\tAPS: Data, Dst Endpt: 1, Src Endpt: 1 (fragment 0)\t',
+            '46\tAPS: Data, Dst Endpt: 1, Src Endpt: 1 (fragment 1)\t',
+            '47\tZCL: Read Attributes Response, Seq: 9\t63',
+            '48\tAPS: Data, Dst Endpt: 1, Src Endpt: 1 (fragment 2)\t',
+            '49\tAPS: Data, Dst Endpt: 1, Src Endpt: 1 (fragment 1)\t',
+            '50\tAPS: Data, Dst Endpt: 1, Src Endpt: 1 (fragment 0)\t',
+            '54\tAPS: Command (fragment 0)\t',
+            '55\tTransport Key\t35',
+        ]
+
+    def test_zbee_aps_tunnel_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Tunnels nested up to 4 levels are dissected down to the tunnelled
+        Switch Key; the fifth nested Tunnel command shows the new expert info
+        instead of recursing ("ZigBee APS: Bound recursion through nested
+        tunnel commands"). The 8 level frame used to nest without limit.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 104 && frame.number <= 111', '-Tfields', '-eframe.number',
+                '-ezbee_aps.cmd.id', '-ezbee_aps.tunnel_depth')
+        assert lines == [
+            '104\t0x0e,0x09\t',
+            '105\t0x0e,0x0e,0x09\t',
+            '106\t0x0e,0x0e,0x0e,0x09\t',
+            '107\t0x0e,0x05\t',
+            '108\t0x0e,0x0e,0x0e,0x0e,0x09\t',
+            '109\t0x0e,0x0e,0x0e,0x0e,0x0e\t1',
+            '110\t0x0e,0x0e,0x0e,0x0e,0x0e\t1',
+            '111\t\t',
+        ]
+
+    def test_zbee_aps_test_profile_2(self, cmd_tshark, capture_file, test_env):
+        '''Test Profile 2 clusters and the Buffer Test fields.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 20 && frame.number <= 38', '-Tfields', '-eframe.number',
+                '-e_ws.col.info')
+        info = dict(l.split('\t') for l in lines)
+        assert info['20'] == 'Buffer Test Request, Src Endpt: 1'
+        assert info['21'] == 'Buffer Test Response, Src Endpt: 1'
+        assert info['26'] == 'Packet Count Response, Src Endpt: 1'
+        assert info['36'] == 'Broadcast to All RXOnWhenIdle Devices Response, Src Endpt: 1'
+        assert info['38'] == 'Unknown T2 cluster, Src Endpt: 1'
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {20, 21, 22}', '-Tfields', '-eframe.number',
+                '-ezbee_aps.t2.btres.octet_sequence', '-ezbee_aps.t2.btreq.octet_sequence_length',
+                '-ezbee_aps.t2.btres.status')
+        assert lines == ['20\t\t40\t', '21\taabbcc\t\t0x00', '22\taabb\t\t0x01']
+
+    def test_zbee_aps_interpan_and_ack(self, cmd_tshark, capture_file, test_env):
+        '''Inter-PAN frames (NWK type 3, no endpoints) and acknowledgements
+        of both formats.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {16, 17, 18, 19, 39, 40, 42}', '-Tfields', '-eframe.number',
+                '-ezbee_aps.type', '-ezbee_aps.delivery', '-ezbee_aps.group',
+                '-ezbee_aps.block_acks')
+        assert lines == [
+            '16\t0x03\t0x00\t\t',
+            '17\t0x03\t0x02\t\t',
+            '18\t0x03\t0x03\t0x4321\t',
+            '19\t0x03\t0x00\t\t',
+            '39\t0x02\t0x00\t\t',
+            '40\t0x02\t0x00\t\t',
+            '42\t0x02\t0x00\t\t0x0b',
+        ]
+
+    def test_zbee_aps_zigbee_2004(self, cmd_tshark, capture_file, test_env):
+        '''ZigBee 2004 frames: one octet cluster, indirect addressing and the
+        application framework with message and key-value transactions.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 112', '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-ezbee_apf.type', '-ezbee_apf.count')
+        assert len(lines) == 16
+        assert lines[0] == '112\tZigBee HA\t0x02\t1'
+        assert lines[1] == '113\tZigBee HA\t0x02\t2'
+        assert lines[2].startswith('114\tZigBee ')
+        assert lines[6] == '118\tZigBee HA\t0x01\t11'
