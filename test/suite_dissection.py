@@ -156468,3 +156468,92 @@ class TestDissectUa3g:
                            ('ua3g.ip.def_tones.frequency_1', 'ua3g.ip.def_tones.level_1',
                             'ua3g.ip.def_tones.frequency_2', 'ua3g.ip.def_tones.level_2'))
         assert rows == [['425,440', '-5,-8', '0,480', '-10,-12']]
+
+
+class TestDissectUa:
+    '''UA (Universal Alcatel Protocol: the UA messages inside UA/UDP data) from the
+    synthetic capture ua_coverage.pcap.gz: UA/UDP packets on UDP port 32000
+    (registered by default) that carry every opcode UA hands to UA3G, the NOE
+    opcodes 0x15 and 0x16, opcodes it does not know, and several messages in
+    one datagram.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('ua_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ua_protocols(self, cmd_tshark, capture_file, test_env):
+        '''160 UAUDP frames: 15 with opcodes UA does not pass on (data), 4
+        with NOE messages; no malformed packets or warnings in one and two
+        passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, None, ('_ws.col.protocol', 'frame.protocols'))
+        assert len(rows) == 160
+        assert all(r[0] == 'UAUDP' for r in rows)
+        assert all(':uaudp:ua:' in r[1] for r in rows)
+        assert sum(r[1].endswith(':ua:data') for r in rows) == 15
+        assert sum(':noe' in r[1] for r in rows) == 4
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= warning',
+                               ('frame.number',), passes)
+            assert rows == []
+
+    def test_ua_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-69 carry the system to terminal opcodes and frames 70-138
+        the terminal to system opcodes, one UA message each, all dissected
+        by UA3G (opcodes in the order of the capture, as hex strings).'''
+        sys_ops = [
+            '0x00', '0x01', '0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x08', '0x09', '0x0a', '0x0b', '0x0c',
+            '0x0d', '0x0e', '0x0f', '0x11', '0x12', '0x13', '0x14', '0x17', '0x18', '0x1f', '0x20', '0x21',
+            '0x22', '0x23', '0x24', '0x25', '0x26', '0x27', '0x28', '0x29', '0x2a', '0x2b', '0x2c', '0x2d',
+            '0x2e', '0x30', '0x31', '0x32', '0x33', '0x35', '0x36', '0x38', '0x39', '0x3a', '0x3b', '0x3c',
+            '0x3d', '0x3e', '0x3f', '0x40', '0x41', '0x42', '0x43', '0x44', '0x45', '0x46', '0x47', '0x48',
+            '0x49', '0x4a', '0x4b', '0x4c', '0x4d', '0x4e', '0x4f', '0x50',
+        ]
+        term_ops = [
+            '0x00', '0x01', '0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x08', '0x09', '0x0a', '0x0b', '0x0c',
+            '0x0d', '0x0e', '0x0f', '0x11', '0x12', '0x13', '0x14', '0x17', '0x18', '0x1f', '0x20', '0x21',
+            '0x22', '0x23', '0x24', '0x25', '0x26', '0x27', '0x28', '0x29', '0x2a', '0x2b', '0x2c', '0x2d',
+            '0x2e', '0x30', '0x31', '0x32', '0x33', '0x35', '0x36', '0x38', '0x39', '0x3a', '0x3b', '0x3c',
+            '0x3d', '0x3e', '0x3f', '0x40', '0x41', '0x42', '0x43', '0x44', '0x45', '0x46', '0x47', '0x48',
+            '0x49', '0x4a', '0x4b', '0x4c', '0x4d', '0x4e', '0x4f', '0x50',
+        ]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number <= 138',
+                           ('frame.number', 'ua3g.opcode'))
+        assert [r[1] for r in rows[:69]] == sys_ops
+        assert [r[1] for r in rows[69:]] == term_ops
+
+    def test_ua_direction(self, cmd_tshark, capture_file, test_env):
+        '''The UA tree names the direction from the UDP ports.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('ua_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 70}', '-V', '-O', 'ua'),
+            encoding='utf-8', env=test_env, timeout=120)
+        assert [l for l in stdout.splitlines() if l.startswith('Universal Alcatel Protocol')] == [
+            'Universal Alcatel Protocol, System -> Terminal',
+            'Universal Alcatel Protocol, Terminal -> System']
+
+    def test_ua_noe_and_unknown(self, cmd_tshark, capture_file, test_env):
+        '''NOE opcodes are handed to NOE, unknown opcodes give an Info text
+        and the body as data, several messages in one datagram are all
+        shown, the CP bit (0x80) is ignored.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {139, 140, 141, 142, 143, 144, 158, 160}',
+                           ('frame.number', '_ws.col.info'))
+        assert rows == [
+            ['139', 'Data - UA3G Message: Mute: Microphone Enable - UA3G Message: NOP'],
+            ['140', 'Data - UA3G Message: Digital Dialed - UA3G Message: Handset Onhook'],
+            ['141', 'Data - NOE Protocol (CS): Create Terminal'],
+            ['142', 'Data - NOE Protocol (PS): Create ActionBox'],
+            ['143', 'Data - NOE Protocol (CS): Create Terminal - UA3G Message: NOP'
+                    ' - NOE Protocol (CS): Create Terminal'],
+            ['144', 'Data - UA3G Message ERR: Opcode (0x10) Unknown'],
+            ['158', 'Data - UA3G Message ERR: Opcode (0xff) Unknown'],
+            ['160', 'Data - UA3G Message: Handset Offhook - UA3G Message: Handset Onhook'
+                    ' - UA3G Message ERR: Opcode (0x19) Unknown - UA3G Message: Digital Dialed'],
+        ]
