@@ -155407,3 +155407,97 @@ class TestDissectTsp:
                 '-Tfields', '-etsp.version', '-etsp.name',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '2\t' + 'c' * 200
+
+
+class TestDissectTte:
+    # Critical traffic frames are found with the mask and marker preferences
+    # (the frames with a destination 0xaabbxxxx).
+    OPTS = ('-o', 'tte.ct_mask_value:ffff0000',
+            '-o', 'tte.ct_marker_value:aabb0000')
+
+    def test_tte_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol Control Frames and the critical traffic frames are
+        dissected by TTE (the last protocol column entry is the payload);
+        nothing is malformed and there are no expert infos, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('tte_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 15
+            assert len([p for p in protocols if p.startswith('TTE/')]) == 14
+            assert protocols.count('TTE/PCF') == 6
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('tte_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tte_default_prefs(self, cmd_tshark, capture_file, test_env):
+        '''With the default preferences (marker 0xffffffff, mask 0) only
+        the Protocol Control Frames (1-5 and 13) are TTE.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tte_coverage.pcap.gz'),
+                '-Y', 'tte',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1', '2', '3', '4', '5', '13']
+
+    def test_tte_fields(self, cmd_tshark, capture_file, test_env):
+        '''The constant field and critical traffic id of the destination
+        address, and the Info column: valid frames with an ethertype above
+        1500 are "TTEthernet Frame", an 802.3 length (at most 1500) is
+        "Bogus TTEthernet Frame" (the strings were swapped before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('tte_coverage.pcap.gz'),
+                '-Y', 'tte && !tte_pcf',
+                '-Tfields', '-eframe.number', '-ette.cf', '-ette.ctid',
+                '-eeth.type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '6\t0xaabb0001\t0x1234\t0x0800\t5000 → 5001 Len=9'
+        assert lines[1] == '7\t0xaabbffff\t0x0002\t0x0800\t5000 → 5001 Len=15'
+        assert lines[2] == '8\t0xaabb0001\t0x0003\t0x0020\tBogus TTEthernet Frame'
+        assert lines[3] == '9\t0xaabb0001\t0x0004\t0x05dc\tBogus TTEthernet Frame'
+        assert lines[4] == '10\t0xaabb0001\t0x0005\t0x05dd\tTTEthernet Frame'
+
+    def test_tte_pcf(self, cmd_tshark, capture_file, test_env):
+        '''The fields of the Protocol Control Frames: integration cycle,
+        membership, priority and domain, the type (low nibble) and the
+        transparent clock.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tte_coverage.pcap.gz'),
+                '-Y', 'tte_pcf',
+                '-Tfields', '-eframe.number', '-ette_pcf.ic', '-ette_pcf.mn',
+                '-ette_pcf.sp', '-ette_pcf.sd', '-ette_pcf.type',
+                '-ette_pcf.tc', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00000001\t0x000000ff\t0x02\t0x01\t0x02\t0x1122334455667788\tSync Domain: 0x01  Sync Priority: 0x02',
+            '2\t0x00000002\t0x0000f0f0\t0x07\t0x03\t0x04\t0x0000000000000005\tSync Domain: 0x03  Sync Priority: 0x07',
+            '3\t0x00000003\t0x00000001\t0x00\t0x00\t0x08\t0x0000000000000000\tSync Domain: 0x00  Sync Priority: 0x00',
+            '4\t0x00000004\t0x00000001\t0xff\t0xff\t0x0f\t0xffffffffffffffff\tSync Domain: 0xFF  Sync Priority: 0xFF',
+            '5\t0x00000005\t0x00000009\t0x01\t0x02\t0x02\t0x0000000000000007\tSync Domain: 0x02  Sync Priority: 0x01',
+            '13\t0x00000006\t0x00000001\t0x01\t0x01\t0x02\t0x0000000000000001\tSync Domain: 0x01  Sync Priority: 0x01',
+        ]
+
+    def test_tte_arp_trailer(self, cmd_tshark, capture_file, test_env):
+        '''A critical traffic frame (frame 15) with an ARP packet that leaves
+        a long Ethernet trailer used to assert (trailer field id 0).'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        for passes in ((), ('-2',)):
+            proc = subprocess.run((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('tte_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 15',
+                    '-Tfields', '-ette.cf', '-eframe.protocols', '-e_ws.malformed',
+                ), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                encoding='utf-8', env=env)
+            assert proc.returncode == 0, proc.stderr
+            cf, protocols, malformed = proc.stdout.rstrip('\n').split('\t')
+            assert cf == '0xaabb0001'
+            assert protocols == 'eth:tte:ethertype:arp'
+            assert malformed == ''
