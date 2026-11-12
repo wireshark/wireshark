@@ -150444,3 +150444,96 @@ class TestDissectYppasswd:
             '3 V1 UPDATE Call 1', '4 V1 UPDATE Reply (Call In 3) 1',
             '14 V1 NULL Call 0',
         ]
+
+
+class TestDissectYpserv:
+    '''YPSERV over ONC RPC (program 100004) on UDP and TCP, found by the
+    default RPC heuristics.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *fields, args=()):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('ypserv_coverage.pcap.gz'),
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_ypserv_protocols(self, cmd_tshark, capture_file, test_env):
+        '''172 YPSERV frames and the 3 TCP handshake frames; no malformed
+        packets or expert infos of warning level or above, in one and two
+        passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(protocols) == 175
+        assert protocols.count('YPSERV') == 172
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                    args=(*passes, '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000'))
+            assert lines == []
+
+    def test_ypserv_calls_and_replies(self, cmd_tshark, capture_file, test_env):
+        '''Arguments and results of the version 2 procedures.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'ypserv.domain', 'ypserv.map', 'ypserv.key', 'ypserv.value',
+                'ypserv.status', 'ypserv.servesdomain', 'ypserv.ordernum', 'ypserv.peer',
+                args=('-Y', 'frame.number in {3,4,6,10,12,14,19,26,30,32,34}'))
+        assert lines == [
+            '3\texample.org\t\t\t\t\t\t\t',
+            '4\t\t\t\t\t\tTrue\t\t',
+            '6\t\t\t\t\t\tFalse\t\t',
+            '10\t\t\t\talice:x:1000:1000:Alice:/home/alice:/bin/sh\t1\t\t\t',
+            '12\t\t\t\t\t-3\t\t\t',
+            '14\t\t\tfirst key\tfirst value\t1\t\t\t',
+            '19\texample.org\tpasswd.byname\t\t\t\t\t1593835520\tnis-master.example.org',
+            '26\t\t\tkey one,key two,key three\tvalue one,value two,\t1,1,1\t\t\t',
+            '30\t\t\t\t\t1\t\t\tnis-master.example.org',
+            '32\t\t\t\t\t1\t\t1595028566\t',
+            '34\t\tpasswd.byname,hosts.byname,group.byname\t\t\t1\t\t\t',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'ypserv.more', 'ypserv.map',
+                args=('-Y', 'frame.number in {26,28,34,36}'))
+        assert lines == [
+            '26\tTrue,True,True,False\t',
+            '28\tFalse\t',
+            '34\tTrue,True,True,False\tpasswd.byname,hosts.byname,group.byname',
+            '36\tFalse\t',
+        ]
+
+    def test_ypserv_status(self, cmd_tshark, capture_file, test_env):
+        '''Every named status; a negative one adds the error to the Info
+        column.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                '_ws.col.info',
+                args=('-Y', 'frame.number in {12,38,40,42,44,46,48,50,52,54,56,58}'))
+        assert [l.split('\t')[1] for l in lines] == [
+            'V2 MATCH Reply (Call In 11) YP_NOKEY',
+            'V2 MATCH Reply (Call In 37) v',
+            'V2 MATCH Reply (Call In 39) v',
+            'V2 MATCH Reply (Call In 41) v',
+            'V2 MATCH Reply (Call In 43) YP_NOMAP',
+            'V2 MATCH Reply (Call In 45) YP_NODOM',
+            'V2 MATCH Reply (Call In 47) YP_NOKEY',
+            'V2 MATCH Reply (Call In 49) YP_BADOP',
+            'V2 MATCH Reply (Call In 51) YP_BADDB',
+            'V2 MATCH Reply (Call In 53) YP_YPERR',
+            'V2 MATCH Reply (Call In 55) YP_BADARGS',
+            'V2 MATCH Reply (Call In 57) YP_VERS',
+        ]
+
+    def test_ypserv_xfr(self, cmd_tshark, capture_file, test_env):
+        '''The transfer status of the XFR replies (all named values and an
+        unknown one) and the version 1 procedures.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number', 'ypserv.xfrstat', args=('-Y', 'ypserv.xfrstat'))
+        assert [l.split('\t')[0] for l in lines] == (
+            ['20'] + [str(n) for n in range(80, 114, 2)] + ['159'])
+        assert [l.split('\t')[1] for l in lines] == (
+            ['1', '1', '2'] + [str(-i) for i in range(1, 15)] + ['-99', '1'])
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                args=('-Y', 'ypserv.procedure_v1'))
+        assert lines == [str(n) for n in range(113, 137)]
+        # The same procedures over TCP: the SYN is frame 137
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'ypserv.procedure_v2', args=('-Y', 'ypserv.procedure_v2 && frame.number > 139'))
+        assert len(lines) == 2 * 18
