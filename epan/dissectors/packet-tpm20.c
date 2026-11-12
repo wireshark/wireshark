@@ -1382,6 +1382,7 @@ tpm_init(void)
 {
 	cmd_tree = wmem_tree_new(wmem_file_scope());
 	last_command_pnum = 0;
+	response_size = true;
 }
 
 void
