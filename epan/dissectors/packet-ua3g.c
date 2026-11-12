@@ -1541,7 +1541,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 switch (parameter_id) {
                 case 0x00: /* Remote IP Address - Not for start listening rtp */
                 case 0x03: /* Remote IP Address Out - Not for start listening rtp */
-                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_listen_rtp_parameter_ip, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_listen_rtp_parameter_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
                     break;
                 case 0x01: /* Remote UDP Port In - Not for start listening rtp */
                 case 0x02: /* Remote UDP Port Out - Not for start listening rtp */
@@ -2433,7 +2433,7 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 length--;
 
                 while (length > 0) {
-                    uint8_t val;
+                    uint16_t val;
 
                     i++;
                     val = (tvb_get_uint8(tvb, offset) & 0x7F) * 10;
@@ -2537,7 +2537,7 @@ decode_sidetone(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, unsigned of
 
     if (command == 0x01) {
         proto_tree_add_int(tree, hf_ua3g_sidetone_level, tvb, offset+1, 1,
-            (signed char)(tvb_get_uint8(tvb, offset+1) / 2));
+            (signed char)(tvb_get_uint8(tvb, offset+1)) / 2);
     }
 }
 
@@ -2619,7 +2619,7 @@ decode_feedback(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
     if (command == 0x01) {
         proto_tree_add_int(tree, hf_ua3g_feedback_level, tvb, offset, 1,
-            (signed char)(tvb_get_uint8(tvb, offset) / 2));
+            (signed char)(tvb_get_uint8(tvb, offset)) / 2);
         offset++;
         length--;
 
@@ -3945,7 +3945,7 @@ decode_key_number(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
     if (length > 0) {
         proto_tree_add_uint_format_value(tree, hf_ua3g_key_number, tvb, offset, 1,
             tvb_get_uint8(tvb, offset), "Row %d, Column %d",
-            (tvb_get_uint8(tvb, offset) & 0xF0), (tvb_get_uint8(tvb, offset) & 0x0F));
+            (tvb_get_uint8(tvb, offset) & 0xF0) >> 4, (tvb_get_uint8(tvb, offset) & 0x0F));
     }
 }
 
