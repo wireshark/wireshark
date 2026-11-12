@@ -159520,3 +159520,146 @@ class TestDissectUmtsRlc:
         two = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', passes=('-2',))
         diff = [n for n in one if one[n] != two[n]]
         assert diff == ['167'] + [str(n) for n in range(213, 1242)]
+
+
+class TestDissectUsbAudio:
+    '''USB Audio class 1.0 and 2.0 (descriptors, class requests) and
+    USB-MIDI (usbmon, interface class 1) from the synthetic capture
+    usb-audio_coverage.pcapng.gz: two devices (addresses 4 and 5), their
+    configuration descriptors, class requests to feature, selector and
+    clock entities, MIDI event packets with SysEx reassembly and three
+    Exported PDU frames.'''
+
+    CAP = 'usb-audio_coverage.pcapng.gz'
+
+    @staticmethod
+    def usbaudio_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=(), timeout=120):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('usb-audio_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=timeout)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_usbaudio_protocols(self, cmd_tshark, capture_file, test_env):
+        '''183 frames: 130 USBAUDIO frames (class requests and MIDI
+        events), 44 USB, 8 reassembled SysEx messages and the three
+        Exported PDU frames without a protocol column; no malformed
+        packets or error expert infos in one and two passes, and the
+        Protocol and Info columns are the same in both.'''
+        columns = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            columns.append(stdout)
+        assert columns[0] == columns[1]
+        protocols = [line.split('\t')[0].strip() for line in columns[0].splitlines()]
+        assert len(protocols) == 183
+        assert protocols.count('USBAUDIO') == 128
+        assert protocols.count('USB') == 44
+        assert protocols.count('MIDI SysEx') == 8
+        assert protocols.count('') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_usbaudio_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''The class 1.0 configuration (frame 4) has feature units 3 and
+        7 with control sizes 2 and 1, and Type I, II and III format
+        descriptors with sampling frequencies; the class 2.0 one (frame
+        8) has clock sources 0x10 and 0x12 and format types 1-4.'''
+        rows = self.usbaudio_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 4 || frame.number == 8',
+                'usbaudio.ac_if_fu.bUnitID', 'usbaudio.ac_if_fu.bControlSize',
+                'usbaudio.as_if_ft.bFormatType', 'usbaudio.as_if_ft.tSamFreq',
+                'usbaudio.ac_if_clksrc.bClockID')
+        assert rows == [
+            ['4', '3,7', '2,1', '1,2,3,1,2,3', '44100,48000,32000,48000', ''],
+            ['8', '2', '', '1,2,3,4', '', '16,18'],
+        ]
+
+    def test_usbaudio_requests(self, cmd_tshark, capture_file, test_env):
+        '''Class 2.0 requests to the clock source: the sampling frequency
+        (CUR, frames 44 and 45) and RANGE with 3 subranges (56). The
+        host asked for 14 octets in frame 58, which hold one subrange of
+        three 4 octet values (not three subranges), and for 2 octets in
+        60; the old check compared wLength with 2 + n * 4 and gave a
+        malformed packet for these.'''
+        rows = self.usbaudio_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {44, 45, 56, 58, 60}',
+                'usbaudio.bCUR', 'usbaudio.wNumSubRanges', 'usbaudio.dMIN', 'usbaudio.dMAX')
+        assert rows == [
+            ['44', '48000', '', '', ''],
+            ['45', '44100', '', '', ''],
+            ['56', '', '3', '8000,8001,8002', '8100,8101,8102'],
+            ['58', '', '3', '8000', '8100'],
+            ['60', '', '3', '', ''],
+        ]
+
+    def test_usbaudio_midi_events(self, cmd_tshark, capture_file, test_env):
+        '''USB-MIDI event packets: Note On on all 16 cables, miscellaneous
+        and system common events, every channel message, and an event
+        cut short at the end of the frame.'''
+        rows = self.usbaudio_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {110, 112, 114}', 'usbaudio.midi.code_index', 'usbaudio.midi.cable_number')
+        assert rows[0][1] == ','.join(['0x08'] * 16)
+        assert rows[0][2] == ','.join('0x%02x' % c for c in range(16))
+        assert rows[1][1] == '0x00,0x01,0x02,0x03'
+        assert rows[2][1] == '0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f'
+
+    def test_usbaudio_sysex(self, cmd_tshark, capture_file, test_env):
+        '''SysEx messages that end with 1, 2 and 3 octets, one that
+        spans three frames, two cables interleaved, and a message of
+        81920 events (245760 octets) in 20 frames that completes in the
+        last one (frame 180). Before "reassemble: Find the next fragment
+        number from the first gap" the fragment lookup was quadratic and
+        tshark took more than two minutes for this one.'''
+        rows = self.usbaudio_fields(cmd_tshark, capture_file, test_env,
+                'usbaudio.sysex.reassembled.length',
+                'usbaudio.sysex.fragment.count', 'usbaudio.sysex.reassembled.length',
+                timeout=60)
+        assert [r[:3] for r in rows] == [
+            ['120', '3', '9'],
+            ['122', '2', '5'],
+            ['124', '2', '4'],
+            ['130', '6', '18'],
+            ['136', '4', '11'],
+            ['138', '3', '7'],
+            ['139', '3', '8'],
+            ['180', '81920', '245760'],
+        ]
+        rows2 = self.usbaudio_fields(cmd_tshark, capture_file, test_env,
+                'usbaudio.sysex.reassembled.length',
+                'usbaudio.sysex.fragment.count', 'usbaudio.sysex.reassembled.length',
+                passes=('-2',), timeout=60)
+        assert rows2 == rows
+
+    def test_usbaudio_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The three Exported PDU frames (181-183) name usbaudio,
+        usbaudio.control and usbaudio.bulk; the dissectors get no URB
+        and decline.'''
+        rows = self.usbaudio_fields(cmd_tshark, capture_file, test_env,
+                'exported_pdu', 'exported_pdu.exported_pdu')
+        assert [r[0] for r in rows] == ['181', '182', '183']
+
+    def test_usbaudio_bad_feature_unit_length(self, cmd_tshark, capture_file, test_env):
+        '''A v1 feature unit with bControlSize 0 (frame 2) and a v2 feature
+        unit too short for its controls (frame 4) get the "invalid feature
+        unit length" expert info and no exception.'''
+        env = dict(test_env, WIRESHARK_ABORT_ON_DISSECTOR_BUG='1')
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('usb_audio_bad_feature_unit.pcapng.gz'),
+                    '-Tfields', '-eframe.number', '-eusbaudio.ac_if_fu.bUnitID',
+                    '-e_ws.expert.message',
+                ), encoding='utf-8', env=env, timeout=60)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert [r[0] for r in rows if r[2]] == ['2', '4']
+            assert all(r[1] and r[2].startswith("Descriptor size is not") for r in rows if r[2])
+            assert not any('Exception occurred' in line for line in stdout.splitlines())
