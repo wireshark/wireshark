@@ -151222,3 +151222,164 @@ class TestDissectZbeeDirect:
             '110\t\t\t0x000258\t0x01\t',
             '111\t\t\t0x00012c\t0x00\t',
         ]
+
+
+class TestDissectZbeeNwk:
+    '''ZigBee NWK (data, commands, interpan, beacons, ZigBee IEs) over
+    IEEE 802.15.4 (LINKTYPE_IEEE802_15_4_NOFCS), from the synthetic capture
+    zbee_nwk_coverage.pcap.gz. The frames are reached through the default
+    enabled 802.15.4 heuristics.'''
+
+    CAPTURE = 'zbee_nwk_coverage.pcap.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectZbeeNwk.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.rstrip('\r') for line in stdout.splitlines()]
+
+    def test_zbee_nwk_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 96 frames decode, without malformed packets or error expert
+        infos, in one and two passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in protocols]
+        assert len(protocols) == 96
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['ZigBee'] == 66
+        assert counts['ZigBee HA'] == 22
+        assert counts['ZigBee IP'] == 2
+        assert counts['IEEE 802.15.4'] == 5
+        assert counts['ZigBee Green Power'] == 1
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_zbee_nwk_commands(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the network commands.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'zbee_nwk.cmd.id', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = dict(l.split('\t') for l in lines)
+        assert len(info) == 52
+        assert info['22'] == 'Route Request, Dst: 0x2222, Src: 0x0002'
+        assert info['23'] == 'Many-to-One Route Request, Dst: 0x2222, Src: 0x0002'
+        assert info['26'] == 'Route Reply, Responder: 0x2222, Originator: 0x1111'
+        assert info['29'] == 'Network Status, 0x4444: No Route Available'
+        assert info['33'] == ('Network Status, 0x4444: Unknown Status Code, '
+                              'Unknown Command ID 0x77 (Unknown ID)')
+        assert info['34'] == ('Network Status, 0x4444: Unknown Status Code, '
+                              'Unknown Command ID 0x01 (Route Request)')
+        assert info['41'] == 'Route Record, Dst: 0x0001'
+        assert info['45'] == 'Rejoin Response, New Address: 0x7777'
+        assert info['46'] == 'Rejoin Response, PAN Full'
+        assert info['50'] == 'Network Report, PAN Identifier Conflict'
+        assert info['52'] == 'Network Report, ZBOSS key trace'
+        assert info['54'] == 'Network Update, PAN Identifier Update'
+        assert info['57'] == 'End Device Timeout Response, Success'
+        assert info['61'] == 'Link Power Delta'
+        assert info['65'] == 'Network Commissioning Request, Device: 0x0002'
+        assert info['67'] == 'Network Commissioning Response, New Address: 0x7778'
+        assert info['69'] == 'Unknown Command'
+
+    def test_zbee_nwk_addresses(self, cmd_tshark, capture_file, test_env):
+        '''The extended source address of frame 4 is learnt and shown, on
+        the second pass, for frame 6 (same short source) and not for the
+        unknown source of frame 7 or the broadcast source of frame 13.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {4, 6, 7, 13}',
+                '-Tfields', '-eframe.number', '-ezbee_nwk.src', '-ezbee_nwk.src64',
+                '-ezbee_nwk.src64.origin')
+        assert lines == [
+            '4\t0x0005\t00:12:4b:00:01:02:03:04\t',
+            '6\t0x0005\t00:12:4b:00:01:02:03:04\t4',
+            '7\t0x0099\t\t',
+            '13\t0xfffd\t00:12:4b:00:0a:0b:0c:0d\t',
+        ]
+
+    def test_zbee_nwk_static_address(self, cmd_tshark, capture_file, test_env):
+        '''A short address from the 802.15.4 static address table is shown
+        as a pre-configured extended source.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file(self.CAPTURE),
+                '-o', 'uat:802154_addresses:"aa","1234",00124b00000000aa',
+                '-Y', 'frame.number == 8', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert '[Origin: Pre-configured]' in stdout
+        assert '(00:12:4b:00:00:00:00:aa)' in stdout
+
+    def test_zbee_nwk_source_route_length(self, cmd_tshark, capture_file, test_env):
+        '''The Source Route item covers the relay count, the relay index and
+        the relays (8 octets for 3 relays, "ZigBee NWK: Fix several small
+        length and offset errors").'''
+        import xml.etree.ElementTree as ET
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE), '-Y', 'frame.number == 16', '-Tpdml',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        sizes = [f.get('size') for f in ET.fromstring(stdout).iter('field')
+                 if (f.get('show') or '').startswith('Source Route')]
+        assert sizes == ['8']
+
+    def test_zbee_nwk_link_power_delta(self, cmd_tshark, capture_file, test_env):
+        '''Each Power Delta Structure starts at its own bytes, not at the
+        entry count (positions 20 and 23 in frame 61).'''
+        import xml.etree.ElementTree as ET
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE), '-Y', 'frame.number == 61', '-Tpdml',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        structs = [(f.get('pos'), f.get('size'), f.get('show'))
+                   for f in ET.fromstring(stdout).iter('field')
+                   if (f.get('show') or '').startswith('Power Delta Structure')]
+        assert structs == [
+            ('20', '3', 'Power Delta Structure: Device Address 0x1111, Power Delta -3 dBm'),
+            ('23', '3', 'Power Delta Structure: Device Address 0x2222, Power Delta 4 dBm'),
+        ]
+
+    def test_zbee_nwk_zigbee_ie(self, cmd_tshark, capture_file, test_env):
+        '''ZigBee information elements in the payload IEs of an 802.15.4-2015
+        frame: the unknown IE shows its own 3 octets under its own subtree.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {88, 89, 90, 91}',
+                '-Tfields', '-eframe.number', '-ezbee_nwk.zigbee_ie.id',
+                '-ezbee_nwk.zigbee_ie.tx_power', '-ezbee_nwk.zigbee_ie.source_address')
+        assert lines[0] == '88\t0x0000\t\t'
+        assert lines[1] == '89\t0x0001\t-10\t'
+        assert lines[3] == '91\t0x0000,0x0001,0x0005\t-10\t'
+        stdout = '\n'.join(self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 91', '-V'))
+        assert 'ZigBee IE, Unknown, Length: 3' in stdout
+        assert 'Data: 010203' in stdout
+
+    def test_zbee_nwk_beacons(self, cmd_tshark, capture_file, test_env):
+        '''Legacy ZigBee beacons (versions 1 and 2, optional fields) and ZigBee IP.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 79 && frame.number <= 87',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ezbee_beacon.update_id',
+                '-ezbip_beacon.network_id')
+        assert lines[0] == '79\tBeacon, Src: 0x0000, EPID: 11:22:33:44:55:66:77:88\t7\t'
+        assert lines[1].startswith('80\tBeacon, Src: 0x0000, EPID')
+        assert lines[3] == '82\tBeacon, Src: 0x0000\t\t'
+        assert lines[7] == '86\tBeacon, Src: 0x0000, SSID: ZigBeeIP-net-01\t\tZigBeeIP-net-01'
+        assert lines[8].startswith('87\tBeacon, Src: 0x0000, SSID: abcdefghijklmnop')
+
+    def test_zbee_nwk_keyring(self, cmd_tshark, capture_file, test_env):
+        '''The ZBOSS key trace of frame 52 puts a key in the NWK key ring; the
+        frame decodes the same in one and two passes.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number == 52', '-Tfields', '-ezbee_nwk.cmd.report.type',
+                    '-ezbee_nwk.zboss_key'))
+        assert outputs[0] == outputs[1]
+        assert outputs[0][0].startswith('0x06')
+
+    def test_zbee_nwk_short_payloads(self, cmd_tshark, capture_file, test_env):
+        '''Payloads the heuristics must not accept (one octet, bad version, reserved frame type 2)
+        are shown by 802.15.4 as data; the one octet payload used to throw
+        in the heuristic.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 93', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol', '-ezbee_nwk')
+        assert lines == ['93\tIEEE 802.15.4\t', '94\tIEEE 802.15.4\t', '95\tIEEE 802.15.4\t', '96\tIEEE 802.15.4\t']
