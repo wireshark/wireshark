@@ -150067,3 +150067,80 @@ class TestDissectTn5250:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env, timeout=120)
             assert stdout.split() == ['580', '584', '586']
+
+
+class TestDissectYami:
+    '''YAMI (no default port) reached through an Exported PDU naming "yami".
+    Frames 11-12 carry the expert infos added by "YAMI: Bound nested
+    parameters and check the message header size".'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *fields, args=()):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('yami_coverage.pcap.gz'),
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_yami_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 15 frames are YAMI; one and two passes show the same.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert lines == ['YAMI'] * 15
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                    'frame.number', '_ws.expert.message',
+                    args=(*passes, '-Y', '_ws.expert'))
+            assert lines == [
+                '11\tNested parameters nested too deeply',
+                '12\tMessage header size is smaller than 4',
+            ]
+
+    def test_yami_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''32 nested levels decode (frame 10, the innermost leaf is shown),
+        the 33rd level stops with an expert info (frame 11, the fix). The
+        2-3 level nesting of frame 3 is intact.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number', 'yami.param.value_int',
+                args=('-Y', 'frame.number in {3,10,11}'))
+        assert lines[0] == '3\t1,1,3,9'
+        assert lines[1] == '10\t1,7'
+        assert lines[2] == '11\t1'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('yami_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3', '-V', '-O', 'yami',
+            ), encoding='utf-8', env=test_env)
+        assert 'Parameter: inner, Type: nested, 1 parameters: c, ' in stdout
+        assert '                    Parameter: c, Type: integer, Value: 3' in stdout
+
+    def test_yami_header_size(self, cmd_tshark, capture_file, test_env):
+        '''A negative message header size (frame 12) gives the expert info
+        and no data message is parsed from inside the frame header; the
+        frame size is computed without overflow (frame 13).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('yami_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12', '-V', '-O', 'yami',
+            ), encoding='utf-8', env=test_env)
+        assert 'Message Header Size: -8' in stdout
+        assert 'Data message' not in stdout
+        assert 'Message header size is smaller than 4' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('yami_coverage.pcap.gz'),
+                '-Y', 'frame.number == 13', '-V', '-O', 'yami',
+            ), encoding='utf-8', env=test_env)
+        assert '(YAMI Frame Size: 2147483663)' in stdout
+
+    def test_yami_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Scalar parameter values of frame 1 and the array counts of frame 2.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'yami.param.name', 'yami.param.value_int', 'yami.param.value_long',
+                'yami.param.value_str', 'yami.param.value_bool',
+                args=('-Y', 'frame.number == 1'))
+        fields = lines[0].split('\t')
+        assert fields[1] == '1,-5'
+        assert fields[2] == '-1099511627776'
+        assert fields[3] == 'obj,ping,hello,,abcd'
+        assert fields[4] == 'True,False'
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'yami.items_count', 'yami.params_count',
+                args=('-Y', 'frame.number == 2'))
+        assert lines == ['40,5,32,0,3,2,2,3,3\t3,9']
