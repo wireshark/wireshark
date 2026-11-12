@@ -150306,3 +150306,85 @@ class TestDissectYmsg:
         split = ','.join('split %d' % i for i in range(20, 30))
         assert lines[2] == '192\t85\t' + split
         assert lines[3] == '194\t85\t' + split
+
+
+class TestDissectYpbind:
+    '''YPBIND over ONC RPC on UDP (frames 1-22) and TCP (frames 23-47),
+    found by the default RPC heuristics.'''
+
+    def test_ypbind_protocols(self, cmd_tshark, capture_file, test_env):
+        '''44 YPBIND frames and the 3 TCP handshake frames; no malformed
+        packets or expert infos of warning level or above, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ypbind_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 47
+        assert protocols.count('YPBIND') == 44
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ypbind_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ypbind_fail_error(self, cmd_tshark, capture_file, test_env):
+        '''The error code of a FAIL_VAL response is shown with its own
+        field and value string, and the response type once (it was shown
+        twice with the response type field before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ypbind_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6', '-V', '-O', 'ypbind',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('Yellow Pages Bind')
+        assert lines[start + 1:start + 5] == [
+            '    [Program Version: 2]',
+            '    [V2 Procedure: DOMAIN (1)]',
+            '    Response Type: FAIL_VAL (2)',
+            '    Error: No bound server for passed domain (2)',
+        ]
+        assert stdout.count('Response Type:') == 1
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ypbind_coverage.pcap.gz'),
+                '-Y', 'ypbind.resp_type == 2',
+                '-Tfields', '-eframe.number', '-eypbind.error',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t1', '6\t2', '8\t3', '10\t99',
+            '29\t1', '31\t2', '33\t3', '35\t99',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ypbind_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4,8,10}', '-V', '-O', 'ypbind',
+            ), encoding='utf-8', env=test_env)
+        assert '    Error: Internal error (1)' in stdout
+        assert '    Error: System resource allocation failure (3)' in stdout
+        assert '    Error: Unknown (99)' in stdout
+
+    def test_ypbind_values(self, cmd_tshark, capture_file, test_env):
+        '''Domain, successful response (address and port), SETDOMAIN and
+        the versions and procedures, over UDP and TCP alike.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ypbind_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2,12,13,14,17,19,21,38,27}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eypbind.domain',
+                '-eypbind.resp_type', '-eypbind.addr', '-eypbind.port',
+                '-eypbind.setdom.version',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 V2 DOMAIN Call example.org',
+            '2 V2 DOMAIN Reply (Call In 1) 1 192.0.2.10 861',
+            '12 V2 DOMAIN Reply (Call In 11) 7',
+            '13 V2 SETDOMAIN Call example.org 192.0.2.10 861 2',
+            '14 V2 SETDOMAIN Reply (Call In 13)',
+            '17 V1 NULL Call',
+            '19 V1 DOMAIN Call',
+            '21 V1 SETDOMAIN Call',
+            '27 V2 DOMAIN Reply (Call In 26) 1 192.0.2.10 861',
+            '38 V2 SETDOMAIN Call example.org 192.0.2.10 861 2',
+        ]
