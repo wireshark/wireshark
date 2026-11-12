@@ -155224,3 +155224,75 @@ class TestDissectTrmac:
         assert 'Non-Isolating Errors: 40' in text
         assert 'Token Errors: 10' in text
         assert 'Subvector (Unknown subvector ID 0x31)' in text
+
+
+class TestDissectTrueconf:
+    '''TrueConf (TCP port 4307) from the synthetic capture
+    trueconf_coverage.pcap.gz: PDUs in one segment, PDUs split across
+    segments, streams that do not start with the magic.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('trueconf_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_trueconf_clean(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-26 have no malformed packets or error expert infos
+        in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_trueconf_two_pdus_in_one_segment(self, cmd_tshark, capture_file, test_env):
+        '''Two back-to-back PDUs in one segment (frame 5) are both
+        decoded; the PDU length used to be 12 octets too short, which
+        cut the first PDU and lost the second.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 5', '-Tfields',
+                '-etrueconf.msg_type', '-etrueconf.len_a', '-etrueconf.payload')
+        assert lines == ['1,5\t32,32\t'
+            '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f,'
+            '202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f']
+
+    def test_trueconf_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''PDUs split into 3, 2 and 2 segments are completed in frames
+        8, 10 and 12; a magic split over segments is found (frame 21).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'trueconf.msg_type in {6, 7, 8, 12}', '-Tfields',
+                '-eframe.number', '-etrueconf.msg_type')
+        assert lines == ['8\t6', '10\t7', '12\t8', '21\t12']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {6, 7, 9, 11, 19, 20}', '-Tfields',
+                '-eframe.number', '-etcp.reassembled_in')
+        assert lines == ['6\t8', '7\t8', '9\t10', '11\t12', '19\t21', '20\t21']
+
+    def test_trueconf_no_magic(self, cmd_tshark, capture_file, test_env):
+        '''A stream on port 4307 that does not start with the magic
+        (frames 16-18) is not reassembled and not decoded; it used to be
+        reassembled for ever, which is quadratic in the stream length.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {16, 17, 18}', '-Tfields',
+                '-eframe.number', '-e_ws.col.protocol', '-etcp.reassembled_in')
+        assert lines == ['16\tTCP\t', '17\tTCP\t', '18\tTCP\t']
+
+    def test_trueconf_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Length A and B differ (frames 13, 14): the shorter is the PDU
+        payload length and the trailer is read from its end; a payload
+        of 16 octets has a trailer, one of 8 has none.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 3, 13, 14}', '-Tfields',
+                '-eframe.number', '-etrueconf.len_a', '-etrueconf.len_b',
+                '-etrueconf.trailer1')
+        assert lines == ['2\t8\t8\t', '3\t16\t16\t50462976',
+                         '13\t24\t40\t185207048', '14\t40\t24\t185207048']
+
+    def test_trueconf_handshake_text(self, cmd_tshark, capture_file, test_env):
+        '''The handshake host name is shown in the Info column.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 12', '-Tfields', '-e_ws.col.info',
+                '-etrueconf.host', '-etrueconf.token')
+        assert lines == ['Handshake host=host.example\thost.example\tabcdefgh']
