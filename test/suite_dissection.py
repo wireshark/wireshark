@@ -153000,3 +153000,119 @@ class TestDissectZbeeZdpDiscovery:
             '89\t3\t1,2,3\t\t',
             '90\t3\t2,3\t\t',
         ]
+
+
+class TestDissectZbeeZdpManagement:
+    CAP = 'zbee_zdp_management_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, cap, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file(cap), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_zbee_zdp_management_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 69 frames are ZigBee ZDP messages of the management group
+        and none is malformed or has an error expert info, in one and two
+        passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['ZigBee ZDP'] * 69
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        # Direct join and cache are deprecated commands: a warning, no error.
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'zbee_zdp.zdo_command_deprecated', '-Tfields', '-eframe.number')
+        assert lines == ['11', '14', '48', '50', '51']
+
+    def test_zbee_zdp_management_nwk_desc_stack_profile(self, cmd_tshark, capture_file, test_env):
+        '''The network descriptor shows the low nibble of the profile byte
+        as the stack profile (it was added as an application profile, so
+        0x21 showed as "Profile: Unknown ZigBee Standard (0x0021)") and
+        the high nibble as the protocol version.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'zbee_zdp.stack_profile', '-Tfields', '-eframe.number',
+                '-ezbee_zdp.stack_profile', '-ezbee_zdp.profile_version',
+                '-ezbee_zdp.channel')
+        assert lines == ['36\t1,1\t2,2\t15,20', '37\t1\t2\t15']
+        stdout = '\n'.join(self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 36', '-V', '-O', 'zbee_zdp'))
+        assert 'Stack Profile: 1' in stdout
+        assert 'Unknown ZigBee Standard' not in stdout
+
+    def test_zbee_zdp_management_channels(self, cmd_tshark, capture_file, test_env):
+        '''Scan channel masks and the energy scan results.'''
+        stdout = '\n'.join(self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {1, 2, 3, 4, 15, 16, 17, 18, 19, 20, 52, 53, 54, 55}',
+                '-V', '-O', 'zbee_zdp'))
+        shown = [l.strip() for l in stdout.splitlines()
+                 if l.strip().startswith(('Scan Channels:', 'Channels:', 'Channel Page:',
+                                          'Channel 1', 'Update ID:', 'Scan Count:'))]
+        assert shown == [
+            'Scan Channels: 11-26', 'Scan Channels: 0, 5, 10, 15, 20',
+            'Scan Channels: None', 'Scan Channels: 0-26',
+            'Channel Page: 0', 'Channels: 11-26', 'Scan Count: 2',
+            'Channel Page: 1', 'Channels: 0, 5, 10, 15, 20', 'Scan Count: 1',
+            'Channel Page: 0', 'Channels: 15', 'Update ID: 7',
+            'Channel Page: 0', 'Channels: 15', 'Update ID: 8',
+            'Channel Page: 0', 'Channels: 11',
+            'Channel Page: 0', 'Channels: None',
+            'Channel Page: 0', 'Channels: 15',
+            'Channel 15 Energy: 0x40', 'Channel 16 Energy: 0x80',
+            'Channel Page: 2', 'Channels: 14',
+            'Channel 14 Energy: 0x10', 'Channel 15 Energy: 0x20',
+            'Channel Page: 0', 'Channels: 14-16',
+            'Channel 14 Energy: 0x10', 'Channel 15 Energy: 0x20',
+            'Channel Page: 0', 'Channels: None',
+        ]
+
+    def test_zbee_zdp_management_tables(self, cmd_tshark, capture_file, test_env):
+        '''Neighbour, routing, binding and cache tables, ZigBee 2007 and 2004.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'zbee_zdp.table_count', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-ezbee_zdp.table_size', '-ezbee_zdp.table_count')
+        assert lines == [
+            '36\tNetwork Discovery Response, Status: Success\t2\t2',
+            '37\tNetwork Discovery Response, Status: Reserved\t1\t1',
+            '38\tNetwork Discovery Response, Status: Success\t0\t0',
+            '39\tLink Quality Response, Status: Success\t2\t2',
+            '40\tLink Quality Response, Status: Reserved\t1\t1',
+            '41\tLink Quality Response, Status: Success\t0\t0',
+            '42\tRouting Table Response, Status: Success\t3\t3',
+            '43\tRouting Table Response, Status: Success\t0\t0',
+            '44\tBinding Table Response, Status: Success\t3\t3',
+            '45\tBinding Table Response, Status: Reserved\t1\t1',
+            '46\tBinding Table Response, Status: Success\t0\t0',
+            '50\tCache Response, Status: Success\t2\t2',
+            '51\tCache Response, Status: Success\t0\t0',
+        ]
+        stdout = '\n'.join(self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 42', '-V', '-O', 'zbee_zdp'))
+        assert ('Routing Table Entry {Destination: 0x0004, Next Hop: 0x0002, '
+                'Status: Discovery Underway}') in stdout
+        assert 'Status: Unknown (7)' in stdout
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 39', '-Tfields', '-ezbee_zdp.lqi', '-ezbee_zdp.depth')
+        assert lines == ['200,200\t2,2']
+
+    def test_zbee_zdp_management_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of requests and responses.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {8, 10, 12, 21, 34, 35, 57, 58, 59, 60, 61, 69}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '8\tLeave Request, Device: TexasInstrum_00:01:02:03:04',
+            '10\tLeave Request, Device: TexasInstrum_00:01:02:03:07',
+            '12\tPermit Join Request',
+            '21\tNetwork Update Enhanced Request',
+            '34\tSecurity Get Configuration Request',
+            '35\tSecurity Get Configuration Request',
+            '57\tIEEE Joining List Response',
+            '58\tIEEE Joining List Response',
+            '59\tIEEE Joining List Response',
+            '60\tUnsolicited Enhanced Network Update Notify',
+            '61\tBeacon Survey Response',
+            '69\tSecurity Challenge Response',
+        ]
