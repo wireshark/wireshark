@@ -150144,3 +150144,83 @@ class TestDissectYami:
                 'yami.items_count', 'yami.params_count',
                 args=('-Y', 'frame.number == 2'))
         assert lines == ['40,5,32,0,3,2,2,3,3\t3,9']
+
+
+class TestDissectYhoo:
+    '''YHOO is disabled by default (protocol and heuristic) and port 5050
+    belongs to another dissector: the options below are needed.'''
+    OPTS = ('--enable-protocol', 'yhoo', '--enable-heuristic', 'yhoo_tcp',
+            '-o', 'tcp.try_heuristic_first:TRUE')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, opts, *fields, args=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts, *args,
+                '-r', capture_file('yhoo_coverage.pcap.gz'),
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_yhoo_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 45 frames are YHOO with the options and none is YHOO by
+        default; none is malformed or has an expert info, in one and two
+        passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.OPTS,
+                '_ws.col.protocol')
+        assert lines == ['YHOO'] * 45
+        lines = self._fields(cmd_tshark, capture_file, test_env, (),
+                '_ws.col.protocol')
+        assert len(lines) == 45
+        assert 'YHOO' not in lines
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, self.OPTS,
+                    'frame.number',
+                    args=(*passes, '-Y', '_ws.malformed || _ws.expert'))
+            assert lines == []
+
+    def test_yhoo_content(self, cmd_tshark, capture_file, test_env):
+        '''The content item follows the nicks (its offset and length were
+        swapped, so it was never shown and the packet was malformed).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.OPTS,
+                'frame.number', 'yhoo.content', args=('-Y', 'frame.number in {1,2,43,45}'))
+        assert lines == [
+            '1\tcontent 0 for service 1',
+            '2\tcontent 1 for service 2',
+            '43\tx',
+            '45\tshort claim',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('yhoo_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2', '-V', '-O', 'yhoo',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('Yahoo Messenger Protocol')
+        assert lines[start + 1:start + 11] == [
+            '    Version: YHOO',
+            '    Packet Length: 23',
+            '    Service Type: Pager Logoff (2)',
+            '    Connection ID: 0x00001001',
+            '    Magic ID: 0xabcd0001',
+            '    Unknown 1: 0x00000003',
+            '    Message Type: Normal (1)',
+            '    Real Nick (nick1): alice1',
+            '    Active Nick (nick2): bob',
+            '    Content: content 1 for service 2',
+        ]
+        assert 'Malformed' not in stdout
+
+    def test_yhoo_info(self, cmd_tshark, capture_file, test_env):
+        '''Requests (YPNS) and responses (YHOO) of several services, an
+        unknown service and the message types.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.OPTS,
+                'frame.number', 'yhoo.version', 'yhoo.service', 'yhoo.msgtype',
+                '_ws.col.info',
+                args=('-Y', 'frame.number in {1,2,6,31,41,42,43}'))
+        assert lines == [
+            '1\tYPNS\t1\t0\tRequest: Pager Logon',
+            '2\tYHOO\t2\t1\tResponse: Pager Logoff',
+            '6\tYHOO\t6\t77\tResponse: Message',
+            '31\tYPNS\t70\t0\tRequest: File Transfer',
+            '41\tYPNS\t746\t1515563606\tRequest: SMS Message',
+            '42\tYPNS\t999\t1\tRequest: Unknown Service: 999',
+            '43\tYHOO\t6\t4\tResponse: Message',
+        ]
