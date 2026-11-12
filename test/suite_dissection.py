@@ -157366,3 +157366,83 @@ class TestDissectUbxGalileoE1bInav:
         assert lines == ['95\t0\t0x00000055\t\t0x00000777', '96\t2\t0x00000055\t\t0x00000777',
                          '97\t4\t0x00000055\t\t0x00000777', '98\t6\t0x00000055\t\t0x00000777',
                          '99\t\t\t\t']
+
+
+class TestDissectUbxGpsL1Lnav:
+    CAP = 'ubx_gps_l1_lnav_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture, test_env, *args):
+        '''tshark output as a list of lines.'''
+        return subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_ubx_gps_l1_protocols(self, cmd_tshark, capture_file, test_env):
+        '''99 GPS L1 LNAV subframes (UBX-RXM-SFRBX in Exported PDU, and
+        three handed straight to "ubx_gps_l1"). None is malformed; only
+        frames 85 and 86 have an expert info (warnings for an invalid
+        preamble and a TOW count past 100799), in one and two passes.'''
+        cap = capture_file(self.CAP)
+        protocols = self.fields(cmd_tshark, cap, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 99
+        assert protocols.count('GPS L1 LNAV') == 99
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+            assert lines == []
+            lines = self.fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', '_ws.expert', '-Tfields', '-eframe.number', '-e_ws.expert.message')
+            assert lines == ['85\tInvalid preamble', '86\tInvalid TOW count']
+
+    def test_ubx_gps_l1_two_pass_identical(self, cmd_tshark, capture_file, test_env):
+        '''The dissector keeps no state: the full tree is the same in one
+        and two passes.'''
+        cap = capture_file(self.CAP)
+        one = subprocess.check_output((cmd_tshark, '-r', cap, '-V'), encoding='utf-8', env=test_env)
+        two = subprocess.check_output((cmd_tshark, '-2', '-r', cap, '-V'), encoding='utf-8', env=test_env)
+        assert one == two
+
+    def test_ubx_gps_l1_subframes(self, cmd_tshark, capture_file, test_env):
+        '''Subframes 1 and 2 are decoded word by word; the others (0, 3, 4,
+        5 and the invalid 6 and 7) are named in the Info column only.'''
+        cap = capture_file(self.CAP)
+        infos = self.fields(cmd_tshark, cap, test_env, '-Tfields', '-e_ws.col.info')
+        for sf, count in ((0, 1), (1, 46), (2, 46), (3, 2), (4, 1), (5, 1), (6, 1), (7, 1)):
+            assert infos.count('Subframe %d' % sf) == count
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'gps_l1.sf1.w3.week_number',
+                '-Tfields', '-eframe.number')
+        assert len(lines) == 46 and lines[0] == '1'
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'gps_l1.sf2.w10.t_oe',
+                '-Tfields', '-eframe.number')
+        assert len(lines) == 46 and lines[0] == '2'
+        # frames 87-92: subframes 0, 3, 4, 5, 6 and 7 have no word dissector
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 87 && frame.number <= 92 && gps_l1.tlm.preamble',
+                '-Tfields', '-eframe.number')
+        assert lines == []
+
+    def test_ubx_gps_l1_handover_word(self, cmd_tshark, capture_file, test_env):
+        '''TOW count, alert flag, anti-spoof flag, integrity bit and
+        subframe id; the TOW count limit of 100799 itself is valid (frames
+        83, 84).'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number <= 4 || (frame.number >= 81 && frame.number <= 86) || frame.number >= 96',
+                '-Tfields', '-eframe.number', '-egps_l1.how.subframe_id', '-egps_l1.how.tow_count',
+                '-egps_l1.tlm.preamble', '-egps_l1.how.alert', '-egps_l1.how.anti_spoof',
+                '-egps_l1.tlm.integrity')
+        assert lines == [
+            '1\t1\t1001\t0x0000008b\tFalse\tFalse\tFalse', '2\t2\t1002\t0x0000008b\tFalse\tFalse\tFalse',
+            '3\t1\t1003\t0x0000008b\tTrue\tFalse\tFalse', '4\t2\t1004\t0x0000008b\tTrue\tFalse\tFalse',
+            '81\t1\t0\t0x0000008b\tFalse\tFalse\tFalse', '82\t2\t0\t0x0000008b\tFalse\tFalse\tFalse',
+            '83\t1\t100799\t0x0000008b\tFalse\tFalse\tFalse', '84\t2\t100799\t0x0000008b\tFalse\tFalse\tFalse',
+            '85\t1\t4000\t0x00000000\tFalse\tFalse\tFalse', '86\t2\t100800\t0x0000008b\tFalse\tFalse\tFalse',
+            '96\t1\t500\t0x0000008b\tFalse\tFalse\tFalse', '97\t1\t500\t0x0000008b\tFalse\tFalse\tTrue',
+            '98\t2\t500\t0x0000008b\tFalse\tFalse\tFalse', '99\t2\t500\t0x0000008b\tFalse\tFalse\tTrue']
+
+    def test_ubx_gps_l1_named_handle(self, cmd_tshark, capture_file, test_env):
+        '''Subframes handed straight to "ubx_gps_l1" (frames 93-95) are
+        decoded without the UBX-RXM-SFRBX header.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 93 && frame.number <= 95',
+                '-Tfields', '-eframe.number', '-eubx.rxm.sfrbx.svid', '-egps_l1.how.subframe_id',
+                '-e_ws.col.info')
+        assert lines == ['93\t\t1\tSubframe 1', '94\t\t2\tSubframe 2', '95\t\t\tSubframe 3']
