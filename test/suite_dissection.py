@@ -156854,3 +156854,95 @@ class TestDissectUavcanCan:
         assert msgs[5] == 'Reassembled payload too short for the CRC'
         assert msgs[7] == 'Expected Toggle 0 got 1.,Reassembled payload too short for the CRC'
         assert 'Exception' not in ''.join(msgs.values())
+
+
+class TestDissectUavcanDsdl:
+    CAP = 'uavcan_dsdl_coverage.pcap.gz'
+    # The DSDL dissectors are called by UAVCAN/CAN, which is only reached
+    # through Decode As
+    OPTS = ('-d', 'can.subdissector,uavcan_can')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=('-2',)):
+        return subprocess.check_output((cmd_tshark, *TestDissectUavcanDsdl.OPTS, *passes,
+                '-r', capture_file(TestDissectUavcanDsdl.CAP), '-Tfields', *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_uavcan_dsdl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 98 frames are UAVCAN/CAN with a DSDL payload and none is
+        malformed or has an expert info, in one pass and in two.'''
+        for passes in ((), ('-2',)):
+            protos = self.fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol', passes=passes)
+            assert protos == ['UAVCAN/CAN'] * 98
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_uavcan_dsdl_messages(self, cmd_tshark, capture_file, test_env):
+        '''Heartbeat, node ID allocation and record (diagnostic) messages.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'uavcan_dsdl.Heartbeat.health',
+                '-eframe.number', '-euavcan_dsdl.Heartbeat.uptime', '-euavcan_dsdl.Heartbeat.health',
+                '-euavcan_dsdl.Heartbeat.mode', '-euavcan_dsdl.Heartbeat.vendor_specific_status_code')
+        assert lines[:4] == ['1\t1000\t0\t0\t0', '2\t2000\t1\t1\t17', '3\t3000\t2\t2\t34', '4\t4000\t3\t3\t51']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'uavcan_dsdl.diagnostic.severity',
+                '-eframe.number', '-euavcan_dsdl.diagnostic.severity', '-euavcan_dsdl.primitive.String')
+        assert lines == ['%d\t%d\ttext%d' % (10 + i, i, i) for i in range(8)] + ['86\t2\tmulti-frame diagnostic text']
+
+    def test_uavcan_dsdl_pnp_allocation(self, cmd_tshark, capture_file, test_env):
+        '''The allocation type of NodeIDAllocationData 2.0 follows the
+        anonymous bit of the source (fixed: it used to be always 1); version
+        1.0 carries it in the payload.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'uavcan_dsdl.pnp.allocation',
+                '-eframe.number', '-euavcan_dsdl.pnp.allocation', '-euavcan_dsdl.node.id')
+        assert lines == ['5\t0\t', '6\t0\t42', '7\t1\t17', '8\t0\t65535', '9\t1\t42']
+
+    def test_uavcan_dsdl_register_values(self, cmd_tshark, capture_file, test_env):
+        '''Register Access requests with every kind of value.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 19 && frame.number <= 35',
+                '-eframe.number', '-euavcan_dsdl.register.Value.tag', '-euavcan_dsdl.register.Name',
+                '-euavcan_dsdl.primitive.array.size')
+        tags = {int(l.split('\t')[0]): l.split('\t')[1] for l in lines}
+        assert [tags[n] for n in range(19, 36)] == [str(t) for t in (0, 1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)]
+        assert lines[1].split('\t')[2] == 'uavcan.node.id,a string value'
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 24 && frame.number <= 31',
+                '-eframe.number', '-euavcan_dsdl.primitive.array.Integer64',
+                '-euavcan_dsdl.primitive.array.Integer32', '-euavcan_dsdl.primitive.array.Integer16',
+                '-euavcan_dsdl.primitive.array.Integer8', '-euavcan_dsdl.primitive.array.Natural64',
+                '-euavcan_dsdl.primitive.array.Natural32', '-euavcan_dsdl.primitive.array.Natural16',
+                '-euavcan_dsdl.primitive.array.Natural8')
+        assert lines == [
+            '24\t-5,1099511627776\t\t\t\t\t\t\t',
+            '25\t\t-1,2,3\t\t\t\t\t\t',
+            '26\t\t\t-1,2,3\t\t\t\t\t',
+            '27\t\t\t\t-1,2,3,4\t\t\t\t',
+            '28\t\t\t\t\t1,9223372036854775808\t\t\t',
+            '29\t\t\t\t\t\t1,2,3\t\t',
+            '30\t\t\t\t\t\t\t1,2,3\t',
+            '31\t\t\t\t\t\t\t\t1,2,3,4,5']
+        # real arrays (not compared by value, their text depends on the locale)
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'uavcan_dsdl.primitive.array.Real64 || uavcan_dsdl.primitive.array.Real32 || uavcan_dsdl.primitive.array.Real16',
+                '-eframe.number')
+        assert lines == ['32', '33', '34', '93']
+
+    def test_uavcan_dsdl_file_services(self, cmd_tshark, capture_file, test_env):
+        '''File server services: GetInfo, List, Modify, Read and Write.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'uavcan_dsdl.file.GetInfo.error',
+                '-eframe.number', '-euavcan_dsdl.file.GetInfo.error', '-euavcan_dsdl.file.GetInfo.size',
+                '-euavcan_dsdl.file.GetInfo.is_readable', '-euavcan_dsdl.file.GetInfo.is_writeable')
+        assert lines[:4] == ['42\t0\t4096\t1\t1', '43\t2\t8192\t0\t0', '44\t13\t16384\t1\t0',
+                             '45\t65535\t32768\t0\t1']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 46 && frame.number <= 62',
+                '-eframe.number', '-euavcan_dsdl.file.list.entry_index', '-euavcan_dsdl.file.Modify.source',
+                '-euavcan_dsdl.file.Modify.Destination', '-euavcan_dsdl.Modify.error',
+                '-euavcan_dsdl.Read.offset', '-euavcan_dsdl.Write.error')
+        by = {int(l.split('\t')[0]): l.split('\t')[1:] for l in lines}
+        assert by[46][0] == '3'
+        assert by[48][1:3] == ['/tmp/a', '/tmp/b']
+        assert [by[n][3] for n in range(50, 56)] == ['0', '21', '22', '27', '28', '38']
+        assert by[56][4] == '1000'
+        assert by[62][5] == '65535'
