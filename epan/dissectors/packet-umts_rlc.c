@@ -465,9 +465,7 @@ rlc_frag_assign(struct rlc_frag *frag, enum rlc_mode mode, packet_info *pinfo,
     frag->li        = li;
     frag->len       = 0;
     frag->data      = NULL;
-    rlc_channel_assign(&frag->ch, mode, pinfo, atm);
-
-    return 0;
+    return rlc_channel_assign(&frag->ch, mode, pinfo, atm);
 }
 
 static int
@@ -641,7 +639,7 @@ tree_add_fragment_list_incomplete(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree
     while (sdufrag) {
         proto_tree_add_uint_format(frag_tree, hf_rlc_frag, tvb, 0,
             0, sdufrag->frame_num, "Frame: %u, payload %u-%u (%u bytes) (Seq: %u)",
-            sdufrag->frame_num, offset, offset + sdufrag->len - 1, sdufrag->len, sdufrag->seq);
+            sdufrag->frame_num, offset, (unsigned)offset + (sdufrag->len ? sdufrag->len - 1 : 0), sdufrag->len, sdufrag->seq);
         offset += sdufrag->len;
         sdufrag = sdufrag->next;
     }
@@ -892,6 +890,9 @@ printends(GList * list)
 }
 #endif
 
+/* Maximum number of channels with a reassembly table (32 KiB each) */
+#define RLC_MAX_FRAG_CHANNELS 1024
+
 static struct rlc_frag **
 get_frags(packet_info * pinfo, struct rlc_channel * ch_lookup, struct atm_phdr *atm)
 {
@@ -902,6 +903,9 @@ get_frags(packet_info * pinfo, struct rlc_channel * ch_lookup, struct atm_phdr *
         frags = (struct rlc_frag **)value;
     } else if (pinfo != NULL) {
         struct rlc_channel *ch;
+        /* Each channel takes 32 KiB, do not allocate without bound */
+        if (g_hash_table_size(fragment_table) >= RLC_MAX_FRAG_CHANNELS)
+            return NULL;
         ch = rlc_channel_create(ch_lookup->mode, pinfo, atm);
         frags = (struct rlc_frag **)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_frag *) * 4096);
         g_hash_table_insert(fragment_table, ch, frags);
@@ -1039,7 +1043,13 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     }
 
     frags = get_frags(pinfo, &ch_lookup, atm);
+    if (frags == NULL) {
+        /* Too many channels, no reassembly for this one */
+        return NULL;
+    }
     endlist = get_endlist(pinfo, &ch_lookup, atm);
+    if (endlist == NULL)
+        return NULL;
 
     /* If already done reassembly */
     if (PINFO_FD_VISITED(pinfo)) {
@@ -1213,8 +1223,10 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     gpointer         orig_frag, orig_sdu;
     struct rlc_sdu  *sdu;
     struct rlc_frag  lookup, *frag;
+    unsigned         snmod;
 
-    rlc_frag_assign(&lookup, mode, pinfo, seq, num_li, atm);
+    if (rlc_frag_assign(&lookup, mode, pinfo, seq, num_li, atm) != 0)
+        return NULL;
 
     if (!g_hash_table_lookup_extended(reassembled_table, &lookup,
         &orig_frag, &orig_sdu))
@@ -1224,6 +1236,10 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     if (!sdu || !sdu->data)
         return NULL;
 
+    snmod = getChannelSNModulus(&lookup.ch);
+    if (snmod == 0)
+        return NULL;
+
     /* TODO */
 #if 0
     if (!rlc_frag_equal(&lookup, sdu->reassembled_in)) return NULL;
@@ -1231,7 +1247,8 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 
     frag = sdu->frags;
     while (frag->next) {
-        if (frag->next->seq - frag->seq > 1) {
+        /* Sequence numbers wrap, so compare modulo the SN modulus */
+        if (((unsigned)frag->next->seq + snmod - frag->seq) % snmod > 1) {
             proto_tree_add_expert(tree, pinfo, &ei_rlc_incomplete_sequence, tvb, 0, 0);
             tree_add_fragment_list_incomplete(sdu, tvb, tree);
             return NULL;
@@ -1250,6 +1267,9 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 }
 
 #define RLC_RETRANSMISSION_TIMEOUT 5 /* in seconds */
+/* Maximum number of remembered sequence numbers per channel. The SN window
+ * is snmod/4 (1024 for AM), so real traffic does not reach this. */
+#define RLC_MAX_SEQ_HISTORY 1024
 static bool
 rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, uint16_t seq,
          uint32_t *original, struct atm_phdr *atm)
@@ -1280,8 +1300,9 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, uint16_t seq,
     if (element) {
         seq_new = (struct rlc_seq *)element->data;
         /* Add SN modulus because %-operation for negative values in C is not equal to mathematical modulus */
-        if (MIN((seq_new->seq-seq+snmod)%snmod, (seq-seq_new->seq+snmod)%snmod) >= snmod/4) {
-            list->list = g_list_remove_link(list->list, element);
+        if (!PINFO_FD_VISITED(pinfo) &&
+            MIN((seq_new->seq-seq+snmod)%snmod, (seq-seq_new->seq+snmod)%snmod) >= snmod/4) {
+            list->list = g_list_delete_link(list->list, element);
         }
     }
 
@@ -1310,7 +1331,10 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, uint16_t seq,
         }
         element = g_list_find_custom(element->next, &seq_item, rlc_cmp_seq);
     }
-    if(is_unseen) {
+    if(is_unseen && !PINFO_FD_VISITED(pinfo)) {
+        /* Bound the history, drop the oldest entry */
+        if (g_list_length(list->list) >= RLC_MAX_SEQ_HISTORY)
+            list->list = g_list_delete_link(list->list, g_list_first(list->list));
         /* Add to list for the first time this frame is checked */
         seq_new = wmem_new0(wmem_file_scope(), struct rlc_seq);
         *seq_new = seq_item;
@@ -1509,6 +1533,8 @@ is_ciphered_according_to_rrc(packet_info *pinfo, fp_info *fpinf, rlc_info *rlcin
     ciphering_info =  (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_info_tree, GINT_TO_POINTER((int)ueid));
     if(ciphering_info != NULL) {
         rbid = rlcinf->rbid[cur_tb];
+        if (rbid >= G_N_ELEMENTS(ciphering_info->seq_no))
+            return false;
         direction = fpinf->is_uplink ? P2P_DIR_UL : P2P_DIR_DL;
         security_mode_frame_num = ciphering_info->setup_frame[direction];
         ciphering_begin_seq = ciphering_info->seq_no[rbid][direction];
@@ -1574,6 +1600,8 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
 
     indx = fpinf->is_uplink ? P2P_DIR_UL : P2P_DIR_DL;
     pos = fpinf->cur_tb;
+    if (rlcinf->rbid[pos] >= G_N_ELEMENTS(ps_counter))
+        return;
     if (mode ==RLC_UM) {
         header_size = 1;
         hfn_shift = 7;
