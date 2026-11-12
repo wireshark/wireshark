@@ -156356,3 +156356,115 @@ class TestDissectU3vCoverage:
             '> WRITEMEM_CMD [Addr:0x0000000000020000]: 4 bytes', '< WRITEMEM_ACK ',
             '> WRITEMEM_CMD [Device_Configuration]: 8 bytes',
             '< WRITEMEM_ACK ', '> READMEM_CMD  (0x00030000 (8) bytes)', '< PENDING_ACK  10 ms']
+
+
+class TestDissectUa3g:
+    '''UA3G (the Alcatel-Lucent UA protocol, opcode 0x13 and the others) from
+    the synthetic capture ua3g_coverage.pcap.gz: UA/UDP packets on UDP port
+    32000 (registered by default) that carry UA messages in both
+    directions: every system and terminal message, IP device routing with
+    all its parameters, display, audio and download messages.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('ua3g_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ua3g_protocols(self, cmd_tshark, capture_file, test_env):
+        '''283 UA/UDP frames (two without UA messages, two Data ACKs, three
+        with an opcode the UA layer does not know, 276 with UA3G messages),
+        no malformed packets or warnings in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, None, ('_ws.col.protocol', 'frame.protocols'))
+        assert len(rows) == 283
+        assert all(r[0] == 'UAUDP' for r in rows)
+        assert sum(r[1].endswith(':uaudp') for r in rows) == 4
+        assert sum(':uaudp:ua:data' in r[1] for r in rows) == 3
+        assert sum(':uaudp:ua:ua3g' in r[1] for r in rows) == 276
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= warning',
+                               ('frame.number',), passes)
+            assert rows == []
+
+    def test_ua3g_one_pass_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The tree output is the same in one and two passes.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes, '-V', '-O', 'ua3g,ua,uaudp',
+                    '-r', capture_file('ua3g_coverage.pcap.gz')),
+                encoding='utf-8', env=test_env, timeout=300))
+        assert outs[0] == outs[1]
+
+    def test_ua3g_field_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The values fixed on the branch: the Remote IP parameters of Start
+        Listen RTP (frame 76) are IPv4 addresses (the field was added with
+        length 1 and gave a malformed packet), the beep cadence of 0x7F is
+        1270 ms (frame 151, it was truncated to 246), the sidetone and
+        feedback levels are signed (frames 161-169) and the UAUDP Connect
+        version of 4 octets is not truncated (frame 1).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {1, 76, 151, 152, 161, 162, 168, 169}',
+                           ('frame.number', 'ua3g.ip.listen_rtp.parameter.ip', 'ua3g.command.beep.cadence',
+                            'ua3g.command.sidetone.level', 'ua3g.command.feedback.level', 'uaudp.version'))
+        assert rows == [
+            ['1', '', '', '', '', '16909060'],
+            ['76', '192.0.2.50,192.0.2.51', '', '', '', ''],
+            ['151', '', '100,200,1270', '', '', ''],
+            ['152', '', '1270', '', '', ''],
+            ['161', '', '', '5', '', ''],
+            ['162', '', '', '-5', '', ''],
+            ['168', '', '', '', '8', ''],
+            ['169', '', '', '', '-8', ''],
+        ]
+
+    def test_ua3g_key_row(self, cmd_tshark, capture_file, test_env):
+        '''Key 0x21 is row 2, column 1 (the row was not shifted before the
+        fix).'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('ua3g_coverage.pcap.gz'),
+                '-Y', 'frame.number == 227', '-V', '-O', 'ua,ua3g'),
+            encoding='utf-8', env=test_env, timeout=120)
+        assert 'Key Number: Row 2, Column 1' in stdout
+
+    def test_ua3g_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the message and its command; several
+        messages in one datagram are all listed.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {3, 62, 71, 73, 131, 134, 197, 213, 277, 278, 279, 281}',
+                           ('frame.number', '_ws.col.info'))
+        assert rows == [
+            ['3', 'Data - UA3G Message: NOP'],
+            ['62', 'Data - UA3G Message: IP Device Routing: Start RTP'],
+            ['71', 'Data - UA3G Message: IP Device Routing: Tone Definition'],
+            ['73', 'Data - UA3G Message: IP Device Routing: Start Tone'],
+            ['131', 'Data - UA3G Message: Set Clock: Set Current Time/Call Timer'],
+            ['134', 'Data - UA3G Message: Set Clock: Unknown'],
+            ['197', 'Data - UA3G Message: Ring: On'],
+            ['213', 'Data - UA3G Message: Loopback On Acknowledge'],
+            ['277', 'Data - UA3G Message: NOP - UA3G Message: Mute: Microphone Enable'
+                    ' - UA3G Message: Led Command: Led Off - UA3G Message: IP Device Routing: Send Digit'],
+            ['278', 'Data - UA3G Message: Handset Offhook - UA3G Message: Handset Onhook'
+                    ' - UA3G Message: Digital Dialed'],
+            ['279', 'Data ACK'],
+            ['281', 'Data - UA3G Message ERR: Opcode (0x60) Unknown'],
+        ]
+
+    def test_ua3g_start_rtp(self, cmd_tshark, capture_file, test_env):
+        '''Start RTP: the three IPv4 parameters (frame 62) and the
+        compressor of frame 59.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {59, 62}',
+                           ('frame.number', 'ua3g.ip.start_rtp.direction', 'ua3g.ip.start_rtp.parameter.ip',
+                            'ua3g.ip.start_rtp.parameter.compressor'))
+        assert rows == [['59', '0', '', '1'], ['62', '2', '192.0.2.77,192.0.2.78,192.0.2.79', '0']]
+
+    def test_ua3g_tone_definition(self, cmd_tshark, capture_file, test_env):
+        '''Tone definition: two frequency pairs with signed levels.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 71',
+                           ('ua3g.ip.def_tones.frequency_1', 'ua3g.ip.def_tones.level_1',
+                            'ua3g.ip.def_tones.frequency_2', 'ua3g.ip.def_tones.level_2'))
+        assert rows == [['425,440', '-5,-8', '0,480', '-10,-12']]
