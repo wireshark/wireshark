@@ -47,6 +47,9 @@ void proto_reg_handoff_ax25_nol3(void);
 /* Dissector handles - all the possibles are listed */
 static dissector_handle_t aprs_handle;
 
+/* Heuristic sub-dissectors for the payload */
+static heur_dissector_list_t heur_subdissector_list;
+
 /* Initialize the protocol and registered fields */
 static int proto_ax25_nol3;
 static int proto_dx;
@@ -58,6 +61,7 @@ static int hf_dx_report;
 /* Global preferences */
 static bool gPREF_APRS;
 static bool gPREF_DX;
+static bool gPREF_TRY_HEURISTIC_FIRST;
 
 /* Initialize the subtree pointers */
 static int ett_ax25_nol3;
@@ -150,6 +154,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 	                             ((control & XDLC_U_MODIFIER_MASK) == XDLC_UI));
 	uint8_t     dti      = 0;
 	bool        dissected;
+	heur_dtbl_entry_t *hdtbl_entry;
 
 	info_buffer = (char *)wmem_alloc( pinfo->pool, STRLEN );
 	info_buffer[0] = '\0';
@@ -188,7 +193,14 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	dissected = false;
-	if ( gPREF_APRS && ax25_ui_frame )
+
+	/* Heuristic sub-dissectors get the AX.25 control field in data,
+	 * as this dissector does. */
+	if ( gPREF_TRY_HEURISTIC_FIRST )
+		dissected = dissector_try_heuristic( heur_subdissector_list, next_tvb, pinfo,
+						     parent_tree, &hdtbl_entry, data );
+
+	if ( ! dissected && gPREF_APRS && ax25_ui_frame )
 		{
 		if ( isaprs( dti ) )
 			{
@@ -196,7 +208,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 			call_dissector( aprs_handle , next_tvb, pinfo, ax25_nol3_tree );
 			}
 		}
-	if ( gPREF_DX )
+	if ( ! dissected && gPREF_DX )
 		{
 		if ( tvb_get_uint8( tvb, offset ) == 'D' && tvb_get_uint8( tvb, offset + 1 ) == 'X' )
 			{
@@ -204,6 +216,9 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 			dissect_dx( next_tvb, pinfo, ax25_nol3_tree, NULL );
 			}
 		}
+	if ( ! dissected && ! gPREF_TRY_HEURISTIC_FIRST )
+		dissected = dissector_try_heuristic( heur_subdissector_list, next_tvb, pinfo,
+						     parent_tree, &hdtbl_entry, data );
 	if ( ! dissected )
 		call_data_dissector(next_tvb, pinfo, ax25_nol3_tree );
 
@@ -260,6 +275,17 @@ proto_register_ax25_nol3(void)
 	     "Decode DX cluster info field",
 	     "Enable decoding of the payload as DX cluster info.",
 	     &gPREF_DX );
+
+	prefs_register_bool_preference(ax25_nol3_module, "try_heuristic_first",
+	     "Try heuristic sub-dissectors first",
+	     "Try to decode the payload using a heuristic sub-dissector"
+	     " before using the built-in APRS and DX cluster decoders.",
+	     &gPREF_TRY_HEURISTIC_FIRST );
+
+	/* Heuristic sub-dissectors can register in this list, from C or from
+	 * Lua with Proto:register_heuristic("ax25_nol3", func). */
+	heur_subdissector_list = register_heur_dissector_list_with_description( "ax25_nol3",
+	     "AX.25 no Layer 3 payload", proto_ax25_nol3 );
 
 	/* Register the sub-protocol name and description */
 	proto_dx = proto_register_protocol("DX cluster", "DX", "dx");
