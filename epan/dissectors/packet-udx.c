@@ -116,6 +116,10 @@ typedef struct udx_seg {
 
 /* One direction of one stream: the packets one endpoint sends bearing the
  * peer's stream id. */
+/* Bounds on the analysis work a single conversation can cause. */
+#define UDX_MAX_FLOWS       256
+#define UDX_MAX_PAIR_TRIES  16
+
 typedef struct udx_flow {
     uint32_t     id;
     unsigned     dir;
@@ -143,6 +147,7 @@ typedef struct udx_flow {
     struct udx_flow *paired;
     struct udx_flow *cand;      /* pairing candidate under consideration */
     unsigned     cand_hits;
+    unsigned     pair_tries;    /* pairing attempts made for this flow */
 } udx_flow_t;
 
 typedef struct udx_conv {
@@ -302,6 +307,9 @@ udx_get_flow(udx_conv_t *conv, unsigned dir, uint32_t id, const nstime_t *ts)
 
     if (flow != NULL)
         return flow;
+
+    if (conv->n_flows[0] + conv->n_flows[1] >= UDX_MAX_FLOWS)
+        return NULL;
 
     flow = wmem_new0(wmem_file_scope(), udx_flow_t);
     flow->id = id;
@@ -544,11 +552,16 @@ udx_analyze(packet_info *pinfo, udx_conv_t *conv, uint8_t flags, uint8_t data_of
         conv->have_client_dir = true;
     }
 
-    ppd->flow = flow;
     ppd->seq = seq;
     ppd->from_server = (dir != conv->client_dir);
 
-    if (flow->paired == NULL)
+    /* Too many flows in this conversation: stop analysing new ones. */
+    if (flow == NULL)
+        return;
+    ppd->flow = flow;
+
+    if (flow->paired == NULL && conv->n_flows[dir ^ 1] > 0 &&
+        flow->pair_tries++ < UDX_MAX_PAIR_TRIES)
         udx_try_pair(conv, flow, ack);
     rflow = flow->paired;
 
