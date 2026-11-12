@@ -153225,3 +153225,182 @@ class TestDissectZbncp:
             '401\t2\tRequest, SECUR_ADD_CERT',
             '402\t2\tResponse, SECUR_GET_CERT, Status: OK',
         ]
+
+
+class TestDissectZebra:
+    def test_zebra_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 567 frames are Zebra (TCP port 2600) and none is malformed or
+        has an expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('zebra_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 567
+            assert protocols.count('ZEBRA') == 567
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('zebra_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_zebra_versions_and_commands(self, cmd_tshark, capture_file, test_env):
+        '''Messages of Zebra versions 0 (no marker), 1, 2, 3 (Quagga), 4, 5, 6
+        (FRRouting) and the later versions 7 and 8, and how many different
+        commands each has (every command of the value strings).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ezebra.version', '-ezebra.command',
+            ), encoding='utf-8', env=test_env)
+        pdus, commands = {}, {}
+        for line in stdout.splitlines():
+            fields = line.split('\t')
+            versions = fields[1].split(',') if fields[1] else ['0']
+            for version, command in zip(versions, fields[2].split(',')):
+                pdus[version] = pdus.get(version, 0) + 1
+                commands.setdefault(version, set()).add(command)
+        assert pdus == {'0': 56, '1': 60, '2': 60, '3': 60, '4': 91, '5': 129,
+                        '6': 121, '7': 1, '8': 1}
+        assert {v: len(c) for v, c in commands.items()} == {
+            '0': 29, '1': 29, '2': 29, '3': 29, '4': 60, '5': 92, '6': 92,
+            '7': 1, '8': 1}
+
+    def test_zebra_unknown_command_info(self, cmd_tshark, capture_file, test_env):
+        '''A PDU with an unknown command after a known one is shown as
+        "Command Type 0x.." in hexadecimal (the format was 0x%02d, a
+        decimal number behind 0x, before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Y', '_ws.col.info contains "Command Type"',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['55', 'Zebra Request: Hello: Command Type 0x63'],
+            ['113', 'Zebra Request: Hello: Command Type 0x63'],
+            ['171', 'Zebra Request: Hello: Command Type 0x63'],
+            ['229', 'Zebra Request: Hello: Command Type 0x63'],
+            ['318', 'Zebra Request: Hello: Command Type 0xf3'],
+            ['445', 'Zebra Request: Hello: Command Type 0xf3'],
+            ['564', 'Zebra Request: Hello: Command Type 0xf3'],
+        ]
+
+    def test_zebra_negative_mac_length(self, cmd_tshark, capture_file, test_env):
+        '''An interface message with a MAC length of 0xffffffff (negative as
+        an int) is decoded up to the length (no moving back, no link
+        parameter field), for versions 1 to 6.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Y', 'zebra.maclen == 4294967295',
+                '-Tfields', '-eframe.number', '-ezebra.version', '-ezebra.maclen',
+                '-ezebra.macaddress', '-ezebra.haslinkparam',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[1] for r in rows] == ['1', '2', '3', '4', '5', '6']
+        assert all(r[3:] == ['', ''] for r in rows)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Y', 'zebra.version == 3 && zebra.maclen == 6 && zebra.macaddress',
+                '-Tfields', '-ezebra.interface', '-ezebra.index', '-ezebra.lltype',
+                '-ezebra.macaddress', '-ezebra.haslinkparam',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[0] == 'eth0\t2\t1\t02:00:00:00:00:01\tFalse'
+
+    def test_zebra_interface(self, cmd_tshark, capture_file, test_env):
+        '''Interface replies: the fields that depend on the version (flags
+        of 4 and 8 octets, PTM, speed, MTU v6, link layer type and MAC).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 58, 66, 241, 327}',
+                '-Tfields', '-eframe.number', '-ezebra.version', '-ezebra.interface',
+                '-ezebra.index', '-ezebra.intstatus', '-ezebra.intflags',
+                '-ezebra.ptmenable', '-ezebra.ptmstatus', '-ezebra.metric',
+                '-ezebra.speed', '-ezebra.mtu', '-ezebra.mtu6',
+                '-ezebra.bandwidth', '-ezebra.lltype',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['2'] == ['', 'eth0', '2', '1', '4163', '', '', '1', '', '1500', '', '100', '']
+        assert rows['58'][1:4] == ['eth0', '2', '1']
+        assert rows['58'][4:] == ['4163', '', '', '1', '', '1500', '1280', '100', '']
+        assert rows['241'] == ['4', 'eth0', '2', '1', '4163', '1', '2', '1', '1000', '1500', '1280', '100', '1']
+
+    def test_zebra_routes(self, cmd_tshark, capture_file, test_env):
+        '''A version 0 IPv4 route request with every message bit and the nine
+        nexthop types, and the same bits for FRRouting 4, 5 and 6.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Y', 'frame.number == 15',
+                '-Tfields', '-ezebra.type', '-ezebra.rtflags', '-ezebra.prefixlen',
+                '-ezebra.prefix4', '-ezebra.nexthopnum', '-ezebra.nexthoptype',
+                '-ezebra.nexthop4', '-ezebra.nexthop6', '-ezebra.interface',
+                '-ezebra.index', '-ezebra.indexnum', '-ezebra.distance',
+                '-ezebra.metric', '-ezebra.mtu', '-ezebra.tag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == [
+            '3', '2', '24', '10.1.2.0', '9', '1,2,3,4,5,6,7,8,9',
+            ','.join(['192.0.2.254'] * 3), ','.join(['2001:db8::fffe'] * 3),
+            'eth1,ethx,ethy', '4,6,8,2,3', '2', '20', '100', '1500', '77']
+        # ZAPI 4, 5 and 6: source prefix, tag, MTU, table ID, blackhole type, EVPN router MAC
+        for version, fields in (('4', ('zebra.srcprefixlen', 'zebra.mtu', 'zebra.tag')),
+                                ('5', ('zebra.srcprefixlen', 'zebra.mtu', 'zebra.tag', 'zebra.tableid', 'zebra.bhtype')),
+                                ('6', ('zebra.srcprefixlen', 'zebra.mtu', 'zebra.tag', 'zebra.tableid', 'zebra.bhtype'))):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('zebra_coverage.pcap.gz'),
+                    '-Y', 'zebra.version == %s && zebra.srcprefixlen' % version,
+                    '-Tfields', *('-e%s' % f for f in fields),
+                ), encoding='utf-8', env=test_env)
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert rows and all(r[0] and r[1] == '1500' and r[2] == '77' for r in rows)
+            if version != '4':
+                assert all(r[3] == '254' for r in rows)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Y', 'zebra.rmac',
+                '-Tfields', '-ezebra.version', '-ezebra.rmac',
+            ), encoding='utf-8', env=test_env)
+        assert {l.split('\t')[0] for l in stdout.splitlines()} == {'5', '6'}
+        assert {l.split('\t')[1] for l in stdout.splitlines()} == {'02:00:00:00:00:09'}
+
+    def test_zebra_hello_and_misc(self, cmd_tshark, capture_file, test_env):
+        '''Hello (redistribute default, instance, receive-notify of ZAPI 5 and
+        later), capabilities, VRF add and label manager messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Y', 'zebra.receive_notify == 1',
+                '-Tfields', '-ezebra.version', '-ezebra.redist_default',
+                '-ezebra.instance',
+            ), encoding='utf-8', env=test_env)
+        assert {l for l in stdout.splitlines()} == {'5\tTrue\t0', '6\tTrue\t0', '7\tTrue\t0'}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Y', 'zebra.vrfname || zebra.mpls_enabled || zebra.label_chunk_size || zebra.label_chunk_start',
+                '-Tfields', '-ezebra.version', '-ezebra.vrftableid', '-ezebra.vrfname',
+                '-ezebra.mpls_enabled', '-ezebra.multipath_num',
+                '-ezebra.label_chunk_size', '-ezebra.label_chunk_start', '-ezebra.label_chunk_end',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert len(rows) == 10
+        assert [r[:3] for r in rows if r[2]] == [['5', '254', 'vrf-red'], ['6', '254', 'vrf-red']]
+        assert [r[3:5] for r in rows if r[3]] == [['True', '16'], ['False', '1']] * 2
+        assert [r[5] for r in rows if r[5]] == ['100', '100']
+        assert [r[6:] for r in rows if r[6]] == [['1000', '1099']] * 2
+
+    def test_zebra_nexthop_update(self, cmd_tshark, capture_file, test_env):
+        '''Nexthop updates with every nexthop type, the labels of ZAPI 5 and
+        6, and register / unregister of IPv4, IPv6 and unknown families.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Y', 'zebra.labelnum',
+                '-Tfields', '-ezebra.version', '-ezebra.labelnum', '-ezebra.label',
+            ), encoding='utf-8', env=test_env)
+        assert {l.split('\t')[0] for l in stdout.splitlines()} == {'5', '6'}
+        assert all(l.split('\t')[2].split(',')[:2] == ['100', '200'] for l in stdout.splitlines()
+                   if l.split('\t')[1].split(',')[0] == '2')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zebra_coverage.pcap.gz'),
+                '-Y', 'zebra.version == 3 && _ws.col.info contains "Nexthop Register"',
+                '-Tfields', '-ezebra.flags', '-ezebra.family', '-ezebra.prefixlen',
+                '-ezebra.prefix4', '-ezebra.prefix6',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[0] == '0,0,1\t2,10,1\t32,128,0\t192.0.2.254\t2001:db8::fffe'
