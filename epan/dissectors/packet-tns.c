@@ -637,6 +637,10 @@ static expert_field ei_tns_connect_data_next_packet;
 static expert_field ei_tns_data_descriptor_size_mismatch;
 static expert_field ei_tns_data_piggyback_cursors;
 static expert_field ei_tns_data_count_too_large;
+
+/* Bound on the columns that consume no bytes (NULL, same as previous
+ * row) in one TTI_RXD message; the rows cost one byte each. */
+#define TNS_MAX_EMPTY_COLUMNS 100000
 static expert_field ei_tns_data_encrypted;
 static expert_field ei_tns_data_compilation_error;
 static expert_field ei_tns_data_value_truncated;
@@ -1699,6 +1703,11 @@ static int tns_chunks_len(tvbuff_t *tvb, packet_info *pinfo, int offset, wmem_st
 		}
 		if ( chunk_len <= 0 )
 			break;
+		if ( (unsigned)chunk_len > tvb_reported_length_remaining(tvb, o) )
+		{
+			o = tvb_reported_length(tvb);
+			break;
+		}
 		if ( strbuf )
 			wmem_strbuf_append(strbuf, (const char *)tvb_get_string_enc(pinfo->pool, tvb, o, chunk_len, ENC_UTF_8|ENC_NA));
 		o += chunk_len;
@@ -2165,6 +2174,8 @@ static const char *tns_format_vector(packet_info *pinfo, const uint8_t *data, in
 		return NULL;
 	if ( flags & 0x0012 )
 		pos += 8;
+	if ( pos > len )
+		return NULL;
 	if ( flags & 0x0020 )
 	{
 		if ( pos + 2 > len )
@@ -3095,6 +3106,8 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				if ( img )
 					rendered = dtype == TNS_DATATYPE_VECTOR ? tns_format_vector(pinfo, img, img_len)
 						: tns_format_oson(pinfo, img, img_len);
+				if ( rendered )
+					rendered = (const char *)get_utf_8_string(pinfo->pool, (const uint8_t *)rendered, strlen(rendered));
 			}
 			if ( !rendered )
 				rendered = wmem_strdup_printf(pinfo->pool, "%s image, %d bytes",
@@ -4338,8 +4351,13 @@ static void dissect_tns_data_descriptor(tvbuff_t *tvb, int offset, packet_info *
 	uint32_t data_len, row_count, row_size, total_row_size = 0;
 	int orig_offset = offset;
 
-	/* We only get here after tcp_dissect_pdus(), length is guaranteed. */
-	DISSECTOR_ASSERT_CMPINT(length, >=, TNS_HDR_LEN);
+	/* For a Data Descriptor the header length is not validated by
+	 * tcp_dissect_pdus(). */
+	if (length < TNS_HDR_LEN) {
+		proto_tree_add_expert_format(tns_tree, pinfo, &ei_tns_data_count_too_large, tvb, offset, 0,
+			"Header length %u is below the minimum of %u", length, (unsigned)TNS_HDR_LEN);
+		return;
+	}
 
 	dd_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1, ett_tns_data, NULL, "Data Descriptor");
 
@@ -5694,7 +5712,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				offset += 1;
 				offset += get_sb4_custom(tvb, offset, &num_requests);
 				offset += get_sb4_custom(tvb, offset, &num_iters);
-				int num_binds = num_iters * 256 + num_requests;
+				int num_binds = (int)((uint32_t)num_iters * 256U + (uint32_t)num_requests);
 				proto_tree_add_uint(data_tree, hf_tns_data_iov_num_binds, tvb, offset, 0, num_binds);
 				/* num iters this time (skip) */
 				offset += get_sb4_custom(tvb, offset, &v);
@@ -5927,7 +5945,9 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			if ( desc && desc->num_cols > 0 )
 			{
 				int rownum = 0, first_row = 1;
-				while ( tvb_reported_length_remaining(tvb, offset) > 0 )
+				unsigned empty_items = 0;
+				bool budget_hit = false;
+				while (!budget_hit &&  tvb_reported_length_remaining(tvb, offset) > 0 )
 				{
 					proto_tree *row_tree;
 					proto_item *row_item;
@@ -5951,6 +5971,11 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						if ( ctx->bit_vector && c / 8 < ctx->bit_vector_len
 							&& !(ctx->bit_vector[c / 8] & (1 << (c % 8))) )
 						{
+							if ( ++empty_items > TNS_MAX_EMPTY_COLUMNS )
+							{
+								budget_hit = true;
+								break;
+							}
 							proto_tree_add_bytes_format(row_tree, hf_tns_data_col_value,
 								tvb, offset, 0, NULL, "Column %u (%s): same as previous row",
 								c + 1, val_to_str_const(col->type, tns_data_types, "unknown"));
@@ -5965,6 +5990,11 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							&& col->type != TNS_DATATYPE_LONG_RAW
 							&& col->type != TNS_DATATYPE_UROWID )
 						{
+							if ( ++empty_items > TNS_MAX_EMPTY_COLUMNS )
+							{
+								budget_hit = true;
+								break;
+							}
 							proto_tree_add_bytes_format(row_tree, hf_tns_data_col_value,
 								tvb, offset, 0, NULL, "Column %u (%s): NULL (no data length)",
 								c + 1, val_to_str_const(col->type, tns_data_types, "unknown"));
@@ -5974,6 +6004,9 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							col->type, col->csform, TNS_VALUE_FETCH, c + 1, hf_tns_data_col_value, "Column");
 					}
 					proto_item_set_len(row_item, offset - r_start);
+					if ( budget_hit )
+						expert_add_info_format(pinfo, row_item, &ei_tns_data_count_too_large,
+							"More than %u columns without data in one message, stopping", TNS_MAX_EMPTY_COLUMNS);
 					/* A bit vector covers one row only. */
 					ctx->bit_vector = NULL;
 				}
