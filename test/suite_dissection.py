@@ -155146,3 +155146,81 @@ class TestDissectTrill:
                 '-Y', 'frame.number in {27, 29}', '-Tfields',
                 '-eframe.number', '-evlan.id', '-eipv6.nxt')
         assert lines == ['27\t100\t', '29\t\t17']
+
+
+class TestDissectTrmac:
+    '''Token-Ring MAC frames (pcap linktype 6) from the synthetic capture
+    trmac_coverage.pcap.gz: every major vector, the subvectors that
+    belong to them, unknown vectors and subvectors.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('trmac_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_trmac_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 34 frames are TR MAC; no malformed packets or error
+        expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'trmac', '-Tfields', '-eframe.number')
+        assert len(lines) == 34
+
+    def test_trmac_major_vectors(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names every major vector; unknown ones show
+        their number.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info')
+        assert lines == [
+            'Beacon', 'Beacon', 'Beacon', 'Beacon', 'Beacon', 'Claim Token',
+            'Ring Purge', 'Active Monitor Present', 'Standby Monitor Present',
+            'Duplicate Address Test', 'Transmit Forward', 'Remove Ring Station',
+            'Change Parameters', 'Initialize Ring Station',
+            'Request Ring Station Address', 'Request Ring Station State',
+            'Request Ring Station Attachments', 'Request Initialization',
+            'Report Ring Station Address', 'Report Ring Station State',
+            'Report Ring Station Attachments', 'Report New Active Monitor',
+            'Report NAUN Change', 'Report Poll Error', 'Report Monitor Errors',
+            'Report Error', 'Report Transmit Forward', 'Response', 'Response',
+            'Unknown Major Vector: 127', 'Unknown Major Vector: 8',
+            'Report Ring Station State', 'Report Ring Station State',
+            'Active Monitor Present']
+
+    def test_trmac_subvectors(self, cmd_tshark, capture_file, test_env):
+        '''Beacon type and NAUN, local ring number, the Change
+        Parameters subvectors, the error counters and group addresses.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 5, 6, 13, 21, 24, 26}',
+                '-Tfields', '-eframe.number', '-etrmac.length',
+                '-etrmac.srcclass', '-etrmac.dstclass', '-etrmac.svec.id',
+                '-etrmac.beacon_type', '-etrmac.local_ring_number',
+                '-etrmac.error_report_timer_value', '-etrmac.errors.iso',
+                '-etrmac.errors.noniso', '-etrmac.group_address32s',
+                '-etrmac.group_address_ether')
+        assert lines == [
+            '1\t16\t0x00\t0x00\t0x01,0x02\t1\t\t\t\t\t\t',
+            '5\t8\t0x00\t0x00\t0x01\t4\t\t\t\t\t\t',
+            '6\t8\t0x00\t0x00\t0x03\t\t0x002a\t\t\t\t\t',
+            '13\t26\t0x05\t0x00\t0x03,0x05,0x04,0x06,0x07\t\t0x0010\t5000\t\t\t\t',
+            '21\t32\t0x00\t0x04\t0x09,0x2c,0x2b,0x2b,0x2f\t\t\t\t\t\t0xc0000001\t00:00:c0:12:34:56',
+            '24\t20\t0x00\t0x06\t0x2d,0x2e\t\t\t\t15\t40\t\t',
+            '26\t28\t0x00\t0x06\t0x2d,0x2e,0x02\t\t\t\t35\t5\t\t',
+        ]
+
+    def test_trmac_subvector_text(self, cmd_tshark, capture_file, test_env):
+        '''Subvector names with values: Beacon type text, the error
+        counters and an unknown subvector.'''
+        text = '\n'.join(self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 24, 30}', '-V'))
+        assert 'Subvector (Beacon Type): Recovery mode set' in text
+        assert 'Isolating Errors: 15' in text
+        assert 'Line Errors: 1' in text
+        assert 'Non-Isolating Errors: 40' in text
+        assert 'Token Errors: 10' in text
+        assert 'Subvector (Unknown subvector ID 0x31)' in text
