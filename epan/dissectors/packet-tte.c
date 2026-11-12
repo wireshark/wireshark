@@ -76,11 +76,11 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2) <= IEEE_802_3_MAX_LEN)
     {
-        col_set_str(pinfo->cinfo, COL_INFO, "TTEthernet Frame");
+        col_set_str(pinfo->cinfo, COL_INFO, "Bogus TTEthernet Frame");
     }
     else
     {
-        col_set_str(pinfo->cinfo, COL_INFO, "Bogus TTEthernet Frame");
+        col_set_str(pinfo->cinfo, COL_INFO, "TTEthernet Frame");
     }
 
     if (tree) {
