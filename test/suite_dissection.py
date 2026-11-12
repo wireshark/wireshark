@@ -152705,3 +152705,89 @@ class TestDissectZbeeZclSe:
                 '-ezbee_zcl_se.met.get_profile_response.intervals',
                 '-E', 'aggregator=,')
         assert lines == ['1,2,3']
+
+
+class TestDissectZbeeZdpBinding:
+    CAP = 'zbee_zdp_binding_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, cap, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file(cap), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_zbee_zdp_binding_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 52 frames are ZigBee ZDP messages of the binding group and
+        none is malformed or has an error expert info, in one and two
+        passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['ZigBee ZDP'] * 52
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_zbee_zdp_binding_end_device_bind(self, cmd_tshark, capture_file, test_env):
+        '''End_Device_Bind_req: the cluster counts are one octet (they
+        were read as two octets, which ended as a malformed packet) and
+        the cluster lists follow them.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'zbee_zdp.in_count', '-Tfields', '-eframe.number',
+                '-ezbee_zdp.target', '-ezbee_zdp.endpoint', '-ezbee_zdp.profile',
+                '-ezbee_zdp.in_count', '-ezbee_zdp.in_cluster',
+                '-ezbee_zdp.out_count', '-ezbee_zdp.out_cluster')
+        assert lines == [
+            '1\t0x0000\t1\t0x0104\t1\t0x0006\t1\t0x0008',
+            '2\t0x0000\t2\t0x0104\t2\t0x0006,0x0008\t3\t0x0019,0x000a,0x000b',
+            '3\t0x0000\t2\t0xc05e\t0\t\t0\t',
+            '4\t0x0008\t1\t0x0104\t1\t0x0006\t1\t0x0008',
+        ]
+        stdout = '\n'.join(self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 1', '-V', '-O', 'zbee_zdp'))
+        assert 'Input Cluster Count: 1' in stdout
+        assert 'Input Cluster: On/Off (0x0006)' in stdout
+        assert 'Output Cluster: Level Control (0x0008)' in stdout
+        assert 'Malformed' not in stdout
+
+    def test_zbee_zdp_binding_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of requests and responses (ZigBee 2007 and 2004).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {1, 4, 5, 7, 11, 13, 14, 16, 31, 39, 43, 45, 48}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '1\tEnd Device Bind Request Src: TexasInstrum_00:01:02:03:04, Target: 0x0000',
+            '4\tEnd Device Bind Request, Target: 0x0008',
+            '5\tBind Request, On/Off (Cluster ID: 0x0006) Src: TexasInstrum_00:01:02:03:04, Dst: TexasInstrum_00:aa:bb:cc:dd',
+            '7\tBind Request, On/Off (Cluster ID: 0x0006) Src: TexasInstrum_00:01:02:03:04, Dst: 0x1234',
+            '11\tBind Request, On/Off (Cluster ID: 0x0006), Dst: TexasInstrum_00:aa:bb:cc:dd',
+            '13\tBind Register Request, Device: TexasInstrum_00:01:02:03:04',
+            '14\tReplace Device Request, Device: TexasInstrum_00:01:02:03:04, Replacement: TexasInstrum_00:aa:bb:cc:dd',
+            '16\tRemove Backup Binding Request, Match Descriptor Request (Cluster ID: 0x0006), Src: TexasInstrum_00:01:02:03:04, Src Endpoint: 1',
+            '31\tEnd Device Bind Response, Status: Success',
+            '39\tBind Response, Status: Device Binding Table Full',
+            '43\tBind Register Response, Status: Table Full',
+            '45\tBackup Binding Table Response, Status: Table Full',
+            '48\tRecover Binding Table Response, Status: Reserved',
+        ]
+
+    def test_zbee_zdp_binding_tables(self, cmd_tshark, capture_file, test_env):
+        '''Binding table entries: unicast and group destinations, table
+        sizes and counts of the backup, recover and register messages.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'zbee_zdp.table_count', '-Tfields', '-eframe.number',
+                '-ezbee_zdp.table_size', '-ezbee_zdp.table_count',
+                '-ezbee_zdp.bind.dst64', '-ezbee_zdp.bind.dst')
+        assert lines == [
+            '23\t5\t3\t00:12:4b:00:aa:bb:cc:dd\t0x1234',
+            '24\t43\t2\t00:12:4b:00:aa:bb:cc:dd,00:12:4b:00:aa:bb:cc:dd\t',
+            '25\t0\t0\t\t',
+            '27\t3\t3\t\t',
+            '41\t4\t2\t00:12:4b:00:aa:bb:cc:dd\t0x1234',
+            '42\t4\t0\t\t',
+            '46\t5\t2\t00:12:4b:00:aa:bb:cc:dd\t0x1234',
+            '47\t0\t0\t\t',
+            '48\t1\t1\t00:12:4b:00:aa:bb:cc:dd\t',
+            '50\t3\t2\t\t',
+            '51\t0\t0\t\t',
+        ]
