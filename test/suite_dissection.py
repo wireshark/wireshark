@@ -154554,3 +154554,88 @@ class TestDissectTplinkSmarthome:
         assert lines[1].endswith('\t29') and lines[4].endswith('\t')
         assert lines[5].split('\t')[0] == '28'
         assert lines[5] == '28\t\t'
+
+
+class TestDissectTpm20:
+    '''TPM 2.0 commands and responses (TCP ports 2321-2322, direction by
+    port) from the synthetic capture tpm20_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tpm20_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_tpm20_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 91 frames are TPM with no malformed packets or error
+        expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tpm', '-Tfields', '-eframe.number')
+        assert len(lines) == 91
+
+    def test_tpm20_platform(self, cmd_tshark, capture_file, test_env):
+        '''Platform commands and the response that follows: the first
+        response after a platform command is a code; after a TPM command
+        the next 4 octet response is a size (frame 19) and the one after
+        it a code (frame 21).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {1, 2, 15, 17, 19, 20, 21}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '1\t50001 → 2321,  [TPM Request], Platform Command TPM_POWER_ON, len(4)',
+            '2\t2321 → 50001,  [TPM Response], Response code 0, len(4)',
+            '15\t50001 → 2321,  [TPM Request], Platform Command Unknown (0x7f), len(4)',
+            '17\t50001 → 2321,  [TPM Request], Platform Command TPM_SEND_COMMAND, len(4)',
+            '19\t2321 → 50001,  [TPM Response], Response size 10, len(4)',
+            '20\t2322 → 50000,  [TPM Response], Response Code TPM2 Success, len(10)',
+            '21\t2321 → 50001,  [TPM Response], Response code 0, len(4)']
+
+    def test_tpm20_commands(self, cmd_tshark, capture_file, test_env):
+        '''StartAuthSession with and without a symmetric algorithm and
+        with an authorization area, SetPrimaryPolicy, CreateLoaded and
+        Create with three sessions.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {26, 28, 30, 32, 36, 38}', '-Tfields',
+                '-eframe.number', '-etpm.req.cc', '-etpm.req.tag',
+                '-etpm.autharea_size', '-etpm.sym_alg', '-etpm.sym_alg_keybits',
+                '-etpm.alg_hash', '-etpm.sensitive_create_size')
+        assert lines == [
+            '26\t0x00000176\t0x8001\t\t0x0010\t\t0x000b\t',
+            '28\t0x00000176\t0x8001\t\t0x0006\t128\t0x000b\t',
+            '30\t0x00000176\t0x8002\t9\t0x0010\t\t0x000c\t',
+            '32\t0x0000012e\t0x8002\t9\t\t\t\t8',
+            '36\t0x00000191\t0x8002\t9\t\t\t\t4',
+            '38\t0x00000153\t0x8002\t99\t\t\t\t']
+
+    def test_tpm20_responses(self, cmd_tshark, capture_file, test_env):
+        '''Responses use the command they answer: the session handle,
+        parameter size, public area, name and the auth area of each
+        session; an error response stops after the header.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {27, 29, 31, 33, 35, 37}', '-Tfields',
+                '-eframe.number', '-etpm.resp.tag', '-etpm.resp_param_size',
+                '-etpm.public_size', '-etpm.name_size', '-etpm.auth_nonce_size')
+        assert lines == [
+            '27\t0x8001\t\t\t\t16', '29\t0x8001\t\t\t\t32',
+            '31\t0x8002\t18\t\t\t16,0', '33\t0x8002\t144\t40\t34\t0',
+            '35\t0x8002\t8\t0\t0\t2,0', '37\t0x8002\t148\t60\t34\t0']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {23, 91}', '-Tfields', '-eframe.number',
+                '-etpm.resp.rc', '-etpm.public_size')
+        assert lines == ['23\t0x00000100\t', '91\t0x00000921\t']
+
+    def test_tpm20_handles(self, cmd_tshark, capture_file, test_env):
+        '''Commands of the handle table are decoded with 1 to 3 handle
+        fields in the handle area (the three-handle PolicyNV, Certify and
+        GetSessionAuditDigest).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'tpm.handle.TPMI_RH_ENDORSEMENT', '-Tfields',
+                '-etpm.handle.TPMI_RH_ENDORSEMENT',
+                '-etpm.handle.TPMI_DH_OBJECT', '-etpm.handle.TPMI_SH_AUTH_SESSION')
+        assert lines == ['0x4000000b\t0x80000000\t0x03000001,0x40000009']
