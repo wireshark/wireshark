@@ -131,6 +131,7 @@ typedef struct paging_indications_info_t
 {
     uint32_t frame_number;
     uint8_t* paging_indications_bitmap;
+    unsigned bitmap_len;
 } paging_indications_info_t;
 
 /* Used in the 'channel_specific_info' field for PCH channels */
