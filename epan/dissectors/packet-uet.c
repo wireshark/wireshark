@@ -1676,6 +1676,8 @@ dissect_tss(tvbuff_t* tvb, packet_info* pinfo, proto_tree* uet_tree, proto_item*
     proto_item* tss_item;
     uint8_t     type = 0;
     uint8_t     sp = 0;
+    int         start = offset;
+    int         pds_len;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, "", "TSS");
 
@@ -1711,12 +1713,12 @@ dissect_tss(tvbuff_t* tvb, packet_info* pinfo, proto_tree* uet_tree, proto_item*
     offset += 8;
 
     //update length
-    proto_item_set_len(tss_item, offset);
+    proto_item_set_len(tss_item, offset - start);
 
     //PDS is always the next layer of TSS layer
-    dissect_pds(tvb, pinfo, uet_tree, uet_item, offset);
+    pds_len = dissect_pds(tvb, pinfo, uet_tree, uet_item, offset);
 
-    return tvb_captured_length(tvb);
+    return (offset - start) + pds_len;
 }
 
 struct ip_hdr_info {
