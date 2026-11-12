@@ -186,6 +186,8 @@ follow_reset_stream(follow_info_t* info)
         }
         g_free(follow_record);
     }
+    g_list_free(info->fragments[0]);
+    g_list_free(info->fragments[1]);
     info->fragments[0] = info->fragments[1] = NULL;
     info->seq[0] = info->seq[1] = 0;
 
