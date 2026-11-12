@@ -155865,3 +155865,73 @@ class TestDissectTurbocell:
                 '-Tfields', '-eturbocell.type', '-eturbocell.name',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '0x01,0x40\tInner'
+
+
+class TestDissectTurnchannel:
+    # No default port: Decode As for the UDP and TCP test ports
+    OPTS = ('-d', 'udp.port==40000,turnchannel',
+            '-d', 'tcp.port==40001,turnchannel')
+
+    def test_turnchannel_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ChannelData messages are TURN CHANNEL; messages with a bad channel
+        number or length are left to UDP. Nothing is malformed and there
+        are no expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('turnchannel_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.splitlines()
+            assert len(protocols) == 16
+            assert protocols.count('TURN CHANNEL') == 12
+            assert protocols.count('UDP') == 3
+            assert protocols.count('TCP') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('turnchannel_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_turnchannel_udp(self, cmd_tshark, capture_file, test_env):
+        '''Channel numbers 0x4000-0x7fff, any number with bit 0x4000 set and
+        the MS-TURN multiplex number 0xff10 are accepted; others or a length
+        that does not match the datagram are not TURN.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('turnchannel_coverage.pcap.gz'),
+                '-Y', 'udp',
+                '-Tfields', '-eframe.number', '-eturnchannel.id',
+                '-eturnchannel.length', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x4000\t10\tChannel Id 0x4000',
+            '2\t0x4001\t100\tChannel Id 0x4001',
+            '3\t0x7fff\t1\tChannel Id 0x7fff',
+            '4\t0xff10\t17\tChannel Id 0xff10',
+            '5\t0x4010\t0\tChannel Id 0x4010',
+            '6\t0xc000\t4\tChannel Id 0xc000',
+            '7\t\t\t51000 → 40000 Len=12',
+            '8\t\t\t51000 → 40000 Len=16',
+            '9\t\t\t51000 → 40000 Len=3',
+        ]
+
+    def test_turnchannel_tcp_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Several messages in one segment each use their own channel id
+        (the id was read at offset 0 for all of them before the fix, so a
+        bad second id did not stop the dissection of the following
+        messages), and a message split over two segments is reassembled.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('turnchannel_coverage.pcap.gz'),
+                '-Y', 'tcp',
+                '-Tfields', '-eframe.number', '-eturnchannel.id',
+                '-eturnchannel.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t0x4000\t7',
+            '11\t0x4001\t20',
+            '12\t0x4000,0x4002,0x4003\t5,10,1',
+            '13\t\t',
+            '14\t0x4004,0x4005\t60,4',
+            '15\t0x4006\t2',
+            '16\t0xff10,0x4008\t2,0',
+        ]
