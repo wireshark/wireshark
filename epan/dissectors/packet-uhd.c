@@ -156,12 +156,13 @@ dissect_uhd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	id = tvb_get_ntohl(tvb, 4);
 
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, id, uhd_ids, "Unknown UHD message type '%c'"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, id, uhd_ids, "Unknown UHD message type (0x%08x)"));
 
 	if (tree == NULL)
 		return tvb_captured_length(tvb);
 
-	ti = proto_tree_add_protocol_format(tree, proto_uhd, tvb, 0, 34, "UHD id = %c ", id);
+	ti = proto_tree_add_protocol_format(tree, proto_uhd, tvb, 0, 34, "UHD id = %s",
+										 val_to_str(pinfo->pool, id, uhd_ids, "Unknown (0x%08x)"));
 	uhd_tree = proto_item_add_subtree(ti, ett_uhd);
 
 	proto_tree_add_item(uhd_tree, hf_uhd_version, tvb, 0, 4, ENC_BIG_ENDIAN);
