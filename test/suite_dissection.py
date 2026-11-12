@@ -152071,3 +152071,76 @@ class TestDissectZbeeZclGeneral:
                 '-ezbee_zcl_general.ota.request_time_offset',
                 '-ezbee_zcl_general.ota.upgrade_time')
         assert rows == [['1028', '60', ''], ['1033', '', '60'], ['1035', '', '4294967295']]
+
+
+class TestDissectZbeeZclHa:
+    CAP = 'zbee-zcl-ha_coverage.pcap.gz'
+
+    def test_zbee_zcl_ha_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ZigBee ZCL (reached through the 802.15.4 and
+        ZigBee NWK/APS dissectors), the cluster dissectors get their
+        frames, and nothing is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = [line.split(':')[-1] for line in stdout.splitlines()]
+        assert len(protocols) == 1104
+        assert {p: protocols.count(p) for p in set(protocols)} == {'zbee_zcl': 1038, 'zbee_zcl_ha.applevtalt': 34, 'zbee_zcl_ha.applstats': 32}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_zbee_zcl_ha_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the first frames of each cluster dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(line.split('\t') for line in stdout.splitlines())
+        assert [info[n] for n in ['1', '2', '427', '465']] == [
+            'ZCL: Report Attributes, Seq: 1',
+            'ZCL: Report Attributes, Seq: 1',
+            'ZCL Appliance Events & Alert: Get Alerts, Seq: 1',
+            'ZCL Appliance Statistics: Log Request, Seq: 1',
+        ]
+
+    def test_zbee_zcl_ha_commands(self, cmd_tshark, capture_file, test_env):
+        '''The cluster specific commands that are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'not frame.protocols ~ "zbee_zcl$"',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        commands = {line.rsplit(', Seq: ', 1)[0] for line in stdout.splitlines()}
+        assert sorted(commands) == [
+            'ZCL Appliance Events & Alert: Alerts Notification',
+            'ZCL Appliance Events & Alert: Event Notification',
+            'ZCL Appliance Events & Alert: Get Alerts',
+            'ZCL Appliance Events & Alert: Get Alerts Response',
+            'ZCL Appliance Events & Alert: Unknown Command',
+            'ZCL Appliance Statistics: Log Notification',
+            'ZCL Appliance Statistics: Log Queue Request',
+            'ZCL Appliance Statistics: Log Queue Response',
+            'ZCL Appliance Statistics: Log Request',
+            'ZCL Appliance Statistics: Log Response',
+            'ZCL Appliance Statistics: Statistics Available',
+            'ZCL Appliance Statistics: Unknown Command',
+        ]
+
+    def test_zbee_zcl_ha_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The attribute names the cluster dissectors know (58 of
+        them are shown with their name in the capture).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        names = {line.strip() for line in stdout.splitlines()
+                 if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
+        assert len(names) == 58
+        assert {'Attribute: APS Decrypt Failures (0x0116)', 'Attribute: APS FC Failure (0x0113)', 'Attribute: APS RX Broadcast (0x0106)', 'Attribute: APS RX Unicast (0x0108)'} <= names
