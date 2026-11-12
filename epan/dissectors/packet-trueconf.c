@@ -59,8 +59,11 @@ static unsigned
 get_trueconf_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     int magic_off = find_magic_offset(tvb, offset);
-    if (magic_off < 0)
-        return 0;
+    if (magic_off < 0) {
+        /* Not a TrueConf PDU: do not wait for more data, that would
+         * reassemble the rest of the stream forever. */
+        return tvb_reported_length_remaining(tvb, offset);
+    }
 
     unsigned headers = 2 + 3 + 1 + 2 + 1 + 1 + 1 + 1;
     if (tvb_captured_length_remaining(tvb, magic_off) < TRUECONF_MAGIC_LEN + headers)
@@ -85,7 +88,8 @@ get_trueconf_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
     unsigned len_a = tvb_get_letohl(tvb, pos + 2);
     unsigned len_b = tvb_get_letohl(tvb, pos + 6);
     unsigned payload_len = len_a < len_b ? len_a : len_b;
-    unsigned full_len = pos + 2 + 4 + 4 + 16 + payload_len - magic_off - headers;
+    /* pos already includes the fixed header fields */
+    unsigned full_len = pos + 2 + 4 + 4 + 16 + payload_len - magic_off;
     return full_len;
 }
 
@@ -168,6 +172,10 @@ static int dissect_trueconf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 static int dissect_trueconf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    /* A segment that does not start with the magic is not TrueConf */
+    if (tvb_captured_length(tvb) >= TRUECONF_MAGIC_LEN && find_magic_offset(tvb, 0) < 0)
+        return 0;
+
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, TRUECONF_MAGIC_LEN, get_trueconf_pdu_len, dissect_trueconf_pdu, data);
     return tvb_captured_length(tvb);
 }
