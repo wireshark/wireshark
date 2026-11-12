@@ -1080,8 +1080,10 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
              XXX - make a bigger scatter-gather list once we do fragment
              reassembly? */
 
-        if (((ip_proto == IP_PROTO_UDP) && udp_check_checksum) ||
-                ((ip_proto == IP_PROTO_UDPLITE) && udplite_check_checksum)) {
+        if ((((ip_proto == IP_PROTO_UDP) && udp_check_checksum) ||
+                ((ip_proto == IP_PROTO_UDPLITE) && udplite_check_checksum)) &&
+                (pinfo->src.type == AT_IPv4 || pinfo->src.type == AT_IPv6 ||
+                 pinfo->src.type == AT_ILNP_NID)) {
             /* Set up the fields of the pseudo-header. */
             SET_CKSUM_VEC_PTR(cksum_vec[0], (const uint8_t *)pinfo->src.data, pinfo->src.len);
             SET_CKSUM_VEC_PTR(cksum_vec[1], (const uint8_t *)pinfo->dst.data, pinfo->dst.len);
@@ -1114,8 +1116,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
                 break;
 
             default:
-                /* UDP runs only atop IPv4 and IPv6.... */
-                DISSECTOR_ASSERT_NOT_REACHED();
+                /* Not reached: the address type was checked above. */
                 break;
             }
             /*
@@ -1315,7 +1316,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
          * to the payload tvb through the tap system. */
         if (have_tap_listener(udp_follow_tap)) {
             follow_stream_tap_data_t *follow_data = wmem_new0(pinfo->pool, follow_stream_tap_data_t);
-            follow_data->tvb = tvb_new_subset_length(tvb, offset, udph->uh_ulen - 8);
+            follow_data->tvb = tvb_new_subset_length(tvb, offset, (udph->uh_ulen >= 8) ? MIN(udph->uh_ulen - 8, tvb_reported_length_remaining(tvb, offset)) : tvb_reported_length_remaining(tvb, offset));
             follow_data->stream_id = udph->uh_stream;
             follow_data->substream_id = SUBSTREAM_UNUSED;
             copy_address_shallow(&follow_data->src, &udph->ip_src);
