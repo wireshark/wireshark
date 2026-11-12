@@ -155342,3 +155342,68 @@ class TestDissectTsdns:
             '8\t\tnoport.example.net:0\tnoport.example.net\t0\tResponse noport.example.net:0',
             '9\t\t\t\t\tRequest ',
         ]
+
+
+class TestDissectTsp:
+    # Message type names for types 0-24
+    TYPES = ('any', 'adjtime', 'ack', 'masterreq', 'masterack', 'settime',
+             'masterup', 'slaveup', 'election', 'accept', 'refuse',
+             'conflict', 'resolve', 'quit', 'date', 'datereq', 'dateack',
+             'traceon', 'traceoff', 'msite', 'msitereq', 'test', 'setdate',
+             'setdatereq', 'loop')
+
+    def test_tsp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''UDP port 525 frames are TSP and none is malformed or has an
+        expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tsp_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 29
+            assert protocols.count('TSP') == 29
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tsp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tsp_types(self, cmd_tshark, capture_file, test_env):
+        '''Every defined message type is named in the Info column;
+        others are "Unknown message type".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tsp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-etsp.type', '-etsp.sequence',
+                '-etsp.name', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        for t, name in enumerate(self.TYPES):
+            assert lines[t] == '%d\t%d\t%d\thost%d\t%s' % (t + 1, t, 100 + t, t, name)
+        assert lines[25] == '26\t25\t200\tunknown\tUnknown message type (25)'
+        assert lines[26] == '27\t255\t201\tx\tUnknown message type (255)'
+        assert lines[28] == '29\t2\t203\t\tack'
+
+    def test_tsp_time_and_hops(self, cmd_tshark, capture_file, test_env):
+        '''Seconds and microseconds of adjtime, settime, setdate and
+        setdatereq, the hop count of loop, the version and a long name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tsp_coverage.pcap.gz'),
+                '-Y', 'tsp.sec || tsp.hopcnt',
+                '-Tfields', '-eframe.number', '-etsp.sec', '-etsp.usec',
+                '-etsp.hopcnt',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t1700000001\t123457\t',
+            '6\t1700000005\t123461\t',
+            '23\t1700000022\t123478\t',
+            '24\t1700000023\t123479\t',
+            '25\t\t\t3',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tsp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 28',
+                '-Tfields', '-etsp.version', '-etsp.name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '2\t' + 'c' * 200
