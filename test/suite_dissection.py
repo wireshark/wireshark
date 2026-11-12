@@ -150675,3 +150675,124 @@ class TestDissectZ21:
             'frame.number', 'z21.command', 'udp.dstport') == [
             '113\t0x40002121,0x00001000,0x00003000\t21105',
             '114\t0x00001000\t21106']
+
+
+class TestDissectZ3950:
+    '''Z39.50 (TCP 210) and MARC, from the synthetic capture
+    z3950_coverage.pcap.gz. The last four frames are nested one level past
+    the limit of 32 and are the only ones with error expert infos.'''
+
+    NOT_TOO_DEEP = '!z3950.nesting_too_deep'
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, cap, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', cap, '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    @staticmethod
+    def counts(cmd_tshark, test_env, cap, flt, field):
+        '''Number of occurrences of a field in every frame (a dict, by
+        frame number).'''
+        out = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', flt, '-Tfields',
+            '-eframe.number', '-e' + field), encoding='utf-8', env=test_env, timeout=120)
+        res = {}
+        for line in out.splitlines():
+            num, _, vals = line.partition('\t')
+            res[int(num)] = len(vals.split(',')) if vals else 0
+        return res
+
+    def test_z3950_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Apart from the four frames past the nesting limit there are no
+        malformed packets or error expert infos in one and two passes;
+        every PDU type occurs.'''
+        cap = capture_file('z3950_coverage.pcap.gz')
+        assert len(self.fields(cmd_tshark, test_env, cap, 'z3950', 'frame.number')) == 362
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, test_env, cap,
+                '(_ws.malformed || _ws.expert.severity >= 0x00800000) && ' + self.NOT_TOO_DEEP,
+                'frame.number', passes=passes) == []
+            assert len(self.fields(cmd_tshark, test_env, cap, 'z3950.nesting_too_deep',
+                'frame.number', passes=passes)) == 4
+        info = self.fields(cmd_tshark, test_env, cap, 'z3950', '_ws.col.info')
+        counts = {i: info.count(i) for i in set(info)}
+        assert counts['searchRequest'] == 26
+        assert counts['searchResponse'] == 105
+        assert counts['presentResponse'] == 110
+        assert counts['scanResponse'] == 14
+        assert counts['initRequest'] == 8
+        assert set(counts) - {'presentResponseclose'} == {
+            'initRequest', 'initResponse', 'searchRequest', 'searchResponse',
+            'presentRequest', 'presentResponse', 'deleteResultSetRequest',
+            'deleteResultSetResponse', 'accessControlRequest', 'accessControlResponse',
+            'resourceControlRequest', 'resourceControlResponse',
+            'triggerResourceControlRequest', 'resourceReportRequest',
+            'resourceReportResponse', 'scanRequest', 'scanResponse', 'sortRequest',
+            'sortResponse', 'segmentRequest', 'extendedServicesRequest',
+            'extendedServicesResponse', 'close'}
+
+    def test_z3950_rpn_nesting(self, cmd_tshark, capture_file, test_env):
+        '''RPN queries nest as deep as the limit of 32 (Z39.50: Bound RPN,
+        element data type and GRS-1 nesting); the next level gets the
+        error "nested too deeply", it was a dissector assertion before.'''
+        cap = capture_file('z3950_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            n = self.counts(cmd_tshark, test_env, cap, 'z3950.rpnRpnOp_element', 'z3950.rpnRpnOp_element')
+            deep = self.fields(cmd_tshark, test_env, cap, 'z3950.rpnRpnOp_element && '
+                               'z3950.nesting_too_deep', 'frame.number', passes=passes)
+            assert len(deep) == 2 and all(n[int(f)] == 32 for f in deep)
+            ok = sorted(v for f, v in n.items() if str(f) not in deep)
+            for depth in (1, 2, 3, 31, 32):
+                assert depth in ok
+            assert ok.count(32) == 1 and max(ok) == 32
+
+    def test_z3950_grs1_nesting(self, cmd_tshark, capture_file, test_env):
+        '''GRS-1 subtrees: levels 1, 2, 3 and 31 decode, level 33 is cut
+        at 32 (the last frame with a subtree).'''
+        cap = capture_file('z3950_coverage.pcap.gz')
+        n = self.counts(cmd_tshark, test_env, cap, 'z3950.subtree', 'z3950.subtree')
+        assert [n[f] for f in sorted(n)[-5:]] == [1, 2, 3, 31, 32]
+
+    def test_z3950_explain_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Explain schemaInfo with structured element data types nested
+        1, 2, 3 and 31 levels, and 33 (cut at 32).'''
+        cap = capture_file('z3950_coverage.pcap.gz')
+        n = self.counts(cmd_tshark, test_env, cap, 'z3950.structured', 'z3950.structured')
+        assert [n[f] for f in sorted(n)[-5:]] == [1, 2, 3, 31, 32]
+
+    def test_z3950_marc(self, cmd_tshark, capture_file, test_env):
+        '''Three MARC21 records and a SUTRS record in one response, over
+        three TCP segments; the MARC dissector is called through the OID.'''
+        cap = capture_file('z3950_coverage.pcap.gz')
+        rec = ('713\t00264,00194,00087\t001,005,008,020,245,260,001,005,008,100,245,001,650\t'
+               'ocm12345678 ,20260102153000.0,260102s2026    xxu           000 0 eng d,'
+               'ocm12345678 ,20260102153000.0,260102s2026    xxu           000 0 eng d,1')
+        assert self.fields(cmd_tshark, test_env, cap, 'tcp.reassembled.length == 713 && marc',
+            'tcp.reassembled.length', 'marc.leader.length', 'marc.directory.entry.tag',
+            'marc.field.control') == [rec, rec]
+        assert self.fields(cmd_tshark, test_env, cap, 'tcp.reassembled.length == 713 && marc',
+            'marc.field.subfield')[0] == (
+            'ISBN 9780000000002,paper,The test record /,A. Author.,Place :,Publisher,,2026.,'
+            'Author, A.,Only one subfield,Topic,Sub1,Sub2,Year,Place')
+
+    def test_z3950_bib1_attributes(self, cmd_tshark, capture_file, test_env):
+        '''With the bib-1 attribute set the attribute types are named.'''
+        cap = capture_file('z3950_coverage.pcap.gz')
+        n = self.counts(cmd_tshark, test_env, cap, 'z3950.rpnRpnOp_element', 'z3950.rpnRpnOp_element')
+        frame = [f for f, v in sorted(n.items()) if v == 3][-1]
+        out = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', 'frame.number == %d' % frame,
+            '-V', '-O', 'z3950'), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in out.splitlines()]
+        for t in ('1 (Use)', '2 (Relation)', '3 (Position)', '4 (Structure)',
+                  '5 (Truncation)', '6 (Completeness)'):
+            assert 'attributeType: ' + t in lines
+
+    def test_z3950_printable_reference_id(self, cmd_tshark, capture_file, test_env):
+        '''A printable reference ID is shown as a string.'''
+        cap = capture_file('z3950_coverage.pcap.gz')
+        ids = self.fields(cmd_tshark, test_env, cap, 'z3950.referenceId.printable',
+                          'z3950.referenceId.printable')
+        assert len(ids) == 54
+        assert all(i.isprintable() for i in ids)
