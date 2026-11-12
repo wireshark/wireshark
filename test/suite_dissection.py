@@ -150537,3 +150537,52 @@ class TestDissectYpserv:
         lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
                 'ypserv.procedure_v2', args=('-Y', 'ypserv.procedure_v2 && frame.number > 139'))
         assert len(lines) == 2 * 18
+
+
+class TestDissectYpxfr:
+    '''YPXFR over ONC RPC (program 100069) on UDP (frames 1-14) and TCP
+    (frames 15-17 handshake, 18-31), found by the default RPC heuristics.
+    packet-ypxfr.c only holds the procedure table; GETMAP is shown as
+    unknown RPC data.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *fields, args=()):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('ypxfr_coverage.pcap.gz'),
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_ypxfr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''28 YPXFR frames and the 3 TCP handshake frames; no malformed
+        packets or expert infos of warning level or above, in one and two
+        passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(protocols) == 31
+        assert protocols.count('YPXFR') == 28
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                    args=(*passes, '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000'))
+            assert lines == []
+
+    def test_ypxfr_procedures(self, cmd_tshark, capture_file, test_env):
+        '''NULL and GETMAP with their procedure numbers, a procedure and
+        a version the dissector does not know.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                '_ws.col.info', 'ypxfr.procedure_v1',
+                args=('-Y', 'frame.number in {1,2,3,4,11,12,13,14,18,20,28,30}'))
+        assert [' '.join(l.split()) for l in lines] == [
+            '1 V1 NULL Call 0',
+            '2 V1 NULL Reply (Call In 1) 0',
+            '3 V1 GETMAP Call 1',
+            '4 V1 GETMAP Reply (Call In 3) 1',
+            '11 V1 proc-2 Call 2',
+            '12 V1 proc-2 Reply (Call In 11) 2',
+            '13 V2 proc-0 Call',
+            '14 V2 proc-0 Reply (Call In 13)',
+            '18 V1 NULL Call 0',
+            '20 V1 GETMAP Call 1',
+            '28 V1 proc-2 Call 2',
+            '30 V2 proc-0 Call',
+        ]
