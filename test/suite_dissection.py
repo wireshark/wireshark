@@ -160296,3 +160296,103 @@ class TestDissectUsbHidCoverage:
         rows = stdout.splitlines()
         assert len(rows) == 28
         assert all(r.split('\t')[1:] == ['', '', ''] for r in rows)
+
+
+class TestDissectUsbHub:
+    '''USB hub class requests (packet-usb-hub.c) from the synthetic
+    Linux usbmon / USBPcap / FreeBSD capture usb_hub_coverage.pcapng.gz.
+    Frames 1-140 are a hub enumerated on usbmon, 141-150 a device that was
+    never enumerated (class "unknown" also reaches the hub dissector),
+    151-174 USBPcap, 175-192 FreeBSD.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('usb_hub_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_usb_hub_frames(self, cmd_tshark, capture_file, test_env):
+        '''141 USBHUB frames out of 192, no malformed frames and no
+        warnings or errors in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        assert len(rows) == 192
+        assert rows.count('USBHUB') == 141
+        assert rows.count('USB') == 51
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+
+    def test_usb_hub_clear_tt_buffer_subtrees(self, cmd_tshark, capture_file, test_env):
+        '''CLEAR_TT_BUFFER (frame 111): wIndex and wLength have their own
+        subtrees; the TT port and the zero field used to be attached to the
+        wValue item ("USB Hub: Attach wIndex and wLength subtrees to their
+        own items").'''
+        import json
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('usb_hub_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 111', '-Tjson',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        hub = json.loads(stdout)[0]['_source']['layers']['Setup Data']
+        assert hub['usbhub.setup.wValue_tree'] == {'usbhub.setup.EP_Num': '1', 'usbhub.setup.Dev_Addr': '18'}
+        assert hub['usbhub.setup.wIndex_tree'] == {'usbhub.setup.TT_Port': '1'}
+        assert hub['usbhub.setup.wLength_tree'] == {'usbhub.setup.zero': '0'}
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbhub.setup.EP_Num',
+                            'frame.number', 'usbhub.setup.EP_Num', 'usbhub.setup.Dev_Addr',
+                            'usbhub.setup.TT_Port')
+        assert rows == ['111\t1\t18\t1', '113\t2\t5\t3', '149\t1\t3\t2', '173\t1\t3\t2']
+
+    def test_usb_hub_set_port_feature_subtrees(self, cmd_tshark, capture_file, test_env):
+        '''SET_PORT_FEATURE (frame 53, selector PORT_RESET, port 1, selector
+        4): port and port selector are in the wIndex subtree.'''
+        import json
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('usb_hub_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 53', '-Tjson',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        hub = json.loads(stdout)[0]['_source']['layers']['Setup Data']
+        assert hub['usbhub.setup.wValue_tree'] == {'usbhub.setup.PortFeatureSelector': '4'}
+        assert hub['usbhub.setup.wIndex_tree'] == {'usbhub.setup.Port': '1', 'usbhub.setup.PortSelector': '4'}
+
+    def test_usb_hub_port_status(self, cmd_tshark, capture_file, test_env):
+        '''GET_PORT_STATUS responses for four ports of the hub and the
+        status bits.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {22, 24, 26, 28}',
+                            'frame.number', 'usbhub.status.port', 'usbhub.change.port',
+                            'usbhub.status.port.connection', 'usbhub.status.port.high_speed',
+                            'usbhub.status.port.low_speed')
+        assert rows == ['22\t0x0503\t0x0001\tTrue\tTrue\tFalse',
+                        '24\t0x0100\t0x0000\tFalse\tFalse\tFalse',
+                        '26\t0x0305\t0x0004\tTrue\tFalse\tTrue',
+                        '28\t0x191b\t0x001a\tTrue\tFalse\tFalse']
+
+    def test_usb_hub_features_and_tt(self, cmd_tshark, capture_file, test_env):
+        '''Feature selector names in the Info column, the TT state and the
+        hub descriptor requests.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'usbhub.setup.PortFeatureSelector == 4 || usbhub.setup.HubFeatureSelector == 99',
+                            'frame.number', '_ws.col.info')
+        assert rows == ['41\tSET_FEATURE Request    [Hub: UNKNOWN (0x63)]',
+                        '43\tCLEAR_FEATURE Request  [Hub: UNKNOWN (0x63)]',
+                        '53\tSET_FEATURE Request    [Port 1025: PORT_RESET]',
+                        '109\tSET_FEATURE Request    [Port 3: PORT_RESET]',
+                        '189\tSET_FEATURE Request    [Port 2: PORT_RESET]']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'usbhub.setup.TT_Flags || usbhub.setup.TT_StateLength',
+                            'frame.number', 'usbhub.setup.TT_Flags', 'usbhub.setup.TT_StateLength',
+                            'usbhub.setup.TT_Port')
+        assert rows == ['119\t1\t8\t2', '121\t0\t0\t1']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbhub.setup.DescriptorType',
+                            'frame.number', 'usbhub.setup.DescriptorType', 'usbhub.setup.DescriptorLength')
+        assert rows[:3] == ['11\t41\t255', '13\t41\t8', '15\t42\t12']
+
+    def test_usb_hub_class_unknown(self, cmd_tshark, capture_file, test_env):
+        '''A device without descriptors in the capture still gets its hub
+        class requests dissected (frames 141-150).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 141 && frame.number <= 150 && _ws.col.protocol == "USBHUB"',
+                            'frame.number')
+        assert len(rows) == 10
