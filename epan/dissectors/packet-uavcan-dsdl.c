@@ -115,7 +115,7 @@ const range_string uavcan_service_id_vals[] = {
     {      0,      0, NULL                                     }
 };
 
-static const address anonymous_address = ADDRESS_INIT(AT_NONE, 9, "Anonymous");
+#define UAVCAN_ANONYMOUS_FLAG 0x8000
 
 static const value_string uavcan_file_error_vals[] = {
     {      0, "Ok"             },
@@ -350,7 +350,9 @@ dissect_dsdl_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         proto_tree_add_item(tree, hf_node_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_pnp_unique_id, tvb, 2, 16, ENC_NA);
         proto_tree_add_uint(tree, hf_pnp_alloc, tvb, 0, 0,
-                            (cmp_address(&anonymous_address, (const address *) &pinfo->src) != 0));
+                            !(pinfo->src.type == address_type_get_by_name("AT_UAVCAN") &&
+                              pinfo->src.len >= 2 &&
+                              (*(const uint16_t *) pinfo->src.data & UAVCAN_ANONYMOUS_FLAG) != 0));
         return tvb_captured_length(tvb);
     } else if (id == 8184) {
         /* Dissect Synchronization.1.0 frame */
