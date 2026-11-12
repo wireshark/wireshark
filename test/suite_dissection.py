@@ -150388,3 +150388,59 @@ class TestDissectYpbind:
             '27 V2 DOMAIN Reply (Call In 26) 1 192.0.2.10 861',
             '38 V2 SETDOMAIN Call example.org 192.0.2.10 861 2',
         ]
+
+
+class TestDissectYppasswd:
+    '''YPPASSWD over ONC RPC (program 100009) on UDP (frames 1-10) and TCP
+    (frames 11-13 handshake, 14-23), found by the default RPC heuristics.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *fields, args=()):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('yppasswd_coverage.pcap.gz'),
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_yppasswd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''20 YPPASSWD frames and the 3 TCP handshake frames; no malformed
+        packets or expert infos of warning level or above, in one and two
+        passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(protocols) == 23
+        assert protocols.count('YPPASSWD') == 20
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                    args=(*passes, '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000'))
+            assert lines == []
+
+    def test_yppasswd_update(self, cmd_tshark, capture_file, test_env):
+        '''The UPDATE call (old password and the new passwd entry) and the
+        reply status, over UDP and TCP.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'yppasswd.oldpass', 'yppasswd.newpw.name', 'yppasswd.newpw.passwd',
+                'yppasswd.newpw.uid', 'yppasswd.newpw.gid', 'yppasswd.newpw.gecos',
+                'yppasswd.newpw.dir', 'yppasswd.newpw.shell', 'yppasswd.status',
+                args=('-Y', 'frame.number in {3,4,5,6,7,8,9,10,16,17}'))
+        assert lines == [
+            '3\toldcrypt\talice\tnewcrypt\t1000\t1000\tAlice Example\t/home/alice\t/bin/sh\t',
+            '4\t\t\t\t\t\t\t\t\t0',
+            '5\twrong\tbob\tx\t1001\t100\tBob\t/home/bob\t/bin/bash\t',
+            '6\t\t\t\t\t\t\t\t\t1',
+            '7\t\t\t\t0\t0\t\t\t\t',
+            '8\t\t\t\t\t\t\t\t\t4294967295',
+            '9\taaaaaaaaaaaaa\tuser5\tbbbbbbbbbbbbb\t4294967295\t4294967295\t'
+            + 'G' * 31 + '\t/very/long/home/directory/name\t/usr/local/bin/zsh\t',
+            '10\t\t\t\t\t\t\t\t\t2',
+            '16\toldcrypt\talice\tnewcrypt\t1000\t1000\tAlice Example\t/home/alice\t/bin/sh\t',
+            '17\t\t\t\t\t\t\t\t\t0',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                '_ws.col.info', 'yppasswd.procedure_v1',
+                args=('-Y', 'frame.number in {1,2,3,4,14}'))
+        assert [' '.join(l.split()) for l in lines] == [
+            '1 V1 NULL Call 0', '2 V1 NULL Reply (Call In 1) 0',
+            '3 V1 UPDATE Call 1', '4 V1 UPDATE Reply (Call In 3) 1',
+            '14 V1 NULL Call 0',
+        ]
