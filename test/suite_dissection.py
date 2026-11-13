@@ -163977,3 +163977,131 @@ class TestDissectVssmonitoring:
         assert stdout.split() == ['eth:ethertype:ip:udp:data:vssmonitoring',
                                   'eth:ethertype:ip:udp:data:vssmonitoring',
                                   'eth:ethertype:ipv6:udp:data:vssmonitoring']
+
+
+class TestDissectVtp:
+    '''VLAN Trunking Protocol over LLC/SNAP (OUI 00:00:0c, PID 0x2003)
+    from the synthetic capture vtp_coverage.pcap.gz.'''
+
+    def test_vtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 15 frames decode as VTP. Only the frame with the ten TLVs
+        of the wrong length has a warning, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vtp_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 15
+            assert protocols.count('eth:llc:vtp') == 15
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vtp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['7']
+
+    def test_vtp_summary(self, cmd_tshark, capture_file, test_env):
+        '''Summary advertisements: the timestamp is formatted when it is
+        numeric and shown as is otherwise.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vtp_coverage.pcap.gz'),
+                '-Y', 'vtp.code == 1',
+                '-Tfields', '-eframe.number', '-evtp.version', '-evtp.followers',
+                '-evtp.md', '-evtp.conf_rev_num', '-evtp.upd_id', '-evtp.upd_ts',
+                '-evtp.md5_digest',
+            ), encoding='utf-8', env=test_env)
+        digest = bytes(range(16)).hex()
+        assert stdout.splitlines() == [
+            '1\t0x01\t0\tlab\t1\t10.0.0.1\t990101123456\t' + digest,
+            '2\t0x02\t3\tcampus-core\t16909060\t10.0.0.1\t990101123456\t' + digest,
+            '3\t0x03\t0\t' + 'x' * 32 + '\t4294967295\t10.0.0.1\tabcdefabcdef\t' + digest,
+            '4\t0x02\t1\t\t0\t10.0.0.1\t000000000000\t' + digest,
+            '15\t0x02\t0\tlab\t99\t10.0.0.1\t990101123456\t' + digest,
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('vtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3}',
+            ), encoding='utf-8', env=test_env)
+        assert 'Update Timestamp: 99-01-01 12:34:56' in stdout
+        assert 'Update Timestamp: abcdefabcdef' in stdout
+
+    def test_vtp_subset(self, cmd_tshark, capture_file, test_env):
+        '''Subset advertisements: VLAN names are padded to a multiple of
+        four bytes, the status, type and every TLV type are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vtp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-evtp.vlan_info.isl_vlan_id', '-evtp.vlan_info.vlan_name',
+                '-evtp.vlan_info.vlan_type', '-evtp.vlan_info.mtu_size',
+                '-evtp.vlan_info.status.vlan_susp', '-evtp.vlan_info.tlv_type',
+            ), encoding='utf-8', env=test_env)
+        (ids, names, types, mtus, susp, tlvs) = stdout.rstrip('\n').split('\t')
+        assert ids == '0x0001,0x0002,0x03ea,0x03eb,0x03ed,0x000a,0x000b,0x000c'
+        assert names == ('default,fddi-default,trcrf-default,token-ring-default,'
+                         'trbrf-default,a,abcd,abcde')
+        assert types == '0x01,0x02,0x03,0x04,0x05,0x01,0x01,0x01'
+        assert mtus == '1500,1500,4472,4472,4472,1500,1500,1500'
+        assert susp == 'False,True,False,False,False,False,False,False'
+        assert tlvs == '0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x07,0x03'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vtp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-evtp.vlan_info.src_route_ring_num',
+                '-evtp.vlan_info.src_route_bridge_num', '-evtp.vlan_info.stp_type',
+                '-evtp.vlan_info.parent_vlan',
+                '-evtp.vlan_info.translationally_bridged_vlans',
+                '-evtp.vlan_info.pruning', '-evtp.vlan_info.bridge_type',
+                '-evtp.vlan_info.max_are_hop_count', '-evtp.vlan_info.max_ste_hop_count',
+                '-evtp.vlan_info.backup_crf_mode',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == [
+            '0x0123', '0x000f', '0x0001,0x0003', '0x0064', '0x0065', '0x0001',
+            '0x0002,0x0001', '7', '5', '0x0001']
+
+    def test_vtp_bad_tlv(self, cmd_tshark, capture_file, test_env):
+        '''A TLV of a known type with a length other than one word has
+        an expert info; unknown TLV types show their data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vtp_coverage.pcap.gz'),
+                '-Y', 'vtp.vlan_info.tlv_len.bad',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        (num, msgs) = stdout.rstrip('\n').split('\t')
+        assert num == '7'
+        assert msgs.count('Bad length 4') == 10
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vtp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6',
+                '-Tfields', '-evtp.vlan_info.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'deadbeef'
+
+    def test_vtp_request_join(self, cmd_tshark, capture_file, test_env):
+        '''Advertisement requests and join messages with the list of
+        active VLANs of the pruning bitmap.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {9, 10}',
+                '-Tfields', '-eframe.number', '-evtp.md', '-evtp.start_value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['9\tlab\t0x0001', '10\tcampus-core\t0x03e9']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vtp_coverage.pcap.gz'),
+                '-Y', 'vtp.code == 4',
+                '-Tfields', '-eframe.number', '-evtp.pruning.first', '-evtp.pruning.last',
+                '-evtp.pruning.active',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t1\t64\t1,3,5,7,10,12,14,16,17,18,19,20,21,22,23,24,40,41',
+            '12\t1000\t1007\t1000,1001,1002,1003,1004,1005,1006,1007',
+            '13\t0\t0\t',
+        ]
+
+    def test_vtp_unknown_code(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vtp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 14',
+                '-Tfields', '-e_ws.col.info', '-evtp.code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Unrecognized VTP message\t0x09'
