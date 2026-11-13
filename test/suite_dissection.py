@@ -168032,3 +168032,113 @@ class TestDissectX509af:
         assert all(f.endswith('.cer') for f in files)
         # sha256.cer, repeated certificates get a (n) suffix
         assert len([f for f in files if len(f) == 68]) == 35
+
+
+class TestDissectX509ce:
+    '''X.509 Certificate Extensions (x509ce) from the synthetic capture
+    x509ce_coverage.pcapng.gz: the extensions of certificates in TLS
+    Certificate messages (TCP 443), of a CRL and its entries (HTTP),
+    the matching rule assertions (2.5.13.x) carried as extension values,
+    and the CI+ extensions in a DVB-CI Content Control data request.'''
+
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, capture, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture, '-Y', flt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env).splitlines()
+
+    def test_x509ce_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two
+        passes, identical decoded fields; the frame mix is what the
+        generator wrote.'''
+        cap = capture_file('x509ce_coverage.pcapng.gz')
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, test_env, cap, self.BAD, passes=passes) == []
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Tfields', '-e_ws.col.protocol'),
+                encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 59
+        assert protocols.count('TLSv1.2') == 11
+        assert protocols.count('PKIX-CRL') == 1
+        assert protocols.count('DVB-CI') == 9
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap, '-Tfields',
+                    '-eframe.number', '-ex509ce.dNSName', '-ex509ce.policyIdentifier',
+                    '-ex509ce.CRLReason', '-ex509ce.IPAddress.ipv4', '-ex509ce.capability',
+                    '-ex509ce.KeyUsage', '-ex509ce.minimum', '-ex509ce.cRLNumber'),
+                    encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_x509ce_general_names(self, cmd_tshark, capture_file, test_env):
+        '''subjectAltName with every GeneralName form: IPv4 with and
+        without mask, IPv6 with and without mask, an address of 3
+        octets, otherName, x400Address, directoryName, ediPartyName.'''
+        cap = capture_file('x509ce_coverage.pcapng.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number == 13',
+                'x509ce.IPAddress.ipv4', 'x509ce.IPAddress.ipv4_mask',
+                'x509ce.IPAddress.ipv6_mask', 'x509ce.IPAddress.unknown', 'x509ce.dNSName')
+        assert rows == ['13\t192.0.2.1,192.0.2.0\t255.255.255.0\tffff:ffff:ffff:ffff::\t010203'
+                        '\twww.example.com,www.example.com']
+        assert self.fields(cmd_tshark, test_env, cap, 'x509ce.otherName_element && x509ce.ediPartyName_element '
+                '&& x509ce.directoryName && frame.number == 13') == ['13']
+
+    def test_x509ce_name_constraints(self, cmd_tshark, capture_file, test_env):
+        '''NameConstraints: permitted and excluded subtrees, DNS, IP with
+        mask, e-mail, URI and directory names.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('x509ce_coverage.pcapng.gz'),
+                'x509ce.NameConstraintsSyntax_element', 'x509ce.dNSName', 'x509ce.IPAddress.ipv4',
+                'x509ce.IPAddress.ipv4_mask')
+        assert rows == ['17\texample.com,.example.org,only.example.com,excl.example.com\t10.0.0.0\t255.0.0.0']
+
+    def test_x509ce_basic_constraints(self, cmd_tshark, capture_file, test_env):
+        '''BasicConstraints with cA TRUE and a path length, with the
+        default and cA FALSE.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('x509ce_coverage.pcapng.gz'),
+                'x509ce.pathLenConstraint', 'x509ce.pathLenConstraint', 'x509ce.cA')
+        assert rows == ['9\t5\tTrue,False']
+
+    def test_x509ce_policies(self, cmd_tshark, capture_file, test_env):
+        '''CertificatePolicies in the three OIDs that carry them, with CPS
+        and user notice qualifiers.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('x509ce_coverage.pcapng.gz'),
+                'x509ce.policyIdentifier', 'x509ce.policyIdentifier')
+        assert rows == ['4\t2.5.29.32.0,1.3.6.1.4.1.32473.2.1,2.23.140.1.2.1,2.5.29.32.0,'
+                        '1.3.6.1.4.1.32473.2.1,2.23.140.1.2.1,1.3.6.1.5.5.7.3.2']
+
+    def test_x509ce_crl(self, cmd_tshark, capture_file, test_env):
+        '''The CRL (frame 41): reason codes of the entries (including
+        6 certificateHold and 8..11), hold instruction codes, CRL
+        number.'''
+        cap = capture_file('x509ce_coverage.pcapng.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number == 41',
+                'x509ce.CRLReason', 'x509ce.HoldInstruction', 'x509ce.CRLNumber')
+        assert rows == ['41\t0,1,2,3,4,5,8,9,10,11,6\t1.2.840.10040.2.1,1.2.840.10040.2.2,'
+                        '1.2.840.10040.2.3,1.3.6.1.4.1.32473.7\t300']
+
+    def test_x509ce_matching_rules(self, cmd_tshark, capture_file, test_env):
+        '''The 2.5.13.x assertions: certificate, pair, list and path
+        matching, in their exact and general forms.'''
+        cap = capture_file('x509ce_coverage.pcapng.gz')
+        for elem in ('CertificateAssertion_element', 'CertificatePairExactAssertion_element',
+                     'CertificatePairAssertion_element', 'CertificateListExactAssertion_element',
+                     'CertificateListAssertion_element', 'PkiPathMatchSyntax_element',
+                     'EnhancedCertificateAssertion_element'):
+            frames = self.fields(cmd_tshark, test_env, cap, 'x509ce.' + elem)
+            assert frames in (['46'], ['46', '50'], ['50'])
+
+    def test_x509ce_ciplus(self, cmd_tshark, capture_file, test_env):
+        '''The CI+ extensions (ScramblerCapabilities, CiplusInfo,
+        CicamBrandId, SecurityLevel) are only dissected inside a DVB-CI
+        certificate: frames 58 and 59.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('x509ce_coverage.pcapng.gz'),
+                'x509ce.capability || x509ce.SecurityLevel', 'x509ce.capability', 'x509ce.CiplusInfo',
+                'x509ce.CicamBrandId', 'x509ce.SecurityLevel')
+        assert rows == ['58\t1,1\t80,80\t4660,4660\t1,1', '59\t0,0\t\t\t0,0']
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('x509ce_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 58', '-V'), encoding='utf-8', env=test_env)
+        assert 'ECP Security Level' in stdout
+        assert 'DES and AES' in stdout
