@@ -6436,6 +6436,7 @@ static int ett_nbap_Outcome;
 static expert_field ei_nbap_no_find_port_info;
 static expert_field ei_nbap_no_set_comm_context_id;
 static expert_field ei_nbap_hsdsch_entity_not_specified;
+static expert_field ei_nbap_invalid_transport_format;
 
 static int proto_fp;
 
@@ -6600,6 +6601,10 @@ typedef struct nbap_private_data_t
   uint32_t segment_type;
   bool crnc_context_present; /* Whether 'com_context_id' is set */
   uint8_t dch_crc_present;
+  /* Current TransportFormatSet-DynamicPartList item */
+  uint32_t tf_num_tbs;
+  uint32_t tf_tb_size;
+  bool tf_tb_size_present;
   /* Arrays */
   nbap_dch_channel_info_t nbap_dch_chnl_info[256];
   nbap_edch_channel_info_t nbap_edch_channel_info[maxNrOfEDCHMACdFlows];
@@ -6789,6 +6794,8 @@ static void delete_setup_conv(nbap_setup_conv_t *conv);
 
 /*Easy way to add hsdhsch binds for corner cases*/
 static void add_hsdsch_bind(packet_info * pinfo);
+
+static void nbap_store_transport_format(asn1_ctx_t *actx, proto_item *item);
 
 /*--- Cyclic dependencies ---*/
 
@@ -15011,53 +15018,11 @@ dissect_nbap_T_dCH_ID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _
 static unsigned
 dissect_nbap_TransportFormatSet_NrOfTransportBlocks(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 uint32_t NrOfTransportBlocks;
-unsigned num_items;
-uint32_t dch_id;
-uint32_t common_physical_channel_id;
-uint32_t common_transport_channel_id;
-nbap_dch_channel_info_t* nbap_dch_chnl_info;
-nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
-nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 512U, &NrOfTransportBlocks, false);
 
-
-    if(nbap_private_data->num_items>0){
-        num_items = nbap_private_data->num_items;
-        dch_id = nbap_private_data->dch_id;
-        if (num_items > 0 && num_items < MAX_FP_CHANS + 1 && dch_id != 0xffffffff) {
-            common_physical_channel_id = nbap_private_data->common_physical_channel_id;
-            common_transport_channel_id = nbap_private_data->common_transport_channel_id;
-            /* Set the channel counts from num_items instead of incrementing
-             * them; not every TransportFormatSet resets the counts, and they
-             * must not exceed MAX_FP_CHANS. */
-            switch(nbap_private_data->transport_format_set_type){
-                case NBAP_DCH_UL:
-                    nbap_dch_chnl_info[dch_id].num_ul_chans = num_items;
-                    nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    break;
-                case NBAP_DCH_DL:
-                    nbap_dch_chnl_info[dch_id].num_dl_chans = num_items;
-                    nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    break;
-                case NBAP_CPCH:
-                    nbap_dch_chnl_info[common_physical_channel_id].num_ul_chans = num_items;
-                    nbap_dch_chnl_info[common_physical_channel_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    nbap_dch_chnl_info[common_physical_channel_id].num_dl_chans = num_items;
-                    nbap_dch_chnl_info[common_physical_channel_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    break;
-                case NBAP_PCH:
-                    nbap_dch_chnl_info[common_transport_channel_id].num_ul_chans = num_items;
-                    nbap_dch_chnl_info[common_transport_channel_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    nbap_dch_chnl_info[common_transport_channel_id].num_dl_chans = num_items;
-                    nbap_dch_chnl_info[common_transport_channel_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    nbap_get_private_data(actx->pinfo)->tf_num_tbs = NrOfTransportBlocks;
 
 
   return offset;
@@ -15068,44 +15033,13 @@ nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
 static unsigned
 dissect_nbap_TransportFormatSet_TransportBlockSize(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 uint32_t TransportBlockSize;
-unsigned num_items;
-uint32_t dch_id;
-uint32_t common_physical_channel_id;
-uint32_t common_transport_channel_id;
-nbap_dch_channel_info_t* nbap_dch_chnl_info;
 nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
-nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 5000U, &TransportBlockSize, false);
 
-
-    if(nbap_private_data->num_items>0){
-        num_items = nbap_private_data->num_items;
-        dch_id = nbap_private_data->dch_id;
-        if (num_items > 0 && num_items < MAX_FP_CHANS + 1 && dch_id != 0xffffffff) {
-            common_physical_channel_id = nbap_private_data->common_physical_channel_id;
-            common_transport_channel_id = nbap_private_data->common_transport_channel_id;
-            switch(nbap_private_data->transport_format_set_type){
-                case NBAP_DCH_UL:
-                    nbap_dch_chnl_info[dch_id].ul_chan_tf_size[num_items-1] = TransportBlockSize;
-                    break;
-                case NBAP_DCH_DL:
-                    nbap_dch_chnl_info[dch_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
-                    break;
-                case NBAP_CPCH:
-                    nbap_dch_chnl_info[common_physical_channel_id].ul_chan_tf_size[num_items-1] = TransportBlockSize;
-                    nbap_dch_chnl_info[common_physical_channel_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
-                    break;
-                case NBAP_PCH:
-                    nbap_dch_chnl_info[common_transport_channel_id].ul_chan_tf_size[num_items-1] = TransportBlockSize;
-                    nbap_dch_chnl_info[common_transport_channel_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    nbap_private_data->tf_tb_size = TransportBlockSize;
+    nbap_private_data->tf_tb_size_present = true;
 
 
   return offset;
@@ -15206,10 +15140,16 @@ static const per_sequence_t TransportFormatSet_DynamicPartList_item_sequence[] =
 
 static unsigned
 dissect_nbap_TransportFormatSet_DynamicPartList_item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-    nbap_get_private_data(actx->pinfo)->num_items++;
+nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
+    nbap_private_data->num_items++;
+    nbap_private_data->tf_num_tbs = 0;
+    nbap_private_data->tf_tb_size = 0;
+    nbap_private_data->tf_tb_size_present = false;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_TransportFormatSet_DynamicPartList_item, TransportFormatSet_DynamicPartList_item_sequence);
+
+    nbap_store_transport_format(actx, actx->created_item);
 
   return offset;
 }
@@ -55516,6 +55456,85 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
   if (!ProcedureID) return 0;
   return (dissector_try_string_with_data(nbap_proc_uout_dissector_table, ProcedureID, tvb, pinfo, tree, true, NULL)) ? tvb_captured_length(tvb) : 0;
 }
+/* Limits from TransportFormatSet-NrOfTransportBlocks and
+ * TransportFormatSet-TransportBlockSize in NBAP-IEs.asn. Aligned PER encodes
+ * both in two octets, so larger values can appear on the wire. */
+#define NBAP_MAX_NR_OF_TBS 512
+#define NBAP_MAX_TB_SIZE   5000
+
+/* Store the transport format of the TransportFormatSet-DynamicPartList item
+ * just dissected, for use by FP. */
+static void nbap_store_transport_format(asn1_ctx_t *actx, proto_item *item)
+{
+    nbap_private_data_t *nbap_private_data = nbap_get_private_data(actx->pinfo);
+    nbap_dch_channel_info_t *nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
+    unsigned num_items = nbap_private_data->num_items;
+    uint32_t dch_id = nbap_private_data->dch_id;
+    uint32_t common_physical_channel_id = nbap_private_data->common_physical_channel_id;
+    uint32_t common_transport_channel_id = nbap_private_data->common_transport_channel_id;
+    uint32_t num_tbs = nbap_private_data->tf_num_tbs;
+    uint32_t tb_size = nbap_private_data->tf_tb_size;
+
+    if (num_tbs > NBAP_MAX_NR_OF_TBS) {
+        expert_add_info_format(actx->pinfo, item, &ei_nbap_invalid_transport_format,
+                               "Number of Transport Blocks %u exceeds %u; transport format ignored",
+                               num_tbs, NBAP_MAX_NR_OF_TBS);
+        num_tbs = 0;
+        tb_size = 0;
+    } else if (num_tbs > 0 && !nbap_private_data->tf_tb_size_present) {
+        /* NBAP-IEs.asn: "This IE shall be present if the Number of
+         * Transport Blocks IE is set to a value greater than 0" */
+        expert_add_info_format(actx->pinfo, item, &ei_nbap_invalid_transport_format,
+                               "Transport Block Size missing with %u Transport Blocks; transport format ignored",
+                               num_tbs);
+        num_tbs = 0;
+    } else if (tb_size > NBAP_MAX_TB_SIZE) {
+        expert_add_info_format(actx->pinfo, item, &ei_nbap_invalid_transport_format,
+                               "Transport Block Size %u exceeds %u; transport format ignored",
+                               tb_size, NBAP_MAX_TB_SIZE);
+        num_tbs = 0;
+        tb_size = 0;
+    }
+
+    if (num_items == 0 || num_items > MAX_FP_CHANS || dch_id == 0xffffffff) {
+        return;
+    }
+
+    /* Set the channel counts from num_items instead of incrementing
+     * them; not every TransportFormatSet resets the counts, and they
+     * must not exceed MAX_FP_CHANS. */
+    switch (nbap_private_data->transport_format_set_type) {
+        case NBAP_DCH_UL:
+            nbap_dch_chnl_info[dch_id].num_ul_chans = num_items;
+            nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[num_items-1] = num_tbs;
+            nbap_dch_chnl_info[dch_id].ul_chan_tf_size[num_items-1] = tb_size;
+            break;
+        case NBAP_DCH_DL:
+            nbap_dch_chnl_info[dch_id].num_dl_chans = num_items;
+            nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = num_tbs;
+            nbap_dch_chnl_info[dch_id].dl_chan_tf_size[num_items-1] = tb_size;
+            break;
+        case NBAP_CPCH:
+            nbap_dch_chnl_info[common_physical_channel_id].num_ul_chans = num_items;
+            nbap_dch_chnl_info[common_physical_channel_id].ul_chan_num_tbs[num_items-1] = num_tbs;
+            nbap_dch_chnl_info[common_physical_channel_id].ul_chan_tf_size[num_items-1] = tb_size;
+            nbap_dch_chnl_info[common_physical_channel_id].num_dl_chans = num_items;
+            nbap_dch_chnl_info[common_physical_channel_id].dl_chan_num_tbs[num_items-1] = num_tbs;
+            nbap_dch_chnl_info[common_physical_channel_id].dl_chan_tf_size[num_items-1] = tb_size;
+            break;
+        case NBAP_PCH:
+            nbap_dch_chnl_info[common_transport_channel_id].num_ul_chans = num_items;
+            nbap_dch_chnl_info[common_transport_channel_id].ul_chan_num_tbs[num_items-1] = num_tbs;
+            nbap_dch_chnl_info[common_transport_channel_id].ul_chan_tf_size[num_items-1] = tb_size;
+            nbap_dch_chnl_info[common_transport_channel_id].num_dl_chans = num_items;
+            nbap_dch_chnl_info[common_transport_channel_id].dl_chan_num_tbs[num_items-1] = num_tbs;
+            nbap_dch_chnl_info[common_transport_channel_id].dl_chan_tf_size[num_items-1] = tb_size;
+            break;
+        default:
+            break;
+    }
+}
+
 static void add_hsdsch_bind(packet_info *pinfo){
   address null_addr;
   conversation_t *conversation = NULL;
@@ -70596,6 +70615,7 @@ void proto_register_nbap(void)
     { &ei_nbap_no_set_comm_context_id, { "nbap.no_set_comm_context_id", PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail", EXPFILL }},
     { &ei_nbap_no_find_port_info, { "nbap.no_find_port_info", PI_MALFORMED, PI_WARN, "Couldn't not find port information for reconfigured E-DCH flow, unable to reconfigure", EXPFILL }},
     { &ei_nbap_hsdsch_entity_not_specified, { "nbap.hsdsch_entity_not_specified", PI_MALFORMED,PI_ERROR, "HSDSCH Entity not specified!", EXPFILL }},
+    { &ei_nbap_invalid_transport_format, { "nbap.invalid_transport_format", PI_MALFORMED, PI_WARN, "Invalid transport format", EXPFILL }},
   };
 
   expert_module_t* expert_nbap;

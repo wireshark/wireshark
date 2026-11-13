@@ -1364,94 +1364,28 @@ nbap_private_data->transport_format_set_type = NBAP_CPCH;
     nbap_get_private_data(actx->pinfo)->num_items = 0;
 
 #.FN_HDR TransportFormatSet-DynamicPartList/_item
-    nbap_get_private_data(actx->pinfo)->num_items++;
+nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
+    nbap_private_data->num_items++;
+    nbap_private_data->tf_num_tbs = 0;
+    nbap_private_data->tf_tb_size = 0;
+    nbap_private_data->tf_tb_size_present = false;
+
+#.FN_FTR TransportFormatSet-DynamicPartList/_item
+    nbap_store_transport_format(actx, actx->created_item);
 
 #.FN_BODY TransportFormatSet-NrOfTransportBlocks VAL_PTR = &NrOfTransportBlocks
 uint32_t NrOfTransportBlocks;
-unsigned num_items;
-uint32_t dch_id;
-uint32_t common_physical_channel_id;
-uint32_t common_transport_channel_id;
-nbap_dch_channel_info_t* nbap_dch_chnl_info;
-nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
-nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
 
 %(DEFAULT_BODY)s
-
-    if(nbap_private_data->num_items>0){
-        num_items = nbap_private_data->num_items;
-        dch_id = nbap_private_data->dch_id;
-        if (num_items > 0 && num_items < MAX_FP_CHANS + 1 && dch_id != 0xffffffff) {
-            common_physical_channel_id = nbap_private_data->common_physical_channel_id;
-            common_transport_channel_id = nbap_private_data->common_transport_channel_id;
-            /* Set the channel counts from num_items instead of incrementing
-             * them; not every TransportFormatSet resets the counts, and they
-             * must not exceed MAX_FP_CHANS. */
-            switch(nbap_private_data->transport_format_set_type){
-                case NBAP_DCH_UL:
-                    nbap_dch_chnl_info[dch_id].num_ul_chans = num_items;
-                    nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    break;
-                case NBAP_DCH_DL:
-                    nbap_dch_chnl_info[dch_id].num_dl_chans = num_items;
-                    nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    break;
-                case NBAP_CPCH:
-                    nbap_dch_chnl_info[common_physical_channel_id].num_ul_chans = num_items;
-                    nbap_dch_chnl_info[common_physical_channel_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    nbap_dch_chnl_info[common_physical_channel_id].num_dl_chans = num_items;
-                    nbap_dch_chnl_info[common_physical_channel_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    break;
-                case NBAP_PCH:
-                    nbap_dch_chnl_info[common_transport_channel_id].num_ul_chans = num_items;
-                    nbap_dch_chnl_info[common_transport_channel_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    nbap_dch_chnl_info[common_transport_channel_id].num_dl_chans = num_items;
-                    nbap_dch_chnl_info[common_transport_channel_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    nbap_get_private_data(actx->pinfo)->tf_num_tbs = NrOfTransportBlocks;
 
 #.FN_BODY TransportFormatSet-TransportBlockSize VAL_PTR = &TransportBlockSize
 uint32_t TransportBlockSize;
-unsigned num_items;
-uint32_t dch_id;
-uint32_t common_physical_channel_id;
-uint32_t common_transport_channel_id;
-nbap_dch_channel_info_t* nbap_dch_chnl_info;
 nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
-nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
 
 %(DEFAULT_BODY)s
-
-    if(nbap_private_data->num_items>0){
-        num_items = nbap_private_data->num_items;
-        dch_id = nbap_private_data->dch_id;
-        if (num_items > 0 && num_items < MAX_FP_CHANS + 1 && dch_id != 0xffffffff) {
-            common_physical_channel_id = nbap_private_data->common_physical_channel_id;
-            common_transport_channel_id = nbap_private_data->common_transport_channel_id;
-            switch(nbap_private_data->transport_format_set_type){
-                case NBAP_DCH_UL:
-                    nbap_dch_chnl_info[dch_id].ul_chan_tf_size[num_items-1] = TransportBlockSize;
-                    break;
-                case NBAP_DCH_DL:
-                    nbap_dch_chnl_info[dch_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
-                    break;
-                case NBAP_CPCH:
-                    nbap_dch_chnl_info[common_physical_channel_id].ul_chan_tf_size[num_items-1] = TransportBlockSize;
-                    nbap_dch_chnl_info[common_physical_channel_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
-                    break;
-                case NBAP_PCH:
-                    nbap_dch_chnl_info[common_transport_channel_id].ul_chan_tf_size[num_items-1] = TransportBlockSize;
-                    nbap_dch_chnl_info[common_transport_channel_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    nbap_private_data->tf_tb_size = TransportBlockSize;
+    nbap_private_data->tf_tb_size_present = true;
 
 #.FN_FTR RL-Specific-DCH-Info-Item/dCH-id
     nbap_get_private_data(actx->pinfo)->dch_id = nbap_get_private_data(actx->pinfo)->t_dch_id;
