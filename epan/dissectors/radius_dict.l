@@ -121,6 +121,8 @@ DIAG_OFF_FLEX()
 
 #define ECHO
 #define MAX_INCLUDE_DEPTH 10
+/* Maximum TLV nesting depth, which also bounds the recursion over TLVs. */
+#define MAX_TLV_DEPTH 8
 
 typedef struct {
 	YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
@@ -153,12 +155,29 @@ typedef struct {
 	int linenums[MAX_INCLUDE_DEPTH];
 
 	GString* error;
+
+	/* Nesting depth of TLV attributes created by this load (default 0) */
+	GHashTable* tlv_depths;
 } Radius_scanner_state_t;
 
 static void add_vendor(Radius_scanner_state_t* state, const char* name, uint32_t id, unsigned type_octets, unsigned length_octets, bool has_flags);
 static bool add_attribute(Radius_scanner_state_t* state, const char*,const  char*, radius_attr_dissector_t,const  char*, unsigned, bool, bool, const char*);
 static bool add_tlv(Radius_scanner_state_t* state, const char* name, const  char* code, radius_attr_dissector_t type, const char* attr);
 static void add_value(Radius_scanner_state_t* state, const char* attrib_name, const  char* repr, uint32_t value);
+
+/* Free the strings of a definition that was not completed. */
+static void reset_pending(Radius_scanner_state_t* state) {
+	g_free(state->attr_name);
+	state->attr_name = NULL;
+	g_free(state->attr_id);
+	state->attr_id = NULL;
+	g_free(state->attr_vendor);
+	state->attr_vendor = NULL;
+	g_free(state->vendor_name);
+	state->vendor_name = NULL;
+	g_free(state->value_repr);
+	state->value_repr = NULL;
+}
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -182,10 +201,10 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
 
 %START WS_OUT VENDOR VENDOR_W_NAME ATTR ATTR_W_NAME ATTR_W_ID ATTR_W_TYPE VALUE VALUE_W_ATTR VALUE_W_NAME INCLUDE JUNK BEGIN_VENDOR BEGIN_VENDOR_FORMAT END_VENDOR VENDOR_W_ID VENDOR_W_FORMAT VENDOR_W_TYPE_OCTETS VENDOR_W_LENGTH_OCTETS VENDOR_W_CONTINUATION BEGIN_TLV END_TLV
 %%
-[:blank:]   ;
+[[:blank:]]   ;
 #[^\n]*		;
 
-<JUNK>.*\qn		;
+<JUNK>[^\n]*		;
 
 <WS_OUT>VENDOR { BEGIN VENDOR; }
 <WS_OUT>ATTRIBUTE { BEGIN ATTR; }
@@ -259,6 +278,7 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
 }
 
 <VENDOR>[0-9a-z_-]+   {
+    g_free(yyextra->vendor_name);
     yyextra->vendor_name = g_strdup(yytext);
     yyextra->vendor_type_octets = 1;
     yyextra->vendor_length_octets = 1;
@@ -295,12 +315,13 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
 <VENDOR_W_ID>\n {
     add_vendor(yyextra, yyextra->vendor_name, yyextra->vendor_id, yyextra->vendor_type_octets, yyextra->vendor_length_octets, yyextra->vendor_has_flags);
     g_free(yyextra->vendor_name);
+    yyextra->vendor_name = NULL;
     BEGIN WS_OUT;
 }
 
-<ATTR>[0-9a-z_/.-]+			{ yyextra->attr_name = g_strdup(yytext); yyextra->encrypted = 0; yyextra->has_tag = false; yyextra->concat = false; BEGIN ATTR_W_NAME; }
-<ATTR_W_NAME>[0-9.]+			{ yyextra->attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
-<ATTR_W_NAME>0x[0-9a-f]+		{ yyextra->attr_id = ws_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
+<ATTR>[0-9a-z_/.-]+			{ g_free(yyextra->attr_name); yyextra->attr_name = g_strdup(yytext); yyextra->encrypted = 0; yyextra->has_tag = false; yyextra->concat = false; BEGIN ATTR_W_NAME; }
+<ATTR_W_NAME>[0-9.]+			{ g_free(yyextra->attr_id); yyextra->attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
+<ATTR_W_NAME>0x[0-9a-f]+		{ g_free(yyextra->attr_id); yyextra->attr_id = ws_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
 <ATTR_W_ID>integer			{ yyextra->attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>string			{ yyextra->attr_type = radius_string;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>octets(\[[1-9][0-9]*\])?	{ yyextra->attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
@@ -336,6 +357,7 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
      */
     bool attribute_ok;
 
+    g_free(yyextra->attr_vendor);
     yyextra->attr_vendor = g_strdup(yytext);
     attribute_ok = add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->attr_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->concat, yyextra->tlv_stack[yyextra->tlv_stack_ptr]);
     g_free(yyextra->attr_id);
@@ -353,6 +375,8 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
     add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->current_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->concat, yyextra->tlv_stack[yyextra->tlv_stack_ptr]);
     g_free(yyextra->attr_id);
     g_free(yyextra->attr_name);
+    yyextra->attr_id = NULL;
+    yyextra->attr_name = NULL;
     yyextra->linenums[yyextra->include_stack_ptr]++;
     yyextra->has_tag = false;
     yyextra->encrypted=false;
@@ -360,16 +384,18 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
     BEGIN WS_OUT;
 }
 
-<VALUE>[0-9a-z_/-]+				{ yyextra->attr_name = g_strdup(yytext); BEGIN VALUE_W_ATTR; }
-<VALUE_W_ATTR>[^[:blank:]]+			{ yyextra->value_repr = g_strdup(yytext); BEGIN VALUE_W_NAME; }
-<VALUE_W_NAME>[0-9]+				{ add_value(yyextra, yyextra->attr_name,yyextra->value_repr, (uint32_t) strtoul(yytext,NULL,10));  g_free(yyextra->attr_name); g_free(yyextra->value_repr); BEGIN WS_OUT;}
-<VALUE_W_NAME>0x[0-9a-f]+			{ add_value(yyextra, yyextra->attr_name,yyextra->value_repr, (uint32_t) strtoul(yytext,NULL,16));  g_free(yyextra->attr_name); g_free(yyextra->value_repr); BEGIN WS_OUT;}
+<VALUE>[0-9a-z_/-]+				{ g_free(yyextra->attr_name); yyextra->attr_name = g_strdup(yytext); BEGIN VALUE_W_ATTR; }
+<VALUE_W_ATTR>[^[:blank:]]+			{ g_free(yyextra->value_repr); yyextra->value_repr = g_strdup(yytext); BEGIN VALUE_W_NAME; }
+<VALUE_W_NAME>[0-9]+				{ add_value(yyextra, yyextra->attr_name,yyextra->value_repr, (uint32_t) strtoul(yytext,NULL,10));  g_free(yyextra->attr_name); g_free(yyextra->value_repr); yyextra->attr_name = NULL; yyextra->value_repr = NULL; BEGIN WS_OUT;}
+<VALUE_W_NAME>0x[0-9a-f]+			{ add_value(yyextra, yyextra->attr_name,yyextra->value_repr, (uint32_t) strtoul(yytext,NULL,16));  g_free(yyextra->attr_name); g_free(yyextra->value_repr); yyextra->attr_name = NULL; yyextra->value_repr = NULL; BEGIN WS_OUT;}
 
 <INCLUDE>[^[:blank:]\n]+   {
 	yyextra->include_stack[yyextra->include_stack_ptr++] = YY_CURRENT_BUFFER;
 
 	if ( yyextra->include_stack_ptr >= MAX_INCLUDE_DEPTH ) {
 		g_string_append_printf(yyextra->error, "$INCLUDE files nested too deeply\n");
+		/* Undo the push; the current buffer was not replaced. */
+		yyextra->include_stack_ptr--;
 		yyterminate();
 	}
 
@@ -425,6 +451,8 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
 	yyin = NULL;
 
 	g_free(yyextra->directory);
+	yyextra->directory = NULL;
+	reset_pending(yyextra);
 
 	if ( --yyextra->include_stack_ptr < 0 ) {
 		yyterminate();
@@ -441,7 +469,7 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
 	BEGIN WS_OUT;
 }
 
-\n 	{ yyextra->linenums[yyextra->include_stack_ptr]++; BEGIN WS_OUT; }
+\n 	{ reset_pending(yyextra); yyextra->linenums[yyextra->include_stack_ptr]++; BEGIN WS_OUT; }
 
 
 %%
@@ -521,7 +549,7 @@ static bool add_attribute(Radius_scanner_state_t* state, const char* name, const
 	}
 
 	buf = g_strdup(codestr);
-	dot = strchr(codestr, '.');
+	dot = strchr(buf, '.');
 	if (dot)
 		*dot = '\0';
 	code0 = (uint8_t) strtoul(buf, NULL, 10);
@@ -627,6 +655,7 @@ static bool add_tlv(Radius_scanner_state_t* state, const char* name, const  char
 	radius_attr_info_t* a;
 	radius_attr_info_t* s;
 	radius_attr_type_t code;
+	unsigned depth;
 
 	a = (radius_attr_info_t*)g_hash_table_lookup(state->dict->attrs_by_name, attr);
 
@@ -636,6 +665,12 @@ static bool add_tlv(Radius_scanner_state_t* state, const char* name, const  char
 
 	if (!a) {
 		g_string_append_printf(state->error, "Attr: '%s', does not exist in %s:%i \n", attr, state->fullpaths[state->include_stack_ptr], state->linenums[state->include_stack_ptr]);
+		return false;
+	}
+
+	depth = GPOINTER_TO_UINT(g_hash_table_lookup(state->tlv_depths, a));
+	if (depth >= MAX_TLV_DEPTH) {
+		g_string_append_printf(state->error, "TLV '%s' nested too deeply (more than %d levels) in %s:%i \n", name, MAX_TLV_DEPTH, state->fullpaths[state->include_stack_ptr], state->linenums[state->include_stack_ptr]);
 		return false;
 	}
 
@@ -670,6 +705,7 @@ static bool add_tlv(Radius_scanner_state_t* state, const char* name, const  char
 		s->ett = -1;
 		s->tlvs_by_id = NULL;
 
+		g_hash_table_insert(state->tlv_depths, s, GUINT_TO_POINTER(depth + 1));
 		g_hash_table_insert(a->tlvs_by_id,GUINT_TO_POINTER(s->code.value),s);
 		g_hash_table_insert(state->dict->tlvs_by_name,(void *) (s->name),s);
 	}
@@ -803,12 +839,15 @@ bool radius_load_dictionary (radius_dictionary_t* d, char* dir, const char* file
 	state.tlv_stack_ptr = 0;
 
 	state.error = g_string_new("");
+	state.tlv_depths = g_hash_table_new(g_direct_hash, g_direct_equal);
 
 	in = ws_fopen(state.fullpaths[0],"r");
 
 	if (!in) {
 		g_string_append_printf(state.error, "Could not open file: '%s', error: %s\n", state.fullpaths[0], g_strerror(errno));
 		g_free(state.fullpaths[0]);
+		g_free(state.directory);
+		g_hash_table_destroy(state.tlv_depths);
 		*err_str = g_string_free(state.error,FALSE);
 		return false;
 	}
@@ -820,6 +859,8 @@ bool radius_load_dictionary (radius_dictionary_t* d, char* dir, const char* file
 		    strerror(errno));
 		fclose(in);
 		g_free(state.fullpaths[0]);
+		g_free(state.directory);
+		g_hash_table_destroy(state.tlv_depths);
 		*err_str = g_string_free(state.error,FALSE);
 		return false;
 	}
@@ -831,11 +872,29 @@ bool radius_load_dictionary (radius_dictionary_t* d, char* dir, const char* file
 
 	Radius_lex(scanner);
 
-	Radius_lex_destroy(scanner);
 	/*
-	 * XXX - can the lexical analyzer terminate without closing
-	 * all open input files?
+	 * The scanner can stop on an error with input files still open
+	 * and with suspended buffers on the include stack; close and free
+	 * them.  After a normal end of input the include stack pointer is
+	 * -1 and the input file has been closed.
 	 */
+	if (Radius_get_in(scanner)) {
+		fclose(Radius_get_in(scanner));
+		Radius_set_in(NULL, scanner);
+	}
+	for (i = state.include_stack_ptr - 1; i >= 0; i--) {
+		if (state.include_stack[i]) {
+			if (state.include_stack[i]->yy_input_file) {
+				fclose(state.include_stack[i]->yy_input_file);
+			}
+			Radius__delete_buffer(state.include_stack[i], scanner);
+		}
+	}
+	Radius_lex_destroy(scanner);
+	reset_pending(&state);
+	g_free(state.directory);
+	g_free(state.current_vendor);
+	g_hash_table_destroy(state.tlv_depths);
 
 	for (i = 0; i < MAX_INCLUDE_DEPTH; i++) {
 		g_free(state.fullpaths[i]);

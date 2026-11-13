@@ -2402,9 +2402,12 @@ register_attrs(void *k _U_, void *v, void *p)
 	unsigned len_hf = 2;
 	hfett_t *ri = (hfett_t *)p;
 
-	for(i=0; abbrev[i]; i++) {
+	/* Skip the "radius." prefix; a '.' in the attribute name is not valid
+	 * in a filter name (empty or repeated components). */
+	for(i=(int)strlen("radius."); abbrev[i]; i++) {
 		if (abbrev[i] == '-') abbrev[i] = '_';
 		if (abbrev[i] == '/') abbrev[i] = '_';
+		if (abbrev[i] == '.') abbrev[i] = '_';
 	}
 
 	hfri[0].p_id = &(a->hf);
