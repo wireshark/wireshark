@@ -112,8 +112,8 @@ static int vsock_addr_to_str(const address* addr, char *buf, int buf_len)
 
 static int vsock_addr_str_len(const address* addr _U_)
 {
-    /* 2^64 unsigned int len */
-    return 19;
+    /* 2^64 unsigned int len: 20 digits plus NUL */
+    return 21;
 }
 
 static int
@@ -125,7 +125,8 @@ dissect_vsock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     uint32_t t_len, payload_len, virtio_buf_alloc, op, type,
             virtio_fwd_cnt, virtio_op, virtio_type;
-    uint16_t payload_offset = 0, offset = 0;
+    unsigned payload_offset = 0;
+    uint16_t offset = 0;
     char *op_name, *t_name;
 
     if (tvb_reported_length(tvb) < VSOCK_MIN_LENGTH)
