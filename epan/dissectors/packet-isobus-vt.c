@@ -5716,7 +5716,7 @@ proto_register_isobus_vt(void)
             NULL, HFILL }
         },
         { &hf_isobus_vt_gettextfontdata_smallfontsizes_font16x16,
-          { "Font 12 x 16",       "isobus.vt.get_text_font_data.small_font_sizes.font_12x16",
+          { "Font 16 x 16",       "isobus.vt.get_text_font_data.small_font_sizes.font_16x16",
             FT_UINT8, BASE_HEX, NULL, 0x08,
             NULL, HFILL }
         },
