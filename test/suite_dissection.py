@@ -161394,3 +161394,102 @@ class TestDissectUsbPtpCoverage:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {551, 554}', 'frame.number',
                             '_ws.col.protocol', 'frame.protocols')
         assert rows == ['551\tUSB-PTP\tusb', '554\tUSB-PTP\tusb']
+
+
+class TestDissectUsbVideo:
+    '''USB Video Class (packet-usb-video.c) from the synthetic Linux usbmon /
+    USBPcap capture usb_video_coverage.pcapng.gz. Frames 1-10 are the
+    enumeration of a UVC 1.1 camera (device 2) with every terminal and unit
+    and three formats, 11-24 VideoControl interface requests, 25-56 camera
+    terminal, 57-86 processing, selector and extension unit requests, 87-100
+    UVC 1.5 request codes, 101-138 VideoStreaming probe and commit controls,
+    139-140 a request to an endpoint, 141-166 interrupt status packets,
+    167-193 a UVC 1.0 device on USBPcap (3) and 194-203 odd interface
+    subclasses (4).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('usb_video_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_usb_video_frames(self, cmd_tshark, capture_file, test_env):
+        '''142 USBVIDEO frames out of 203; no malformed frames and no warnings
+        or errors in one and two passes; the same info column in both.'''
+        by_pass = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol', '_ws.col.info', extra=passes)
+            assert len(rows) == 203
+            assert [r.split('\t')[0] for r in rows].count('USBVIDEO') == 142
+            by_pass.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+        assert by_pass[0] == by_pass[1]
+
+    def test_usb_video_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''Control interface header, terminals, units, streaming header, formats and frames of the configuration.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 8',
+                            'usbvideo.bcdUVC', 'usbvideo.terminal.id', 'usbvideo.terminal.type', 'usbvideo.unit.id',
+                            'usbvideo.unit.numInputs', 'usbvideo.extension.guid', 'usbvideo.extension.numControls',
+                            'usbvideo.format.index', 'usbvideo.format.bitsPerPixel', 'usbvideo.frame.width',
+                            'usbvideo.frame.height', 'usbvideo.frame.interval.type', 'usbvideo.color.primaries',
+                            'usbvideo.streaming.numFormats', 'usbvideo.ep.maxInterruptSize',
+                            'usbvideo.format.variableSize', 'usbvideo.processor.maxMultiplier')
+        assert rows == ['0x0110\t1,7,8,3,10,11\t0x0201,0x0202,0x0200,0x0101,0x0301,0x0302\t4,5,6,9\t2,1\t'
+                        'a4051a2d-4a5a-3a4d-8a26-7c3e5d1a9bc1\t8\t1,2,3,4\t16,0,12\t640,1280,1920,320,800,1024,352\t'
+                        '480,720,1080,240,600,768,288\t0,3,1,0,2,0,1\t1,2\t4\t16\tTrue\t16384']
+
+    def test_usb_video_selectors(self, cmd_tshark, capture_file, test_env):
+        '''The name of the control comes from the entity: interface, camera terminal, processing and
+        selector unit; unknown selectors, extension units and entities that do not exist show the numbers.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {11, 15, 23, 25, 43, 55, 57, 65, 75, 79, 83, 85, 87, 101, 133}',
+                            'frame.number', '_ws.col.info')
+        assert rows == ['11\tGET CUR Request  [Video Power Mode]', '15\tGET CUR Request  [Request Error Code]',
+                        '23\tGET CUR Request  [Interface 0 control 0x30]', '25\tGET CUR Request  [Scanning Mode]',
+                        '43\tGET CUR Request  [Zoom (Absolute)]', '55\tGET CUR Request  [Unit 1 control 0x7f]',
+                        '57\tGET CUR Request  [Brightness]', '65\tGET CUR Request  [Power Line Frequency]',
+                        '75\tGET CUR Request  [Input Select]', '79\tGET CUR Request  [Unit 6 control 0x1]',
+                        '83\tGET CUR Request  [Unit 99 control 0x5]', '85\tGET CUR Request  [Unit 7 control 0x1]',
+                        '87\tGET CUR ALL Request  [Brightness]', '101\tSET CUR Request  [Interface 1 control 0x1]',
+                        '133\tGET CUR Request  [Interface 1 control 0x20]']
+
+    def test_usb_video_values(self, cmd_tshark, capture_file, test_env):
+        '''Request error codes, current/minimum/maximum values, GET LEN and GET INFO responses.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbvideo.reqerror.code && frame.number < 100',
+                            'frame.number', 'usbvideo.reqerror.code')
+        assert rows == ['16\t0', '18\t6', '20\t255']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {30, 32, 34, 40, 42, 44, 58, 62}',
+                            'frame.number', 'usbvideo.control.value.cur', 'usbvideo.control.value.min',
+                            'usbvideo.control.value.max', 'usbvideo.control.len', 'usbvideo.control.info')
+        assert rows == ['30\t156\t\t\t\t', '32\t\t1\t\t\t', '34\t\t\t5000\t\t', '40\t\t\t\t4\t', '42\t\t\t\t\t0x0f',
+                        '44\t100\t\t\t\t', '58\t64\t\t\t\t', '62\t\t\t64\t\t']
+
+    def test_usb_video_probe(self, cmd_tshark, capture_file, test_env):
+        '''Probe and commit controls: 34 octets (UVC 1.1), 26 octets (UVC 1.0, no clock frequency)
+        and 48 octets (the 14 octets beyond the UVC 1.1 fields stay as control data).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {101, 104, 106, 108, 112, 118}',
+                            'frame.number', 'usbvideo.probe.hint', 'usbvideo.format.index', 'usbvideo.frame.index',
+                            'usbvideo.probe.maxVideoFrameSize', 'usbvideo.probe.clockFrequency', 'usbvideo.probe.framing',
+                            'usbvideo.control_data')
+        assert rows == ['101\t0x0001\t1\t1\t614400\t48000000\t0x03\t', '104\t0x0001\t1\t1\t1228800\t48000000\t0x03\t',
+                        '106\t0x0001\t1\t1\t614400\t\t\t', '108\t0x001f\t2\t2\t614400\t48000000\t0x03\t',
+                        '112\t0xffff\t1\t1\t614400\t48000000\t0x00\t', '118\t0x0001\t1\t1\t614400\t48000000\t0x03\t' + '00' * 14]
+
+    def test_usb_video_interrupt(self, cmd_tshark, capture_file, test_env):
+        '''Interrupt status packets of the VideoControl interface: value, info, failure, minimum and
+        maximum changes, an attribute that is not defined, and a value of 8 octets.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 142 && frame.number <= 166 && _ws.col.protocol == "USBVIDEO"',
+                            'frame.number', 'usbvideo.interrupt.originator', 'usbvideo.control.selector',
+                            'usbvideo.interrupt.attribute', 'usbvideo.control.value.cur', 'usbvideo.control.value.min',
+                            'usbvideo.control.value.max', 'usbvideo.reqerror.code', 'usbvideo.value_data')
+        assert rows == ['142\t1\t0x0b\t0x00\t100\t\t\t\t', '144\t5\t0x02\t0x00\t65531\t\t\t\t',
+                        '146\t1\t0x04\t0x00\t200\t\t\t\t', '148\t5\t0x02\t0x01\t\t\t\t\t',
+                        '150\t5\t0x03\t0x02\t\t\t\t6\t', '152\t1\t0x0b\t0x03\t\t0\t\t\t',
+                        '154\t1\t0x0b\t0x04\t\t\t500\t\t', '156\t1\t0x0d\t0x00\t\t\t\t\t',
+                        '158\t5\t0x05\t0x09\t\t\t\t\taabb', '160\t77\t0x01\t0x00\t1\t\t\t\t',
+                        '162\t0\t0x02\t0x02\t\t\t\t1\t', '164\t1\t\t\t\t\t\t\t', '166\t1\t\t\t\t\t\t\t']
