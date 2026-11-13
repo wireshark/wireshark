@@ -164285,3 +164285,72 @@ class TestDissectVxi11:
         infos = [r[1] for r in rows]
         assert any('DEVICE_WRITE Call LID=7 split write data' in i for i in infos)
         assert any('DEVICE_READSTB Call' in i and 'DEVICE_TRIGGER Call' in i for i in infos)
+
+
+class TestDissectVxlan:
+    '''VXLAN (UDP 4789 and 8472) and VXLAN-GPE (UDP 4790) from the
+    synthetic capture vxlan_coverage.pcap.gz: frames 1-10 are VXLAN,
+    11-21 VXLAN-GPE with every next protocol, 22 is a tunnel in a tunnel.'''
+
+    def test_vxlan_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The 22 frames decode without malformed packets or error expert
+        infos, in one and two passes. Frames 8 and 21 have non-zero
+        reserved fields (the only warnings from VXLAN).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vxlan_coverage.pcap.gz'),
+                    '-Y', 'vxlan', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 22
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vxlan_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vxlan_coverage.pcap.gz'),
+                    '-Y', 'vxlan.reserved_not_zero', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['8', '21']
+
+    def test_vxlan_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''VNI, group policy ID and flags of VXLAN.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vxlan_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 10 || frame.number == 22',
+                '-Tfields', '-eframe.number', '-evxlan.vni', '-evxlan.gbp',
+                '-evxlan.flag_g', '-evxlan.flag_i', '-evxlan.flag_d',
+                '-evxlan.flag_a',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        vnis = {r[0]: r[1] for r in rows}
+        assert vnis == {'1': '5000', '2': '5000', '3': '0', '4': '16777215',
+                        '5': '1', '6': '16777215', '7': '42', '8': '77',
+                        '9': '9', '10': '9', '22': '5001,6000'}
+        flags = {r[0]: r[3:] for r in rows}
+        assert flags['3'] == ['False', 'False', 'False', 'False']
+        assert flags['4'] == ['True', 'True', 'False', 'False']
+        assert flags['5'] == ['False', 'True', 'True', 'False']
+        assert flags['6'] == ['False', 'True', 'True', 'True']
+        assert rows[3][2] == '4660'
+        assert rows[5][2] == '65535'
+
+    def test_vxlan_gpe_next_protocols(self, cmd_tshark, capture_file, test_env):
+        '''VXLAN-GPE hands IPv4, IPv6, Ethernet, NSH and MPLS to their
+        dissectors and shows other next protocols as data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vxlan_coverage.pcap.gz'),
+                '-Y', 'vxlan.next_proto', '-Tfields', '-eframe.number',
+                '-evxlan.next_proto', '-evxlan.vni', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (line.split('\t') for line in stdout.splitlines())}
+        assert [rows[str(n)][0] for n in range(11, 22)] == [
+            '1', '2', '3', '4', '5', '3', '3', '3', '127', '0', '3']
+        assert rows['11'][2].endswith(':vxlan_gpe:ip:udp:discard')
+        assert rows['12'][2].endswith(':vxlan_gpe:ipv6:udp:discard')
+        assert rows['14'][2].endswith(':vxlan_gpe:nsh:eth:ethertype:ip:udp:discard')
+        assert rows['15'][2].endswith(':vxlan_gpe:mpls:udp:discard')
+        assert rows['19'][2].endswith(':vxlan_gpe:data')
+        assert rows['20'][2].endswith(':vxlan_gpe:data')
+        assert rows['21'][1] == '109'
