@@ -161219,3 +161219,67 @@ class TestDissectUsbmsUasp:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {195, 198, 203, 204, 205, 206}',
                             'frame.number', '_ws.col.protocol')
         assert rows == ['195\tUSBMS', '198\tUSBMS', '203\tUSB', '204\tUSB', '205\tUSB', '206\tUSB']
+
+
+class TestDissectUsbPrinter:
+    '''USB Printer class (packet-usb-printer.c) from the synthetic Linux
+    usbmon / USBPcap capture usb_printer_coverage.pcapng.gz. Frames 1-32 are
+    a bidirectional printer (device 2): class requests and print data,
+    33-62 a printer on USBPcap with two interfaces (3), 63-76 a printer on a
+    48 octet usbmon header (4).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('usb_printer_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_usb_printer_frames(self, cmd_tshark, capture_file, test_env):
+        '''29 USBPRINTER frames out of 76; no malformed frames and no warnings
+        or errors in one and two passes, the same protocols in both.'''
+        by_pass = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol', extra=passes)
+            assert len(rows) == 76
+            assert rows.count('USBPRINTER') == 29
+            by_pass.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+        assert by_pass[0] == by_pass[1]
+
+    def test_usb_printer_requests(self, cmd_tshark, capture_file, test_env):
+        '''GET_DEVICE_ID request fields (configuration index, interface, alternate setting, length),
+        and the other requests. SOFT_RESET to the "other" recipient (frame 17) is not a printer request.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbprinter.bRequest && frame.number in {11, 13, 15, 19, 50, 56, 59}',
+                            'frame.number', 'usbprinter.bRequest', 'usbprinter.config_index', 'usbprinter.interface',
+                            'usbprinter.alt_set', 'usbprinter.max_len', '_ws.col.info')
+        assert rows == ['11\t0x00\t0x0000\t0x0000\t0x0000\t0x0400\tGET_DEVICE_ID request',
+                        '13\t0x01\t\t\t\t\tGET_PORT_STATUS request',
+                        '15\t0x02\t\t\t\t\tSOFT_RESET request',
+                        '19\t0x03\t\t\t\t\tInvalid request',
+                        '50\t0x00\t0x0000\t0x0001\t0x0001\t0x0400\tGET_DEVICE_ID request',
+                        '56\t0x00\t0x0001\t0x0000\t0x0000\t0x0400\tGET_DEVICE_ID request',
+                        '59\t0x02\t\t\t\t\tSOFT_RESET request']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {14, 17, 18, 20}', 'frame.number', '_ws.col.protocol', '_ws.col.info')
+        assert rows == ['14\tUSBPRINTER\tGET_PORT_STATUS response', '17\tUSB\tURB_CONTROL out',
+                        '18\tUSB\tURB_CONTROL out', '20\tUSBPRINTER\tInvalid response']
+
+    def test_usb_printer_device_id(self, cmd_tshark, capture_file, test_env):
+        '''IEEE 1284 Device ID responses: the big endian length includes its own two octets; a length of
+        2 or 0 has no string, a length of 3 a one character string; data after the ID is not part of it.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbprinter.device_id_len',
+                            'frame.number', 'usbprinter.device_id_len', 'usbprinter.device_id')
+        assert rows == [
+            '12\t0x0069\tMFG:Hewlett-Packard;CMD:PJL,PCL,PCLXL,POSTSCRIPT;MDL:HP LaserJet 4000;CLS:PRINTER;DES:HP LaserJet 4000;',
+            '22\t0x0002\t',
+            '24\t0x0000\t',
+            '26\t0x0003\tZ',
+            '28\t0x0045\tMFG:EPSON;CMD:ESCPL2,BDC,D4,D4PX;MDL:Stylus Photo R200;CLS:PRINTER;',
+            '48\t0x0045\tMFG:EPSON;CMD:ESCPL2,BDC,D4,D4PX;MDL:Stylus Photo R200;CLS:PRINTER;',
+            '51\t0x0069\tMFG:Hewlett-Packard;CMD:PJL,PCL,PCLXL,POSTSCRIPT;MDL:HP LaserJet 4000;CLS:PRINTER;DES:HP LaserJet 4000;',
+            '57\t0x0045\tMFG:EPSON;CMD:ESCPL2,BDC,D4,D4PX;MDL:Stylus Photo R200;CLS:PRINTER;',
+            '74\t0x0030\tMFG:Canon;CMD:LBP-SIM;MDL:LBP2900;CLS:PRINTER;']
