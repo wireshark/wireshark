@@ -777,7 +777,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         unsigned encoding, uint32_t start_ifd_offset,
-        int hf_tag, const char *ifd_type_desc)
+        int hf_tag, const char *ifd_type_desc, unsigned *followed)
 {
     uint32_t next_ifd_offset = start_ifd_offset;
 
@@ -880,28 +880,39 @@ process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                             uint32_t extension_ifd_offset = tvb_get_uint32(tvb, value_offset, encoding);
                             int extension_hf_ifd_tag = -1;
                             const char *extension_ifd_type_desc = NULL;
+                            unsigned extension_bit = 0;
 
                             switch (field_tag) {
                             case EXIF_TAG_EXIF_IFD_POINTER:
                                 extension_hf_ifd_tag = hf_ifd_tag_exif;
                                 extension_ifd_type_desc = "Exif IFD";
+                                extension_bit = 1;
                                 break;
                             case EXIF_TAG_GPS_IFD_POINTER:
                                 extension_hf_ifd_tag = hf_ifd_tag_gps;
                                 extension_ifd_type_desc = "GPS IFD";
+                                extension_bit = 2;
                                 break;
                             case EXIF_TAG_INTEROP_IFD_POINTER:
                                 extension_hf_ifd_tag = hf_ifd_tag_interop;
                                 extension_ifd_type_desc = "Interoperability IFD";
+                                extension_bit = 4;
                                 break;
                             }
 
-                            if (extension_ifd_type_desc) {
+                            /* Follow each extension IFD type at most once per
+                             * TIFF, so repeated or looping pointers cannot make
+                             * the walk quadratic. */
+                            if (extension_ifd_type_desc && (*followed & extension_bit)) {
+                                expert_add_info_format(pinfo, value_item, &ei_start_ifd_offset,
+                                    "duplicate extension IFD pointer ignored");
+                            } else if (extension_ifd_type_desc) {
+                                *followed |= extension_bit;
                                 if (extension_ifd_offset < tvb_reported_length(tvb)) {
                                     increment_dissection_depth(pinfo);
                                     process_tiff_ifd_chain(tree, tvb, pinfo, encoding,
                                             extension_ifd_offset, extension_hf_ifd_tag,
-                                            extension_ifd_type_desc);
+                                            extension_ifd_type_desc, followed);
                                     decrement_dissection_depth(pinfo);
                                 } else {
                                     expert_add_info_format(pinfo, value_item, &ei_start_ifd_offset,
@@ -991,8 +1002,9 @@ process_tiff(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
         return;
     }
 
+    unsigned followed = 0;
     process_tiff_ifd_chain(tree, tvb, pinfo, encoding, start_ifd_offset,
-            hf_ifd_tag, "Image File Directory");
+            hf_ifd_tag, "Image File Directory", &followed);
 }
 
 /* Process an APP1 block.
