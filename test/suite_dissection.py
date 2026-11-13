@@ -169071,3 +169071,65 @@ class TestDissectXip:
                 '-e_ws.col.info', '-exip_serval.proto')
         assert rows == ['58\tXIP Packet (with Serval)\t0',
                         '59\tXIP Packet (with Serval)\t0']
+
+
+class TestDissectXipServal:
+    '''XIP Serval (behind an XIP header whose sink node is a FLOWID or
+    SERVAL XID) from the synthetic capture xip_serval_coverage.pcap.gz:
+    Data, TCP and UDP, the control extension header with every flag and
+    packets with the checksum verified.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('xip_serval_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_xip_serval_protocols(self, cmd_tshark, capture_file, test_env):
+        '''25 frames, all with a verified Serval checksum, without
+        malformed packets or error expert infos in one and two passes.
+        Four of them are TCP, two UDP: Serval hands the TCP and UDP
+        headers on.'''
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-e_ws.col.protocol', passes=passes)
+            assert len(rows) == 25
+            assert rows.count('XIP') == 19
+            assert rows.count('TCP') == 4
+            assert rows.count('UDP') == 2
+            ok = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', 'xip_serval.check.status == 1', '-Tfields',
+                    '-eframe.number', passes=passes)
+            assert len(ok) == 25
+
+    def test_xip_serval_control_extension(self, cmd_tshark, capture_file, test_env):
+        '''The flags, numbers and nonce of the control extension; frame
+        20 has two extensions; the header length counts words.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 4, 9, 11, 20}', '-Tfields',
+                '-eframe.number', '-exip_serval.hl', '-exip_serval.cext_flags',
+                '-exip_serval.cext_syn', '-exip_serval.cext_fin',
+                '-exip_serval.cext_verno', '-exip_serval.cext_ackno')
+        assert rows == [
+            '1\t1\t\t\t\t\t',
+            '4\t6\t0x80\tTrue\tFalse\t287454020\t1432778632',
+            '9\t6\t0x04\tFalse\tTrue\t287454020\t1432778632',
+            '11\t6\t0xfc\tTrue\tTrue\t287454020\t1432778632',
+            '20\t11\t0x80,0x20\tTrue,False\tFalse,False\t1,3\t2,4',
+        ]
+
+    def test_xip_serval_next_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The Serval protocol field and the TCP and UDP headers handed
+        on (TCP with options).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tcp || udp', '-Tfields', '-eframe.number',
+                '-exip_serval.proto', '-e_ws.col.info')
+        assert [r.split('\t')[:2] for r in rows] == [
+            ['15', '6'], ['16', '6'], ['17', '6'], ['18', '17'], ['19', '17'],
+            ['21', '6']]
+        assert rows[3].endswith('\t5000 → 6000 Len=0')
