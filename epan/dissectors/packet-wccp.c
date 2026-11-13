@@ -1509,7 +1509,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
       break;
     default:
       expert_add_info_format(pinfo, tf, &ei_wccp_address_table_family_unknown,
-                      "Unknown address family: %u", wccp_wccp_address_table->family);
+                      "Unknown address family: %u", family);
       if (address_length % 4) {
         expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                                "The Address length must be a multiple of 4. Correcting this.");
@@ -1547,7 +1547,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
         tvb_get_ipv6(tvb, offset, &(wccp_wccp_address_table->table_ipv6[i]));
       break;
     default:
-      addr = wmem_strdup_printf(pinfo->pool, "unknown family %d", wccp_wccp_address_table->family);
+      addr = wmem_strdup_printf(pinfo->pool, "unknown family %d", family);
     };
 
     proto_item *pi;
@@ -1555,7 +1555,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
     pi = proto_tree_add_string_format_value(element_tree, hf_address_table_element, tvb,
                                             offset, address_length, addr,
                                             "%d: %s", i+1, addr);
-    if (i > wccp_wccp_address_table->table_length)
+    if (i >= wccp_wccp_address_table->table_length)
       expert_add_info_format(pinfo, pi, &ei_wccp_length_bad, "Ran out of space to store address");
     EAT(address_length);
   }
