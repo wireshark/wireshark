@@ -165166,3 +165166,223 @@ class TestDissectWcp:
                 '1\tData offset exceeds valid window size (1 > 0)',
                 '2\t',
             ]
+
+
+class TestDissectWebsocket:
+    CAP = 'websocket_coverage.pcap.gz'
+    @staticmethod
+    def have_zlib(cmd_tshark, test_env):
+        '''permessage-deflate needs zlib or zlib-ng. The features fixture has
+        no have_zlib, so look at the compile time info.'''
+        out = subprocess.check_output((cmd_tshark, '-v'), encoding='utf-8', env=test_env)
+        return '+zlib' in out
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file(TestDissectWebsocket.CAP),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_websocket_frames(self, cmd_tshark, capture_file, test_env):
+        '''Without zlib the compressed frames are shown as plain data, so
+        count only what does not depend on it. No frame is malformed and
+        the only expert infos are the two reserved opcodes (and with zlib
+        the truncated and failed decompressions), in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed', 'frame.number', opts=passes)
+            assert rows == []
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               'websocket.payload.unknown.expert',
+                               'frame.number', opts=passes)
+            assert rows == [['87'], ['88']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'websocket', 'frame.number')
+        assert len(rows) == 71
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAP),
+                '-Y', 'websocket', '-Tfields', '-e_ws.col.protocol'),
+                encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('WebSocket') == 63
+        assert protocols.count('HTTP2') == 4
+        assert protocols.count('SIP') == 2
+        assert protocols.count('CoAP') == 2
+
+    def test_websocket_frame_kinds(self, cmd_tshark, capture_file, test_env):
+        '''Text, binary, ping, pong and close frames; 7 bit, 16 bit and 64 bit
+        lengths; several frames in one segment; frames split over segments.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number <= 88 && websocket',
+                           'frame.number', 'websocket.opcode', 'websocket.mask',
+                           'websocket.payload_length', 'websocket.payload.text',
+                           'websocket.payload_length_ext_16', 'websocket.payload_length_ext_64')
+        by_frame = {int(r[0]): r for r in rows}
+        assert by_frame[6][1:5] == ['1', 'False', '22', 'hello from the server\\n']
+        assert by_frame[7][1:5] == ['1', 'True', '22', 'hello from the client\\n']
+        assert by_frame[9][1:] == ['2', 'False', '126', '', '200', '']
+        assert by_frame[10][1:3] == ['9', 'False']
+        assert by_frame[11][1:3] == ['10', 'True']
+        assert by_frame[14][5:7] == ['', '27']
+        # three frames in one segment
+        assert by_frame[16][1] == '1,1,2'
+        assert by_frame[16][4] == 'one\\n,two\\n'
+        # split over two segments, header cut in the extended length
+        assert by_frame[18][4] == 'split across two segments\\n'
+        assert by_frame[20][5] == '300'
+        assert by_frame[22][6] == '20'
+        assert by_frame[73][6] == '70000'
+        assert by_frame[87][1] == '3' and by_frame[88][1] == '11'
+
+    def test_websocket_close(self, cmd_tshark, capture_file, test_env):
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'websocket.opcode == 8',
+                           'frame.number', 'websocket.payload.close.status_code',
+                           'websocket.payload.close.reason')
+        assert rows[:2] == [['83', '1000', 'bye'], ['84', '1001', '']]
+        assert rows[2] == ['85', '', ''] and rows[3] == ['86', '', '']
+        assert rows[4] == ['284', '1000', '']
+
+    def test_websocket_fragments(self, cmd_tshark, capture_file, test_env):
+        '''A fragmented message with a ping in the middle is reassembled; a
+        masked binary message too.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 74 && frame.number <= 82',
+                           'frame.number', 'websocket.opcode', 'websocket.payload.text',
+                           'websocket.reassembled.length')
+        assert rows[3] == ['77', '0', 'fragmented text\\n', '16']
+        assert rows[6] == ['80', '0', '', '12']
+
+    def test_websocket_fragmented_flag_restored(self, cmd_tshark, capture_file, test_env):
+        '''A continuation fragment in the middle of a segment must not stop
+        the dissection of the complete text frame after it ("single" was
+        not dissected before the fix).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 81',
+                           'websocket.opcode', 'websocket.payload.text')
+        assert rows == [['1,0,1', 'single\\n']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 82',
+                           'websocket.payload.text', 'websocket.reassembled.length')
+        assert rows == [['abcdef\\n', '7']]
+
+    def test_websocket_length_64bit(self, cmd_tshark, capture_file, test_env):
+        '''A 64 bit length of 0x100000005 was truncated to 5 octets and the
+        octets after it were parsed as the next frame; now it is a frame
+        that never completes, and "after" is not shown.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'websocket && (frame.number == 94 || frame.number == 95)',
+                           'frame.number', 'websocket.payload.text', 'websocket.payload_length_ext_64')
+        # frame 95 (the long frame) is a segment of a PDU that is never completed
+        assert rows == [['94', 'before\\n', '']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'websocket.payload.text matches "^after"', 'frame.number')
+        assert rows == []
+
+    def test_websocket_subprotocols(self, cmd_tshark, capture_file, test_env):
+        '''Sec-WebSocket-Protocol selects SIP and CoAP; an unknown one falls
+        back to text lines.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'sip', 'frame.number', 'sip.Method')
+        assert rows == [['101', 'OPTIONS'], ['102', '']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'coap', 'frame.number', 'coap.opt.uri_path')
+        assert rows == [['108', 'x'], ['109', '']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number == 115 && data-text-lines && !json', 'frame.number')
+        assert rows == [['115']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 115 && json',
+                           'json.member', opts=('-o', 'websocket.text_type:JSON'))
+        assert rows == [['json,text']]
+
+    def test_websocket_http2(self, cmd_tshark, capture_file, test_env):
+        '''WebSocket in an extended CONNECT stream of HTTP/2 (port 9000, so
+        the HTTP dissector does not see it).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'http2 && websocket',
+                           'frame.number', 'websocket.opcode', 'websocket.payload.text')
+        assert [r[0] for r in rows] == ['281', '282', '283', '284']
+        assert rows[2][2] == 'plain frame over HTTP/2\\n'
+
+    def test_websocket_without_http(self, cmd_tshark, capture_file, test_env):
+        '''No HTTP upgrade: the heuristic (disabled by default) and Decode As
+        find the frames; the heuristic refuses reserved bits, bad opcodes
+        and letters.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcp.port in {8001 .. 8006} && websocket',
+                           'frame.number')
+        assert rows == []
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcp.port == 8002 && websocket',
+                           'frame.number', 'websocket.payload.text',
+                           opts=('-d', 'tcp.port==8002,websocket'))
+        assert [r[1] for r in rows] == ['decode as websocket_tcp, client\\n',
+                                       'decode as websocket_tcp, server\\n']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcp.port in {8001 .. 8006} && websocket',
+                           'tcp.dstport', 'websocket.payload.text',
+                           opts=('--enable-heuristic', 'websocket_tcp'))
+        ports = [r[0] for r in rows]
+        assert '8003' not in ports and '50003' not in ports
+        assert len(rows) == 9
+        assert rows[0][1] == 'heuristic websocket, client\\n'
+        # RDP fast-path through the "ws" heuristic table
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rdp', 'frame.number',
+                           opts=('--enable-heuristic', 'websocket_tcp'))
+        assert len(rows) == 1
+
+    def test_websocket_permessage_deflate(self, cmd_tshark, capture_file, test_env):
+        '''Context takeover (a message refers back to the previous one),
+        client and server messages, an empty message, an uncompressed frame
+        on a compressed connection, a fragmented compressed message, windows
+        and no context takeover, x-webkit-deflate-frame and an extension
+        selected by the server only.'''
+        if not self.have_zlib(cmd_tshark, test_env):
+            pytest.skip('Requires zlib or zlib-ng.')
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'websocket.pmc',
+                           'frame.number', 'websocket.pmc', 'websocket.payload.text')
+        by_frame = {int(r[0]): r for r in rows}
+        assert by_frame[129][2].endswith('again\\n')
+        assert by_frame[130][2] == 'client message one\\n'
+        assert by_frame[133][1:] == ['False', 'not compressed (RSV1 clear)\\n']
+        assert by_frame[137][2].startswith('fragmented compressed message with some repetition')
+        assert by_frame[240][2].startswith('server message 1 for permessage-deflate; server_no_context_takeover')
+        assert by_frame[241][2].startswith('server message 2 for permessage-deflate; server_no_context_takeover')
+        assert by_frame[249][2].startswith('server message 2 for permessage-deflate; server_max_window_bits=7')
+        assert by_frame[265][2] == 'server message 2 for x-webkit-deflate-frame\\n'
+        assert by_frame[272][2] == 'extension named in the response only\\n'
+        assert by_frame[281][2] == 'websocket over HTTP/2, compressed\\n'
+
+    def test_websocket_deflate_size_limit(self, cmd_tshark, capture_file, test_env):
+        '''A message is decompressed up to 10 MiB. One octet less and exactly
+        10 MiB are complete; one octet more (and a 20 KB message that
+        expands to 10.8 MB) is truncated with an expert info. The sliding
+        window stays in sync: the next message is decoded.'''
+        if not self.have_zlib(cmd_tshark, test_env):
+            pytest.skip('Requires zlib or zlib-ng.')
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               'frame.number >= 145 && frame.number <= 234 && websocket',
+                               'frame.number', 'data.len',
+                               'websocket.decompression.truncated.expert',
+                               'websocket.decompression.failed.expert', opts=passes)
+            assert [r[0] for r in rows] == ['145', '153', '161', '162', '233', '234']
+            assert rows[0][1:] == ['10485759', '', '']
+            assert rows[1][1:] == ['10485760', '', '']
+            assert rows[2][1] == '10485760' and rows[2][2] != ''
+            assert rows[3][1] == '' or rows[3][2] == ''
+            assert rows[4][1] == '10485760' and rows[4][2] != ''
+            assert rows[5][3] != ''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 162',
+                           'websocket.payload.text')
+        assert rows == [['ooo after the truncated message, window still in sync\\n']]
+
+    def test_websocket_decompress_preference(self, cmd_tshark, capture_file, test_env):
+        '''Without the decompress preference the compressed payload is data.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 128',
+                           'websocket.pmc', 'websocket.payload.text',
+                           opts=('-o', 'websocket.decompress:FALSE'))
+        assert rows[0][0] == 'True'
+        assert 'compressed text message' not in rows[0][1]
+
+    def test_websocket_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The WebSocket part of the tree is the same in one and two passes
+        (the 10 MiB frames are left out).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', 'websocket && (frame.number < 145 || frame.number > 234)',
+                    '-O', 'websocket,data-text-lines'),
+                encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
