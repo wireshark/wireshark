@@ -2307,6 +2307,29 @@ jsonplus_execute_parser(json_field_t *field, const char *value, wmem_allocator_t
 	return result;
 }
 
+/*
+ * Add a value that does not match the type of its dictionary field. The
+ * field's own hf has the dictionary's type (IPv4, integer, ...), so it can't
+ * take a string; use the generic string field and flag the mismatch.
+ */
+static proto_item *
+jsonplus_add_mismatch_string(proto_tree *tree, wmem_allocator_t *pool, tvbuff_t *tvb, const jsmntok_t *token,
+			const json_field_t *field)
+{
+	char *str = (char *)tvb_get_string_enc(pool, tvb, token->start,
+			token->end - token->start, ENC_UTF_8);
+	proto_item *ti = proto_tree_add_string_format(tree, hf_json_value_string, tvb,
+			token->start, token->end - token->start, str, "%s: %s", field->name, str);
+	expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
+	return ti;
+}
+
+static bool
+jsonplus_hf_is_ftype(int hf, enum ftenum ftype)
+{
+	return hf > 0 && proto_registrar_get_ftype(hf) == ftype;
+}
+
  // Dissect special display types (IPv4, IPv6, MAC, timestamps, etc.)
 static void
 jsonplus_dissect_dict_special_field(tvbuff_t *tvb, proto_tree *tree, wmem_allocator_t *pool, jsmntok_t *token,
@@ -2329,9 +2352,7 @@ jsonplus_dissect_dict_special_field(tvbuff_t *tvb, proto_tree *tree, wmem_alloca
 				token->start, token_len, addr);
 		} else {
 			// Failed to parse - add as string with expert info
-			proto_item *ti = proto_tree_add_string(tree, field->hf_value, tvb,
-				token->start, token_len, str_value);
-			expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
+			jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 		}
 		break;
 	}
@@ -2344,9 +2365,7 @@ jsonplus_dissect_dict_special_field(tvbuff_t *tvb, proto_tree *tree, wmem_alloca
 				token->start, token_len, &addr);
 		} else {
 			// Failed to parse - add as string with expert info
-			proto_item *ti = proto_tree_add_string(tree, field->hf_value, tvb,
-				token->start, token_len, str_value);
-			expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
+			jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 		}
 		break;
 	}
@@ -2367,9 +2386,7 @@ jsonplus_dissect_dict_special_field(tvbuff_t *tvb, proto_tree *tree, wmem_alloca
 				token->start, token_len, addr);
 		} else {
 			// Failed to parse - add as string with expert info
-			proto_item *ti = proto_tree_add_string(tree, field->hf_value, tvb,
-				token->start, token_len, str_value);
-			expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
+			jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 		}
 		break;
 	}
@@ -2385,17 +2402,17 @@ jsonplus_dissect_dict_special_field(tvbuff_t *tvb, proto_tree *tree, wmem_alloca
 				token->start, token_len, &ts);
 		} else {
 			// Failed to parse - add as string
-			proto_item *ti = proto_tree_add_string(tree, field->hf_value, tvb,
-				token->start, token_len, str_value);
-			expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
+			jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 		}
 		break;
 	}
 
 	case JSON_DISPLAY_RELATIVE_TIME: {
 		// Parse relative time in seconds
-		double rel_time;
-		if (sscanf(str_value, "%lf", &rel_time) == 1) {
+		char *rel_end;
+		double rel_time = g_ascii_strtod(str_value, &rel_end);
+		/* g_ascii_strtod: JSON numbers use '.' whatever the locale */
+		if (rel_end != str_value) {
 			nstime_t ts;
 			ts.secs = (time_t)rel_time;
 			ts.nsecs = (int)((rel_time - ts.secs) * 1000000000);
@@ -2403,9 +2420,7 @@ jsonplus_dissect_dict_special_field(tvbuff_t *tvb, proto_tree *tree, wmem_alloca
 				token->start, token_len, &ts);
 		} else {
 			// Failed to parse - add as string
-			proto_item *ti = proto_tree_add_string(tree, field->hf_value, tvb,
-				token->start, token_len, str_value);
-			expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
+			jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 		}
 		break;
 	}
@@ -2430,17 +2445,14 @@ jsonplus_dissect_dict_special_field(tvbuff_t *tvb, proto_tree *tree, wmem_alloca
 			}
 		} else {
 			// Failed to parse, add  as string with expert info
-			proto_item *ti = proto_tree_add_string(tree, field->hf_value, tvb,
-				token->start, token_len, str_value);
-			expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
+			jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 		}
 		break;
 	}
 
 	default:
 		// Shouldn't happen, but fall back to string
-		proto_tree_add_string(tree, field->hf_value, tvb,
-			token->start, token_len, str_value);
+		jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 		break;
 	}
 }
@@ -2466,6 +2478,12 @@ jsonplus_dissect_dict_string_field(tvbuff_t *tvb, proto_tree *tree, packet_info 
 	// Check if this field has special display formatting
 	if (field->display_type != JSON_DISPLAY_NONE) {
 		jsonplus_dissect_dict_special_field(tvb, tree, pool, token, json_buf, field);
+		return;
+	}
+
+	// A string value for a field of another type (integer, boolean, ...)
+	if (!jsonplus_hf_is_ftype(field->hf_value, FT_STRING)) {
+		jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 		return;
 	}
 
@@ -2515,39 +2533,43 @@ jsonplus_dissect_dict_string_field(tvbuff_t *tvb, proto_tree *tree, packet_info 
 			// Check if we have a predefined child field
 			if (child_field && child_field->hf_value != -1) {
 				// Use the pre-registered field with correct type
-				if (child_field->type == JSON_FIELD_INTEGER) {
-					int64_t int_val;
-					if (ws_strtoi64(child->value, NULL, &int_val)) {
-						proto_tree_add_int64(subtree, child_field->hf_value,
-							tvb, token->start, token_len, int_val);
-					} else {
-						// Failed to parse - add as string
-						ti = proto_tree_add_uint64_format_value(subtree,
-							child_field->hf_value, tvb, token->start, token_len, 0,
-							"Cannot convert value: %s", child->value);
-						expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
-					}
-				} else if (child_field->type == JSON_FIELD_UNSIGNED) {
-					uint64_t uint_val;
-					if (ws_strtou64(child->value, NULL, &uint_val)) {
-						proto_tree_add_int64(subtree, child_field->hf_value,
-							tvb, token->start, token_len, uint_val);
-					} else {
-						// Failed to parse - add as string
-						ti = proto_tree_add_uint64_format_value(subtree,
-							child_field->hf_value, tvb, token->start, token_len, 0,
-							"Cannot convert value: %s", child->value);
-						expert_add_info(NULL, ti, &ei_json_plus_type_mismatch);
-					}
-				} else if (child_field->type == JSON_FIELD_BOOLEAN) {
+				int64_t int_val;
+				uint64_t uint_val;
+				int child_hf = child_field->hf_value;
+				if (child_field->type == JSON_FIELD_INTEGER &&
+				    jsonplus_hf_is_ftype(child_hf, FT_INT64) &&
+				    ws_strtoi64(child->value, NULL, &int_val)) {
+					proto_tree_add_int64(subtree, child_hf,
+						tvb, token->start, token_len, int_val);
+				} else if (child_field->type == JSON_FIELD_INTEGER &&
+				    jsonplus_hf_is_ftype(child_hf, FT_INT32) &&
+				    ws_strtoi64(child->value, NULL, &int_val) &&
+				    int_val >= INT32_MIN && int_val <= INT32_MAX) {
+					proto_tree_add_int(subtree, child_hf,
+						tvb, token->start, token_len, (int32_t)int_val);
+				} else if (child_field->type == JSON_FIELD_UNSIGNED &&
+				    jsonplus_hf_is_ftype(child_hf, FT_UINT64) &&
+				    ws_strtou64(child->value, NULL, &uint_val)) {
+					proto_tree_add_uint64(subtree, child_hf,
+						tvb, token->start, token_len, uint_val);
+				} else if (child_field->type == JSON_FIELD_UNSIGNED &&
+				    jsonplus_hf_is_ftype(child_hf, FT_UINT32) &&
+				    ws_strtou64(child->value, NULL, &uint_val) &&
+				    uint_val <= UINT32_MAX) {
+					proto_tree_add_uint(subtree, child_hf,
+						tvb, token->start, token_len, (uint32_t)uint_val);
+				} else if (child_field->type == JSON_FIELD_BOOLEAN &&
+				    jsonplus_hf_is_ftype(child_hf, FT_BOOLEAN)) {
 					bool bool_val = (strcmp(child->value, "true") == 0 ||
 					                 strcmp(child->value, "1") == 0);
-					proto_tree_add_boolean(subtree, child_field->hf_value,
+					proto_tree_add_boolean(subtree, child_hf,
 						tvb, token->start, token_len, bool_val);
-				} else {
-					// String or other types
-					proto_tree_add_string(subtree, child_field->hf_value,
+				} else if (jsonplus_hf_is_ftype(child_hf, FT_STRING)) {
+					proto_tree_add_string(subtree, child_hf,
 						tvb, token->start, token_len, child->value);
+				} else {
+					// Value does not match the type of the field
+					jsonplus_add_mismatch_string(subtree, pool, tvb, token, child_field);
 				}
 			} else {
 				// Field not found in dictionary  show warning
@@ -2598,20 +2620,22 @@ jsonplus_dissect_dict_integer_field(tvbuff_t *tvb, proto_tree *tree, packet_info
 			ts.nsecs = 0;
 			proto_tree_add_time(tree, field->hf_value, tvb,
 				token->start, token_len, &ts);
-		} else if (field->enum_values) {
-			// Use 32bit function if field has enums
+		} else if (jsonplus_hf_is_ftype(field->hf_value, FT_INT32) &&
+		    value >= INT32_MIN && value <= INT32_MAX) {
+			// 32-bit fields: dictionary type int32, or a field with enums
 			proto_tree_add_int(tree, field->hf_value, tvb,
-				token->start, token_len, (gint32)value);
-		} else {
+				token->start, token_len, (int32_t)value);
+		} else if (jsonplus_hf_is_ftype(field->hf_value, FT_INT64)) {
 			proto_tree_add_int64(tree, field->hf_value, tvb,
 				token->start, token_len, value);
+		} else {
+			jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 		}
 	} else {
 		if (!tree) return;  // No tree during first pass
 
 		// Fallback to string if parsing fails
-		proto_tree_add_string(tree, field->hf_value, tvb,
-			token->start, token_len, num_str);
+		jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 	}
 }
 
@@ -2654,20 +2678,22 @@ jsonplus_dissect_dict_unsigned_field(tvbuff_t *tvb, proto_tree *tree, packet_inf
 			ts.nsecs = 0;
 			proto_tree_add_time(tree, field->hf_value, tvb,
 				token->start, token_len, &ts);
-		} else if (field->enum_values) {
-			// Use 32bit function if field has enums
+		} else if (jsonplus_hf_is_ftype(field->hf_value, FT_UINT32) &&
+		    value <= UINT32_MAX) {
+			// 32-bit fields: dictionary type uint32, or a field with enums
 			proto_tree_add_uint(tree, field->hf_value, tvb,
-				token->start, token_len, (guint32)value);
-		} else {
+				token->start, token_len, (uint32_t)value);
+		} else if (jsonplus_hf_is_ftype(field->hf_value, FT_UINT64)) {
 			proto_tree_add_uint64(tree, field->hf_value, tvb,
 				token->start, token_len, value);
+		} else {
+			jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 		}
 	} else {
 		if (!tree) return;  // No tree during first pass
 
 		// Fallback to string if parsing fails
-		proto_tree_add_string(tree, field->hf_value, tvb,
-			token->start, token_len, num_str);
+		jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 	}
 }
 
@@ -2681,8 +2707,12 @@ jsonplus_dissect_dict_float_field(tvbuff_t *tvb, proto_tree *tree, packet_info *
 	char *num_str;
 	double value;
 
+	char *num_end;
+
 	num_str = wmem_strndup(pool, value_str, token_len);
-	if (sscanf(num_str, "%lf", &value) == 1) {
+	/* g_ascii_strtod: JSON numbers use '.' whatever the locale */
+	value = g_ascii_strtod(num_str, &num_end);
+	if (num_end != num_str) {
 		// Append to Info column
 		if (field->info_label && pinfo) {
 			jsonplus_add_info_label(pinfo, " %s: %.2f", field->info_label, value);
@@ -2690,14 +2720,19 @@ jsonplus_dissect_dict_float_field(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 		if (!tree) return;  // No tree during first pass
 
-		proto_tree_add_double(tree, field->hf_value, tvb,
-			token->start, token_len, value);
+		if (jsonplus_hf_is_ftype(field->hf_value, FT_DOUBLE))
+			proto_tree_add_double(tree, field->hf_value, tvb,
+				token->start, token_len, value);
+		else if (jsonplus_hf_is_ftype(field->hf_value, FT_FLOAT))
+			proto_tree_add_float(tree, field->hf_value, tvb,
+				token->start, token_len, (float)value);
+		else
+			jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 	} else {
 		if (!tree) return;  // No tree during first pass
 
 		// Fallback to string if parsing fails
-		proto_tree_add_string(tree, field->hf_value, tvb,
-			token->start, token_len, num_str);
+		jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 	}
 }
 
@@ -2723,8 +2758,11 @@ jsonplus_dissect_dict_boolean_field(tvbuff_t *tvb, proto_tree *tree, packet_info
 
 	if (!tree) return;  // No tree during first pass
 
-	proto_tree_add_boolean(tree, field->hf_value, tvb,
-		token->start, token_len, value);
+	if (jsonplus_hf_is_ftype(field->hf_value, FT_BOOLEAN))
+		proto_tree_add_boolean(tree, field->hf_value, tvb,
+			token->start, token_len, value);
+	else
+		jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
 }
 
 // Count tokens in a JSON value (for skipping during first pass)
@@ -3164,8 +3202,14 @@ static int jsonplus_display_json_tree_dict(tvbuff_t *tvb, proto_tree *tree, pack
 
 			if (token_len == 4 && strncmp(value_str, "null", 4) == 0) {
 				// Null - just add item
-				if (tree) proto_tree_add_item(tree, field->hf_value, tvb,
-					token->start, token_len, ENC_NA);
+				if (tree) {
+					if (jsonplus_hf_is_ftype(field->hf_value, FT_STRING) ||
+					    jsonplus_hf_is_ftype(field->hf_value, FT_NONE))
+						proto_tree_add_item(tree, field->hf_value, tvb,
+							token->start, token_len, ENC_NA);
+					else
+						jsonplus_add_mismatch_string(tree, pool, tvb, token, field);
+				}
 			}
 			else if ((token_len == 4 && strncmp(value_str, "true", 4) == 0) ||
 				 (token_len == 5 && strncmp(value_str, "false", 5) == 0)) {
