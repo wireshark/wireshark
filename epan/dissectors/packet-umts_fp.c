@@ -312,6 +312,10 @@ static const value_string division_vals[] =
 #define FT_DATA    0
 #define FT_CONTROL 1
 
+/* Maximum number of Transport Blocks in a Transport Format
+ * (3GPP TS 25.433, TransportFormatSet-NrOfTransportBlocks) */
+#define MAX_FP_TBS 512
+
 static const value_string frame_type_vals[] = {
     { FT_DATA,      "Data" },
     { FT_CONTROL,   "Control" },
@@ -620,10 +624,29 @@ set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t 
 }
 
 
+static bool
+tb_counts_valid(struct fp_info *p_fp_info)
+{
+    int chan;
+    if (p_fp_info->num_chans >= MAX_FP_CHANS) {
+        return false;
+    }
+    for (chan = 0; chan < p_fp_info->num_chans; chan++) {
+        if (p_fp_info->chan_num_tbs[chan] < 0 ||
+            p_fp_info->chan_num_tbs[chan] > MAX_FP_TBS) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static int
 get_tb_count(struct fp_info *p_fp_info)
 {
     int chan, tb_count = 0;
+    if (!tb_counts_valid(p_fp_info)) {
+        return 0;
+    }
     for (chan = 0; chan < p_fp_info->num_chans; chan++) {
         tb_count += p_fp_info->chan_num_tbs[chan];
     }
@@ -714,6 +737,16 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return offset;
     }
 
+    for (chan=0; chan < p_fp_info->num_chans; chan++) {
+        if (p_fp_info->chan_num_tbs[chan] < 0 ||
+            p_fp_info->chan_num_tbs[chan] > MAX_FP_TBS) {
+            expert_add_info_format(pinfo, tree_ti, &ei_fp_invalid_frame_count,
+                                   "Invalid number of TBs %d for channel %u (max is %u)",
+                                   p_fp_info->chan_num_tbs[chan], chan+1, MAX_FP_TBS);
+            return offset;
+        }
+    }
+
     /* Calculate offset to CRCI bits */
 
     if (p_fp_info->is_uplink) {
@@ -739,6 +772,18 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item_append_text(no_tb_ti, " (of size %d)",
                                    p_fp_info->chan_tf_size[chan]);
             proto_item_set_generated(no_tb_ti);
+        }
+
+        /* TBs of 0 bits carry no data and don't advance the offset;
+         * show them as one item instead of one per TB. */
+        if (p_fp_info->chan_num_tbs[chan] > 0 && p_fp_info->chan_tf_size[chan] == 0) {
+            proto_item *ti = proto_tree_add_item(data_tree, hf_fp_tb, tvb,
+                                                 offset + (bit_offset/8), 0, ENC_NA);
+            proto_item_set_text(ti, "TBs (chan %u, %d tbs, 0 bits)",
+                                chan+1, p_fp_info->chan_num_tbs[chan]);
+            proto_item_set_generated(ti);
+            num_tbs += p_fp_info->chan_num_tbs[chan];
+            continue;
         }
 
         /* Show TBs from non-empty channels */
