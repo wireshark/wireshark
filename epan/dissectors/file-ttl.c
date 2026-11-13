@@ -192,6 +192,8 @@ dissect_ttl_block(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offse
             while (size >= (int)sizeof(ttl_entryheader_t)) {
                 new_tvb = tvb_new_subset_length(tvb, offset, size);
                 dissected = call_dissector(ttl_handle, new_tvb, pinfo, block_subtree);
+                if (dissected <= 0)
+                    break;
                 offset += dissected;
                 size -= dissected;
             }
@@ -268,6 +270,8 @@ dissect_file_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
         if (block_size != 0) {
             while ((remaining = tvb_captured_length_remaining(tvb, offset)) > 0) {
                 dissect_ttl_block(tvb, pinfo, trace_data_subtree, offset, MIN(block_size, remaining));
+                if (block_size >= remaining)
+                    break;
                 offset += block_size;
             }
         }
