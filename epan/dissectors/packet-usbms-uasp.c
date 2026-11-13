@@ -448,7 +448,7 @@ dissect_uasp_bulk(tvbuff_t *tvb,
     urb_info_t       *urb = (urb_info_t *)data;
     uasp_conv_info_t *uasp_conv_info;
 
-    if (!urb)
+    if (!urb || !urb->conv)
         return 0;
 
     uasp_conv_info = get_uasp_conv_info(urb->conv);
