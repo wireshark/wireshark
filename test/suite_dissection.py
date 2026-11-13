@@ -166501,3 +166501,136 @@ class TestDissectWlancertextn:
             ), encoding='utf-8', env=test_env)
         assert stdout.count('Object Id: 1.3.6.1.5.5.7.10.6 (id-aca-wlanSSID)') == 4
         assert 'Extension Id: 1.3.6.1.5.5.7.1.13 (id-pe-wlanSSID)' not in stdout
+
+
+class TestDissectWlccp:
+    @staticmethod
+    def nested_tlvs(depth):
+        '''A WLCCP registration message (UDP 2887, TLV flag set) whose TLV
+        is "depth" nested container TLVs around an IPv4 address TLV, as
+        a pcap file's bytes.'''
+        import socket
+        tlv = struct.pack('>HH', 0x0009, 8) + bytes([192, 0, 2, 9])
+        for _ in range(depth):
+            tlv = struct.pack('>HH', 0x8009, 8 + len(tlv)) + bytes([192, 0, 2, 9]) + tlv
+        mac = bytes([2, 0, 0, 0, 0, 1])
+        head = (bytes([1]) + struct.pack('>HHH', 1, 0x2000, 1) + mac +
+                struct.pack('>H', 2) + mac)
+        msg = (bytes([0xc1, 0]) + struct.pack('>HH', 2, 6 + len(head) + len(tlv)) +
+               bytes([3]) + head + tlv)
+        udp = struct.pack('>HHHH', 2887, 2887, 8 + len(msg), 0) + msg
+        ip = struct.pack('>BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), 1, 0, 64, 17, 0,
+                         socket.inet_aton('192.0.2.1'), socket.inet_aton('192.0.2.2'))
+        words = struct.unpack('>10H', ip)
+        s = sum(words)
+        s = (s >> 16) + (s & 0xffff)
+        s += s >> 16
+        ip = ip[:10] + struct.pack('>H', ~s & 0xffff) + ip[12:]
+        frame = bytes(6) + bytes(6) + b'\x08\x00' + ip + udp
+        return (struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 1) +
+                struct.pack('<IIII', 0, 0, len(frame), len(frame)) + frame)
+
+    def test_wlccp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is WLCCP and none is malformed or has an expert
+        info, in one and two passes (the whole dissection needs a tree).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wlccp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 53
+        assert protocols.count('WLCCP') == 53
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wlccp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wlccp_info(self, cmd_tshark, capture_file, test_env):
+        '''Message type and sub type of the context management, RRM and
+        network management messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wlccp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 2 || frame.number == 11 || frame.number == 13 || frame.number == 17 || frame.number == 18 || frame.number == 22 || frame.number == 23 || frame.number == 24 || frame.number == 31 || frame.number == 33 || frame.number == 34 || frame.number == 38 || frame.number == 39',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 Message Type: SCM Advertise SubType: Request',
+            '2 Message Type: SCM Advertise SubType: Reply',
+            '11 Message Type: Trace SubType: Confirm',
+            '13 Message Type: cmAAA EAP Authent SubType: Request',
+            '17 Message Type: cmPathInit Path Authent SubType: Request',
+            '18 Message Type: cmWIDS SubType: Request',
+            '22 Message Type: rmReq SubType: Request',
+            '23 Message Type: rmReqRoutingResp SubType: Reply',
+            '24 Message Type: rmReport SubType: Confirm',
+            '31 Message Type: nmAck SubType: Request',
+            '33 Message Type: nmConfigReply SubType: Reply',
+            '34 Message Type: nmApRegistration SubType: Request',
+            '38 Message Type: nmAllClientRefreshRequest SubType: Request',
+            '39 Message Type: Unknown SubType: Reply',
+        ]
+
+    def test_wlccp_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The number of TLVs, in particular for 32 nested containers (the
+        deepest allowed) and for 150 sibling TLVs in one container (the
+        old depth counter counted siblings and stopped at 101).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wlccp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12 || frame.number == 22 || frame.number == 24 || frame.number == 34 || frame.number == 41 || frame.number == 44 || frame.number == 45 || frame.number == 46',
+                '-Tfields', '-eframe.number', '-ewlccp.tlv_length',
+                '-Eoccurrence=a', '-Eaggregator=,',
+            ), encoding='utf-8', env=test_env)
+        counts = {}
+        for line in stdout.splitlines():
+            number, lengths = line.split('\t')
+            counts[int(number)] = len(lengths.split(','))
+        assert counts == {12: 2, 22: 8, 24: 7, 34: 2, 41: 9, 44: 32, 45: 151, 46: 37}
+
+    def test_wlccp_tlv_too_deep(self, cmd_tshark, result_file, test_env):
+        '''32 nested TLVs decode cleanly; the 33rd gets the "TLV nesting
+        too deep" expert info before its length is decoded, and stops the
+        TLV walk (a 700 deep chain used to reach the tree depth limit).'''
+        for depth, items, experts in ((31, 32, 0), (32, 32, 1), (700, 32, 1)):
+            pcap = result_file('wlccp_nested_%d.pcap' % depth)
+            with open(pcap, 'wb') as f:
+                f.write(self.nested_tlvs(depth))
+            stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-V',
+                    '-Y', 'wlccp',
+                ), encoding='utf-8', env=test_env)
+            assert 'Maximum tree depth' not in stdout
+            stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                    '-Y', 'wlccp.tlv_too_deep', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == experts
+            stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                    '-Tfields', '-ewlccp.tlv_length', '-Eoccurrence=a',
+                    '-Eaggregator=,',
+                ), encoding='utf-8', env=test_env)
+            assert len(stdout.strip().split(',')) == items
+
+    def test_wlccp_values(self, cmd_tshark, capture_file, test_env):
+        '''Relay node, SCM advertise fields, the EAP message of a cmAAA
+        message, RADIUS user names and version 0 messages; ethertype and
+        LLC transports.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wlccp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 12 || frame.number == 13 || frame.number == 34 || frame.number == 37 || frame.number == 47 || frame.number == 48 || frame.number == 49 || frame.number == 51',
+                '-Tfields', '-eframe.number', '-ewlccp.relay_node_id',
+                '-ewlccp.scm_instance_age', '-ewlccp.eap_msg',
+                '-ewlccp.radius_username', '-ewlccp.hostname',
+                '-ewlccp.ipv4_address', '-Eoccurrence=f',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t\t100000\t\t\t\t',
+            '12\t02:00:00:00:00:03\t\t\t\t\t192.0.2.9',
+            '13\t\t\t0102030405\t\t\t',
+            '34\t\t\t\tuser1\t\t192.0.2.20',
+            '37\t\t\t\trefresh\t\t192.0.2.26',
+            '47\t\t100000\t\t\t\t',
+            '48\t\t\t\t\t\t192.0.2.9',
+            '49\t\t\t\t\tAP-1\t192.0.2.40',
+            '51\t\t\t\t\tSwitch-with-long-name-012345\t192.0.2.40',
+        ]
