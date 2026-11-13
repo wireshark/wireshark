@@ -1719,6 +1719,7 @@ dissect_nrb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     records_tree = proto_item_add_subtree(records_item, ett_pcapng_records);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        str = NULL;
         record_item = proto_tree_add_item(records_tree, hf_pcapng_record, tvb, offset, -1, ENC_NA);
         record_tree = proto_item_add_subtree(record_item, ett_pcapng_record);
 
@@ -1748,7 +1749,7 @@ dissect_nrb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
             offset_string_start = offset;
             while ((unsigned)(offset - offset_string_start) < record_length - 4) {
-                string_length = tvb_strnlen(tvb, offset, (offset - offset_string_start) + record_length - 4);
+                string_length = tvb_strnlen(tvb, offset, (record_length - 4) - (offset - offset_string_start));
                 if (string_length >= 0) {
                     proto_tree_add_item(record_tree, hf_pcapng_record_name, tvb, offset, string_length + 1, argp->info->encoding);
                     offset += string_length + 1;
@@ -1779,7 +1780,7 @@ dissect_nrb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
             offset_string_start = offset;
             while ((unsigned)(offset - offset_string_start) < record_length - 16) {
-                string_length = tvb_strnlen(tvb, offset, (offset - offset_string_start) + record_length - 16);
+                string_length = tvb_strnlen(tvb, offset, (record_length - 16) - (offset - offset_string_start));
                 if (string_length >= 0) {
                     proto_tree_add_item(record_tree, hf_pcapng_record_name, tvb, offset, string_length + 1, argp->info->encoding);
                     offset += string_length + 1;
