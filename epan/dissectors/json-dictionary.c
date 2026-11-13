@@ -330,6 +330,38 @@ static dict_wildcardfield_def_t *process_wildcardfield(xmlNodePtr node, const ch
 	return wf;
 }
 
+/* Make everything after the "json." prefix a valid filter name component:
+ * characters other than letters, digits, '_', '-' and '.' become '_',
+ * repeated, leading and trailing dots are dropped. An empty suffix is
+ * replaced by "field". Returns the name to use. */
+static char *
+sanitize_json_filter_name(char *filter_name)
+{
+	char *rd = filter_name + strlen("json.");
+	char *wd = rd;
+	bool prev_dot = true;
+
+	for (; *rd; rd++) {
+		char c = *rd;
+		if (!g_ascii_isalnum(c) && c != '_' && c != '-' && c != '.')
+			c = '_';
+		if (c == '.') {
+			if (prev_dot)
+				continue;
+			prev_dot = true;
+		} else {
+			prev_dot = false;
+		}
+		*wd++ = c;
+	}
+	if (wd > filter_name + strlen("json.") && wd[-1] == '.')
+		wd--;
+	*wd = '\0';
+	if (wd == filter_name + strlen("json."))
+		return wmem_strdup(wmem_epan_scope(), "json.field");
+	return filter_name;
+}
+
 // Process field element (recursive for nested fields)
 // NOLINTNEXTLINE(misc-no-recursion)
 static dict_field_def_t *process_field(xmlNodePtr node, const char *parent_path, bool is_array_element)
@@ -341,6 +373,16 @@ static dict_field_def_t *process_field(xmlNodePtr node, const char *parent_path,
 
 	name = xmlGetProp(node, (const xmlChar *)XML_ATTR_NAME);
 	path = xmlGetProp(node, (const xmlChar *)XML_ATTR_PATH);
+
+	// An empty name or path is the same as a missing one
+	if (name && !name[0]) {
+		xmlFree(name);
+		name = NULL;
+	}
+	if (path && !path[0]) {
+		xmlFree(path);
+		path = NULL;
+	}
 
 	// Path is required
 	if (!path) {
@@ -609,6 +651,7 @@ static json_wildcard_field_t *create_wildcardfield(dict_wildcardfield_def_t *wf_
 		*wp = '\0';
 		char *suffix = kv_filter + strlen("json.");
 		while (*suffix == '.') memmove(suffix, suffix + 1, strlen(suffix + 1) + 1);
+		kv_filter = sanitize_json_filter_name(kv_filter);
 	}
 
 	int *ett_ptr = wmem_new(wmem_epan_scope(), int);
@@ -828,9 +871,19 @@ static json_field_t *create_json_field(dict_field_def_t *field_def, wmem_array_t
 			filter_name = wmem_strdup_printf(wmem_epan_scope(), "%s_array", filter_name);
 		}
 	}
+	filter_name = sanitize_json_filter_name(filter_name);
+
+	/* Enums are value_strings, which only integer fields can use (for other
+	 * types hf.strings means something else or is rejected). */
+	bool use_enums = field_def->enum_values != NULL;
+	if (use_enums && !FT_IS_INTEGER(ft_type)) {
+		ws_warning("JSON Dictionary: Ignoring enum on non-integer field '%s'",
+			field->path);
+		use_enums = false;
+	}
 
 	/* Build enum value_string array if present */
-	if (field_def->enum_values) {
+	if (use_enums) {
 		int enum_count = g_slist_length(field_def->enum_values);
 		value_string *vs = wmem_alloc_array(wmem_epan_scope(), value_string,
 			enum_count + 1);
@@ -1077,7 +1130,7 @@ parse_dictionary_file(const char *filename, wmem_array_t *hf_array,
 							g_str_hash, g_str_equal,
 							NULL, (GDestroyNotify)dict_type_def_free);
 					}
-					g_hash_table_insert(type_definitions,
+					g_hash_table_replace(type_definitions,
 						(void *)type_def->type_name, type_def);
 				}
 			}
