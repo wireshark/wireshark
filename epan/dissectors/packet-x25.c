@@ -718,6 +718,11 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                     break;
                 }
             }
+            if (len < 2) {
+                expert_add_info(pinfo, ti, &ei_x25_facility_length);
+                *offset += len;
+                return;
+            }
             (*offset) += 2;
             len -= 2;
             break;
@@ -758,6 +763,11 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                     break;
                 }
             }
+            if (len < 3) {
+                expert_add_info(pinfo, ti, &ei_x25_facility_length);
+                *offset += len;
+                return;
+            }
             (*offset) += 3;
             len -= 3;
             break;
@@ -770,6 +780,11 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
             proto_tree_add_item(facility_tree, hf_x25_facility_classC, tvb, *offset, 1, ENC_BIG_ENDIAN);
             if (facility_tree) {
                 proto_tree_add_item(facility_tree, hf_x25_facility_classC_unknown, tvb, *offset+1, 2, ENC_BIG_ENDIAN);
+            }
+            if (len < 4) {
+                expert_add_info(pinfo, ti, &ei_x25_facility_length);
+                *offset += len;
+                return;
             }
             (*offset) += 4;
             len -= 4;
@@ -946,6 +961,11 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                 }
             }
             byte1 = tvb_get_uint8(tvb, *offset+1);
+            if (len < (uint32_t)byte1 + 2) {
+                expert_add_info(pinfo, ti, &ei_x25_facility_length);
+                *offset += len;
+                return;
+            }
             (*offset) += byte1+2;
             len -= byte1+2;
             break;
@@ -1557,7 +1577,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           /* if there's no user data in the CALL REQUEST/
              INCOMING CALL packet, it's COTP; */
 
-           if (call_request_nodata_is_cotp){
+           if (call_request_nodata_is_cotp && !pinfo->fd->visited){
               x25_hash_add_proto_start(vc, pinfo->num, ositp_handle);
            }
         }
