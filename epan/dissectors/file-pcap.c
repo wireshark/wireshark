@@ -154,7 +154,12 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         proto_item_append_text(packet_item, " %u", frame_number);
 
         timestamp.secs = tvb_get_uint32(tvb, offset, encoding);
-        timestamp.nsecs = tvb_get_uint32(tvb, offset + 4, encoding) * timestamp_scale_factor;
+        {
+            /* The fraction may exceed one second; carry it into the seconds. */
+            uint64_t frac = (uint64_t)tvb_get_uint32(tvb, offset + 4, encoding) * timestamp_scale_factor;
+            timestamp.secs += (time_t)(frac / 1000000000);
+            timestamp.nsecs = (int)(frac % 1000000000);
+        }
 
         timestamp_item = proto_tree_add_time(packet_tree, hf_pcap_packet_timestamp, tvb, offset, 8, &timestamp);
         timestamp_tree = proto_item_add_subtree(timestamp_item, ett_pcap_timestamp);
