@@ -166634,3 +166634,53 @@ class TestDissectWlccp:
             '49\t\t\t\t\tAP-1\t192.0.2.40',
             '51\t\t\t\t\tSwitch-with-long-name-012345\t192.0.2.40',
         ]
+
+
+class TestDissectWmio:
+    def test_wmio_expert(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packet except the "Object nesting too deep" of the
+        two responses that nest past the limit (two experts each: the
+        signatures of the 33rd object are reached through two methods), in
+        one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wmio_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                    '-Eoccurrence=a', '-Eaggregator=;',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '61\tObject nesting too deep;Object nesting too deep',
+                '63\tObject nesting too deep;Object nesting too deep']
+
+    def test_wmio_objects_per_response(self, cmd_tshark, capture_file, test_env):
+        '''Objects dissected per GetObject response: ordinary classes and
+        chains of 1-5 objects; chains of 32 objects (the deepest allowed,
+        through the in and out signatures, only the parent class's input
+        signature or only the class's output signature: 32 or, when two
+        methods lead to the next object, 63 objects) and of 31; then 33 and
+        the 300 object reproducer of "WMIO: Bound object nesting", which
+        stop at 32 levels (63 objects, the too deep expert info), where
+        the unbounded recursion used to reach the dissection depth limit.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wmio_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 2 && wmio.objectflags',
+                '-Tfields', '-etcp.dstport', '-ewmio.objectflags',
+                '-Eoccurrence=a', '-Eaggregator=,',
+            ), encoding='utf-8', env=test_env)
+        counts = {}
+        for line in stdout.splitlines():
+            port, flags = line.split('\t')
+            counts.setdefault(int(port), []).append(len(flags.split(',')))
+        assert counts == {
+            50701: [3, 1, 1, 1, 2, 5, 9, 5],
+            50702: [32, 63, 32],
+            50703: [61, 31, 31],
+            50704: [63, 63],
+        }
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wmio_coverage.pcap.gz'),
+                '-V', '-Y', 'wmio.too_deep',
+            ), encoding='utf-8', env=test_env)
+        assert 'Maximum tree depth' not in stdout
+        assert stdout.count('[Expert Info (Error/Malformed): Object nesting too deep]') == 4     # 2 per frame
