@@ -164201,3 +164201,87 @@ class TestDissectVuzeDht:
         rows = self.vuze_fields(cmd_tshark, capture_file, test_env,
                 'frame.number == 246', 'vuze-dht.has_continuation', 'vuze-dht.has_values')
         assert rows == [['246', '0', '0']]
+
+
+class TestDissectVxi11:
+    '''VXI-11 (core, async abort and interrupt channels), ONC RPC over
+    UDP and over TCP with record marking, from the synthetic capture
+    vxi11_coverage.pcap.gz.'''
+
+    @staticmethod
+    def vxi11_frames(cmd_tshark, capture_file, test_env, display_filter, *fields, args=()):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('vxi11_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *(f'-e{f}' for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_vxi11_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every procedure of the three programs decodes without malformed
+        packets or error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vxi11_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.splitlines()
+            assert protocols.count('VXI-11 Core') == 204
+            assert protocols.count('VXI-11 Async') == 12
+            assert protocols.count('VXI-11 Intr') == 12
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vxi11_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_vxi11_procedures(self, cmd_tshark, capture_file, test_env):
+        '''The number of calls of each procedure (UDP and TCP, and the frame
+        with two calls).'''
+        rows = self.vxi11_frames(cmd_tshark, capture_file, test_env,
+                'vxi11_core.procedure_v1 && rpc.msgtyp == 0', 'vxi11_core.procedure_v1')
+        counts = {}
+        for r in rows:
+            counts[r[1]] = counts.get(r[1], 0) + 1
+        assert counts == {
+            '0': 2, '10': 4, '11': 17, '12': 18, '13': 6, '14': 4, '15': 2,
+            '16': 2, '17': 2, '18': 4, '19': 6, '20': 4, '22': 18, '23': 4,
+            '25': 4, '26': 4,
+            '13,14': 1}   # two calls in one TCP segment
+
+    def test_vxi11_field_types(self, cmd_tshark, capture_file, test_env):
+        '''The abort port, status byte and termination character are 32 bit
+        values on the wire. The fields were 16 and 8 bits wide before
+        "VXI-11: Fix field types and clamp the data shown in the Info
+        column".'''
+        rows = self.vxi11_frames(cmd_tshark, capture_file, test_env,
+                'vxi11_core.abort_port == 305419896', 'vxi11_core.abort_port')
+        assert len(rows) == 2 and rows[0][1] == '305419896'
+        rows = self.vxi11_frames(cmd_tshark, capture_file, test_env,
+                'vxi11_core.stb == 0x1234', 'vxi11_core.stb')
+        assert len(rows) == 2 and rows[0][1] == '0x00001234'
+        rows = self.vxi11_frames(cmd_tshark, capture_file, test_env,
+                'vxi11_core.term_char == 0x41424344', 'vxi11_core.term_char')
+        assert len(rows) == 2
+
+    def test_vxi11_data_and_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows at most 70 octets of the data of a
+        write or a read reply; the data field holds all of it.'''
+        rows = self.vxi11_frames(cmd_tshark, capture_file, test_env,
+                'vxi11_core.data && frame.number < 200 && frame.len > 200',
+                'vxi11_core.data', '_ws.col.info')
+        assert rows
+        for r in rows:
+            assert len(r[1].replace(':', '')) in (300, 400)
+            assert r[2].rstrip().endswith('x' * 70) or r[2].rstrip().endswith('y' * 70)
+            assert 'x' * 71 not in r[2] and 'y' * 71 not in r[2]
+
+    def test_vxi11_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A call split over two TCP segments is dissected once, and two
+        calls in one segment are both dissected.'''
+        rows = self.vxi11_frames(cmd_tshark, capture_file, test_env,
+                'frame.number >= 343 && vxi11_core', '_ws.col.info')
+        infos = [r[1] for r in rows]
+        assert any('DEVICE_WRITE Call LID=7 split write data' in i for i in infos)
+        assert any('DEVICE_READSTB Call' in i and 'DEVICE_TRIGGER Call' in i for i in infos)
