@@ -161722,3 +161722,68 @@ class TestDissectUts:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'uts.data', 'frame.number', 'uts.data')
         assert rows == ['14\tTEXT AND ACK', '15\tHELLO FROM THE TERMINAL', '16\tHELLO TERMINAL', '17\tNO END OF TEXT',
                         '18\t', '19\t' + 'X' * 200]
+
+
+class TestDissectV120:
+    def test_v120_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 21 records of the EyeSDN file are V.120 frames on the two
+        B channels whose first frame is the V.120 SABME. None is malformed
+        or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v120_coverage.eyesdn.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert len(lines) == 21
+        assert all(proto == 'V.120' for _, proto in lines)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('v120_coverage.eyesdn.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_v120_control(self, cmd_tshark, capture_file, test_env):
+        '''The control field of U, I and S frames, and the sender: the
+        direction of the EyeSDN record decides which side is the DTE.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v120_coverage.eyesdn.gz'),
+                '-Y', 'frame.number in {1, 2, 9, 10, 12, 13, 17}',
+                '-Tfields', '-eframe.number', '-e_ws.col.def_src',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tDTE\tU F, func=SABME',
+            '2\tDCE\tU F, func=UA',
+            '9\tDTE\tI, N(R)=0, N(S)=0',
+            '10\tDCE\tI P, N(R)=1, N(S)=1',
+            '12\tDTE\tS, func=RR, N(R)=3',
+            '13\tDCE\tS F, func=RNR, N(R)=4',
+            '17\t0x09\tInvalid V.120 frame',
+        ]
+
+    def test_v120_header_offset(self, cmd_tshark, capture_file, test_env):
+        '''The header octet follows the control field. Frame 20 (UI with
+        a one octet control field) showed the first octet of the frame
+        (0x08) before "V120: Use the offset argument in the header dissection"; the
+        one and two octet headers of frames 7, 8, 9 and 10 are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v120_coverage.eyesdn.gz'),
+                '-Y', 'v120.header',
+                '-Tfields', '-eframe.number', '-ev120.header',
+                '-ev120.header.ext', '-ev120.header.break',
+                '-ev120.header.segb', '-ev120.header.segf',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines == [
+            '3\t0x0102\tFalse\tFalse\tTrue\tFalse',
+            '6\t0x0001\tFalse\tFalse\tFalse\tTrue',
+            '7\t0x83\tTrue\tFalse\tTrue\tTrue',
+            '8\t0x7ff3\tTrue\tTrue\tTrue\tTrue',
+            '9\t0xc7\tTrue\tTrue\tTrue\tTrue',
+            '10\t0x0a80\tTrue\tFalse\tFalse\tFalse',
+            '11\t0x81\tTrue\tFalse\tFalse\tTrue',
+            '20\t0x83\tTrue\tFalse\tTrue\tTrue',
+            '21\t0x80\tTrue\tFalse\tFalse\tFalse',
+        ]
