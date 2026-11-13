@@ -162008,3 +162008,49 @@ class TestDissectV5dl:
             '56\tU, func=UA',
             '57\tU, func=UI | ISDN: 3511 | Unknown msg type',
         ]
+
+
+class TestDissectV5ef:
+    def test_v5ef_frames(self, cmd_tshark, capture_file, test_env):
+        '''60 V5 envelope function records of an EyeSDN file. Addresses
+        above 8175 go to the V5 data link dissector (56 records), the
+        others to LAPD (LAPD, TEI management and two Q.931 frames). None
+        is malformed or has an error expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v5ef_coverage.eyesdn.gz'),
+                '-Tfields', '-eframe.number', '-ev5ef.address', '-ev5dl.ef',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert len(lines) == 60
+        assert all(line[1] for line in lines)
+        assert len([line for line in lines if len(line) > 2 and line[2]]) == 56
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('v5ef_coverage.eyesdn.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_v5ef_address(self, cmd_tshark, capture_file, test_env):
+        '''The envelope function address is EAH (6 bits) and EAL (7 bits)
+        with the extension bits; 8175 and below is LAPD, above is V5DL.
+        The direction field is the record direction of the EyeSDN file.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v5ef_coverage.eyesdn.gz'),
+                '-Y', 'frame.number in {1, 2, 44, 46, 47, 58, 59, 60}',
+                '-Tfields', '-eframe.number', '-ev5ef.direction',
+                '-ev5ef.address', '-ev5ef.eah', '-ev5ef.eal', '-ev5ef.ea1',
+                '-ev5ef.ea2', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t0xfce1\t63\t112\t0\t1\tV5DL',
+            '2\t0\t0xfce1\t63\t112\t0\t1\tV5DL',
+            '44\t1\t0xfce9\t63\t116\t0\t1\tV52',
+            '46\t1\t0xfcdf\t63\t111\t0\t1\tTEI',
+            '47\t0\t0xfcff\t63\t127\t0\t1\tV52',
+            '58\t1\t0x00c9\t0\t100\t0\t1\tQ.931',
+            '59\t0\t0xf881\t62\t64\t0\t1\tQ.931',
+            '60\t1\t0x0001\t0\t0\t0\t1\tLAPD',
+        ]
