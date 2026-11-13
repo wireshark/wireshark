@@ -204,6 +204,9 @@ static int ett_nt_ace_sra_values;
 static expert_field ei_nt_owner_sid_beyond_data;
 static expert_field ei_nt_owner_sid_beyond_reassembled_data;
 static expert_field ei_nt_ace_extends_beyond_data;
+static expert_field ei_nt_ace_cond_too_deep;
+static expert_field ei_nt_ace_sra_bad_count;
+static expert_field ei_nt_ace_sra_bad_value_offset;
 static expert_field ei_nt_ace_extends_beyond_reassembled_data;
 static expert_field ei_nt_group_sid_beyond_data;
 static expert_field ei_nt_group_sid_beyond_reassembled_data;
@@ -1857,7 +1860,7 @@ dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, 
 
 /* Dissect SYSTEM_RESOURCE_ATTRIBUTE_ACE, see [MS-DTYP] v20180912 section 2.4.4.15 */
 static int
-dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, uint16_t size, proto_tree *parent_tree)
+dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t size, proto_tree *parent_tree)
 {
 	/* The caller has already dissected Header, Mask and Sid. Therefore
 	   this function only dissects Attribute Data. This data takes
@@ -1920,9 +1923,20 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, uint16_t siz
 
 	/* ValueCount */
 	value_count = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(sra_tree, hf_nt_ace_sra_value_count,
+	proto_item *count_item = proto_tree_add_uint(sra_tree, hf_nt_ace_sra_value_count,
 			    tvb, offset, sizeof(value_count), value_count);
 	offset += sizeof(value_count);
+
+	/* Each value needs a 32-bit offset inside the ACE data; cap the
+	   count by what the ACE can hold. */
+	uint32_t max_values = 0;
+	if (size > (unsigned)(offset - start_offset)) {
+		max_values = ((unsigned)size - (unsigned)(offset - start_offset)) / (uint32_t)sizeof(uint32_t);
+	}
+	if (value_count > max_values) {
+		expert_add_info(pinfo, count_item, &ei_nt_ace_sra_bad_count);
+		value_count = max_values;
+	}
 
 	/* Value Offsets and Values */
 	uint32_t value_offset;
@@ -1957,21 +1971,27 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, uint16_t siz
 			proto_item_append_text(sra_item, ", ");
 		}
 		value_offset = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint(value_offset_tree, hf_nt_ace_sra_value_offset,
+		proto_item *vo_item = proto_tree_add_uint(value_offset_tree, hf_nt_ace_sra_value_offset,
 				    tvb, offset, sizeof(value_offset), value_offset);
+		offset += sizeof(value_offset);
+		if (value_offset >= size) {
+			expert_add_info(pinfo, vo_item, &ei_nt_ace_sra_bad_value_offset);
+			continue;
+		}
 		dissect_nt_ace_system_resource_attribute_value(tvb, start_offset + value_offset,
 							       value_tree, value_type, sra_item);
-		offset += sizeof(value_offset);
 	}
 	proto_item_append_text(sra_item, "}");
 
 	return start_offset + size;
 }
 
+#define COND_ACE_MAX_NESTING 32
+
 /* Dissect Condition ACE token, see [MS-DTYP] v20180912 section 2.4.4.17.4 */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_nt_conditional_ace_token(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t size, proto_tree *parent_tree)
+dissect_nt_conditional_ace_token(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t size, proto_tree *parent_tree, unsigned nesting)
 {
 	int start_offset = offset;
 	proto_tree *tree = parent_tree;
@@ -2081,11 +2101,15 @@ dissect_nt_conditional_ace_token(tvbuff_t *tvb, packet_info *pinfo, int offset, 
 		offset += sizeof(len);
 		if (len) {
 			int remaining = size - (offset - start_offset);
-			if (remaining >= (int)len) {
+			if (nesting >= COND_ACE_MAX_NESTING) {
+				proto_tree_add_expert(tree, pinfo, &ei_nt_ace_cond_too_deep,
+						      tvb, offset, remaining > 0 ? remaining : 0);
+				offset += remaining > 0 ? remaining : 0;
+			} else if (remaining >= (int)len) {
 				int end_offset = offset + len;
 				increment_dissection_depth(pinfo);
 				while (offset < end_offset) {
-					offset = dissect_nt_conditional_ace_token(tvb, pinfo, offset, remaining, tree);
+					offset = dissect_nt_conditional_ace_token(tvb, pinfo, offset, remaining, tree, nesting + 1);
 				}
 				decrement_dissection_depth(pinfo);
 			} else {
@@ -2177,7 +2201,7 @@ dissect_nt_conditional_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16
 				remaining = size - (offset - start_offset);
 				if (remaining <= 0)
 					break;
-				offset = dissect_nt_conditional_ace_token(tvb, pinfo, offset, remaining, parent_tree);
+				offset = dissect_nt_conditional_ace_token(tvb, pinfo, offset, remaining, parent_tree, 0);
 			}
 		}
 	}
@@ -2744,7 +2768,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		    case ACE_TYPE_SYSTEM_RESOURCE_ATTRIBUTE:
-			dissect_nt_ace_system_resource_attribute(tvb, offset, data_size, tree);
+			dissect_nt_ace_system_resource_attribute(tvb, pinfo, offset, data_size, tree);
 			break;
 		}
 		break;
@@ -3685,6 +3709,9 @@ proto_do_register_windows_common(int proto_smb)
 	};
 
 	static ei_register_info ei[] = {
+		{ &ei_nt_ace_cond_too_deep, { "nt.ace_cond_too_deep", PI_MALFORMED, PI_ERROR, "Conditional ACE composite nested too deeply", EXPFILL }},
+		{ &ei_nt_ace_sra_bad_count, { "nt.ace_sra_bad_count", PI_MALFORMED, PI_ERROR, "Value count larger than the ACE can hold", EXPFILL }},
+		{ &ei_nt_ace_sra_bad_value_offset, { "nt.ace_sra_bad_value_offset", PI_MALFORMED, PI_ERROR, "Value offset beyond end of ACE", EXPFILL }},
 		{ &ei_nt_ace_extends_beyond_data, { "nt.ace_extends_beyond_data", PI_MALFORMED, PI_ERROR, "ACE Extends beyond end of data", EXPFILL }},
 		{ &ei_nt_ace_extends_beyond_reassembled_data, { "nt.ace_extends_beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "ACE Extends beyond end of reassembled data", EXPFILL }},
 		{ &ei_nt_owner_sid_beyond_data, { "nt.owner_sid.beyond_data", PI_MALFORMED, PI_ERROR, "Owner SID beyond end of data", EXPFILL }},
