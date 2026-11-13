@@ -899,7 +899,7 @@ dissect_wps_wfa_ext(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
   int    end = offset + size;
   uint8_t id, len;
 
-  while (pos + 2 < end) {
+  while (pos + 2 <= end) {
     id = tvb_get_uint8(tvb, pos);
     len = tvb_get_uint8(tvb, pos + 1);
     if ((pos + 2 + len) > end)
