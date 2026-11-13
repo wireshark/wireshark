@@ -162054,3 +162054,73 @@ class TestDissectV5ef:
             '59\t0\t0xf881\t62\t64\t0\t1\tQ.931',
             '60\t1\t0x0001\t0\t0\t0\t1\tLAPD',
         ]
+
+
+class TestDissectV5ua:
+    def test_v5ua_frames(self, cmd_tshark, capture_file, test_env):
+        '''111 SCTP packets to port 5675 (RFC) and 10001 (draft): 73 RFC
+        and 19 draft V5UA messages, 16 whose V5.2 protocol data is
+        dissected and 3 with Q.931. None is malformed or has an error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v5ua_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 111
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'V5UA': 73, 'V5UA (draft)': 19, 'V52': 16, 'Q.931': 3}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('v5ua_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_v5ua_two_pass_state(self, cmd_tshark, capture_file, test_env):
+        '''The DLCI, link and message state are per packet. Frame 1 has
+        no DLCI and frame 2 has one (EFA 5, link 7). With one pass frame 1
+        was "Data Req" and with -2 it was "Data Req | LinkId: 7", taken
+        from frame 2, before "V5UA: Reset per-packet state at the start
+        of each message". All frames give the same Info in both passes.'''
+        infos = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('v5ua_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            infos.append(stdout)
+        assert infos[0] == infos[1]
+        lines = infos[0].splitlines()
+        assert lines[0] == '1\tData Req'
+        assert lines[1] == '2\tData Req | ISDN: 5 | LinkId: 7'
+
+    def test_v5ua_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message names and the Info column for the three kinds of
+        messages: RFC, RFC with V5.2 protocol data, and draft.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v5ua_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 19, 34, 48, 55, 71, 72, 73, 74, 78, 87, 91, 96, 97, 101, 107, 108}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [line[:90] for line in stdout.splitlines()] == [
+            '3\tV5UA\tASP up',
+            '19\tV5UA\tError',
+            '34\tV5UA\tError | ISDN: 100',
+            '48\tV52\tData Req | PSTN | PSTN: 1285 | Signal | RT',
+            '55\tV52\tData Req | ProtProt | PSTN: 1285 | Signal | RT',
+            '71\tV5UA\tLink Status Ind | operational',
+            '72\tV5UA\tLink Status Ind | non-operational',
+            '73\tV5UA\tLink Status Ind',
+            '74\tV5UA\tSa-Bit Set Req | SA7bit: 7',
+            '78\tV5UA\tSa-Bit Status Ind | SA7bit: 9',
+            '87\tV5UA (draft)\tASP up',
+            '91\tV5UA (draft)\tError | PSTN',
+            '96\tV5UA (draft)\tTEI query request | LinkCtrl',
+            '97\tV52\tData request | Ctrl | PSTN: 1285 | Signal | RT',
+            '101\tV52\tData request | ISDN: 100 | PSTN: 1285 | Signal | RT | LinkId: 7',
+            '107\tV5UA (draft)\tLink status indication | PSTN | operational',
+            '108\tV5UA (draft)\tSa-Bit set request | PSTN | SA7bit: 7',
+        ]
