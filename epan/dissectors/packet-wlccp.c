@@ -48,6 +48,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/oui.h>
 #include "packet-llc.h"
@@ -412,7 +413,9 @@ static unsigned dissect_wlccp_qos_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigne
 static unsigned dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type);
 static unsigned dissect_wlccp_mip_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type);
 
-static unsigned dissect_wlccp_tlvs(proto_tree *_tree, tvbuff_t *tvb, unsigned tlv_offset, unsigned _depth);
+#define WLCCP_MAX_TLV_DEPTH 32
+static expert_field ei_wlccp_tlv_too_deep;
+static unsigned dissect_wlccp_tlvs(proto_tree *_tree, tvbuff_t *tvb, packet_info *pinfo, unsigned tlv_offset, unsigned _depth);
 
 static unsigned dissect_wlccp_ccm_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti);
 static unsigned dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti);
@@ -1007,8 +1010,9 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 					while (tvb_reported_length_remaining(tvb,offset) >= 4)
 					{
 						old_offset = offset;
-						offset = dissect_wlccp_tlvs(wlccp_tree, tvb, offset, 0);
-						DISSECTOR_ASSERT(offset > old_offset);
+						offset = dissect_wlccp_tlvs(wlccp_tree, tvb, pinfo, offset, 0);
+						if (offset <= old_offset)
+							break;
 					} /* while bytes_left */
 
 ;
@@ -1796,7 +1800,8 @@ static unsigned dissect_wlccp_mip_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_,
 /***************************************************************************************************/
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static unsigned dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, unsigned _depth)
+// NOLINTNEXTLINE(misc-no-recursion)
+static unsigned dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, packet_info *pinfo, unsigned _offset, unsigned _depth)
 {
 
 	proto_item *_ti, *_temp_ti;
@@ -1828,7 +1833,10 @@ static unsigned dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, unsigned 
 
 
 	/* add an arbitrary safety factor in case we foul up the dissector recursion */
-	DISSECTOR_ASSERT(_depth < 100);
+	if (_depth >= WLCCP_MAX_TLV_DEPTH) {
+		expert_add_info(pinfo, _temp_ti, &ei_wlccp_tlv_too_deep);
+		return tvb_reported_length(_tvb);
+	}
 
 	/* add the flags field to the tlv_tree */
 	_ti = proto_tree_add_item(_tlv_tree, hf_tlv_flags, _tvb, _offset, 2, ENC_BIG_ENDIAN);
@@ -1995,8 +2003,9 @@ static unsigned dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, unsigned 
 			{
 				_old_offset = _offset;
 				// We recurse here, but we'll run out of packet before we run out of stack.
-				_offset = dissect_wlccp_tlvs(_tlv_tree, _tvb, _offset, _depth++);
-				DISSECTOR_ASSERT(_offset > _old_offset);
+				_offset = dissect_wlccp_tlvs(_tlv_tree, _tvb, pinfo, _offset, _depth + 1);
+				if (_offset <= _old_offset)
+					break;
 			} /* while bytes_left >= 4*/
 
 		} /* _container_flag && (tvb_length_remaining(_tvb,_offset) >= 4) */
@@ -4088,12 +4097,20 @@ proto_register_wlccp(void)
 		&ett_framereport_elements_tree
 	}; /* static int *ett[] */
 
+	static ei_register_info ei[] = {
+		{ &ei_wlccp_tlv_too_deep, { "wlccp.tlv_too_deep", PI_MALFORMED, PI_ERROR,
+			"TLV nesting too deep", EXPFILL }},
+	};
+
 	/* Register the protocol name and description */
 	proto_wlccp = proto_register_protocol("Cisco Wireless LAN Context Control Protocol", "WLCCP", "wlccp");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_wlccp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	expert_module_t *expert_wlccp = expert_register_protocol(proto_wlccp);
+	expert_register_field_array(expert_wlccp, ei, array_length(ei));
 
 	/* Register the subdissector */
 	wlccp_handle = register_dissector("wlccp", dissect_wlccp, proto_wlccp);
