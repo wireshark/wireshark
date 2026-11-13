@@ -858,7 +858,7 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
         }
     }
     if (strcmp(current_frame->name_orig_case, "CipherValue") == 0) {
-        xml_frame_t *encrypted_frame = current_frame->parent->parent;
+        xml_frame_t *encrypted_frame = current_frame->parent ? current_frame->parent->parent : NULL;
         xml_frame_t *key_info_frame = NULL;
         xml_frame_t *token_frame = NULL;
         xml_frame_t *reference_frame = NULL;
@@ -868,7 +868,9 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
         tvbuff_t *crypt_tvb = NULL;
         tvbuff_t *plain_tvb = NULL;
 
-        key_info_frame = xml_get_tag(encrypted_frame, "KeyInfo");
+        if (encrypted_frame != NULL) {
+            key_info_frame = xml_get_tag(encrypted_frame, "KeyInfo");
+        }
         if (key_info_frame != NULL) {
             token_frame = xml_get_tag(key_info_frame, "SecurityTokenReference");
         }
