@@ -163220,3 +163220,96 @@ class TestDissectVp9:
             '16\t7\t8\tTrue\tTrue\t100,200,300,400,500,600,700,800\t100,200,300,400,500,600,700,800\t255',
             '22\t0\t1\tFalse\tFalse\t\t\t',
         ]
+
+
+class TestDissectVpp:
+    '''VPP dispatch trace records (pcap link type 280, DLT_VPP_DISPATCH)
+    from the synthetic capture vpp_coverage.pcap.gz. Frames 12-14 have a
+    minor version mismatch and protocol hints out of range (warnings).'''
+
+    def test_vpp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 15 frames are VPP records; only the frames with the version
+        and hint problems have warnings, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vpp_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 15
+            assert all(p.startswith('vpp:vpp-metadata:vpp-opaque:vpp-opaque2:') for p in protocols)
+            assert len([p for p in protocols if p.endswith(':ip:udp:data')]) == 9
+            assert len([p for p in protocols if p.endswith(':ipv6:udp:data')]) == 1
+            assert len([p for p in protocols if p.endswith(':ip:tcp')]) == 2
+            assert len([p for p in protocols if p.endswith(':ipv6:tcp')]) == 1
+            assert len([p for p in protocols if p.endswith('vpp-opaque2:tcp')]) == 1
+            assert len([p for p in protocols if p.endswith('vpp-opaque2:udp:data')]) == 1
+            assert len([p for p in protocols if ':vpp-trace:' in p]) == 2
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vpp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['12', '13', '14']
+
+    def test_vpp_hints(self, cmd_tshark, capture_file, test_env):
+        '''The protocol hint selects the next dissector; hint 0 looks at
+        the first byte (IPv4, IPv6, otherwise Ethernet).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vpp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 8',
+                '-Tfields', '-eframe.number', '-evpp.NodeName', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        prefix = 'vpp:vpp-metadata:vpp-opaque:vpp-opaque2:'
+        assert stdout.splitlines() == [
+            '1\tip4-input\t' + prefix + 'ip:udp:data',
+            '2\tip6-input\t' + prefix + 'ipv6:udp:data',
+            '3\tethernet-input\t' + prefix + 'eth:ethertype:ip:udp:data',
+            '4\taf-packet-input\t' + prefix + 'eth:ethertype:ip:tcp',
+            '5\tip4-lookup\t' + prefix + 'ip:tcp',
+            '6\tip6-lookup\t' + prefix + 'ipv6:tcp',
+            '7\ttcp4-input\t' + prefix + 'tcp',
+            '8\tudp4-input\t' + prefix + 'udp:data',
+        ]
+
+    def test_vpp_strings(self, cmd_tshark, capture_file, test_env):
+        '''Metadata, opaque, opaque2 and trace strings are split into
+        lines; the trace is only present with five strings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vpp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 9, 10}',
+                '-Tfields', '-eframe.number', '-evpp.metadata', '-evpp.opaque',
+                '-evpp.opaque2', '-evpp.trace', '-evpp.BufferIndex',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tsw_if_index 1,fib 0\topaque 1\topaque2 1\t\t0x00010203',
+            '9\tline1,line2,line3\top1,op2\top2-1,op2-2\t'
+            'ethernet-input: sw_if_index 1,  IP4: 02:00:00:00:00:01 -> 02:00:00:00:00:02,,end\t0x00010203',
+            '10\t\t\t\tx\t0x00010203',
+        ]
+
+    def test_vpp_version_hint_errors(self, cmd_tshark, capture_file, test_env):
+        '''The minor version and protocol hint warnings; the hint falls
+        back to the first byte of the packet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vpp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {12, 13, 14}',
+                '-Tfields', '-eframe.number', '-evpp.MinorVersion', '-evpp.ProtocolHint',
+                '-e_ws.expert.message', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        prefix = 'vpp:vpp-metadata:vpp-opaque:vpp-opaque2:'
+        assert stdout.splitlines() == [
+            '12\t3\t\tMinor Version Mismatch read 3 not 0\t' + prefix + 'ip:udp:data',
+            '13\t\t9\tProtocol hint 9 out of range, max 6\t' + prefix + 'ip:udp:data',
+            '14\t\t200\tProtocol hint 200 out of range, max 6\t' + prefix + 'eth:ethertype:ip:udp:data',
+        ]
+
+    def test_vpp_version_items_in_vpp_tree(self, cmd_tshark, capture_file, test_env):
+        '''The minor version and protocol hint items are children of the
+        VPP tree ("VPP: Add items to the VPP tree").'''
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('vpp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {12, 13}',
+            ), encoding='utf-8', env=test_env)
+        assert '\nVPP Dispatch Trace\n    MinorVersion: 3\n' in stdout
+        assert '\nVPP Dispatch Trace\n    ProtocolHint: 9\n' in stdout
