@@ -426,8 +426,7 @@ dissect_usbms_bot_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (tvb_memeql(tvb, 0, usbc, sizeof(usbc)) == 0 ||
         tvb_memeql(tvb, 0, usbs, sizeof(usbs)) == 0) {
-        dissect_usbms_bot_bulk(tvb, pinfo, tree, data);
-        return true;
+        return dissect_usbms_bot_bulk(tvb, pinfo, tree, data) > 0;
     }
 
     return false;
