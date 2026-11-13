@@ -165386,3 +165386,43 @@ class TestDissectWebsocket:
                     '-O', 'websocket,data-text-lines'),
                 encoding='utf-8', env=test_env))
         assert outputs[0] == outputs[1]
+
+
+class TestDissectWfleetHdlc:
+    '''Wellfleet HDLC frames in a Network General Sniffer file (the only
+    file format with WTAP_ENCAP_WFLEET_HDLC): the two byte header
+    followed by an Ethernet frame without FCS.'''
+
+    def test_wfleet_hdlc_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 7 frames decode as WHDLC over Ethernet, with no malformed
+        packets or error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wfleet_hdlc_coverage.cap.gz'),
+                    '-Tfields', '-eframe.number', '-eframe.encap_type',
+                    '-eframe.protocols', '-ewfleet_hdlc.address',
+                    '-ewfleet_hdlc.command', '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert len(rows) == 7
+            for row in rows:
+                assert row[1] == '35'
+                assert row[2].startswith('whdlc:eth:')
+                assert row[3] == '0x07'
+                assert row[4] == '0x03'
+                assert row[5] == ''
+            assert rows[0][2] == 'whdlc:eth:ethertype:ip:udp:discard'
+            assert rows[2][2] == 'whdlc:eth:ethertype:arp'
+            assert rows[3][2] == 'whdlc:eth:ethertype:ip:icmp:data'
+            assert rows[4][2].startswith('whdlc:eth:llc:')
+
+    def test_wfleet_hdlc_info(self, cmd_tshark, capture_file, test_env):
+        '''The protocol column of the first frame is the inner protocol,
+        the address and command are shown with their names.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wfleet_hdlc_coverage.cap.gz'),
+                '-Y', 'frame.number == 1', '-O', 'whdlc',
+            ), encoding='utf-8', env=test_env)
+        assert 'Wellfleet HDLC' in stdout
+        assert 'Command: Un-numbered I frame (0x03)' in stdout
+        assert 'Address: 0x07' in stdout
