@@ -19,6 +19,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
@@ -865,6 +866,11 @@ static uint32_t vsip_ValueTypeBinary(proto_tree *tree, packet_info *pinfo _U_, t
    length = tvb_get_ntohl(tvb, offset);
    proto_tree_add_item(tree, hf_vsip_ValueTypeBinary_Size, tvb, offset, 4, ENC_BIG_ENDIAN);
    offset += 4;
+
+   if (length > (uint32_t)tvb_reported_length_remaining(tvb, offset))
+   {
+       THROW(ReportedBoundsError);
+   }
 
    if (length > 0)
    {
