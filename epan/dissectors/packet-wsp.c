@@ -3701,7 +3701,7 @@ parameter (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, 
             break;
 
         case 0x11:  /* WSP 1.4 encoding - SEC: Short-integer (OCTET) */
-            peek = tvb_get_uint8 (tvb, start+1);
+            peek = tvb_get_uint8 (tvb, offset);
             if (peek & 0x80) { /* Valid Short-integer */
                 peek &= 0x7F;
                 proto_tree_add_uint (tree, hf_wsp_parameter_sec,
@@ -3826,7 +3826,7 @@ parameter_value_q (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_
     uint8_t  ok;
 
     get_uintvar_integer (val, tvb, offset, val_len, ok);
-    if (ok && (val < 1100)) {
+    if (ok && (val >= 1) && (val < 1100)) {
         if (val <= 100) { /* Q-value in 0.01 steps */
             str = wmem_strdup_printf(pinfo->pool, "0.%02u", val - 1);
         } else { /* Q-value in 0.001 steps */
@@ -3837,7 +3837,7 @@ parameter_value_q (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_
                 tvb, start, val_len, str);
         offset += val_len;
     } else {
-        proto_tree_add_expert_format(tree, pinfo, &ei_wsp_invalid_parameter_value, tvb, start, offset,
+        proto_tree_add_expert_format(tree, pinfo, &ei_wsp_invalid_parameter_value, tvb, start, val_len,
                 "Invalid Q parameter value: invalid Q-value");
         offset += val_len;
     }
