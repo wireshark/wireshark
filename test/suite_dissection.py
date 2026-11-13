@@ -168276,3 +168276,133 @@ class TestDissectX509if:
             stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-Y', 'x509if.nested_too_deep',
                     '-Tfields', '-eframe.number'), encoding='utf-8', env=env)
             assert (stdout.split() == ['1']) == expect, depth
+
+
+class TestDissectX509sat:
+    '''X.509 Selected Attribute Types (x509sat) from the synthetic capture
+    x509sat_coverage.pcap.gz: every attribute type OID that the dissector
+    registers (182) as the type of an AVA in a certificate name or of an
+    Attribute in subjectDirectoryAttributes, with values of each syntax,
+    Guide and EnhancedGuide with every Criteria shape, and the
+    UnboundedDirectoryString of an EDIPartyName. The Criteria limit that only
+    malformed data reaches is tested with a capture built by the test.'''
+
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, capture, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture, '-Y', flt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env).splitlines()
+
+    @staticmethod
+    def nested_pcap(path, depth):
+        '''One TLS Certificate frame whose extension 2.5.18.6
+        (searchGuide) holds a Guide whose Criteria is a "not" nested depth levels.'''
+        def tlv(tag, content):
+            n = len(content)
+            ln = bytes([n]) if n < 0x80 else (bytes([0x80 | ((n.bit_length() + 7) // 8)])
+                                              + n.to_bytes((n.bit_length() + 7) // 8, 'big'))
+            return bytes([tag]) + ln + content
+        oid_cn = tlv(6, b'\x55\x04\x03')
+        name = tlv(0x30, tlv(0x31, tlv(0x30, oid_cn + tlv(0x0c, b'x'))))
+        alg = tlv(0x30, tlv(6, b'\x2a\x86\x48\x86\xf7\x0d\x01\x01\x0b') + b'\x05\x00')
+        crit = tlv(0xa0, tlv(0xa0, tlv(6, b'\x55\x04\x03')))
+        for _ in range(depth):
+            crit = tlv(0xa3, crit)
+        ext = tlv(0x30, tlv(6, b'\x55\x04\x0e') + tlv(4, tlv(0x31, tlv(0xa1, crit))))
+        tbs = tlv(0x30, tlv(0xa0, tlv(2, b'\x02')) + tlv(2, b'\x01') + alg + name
+                  + tlv(0x30, tlv(0x17, b'230101000000Z') + tlv(0x17, b'330101000000Z'))
+                  + name + tlv(0x30, alg + tlv(3, b'\x00\x01')) + tlv(0xa3, tlv(0x30, ext)))
+        cert = tlv(0x30, tbs + alg + tlv(3, b'\x00\x11'))
+        cl = len(cert).to_bytes(3, 'big') + cert
+        hs = b'\x0b' + (len(cl) + 3).to_bytes(3, 'big') + len(cl).to_bytes(3, 'big') + cl
+        payload = b'\x16\x03\x03' + len(hs).to_bytes(2, 'big') + hs
+        tcp = struct.pack('!HHIIBBHHH', 443, 50000, 1000, 1, 0x50, 0x18, 65535, 0, 0) + payload
+        ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(tcp), 1, 0, 64, 6, 0,
+                         bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2]))
+        frame = b'\x02\x00\x00\x00\x00\x02\x02\x00\x00\x00\x00\x01\x08\x00' + ip + tcp
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 1))
+            f.write(struct.pack('<IIII', 1700000000, 0, len(frame), len(frame)))
+            f.write(frame)
+
+    def test_x509sat_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two
+        passes, identical decoded fields; the frame mix is what the
+        generator wrote.'''
+        cap = capture_file('x509sat_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, test_env, cap, self.BAD, passes=passes) == []
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Tfields', '-e_ws.col.protocol'),
+                encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 54
+        assert protocols.count('TLSv1.2') == 12
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap, '-Tfields',
+                    '-eframe.number', '-ex509if.oid', '-ex509sat.uTF8String', '-ex509sat.printableString',
+                    '-ex509sat.GUID', '-ex509sat.criteria', '-ex509sat.objectClass'),
+                    encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_x509sat_all_oids(self, cmd_tshark, capture_file, test_env):
+        '''All 182 OIDs registered by x509sat appear as attribute types.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('x509sat_coverage.pcap.gz'),
+                '-Tfields', '-ex509if.oid'), encoding='utf-8', env=test_env)
+        oids = set(stdout.replace(',', '\n').split())
+        assert len(oids) == 182
+
+    def test_x509sat_directory_string(self, cmd_tshark, capture_file, test_env):
+        '''DirectoryString and UnboundedDirectoryString in all five
+        alternatives (teletex, printable, universal, bmp, UTF8).'''
+        cap = capture_file('x509sat_coverage.pcap.gz')
+        for field, frames in (('teletexString', ['5', '10', '21', '29', '34', '38']),
+                              ('universalString', ['5', '10', '21', '29', '38']),
+                              ('bmpString', ['5', '10', '21', '29', '34', '38'])):
+            assert self.fields(cmd_tshark, test_env, cap, 'x509sat.' + field) == frames, field
+        assert self.fields(cmd_tshark, test_env, cap, 'x509ce.ediPartyName_element') == ['38']
+
+    def test_x509sat_guide(self, cmd_tshark, capture_file, test_env):
+        '''Guide and EnhancedGuide with the five CriteriaItem types and
+        and, or and not criteria.'''
+        cap = capture_file('x509sat_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'x509sat.Guide_element || x509sat.EnhancedGuide_element',
+                'x509sat.subset')
+        assert [r.split('\t')[0] for r in rows] == ['21', '42', '54']
+        for kind in ('and', 'or', 'not'):
+            assert self.fields(cmd_tshark, test_env, cap, 'x509sat.' + kind), kind
+
+    def test_x509sat_guid(self, cmd_tshark, capture_file, test_env):
+        '''GUID (entryUUID): the 16 octets are consumed, the next RDN
+        decodes (the offset was not advanced before "X509SAT: Bound
+        Criteria recursion, fix GUID offset").'''
+        cap = capture_file('x509sat_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number == 50', 'x509sat.GUID', 'x509af.serialNumber')
+        assert rows == ['50\t30313233-3435-3637-3839-3a3b3c3d3e3f,00010203-0405-0607-0809-0a0b0c0d0e0f\t0132,0133']
+
+    def test_x509sat_presentation_address(self, cmd_tshark, capture_file, test_env):
+        '''PresentationAddress with and without selectors, ProtocolInformation,
+        NameAndOptionalUID, TelexNumber, FacsimileTelephoneNumber.'''
+        cap = capture_file('x509sat_coverage.pcap.gz')
+        for elem in ('PresentationAddress_element', 'ProtocolInformation_element', 'NameAndOptionalUID_element',
+                     'FacsimileTelephoneNumber_element'):
+            assert self.fields(cmd_tshark, test_env, cap, 'x509sat.' + elem), elem
+
+    def test_x509sat_criteria_nesting(self, cmd_tshark, capture_file, test_env, result_file):
+        '''A Criteria nested 200 levels decodes (frame 54 of the capture and the
+        test's own frame); 300 levels give the "Nested too deeply" expert
+        info and a ReportedBoundsError, without a dissector bug assertion
+        (WIRESHARK_ABORT_ON_DISSECTOR_BUG=1 and exit status 0).'''
+        cap = capture_file('x509sat_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap,
+                'count(x509sat.not) == 200 && !x509sat.nested_too_deep') == ['54']
+        env = dict(test_env, WIRESHARK_ABORT_ON_DISSECTOR_BUG='1')
+        for depth, expect in ((200, False), (300, True)):
+            pcap = result_file('nested%d.pcap' % depth)
+            self.nested_pcap(pcap, depth)
+            stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-Y', 'x509sat.nested_too_deep',
+                    '-Tfields', '-eframe.number'), encoding='utf-8', env=env)
+            assert (stdout.split() == ['1']) == expect, depth
