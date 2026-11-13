@@ -214,12 +214,12 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data
 				   testchar(tvb, pinfo, offset+3, MATCH, ETX, NULL)) {
 				ack_start = offset;
 				function_start = offset + 2;
-				col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c' + ACK", function_code);
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message %02X + ACK", (unsigned)function_code);
 				set_addr(pinfo, SRC, rid, sid, did);
 			} else if (testchar(tvb, pinfo, offset, FETCH, 0, &function_code)	&&
 				   testchar(tvb, pinfo, offset+1, MATCH, ETX, NULL)) {
 				function_start = offset;
-				col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c'", function_code);
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message %02X", (unsigned)function_code);
 				set_addr(pinfo, SRC, rid, sid, did);
 			}
 		}
@@ -282,7 +282,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data
 				proto_tree_add_boolean_format(uts_header_tree, hf_msgwaiting, tvb, msgwaiting_start, 1, 1, "Message Waiting");
 
 			if (function_start)
-				proto_tree_add_uint_format(uts_header_tree, hf_function, tvb, function_start, 1, function_code, "Function '%c'", function_code	);
+				proto_tree_add_uint_format(uts_header_tree, hf_function, tvb, function_start, 1, function_code, "Function %02X", (unsigned)function_code);
 
 			if (stx_start) {
 				proto_tree_add_protocol_format(uts_header_tree, proto_uts, tvb, stx_start, 1, "Start of Text");
