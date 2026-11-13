@@ -166203,3 +166203,109 @@ class TestDissectWinsrepl:
         lines = self.fields(cmd_tshark, capture_file, test_env,
                             'frame.number == 36', 'winsrepl.repl_cmd')
         assert lines == ['36\t0x00000000,0x00000000']
+
+
+class TestDissectWireguard:
+    '''WireGuard from the synthetic capture wireguard_coverage.pcapng.gz.
+    The encrypted fields are filler bytes, nothing is decrypted; the
+    capture carries the test keys Spriv_r and Spub_i of
+    suite_decryption.py in a Decryption Secrets Block, and the MAC1 fields
+    are computed from the receivers' public keys so that the dissector
+    recognises the receiver.'''
+
+    SPUB_R = 'YDCttCs9e1J52/g9vEnwJJa+2x6RqaayAYMpSVQfGEY='
+    SPUB_I = 'Igge9KzRytKNwrgkzDE/8hrLu6Ly0OqVdvOPWhA5KR4='
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('wireguard_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + e for e in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_wireguard_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-24 and 31-34 are WireGuard; frames 25-30 are not
+        (heuristic and conversation checks reject them). No malformed
+        packets and no expert infos above note level, in one and two
+        passes. Frame 2 is the response that asserted before "WireGuard:
+        Do not process a response without a decrypted initiator" because
+        its initiation could not be decrypted.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                                'wg', 'wg.type', passes=passes)
+            assert lines == [
+                '1\t1', '2\t2', '3\t4', '4\t4', '5\t4', '6\t4', '7\t4', '8\t1',
+                '9\t3', '10\t3', '11\t1', '12\t2', '13\t2', '14\t1', '15\t2',
+                '16\t2', '17\t4', '18\t4', '19\t1', '20\t2', '21\t4', '22\t4',
+                '23\t3', '24\t4', '31\t1', '32\t2', '33\t4', '34\t4']
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                passes=passes)
+            assert lines == []
+
+    def test_wireguard_sessions(self, cmd_tshark, capture_file, test_env):
+        '''Session tracking in two passes: initiation, response and cookie
+        reply are linked by sender/receiver ID and the initiator address,
+        data messages by the receiver ID and destination.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'wg',
+                            'wg.stream', 'wg.response_in', 'wg.response_to',
+                            passes=('-2',))
+        by_frame = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert by_frame['1'] == ['0', '2', '']
+        assert by_frame['2'] == ['0', '', '1']
+        assert by_frame['3'] == ['0', '', '']
+        assert by_frame['4'] == ['0', '', '']
+        assert by_frame['7'] == ['', '', '']          # unknown receiver
+        assert by_frame['8'] == ['1', '9', '']
+        assert by_frame['9'] == ['1', '', '8']        # cookie reply
+        assert by_frame['10'] == ['', '', '']         # cookie reply to nobody
+        assert by_frame['12'] == ['', '', '']         # response to another port
+        assert by_frame['13'] == ['2', '', '11']
+        assert by_frame['15'] == ['3', '', '14']
+        assert by_frame['16'] == ['', '', '']         # second response, not linked
+        assert by_frame['19'] == ['4', '20', '']      # sender ID 0xA1 reused
+        assert by_frame['20'] == ['4', '', '19']
+        assert by_frame['21'] == ['0', '', '']        # back to the first session
+        assert by_frame['31'] == ['5', '32', '']      # IPv6
+        assert by_frame['34'] == ['5', '', '']
+
+    def test_wireguard_mac1_keys(self, cmd_tshark, capture_file, test_env):
+        '''MAC1 identifies the receiver's static public key from the keys of
+        the secrets block: Spub_r (with its private key) for the initiations,
+        Spub_i for the responses; a bad MAC1 identifies nobody.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'wg.receiver_pubkey', 'wg.receiver_pubkey',
+                            'wg.receiver_pubkey.known_privkey')
+        assert lines == [
+            '1\t%s\tTrue' % self.SPUB_R,
+            '2\t%s\tFalse' % self.SPUB_I,
+            '8\t%s\tFalse' % self.SPUB_I,
+            '12\t%s\tFalse' % self.SPUB_I,
+            '14\t%s\tFalse' % self.SPUB_I,
+            '15\t%s\tFalse' % self.SPUB_I,
+            '16\t%s\tFalse' % self.SPUB_I,
+            '19\t%s\tTrue' % self.SPUB_R,
+            '20\t%s\tFalse' % self.SPUB_I,
+            '31\t%s\tTrue' % self.SPUB_R,
+            '32\t%s\tFalse' % self.SPUB_I,
+        ]
+
+    def test_wireguard_data(self, cmd_tshark, capture_file, test_env):
+        '''Keepalives (frames 3 and 34) get the Keepalive expert info; the
+        counter, the length of the data and the non-zero reserved bytes
+        (frame 5) after a handshake on the same ports.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'wg.type == 4', 'wg.counter', 'wg.reserved',
+                            '_ws.col.info')
+        by_frame = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert by_frame['3'][2] == 'Keepalive, receiver=0x000000B1, counter=0'
+        assert by_frame['5'][1] == '010203'
+        assert by_frame['6'][0] == '1099511627776'
+        assert by_frame['6'][2].endswith('counter=1099511627776, datalen=84')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wireguard_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 3', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'This is a Keepalive message' in stdout
