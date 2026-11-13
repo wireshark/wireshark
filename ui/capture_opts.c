@@ -185,6 +185,9 @@ capture_opts_cleanup(capture_options *capture_opts)
         capture_opts->all_ifaces = NULL;
     }
     g_free(capture_opts->save_file);
+    capture_opts->save_file = NULL;
+    g_free(capture_opts->orig_save_file);
+    capture_opts->orig_save_file = NULL;
     g_free(capture_opts->temp_dir);
 
     if (capture_opts->closed_msg) {
@@ -1197,6 +1200,7 @@ capture_opts_add_opt(const char* app_env_var_prefix, capture_options *capture_op
         capture_opts->saving_to_file = true;
         g_free(capture_opts->save_file);
         capture_opts->save_file = g_strdup(optarg_str_p);
+        g_free(capture_opts->orig_save_file);
         capture_opts->orig_save_file = g_strdup(optarg_str_p);
         status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
         return status;

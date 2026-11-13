@@ -1521,6 +1521,7 @@ main(int argc, char *argv[])
 #endif
                 break;
             case 'w':        /* Write to file x */
+                g_free(output_file_name);
                 output_file_name = g_strdup(ws_optarg);
 #ifdef HAVE_LIBPCAP
                 exit_status = capture_opts_add_opt(application_configuration_environment_prefix(), &global_capture_opts, opt, ws_optarg);
@@ -2587,6 +2588,7 @@ main(int argc, char *argv[])
         exp_pdu_filename = output_file_name;
         output_file_name = NULL;
 #ifdef HAVE_LIBPCAP
+        g_free(global_capture_opts.save_file);
         global_capture_opts.save_file = NULL;
 #endif
         if (exp_pdu_filename == NULL) {
