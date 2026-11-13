@@ -162124,3 +162124,129 @@ class TestDissectV5ua:
             '107\tV5UA (draft)\tLink status indication | PSTN | operational',
             '108\tV5UA (draft)\tSa-Bit set request | PSTN | SA7bit: 7',
         ]
+
+
+class TestDissectVcdu:
+    def test_vcdu_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-31 are Exported PDUs that name "vcdu" and frames 32-34
+        are UDP datagrams to port 10000 that need Decode As. All 34
+        decode as VCDU, in one and two passes, without malformed packets
+        or error expert infos; the only expert info is the warning of
+        frames 4 and 32 (first header pointer too close to the end).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vcdu_coverage.pcapng.gz'),
+                    '-d', 'udp.port==10000,vcdu',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            lines = [line.split('\t') for line in stdout.splitlines()]
+            assert len(lines) == 34
+            assert all(proto == 'VCDU' for _, proto in lines)
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vcdu_coverage.pcapng.gz'),
+                    '-d', 'udp.port==10000,vcdu',
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vcdu_coverage.pcapng.gz'),
+                    '-d', 'udp.port==10000,vcdu',
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['4', '32']
+        # Without Decode As the UDP datagrams are not VCDU
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vcdu_coverage.pcapng.gz'),
+                '-Y', 'vcdu.vcid',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 31
+
+    def test_vcdu_version_and_day(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 has VCDU version 1 and Julian day 1. Before "VCDU: Fix
+        Julian day and version masks" the version showed 0 and the ground
+        receipt time was computed for day 0 (1995/283) while the field
+        said 1. Frames 21-27 hold other days, one of them in 1996, which
+        is a leap year.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vcdu_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 2, 3, 21, 22, 23, 24, 25, 26, 27}',
+                '-Tfields', '-eframe.number', '-evcdu.version',
+                '-evcdu.smex.jday', '-evcdu.ground_receipt_time',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t1\t1995/284:00:00:00.000000000 UTC',
+            '2\t2\t1\t1995/284:00:00:00.000000000 UTC',
+            '3\t3\t1\t1995/284:00:00:00.000000000 UTC',
+            '21\t0\t0\t1995/283:00:00:00.000000000 UTC',
+            '22\t0\t1\t1995/284:23:59:59.999000000 UTC',
+            '23\t0\t200\t1996/118:01:00:00.500000000 UTC',
+            '24\t0\t366\t1996/284:03:25:45.001000000 UTC',
+            '25\t0\t3000\t2003/361:12:00:00.250000000 UTC',
+            '26\t0\t9000\t2020/152:00:00:01.001000000 UTC',
+            '27\t0\t12000\t2028/231:12:24:31.999000000 UTC',
+        ]
+
+    def test_vcdu_pointers(self, cmd_tshark, capture_file, test_env):
+        '''The default bitstream channels (12-19 and 63) show a last bit
+        pointer with the all data, anomaly and all fill cases; other
+        channels show a first header pointer with the fill and
+        continuation cases. A channel table replaces the defaults (the
+        table is only applied when another preference of the module is
+        set).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vcdu_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 2, 4, 5, 6, 7, 8, 11, 12}',
+                '-Tfields', '-eframe.number', '-evcdu.vcid',
+                '-evcdu.lbp', '-evcdu.fhp',
+                '-evcdu.bitream.all_data', '-evcdu.bitream.all_data_anomaly',
+                '-evcdu.bitream.all_fill', '-evcdu.ccsds.all_fill',
+                '-evcdu.ccsds_continuation_packet',
+                '-evcdu.fhp_too_close_to_end_of_vcdu',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        got = {r[0]: [r[1], r[2], r[3], *['1' if x else '' for x in r[4:]]] for r in rows}
+        assert got == {
+            '1': ['1', '', '2046', '', '', '', '1', '', ''],
+            '2': ['2', '', '2047', '', '', '', '', '1', ''],
+            '4': ['1', '', '80', '', '', '', '', '', '1'],
+            '5': ['12', '16383', '', '1', '', '', '', '', ''],
+            '6': ['13', '2047', '', '', '1', '', '', '', ''],
+            '7': ['14', '16382', '', '', '', '1', '', '', ''],
+            '8': ['15', '256', '', '', '', '', '', '', ''],
+            '11': ['11', '', '2047', '', '', '', '', '1', ''],
+            '12': ['20', '', '2046', '', '', '', '1', '', ''],
+        }
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vcdu_coverage.pcapng.gz'),
+                '-o', 'vcdu.udp.port:10000',
+                '-o', 'uat:vcdu_bitstream_channels:"11"',
+                '-Y', 'frame.number in {5, 11}',
+                '-Tfields', '-eframe.number', '-evcdu.lbp', '-evcdu.fhp',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['5\t\t2047', '11\t2047\t']
+
+    def test_vcdu_smex_flags(self, cmd_tshark, capture_file, test_env):
+        '''The SMEX header flags: data inversion, frame sync and data
+        class (frames 13-20).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vcdu_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {13, 14, 15, 16, 17, 18, 19, 20}',
+                '-Tfields', '-eframe.number', '-evcdu.smex.data_inv',
+                '-evcdu.smex.frame_sync', '-evcdu.smex.data_dir',
+                '-evcdu.smex.data_class', '-evcdu.smex.pb5',
+                '-evcdu.smex.rs_enable', '-evcdu.smex.crc_error',
+                '-evcdu.smex.mcs_numerr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '13\t0\t0\t0\t1\t1\tFalse\tFalse\tFalse',
+            '14\t1\t1\t1\t2\t1\tTrue\tFalse\tFalse',
+            '15\t2\t2\t0\t3\t1\tFalse\tFalse\tFalse',
+            '16\t3\t3\t1\t4\t1\tTrue\tFalse\tFalse',
+            '17\t3\t3\t1\t4\t0\tTrue\tTrue\tTrue',
+            '18\t0\t2\t0\t0\t0\tFalse\tTrue\tTrue',
+            '19\t0\t2\t0\t3\t1\tFalse\tFalse\tFalse',
+            '20\t0\t2\t0\t31\t1\tFalse\tFalse\tFalse',
+        ]
