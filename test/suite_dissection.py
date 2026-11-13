@@ -165861,3 +165861,113 @@ class TestDissectWifiNan:
                 '-e_ws.malformed',
             ), encoding='utf-8', env=test_env)
         assert stdout.rstrip('\n') == '0x10\t0x07\t'
+
+
+class TestDissectWifiP2p:
+    '''Wi-Fi P2P attributes in the Wi-Fi Alliance vendor IE, in P2P public
+    action and action frames and P2P ANQP service discovery (GAS), from the
+    synthetic capture wifi-p2p_coverage.pcap.gz.'''
+
+    @staticmethod
+    def make_pcap(path, body, subtype=13):
+        # radiotap + management frame of the given subtype + body
+        frame = (struct.pack('<BBHI', 0, 0, 8, 0) + struct.pack('<HH', subtype << 4, 0) +
+                 b'\x02\xaa\x00\x00\x00\x01' + b'\x02\xaa\x00\x00\x00\x02' +
+                 b'\x02\xaa\x00\x00\x00\x02' + struct.pack('<H', 0) + body)
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 127))
+            f.write(struct.pack('<IIII', 0, 0, len(frame), len(frame)))
+            f.write(frame)
+
+    @staticmethod
+    def anqp_response(tlvs):
+        # GAS initial response with a P2P ANQP element (vendor specific list)
+        elem = b'\x50\x6f\x9a\x09' + struct.pack('<H', 1) + tlvs
+        resp = struct.pack('<HH', 56797, len(elem)) + elem
+        return (bytes([4, 11, 1]) + struct.pack('<HH', 0, 0) + b'\x6c\x02\x7f\x00' +
+                struct.pack('<H', len(resp)) + resp)
+
+    def test_wifi_p2p_frames(self, cmd_tshark, capture_file, test_env):
+        '''57 frames: attribute IEs, public action frames (every subtype),
+        action frames and ANQP; nothing malformed and no expert info, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-p2p_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ewifi_p2p.type',
+                '-ewifi_p2p.public_action.subtype', '-ewifi_p2p.action.subtype',
+                '-ewifi_p2p.anqp.service_protocol_type',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert len(rows) == 57
+        assert sum(1 for r in rows if r[1]) == 49
+        assert [r[2] for r in rows if r[2]] == [str(i) for i in range(10)]
+        assert [r[3] for r in rows if r[3]] == ['0', '1', '2', '3', '9']
+        assert [r[4] for r in rows if r[4]] == ['0,1,2,3,4,9', '1,2,3,0,7', '4']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wifi-p2p_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wifi_p2p_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Group info clients, persistent group SSIDs, advertised
+        services and a few other values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-p2p_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 18, 19, 20, 23, 39, 50}',
+                '-Tfields', '-eframe.number', '-ewifi_p2p.dev_info.dev_name',
+                '-ewifi_p2p.p2p_group_id.ssid', '-ewifi_p2p.persistent_group.ssid',
+                '-ewifi_p2p.advertised_service.service_name',
+                '-ewifi_p2p.go_intent', '-ewifi_p2p.noa.start_time',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', 'phone', '', '', '', '', ''],
+            ['18', 'name,longer-device-name', '', '', '', '', ''],
+            ['19', '', '', '', '', '', ''],
+            ['20', '', 'DIRECT-ab-Test,', '', '', '', ''],
+            ['23', '', '', 'DIRECT-ps-Group,S', 'org.example.svc,x,', '', ''],
+            ['39', 'phone', '', '', '', '10', ''],
+            ['50', '', '', '', '', '', '3'],
+        ]
+
+    def test_wifi_p2p_lengths(self, cmd_tshark, capture_file, test_env):
+        '''The persistent group SSID is the attribute without the
+        device address (slen - 6), and the service name length is a single
+        octet shown in hex ("Wi-Fi P2P: Fix length handling in several
+        attributes").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-p2p_coverage.pcap.gz'),
+                '-Y', 'frame.number == 23', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        i = lines.index('Persistent Group Info')
+        assert lines[i + 1:i + 5] == [
+            'Attribute Type: Persistent Group Info (28)',
+            'Attribute Length: 21',
+            'P2P device address: 02:aa:00:00:00:01 (02:aa:00:00:00:01)',
+            'SSID: DIRECT-ps-Group',
+        ]
+        assert 'Service Name Length: 0x0f' in lines
+        assert 'Service Name: org.example.svc' in lines
+        assert 'Service Name Length: 0x00' in lines
+        assert 'Service Name Length: 0x01' in lines
+
+    def test_wifi_p2p_anqp_short_response_tlv(self, cmd_tshark, result_file, test_env):
+        '''A P2P ANQP response TLV shorter than 3 octets (no status code)
+        is reported, a TLV of exactly 3 octets is not ("Wi-Fi P2P: Fix
+        length handling in several attributes").'''
+        path = result_file('wifi-p2p-anqp.pcap')
+        # type 1, transaction 1, status 0, no data: length 3
+        self.make_pcap(path, self.anqp_response(struct.pack('<HBBB', 3, 1, 1, 0)))
+        stdout = subprocess.check_output((cmd_tshark, '-r', path,
+                '-Tfields', '-e_ws.expert.message', '-ewifi_p2p.anqp.status_code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n') == '\t0'
+        # length 2 in a response
+        self.make_pcap(path, self.anqp_response(struct.pack('<HBB', 2, 1, 1) + b'\x00'))
+        stdout = subprocess.check_output((cmd_tshark, '-r', path,
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Too short Service TLV field'
