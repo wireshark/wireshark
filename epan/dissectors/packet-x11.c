@@ -1367,7 +1367,7 @@ static void colorFlags(tvbuff_t *tvb, packet_info* pinfo, int *offsetp, proto_tr
 static void listOfArc(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                       int length, unsigned byte_order)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, byte_order);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 12, byte_order);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_arc);
       while(length--) {
             int16_t x = tvb_get_uint16(tvb, *offsetp, byte_order);
@@ -1386,13 +1386,13 @@ static void listOfArc(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             *offsetp += 2;
             proto_tree_add_int(ttt, hf_x11_arc_y, tvb, *offsetp, 2, y);
             *offsetp += 2;
-            proto_tree_add_uint(ttt, hf_x11_arc_width, tvb, *offsetp, 2, y);
+            proto_tree_add_uint(ttt, hf_x11_arc_width, tvb, *offsetp, 2, width);
             *offsetp += 2;
-            proto_tree_add_uint(ttt, hf_x11_arc_height, tvb, *offsetp, 2, y);
+            proto_tree_add_uint(ttt, hf_x11_arc_height, tvb, *offsetp, 2, height);
             *offsetp += 2;
-            proto_tree_add_int(ttt, hf_x11_arc_angle1, tvb, *offsetp, 2, y);
+            proto_tree_add_int(ttt, hf_x11_arc_angle1, tvb, *offsetp, 2, angle1);
             *offsetp += 2;
-            proto_tree_add_int(ttt, hf_x11_arc_angle2, tvb, *offsetp, 2, y);
+            proto_tree_add_int(ttt, hf_x11_arc_angle2, tvb, *offsetp, 2, angle2);
             *offsetp += 2;
       }
 }
@@ -1507,7 +1507,7 @@ static void listOfDouble(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfColorItem(tvbuff_t *tvb, packet_info* pinfo, int *offsetp, proto_tree *t, int hf,
                             int length, unsigned byte_order)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, byte_order);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 12, byte_order);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_color_item);
       while(length--) {
             proto_item *tti;
@@ -1730,6 +1730,8 @@ keycode2keysymString(wmem_allocator_t* allocator, wmem_array_t *keycodemap[256],
             }
 
       keysyms_per_keycode = wmem_array_get_count(keycodemap[keycode]);
+      if (keysyms_per_keycode == 0)
+            return "<Unknown>";
       syms = wmem_array_get_raw(keycodemap[keycode]);
 
 #if 0
@@ -1821,7 +1823,7 @@ keycode2keysymString(wmem_allocator_t* allocator, wmem_array_t *keycodemap[256],
             int lsym, usym = 0;
 
             if (keysyms_per_keycode == 1
-                || (keysyms_per_keycode > 1 && syms[1] == NoSymbol))
+                || (keysym = syms[1]) == NoSymbol)
                   keysym = syms[0];
 
             XConvertCase(keysym, &lsym, &usym);
@@ -1869,7 +1871,11 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
         (int)array_length(modifiers) * keycodes_per_modifier, ENC_NA);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keycode);
       size_t m;
+      int *newmap[array_length(modifiers)];
 
+      /* Build the arrays locally and commit them only when the whole
+       * list was read, so that modifiermap and the stored
+       * keycodes_per_modifier stay consistent if this throws. */
       for (m = 0; m < array_length(modifiers);
         ++m, *offsetp += keycodes_per_modifier) {
             proto_item *tikc;
@@ -1877,7 +1883,7 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
             tikc = proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb,
                 *offsetp, keycodes_per_modifier, NULL, "item: ");
-            modifiermap[m] = (int *)
+            newmap[m] = (int *)
                 wmem_alloc(wmem_file_scope(), sizeof(*modifiermap[m]) * keycodes_per_modifier);
             for(i = 0; i < keycodes_per_modifier; ++i) {
                 unsigned char c = tvb_get_uint8(tvb, (*offsetp) + i);
@@ -1885,9 +1891,10 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                 if (c)
                     proto_item_append_text(tikc, " %s=%d", modifiers[m], c);
 
-                modifiermap[m][i] = c;
+                newmap[m][i] = c;
             }
       }
+      memcpy(modifiermap, newmap, sizeof(newmap));
 }
 
 static void listOfKeysyms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int hf,
@@ -1902,8 +1909,10 @@ static void listOfKeysyms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
       int *syms;
       int i, keycode;
 
-      DISSECTOR_ASSERT(keycode_first >= 0);
-      DISSECTOR_ASSERT(keycode_count >= 0);
+      if (keycode_first < 0 || keycode_count < 0 || keysyms_per_keycode <= 0) {
+            expert_add_info(pinfo, ti, &ei_x11_keycode_value_out_of_range);
+            return;
+      }
 
       for (keycode = keycode_first; keycode_count > 0;
            ++keycode, --keycode_count) {
@@ -2948,7 +2957,7 @@ static bool consistentWithOrder(int length, tvbuff_t *tvb, int offset, int encod
             {
                   int multiplier, type;
                   if (!tvb_bytes_exist(tvb, offset, 17)) return true;
-                  type = tvb_get_uint8(tvb, 16);
+                  type = tvb_get_uint8(tvb, offset + 16);
                   if (type != 8 && type != 16 && type != 32) return false;
                   multiplier = type == 8 ? 1 : type == 16 ? 2 : 4;
                   if (!tvb_bytes_exist(tvb, offset, 24)) return true;
@@ -3073,7 +3082,7 @@ static bool consistentWithOrder(int length, tvbuff_t *tvb, int offset, int encod
                   return length >= 2;
 
             case X_ChangeKeyboardMapping:
-                  return !tvb_bytes_exist(tvb, offset, 6) || length == 2 + tvb_get_uint8(tvb, 1) * tvb_get_uint8(tvb, 5);
+                  return !tvb_bytes_exist(tvb, offset, 6) || length == 2 + tvb_get_uint8(tvb, offset + 1) * tvb_get_uint8(tvb, offset + 5);
 
             case X_ChangeKeyboardControl:
                   return !tvb_bytes_exist(tvb, offset, 6) || length == 2 + numberOfBitSet(tvb, offset + 4, 2);
@@ -3082,10 +3091,10 @@ static bool consistentWithOrder(int length, tvbuff_t *tvb, int offset, int encod
                   return !tvb_bytes_exist(tvb, offset, 10) || length == 3 + tvb_get_uint16(tvb, offset + 8, encoding);
 
             case X_SetPointerMapping:
-                  return length == 1 + rounded4(tvb_get_uint8(tvb, 1));
+                  return length == 1 + rounded4(tvb_get_uint8(tvb, offset + 1));
 
             case X_SetModifierMapping:
-                  return length == 1 + tvb_get_uint8(tvb, 1) * 2;
+                  return length == 1 + tvb_get_uint8(tvb, offset + 1) * 2;
 
             case X_NoOperation:
                   return length >= 1;
@@ -4811,6 +4820,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             v8 = FIELD8(keycodes_per_modifier);
             requestLength(tvb, offsetp, t, byte_order);
             LISTofKEYCODE(state->modifiermap, keycodes, v8);
+            state->keycodes_per_modifier = v8;
             break;
 
       case X_GetModifierMapping:
@@ -4897,7 +4907,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
             /*
              * Get the opcode and length of the putative X11 request.
              */
-            opcode = tvb_get_uint8(tvb, 0);
+            opcode = tvb_get_uint8(tvb, offset);
             plen = tvb_get_uint16(tvb, offset + 2, byte_order);
 
             if (plen == 0) {
@@ -5645,14 +5655,14 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   int keysyms_per_keycode =
                         FIELD8(keysyms_per_keycode);
                   SEQUENCENUMBER_REPLY(sequencenumber);
-                  length = REPLYLENGTH(replylength);
+                  uint32_t nsyms = REPLYLENGTH(replylength);
                   proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
                   *offsetp += 24;
                   LISTofKEYSYM(keysyms, state->keycodemap,
                                state->request.GetKeyboardMapping.first_keycode,
                                /* XXX - length / keysyms_per_keycode can raise a division by zero,
                                 * don't know if this is the *right* way to fix it ... */
-                               keysyms_per_keycode ? length / keysyms_per_keycode : 0,
+                               keysyms_per_keycode ? (int)MIN(nsyms / keysyms_per_keycode, 256U) : 0,
                                keysyms_per_keycode);
                   break;
             }
@@ -5695,17 +5705,17 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   REPLYCONTENTS_COMMON();
                   break;
 
-            case X_GetModifierMapping:
+            case X_GetModifierMapping: {
                   REPLY(reply);
-                  state->keycodes_per_modifier =
-                        FIELD8(keycodes_per_modifier);
+                  int kpm = FIELD8(keycodes_per_modifier);
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
                   *offsetp += 24;
-                  LISTofKEYCODE(state->modifiermap, keycodes,
-                                state->keycodes_per_modifier);
+                  LISTofKEYCODE(state->modifiermap, keycodes, kpm);
+                  state->keycodes_per_modifier = kpm;
                   break;
+            }
 
             case UNKNOWN_OPCODE:
                   REPLYCONTENTS_COMMON();
