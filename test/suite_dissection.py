@@ -161649,3 +161649,76 @@ class TestDissectUserlog:
         '''A 7 octet datagram and an empty one are not UserLog (the minimum is 8 octets).'''
         rows = self._fields(cmd_tshark, capture_file, test_env, 'udp && !userlog', 'frame.number', '_ws.col.protocol')
         assert rows == ['9\tUDP', '10\tUDP']
+
+
+class TestDissectUts:
+    '''Unisys Transmittal System (packet-uts.c) from the synthetic SITA WAN
+    capture uts_coverage.pcap.gz (link type 196, protocol 6). Frames 1-5
+    are no traffic and general polls, 6-12 acknowledgements and a
+    retransmit request, 13-19 message waiting and text, 20-29 reply
+    request, busy, not busy and function messages, 30-38 messages that fit
+    no pattern and cut messages, 39-40 SITA flag and error bits.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('uts_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_uts_frames(self, cmd_tshark, capture_file, test_env):
+        '''39 UTS frames and the empty one that SITA cannot hand to UTS; no malformed
+        frames and no warnings or errors in one and two passes; the same output in both.'''
+        by_pass = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol', '_ws.col.info', extra=passes)
+            assert len(rows) == 40
+            assert [r.split('\t')[0] for r in rows].count('UTS') == 39
+            assert rows[37] == 'UNKNOWN\tIOP protocol number: 6'
+            by_pass.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+        assert by_pass[0] == by_pass[1]
+
+    def test_uts_messages(self, cmd_tshark, capture_file, test_env):
+        '''The message types and the terminal address in the source (received) or destination (sent) column.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 29 && frame.number != 12', 'frame.number',
+                            '_ws.col.info', '_ws.col.def_src', '_ws.col.def_dst')
+        assert rows == [
+            '1\tNo Traffic\tRemote\t', '2\tNo Traffic\tRemote\t', '3\tNo Traffic\tLocal\t',
+            '4\tGeneral Poll\tLocal\t 41:42:43', '5\tGeneral Poll\tLocal\t 20:50:70',
+            '6\tGeneral Poll + ACK\tLocal\t 20:50:70', '7\tSpecific Poll + ACK\tLocal\t 41:42:70',
+            '8\tNo Traffic + ACK\tRemote 41:42:43\t',
+            '9\tUnknown Message Format\tLocal\t 41:50:43', '10\tUnknown Message Format\tRemote 41:50:43\t',
+            '11\tRetransmit Request\tLocal\t 41:42:70', '13\tMessage Waiting\tLocal\t 41:42:43',
+            '14\tText + ACK\tRemote 41:42:43\t', '15\tText\tRemote 41:42:43\t', '16\tText\tLocal\t 41:42:43',
+            '17\tText\tRemote 41:42:43\t', '18\tText\tRemote 41:42:43\t', '19\tText\tLocal\t 41:42:43',
+            '20\tReply Request\tRemote 41:42:43\t', '21\tBusy\tRemote 41:42:43\t', '22\tNot Busy\tRemote 41:42:43\t',
+            '23\tNot Busy + ACK\tRemote 41:42:43\t', '24\tFunction Message 41 + ACK\tRemote 41:42:43\t',
+            '25\tFunction Message 42\tRemote 41:42:43\t', '26\tFunction Message 00\tRemote 41:42:43\t',
+            '27\tFunction Message 7F\tRemote 41:42:43\t', '28\tFunction Message 41\tRemote 41:42:43\t',
+            '29\tFunction Message 0A + ACK\tRemote 41:42:43\t']
+
+    def test_uts_function_code(self, cmd_tshark, capture_file, test_env):
+        '''The function code is printed as two hex digits, also for control characters (the fix: it
+        was printed as a character); the high bit is dropped (0xc1 is 0x41).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'uts.function', 'frame.number', 'uts.function', '_ws.col.info')
+        assert rows == ['24\t0x41\tFunction Message 41 + ACK', '25\t0x42\tFunction Message 42',
+                        '26\t0x00\tFunction Message 00', '27\t0x7f\tFunction Message 7F',
+                        '28\t0x41\tFunction Message 41', '29\t0x0a\tFunction Message 0A + ACK']
+
+    def test_uts_header(self, cmd_tshark, capture_file, test_env):
+        '''RID, SID, DID, the ACK, busy and other flags, and the text of a message.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {5, 8, 11, 13, 20, 21, 22}',
+                            'frame.number', 'uts.rid', 'uts.sid', 'uts.did', 'uts.ack', 'uts.retxrequest',
+                            'uts.msgwaiting', 'uts.replyrequest', 'uts.busy', 'uts.notbusy')
+        assert rows == ['5\t0x20\t0x50\t0x70\t\t\t\t\t\t', '8\t0x41\t0x42\t0x43\tTrue\t\t\t\t\t',
+                        '11\t0x41\t0x42\t0x70\t\tTrue\t\t\t\t', '13\t0x41\t0x42\t0x43\t\t\tTrue\t\t\t',
+                        '20\t0x41\t0x42\t0x43\t\t\t\tTrue\t\t', '21\t0x41\t0x42\t0x43\t\t\t\t\tTrue\t',
+                        '22\t0x41\t0x42\t0x43\t\t\t\t\t\tTrue']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'uts.data', 'frame.number', 'uts.data')
+        assert rows == ['14\tTEXT AND ACK', '15\tHELLO FROM THE TERMINAL', '16\tHELLO TERMINAL', '17\tNO END OF TEXT',
+                        '18\t', '19\t' + 'X' * 200]
