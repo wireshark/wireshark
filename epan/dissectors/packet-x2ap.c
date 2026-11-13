@@ -28,6 +28,7 @@
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
 #include <epan/proto_data.h>
+#include <epan/expert.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 #include <wsutil/array.h>
@@ -2028,6 +2029,8 @@ static int hf_x2ap_initiatingMessage_value;       /* InitiatingMessage_value */
 static int hf_x2ap_successfulOutcome_value;       /* SuccessfulOutcome_value */
 static int hf_x2ap_value;                         /* UnsuccessfulOutcome_value */
 
+static expert_field ei_x2ap_nested_too_deep;
+
 /* Initialize the subtree pointers */
 static int ett_x2ap;
 static int ett_x2ap_TransportLayerAddress;
@@ -2738,7 +2741,10 @@ enum{
   UNSUCCESSFUL_OUTCOME
 };
 
+#define X2AP_MAX_NESTED_MESSAGES 2
+
 struct x2ap_private_data {
+  unsigned message_depth;
   uint32_t procedure_code;
   uint32_t protocol_ie_id;
   uint32_t message_type;
@@ -15351,12 +15357,19 @@ dissect_x2ap_RNL_Header(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_x2ap_X2AP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb;
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_X2AP_Message);
-    dissect_X2AP_PDU_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    if (x2ap_data->message_depth >= X2AP_MAX_NESTED_MESSAGES) {
+      expert_add_info(actx->pinfo, actx->created_item, &ei_x2ap_nested_too_deep);
+    } else {
+      x2ap_data->message_depth++;
+      dissect_X2AP_PDU_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      x2ap_data->message_depth--;
+    }
   }
 
 
@@ -29786,12 +29799,19 @@ void proto_register_x2ap(void) {
   };
 
   module_t *x2ap_module;
+  expert_module_t *expert_x2ap;
+
+  static ei_register_info ei[] = {
+    { &ei_x2ap_nested_too_deep, { "x2ap.nested_too_deep", PI_MALFORMED, PI_ERROR, "X2AP-Message nested too deeply", EXPFILL }},
+  };
 
   /* Register protocol */
   proto_x2ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */
   proto_register_field_array(proto_x2ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_x2ap = expert_register_protocol(proto_x2ap);
+  expert_register_field_array(expert_x2ap, ei, array_length(ei));
 
   /* Register dissector */
   x2ap_handle = register_dissector("x2ap", dissect_x2ap, proto_x2ap);
