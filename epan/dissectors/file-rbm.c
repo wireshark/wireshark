@@ -23,6 +23,7 @@
 
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <wsutil/array.h>
 #include <file-rbm.h>
 #include <wiretap/ruby_marshal.h>
@@ -47,6 +48,10 @@ static int ett_hash_obj;
 static int ett_variable;
 
 static expert_field ei_rbm_invalid;
+static expert_field ei_rbm_too_deep;
+
+/* Maximum nesting of objects within one packet */
+#define RBM_MAX_NESTING 64
 static expert_field ei_rbm_version_unsupported;
 
 /* Marshal types */
@@ -247,7 +252,7 @@ static void dissect_rbm_hash(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 		dissect_rbm_object(tvb, pinfo, hash_key_tree, offset, NULL, &hkey);
 		hash_value_tree = proto_tree_add_subtree(hash_obj_tree, tvb, *offset, 0, ett_hash_obj, NULL, "Value");
 		dissect_rbm_object(tvb, pinfo, hash_value_tree, offset, NULL, &hval);
-		proto_item_append_text(hash_obj_tree, " %s => %s", hkey, hval);
+		proto_item_append_text(hash_obj_tree, " %s => %s", hkey ? hkey : "Unknown", hval ? hval : "Unknown");
 	}
 	proto_item_append_text(hash_tree, " (%d)", value);
 	proto_item_set_len(hash_tree, *offset - offset_start);
@@ -315,8 +320,8 @@ static void dissect_rbm_struct_data(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 
 	rbm_set_info(pinfo, "Struct");
 	get_rbm_integer(tvb, *offset, &value, &len);
-	proto_tree_add_item(tree, hf_rbm_struct, tvb, *offset + 1, value, ENC_ASCII);
-	*offset += 1 + value;
+	proto_tree_add_item(tree, hf_rbm_struct, tvb, *offset + len, value, ENC_ASCII);
+	*offset += len + value;
 	if (value_str)
 		*value_str = wmem_strdup_printf(pinfo->pool, "%d", value);
 }
@@ -432,6 +437,18 @@ static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pt
 	proto_tree_add_item(tree, hf_rbm_type, tvb, *offset, 1, ENC_NA);
 	*offset += 1;
 
+	unsigned nesting = p_get_proto_depth(pinfo, proto_rbm);
+	if (nesting >= RBM_MAX_NESTING) {
+		expert_add_info(pinfo, tree, &ei_rbm_too_deep);
+		*offset += tvb_captured_length_remaining(tvb, *offset);
+		proto_item_set_len(tree, *offset - offset_start);
+		if (type)
+			*type = type_local;
+		if (value)
+			*value = value_local;
+		return;
+	}
+	p_set_proto_depth(pinfo, proto_rbm, nesting + 1);
 	increment_dissection_depth(pinfo);
 
 	switch (subtype) {
@@ -493,7 +510,16 @@ static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pt
 			dissect_rbm_drb(tvb, pinfo, tree, offset);
 			break;
 		case ',':
-			dissect_rbm_inline(tvb, pinfo, tree, offset, &type_local, &value_local);
+			{
+				/* Outputs are NULL when the nested header is unsupported */
+				char* inline_type = NULL;
+				char* inline_value = NULL;
+				dissect_rbm_inline(tvb, pinfo, tree, offset, &inline_type, &inline_value);
+				if (inline_type)
+					type_local = inline_type;
+				if (inline_value)
+					value_local = inline_value;
+			}
 			break;
 		case 'o':
 			dissect_rbm_rubyobject(tvb, pinfo, tree, offset);
@@ -525,6 +551,7 @@ static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pt
 		*value = value_local;
 
 	decrement_dissection_depth(pinfo);
+	p_set_proto_depth(pinfo, proto_rbm, nesting);
 }
 
 static bool dissect_rbm_header(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned* offset)
@@ -613,6 +640,7 @@ void proto_register_rbm(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_rbm_invalid, { "rbm.invalid", PI_UNDECODED, PI_WARN, "Invalid type", EXPFILL }},
+		{ &ei_rbm_too_deep, { "rbm.too_deep", PI_MALFORMED, PI_ERROR, "Objects nested too deeply", EXPFILL }},
 		{ &ei_rbm_version_unsupported, { "rbm.version.unsupported", PI_UNDECODED, PI_WARN, "Unsupported version", EXPFILL }}
 	};
 
