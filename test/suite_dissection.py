@@ -161942,3 +161942,69 @@ class TestDissectV52:
             '49\tI, N(R)=1, N(S)=2 | PSTN: 3 | Signal | SS: Off hook (loop closed)',
             '50\tI, N(R)=1, N(S)=3 | PSTN: 4 | Status Enq',
         ]
+
+
+class TestDissectV5dl:
+    def test_v5dl_frames(self, cmd_tshark, capture_file, test_env):
+        '''60 V5 envelope function records of an EyeSDN file: 56 are V5
+        data link (LAPV5) frames, 48 of them with V5.2 messages in I or UI
+        frames, and 4 have an envelope function address up to 8175 (LAPD,
+        TEI management, Q.931). None is malformed or has an error expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v5dl_coverage.eyesdn.gz'),
+                '-Tfields', '-eframe.number', '-ev5dl.ef',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert len(lines) == 60
+        assert len([line for line in lines if len(line) > 1 and line[1]]) == 56
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('v5dl_coverage.eyesdn.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_v5dl_address_control(self, cmd_tshark, capture_file, test_env):
+        '''Direction, envelope function address (PSTN, control, BCC,
+        protection, link control and the reserved value), C/R bit and the
+        control field of U, S and I frames; the V5.2 dissector is called
+        for I (and UI) frames only.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v5dl_coverage.eyesdn.gz'),
+                '-Y', 'frame.number in {1, 2, 5, 16, 23, 31, 43, 47, 51, 52, 53, 54, 55, 56}',
+                '-Tfields', '-eframe.number', '-ev5dl.direction', '-ev5dl.ef',
+                '-ev5dl.cr', '-ev5dl.control', '-e_ws.col.def_src',
+                '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t8176\t1\t0x007f\tUser\tV5DL',
+            '2\t1\t8176\t1\t0x0073\tNetwork\tV5DL',
+            '5\t1\t8176\t0\t0x0502\tNetwork\tV52',
+            '16\t0\t8177\t1\t0x0600\tUser\tV52',
+            '23\t1\t8179\t0\t0x0000\tNetwork\tV52',
+            '31\t1\t8178\t0\t0x0600\tNetwork\tV52',
+            '43\t1\t8180\t0\t0x0000\tNetwork\tV52',
+            '47\t1\t8191\t1\t0x0000\tNetwork\tV52',
+            '51\t0\t8176\t0\t0x0a01\tUser\tV5DL',
+            '52\t1\t8176\t1\t0x0b05\tNetwork\tV5DL',
+            '53\t0\t8177\t0\t0x0d09\tUser\tV5DL',
+            '54\t1\t8178\t1\t0x0043\tNetwork\tV5DL',
+            '55\t0\t8178\t0\t0x000f\tUser\tV5DL',
+            '56\t1\t8179\t1\t0x0063\tNetwork\tV5DL',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v5dl_coverage.eyesdn.gz'),
+                '-Y', 'frame.number in {51, 52, 53, 54, 55, 56, 57}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '51\tS, func=RR, N(R)=5',
+            '52\tS P, func=RNR, N(R)=5',
+            '53\tS P, func=REJ, N(R)=6',
+            '54\tU, func=DISC',
+            '55\tU, func=SARM',
+            '56\tU, func=UA',
+            '57\tU, func=UI | ISDN: 3511 | Unknown msg type',
+        ]
