@@ -165971,3 +165971,146 @@ class TestDissectWifiP2p:
                 '-Tfields', '-e_ws.expert.message',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == 'Too short Service TLV field'
+
+
+class TestDissectWindowsCommon:
+    '''NT security descriptors, SIDs, ACLs, ACEs, conditional ACEs, system
+    resource attribute ACEs and NT time stamps (packet-windows-common.c)
+    from the synthetic captures windows_common_coverage.pcap.gz (main) and
+    windows_common_malformed.pcap.gz. Frames 4-6 SMB2 negotiate responses,
+    7-50 SMB2 SET_INFO and QUERY_INFO of type security, 54-95 the same
+    descriptors in LDAP search entries, 99-110 SAMR SetSecurity/
+    QuerySecurity, 114-123 LSA QuerySecret and 127-129 SMB1 NT Create AndX
+    responses.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=(),
+               cap='windows_common_coverage.pcap.gz', opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file(cap),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + e for e in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_windows_common_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The main capture has no malformed packets and no expert infos at
+        warning level or above, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                passes=passes)
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'tcp.len > 0', '_ws.col.protocol')
+        protocols = [l.split('\t')[1] for l in lines]
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'SMB2': 47, 'LDAP': 42, 'SAMR': 10, 'LSARPC': 8,
+                          'DCERPC': 4, 'SMB': 3}
+
+    def test_windows_common_sids(self, cmd_tshark, capture_file, test_env):
+        '''Owner and group SIDs: well-known, domain (with and without RID),
+        builtin and unknown ones, with the labels the dissector adds.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {7, 8, 13, 14, 50}', 'nt.sid')
+        assert lines == [
+            '7\tS-1-0-0,S-1-1',
+            '8\tS-1-2-1,S-1-3-4',
+            '13\tS-1-5-21-1,S-1-5-21-1111111111-2222222222-3333333333',
+            '14\tS-1-5-32-544,S-1-5-32',
+            '50\tS-1-5-32-544,S-1-5-18,S-1-5-18,S-1-5-32-544,S-1-5-32-544,'
+            'S-1-1-0,S-1-1-0,S-1-1-0,S-1-1-0,S-1-5-32-544,S-1-5-32-544',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('windows_common_coverage.pcap.gz'),
+                '-Y', 'frame.number in {10, 11, 17, 18}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        for text in ('(Authenticated Users-<locally defined>)',
+                     '(Domain Admins)',
+                     '(Administrator)',
+                     '(Domain RID)',
+                     '(Mandatory Level)',
+                     'RID: 4096  (Low)',
+                     'NT Service-<locally defined>'):
+            assert text in stdout
+        # Hexadecimal display of the SIDs (SMB preference)
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 11', 'nt.sid', opts=('-o', 'smb.sid_display_hex:TRUE'))
+        assert lines == ['11\tS-1-5-15-423a35c7-84746b8e-c6aea155-1f4,S-1-5-15-423a35c7-84746b8e-c6aea155-451']
+
+    def test_windows_common_aces(self, cmd_tshark, capture_file, test_env):
+        '''ACE types, flags and the conditional ACE tokens: every token of
+        frame 28, composites in 32, and 32 nested composites (the limit)
+        in 34 without an expert info.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 24', 'nt.ace.type')
+        assert lines == ['24\t4,7,8,0,1,2,3,5,6']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {28, 32, 34}', 'nt.ace.cond.token')
+        by_frame = {l.split('\t')[0]: l.split('\t')[1].split(',') for l in lines}
+        assert by_frame['28'][:12] == ['0x01', '0x02', '0x03', '0x04', '0x10', '0x18',
+                                       '0x51', '0xf8', '0xf9', '0xfa', '0xfb', '0x00']
+        assert len(by_frame['28']) == 36
+        assert by_frame['32'] == ['0x50', '0x50', '0x01', '0x10', '0x51', '0xa0']
+        assert by_frame['34'] == ['0x50'] * 32 + ['0x01']
+
+    def test_windows_common_sra(self, cmd_tshark, capture_file, test_env):
+        '''System resource attribute ACEs: names, value types and values.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 36', 'nt.ace.sra.name',
+                            'nt.ace.sra.value_int64', 'nt.ace.sra.value_string',
+                            'nt.ace.sra.value_sid', 'nt.ace.sra.value_count')
+        assert lines == ['36\ti64,u64,str,sid,bool,bin,unk,none\t-5,99\tone,two,three\t'
+                         'S-1-5-32-544,S-1-1-0\t2,1,3,2,1,1,1,0']
+
+    def test_windows_common_ldap(self, cmd_tshark, capture_file, test_env):
+        '''The same descriptors in LDAP search entries get the "LDAP"
+        specific rights (SMB2 passes no access mask information).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('windows_common_coverage.pcap.gz'),
+                '-Y', 'frame.number in {50, 71}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'LDAP specific rights: 0x' in stdout
+        assert 'Specific rights: 0x' in stdout
+
+    def test_windows_common_times(self, cmd_tshark, capture_file, test_env):
+        '''NT time stamps in SMB1 and in LSA QuerySecret (NTTIME_hyper):
+        the special values 0 and the two kinds of infinity.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('windows_common_coverage.pcap.gz'),
+                '-Y', 'frame.number in {117, 119, 121, 128}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.count('No time specified (0)') >= 3
+        assert stdout.count('Infinity (absolute time)') >= 2
+        assert stdout.count('Infinity (relative time)') >= 2
+
+    def test_windows_common_security_information(self, cmd_tshark, capture_file, test_env):
+        '''SAMR SetSecurity with the security information bits OWNER,
+        GROUP, DACL and SACL.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'samr.opnum == 2 && nt.sec_info', 'nt.sec_info',
+                            'nt.sec_info.owner', 'nt.sec_info.sacl')
+        assert [l.split('\t')[1] for l in lines] == [
+            '0x0000000f', '0x00000007', '0x00000001', '0x00000002',
+            '0x00000004', '0x00000008', '0x00000000', '0x0000000c']
+
+    def test_windows_common_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''windows_common_fix.pcap.gz holds the descriptors fixed by "SMB:
+        Bound conditional ACE nesting and SRA value counts": 33 and 700
+        nested composites in a conditional ACE (frames 4 and 5-7, the 700
+        level one hit a dissector bug assertion before the fix and
+        now gives the "nested too deeply" expert info), and a system
+        resource attribute ACE with a value count (frame 8) and value
+        offsets (frames 8 and 9) past the end of the ACE.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'nt.ace_cond_too_deep', '_ws.expert.message',
+                            cap='windows_common_fix.pcap.gz')
+        assert [l.split('\t')[0] for l in lines] == ['4', '7']
+        assert all('Conditional ACE composite nested too deeply' in l for l in lines)
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'nt.ace_sra_bad_count || nt.ace_sra_bad_value_offset',
+                            cap='windows_common_fix.pcap.gz')
+        assert [l.split('\t')[0] for l in lines] == ['8', '9']
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'nt.sid',
+                            cap='windows_common_fix.pcap.gz', passes=('-2',))
+        assert len(lines) == 4
