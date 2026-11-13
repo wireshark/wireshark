@@ -218,7 +218,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if(major_version != VPP_MAJOR_VERSION) {
         proto_item *major_version_item;
         major_version_item =
-            proto_tree_add_item(tree, hf_vpp_major_version,
+            proto_tree_add_item(vpp_tree, hf_vpp_major_version,
                                 tvb, offset, 1, ENC_NA);
         expert_add_info_format(pinfo, major_version_item,
                                &ei_vpp_major_version_error,
@@ -233,7 +233,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if(minor_version != VPP_MINOR_VERSION) {
         proto_item *minor_version_item;
         minor_version_item =
-            proto_tree_add_item(tree, hf_vpp_minor_version,
+            proto_tree_add_item(vpp_tree, hf_vpp_minor_version,
                                 tvb, offset, 1, ENC_NA);
         expert_add_info_format(pinfo, minor_version_item,
                                &ei_vpp_minor_version_error,
@@ -256,7 +256,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if(protocol_hint >= array_length(next_dissectors)) {
         proto_item *protocol_hint_item;
         protocol_hint_item =
-            proto_tree_add_item(tree, hf_vpp_protocol_hint,
+            proto_tree_add_item(vpp_tree, hf_vpp_protocol_hint,
                                 tvb, offset, 1, ENC_NA);
         expert_add_info_format(pinfo, protocol_hint_item,
                                &ei_vpp_protocol_hint_error,
@@ -277,7 +277,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     len = tvb_strsize(tvb, offset);
     name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len,
                               ENC_ASCII);
-    proto_tree_add_string(tree, hf_vpp_nodename, tvb, offset, len, name);
+    proto_tree_add_string(vpp_tree, hf_vpp_nodename, tvb, offset, len, name);
     offset += len;
 
     /* Metadata */
