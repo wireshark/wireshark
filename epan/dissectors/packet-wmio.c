@@ -14,6 +14,8 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-dcerpc.h"
 #include <packet-dcom.h>
 
@@ -21,6 +23,8 @@ void proto_register_WMIO (void);
 void proto_reg_handoff_WMIO (void);
 
 static int proto_WMIO;
+static expert_field ei_wmio_too_deep;
+#define WMIO_MAX_OBJECT_DEPTH 32
 
 /*  IWbemClassObject Interface
  *    https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-wmi/46710c5c-d7ab-4e4c-b4a5-ebff311fdcd1
@@ -374,6 +378,11 @@ static int ett_methodsignature;
 static int ett_property_info;
 
 /* Tree */
+static ei_register_info ei[] = {
+    { &ei_wmio_too_deep, { "wmio.too_deep", PI_MALFORMED, PI_ERROR,
+        "Object nesting too deep", EXPFILL }},
+};
+
 static int *ett[] = {
     &ett_wmio,
     &ett_wmio_object_flags,
@@ -555,13 +564,21 @@ static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_wmio_objectblock(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    int8_t flags = tvb_get_uint8(tvb, offset);
+    int8_t flags;
+    unsigned depth = p_get_proto_depth(pinfo, proto_WMIO);
 
+    if (depth >= WMIO_MAX_OBJECT_DEPTH) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_wmio_too_deep, tvb, offset);
+        return tvb_reported_length(tvb);
+    }
+
+    flags = tvb_get_uint8(tvb, offset);
     proto_tree_add_bitmask(tree, tvb, offset, hf_wmio_object_flags,
                 ett_wmio_object_flags, wmio_object_flags, ENC_NA);
     offset+=1;
 
     increment_dissection_depth(pinfo);
+    p_set_proto_depth(pinfo, proto_WMIO, depth + 1);
 
     if (WMIO_OBJECT_FLAG_HAS_DECORATION & flags){
         offset = dissect_wmio_object_decoration(tvb, offset, pinfo, tree);
@@ -571,6 +588,7 @@ dissect_wmio_objectblock(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         offset = dissect_wmio_encoding_classtype(tvb, offset, pinfo, tree);
     }
 
+    p_set_proto_depth(pinfo, proto_WMIO, depth);
     decrement_dissection_depth(pinfo);
 
     return offset;
@@ -1272,6 +1290,7 @@ dissect_wmio(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tre
     offset+= 4;
 
     wmio_seen_heap_entries = wmem_map_new(pinfo->pool, g_direct_hash, g_direct_equal);
+    p_set_proto_depth(pinfo, proto_WMIO, 0);
     dissect_wmio_objectblock(tvb, offset, pinfo, sub_tree);
 
     return old_offset + size;
@@ -1289,6 +1308,8 @@ proto_register_WMIO (void)
     proto_WMIO = proto_register_protocol ("WMIO", "WMIO", "WMIO");
     proto_register_field_array (proto_WMIO, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
+    expert_module_t *expert_wmio = expert_register_protocol(proto_WMIO);
+    expert_register_field_array(expert_wmio, ei, array_length(ei));
     /* The marshaler list is per file; register before any packet
      * needs it, not only when an IWbemServices reply is seen. */
     register_init_routine(register_dcom_wmio);
