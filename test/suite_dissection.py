@@ -163432,3 +163432,122 @@ class TestDissectVrrp:
             '23\teth:ethertype:ip:vrrp\t2',
             '24\teth:ethertype:ip:data\t',
         ]
+
+
+class TestDissectVrt:
+    '''VITA 49 Radio Transport (VRT) over UDP port 4991 from the synthetic
+    capture vrt_coverage.pcap.gz: data, extension and context packets with
+    every optional header field, trailers and every context field.'''
+
+    def test_vrt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 165 frames are VRT over UDP without malformed packets or
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vrt_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['eth:ethertype:ip:udp:vrt'] * 165
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vrt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_vrt_header(self, cmd_tshark, capture_file, test_env):
+        '''Packet types, class ID, stream ID and timestamp fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vrt_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 10 || frame.number in {22, 23, 24, 25}',
+                '-Tfields', '-eframe.number', '-evrt.type', '-evrt.cidflag',
+                '-evrt.tsi', '-evrt.tsf', '-evrt.seq', '-evrt.len', '-evrt.sid',
+                '-evrt.ts_int', '-evrt.ts_frac_sample', '-evrt.ts_frac_picosecond',
+                '-evrt.oui', '-evrt.icc', '-evrt.pcc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\tFalse\t0\t0\t0\t17\t\t\t\t\t\t\t',
+            '2\t1\tFalse\t0\t0\t1\t18\t0x11223344\t\t\t\t\t\t',
+            '3\t2\tFalse\t0\t0\t2\t17\t\t\t\t\t\t\t',
+            '4\t3\tTrue\t0\t0\t3\t20\t0x11223344\t\t\t\t0x0012a2\t1\t258',
+            '5\t1\tFalse\t1\t1\t4\t21\t0x11223344\t1700000000\t123456789012\t\t\t\t',
+            '6\t1\tTrue\t2\t2\t5\t23\t0x11223344\t1700000000\t\t123456789012\t0x0012a2\t1\t258',
+            '7\t1\tFalse\t3\t3\t6\t21\t0x11223344\t1700000000\t123456789012\t\t\t\t',
+            '8\t0\tFalse\t1\t0\t7\t18\t\t1700000000\t\t\t\t\t',
+            '9\t0\tFalse\t0\t2\t8\t19\t\t\t\t123456789012\t\t\t',
+            '10\t0\tTrue\t3\t1\t9\t22\t\t1700000000\t123456789012\t\t0x0012a2\t1\t258',
+            '22\t0\tFalse\t0\t0\t0\t1\t\t\t\t\t\t\t',
+            '23\t5\tFalse\t0\t0\t0\t18\t0x11223344\t\t\t\t\t\t',
+            '24\t6\tFalse\t0\t0\t0\t17\t\t\t\t\t\t\t',
+            '25\t15\tFalse\t0\t0\t0\t17\t0x00010203\t\t\t\t\t\t',
+        ]
+
+    def test_vrt_trailer(self, cmd_tshark, capture_file, test_env):
+        '''Trailers with different indicator enables and indicators.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vrt_coverage.pcap.gz'),
+                '-Y', 'vrt.trailer',
+                '-Tfields', '-eframe.number', '-evrt.enables', '-evrt.indicators',
+                '-evrt.e', '-evrt.acpc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t0x0000\t0x0000\tFalse\t0', '12\t0x0fff\t0x0000\tFalse\t0',
+            '13\t0x0fff\t0x0fff\tTrue\t127', '14\t0x0800\t0x0008\tFalse\t0',
+            '15\t0x0001\t0x0000\tFalse\t15', '16\t0x0a5a\t0x05a5\tTrue\t37',
+            '17\t0x07ff\t0x0000\tTrue\t127', '18\t0x00aa\t0x0a05\tFalse\t85',
+            '19\t0x0fff\t0x00ff\tTrue\t112', '20\t0x0ff0\t0x0fff\tFalse\t0',
+        ]
+
+    def test_vrt_engineering_values(self, cmd_tshark, capture_file, test_env):
+        '''Timestamp adjustments (femtoseconds) and frequencies (1/2^20 Hz)
+        over the whole range of engineering prefixes, zero and the limits
+        of the 64 bit values. A zero value is shown without a prefix
+        (reproducer of "VRT: Check variable field lengths and use real
+        ett values", frame 165).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vrt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {108, 109, 110, 112, 114, 117, 119, 123, 124, 125, 165}',
+                '-Tfields', '-eframe.number', '-evrt.context.timestampadjust',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '108\t0', '109\t1', '110\t999', '112\t2000', '114\t7000000000',
+            '117\t4000000000000000000', '119\t-1', '123\t-8000000000000000000',
+            '124\t9223372036854775807', '125\t-9223372036854775808', '165\t0']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vrt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {126, 127, 129, 131, 133, 136, 139, 141, 165}',
+                '-Tfields', '-eframe.number', '-evrt.context.bw', '-evrt.context.samplerate',
+                '-evrt.context.rffreq', '-evrt.context.iffreq',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '126\t0\t0\t0\t0', '127\t524288\t524288\t524288\t524288',
+            '129\t1048576\t1048576\t1048576\t1048576',
+            '131\t1048576000\t1048576000\t1048576000\t1048576000',
+            '133\t1048576000000\t1048576000000\t1048576000000\t1048576000000',
+            '136\t1048576000000000000\t1048576000000000000\t1048576000000000000\t1048576000000000000',
+            '139\t-1048576000000\t-1048576000000\t-1048576000000\t-1048576000000',
+            '141\t-524288\t-524288\t-524288\t-524288',
+            '165\t0\t0\t\t']
+
+    def test_vrt_context_fields(self, cmd_tshark, capture_file, test_env):
+        '''Number of frames in which each kind of context field appears.'''
+        expected = {
+            'vrt.context.gps.lat': 7, 'vrt.context.ins.lat': 7,
+            'vrt.context.ecefephem.posx': 7, 'vrt.context.relephem.posx': 7,
+            'vrt.context.gpsascii.data': 4, 'vrt.context.assoclists.src.size': 7,
+            'vrt.context.spectrum.span': 3, 'vrt.context.ver.year': 4,
+            'vrt.context.signaldataformat.format': 14, 'vrt.context.stateevent.user': 5,
+            'vrt.context.temperature': 4, 'vrt.context.gain.stage1': 4,
+            'vrt.context.reflevel': 4, 'vrt.context.deviceid.oui': 3,
+            'vrt.context.polarization.tilt': 4, 'vrt.context.phaseoffset': 4,
+            'vrt.context.range': 3, 'vrt.context.auxfreq': 3, 'vrt.context.auxbw': 3,
+            'vrt.context.io32': 3, 'vrt.context.io64': 3, 'vrt.context.v49spec': 3,
+            'vrt.cif2': 3, 'vrt.cif7': 3, 'vrt.context.refptid': 3,
+            'vrt.context.ephemrefid': 3,
+        }
+        for field, count in expected.items():
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('vrt_coverage.pcap.gz'),
+                    '-Y', field, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert len(stdout.split()) == count, field
