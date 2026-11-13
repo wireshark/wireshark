@@ -168916,3 +168916,94 @@ class TestDissectXdmcp:
                 '-exdmcp.connection_type', '-exdmcp.connection_address_ipv4',
                 '-exdmcp.connection_address_ipv6', '-exdmcp.connection_address_bytes')
         assert rows == ['0x0001,0x0002,0x0000,0x0006,0x0000\t192.0.2.2\t2001:db8::2\t0102,00010203,010203']
+
+
+class TestDissectXgt:
+    '''XGT FEnet (LS ELECTRIC PLC, TCP 2004 and UDP 2005) from the
+    synthetic capture xgt_coverage.pcap.gz: read, write and status
+    requests and responses for every data type, continuous blocks,
+    error responses, PLC info bits and TCP reassembly. Frames 1-79 are
+    UDP, the TCP connections start at frame 80.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('xgt_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_xgt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''120 frames, 94 of them XGT, without malformed packets or
+        error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-e_ws.col.protocol', passes=passes)
+            assert len(rows) == 120
+            assert rows.count('XGT') == 94
+
+    def test_xgt_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One and two passes decode the XGT frames the same way.'''
+        args = ('-Y', 'xgt', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-exgt.word', '-exgt.variable_name')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, *args, passes=('-2',))
+        assert one == two
+        assert len(one) == 94
+
+    def test_xgt_requests_and_responses(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of reads and writes of each data type.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 12', '-Tfields', '-e_ws.col.info')
+        assert rows[0] == 'Request: [ID:1] Read Request(WORD)  %DW100'
+        assert rows[1] == 'Response: [ID:1] Read Response(WORD) = 4660'
+        assert rows[5] == 'Response: [ID:3] Read Response(BYTE) = 127'
+        assert rows[10] == 'Request: [ID:6] Read Request(WORD) Blocks:3  %DW1 %DW2 %DW3'
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xgt.data.value.uint16 || xgt.data.value.uint32 || xgt.data.value.uint64',
+                '-Tfields', '-eframe.number', '-exgt.data.value.uint16',
+                '-exgt.data.value.uint32', '-exgt.data.value.uint64')
+        assert rows[:5] == ['2\t4660\t\t', '8\t\t305419896\t', '10\t\t\t578437695752307201',
+                            '12\t1,2,3\t\t', '19\t513\t\t']
+
+    def test_xgt_status_and_errors(self, cmd_tshark, capture_file, test_env):
+        '''The status response data and the error codes of the error
+        responses.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xgt.status_data', '-Tfields', '-eframe.number',
+                '-exgt.status.cpu_type', '-exgt.status.ver_num',
+                '-exgt.status.sys_state', '-exgt.status.slot_info')
+        assert rows[0] == '32\t0x0001\t0x0102\t0x00000002\t0x01020304'
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xgt.error_code', '-Tfields', '-eframe.number', '-exgt.error_code')
+        assert rows == ['43\t0x1102', '44\t0x1201', '45\t0x9999', '46\t0x1301', '107\t0x1108']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xgt.plc_info.cpu_error == 1 && xgt', '-Tfields', '-eframe.number')
+        assert rows == ['39', '40']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xgt.error_response', '-Tfields', '-eframe.number')
+        assert rows[:3] == ['43', '44', '45']
+
+    def test_xgt_continuous_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Continuous block responses show the data as 16 bit words.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xgt.byte_count', '-Tfields', '-eframe.number', '-exgt.byte_count')
+        assert rows[0] == '52\t6'
+        assert len(rows) == 13
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 52', '-Tfields', '-exgt.word')
+        assert rows == ['256,257,258']
+
+    def test_xgt_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A request split over three TCP segments and a response over
+        two are reassembled; two PDUs in one segment are both dissected.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xgt.invoke_id in {203, 204, 205}', '-Tfields',
+                '-eframe.number', '-exgt.invoke_id', '-exgt.variable_count',
+                '-exgt.block_count')
+        assert rows == ['86\t203,204\t1,1\t', '87\t203,204\t\t1,1',
+                        '90\t205\t12\t', '93\t205\t\t12',
+                        '95\t205\t12\t', '97\t205\t\t12']
