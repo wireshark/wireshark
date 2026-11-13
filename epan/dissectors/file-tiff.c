@@ -14,6 +14,8 @@
  */
 
 #include "config.h"
+
+#include <limits.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
@@ -505,7 +507,9 @@ static int
 tiff_data_len(const uint16_t type, const uint32_t count) {
     const int field = tiff_type_len(type);
     if (field < 0) return -1;
-    else return field * count;
+    const uint64_t total = (uint64_t)field * count;
+    if (total > INT_MAX) return -1;
+    return (int)total;
 }
 
 static void
@@ -800,7 +804,7 @@ dissect_tiff_ifd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint32
     proto_tree_add_item(ifd_tree, hf_tiff_ifd_next, tvb, offset, 4, encoding);
     uint32_t ifd_next = tvb_get_uint32(tvb, offset, encoding);
 
-    if (ifd_next <= offset) {
+    if (ifd_next != 0 && ifd_next <= offset) {
         expert_add_info_format(pinfo, ifd_tree, &ei_tiff_bad_ifd, "Next IFD offset (%u) is less than or equal to current IFD offset (%u)", ifd_next, offset);
         ifd_next = 0;
     }
