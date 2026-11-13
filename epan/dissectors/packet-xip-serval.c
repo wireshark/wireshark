@@ -176,7 +176,9 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	vec_t cksum_vec;
 	int offset;
-	uint8_t xsh_len, protocol, bytes_remaining;
+	unsigned xsh_len;
+	uint8_t protocol;
+	int bytes_remaining;
 
 	/* Get XIP Serval header length, stored as number of 32-bit words. */
 	xsh_len = tvb_get_uint8(tvb, XSRVL_LEN) << 2;
@@ -191,7 +193,7 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		XSRVL_LEN, 1, ENC_BIG_ENDIAN);
 	if (tvb_captured_length(tvb) < xsh_len)
 		expert_add_info_format(pinfo, hl_ti, &ei_xip_serval_bad_len,
-			"Header Length field (%d bytes) cannot be greater than actual number of bytes left in packet (%d bytes)",
+			"Header Length field (%u bytes) cannot be greater than actual number of bytes left in packet (%d bytes)",
 			xsh_len, tvb_captured_length(tvb));
 
 	/* Add XIP Serval protocol. If it's not data, TCP, or UDP, the
@@ -212,7 +214,7 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = XSRVL_EXT;
 
 	/* If there's still more room, check for extension headers. */
-	bytes_remaining = xsh_len - offset;
+	bytes_remaining = (xsh_len >= XSRVL_EXT) ? (int)(xsh_len - XSRVL_EXT) : 0;
 	while (bytes_remaining >= XIP_SERVAL_EXT_MIN_LEN) {
 		int8_t bytes_displayed = display_xip_serval_ext(tvb, pinfo, ti,
 			xip_serval_tree, offset);
