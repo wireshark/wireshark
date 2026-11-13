@@ -40,6 +40,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include "packet-usb.h"
 #include "packet-usb-ptp.h"
 
@@ -354,7 +355,10 @@ dissect_usb_ptp_get_device_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
     /* Post Proc of this table */
 
     /* Enable/Disable MTP Extensions */
-    if (vendor_extension_id == USB_PTP_VENDOR_EXT_MTP)
+    if (PINFO_FD_VISITED(pinfo))
+    {
+        /* flavor was fixed on the first pass */
+    } else if (vendor_extension_id == USB_PTP_VENDOR_EXT_MTP)
     {
         usb_ptp_conv_info->flavor |= USB_PTP_FLAVOR_MTP;
     } else
@@ -480,7 +484,7 @@ dissect_usb_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     usb_ptp_conv_info_t *usb_ptp_conv_info;
     const usb_ptp_value_string_masked_t *vsm = NULL;
 
-    if(!urb)
+    if(!urb || !urb->conv)
         return 0;
 
     length_tvb = tvb_captured_length(tvb);
@@ -512,6 +516,17 @@ dissect_usb_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     } else if (urb->conv->class_data_type != USB_CONV_PTP) {
         /* Stop dissection if another USB type is in the conversation */
         return 0;
+    }
+
+    /* The flavor can change while dissecting (GetDeviceInfo); keep the value
+     * each frame started with so later passes see the same tables. */
+    if (!PINFO_FD_VISITED(pinfo)) {
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_usb_ptp, 0,
+                         GUINT_TO_POINTER(usb_ptp_conv_info->flavor | 0x80000000u));
+    } else {
+        void *stored = p_get_proto_data(wmem_file_scope(), pinfo, proto_usb_ptp, 0);
+        if (stored)
+            usb_ptp_conv_info->flavor = GPOINTER_TO_UINT(stored) & ~0x80000000u;
     }
 
     proto_tree_add_item(tree, hf_container_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
