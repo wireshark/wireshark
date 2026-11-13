@@ -2096,7 +2096,7 @@ dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         }
     }
     else
-        offset = -2;
+        offset = 0;
 
     return offset;
 }
