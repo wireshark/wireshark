@@ -121,6 +121,7 @@ static int ett_vsomeip_config_entry;
 /* expert info items */
 static expert_field ei_vsomeip_unknown_version;
 static expert_field ei_vsomeip_not_implemented;
+static expert_field ei_vsomeip_bad_size;
 
 /* value strings */
 #define VSOMEIP_ASSIGN_CLIENT                   0x00
@@ -475,6 +476,10 @@ dissect_vsomeip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_root
             uint32_t subcmd_size = tvb_get_uint32(tvb, offset + 1, ENC_LITTLE_ENDIAN);
 
             uint32_t subcmd = tvb_get_uint8(tvb, offset);
+            if (subcmd_size > (unsigned)tvb_reported_length_remaining(tvb, offset + 5)) {
+                proto_tree_add_expert_format_remaining(tree_ri, pinfo, &ei_vsomeip_bad_size, tvb, offset, "Routing info command size %u exceeds the remaining data", subcmd_size);
+                break;
+            }
             const char *subcmd_text = val_to_str(pinfo->pool, subcmd, vsomeip_rie_subcmd_type, " Unknown Subcommand: %02x");
 
             proto_item *ti_subcmd;
@@ -514,7 +519,7 @@ dissect_vsomeip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_root
                     proto_tree_add_item_ret_uint(tree_subcmd, hf_vsomeip_ri_port, tvb, offset, 2, ENC_LITTLE_ENDIAN, &portnumber);
                     offset += 2;
 
-                    if (vsomeip_auto_register_ports) {
+                    if (vsomeip_auto_register_ports && !PINFO_FD_VISITED(pinfo)) {
                         dissector_add_uint("tcp.port", portnumber, vsomeip_handle_tcp);
                     }
 
@@ -522,7 +527,13 @@ dissect_vsomeip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_root
                     proto_item_append_text(ti_subcmd, " %s:%d", ip_addr_to_str(pinfo->pool, &addr_ipv4), portnumber);
                 } else {
                     /* TODO: add code to dissect IPv6? other?*/
-                    offset += ci_size - 2;
+                    if (ci_size >= 2) {
+                        if (ci_size - 2 > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
+                            proto_tree_add_expert_format_remaining(tree_subcmd, pinfo, &ei_vsomeip_bad_size, tvb, offset, "Client info size %u exceeds the remaining data", ci_size);
+                            break;
+                        }
+                        offset += ci_size - 2;
+                    }
                 }
 
                 if (subcmd == VSOMEIP_SUBCMD_RIE_ADD_SERVICE_INSTANCE || subcmd == VSOMEIP_SUBCMD_RIE_DEL_SERVICE_INSTANCE) {
@@ -874,7 +885,7 @@ get_vsomeip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void 
      * So we need a config item to adapt to it...
      */
 
-    uint32_t cmd = tvb_get_uint8(tvb, 4);
+    uint32_t cmd = tvb_get_uint8(tvb, offset + 4);
     if (cmd == VSOMEIP_SUSPEND && vsomeip_suspend_without_client) {
         return VSOMEIP_MESSAGE_MIN_SIZE_SUSPEND + (unsigned)tvb_get_uint32(tvb, offset + VSOMEIP_SIZE_OFFSET_SUSPEND, ENC_LITTLE_ENDIAN);
     }
@@ -972,6 +983,7 @@ proto_register_vsomeip(void) {
 
     static ei_register_info ei[] = {
         { &ei_vsomeip_unknown_version,{ "vsomeip.unknown_protocol_version", PI_PROTOCOL, PI_WARN, "vSomeIP Unknown Protocol Version!", EXPFILL } },
+        { &ei_vsomeip_bad_size,{ "vsomeip.bad_size", PI_MALFORMED, PI_ERROR, "Size field exceeds the remaining data", EXPFILL } },
         { &ei_vsomeip_not_implemented,{ "vsomeip.not_implemented", PI_UNDECODED, PI_WARN, "Not implemented yet. Please consider creating a ticket and attaching an example trace.", EXPFILL } },
     };
 
