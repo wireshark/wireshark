@@ -167910,3 +167910,125 @@ class TestDissectX2ap:
                               '-Y', 'x2ap.transportLayerAddressIPv4 || x2ap.transportLayerAddressIPv6',
                               '-Tfields', '-eframe.number')
         assert count_output(stdout) == 50
+
+
+class TestDissectX509af:
+    '''X.509 Authentication Framework (x509af) from the synthetic capture
+    x509af_coverage.pcap.gz: certificates in TLS Certificate messages
+    (TCP 443), CRLs over HTTP (application/pkix-crl) and LDAP, a CMS
+    certs-only message with attribute certificates, LDAP cross
+    certificate pairs, and the RFC 7468 file x509af_coverage.pem.'''
+
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, capture, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture, '-Y', flt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env).splitlines()
+
+    def test_x509af_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two
+        passes; the frame mix is what the generator wrote.'''
+        cap = capture_file('x509af_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, test_env, cap, self.BAD, passes=passes) == []
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Tfields', '-e_ws.col.protocol'),
+                encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 82
+        assert protocols.count('TLSv1.2') == 12
+        assert protocols.count('PKIX-CRL') == 4
+        assert protocols.count('LDAP') == 5
+        assert protocols.count('HTTP') == 1
+        assert protocols.count('HTTP/IMF') == 1
+        # the decoded fields are the same in both passes
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Tfields', '-eframe.number', '-ex509af.serialNumber', '-ex509af.version',
+                    '-ex509af.notBeforeTime', '-ex509af.notAfterTime', '-ex509af.revokedUserCertificate',
+                    '-ex509af.extnId', '-ex509sat.printableString', '-ex509sat.uTF8String'),
+                    encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+        assert len(outputs[0].splitlines()) == 82
+
+    def test_x509af_certificates(self, cmd_tshark, capture_file, test_env):
+        '''Serial numbers of the certificates per frame: a chain, a v1
+        and a v2 certificate, a DSA/DH/EC key, signature algorithms with
+        the OIW OIDs. Public key sub-dissection for RSA, DSA and DH.'''
+        cap = capture_file('x509af_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'x509af.signedCertificate_element',
+                'x509af.serialNumber', 'x509af.version')
+        assert rows[0:3] == ['4\t1234567890,02,03\t2,2,2', '8\t07,08\t1', '9\t09,0a,0b\t2,2,2']
+        assert len(rows) == 18
+        assert self.fields(cmd_tshark, test_env, cap, 'x509af.subjectPublicKey.dsa') == ['9']
+        assert self.fields(cmd_tshark, test_env, cap, 'x509af.subjectPublicKey.dh') == ['9']
+        assert self.fields(cmd_tshark, test_env, cap, 'x509af.issuerUniqueIdentifier') == ['8']
+
+    def test_x509af_validity(self, cmd_tshark, capture_file, test_env):
+        '''A notBefore after notAfter and a certificate that is not valid
+        at the frame time give expert warnings.'''
+        cap = capture_file('x509af_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap,
+                '_ws.expert.message contains "notBefore time is after notAfter"') == ['29']
+        assert self.fields(cmd_tshark, test_env, cap,
+                '_ws.expert.message contains "not in valid interval"') == ['33']
+
+    def test_x509af_crl(self, cmd_tshark, capture_file, test_env):
+        '''CRLs over HTTP and LDAP (certificateRevocationList, crl, arl,
+        authorityRevocationList), with and without revoked entries,
+        entry extensions, GeneralizedTime.'''
+        cap = capture_file('x509af_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'x509af.signedCertificateList_element',
+                'x509af.revokedUserCertificate')
+        assert rows == ['49\t03e9,03ea,03eb', '53\t', '57\t', '61\t03ec', '67\t03e9,03ea,03eb,03ec',
+                        '74\t03e9,03ea,03eb']
+        assert self.fields(cmd_tshark, test_env, cap, 'x509af.crlEntryExtensions') == [
+            '49', '61', '67', '74']
+
+    def test_x509af_ldap_pairs(self, cmd_tshark, capture_file, test_env):
+        '''crossCertificatePair values with both certificates, or with one
+        of them in each of two values.'''
+        cap = capture_file('x509af_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap, 'x509af.CertificatePair_element') == ['68', '69']
+        assert self.fields(cmd_tshark, test_env, cap, 'x509af.issuedByThisCA_element') == ['68', '69']
+
+    def test_x509af_attribute_certificates(self, cmd_tshark, capture_file, test_env):
+        '''Attribute certificates in a CMS message (HTTP
+        application/pkcs7-mime) and in the PEM file: baseCertificateID
+        and subjectName holders.'''
+        cap = capture_file('x509af_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'x509af.signedAttributeCertificateInfo_element',
+                'x509af.serialNumber', 'x509af.issuerUID')
+        assert rows == ['74\t1234567890,4d,4e,4f\t01']
+        assert self.fields(cmd_tshark, test_env, cap, 'x509af.baseCertificateID_element') == ['74']
+        assert self.fields(cmd_tshark, test_env, cap, 'x509af.infoSubjectName') == ['74']
+        pem = capture_file('x509af_coverage.pem')
+        rows = self.fields(cmd_tshark, test_env, pem, 'x509af.signedAttributeCertificateInfo_element',
+                'x509af.serialNumber')
+        assert rows == ['4\t4d', '5\t4e']
+
+    def test_x509af_pem_public_keys(self, cmd_tshark, capture_file, test_env):
+        '''PUBLIC KEY blocks of the PEM file reach the SubjectPublicKeyInfo
+        dissector; the RSA key is decoded.'''
+        pem = capture_file('x509af_coverage.pem')
+        assert self.fields(cmd_tshark, test_env, pem, 'x509af.SubjectPublicKeyInfo_element') == [
+            '1', '2', '3']
+        assert self.fields(cmd_tshark, test_env, pem, 'x509af.subjectPublicKey.rsa') == ['1', '7']
+
+    def test_x509af_export_objects(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Export Objects writes every certificate (44 entries, 35 distinct). The certificate
+        in frame 45 has a nameRelativeToCRLIssuer RDN after its subject
+        (the exported subject name used to point at freed memory).'''
+        cap = capture_file('x509af_coverage.pcap.gz')
+        out = tmp_path / 'objects'
+        out.mkdir()
+        subprocess.check_call((cmd_tshark, '-r', cap, '-q',
+                '--export-objects', 'x509af,' + str(out)), env=test_env)
+        files = sorted(p.name for p in out.iterdir())
+        assert len(files) == 44
+        assert all(f.endswith('.cer') for f in files)
+        # sha256.cer, repeated certificates get a (n) suffix
+        assert len([f for f in files if len(f) == 68]) == 35
