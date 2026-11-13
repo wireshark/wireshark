@@ -167089,3 +167089,52 @@ class TestDissectWreth:
         stdout = self.fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 30', '-V')
         assert 'EQUIPMENT_NAME' in stdout
+
+
+class TestDissectWsaExtra:
+    '''WSA cases the committed wsa_coverage/wsa_malformed captures do not
+    reach, from the synthetic capture wsa_extra.pcap.gz (derived from frame
+    4 of wsa_coverage.pcap.gz): frames 1-8 have the raw 32-bit longitude
+    0, 3599999999, 3600000000 (unavailable), 3600000001, 3947483646,
+    3947483647, 4000000000 and 0xffffffff; 9 has the header extensions 15,
+    16 and 4, 10 a service context with non-zero fill bits and 11 a
+    fragmented extension length.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('wsa_extra.pcap.gz'),
+                '-Tfields', '-eframe.number', *('-e' + e for e in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [r.split('\t') for r in stdout.splitlines()]
+
+    def test_wsa_longitude_range(self, cmd_tshark, capture_file, test_env):
+        '''Raw values above "unavailable" (3600000000) get the "Longitude out
+        of range" expert info, including the ones from 3947483647 on that
+        wrapped negative in an int32_t before "WSA: Check the longitude
+        range on the 64-bit value" (frames 6 to 8).'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               'wsa.longitude', '_ws.expert.message', passes=passes)
+            assert [r[0] for r in rows[:8]] == ['1', '2', '3', '4', '5', '6', '7', '8']
+            assert [r[2] if len(r) > 2 else '' for r in rows[:8]] == [
+                '', '', '',
+                'Longitude out of range', 'Longitude out of range',
+                'Longitude out of range', 'Longitude out of range',
+                'Longitude out of range']
+            assert [r[1] for r in rows[:8]] == [
+                '-1799999999', '1800000000', '1800000001', '1800000002',
+                '2147483647', '-2147483648', '-2094967295', '-1800000000']
+
+    def test_wsa_extension_elements(self, cmd_tshark, capture_file, test_env):
+        '''The channel number, data rate and transmit power extension
+        elements in a WSA header extension list, the non-zero fill bits of
+        a provider service context and a fragmented extension length.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'wsa.ext.id', 'wsa.ext.channel_number',
+                           'wsa.ext.data_rate', 'wsa.ext.tx_power', 'wsa.psc',
+                           '_ws.expert.message')
+        assert rows[8] == ['9', '15,16,4', '149', '12', '-108', '', '']
+        assert rows[9] == ['10', '8', '', '', '', 'x', 'Fill bits are not zero']
+        assert rows[10] == ['11', '6', '', '', '', '',
+                            'Fragmented UPER length determinant not supported']
