@@ -168729,3 +168729,111 @@ class TestDissectXcsl:
         lines = self.fields(cmd_tshark, capture_file, test_env,
                             'frame.number == 27', 'xcsl.protocol_version')
         assert lines == ['xcsl-1.0,p253']
+
+
+class TestDissectXdlc:
+    '''The HDLC-like control field helper (packet-xdlc.c), reached through
+    LLC (extended operation, command or response from the SSAP bit),
+    LAPB over Ethernet (ethertype 0x6000), X.75 in GSMTAP (command or
+    response from the direction and address) and Frame Relay DLCI 0
+    (LAPF, C/R bit), from the synthetic capture
+    xdlc_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('xdlc_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def info(self, cmd_tshark, capture_file, test_env, numbers):
+        flt = 'frame.number in {%s}' % ', '.join(str(n) for n in numbers)
+        lines = self.fields(cmd_tshark, capture_file, test_env, flt,
+                            'frame.number', '_ws.col.info')
+        return {int(l.split('\t')[0]): l.split('\t')[1] for l in lines}
+
+    def test_xdlc_frames(self, cmd_tshark, capture_file, test_env):
+        '''301 frames: 86 LLC, 23 LAPB, 2 X.25, 168 X.75 (84 commands and
+        84 responses) and 22 Frame Relay; no malformed packets or error
+        expert infos in one and two passes.'''
+        protos = self.fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        assert len(protos) == 301
+        counts = {p: protos.count(p) for p in set(protos)}
+        assert counts == {'LLC': 86, 'LAPB': 23, 'X.25': 2, 'X.75 CMD': 84,
+                          'X.75 RSP': 84, 'FR': 22}
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               'frame.number', passes=passes) == []
+
+    def test_xdlc_llc_extended(self, cmd_tshark, capture_file, test_env):
+        '''In LLC the SSAP bit decides between the command name (DISC) and
+        the response name (RD) of the same U modifier; S and I frames
+        have a 2 octet control field with 7 bit N(R) and N(S).'''
+        by = self.info(cmd_tshark, capture_file, test_env, (2, 9, 13, 34, 52, 56, 76))
+        assert by[2].startswith('U P, func=SIM;') and 'SSAP 0x30 Command' in by[2]
+        assert by[9].startswith('U, func=DISC;')
+        assert by[13].startswith('U, func=UA;')
+        assert by[34].startswith('S P, func=RR, N(R)=127;')
+        assert by[52].startswith('U, func=RD;') and 'SSAP 0x30 Response' in by[52]
+        assert by[56].startswith('U, func=UA;')
+        assert by[76].startswith('S, func=RR, N(R)=5;') and 'Response' in by[76]
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {41, 42, 43}',
+                            'frame.number', 'llc.control.n_s', 'llc.control.n_r', 'llc.control.p')
+        assert lines == ['41\t0\t0\t', '42\t77\t100\tTrue', '43\t127\t127\t']
+
+    def test_xdlc_unknown_modifier(self, cmd_tshark, capture_file, test_env):
+        '''U modifiers without a name are shown as Unknown; there are 15
+        of the 32 values, in each of the 4 command and response blocks of
+        LLC and X.75 (frames 1-32, 44-75, and the X.75 blocks).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number <= 32 && _ws.col.info contains "func=Unknown"',
+                            'frame.number')
+        assert len(lines) == 15
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'x75 && _ws.col.info contains "func=Unknown"', 'frame.number')
+        assert len(lines) == 15 * 4
+
+    def test_xdlc_lapb_basic(self, cmd_tshark, capture_file, test_env):
+        '''LAPB over Ethernet has no direction, so every frame is a
+        command; basic operation has a 1 octet control field with 3 bit
+        N(R) and N(S).'''
+        by = self.info(cmd_tshark, capture_file, test_env, (87, 88, 97, 108, 109, 111))
+        assert by[87] == 'U P, func=SABM'
+        assert by[88] == 'U P, func=UA'
+        assert by[97] == 'U P, func=DISC'
+        assert by[108] == 'S P, func=REJ, N(R)=2'
+        assert by[109].startswith('Data VC:1 P(S):4')
+        assert by[111] == 'Invalid LAPB frame'
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {109, 110}',
+                            'frame.number', 'lapb.control.n_s', 'lapb.control.n_r',
+                            'lapb.control.p')
+        assert lines == ['109\t3\t4\t', '110\t7\t7\tTrue']
+
+    def test_xdlc_x75_command_response(self, cmd_tshark, capture_file, test_env):
+        '''X.75: the same modifier is DISC or RD, SIM or RIM, SARM or DM
+        depending on whether the frame is a command or a response.'''
+        by = self.info(cmd_tshark, capture_file, test_env, (113, 120, 155, 162, 161))
+        assert by[113] == 'U F, func=RIM'       # frames 112-153: response (uplink, address 03)
+        assert by[155] == 'U P, func=SIM'       # frames 154-195: command (uplink, address 01)
+        assert by[120] == 'U, func=RD'
+        assert by[162] == 'U, func=DISC'
+        assert by[161] == 'U P, func=SABM'
+
+    def test_xdlc_frame_relay_info_appended(self, cmd_tshark, capture_file, test_env):
+        '''Frame Relay DLCI 0 appends the control field to the Info
+        column after "DLCI 0"; the C/R bit of the address selects the
+        response names and the F instead of the P flag.'''
+        by = self.info(cmd_tshark, capture_file, test_env,
+                       (280, 282, 285, 289, 290, 291, 293, 294, 296))
+        assert by[280] == 'DLCI 0, U P, func=SABME'
+        assert by[282] == 'DLCI 0, U P, func=DISC'
+        assert by[285] == 'DLCI 0, S, func=RR, N(R)=9'
+        assert by[289] == 'DLCI 0, I P, N(R)=5, N(S)=4'
+        assert by[290] == 'DLCI 0, I, N(R)=7, N(S)=6'
+        assert by[291] == 'DLCI 0, U F, func=SABME'
+        assert by[293] == 'DLCI 0, U F, func=RD'
+        assert by[294] == 'DLCI 0, U F, func=DM'
+        assert by[296] == 'DLCI 0, S F, func=RR, N(R)=9'
