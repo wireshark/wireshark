@@ -80,6 +80,10 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	const color_filter_t *color_filter;
 	file_data_t *file_data = (file_data_t*)data;
 
+	/* Only epan's top-level call passes file_data; Exported PDU passes NULL. */
+	if (file_data == NULL)
+		return 0;
+
 	tree=parent_tree;
 
 	pinfo->current_proto = "File";
