@@ -23,6 +23,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
@@ -133,6 +134,8 @@ static int hf_wai_reassembled_in;
 static int hf_wai_reassembled_length;
 
 static int ett_wai;
+
+static expert_field ei_wai_data_too_short;
 static int ett_wai_data;
 static int ett_wai_flags;
 static int ett_wai_certificate;
@@ -361,7 +364,7 @@ dissect_identity(tvbuff_t * tvb, const uint16_t offset, proto_tree * tree,
     return length + 4;
 }
 
-static int16_t
+static unsigned
 dissect_certificate(tvbuff_t * tvb, const int offset, proto_tree * tree,
                     const char * const label)
 {
@@ -616,7 +619,7 @@ dissect_signature(tvbuff_t *tvb, unsigned offset, proto_tree *tree, const char *
 
 
 static void
-dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, uint8_t subtype, uint16_t lenx)
+dissect_wai_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t subtype, uint16_t lenx)
 {
     proto_item  *data_item;
     proto_tree  *data_tree;
@@ -778,6 +781,10 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, uint8_t subtype, uint16_t lenx
 
             next_tvb = tvb_new_subset_remaining(tvb, 96);
             length = tvb_reported_length(next_tvb);
+            if (length < 20) {
+                proto_tree_add_expert(data_tree, pinfo, &ei_wai_data_too_short, next_tvb, 0, 0);
+                break;
+            }
 
             dissect_wie(next_tvb, 0, length-20, data_tree);
             dissect_message_auth_code(next_tvb, length-20, data_tree);
@@ -797,6 +804,10 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, uint8_t subtype, uint16_t lenx
 
             next_tvb = tvb_new_subset_remaining(tvb, 62);
             length = tvb_reported_length(next_tvb);
+            if (length < 20) {
+                proto_tree_add_expert(data_tree, pinfo, &ei_wai_data_too_short, next_tvb, 0, 0);
+                break;
+            }
 
             dissect_wie(next_tvb, 0, length-20, data_tree);
             dissect_message_auth_code(next_tvb, length-20, data_tree);
@@ -946,7 +957,7 @@ Figure 18 from [ref:1]
         }
         /* dissect Data field of WAI packet */
         if (tree) {
-            dissect_wai_data(next_tvb, wai_tree, subtype, length);
+            dissect_wai_data(next_tvb, pinfo, wai_tree, subtype, length);
         }
     }
 
@@ -1342,9 +1353,17 @@ proto_register_wai(void)
         &ett_wai_fragments
     };
 
+    static ei_register_info ei[] = {
+        { &ei_wai_data_too_short, { "wai.data_too_short", PI_MALFORMED, PI_ERROR,
+            "Message too short for the message authentication code", EXPFILL }},
+    };
+
     proto_wai = proto_register_protocol("WAI Protocol", "WAI", "wai");
     proto_register_field_array(proto_wai, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_module_t *expert_wai = expert_register_protocol(proto_wai);
+    expert_register_field_array(expert_wai, ei, array_length(ei));
     reassembly_table_register(&wai_reassembly_table,
                           &addresses_reassembly_table_functions);
 
