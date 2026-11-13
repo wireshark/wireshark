@@ -113889,14 +113889,16 @@ class TestDissectOranCoverage:
         subprocess.check_call((cmd_editcap, '-F', 'pcap', '-r',
                 capture_file('oran_fixes_coverage.pcap.gz'), str(capture), '5', '7'), env=test_env)
         data = capture.read_bytes()
-        length = struct.unpack_from('<I', data, 24 + 8)[0]
+        # editcap writes pcap in host byte order.
+        bo = '<' if data[:4] in (b'\xd4\xc3\xb2\xa1', b'\x4d\x3c\xb2\xa1') else '>'
+        length = struct.unpack_from(bo + 'I', data, 24 + 8)[0]
         control = bytearray(data[40:40 + 38] + bytes.fromhex('86022000000100010b00028002008200'))
         control[16:18] = struct.pack('!H', len(control) - 18)
         user = bytearray(data[40 + length + 16:])
         user[25] = 0  # Match the control section's slot.
         packets = data[:24]
         for index, packet in enumerate((control, user)):
-            packets += struct.pack('<IIII', index + 1, 0, len(packet), len(packet)) + packet
+            packets += struct.pack(bo + 'IIII', index + 1, 0, len(packet), len(packet)) + packet
         capture.write_bytes(packets)
         stdout = subprocess.check_output((cmd_tshark, *passes,
             '-r', str(capture), '-Y', 'frame.number == 2',
