@@ -165654,3 +165654,87 @@ class TestDissectWifiDisplay:
                 '-Tfields', '-e_ws.expert.message',
             ), encoding='utf-8', env=test_env)
         assert 'Packet too short for Wi-Fi Display subelement' in stdout
+
+
+class TestDissectWifiDpp:
+    '''Wi-Fi Device Provisioning Protocol: public action frames, the
+    configuration protocol in GAS frames, the generic IE and ANQP element
+    and DPP over TCP port 7871, from the synthetic capture
+    wifi-dpp_coverage.pcapng.gz (all keys, nonces, tags and wrapped data
+    are made-up opaque bytes).'''
+
+    def test_wifi_dpp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''98 frames; no malformed packets and no expert infos of warning
+        or error level in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-dpp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 98
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'wifi_dpp': 72, '802.11': 14, 'dpp': 6, 'TCP': 6}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wifi-dpp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wifi_dpp_public_action(self, cmd_tshark, capture_file, test_env):
+        '''Public action subtypes and the attributes with a decoder.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-dpp_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 18',
+                '-Tfields', '-eframe.number', '-edpp.public_action.subtype',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[1] for l in stdout.splitlines()] == [
+            '0', '1', '2', '5', '6', '7', '8', '9', '10', '11', '12', '13',
+            '14', '15', '16', '17', '99', '3']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-dpp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 2, 52}',
+                '-Tfields', '-eframe.number', '-edpp.status', '-edpp.trans_id',
+                '-edpp.finite_cyclic_group', '-edpp.operating_class', '-edpp.channel',
+                '-edpp.protocol_version', '-edpp.code_identifier',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t\t\t\t81\t6\t2\t',
+            '2\t0x00\t1\t0x0002\t\t\t2\t',
+            '52\t0x00\t1\t0x0001,0x0013\t81\t6\t1\tidentifier',
+        ]
+
+    def test_wifi_dpp_gas_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The DPP configuration object is decoded from the GAS initial
+        response and from a response reassembled from two comeback
+        fragments (frames 77 and 78).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-dpp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {72, 74, 76, 77, 78}',
+                '-Tfields', '-eframe.number', '-edpp.ie.attr_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '72\t0x1014,0x1004',
+            '74\t0x1000,0x1004',
+            '76\t0x1000,0x1004',
+            '77\t',
+            '78\t0x1000,0x1014,0x1004,0x100c',
+        ]
+
+    def test_wifi_dpp_tcp(self, cmd_tshark, capture_file, test_env):
+        '''PDUs on TCP port 7871: public action, configuration request and
+        responses (also the fragment variant), an unknown action, two
+        PDUs in one segment and a PDU over two segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-dpp_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 84', '-Tfields', '-eframe.number',
+                '-edpp.tcp.length', '-edpp.tcp.action_type',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['84', '199', '0x09'], ['85', '204', '0x09'], ['86', '48', '0x09'],
+            ['87', '78', '0x0a'], ['88', '87', '0x0b'], ['89', '30', '0x0a'],
+            ['90', '18', '0x0b'], ['91', '74', '0x0d'], ['92', '3', '0x55'],
+            ['93', '47,17', '0x09,0x09'], ['94', '', ''], ['95', '247', '0x09'],
+            ['96', '', ''], ['97', '', ''], ['98', '36', '0x09'],
+        ]
