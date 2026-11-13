@@ -267,25 +267,34 @@ dissect_wcp_reset(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
 static void wcp_save_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree) {
 
 	wcp_window_t *buf_ptr = 0;
-	size_t len;
+	unsigned len;
+	unsigned room;
+	uint8_t *buf_end;
 
 	/* discard first 2 bytes, header and last byte (check byte) */
+	if (tvb_reported_length(tvb) < 3)
+		return;
 	len = tvb_reported_length(tvb) - 3;
+	if (len > MAX_WIN_BUF_LEN) {
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_wcp_buffer_too_long, tvb, 0);
+		return;
+	}
+	/* The window is only updated on the first pass. */
+	if (pinfo->fd->visited)
+		return;
 	buf_ptr = get_wcp_window_ptr(pinfo);
+	buf_end = buf_ptr->buffer + MAX_WIN_BUF_LEN;
 
-	if ((buf_ptr->buf_cur + len) <= (buf_ptr->buffer + MAX_WIN_BUF_LEN)) {
+	room = (unsigned)(buf_end - buf_ptr->buf_cur);
+	if (len < room) {
 		tvb_memcpy(tvb, buf_ptr->buf_cur, 2, len);
 		buf_ptr->buf_cur += len;
 	} else {
-		uint8_t *buf_end = buf_ptr->buffer + MAX_WIN_BUF_LEN;
-		tvb_memcpy(tvb, buf_ptr->buf_cur, 2, buf_end - buf_ptr->buf_cur);
-		if (buf_ptr->buf_cur + len <= buf_end) {
-			tvb_memcpy(tvb, buf_ptr->buffer, (int) (buf_end - buf_ptr->buf_cur-2),
-				len - (buf_end - buf_ptr->buf_cur));
-			buf_ptr->buf_cur += len - MAX_WIN_BUF_LEN;
-		} else {
-			proto_tree_add_expert_remaining(tree, pinfo, &ei_wcp_buffer_too_long, tvb, 0);
-		}
+		/* Fill up to the end of the window, then wrap to the start. */
+		tvb_memcpy(tvb, buf_ptr->buf_cur, 2, room);
+		if (len > room)
+			tvb_memcpy(tvb, buf_ptr->buffer, 2 + room, len - room);
+		buf_ptr->buf_cur = buf_ptr->buffer + (len - room);
 	}
 }
 
@@ -355,9 +364,7 @@ static int dissect_wcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		return 2;
 
 	if (cmd == 1) { /* uncompressed data */
-		if (!pinfo->fd->visited) {	/* if first pass */
-			wcp_save_data(tvb, pinfo, wcp_tree);
-		}
+		wcp_save_data(tvb, pinfo, wcp_tree);
 		next_tvb = tvb_new_subset_remaining(tvb, wcp_header_len);
 	} else { /* cmd == 0 || (cmd == 0xf && ext_cmd == 0) */
 
@@ -403,9 +410,9 @@ decompressed_entry(uint8_t *dst, uint16_t data_offset,
 		if ( ++(*len) >MAX_WCP_BUF_LEN) {
 			return NULL;	/* end of buffer error */
 		}
-		if (dst++ == buf_end)
+		if (++dst == buf_end)
 			dst = buf_start;
-		if (src++ == buf_end)
+		if (++src == buf_end)
 			src = buf_start;
 
 	}
@@ -438,6 +445,42 @@ wcp_window_t *get_wcp_window_ptr(packet_info *pinfo) {
 		return &wcp_circuit_data->send;
 }
 
+
+/*
+ * Decompression checks that depend on the window state can only be made on
+ * the first pass: later passes see the window as the whole first pass left
+ * it. Record such a failure with its expert info and the offset where it
+ * happened, and show it again at the same point on later passes.
+ */
+typedef struct {
+	expert_field *ei;
+	unsigned offset;
+	char *msg;
+} wcp_failure_t;
+
+static void
+wcp_record_failure(packet_info *pinfo, proto_item *item, expert_field *ei,
+	unsigned offset, const char *msg)
+{
+	wcp_failure_t *failure = wmem_new(wmem_file_scope(), wcp_failure_t);
+
+	failure->ei = ei;
+	failure->offset = offset;
+	failure->msg = wmem_strdup(wmem_file_scope(), msg);
+	p_add_proto_data(wmem_file_scope(), pinfo, proto_wcp, 1, failure);
+	expert_add_info_format(pinfo, item, ei, "%s", msg);
+}
+
+static bool
+wcp_replay_failure(packet_info *pinfo, proto_item *item, unsigned offset)
+{
+	wcp_failure_t *failure = (wcp_failure_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_wcp, 1);
+
+	if (failure == NULL || failure->offset != offset)
+		return false;
+	expert_add_info_format(pinfo, item, failure->ei, "%s", failure->msg);
+	return true;
+}
 
 static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, unsigned offset, packet_info *pinfo, proto_tree *tree) {
 
@@ -548,10 +591,14 @@ static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, unsigned offset, packet_info 
 					src += 2;
 					offset += 2;
 				}
-				if (data_offset + 1 > buf_ptr->initialized) {
-					expert_add_info_format(pinfo, cd_item, &ei_wcp_invalid_window_offset,
+				if (pinfo->fd->visited) {
+					if (wcp_replay_failure(pinfo, cd_item, offset))
+						return NULL;
+				} else if (data_offset + 1 > buf_ptr->initialized) {
+					wcp_record_failure(pinfo, cd_item, &ei_wcp_invalid_window_offset, offset,
+						wmem_strdup_printf(pinfo->pool,
 							"Data offset exceeds valid window size (%d > %d)",
-							data_offset+1, buf_ptr->initialized);
+							data_offset+1, buf_ptr->initialized));
 					return NULL;
 				}
 
@@ -566,9 +613,10 @@ static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, unsigned offset, packet_info 
 						data_offset, data_cnt, &len,
 						buf_ptr);
 					if (dst == NULL) {
-						expert_add_info_format(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
-							"Uncompressed data exceeds maximum buffer length (%d > %d)",
-							len, MAX_WCP_BUF_LEN);
+						wcp_record_failure(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds, offset,
+							wmem_strdup_printf(pinfo->pool,
+								"Uncompressed data exceeds maximum buffer length (%d > %d)",
+								len, MAX_WCP_BUF_LEN));
 						return NULL;
 					}
 				}
@@ -578,11 +626,17 @@ static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, unsigned offset, packet_info 
 				 * room for it in the buffer of uncompressed
 				 * data?
 				 */
-				if ( ++len >MAX_WCP_BUF_LEN) {
+				/* Back-references only count on the first pass, so the
+				 * length is only known then. */
+				if (pinfo->fd->visited) {
+					if (wcp_replay_failure(pinfo, cd_item, offset))
+						return NULL;
+				} else if ( ++len >MAX_WCP_BUF_LEN) {
 					/* No - report an error. */
-					expert_add_info_format(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
-						"Uncompressed data exceeds maximum buffer length (%d > %d)",
-						len, MAX_WCP_BUF_LEN);
+					wcp_record_failure(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds, offset,
+						wmem_strdup_printf(pinfo->pool,
+							"Uncompressed data exceeds maximum buffer length (%d > %d)",
+							len, MAX_WCP_BUF_LEN));
 					return NULL;
 				}
 
@@ -593,7 +647,7 @@ static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, unsigned offset, packet_info 
 					 * buffer of uncompressed data.
 					 */
 					*dst = *src;
-					if (dst++ == buf_end)
+					if (++dst == buf_end)
 						dst = buf_start;
 					if (buf_ptr->initialized < MAX_WIN_BUF_LEN)
 						buf_ptr->initialized++;
@@ -624,16 +678,17 @@ static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, unsigned offset, packet_info 
 					/* get uncompressed data */
 		pdata_ptr = (wcp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_wcp, 0);
 
-		if (!pdata_ptr) {	/* exit if no data */
-			REPORT_DISSECTOR_BUG("Can't find uncompressed data");
+		if (!pdata_ptr) {	/* decompression failed on the first pass */
+			wcp_replay_failure(pinfo, cd_item, offset);
 			return NULL;
 		}
 		len = pdata_ptr->len;
 	} else {
 		if (buf_ptr->buf_cur + len > buf_end) {
-			expert_add_info_format(pinfo, cd_item, &ei_wcp_invalid_window_offset,
-				"Uncompressed data exceeds available buffer length (%d > %d)",
-				len, (int) (buf_end - buf_ptr->buf_cur));
+			wcp_record_failure(pinfo, cd_item, &ei_wcp_invalid_window_offset, offset,
+				wmem_strdup_printf(pinfo->pool,
+					"Uncompressed data exceeds available buffer length (%d > %d)",
+					len, (int) (buf_end - buf_ptr->buf_cur)));
 			return NULL;
 		}
 
