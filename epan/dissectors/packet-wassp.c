@@ -22,6 +22,7 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 #include <epan/tfs.h>
 
 #include <wsutil/array.h>
@@ -36,6 +37,7 @@
 #define TLV_TYPE 0
 #define TLV_LENGTH 2
 #define TLV_VALUE 4
+#define WASSP_MAX_SUBTLV_DEPTH 16
 
 /* header lengths */
 #define WASSP_HDR_LEN 8
@@ -3960,6 +3962,8 @@ static int hf_wassp_tlv_invalid;
 
 static int hf_wassp_ipaddress;
 static int hf_wassp_sub_tree;
+
+static expert_field ei_wassp_subtlv_too_deep;
 static int hf_wassp_topologykey;
 static int hf_wassp_vlanid;
 static int hf_wassp_topology_mode;
@@ -4344,7 +4348,7 @@ static int wassp_type_converter(int in_tlv_type)
 
 
 
-static int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int in_len, int which_tab, int ru_msg_type);
+static int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int in_len, int which_tab, int ru_msg_type, unsigned depth);
 static int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, wassp_ru_msg_t rumsg_type);
 
 
@@ -4736,7 +4740,7 @@ static int decode_lbs_tag_header(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 
 // NOLINTNEXTLINE(misc-no-recursion)
-int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int in_len, int which_tab, int ru_msg_type)
+int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int in_len, int which_tab, int ru_msg_type, unsigned depth)
 {
 	proto_item *tlvi;
 	proto_item *ti;
@@ -4744,7 +4748,8 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 	const char *label;
 	uint32_t value;
 	uint16_t tlv_type = EID_PARSE_ERROR;
-	uint16_t length = 0, org_offset = offset;
+	uint16_t length = 0;
+	int org_offset = offset;
 	const WASSP_SUBTLV_DECODER_INFO_t *tmp_decr = NULL;
 	uint32_t i, tableNo;
 	int suboffset;
@@ -4752,6 +4757,12 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 	if (which_tab >= TAB_MAX)
 	{
 		return offset;
+	}
+
+	if (depth >= WASSP_MAX_SUBTLV_DEPTH)
+	{
+		proto_tree_add_expert_remaining(wassp_tree, pinfo, &ei_wassp_subtlv_too_deep, tvb, offset);
+		return (int)tvb_reported_length(tvb);
 	}
 
 	tmp_decr = &wassp_decr_info[which_tab];
@@ -4921,11 +4932,11 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 					if ((tableNo == RADIO_CONFIG_BLOCK) && (ru_msg_type == WASSP_RU_Ack))
 					{
 						// We recurse here, but we'll run out of packet before we run out of stack.
-						offset = dissect_wassp_sub_tlv(tmp_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_RU_ACK_RADIO_CONFIG, ru_msg_type);
+						offset = dissect_wassp_sub_tlv(tmp_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_RU_ACK_RADIO_CONFIG, ru_msg_type, depth + 1);
 					}
 					else
 						// We recurse here, but we'll run out of packet before we run out of stack.
-						offset = dissect_wassp_sub_tlv(tmp_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, tableNo, ru_msg_type);
+						offset = dissect_wassp_sub_tlv(tmp_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, tableNo, ru_msg_type, depth + 1);
 				}
 
 			}
@@ -5383,158 +5394,158 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 
 		/*  call sub tlv  */
 		case EID_EVENT_BLOCK:                                // 59
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, EVENT_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, EVENT_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_AP_STATS_BLOCK:                             // 65
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, AP_STATS_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, AP_STATS_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_MU_RF_STATS_BLOCK:                          // 66
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, MU_RF_STATS_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, MU_RF_STATS_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_TLV_CONFIG:                                 // 69
 		case EID_BSSID2IP_BLOCK:                             // 92
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, CONFIG_GLOBAL_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, CONFIG_GLOBAL_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_CONFIG_ERROR_BLOCK:                         // 70
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, CONFIG_ERROR_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, CONFIG_ERROR_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_CONFIG_MODIFIED_BLOCK:                      // 71
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_CONFIG_MODIFIED, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_CONFIG_MODIFIED, ru_msg_type, 0);
 			break;
 		case EID_BULK_MU_BLOCK:                              // 78
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, BULK_MU_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, BULK_MU_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_MU_BLOCK:                                   // 79
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, MU_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, MU_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_BULK_VNS_BLOCK:                             // 86
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, BULK_VNS_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, BULK_VNS_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_VNS_BLOCK:                                  // 87
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, VNS_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, VNS_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_SIAPP_PMK_BLOCK:                            // 114
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_PMK_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_PMK_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_SIAPP_RADIO_CONFIG_BLOCK:                   // 121
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_RADIO_CONFIG_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_RADIO_CONFIG_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_SIAPP_SIAPP_MU_STATS_BLOCK:                 // 123
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_MU_STATS_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_MU_STATS_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_SIAPP_THIN_BLOCK:                           // 128
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_THIN_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_THIN_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_SIAPP_RADIOBLOCK:                           // 132
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_MU_STATS_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_MU_STATS_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_SIAPP_BLOCK:                                // 134
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SIAPP_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_SIAPP_LOADBAL_BLOCK:                        // 152
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, VNS_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, VNS_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_SSS_MU_BLOCK:                               // 181
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SSS_MU_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SSS_MU_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_ASSOC_SSID_ARRAY:                           // 204
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_ASSOC_SSID_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_ASSOC_SSID_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_ASSOC_SSID_BLOCK:                           // 205
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_ASSOC_SSID_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_ASSOC_SSID_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_AP_LIST_BLOCK:                              // 206
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_AP_LIST_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_AP_LIST_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_AP_LIST_ARRAY:                              // 207
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_AP_LIST_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_AP_LIST_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_SCAN_PROFILE_BLOCK:                         // 214
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SCAN_PROFILE_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SCAN_PROFILE_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_THREAT_DEF_ARRAY:                           // 216
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_DEF_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_DEF_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_THREAT_DEF_BLOCK:                           // 217
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_DEF_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_DEF_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_THREAT_PATTERN_ARRAY:                       // 222
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_PATTERN_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_PATTERN_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_THREAT_PATTERN_BLOCK:                       // 223
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_PATTERN_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_PATTERN_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_SURVEILLANCE_DATA_ARRAY:                    // 231
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SURVEILLANCE_DATA_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SURVEILLANCE_DATA_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_SURVEILLANCE_DATA_BLOCK:                    // 232
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SURVEILLANCE_DATA_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_SURVEILLANCE_DATA_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_THREAT_DATA_ARRAY:                          // 239
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_DATA_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_DATA_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_THREAT_DATA_BLOCK:                          // 240
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_DATA_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_DATA_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_THREAT_CLASSIFY_ARRAY:                      // 245
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_CLASSIFY_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_CLASSIFY_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_THREAT_CLASSIFY_BLOCK:                      // 246
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_CLASSIFY_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_THREAT_CLASSIFY_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_MU_EVENT_ARRAY:                             // 251
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MU_EVENT_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MU_EVENT_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_MU_EVENT_BLOCK:                             // 252
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MU_EVENT_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MU_EVENT_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_COUNTRY_ARRAY:                              // 258
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_COUNTRY_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_COUNTRY_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_COUNTRY_BLOCK:                              // 259
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_COUNTRY_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_COUNTRY_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_LOCATOR_LOC_BLOCK:                          // 263
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_LOCATOR_LOC_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_LOCATOR_LOC_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_LOCATOR_LOC_ARRAY:                          // 264
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_LOCATOR_LOC_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_LOCATOR_LOC_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_RSS_DATA_ARRAY:                             // 271
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_RSS_DATA_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_RSS_DATA_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_RSS_DATA_BLOCK:                             // 272
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_RSS_DATA_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_RSS_DATA_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_MCAST_FILTER_BLOCK:                         // 282
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MCAST_FILTER_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MCAST_FILTER_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_MCAST_FILTER_BLOCK_ENTRY:                   // 283
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MCAST_FILTER_BLOCK_ENTRY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MCAST_FILTER_BLOCK_ENTRY, ru_msg_type, 0);
 			break;
 		case EID_MU_SESSION_ARRAY:                           // 293
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MU_SESSION_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MU_SESSION_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_MU_SESSION_BLOCK:                           // 294
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MU_SESSION_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_MU_SESSION_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_DETECTED_ROGUE_ARRAY:                       // 317
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_DETECTED_ROGUE_ARRAY, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_DETECTED_ROGUE_ARRAY, ru_msg_type, 0);
 			break;
 		case EID_DETECTED_ROGUE_BLOCK:                       // 318
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_DETECTED_ROGUE_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_DETECTED_ROGUE_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_FILTER_RULES_EXT_BLOCK:                     // 329
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_FILTER_RULES_EXT_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_FILTER_RULES_EXT_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_TOPOLOGY_ARRAY:                             // 379
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_TOPOLOGY_ARRAY_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_TOPOLOGY_ARRAY_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_TOPOLOGY_STRUCT:                            // 380
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_TOPOLOGY_STRUCT_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_TOPOLOGY_STRUCT_BLOCK, ru_msg_type, 0);
 			break;
 		case EID_FILTER_CONFIG_STRUCT:                       // 381
-			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_FILTER_CONFIG_STRUCT_BLOCK, ru_msg_type);
+			offset = dissect_wassp_sub_tlv(tlv_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_FILTER_CONFIG_STRUCT_BLOCK, ru_msg_type, 0);
 			break;
 
 		case EID_FILTER_RULES:                              // 97
@@ -5990,8 +6001,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	{
 		pinfo->fragmented = true;
 		offset = WASSP_HDR_LEN;
-		conv = find_conversation_pinfo(pinfo, 0);
-		DISSECTOR_ASSERT(conv);
+		conv = find_or_create_conversation(pinfo);
 		reassembly_id = (((conv->conv_index) & 0x00FFFFFF) << 8) + ru_msg_type;
 		wassp_frag_msg = fragment_add_seq_next(&wassp_reassembled_table, tvb, offset, pinfo, reassembly_id, NULL, remain_len - WASSP_HDR_LEN, flag & RU_WASSP_FLAGS_MORE_FRAGMENTS_FOLLOWING);
 		if ( wassp_frag_msg )
@@ -7023,9 +7033,16 @@ void proto_register_wassp(void)
 
 
 	/* Register wassp protocol */
+	static ei_register_info ei[] = {
+		{ &ei_wassp_subtlv_too_deep, { "wassp.subtlv_too_deep", PI_MALFORMED, PI_ERROR,
+			"Sub-TLVs nested too deeply", EXPFILL }},
+	};
+
 	proto_wassp = proto_register_protocol("Wireless Access Station Session Protocol", "WASSP", "wassp");
 	/* Register wassp protocol fields */
 	proto_register_field_array(proto_wassp, hf, array_length(hf));
+	expert_module_t *expert_wassp = expert_register_protocol(proto_wassp);
+	expert_register_field_array(expert_wassp, ei, array_length(ei));
 	/* Register dissector handle */
 	wassp_handle = register_dissector("wassp", dissect_wassp_static, proto_wassp);
 	/* Register wassp protocol sub-trees */
