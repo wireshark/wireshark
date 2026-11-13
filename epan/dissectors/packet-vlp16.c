@@ -81,7 +81,7 @@ static const value_string vlp16_factory_field2_vals[] = {
 	{ 0, NULL }
 };
 
-static uint16_t
+static int16_t
 twos_complement_12bit(uint16_t value)
 {
 	return (-2048 * ((value & 0xFFF) >> 11) + (value & 0x7FF));
