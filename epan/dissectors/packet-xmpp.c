@@ -355,6 +355,7 @@ expert_field ei_xmpp_proceed_already_in_frame;
 expert_field ei_xmpp_starttls_already_in_frame;
 expert_field ei_xmpp_packet_without_response;
 expert_field ei_xmpp_unknown_element;
+expert_field ei_xmpp_too_deep;
 expert_field ei_xmpp_field_unexpected_value;
 expert_field ei_xmpp_unknown_attribute;
 expert_field ei_xmpp_required_attribute;
@@ -1442,6 +1443,7 @@ proto_register_xmpp(void) {
         { &ei_xmpp_starttls_missing, { "xmpp.starttls.missing", PI_PROTOCOL, PI_WARN, "Haven't seen a STARTTLS, did the capture start in the middle of a session?", EXPFILL }},
         { &ei_xmpp_proceed_already_in_frame, { "xmpp.proceed.already_in_frame", PI_PROTOCOL, PI_WARN, "Already saw PROCEED in frame X", EXPFILL }},
         { &ei_xmpp_unknown_element, { "xmpp.unknown.element", PI_UNDECODED, PI_NOTE, "Unknown element", EXPFILL }},
+        { &ei_xmpp_too_deep, { "xmpp.too_deep", PI_MALFORMED, PI_ERROR, "XML elements nested too deeply, rest not dissected", EXPFILL }},
         { &ei_xmpp_unknown_attribute, { "xmpp.unknown.attribute", PI_UNDECODED, PI_NOTE, "Unknown attribute", EXPFILL }},
         { &ei_xmpp_required_attribute, { "xmpp.required_attribute", PI_PROTOCOL, PI_WARN, "Required attribute doesn't appear", EXPFILL }},
         { &ei_xmpp_field_unexpected_value, { "xmpp.field.unexpected_value", PI_PROTOCOL, PI_WARN, "Field has unexpected value", EXPFILL }},
