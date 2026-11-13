@@ -165035,3 +165035,134 @@ class TestDissectWccp:
                 '-Tfields', '-ewccp.web_cache_identity.ipv4',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.strip() == '198.51.100.10'
+
+
+class TestDissectWcp:
+    '''Wellfleet Compression (WCP) over Ethernet type 0x80FF and Frame
+    Relay NLPID 0xB0, from the synthetic capture wcp_coverage.pcapng.gz.
+    Frames 1-23 are control messages, 24-93 compressed and uncompressed
+    data on the two directions of an Ethernet circuit (interfaces 0 and
+    1), 94-126 the same on a Frame Relay circuit. Interface 0 fills its
+    32767 octet history window exactly with frame 54; later frames refer
+    back across the end of the window.'''
+
+    @staticmethod
+    def pcap(frames):
+        out = struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1)
+        for i, d in enumerate(frames):
+            out += struct.pack('<IIII', 1700000000 + i, 0, len(d), len(d)) + d
+        return out
+
+    def test_wcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode without malformed packets or error expert
+        infos, in one and two passes, and give the same result.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wcp_coverage.pcapng.gz'),
+                    '-Tfields', '-e_ws.col.protocol', '-eudp.length',
+                    '-eip.id', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            outputs.append(stdout)
+            lines = stdout.splitlines()
+            assert len(lines) == 126
+            protocols = [line.split('\t')[0] for line in lines]
+            assert protocols.count('WCP') == 23
+            assert protocols.count('UDP') == 103
+            assert all(line.split('\t')[3] == '' for line in lines)
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wcp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+        assert outputs[0] == outputs[1]
+
+    def test_wcp_decompression(self, cmd_tshark, capture_file, test_env):
+        '''Every decompressed IPv4 header has a valid checksum, so the
+        references into the window were resolved correctly, including
+        frames 55-61 that follow the exactly filled window and refer back
+        across its end. The IPv4 identification runs in frame order. Before
+        "WCP: Fix history window wrap and the second pass dissector bug"
+        every frame after the exact fill failed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'ip.check_checksum:TRUE',
+                '-r', capture_file('wcp_coverage.pcapng.gz'),
+                '-Y', 'ip', '-Tfields', '-eframe.number', '-eip.checksum.status',
+                '-eip.id',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert len(rows) == 103
+        assert all(r[1] == '1' for r in rows)
+        assert [int(r[0]) for r in rows] == list(range(24, 127))
+        # the packets were created in the order A, B, Frame Relay
+        ids = [int(r[2], 16) for r in rows]
+        assert ids == sorted(ids)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wcp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {28, 29, 54, 55, 56}',
+                '-Tfields', '-eframe.number', '-eudp.length',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        # 900 + 2048 octets from frames 28 and 29 (per packet compression
+        # and the largest packet), minus the NLPID, IPv4 and UDP headers
+        assert rows[0] == ['28', '879']
+        assert rows[1] == ['29', '2027']
+        assert [r[0] for r in rows] == ['28', '29', '54', '55', '56']
+
+    def test_wcp_control_messages(self, cmd_tshark, capture_file, test_env):
+        '''Connect Request with one to four algorithms, Connect Ack, Init
+        Request and Ack, Reset, the per packet compression command and
+        unknown commands.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wcp_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 23',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ewcp.tid',
+                '-ewcp.alg_cnt', '-ewcp.alg4', '-ewcp.hist', '-ewcp.seq_size',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert rows[0][1:] == ['Extended, Connect Req', '4660', '1', '', '', '12']
+        assert rows[3][1:] == ['Extended, Connect Req', '4660', '4', '4', '', '12']
+        assert rows[4][1] == 'Extended, Connect Ack'
+        assert rows[5][1:4] == ['Extended, Init Req', '4660', '']
+        assert rows[5][5] == '15'
+        assert rows[6][1] == 'Extended, Init Ack'
+        assert rows[7][1] == 'Extended, Unknown'
+        assert [r[1] for r in rows[17:]] == ['Unknown'] * 6
+
+    def test_wcp_frame_relay(self, cmd_tshark, capture_file, test_env):
+        '''Frame Relay frames with NLPID 0xB0 reach WCP, whose output is
+        handed back to the Frame Relay dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wcp_coverage.pcapng.gz'),
+                '-Y', 'frame.encap_type == 26', '-Tfields', '-e_ws.col.protocol', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert len(rows) == 33
+        assert {r[1] for r in rows} <= {'fr:wcp:fr:ip:udp:data'}
+        assert all(r[0] == 'UDP' for r in rows)
+
+    def test_wcp_second_pass_failure(self, cmd_tshark, test_env, tmp_path):
+        '''A back reference into an empty window fails on the first pass.
+        A later packet fills the window, so the second pass used to find
+        the reference valid but no stored data, and reported "Can't find
+        uncompressed data" (an abort with WIRESHARK_ABORT_ON_DISSECTOR_BUG).
+        Both passes show the same error for frame 1.'''
+        def eth(payload):
+            return (bytes.fromhex('020000000001020000000002')
+                    + struct.pack('>H', 0x80ff) + payload)
+        pcap = tmp_path / 'wcp_2pass.pcap'
+        pcap.write_bytes(self.pcap([
+            eth(bytes([0x00, 0x01, 0x80, 0x00, 0x00, 0x00])),
+            eth(bytes([0x00, 0x02, 0x00]) + b'ABCDEFGH' + bytes([0x00])),
+        ]))
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', str(pcap),
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=env, timeout=60)
+            assert stdout.splitlines() == [
+                '1\tData offset exceeds valid window size (1 > 0)',
+                '2\t',
+            ]
