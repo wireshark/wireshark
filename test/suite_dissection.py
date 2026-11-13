@@ -169217,3 +169217,159 @@ class TestDissectXmcp:
                 '-exmcp.attr.service.transport.ipv4', '-exmcp.attr.client-handle',
                 '-exmcp.attr.domain')
         assert rows == ['192.0.2.9\t51966\t']
+
+
+class TestDissectXml:
+    '''XML on UDP 3702, in HTTP and SIP bodies (by media type and through
+    the heuristic dissectors), with the DTDs that ship in dtds/, from the
+    synthetic capture xml_coverage.pcap.gz.  Frames 1-22 are UDP 3702
+    documents, 23-30 differ in character encoding, 31-70 are HTTP on
+    TCP 80 (8 media types), 71-77 carry XML in HTTP and SIP bodies of an
+    unknown media type (one SIP body has a media type that names XML),
+    78-85 are XML over TCP port 9999 and UDP ports 9999 and 9998.'''
+
+    HEUR = ('--enable-heuristic', 'xml_tcp', '--enable-heuristic', 'xml_udp',
+            '--enable-heuristic', 'xml_http', '--enable-heuristic', 'xml_sip',
+            '-o', 'xml.heuristic_unicode:TRUE')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, extra=()):
+        args = [cmd_tshark, *extra, '-r', capture_file('xml_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_xml_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every XML frame decodes without malformed packets or error
+        expert infos, in one and two passes; the only expert info of the
+        UDP frames is the "Unrecognized text" warning of frame 7.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xml || presence || mscml || smil',
+                             '_ws.col.protocol')
+        counts = {p: lines.count(p) for p in set(lines)}
+        assert counts == {
+            'UDP/XML': 30, 'HTTP/XML': 10, 'HTTP/PRESENCE': 2,
+            'HTTP/MEDIASERVERCONTROL': 2, 'HTTP/SMIL': 2, 'SIP/XML': 1,
+        }
+        for passes in ((), ('-2',)):
+            lines = self._fields(
+                cmd_tshark, capture_file, test_env,
+                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                'frame.number', extra=passes)
+            assert lines == []
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 'udp && _ws.expert.severity >= 0x00600000',
+                                 'frame.number', extra=passes)
+            assert lines == ['7']
+
+    def test_xml_cipher_value_top_level(self, cmd_tshark, capture_file, test_env):
+        '''A CipherValue directly under the root (frame 18) used to
+        dereference a NULL grandparent in "XML: Fix a NULL dereference for
+        a top-level CipherValue" and killed tshark.'''
+        for extra in ((), ('-V',), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number == 18', 'xml.tag', extra=extra)
+            assert lines == ['<CipherValue>']
+
+    def test_xml_ws_security_without_keys(self, cmd_tshark, capture_file, test_env):
+        '''The WS-Security elements that the dissector would decrypt with
+        a keytab (DerivedKeyToken, EncryptedData/CipherValue, a Kerberos
+        BinarySecurityToken) decode as plain XML without keys.  Decryption
+        itself is not covered.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {16, 17}', 'frame.number',
+                             'xml.tag')
+        assert [l.split('\t')[0] for l in lines] == ['16', '17']
+        assert '<Nonce>' in lines[0] and '<CipherValue>' in lines[0]
+        assert '<BinarySecurityToken' in lines[1]
+
+    def test_xml_tokens(self, cmd_tshark, capture_file, test_env):
+        '''Tags, quoted/unquoted attribute values, comments, CDATA
+        sections, processing instructions and DOCTYPEs of frames 1-6.'''
+        lines = self._fields(
+            cmd_tshark, capture_file, test_env,
+            'frame.number in {1, 2, 3, 6, 20}', 'frame.number',
+            'xml.attribute', 'xml.xmlpi', 'xml.doctype', 'xml.comment',
+            'xml.cdatasection')
+        by_frame = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert by_frame['1'][0] == ('a="1",b=\'two\',c=3,d=name-value,'
+                                    'x="y",attr="v",k="v"')
+        assert by_frame['1'][3] == '<!-- a comment -->'
+        assert by_frame['1'][4] == '<![CDATA[ raw <data> ]]>'
+        assert by_frame['2'][1].split(',')[0].startswith('<?xml-stylesheet')
+        assert by_frame['3'][2] == 'html'
+        assert by_frame['6'][0] == ('ns:attr="v",xmlns:ns="urn:x",a="b"')
+        assert by_frame['20'][3] == '<!---->'
+        assert by_frame['20'][4] == '<![CDATA[]]>'
+
+    def test_xml_dtd_rss(self, cmd_tshark, capture_file, test_env):
+        '''The rss, itunes and dc DTDs: a hierarchy below rss/channel, and
+        scoped itunes: and dc: element names.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number == 8', 'rss.channel.title',
+                             'rss.channel.language', 'itunes.author',
+                             'dc.creator', 'rss.channel.item.guid')
+        assert len(lines) == 1
+        title, language, author, creator, guid = lines[0].split('\t')
+        assert title == '<title>,Feed'
+        assert language == '<language>,en'
+        assert author == '<itunes:author>,Me'
+        assert creator == '<dc:creator>,Me'
+        assert guid.endswith(',1')
+
+    def test_xml_dtd_registered_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Documents found by their root element (reginfo, list,
+        watcherinfo, xcap-error) and by media type (presence, mscml,
+        smil).'''
+        lines = self._fields(
+            cmd_tshark, capture_file, test_env, 'frame.number in {10, 12, 14}',
+            'frame.number', 'reginfo.registration.contact.uri',
+            'list.name', 'xcap-error.no-parent')
+        assert [l.split('\t')[0] for l in lines] == ['10', '12', '14']
+        assert lines[0].split('\t')[1] == '<uri>,sip:a@192.0.2.1'
+        assert lines[1].split('\t')[2] == '<name lang="en">,L'
+        assert lines[2].split('\t')[3] == '<no-parent phrase="p">'
+        lines = self._fields(
+            cmd_tshark, capture_file, test_env, 'frame.number in {44, 49, 54}',
+            'frame.number', '_ws.col.protocol', 'presence.tuple.timestamp')
+        assert [l.split('\t')[:2] for l in lines] == [
+            ['44', 'HTTP/PRESENCE'], ['49', 'HTTP/MEDIASERVERCONTROL'],
+            ['54', 'HTTP/SMIL']]
+        assert lines[0].split('\t')[2].endswith('2024-01-01T00:00:00Z')
+
+    def test_xml_encodings(self, cmd_tshark, capture_file, test_env):
+        '''Documents in ISO-8859-1, windows-1252, UTF-8 (with and without
+        BOM), an unknown encoding name and UTF-16 with both byte orders
+        come out as UTF-8 text.  An encoding the dissector does not know
+        falls back to the default (UTF-8).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number >= 23 && frame.number <= 30',
+                             'frame.number', 'xml.cdata')
+        text = [l.split('\t')[1] for l in lines]
+        # windows-1252 is not one of the supported character sets: only
+        # the ASCII part of that document is checked
+        assert text[3].endswith(' euro')
+        del text[3]
+        assert text == [
+            'café', 'plain', 'unknown', 'é€',
+            'bom', 'utf16be é', 'utf16le é']
+
+    def test_xml_heuristics(self, cmd_tshark, capture_file, test_env):
+        '''XML in an HTTP, SIP, TCP or UDP payload with a media type or
+        port that does not name XML is recognized only when the
+        heuristic dissectors are enabled; UCS-2 (no BOM) needs the
+        Unicode preference as well.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {74, 75, 76, 81, 82, 83}',
+                             'frame.number', '_ws.col.protocol')
+        assert [l.split('\t')[1] for l in lines] == [
+            'HTTP', 'HTTP', 'SIP', 'TCP', 'UDP', 'UDP']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {74, 75, 76, 81, 82, 83}',
+                             'frame.number', '_ws.col.protocol',
+                             extra=self.HEUR)
+        assert [l.split('\t')[1] for l in lines] == [
+            'HTTP/XML', 'HTTP/XML', 'SIP/XML', 'TCP/XML', 'UDP/XML',
+            'UDP/XML']
