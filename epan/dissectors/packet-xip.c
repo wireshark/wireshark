@@ -566,9 +566,11 @@ display_xip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = XIPH_DSTD + XIA_NODE_SIZE * (num_dst_nodes + num_src_nodes);
 
 	/* Dissect other headers according to the sink node, if needed. */
-	offset += dissect_xip_sink_node(tvb, pinfo, tree, offset,
-			tvb_get_ntohl(tvb, XIPH_DSTD +
-			(num_dst_nodes - 1) * XIA_NODE_SIZE));
+	if (num_dst_nodes > 0) {
+		offset += dissect_xip_sink_node(tvb, pinfo, tree, offset,
+				tvb_get_ntohl(tvb, XIPH_DSTD +
+				(num_dst_nodes - 1) * XIA_NODE_SIZE));
+	}
 
 	dissect_xip_next_header(tvb, pinfo, tree, next_ti, offset);
 }
