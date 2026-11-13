@@ -162305,3 +162305,105 @@ class TestDissectVicp:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['28', '30']
+
+
+class TestDissectVines:
+    def test_vines_frames(self, cmd_tshark, capture_file, test_env):
+        '''96 frames over Ethernet (type 0x0bad and 0x0baf, LLC), IP
+        protocol 83 and UDP port 573 (Vines FRP), PPP and ARCNET carry
+        Vines IP with IPC, SPP (and SMB), ARP, sequenced ARP, RTP, SRTP and
+        ICP, and Vines Echo. None is malformed or has an error expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vines_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 96
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {
+            'Vines IPC': 38, 'Vines SRTP': 12, 'Vines ICP': 10,
+            'Vines SPP': 9, 'Vines RTP': 8, 'Vines ARP': 6, 'Vines SARP': 5,
+            'UDP': 3, 'Vines Echo': 2, 'Vines LLC': 1, 'Vines IP': 1,
+            'SMB': 1,
+        }
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vines_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_vines_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 has transport control 0 and protocol 6: it was
+        dispatched on the transport control octet (a data frame, "Unknown
+        VIP protocol (0x16)") before "VINES: Fix header offsets and
+        tree-dependent SPP offset". Frame 2 is Vines SPP carrying an SMB
+        Negotiate request, which was shown as data when a tree was built.
+        Frame 3 is a SRTP redirect whose destination sequence number was
+        read from offset 0 (770).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vines_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 3',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-evines_ip.protocol', '-evines_ip.tctl',
+                '-evines_rtp.destination_sequence_number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\teth:ethertype:vines_ip:vines_icp\t0x06\t0x00\t\tMetric notification, metric 7',
+            '2\teth:ethertype:vines_ip:vines_spp:smb\t0x02\t0x02\t\tNegotiate Protocol Request',
+            '3\teth:ethertype:vines_ip:vines_rtp\t0x05\t0x05\t3735928559\tRedirect',
+        ]
+        # Without a tree the frame has the same summary
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vines_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 2',
+            ), encoding='utf-8', env=test_env)
+        assert 'SMB' in stdout and 'Negotiate Protocol Request' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vines_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 2', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Negotiate Protocol Request' in stdout
+
+    def test_vines_transport_control(self, cmd_tshark, capture_file, test_env):
+        '''The transport control octet is shown as the broadcast form
+        (nodes and class) or the unicast form (forwarding router,
+        metric and exception notification) with the hop count.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vines_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {70, 73}',
+                '-Tfields', '-eframe.number', '-evines_ip.tctl',
+                '-evines_ip.tctl.hop_count', '-evines_ip.tctl.node',
+                '-evines_ip.tctl.class', '-evines_ip.tctl.forward_router',
+                '-evines_ip.tctl.metric', '-evines_ip.tctl.notif_packet',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '70\t0x60\t0\t\t\tTrue\tTrue\tFalse',
+            '73\t0x7f\t15\tTrue\t3\t\t\t',
+        ]
+
+    def test_vines_encapsulations(self, cmd_tshark, capture_file, test_env):
+        '''Vines IP in LLC (SAP 0xbc), in Vines FRP in IP protocol 83 and
+        UDP port 573, in PPP and in ARCNET, and Vines Echo in LLC and
+        Ethernet. A UDP datagram from another source port is not Vines.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vines_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {80, 81, 82, 84, 86, 87, 90, 91, 92, 94, 95, 96}',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '80\teth:ethertype:vines_echo',
+            '81\teth:llc:vines_llc:vines_echo',
+            '82\teth:llc:vines_llc:vines_ip:vines_ipc:data',
+            '84\teth:llc:vines_llc:data',
+            '86\teth:ethertype:ip:vines_frp:vines_ip:vines_ipc:data',
+            '87\teth:ethertype:ip:vines_frp:vines_ip:vines_ipc:data',
+            '90\teth:ethertype:ip:udp:vines_frp:vines_ip:vines_ipc:data',
+            '91\teth:ethertype:ip:udp:data',
+            '92\teth:ethertype:ip:udp:data',
+            '94\tppp:vines_ip:vines_ipc:data',
+            '95\tppp:vines_ip:vines_icp:vines_ip:vines_spp:data',
+            '96\tarcnet:vines_ip:vines_ipc:data',
+        ]
