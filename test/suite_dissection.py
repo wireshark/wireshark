@@ -162407,3 +162407,112 @@ class TestDissectVines:
             '95\tppp:vines_ip:vines_icp:vines_ip:vines_spp:data',
             '96\tarcnet:vines_ip:vines_ipc:data',
         ]
+
+
+class TestDissectVjc:
+    '''PPP Van Jacobson TCP/IP header compression (VJC) from the synthetic
+    capture vj_comp_coverage.pcapng.gz. Interface 0 is PPP with direction
+    (link type 204, frames 1-29), interface 1 plain PPP (frames 30-32).'''
+
+    UNCOMPRESSED = ['4', '16', '19', '22', '24', '25', '30']
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('vj_comp_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.split('\n') if line]
+
+    def test_vjc_clean(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is VJ compressed or uncompressed TCP/IP without
+        malformed packets or error expert infos, in one and two passes, and
+        both passes decompress to the same headers (the Info column is not
+        compared: TCP shows reassembly differently in the two passes).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'vjc',
+                                'vjc.compressed', 'vjc.connection_number', 'vjc.delta_seq', 'vjc.delta_ack',
+                                'vjc.delta_ipid', 'vjc.delta_window', 'vjc.urgent_pointer', 'tcp.seq_raw',
+                                'tcp.ack_raw', 'tcp.window_size_value', 'ip.id', passes=passes)
+            assert len(rows) == 32
+            assert [r[0] for r in rows if r[1] == 'False'] == self.UNCOMPRESSED
+            outputs.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+        assert outputs[0] == outputs[1]
+
+    def test_vjc_decompression(self, cmd_tshark, capture_file, test_env):
+        '''Connection 1 (frames 4-15): the sequence and acknowledgement
+        numbers, window, IP ID and push flag are rebuilt from the deltas
+        of every kind of compressed packet.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {4, 5, 6, 7, 8, 9, 14, 15}',
+                            'tcp.seq_raw', 'tcp.ack_raw', 'tcp.window_size_value', 'tcp.flags.push',
+                            'ip.id')
+        assert rows == [
+            ['4', '268435456', '536870912', '8192', 'True', '0x0064'],
+            ['5', '268435476', '536870917', '8192', 'True', '0x0066'],       # C I P S A
+            ['6', '268435476', '536870917', '8092', 'False', '0x0067'],      # W U, window -100
+            ['7', '268435480', '536870917', '8092', 'False', '0x0068'],      # SAWU: seq += 4
+            ['8', '268435486', '536870923', '8092', 'False', '0x0069'],      # SWU: seq and ack += 6
+            ['9', '268435741', '536870923', '8392', 'False', '0x0451'],      # 3 octet deltas
+            ['14', '268435747', '536870928', '8397', 'False', '0x0587'],
+            ['15', '268435747', '536870928', '7397', 'False', '0x0588'],     # window -1000
+        ]
+
+    def test_vjc_fields(self, cmd_tshark, capture_file, test_env):
+        '''The connection number, deltas and urgent pointer of connection 1.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {5, 6, 7, 8, 9, 11}',
+                            'vjc.connection_number', 'vjc.delta_seq', 'vjc.delta_ack',
+                            'vjc.delta_ipid', 'vjc.delta_window', 'vjc.urgent_pointer')
+        assert rows == [
+            ['5', '1', '20', '5', '2', '', ''],
+            ['6', '1', '', '', '1', '-100', '258'],
+            ['7', '1', '4', '0', '1', '', ''],
+            ['8', '1', '6', '6', '1', '', ''],
+            ['9', '1', '255', '0', '1000', '300', ''],
+            ['11', '1', '1', '0', '300', '', ''],
+        ]
+
+    def test_vjc_last_frame_len_with_tcp_options(self, cmd_tshark, capture_file, test_env):
+        '''The uncompressed packet of frame 19 has IP and TCP options and 20
+        octets of data; the unidirectional (SAWU) packet after it advances
+        the sequence number by 20 (the length of the data), not by 32 (it
+        counted the TCP options as data before "VJC: Exclude the TCP header
+        from last_frame_len").'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {19, 20, 21}',
+                            'vjc.delta_seq', 'tcp.seq_raw')
+        assert rows == [
+            ['19', '', '805306368'],
+            ['20', '20', '805306388'],
+            ['21', '15', '805306403'],
+        ]
+
+    def test_vjc_directions(self, cmd_tshark, capture_file, test_env):
+        '''Connection 1 is a different conversation in each direction;
+        interleaved connections 2 and 4 follow the last connection number.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {17, 18, 26, 27, 28}',
+                            'vjc.connection_number', 'tcp.srcport', 'tcp.seq_raw')
+        assert rows == [
+            ['17', '1', '80', '536870922'],
+            ['18', '1', '80', '536870922'],
+            ['26', '4', '2222', '12294'],
+            ['27', '2', '1111', '4101'],
+            ['28', '2', '1111', '4102'],
+        ]
+
+    def test_vjc_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Compressed packets without a connection (capture start or never
+        seen), and without direction information, have warnings and no
+        decompressed TCP.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vjc.no_connection || vjc.no_connection_id || vjc.no_direction',
+                            'vjc.no_connection_id', 'vjc.no_connection', 'vjc.no_direction',
+                            'vjc.no_connection_data', 'vjc.no_decompress')
+        assert [r[0] for r in rows] == ['1', '2', '3', '29', '30', '31', '32']
+        assert [r[1:] for r in rows if r[0] == '1'] == [['1', '1', '', '', '1']]
+        assert [r[3] for r in rows] == ['', '', '', '', '1', '1', '1']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {2, 3, 29, 31} && tcp')
+        assert rows == []
