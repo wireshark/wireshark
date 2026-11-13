@@ -167138,3 +167138,86 @@ class TestDissectWsaExtra:
         assert rows[9] == ['10', '8', '', '', '', 'x', 'Fill bits are not zero']
         assert rows[10] == ['11', '6', '', '', '', '',
                             'Fragmented UPER length determinant not supported']
+
+
+class TestDissectWsmp:
+    '''WSMP (WAVE Short Message Protocol, IEEE 1609.3) over Ethernet type
+    0x88DC, from the synthetic capture wsmp_coverage.pcap.gz. Frames 1-12
+    are the legacy format (version other than 3), 13-25 version 3.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('wsmp_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + e for e in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_wsmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 25 frames are WSMP without malformed packets or error expert
+        infos, in one and two passes. Frames 11 and 12 have 60000 and
+        70000 octets before the WAVE element id; the legacy element loop
+        kept its offset in a uint16_t and never ended on the second one
+        before "WSMP: Use an unsigned offset in the legacy element loop",
+        hence the timeout.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, 'wsmp',
+                                passes=passes)
+            assert len(lines) == 25
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert lines == []
+
+    def test_wsmp_legacy(self, cmd_tshark, capture_file, test_env):
+        '''PSIDs of 1 to 4 octets, the element ids WSMP, WSMP-S and WSMP-I,
+        the supplement and the channel, rate and power elements; frame 12
+        is dissected although its WAVE element id is 70000 octets in.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number <= 12', 'wsmp.psid', 'wsmp.WAVEid',
+                            'wsmp.wsmlength', 'wsmp.supplement', 'wsmp.channel',
+                            'wsmp.rate', 'wsmp.txpower')
+        assert lines == [
+            '1\t0x00004070\t128\t14\t\t\t\t',
+            '2\t0x00000020\t128\t3\t\t149\t12\t20',
+            '3\t0x00004070\t129\t9\t0x05\t178\t\t',
+            '4\t0x00004070\t129\t13\t0x03\t\t6\t',
+            '5\t0x00004070\t130\t11\t\t\t\t',
+            '6\t0x00005000\t128\t16\t\t\t\t30',
+            '7\t0x00300000\t128\t15\t\t\t\t',
+            '8\t0x00008000\t128\t10\t\t\t\t',
+            '9\t0x00004070\t128\t4\t\t149\t12\t20',
+            '10\t0x00004070\t128\t3\t\t\t\t',
+            '11\t0x00004070\t128\t4\t\t\t\t',
+            '12\t0x00004070\t128\t4\t\t\t\t',
+        ]
+
+    def test_wsmp_v3(self, cmd_tshark, capture_file, test_env):
+        '''Version 3: subtype, the WAVE information elements (one and
+        two octet lengths, an unknown id), the TPIDs and the PSIDs.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 13', 'wsmp.subtype', 'wsmp.tpid',
+                            'wsmp.psid', 'wsmp.wave_ie', 'wsmp.no_elements')
+        assert lines == [
+            '13\t0\t0\t0x00000020\t\t',
+            '14\t0\t0\t0x00000020\t4,15,16\t3',
+            '15\t0\t0\t0x00000020\t8\t1',
+            '16\t0\t0\t0x00000020\t99,6\t2',
+            '17\t0\t0\t0x00008000\t\t',
+            '18\t0\t0\t0x00005000\t\t',
+            '19\t0\t0\t0x00204095\t\t',
+            '20\t0\t0\t0x00000080\t\t',
+            '21\t0\t2\t\t\t',
+            '22\t0\t1\t\t15\t1',
+            '23\t3\t0\t0x00008000\t\t',
+            '24\t0\t0\t0x00000020\t\t0',
+            '25\t0\t0\t0x00008000\t\t',
+        ]
+
+    def test_wsmp_ieee1609dot2(self, cmd_tshark, capture_file, test_env):
+        '''PSIDs in the default 1609.2 range hand the data to
+        IEEE1609dot2; PSID 0x8000, the 3-octet PSID and the frames with another TPID do not.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.protocols contains "ieee1609dot2"')
+        assert lines == ['13', '14', '15', '16', '19', '20', '24']
