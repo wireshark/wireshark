@@ -168648,3 +168648,84 @@ class TestDissectXcp:
         rows = self.fields(cmd_tshark, capture_file, xcp_env,
                 '-Y', 'xcp && can', '-Tfields', '-eframe.number')
         assert len(rows) == 18
+
+
+class TestDissectXcsl:
+    '''XCSL (Call Specification Language) over TCP, found by the TCP
+    heuristic dissector, from the synthetic capture
+    xcsl_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('xcsl_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_xcsl_frames(self, cmd_tshark, capture_file, test_env):
+        '''27 data frames: 24 XCSL messages and the 3 that are not XCSL
+        (wrong separator, too short, upper case), no malformed packets or
+        error expert infos in one and two passes.'''
+        f = self.fields
+        assert len(f(cmd_tshark, capture_file, test_env, 'xcsl', 'frame.number')) == 24
+        assert len(f(cmd_tshark, capture_file, test_env, 'tcp.len > 0 && !xcsl',
+                     'frame.number')) == 3
+        for passes in ((), ('-2',)):
+            assert f(cmd_tshark, capture_file, test_env,
+                     '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                     'frame.number', passes=passes) == []
+
+    def test_xcsl_command_and_reply(self, cmd_tshark, capture_file, test_env):
+        '''A command (non-digit third item) and its parameters; a reply
+        (digit) with its result and answer data; the Info column.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {4, 5, 6, 15, 16}',
+                            'frame.number', 'xcsl.protocol_version',
+                            'xcsl.transaction_id', 'xcsl.command',
+                            'xcsl.result', 'xcsl.parameter', '_ws.col.info')
+        assert lines == [
+            '4\txcsl-1.0\t1000\toffhook\t\t+31356871234\t1000 offhook : +31356871234 ',
+            '5\txcsl-1.0\t1000\t\t0\t\t1000 ',
+            '6\txcsl-1.0\t1001\tdial\t\t+31356871234,+31356875678,3\t'
+            '1001 dial : +31356871234 : +31356875678 : 3 ',
+            '15\txcsl-1.0\t1002\t\t0\tanswer one,answer two,answer three\t'
+            '1002 reply: answer one : answer two : answer three ',
+            '16\txcsl-1.0\t1003\t\t3\treason text,detail\t'
+            '1003 [Error] reply: reason text : detail ',
+        ]
+
+    def test_xcsl_result_codes(self, cmd_tshark, capture_file, test_env):
+        '''Result codes 1-8 are named in the Info column, 9 and larger
+        are "Undefined", and a result that is not a number (7x) is too.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {7, 8, 9, 10, 11, 12, 13, 14, 19, 20, 21}',
+                            'frame.number', '_ws.col.info')
+        assert [l.split('\t')[1] for l in lines] == [
+            '1001 [Unknown] ', '1001 [User unknown] ', '1001 [Error] ',
+            '1001 [Busy] ', '1001 [Undefined] ', '1001 [More] ',
+            '1001 [Maintenance] ', '1001 [Protocol Sequence Error] ',
+            '1007 [Undefined] ', '1008 [Undefined] reply: x ',
+            '1009 reply: y ',
+        ]
+
+    def test_xcsl_separators(self, cmd_tshark, capture_file, test_env):
+        '''"xcsl;" is accepted like "xcsl-"; a non-numeric transaction
+        id is information; empty items are skipped.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {17, 22, 24}', 'frame.number',
+                            'xcsl.protocol_version', 'xcsl.transaction_id',
+                            'xcsl.information', 'xcsl.command', 'xcsl.parameter')
+        assert lines == [
+            '17\txcsl\t1004\t\thangup\t',
+            '22\txcsl-1.0\t\tinfo text\tping\t',
+            '24\txcsl-1.0\t1010\t\tdial\t+31356871234',
+        ]
+
+    def test_xcsl_item_counter_wraps(self, cmd_tshark, capture_file, test_env):
+        '''The item counter is 8 bits wide: after 256 items the next one
+        is decoded as the version again (an observation, not an error).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 27', 'xcsl.protocol_version')
+        assert lines == ['xcsl-1.0,p253']
