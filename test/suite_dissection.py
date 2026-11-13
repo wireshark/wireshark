@@ -162609,3 +162609,73 @@ class TestDissectVlan:
         assert rows == [
             ['1', '1', 'Default'], ['2', '100', 'Servers'], ['3', '4094', 'Mgmt'], ['7', '30', '<30>'],
         ]
+
+
+class TestDissectVlp16:
+    '''Velodyne VLP-16 data (UDP 2368) and position (UDP 8308) packets from
+    the synthetic capture vlp16_coverage.pcapng.gz. The dissectors are
+    registered for Decode As only, so the ports are set with -d.'''
+
+    DECODE_AS = ('-d', 'udp.port==2368,vlp16_data', '-d', 'udp.port==8308,vlp16_position')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *TestDissectVlp16.DECODE_AS,
+                '-r', capture_file('vlp16_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.split('\n') if line]
+
+    def test_vlp16_clean(self, cmd_tshark, capture_file, test_env):
+        '''9 data and 5 position packets without malformed packets or error
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'vlp16_data', passes=passes)
+            assert len(rows) == 9
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'vlp16_position', passes=passes)
+            assert len(rows) == 5
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+
+    def test_vlp16_data(self, cmd_tshark, capture_file, test_env):
+        '''Strongest, last and dual returns of the HDL-32E and VLP-16, other
+        factory values, and the GPS timestamp.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vlp16_data',
+                            'vlp16_data.factory_field1', 'vlp16_data.factory_field2', 'vlp16_data.gps_timestamp')
+        assert rows == [
+            ['1', '0x37', '0x22', '1'], ['2', '0x38', '0x22', '1000001'], ['3', '0x39', '0x22', '2000001'],
+            ['4', '0x37', '0x21', '3000001'], ['5', '0x38', '0x21', '4000001'], ['6', '0x39', '0x21', '5000001'],
+            ['7', '0x00', '0x00', '6000001'], ['8', '0xff', '0xff', '7000001'], ['9', '0x37', '0x22', '4294967295'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 1',
+                            'vlp16_data.block_id', 'vlp16_data.rotational_position')
+        assert rows[0][1].split(',') == ['61183'] * 12
+        assert rows[0][2].split(',')[:3] == ['0', '20', '40']
+
+    def test_vlp16_position_signed(self, cmd_tshark, capture_file, test_env):
+        '''The gyro, temperature and acceleration are 12 bit two's
+        complement values, so negative ones are negative (they were shown
+        as large positive numbers before "VLP16: Return a signed value from
+        twos_complement_12bit()").'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vlp16_position.position.gyro < -150')
+        assert [r[0] for r in rows] == ['11', '14']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vlp16_position.position.gyro < 0')
+        assert [r[0] for r in rows] == ['11', '12', '14']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vlp16_position.position.accelx < 0')
+        assert [r[0] for r in rows] == ['11', '12', '14']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vlp16_position.position.temp < 0')
+        assert [r[0] for r in rows] == ['11', '12', '14']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vlp16_position.position.gyro > 199')
+        assert [r[0] for r in rows] == ['10', '13']
+
+    def test_vlp16_position_gps(self, cmd_tshark, capture_file, test_env):
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vlp16_position',
+                            'vlp16_position.gps_timestamp', 'vlp16_position.sentence')
+        assert [r[:2] for r in rows] == [['10', '0'], ['11', '500000'], ['12', '1000000'],
+                                          ['13', '123456789'], ['14', '123456789']]
+        assert rows[0][2].startswith('$GPRMC,123519,A,4807.038,N')
+        assert rows[3][2] == ''
+        assert rows[4][2] == '$GPRMC,' + 'x' * 65
