@@ -167547,3 +167547,118 @@ class TestDissectWtp:
                 'wtp_nested_concat.pcap.gz', '-2', '-Y', 'frame.number == 2',
                 '-Tfields', '-e_ws.col.info')
         assert stdout.strip() == 'WTP Ack,'
+
+
+class TestDissectX11:
+    '''X11 over TCP 6000 from the synthetic capture x11_coverage.pcap.gz:
+    little-endian (frames 1-168) and big-endian (169-336) connections with
+    every core request, reply, event and error and extensions found with
+    QueryExtension, the reproducer of the ChangeKeyboardMapping fix
+    (337-345), a refused connection, desegmentation (354-373, 566-585) and
+    connections that start mid-stream (374-557, 586-769) where the byte
+    order is guessed.'''
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, flt, *args, passes=()):
+        stdout = subprocess.check_output([cmd_tshark, *passes, '-r', capture_file('x11_coverage.pcap.gz'),
+                                          '-Y', flt, *args],
+                                         encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def info(self, cmd_tshark, capture_file, test_env, flt):
+        return self.tshark(cmd_tshark, capture_file, test_env, flt, '-Tfields', '-e_ws.col.info')
+
+    def test_x11_frames(self, cmd_tshark, capture_file, test_env):
+        '''676 X11 frames; no malformed packets or error expert infos in
+        one and two passes; the warnings are the ones planted on purpose.'''
+        t = self.tshark
+        assert len(t(cmd_tshark, capture_file, test_env, 'x11', '-Tfields', '-eframe.number')) == 676
+        for passes in ((), ('-2',)):
+            assert t(cmd_tshark, capture_file, test_env,
+                     '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                     '-Tfields', '-eframe.number', passes=passes) == []
+        assert t(cmd_tshark, capture_file, test_env, 'x11 && _ws.expert.severity >= 0x00600000',
+                 '-Tfields', '-eframe.number') == \
+            ['18', '93', '158', '186', '261', '326', '341', '374', '440', '586', '652']
+
+    def test_x11_initial_connection(self, cmd_tshark, capture_file, test_env):
+        '''Byte order, vendor string and the refusal reason.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, 'frame.number in {4, 5, 172, 173, 350}',
+                            '-Tfields', '-eframe.number', '-ex11.byte-order', '-ex11.vendor', '-ex11.reason')
+        assert lines == ["4\t'l'\t\t", "5\t\tSynthetic X Server\t", "172\t'B'\t\t",
+                         "173\t\tSynthetic X Server\t", "350\t\t\tNo protocol specified"]
+
+    def test_x11_byte_orders_agree(self, cmd_tshark, capture_file, test_env):
+        '''The little- and big-endian connections decode to the same
+        Info texts, and so do the first request segments and the single
+        requests of the mid-stream connections, whose byte order is
+        guessed (the replies of a big-endian connection that starts
+        mid-stream are not decoded: no byte order is guessed for them).'''
+        i = self.info
+        assert i(cmd_tshark, capture_file, test_env, 'tcp.stream == 0 && x11') == \
+            i(cmd_tshark, capture_file, test_env, 'tcp.stream == 1 && x11')
+        le = i(cmd_tshark, capture_file, test_env, 'frame.number in {374, 586}')
+        assert le[0] == le[1]
+        assert le[0].startswith('Requests: CreateWindow, CreateWindow, CreateWindow')
+        single_le = i(cmd_tshark, capture_file, test_env, 'frame.number >= 414 && frame.number <= 557 && x11')
+        single_be = i(cmd_tshark, capture_file, test_env, 'frame.number >= 626 && frame.number <= 769 && x11')
+        assert single_le[0] == 'Requests: CreateWindow'
+        assert len(single_le) >= 100
+        assert single_le == single_be
+
+    def test_x11_replies_match_requests(self, cmd_tshark, capture_file, test_env):
+        info = dict(l.split('\t', 1) for l in self.tshark(
+            cmd_tshark, capture_file, test_env, 'frame.number in {7, 9, 11, 13, 144, 145, 158, 159}',
+            '-Tfields', '-eframe.number', '-e_ws.col.info'))
+        assert info['7'] == 'Reply: GetWindowAttributes'
+        assert info['9'] == 'Reply: GetGeometry'
+        assert info['11'] == 'Reply: QueryTree'
+        assert info['13'] == 'Reply: InternAtom'
+        assert info['144'] == 'Requests: SHAPE-QueryVersion'
+        assert info['145'] == 'Reply: SHAPE-QueryVersion'
+        assert info['158'].startswith('Requests: GLX-Render, GLX-Render, BIG-REQUEST')
+        assert info['159'].startswith('Reply: BIG-REQUEST')
+
+    def test_x11_keysyms(self, cmd_tshark, capture_file, test_env):
+        '''Key events are decoded with the keyboard and modifier maps seen
+        earlier: shift, caps lock, num lock and the mode switch group.'''
+        out = self.tshark(cmd_tshark, capture_file, test_env, 'tcp.stream == 0', '-V')
+        keys = {l.strip() for l in out if l.strip().startswith('keycode: ')}
+        for k in ('keycode: 8 (97, "a")', 'keycode: 8 (65, "A")', 'keycode: 13 (65457, "KP_1")',
+                  'keycode: 13 (65436, "KP_End")', 'keycode: 14 (98, "b")', 'keycode: 14 (99, "c")',
+                  'keycode: 10 (65407, "Num_Lock")', 'keycode: 20 (97, "a")', 'keycode: 28 (248, "ø")',
+                  'keycode: 32 (433, "aogonek")'):
+            assert k in keys
+
+    def test_x11_keymap_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''ChangeKeyboardMapping with no keysyms per keycode: a warning,
+        and a later key event on that keycode has no keysym (it read an
+        uninitialized value before "X11: Fix modifier map OOB read and
+        keysym assert").'''
+        out = self.tshark(cmd_tshark, capture_file, test_env, 'frame.number in {341, 342}', '-V')
+        text = '\n'.join(out)
+        assert 'keycode value is out of range' in text
+        assert 'keycode: 8 (<Unknown>)' in text
+
+    def test_x11_extensions(self, cmd_tshark, capture_file, test_env):
+        '''Extension events, errors and generic events use the names from
+        the QueryExtension replies.'''
+        info = dict(l.split('\t', 1) for l in self.tshark(
+            cmd_tshark, capture_file, test_env, 'frame.number in {163, 164, 165}',
+            '-Tfields', '-eframe.number', '-e_ws.col.info'))
+        assert 'xkb-MapNotify' in info['163'] and 'randr-Notify' in info['163']
+        assert 'xinput-DeviceKeyPress' in info['163'] and 'glx-BufferSwapComplete' in info['163']
+        assert 'shm-BadSeg' in info['164'] and 'xfixes-BadRegion' in info['164']
+        assert 'render-PictFormat' in info['164'] and 'glx-BadContext' in info['164']
+        assert info['165'].count('GenericEvent') >= 19
+
+    def test_x11_desegmentation(self, cmd_tshark, capture_file, test_env):
+        '''Requests and replies cut across TCP segments are decoded once
+        complete.'''
+        for first in (354, 566):
+            lines = self.info(cmd_tshark, capture_file, test_env,
+                              'frame.number >= %d && frame.number < %d && x11' % (first + 5, first + 20))
+            assert lines == ['Initial connection request', 'Initial connection reply',
+                             'Requests: CreateWindow', 'Requests: GetWindowAttributes',
+                             'Requests: InternAtom', 'Reply: GetWindowAttributes', 'Event: Expose',
+                             'Reply: InternAtom', 'Event: Expose']
