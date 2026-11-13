@@ -59,6 +59,8 @@ typedef struct _xmpp_element_t{
     int length;
 
     bool was_read;
+    /* nesting depth, 0 for the stanza itself */
+    unsigned depth;
 } xmpp_element_t;
 
 /*informations about attributes that are displayed in proto tree*/
