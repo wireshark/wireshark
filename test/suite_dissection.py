@@ -166742,3 +166742,89 @@ class TestDissectWol:
             '8\t010203040506',
             '9\t00000000',
         ]
+
+
+class TestDissectWow:
+    '''World of Warcraft login protocol (TCP 3724) from the synthetic
+    capture wow_coverage.pcap.gz: logon and reconnect challenges and
+    proofs, realm lists, the transfer commands, TCP reassembly of
+    challenges and realm lists, and PDUs that end in the middle of a
+    string.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('wow_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_wow_protocols(self, cmd_tshark, capture_file, test_env):
+        '''52 frames decode as WOW, without malformed packets or error or
+        warning expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wow_coverage.pcap.gz'), '-Y', 'wow',
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout, 'WOW') == 52
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wow_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_wow_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command of the login protocol is decoded.'''
+        cmds = self.fields(cmd_tshark, capture_file, test_env, 'wow', '_ws.col.info')
+        counts = {c: cmds.count(c) for c in set(cmds)}
+        assert counts['CMD_AUTH_LOGON_CHALLENGE'] == 14
+        assert counts['CMD_AUTH_LOGON_PROOF'] == 13
+        assert counts['CMD_AUTH_RECONNECT_CHALLENGE'] == 4
+        assert counts['CMD_AUTH_RECONNECT_PROOF'] == 2
+        assert counts['CMD_REALM_LIST'] == 10
+        # The survey result (command 4) has no name in the value string
+        assert counts['Unrecognized packet type'] == 4
+        for c in ('CMD_XFER_INITIATE', 'CMD_XFER_DATA', 'CMD_XFER_ACCEPT',
+                  'CMD_XFER_RESUME', 'CMD_XFER_CANCEL'):
+            assert counts[c] == 1
+
+    def test_wow_realm_list(self, cmd_tshark, capture_file, test_env):
+        '''The realm list of frame 9, a realm list reassembled from three
+        segments (frame 69), a PDU after another one in the same segment
+        (frame 71) and the realm names of 253 and 254 characters, which
+        are just under the 255 byte limit of a C string.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {9, 69, 71}', 'frame.number', 'wow.name')
+        assert out == [
+            '9\tAzeroth,Warfront,Roleplay,RPPvP,Odd',
+            '69\tN0,N1,N2,N3,N4,N5',
+            '71\tX',
+        ]
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {110, 112}', 'frame.number', 'wow.name')
+        assert out == ['110\t' + 'L' * 253, '112\t' + 'L' * 254]
+
+    def test_wow_challenge(self, cmd_tshark, capture_file, test_env):
+        '''The client challenge split over four TCP segments is
+        reassembled (frame 64); the logon challenge carries the build (0x3034 is 12340).'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {4, 64}', 'frame.number',
+                          'wow.account.name', 'wow.build')
+        assert out == ['4\tACCOUNT\t0x3034', '64\tSPLITACCOUNTNAME\t0x3034']
+
+    def test_wow_transfer(self, cmd_tshark, capture_file, test_env):
+        '''Transfer initiate and survey result.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'wow.filename', 'wow.filename', 'wow.file.size')
+        assert out == ['Patch.mpq\t0x000000000001e240']
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'wow.survey.id', 'wow.survey.id')
+        assert out == ['0x00000007', '0x00000008']
+
+    def test_wow_telemetry_keys(self, cmd_tshark, capture_file, test_env):
+        '''The client proof of frame 6 has two telemetry keys.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number == 6', 'wow.number.of.telemetry.keys')
+        assert out == ['0x02']
