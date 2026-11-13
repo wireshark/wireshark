@@ -164920,3 +164920,118 @@ class TestDissectWbxml:
                            'frame.number', 'wbxml.public_id.known', '_ws.col.info')
         assert [r[1] for r in rows[:3]] == ['0x00000004', '0x00000005', '0x00000006']
         assert 'WSP Reply' in rows[0][2] and 'WSP Push' in rows[1][2]
+
+
+class TestDissectWccp:
+    '''Web Cache Communication Protocol (UDP 2048) versions 1, 2.0 and 2.01
+    from the synthetic capture wccp_coverage.pcap.gz. Frames 1-10 are
+    version 1, 11-51 version 2 messages with every component type, 52-82
+    version 2.01 messages with address tables (IPv4 and IPv6) whose
+    addresses are 32-bit indexes.'''
+
+    def test_wccp_messages(self, cmd_tshark, capture_file, test_env):
+        '''The message types, no malformed packets and no error expert infos
+        in one and two passes, identical output in both, and the few
+        warnings and notes the capture holds.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wccp_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol', '-ewccp.message',
+                    '-ewccp.message_header_version', '-e_ws.expert.message',
+                    '-E', 'aggregator=|',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            outputs.append(stdout)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert len(rows) == 82
+            assert {r[0] for r in rows} == {'WCCP'}
+            types = [r[1] for r in rows]
+            assert {t: types.count(t) for t in set(types)} == {
+                '7': 4, '8': 3, '9': 3, '10': 34, '11': 10, '12': 24, '13': 4}
+            versions = [r[2] for r in rows if r[2]]
+            assert versions.count('0x0201') == 31
+            assert versions.count('0x0200') == 41
+            infos = [m for r in rows for m in r[3].split('|') if m]
+            assert sorted(set(infos)) == [
+                "Ports fields not used",
+                "Receive ID shouldn't be 0",
+                "Should be 0 (6.4)",
+                "The priority must be zero for well-known services.",
+                "The protocol must be zero for well-known services.",
+                "Value Length: 2 (illegal, must be == 4)",
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wccp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+        assert outputs[0] == outputs[1]
+
+    def test_wccp_v1(self, cmd_tshark, capture_file, test_env):
+        '''Version 1: Here I Am, I See You with web cache entries and Assign
+        Bucket with 256 buckets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wccp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 10',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ewccp.wc_num',
+                '-ewccp.cache_ip', '-ewccp.hash_flag.u', '-ewccp.recvd_id',
+                '-ewccp.bucket',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert rows[2][1:4] == ['1.0 Here I am', '', '']
+        assert rows[2][4:6] == ['True', '8']
+        assert rows[6][1:6] == ['1.0 I see you', '2',
+                                '198.51.100.10,198.51.100.11', 'False,True', '6']
+        assert rows[8][1:4] == ['1.0 Assign bucket', '3',
+                                '198.51.100.10,198.51.100.11,198.51.100.12']
+        assert rows[8][6].count(',') == 255
+
+    def test_wccp_service_and_security(self, cmd_tshark, capture_file, test_env):
+        '''Frame 12 lists three destination ports, frame 13 has an MD5
+        security component, frame 15 eight source ports.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wccp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {12, 13, 15}',
+                '-Tfields', '-eframe.number', '-ewccp.service_info_destination_port',
+                '-ewccp.service_info_source_port', '-ewccp.security_info_option',
+                '-ewccp.security_md5_checksum',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert rows[0] == ['12', '80,8080,443', '', '0', '']
+        assert rows[1] == ['13', '', '', '1', '000102030405060708090a0b0c0d0e0f']
+        assert rows[2] == ['15', '', '80,8080,443,21,22,23,25,110', '0', '']
+
+    def test_wccp_address_tables(self, cmd_tshark, capture_file, test_env):
+        '''With an address table every address is an index into it: the
+        IPv4 and the IPv6 table are listed and the indexes resolve; index 0
+        is the undefined address, an index beyond the table or a non-zero
+        reserved part is flagged in the text.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wccp_coverage.pcap.gz'),
+                '-Y', 'wccp.address_table.element',
+                '-Tfields', '-eframe.number', '-ewccp.address_table.family_type',
+                '-ewccp.address_table.length', '-ewccp.address_table.element',
+                '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert len(rows) == 28
+        assert rows[0] == ['52', '1', '5',
+            '192.0.2.1;192.0.2.2;198.51.100.10;198.51.100.11;198.51.100.12']
+        v6 = [r for r in rows if r[1] == '2']
+        assert len(v6) == 14
+        assert v6[0][2:] == ['3', '2001:db8::1;2001:db8::2;2001:db8::1']
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('wccp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 52',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.count('INVALID IPv4 index: 10 > 5') == 2
+        assert stdout.count('INVALID IPv6 index: 8 > 3') == 2
+        assert stdout.count('INVALID IPv4 index: 255 > 5') == 2
+        assert stdout.count('INVALID: reserved part non zero') == 12
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wccp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 52',
+                '-Tfields', '-ewccp.web_cache_identity.ipv4',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == '198.51.100.10'
