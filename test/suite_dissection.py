@@ -164105,3 +164105,99 @@ class TestDissectVtp:
                 '-Tfields', '-e_ws.col.info', '-evtp.code',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == 'Unrecognized VTP message\t0x09'
+
+
+class TestDissectVuzeDht:
+    '''Vuze DHT (UDP 11273) from the synthetic capture
+    vuze_dht_coverage.pcap.gz: every request and reply type for protocol
+    versions 3 to 53.'''
+
+    @staticmethod
+    def vuze_fields(cmd_tshark, capture_file, test_env, display_filter, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vuze_dht_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *(f'-e{f}' for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_vuze_dht_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 246 frames decode as Vuze-DHT without malformed packets or
+        error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vuze_dht_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['Vuze-DHT'] * 246
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vuze_dht_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_vuze_dht_actions(self, cmd_tshark, capture_file, test_env):
+        '''The number of packets of each action.'''
+        rows = self.vuze_fields(cmd_tshark, capture_file, test_env, 'vuze-dht', 'vuze-dht.action')
+        counts = {}
+        for r in rows:
+            counts[r[1]] = counts.get(r[1], 0) + 1
+        assert counts == {
+            '1024': 14, '1025': 11, '1026': 11, '1027': 11, '1028': 11, '1029': 11,
+            '1030': 77, '1031': 12, '1032': 44, '1036': 11, '1037': 11,
+            '1500': 11, '1501': 11}
+
+    def test_vuze_dht_store_and_find_node(self, cmd_tshark, capture_file, test_env):
+        '''STORE requests with keys and value groups (the STATS form of a
+        value only exists from protocol version 11), FIND_NODE replies
+        with contacts, IPv4 and IPv6 addresses and network coordinates
+        (protocol version 15 and up).'''
+        rows = self.vuze_fields(cmd_tshark, capture_file, test_env,
+                'vuze-dht.stats.values_num', 'vuze-dht.stats.values_num',
+                'vuze-dht.stats.values_total', 'vuze-dht.stats.reads_per_min')
+        assert len(rows) == 7
+        assert all(r[1:] == ['3', '4096', '77'] for r in rows)
+        rows = self.vuze_fields(cmd_tshark, capture_file, test_env,
+                'vuze-dht.action == 1026 && vuze-dht.proto_ver == 24',
+                'vuze-dht.keys_count', 'vuze-dht.key.len', 'vuze-dht.value_groups_count',
+                'vuze-dht.values_count', 'vuze-dht.value.bytes_count')
+        assert len(rows) == 1
+        assert rows[0][1:] == ['2', '20,0', '2', '2,1', '5,0']
+        rows = self.vuze_fields(cmd_tshark, capture_file, test_env,
+                'vuze-dht.action == 1029 && vuze-dht.proto_ver == 24',
+                'vuze-dht.contacts_count', 'vuze-dht.address.length', 'vuze-dht.address.ipv4',
+                'vuze-dht.address.ipv6', 'vuze-dht.network_coordinate.type',
+                'vuze-dht.node_type', 'vuze-dht.dht_size')
+        assert rows[0][1:] == ['3', '4,16,6', '192.0.2.9', '2001:db8::7', '1', '1', '250000']
+        # protocol versions below 15 have no network coordinates
+        rows = self.vuze_fields(cmd_tshark, capture_file, test_env,
+                'vuze-dht.network_coordinate.type', 'vuze-dht.proto_ver')
+        assert {r[1].split(',')[0] for r in rows} == {'16', '22', '24', '51', '53'}
+
+    def test_vuze_dht_errors_and_key_blocks(self, cmd_tshark, capture_file, test_env):
+        '''ERROR replies for a wrong address and a blocked key, and the
+        KEY_BLOCK request.'''
+        rows = self.vuze_fields(cmd_tshark, capture_file, test_env,
+                'vuze-dht.proto_ver == 24 && vuze-dht.error_type',
+                'vuze-dht.error_type', 'vuze-dht.address.port',
+                'vuze-dht.key_block_request_len', 'vuze-dht.signature_len')
+        assert [r[1:] for r in rows] == [
+            ['1', '5000', '', ''], ['1', '5001', '', ''], ['2', '', '4', '3'], ['77', '', '', '']]
+        rows = self.vuze_fields(cmd_tshark, capture_file, test_env,
+                'vuze-dht.action == 1036 && vuze-dht.proto_ver == 24',
+                'vuze-dht.spoof_id', 'vuze-dht.key_block_request', 'vuze-dht.signature')
+        assert rows[0][1] == '1911'
+        assert rows[0][2] == '626c6f636b'
+        assert rows[0][3] == '73696721'
+
+    def test_vuze_dht_find_value(self, cmd_tshark, capture_file, test_env):
+        '''FIND_VALUE requests for every flag value, and a reply with
+        has_values false.'''
+        rows = self.vuze_fields(cmd_tshark, capture_file, test_env,
+                'vuze-dht.proto_ver == 24 && vuze-dht.action == 1030', 'vuze-dht.flags',
+                'vuze-dht.max_values')
+        assert [r[1:] for r in rows] == [[f, '32'] for f in ('0', '1', '2', '4', '8', '16', '32')]
+        rows = self.vuze_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 246', 'vuze-dht.has_continuation', 'vuze-dht.has_values')
+        assert rows == [['246', '0', '0']]
