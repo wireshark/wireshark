@@ -162809,3 +162809,169 @@ class TestDissectVmwareHb:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'vmware_hb.host_key.length == 255',
                             'vmware_hb.host_key.length')
         assert rows == [['18', '255']]
+
+
+class TestDissectVnc:
+    '''VNC (RFB) on TCP 5900/5901, found by the heuristic on TCP 17000,
+    from the synthetic capture vnc_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('vnc_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.split('\n') if line]
+
+    @staticmethod
+    def _have_zlib(cmd_tshark, test_env):
+        out = subprocess.check_output((cmd_tshark, '-v'), encoding='utf-8', env=test_env)
+        return 'zlib' in out
+
+    def test_vnc_clean(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or error expert
+        infos, in one and two passes. 553 frames are VNC in one pass; in
+        two passes the 92 segments that only start a reassembled PDU are
+        not (the first pass shows the part that is there), and all the
+        other frames have the same Info column in both.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'vnc',
+                                '_ws.col.info', passes=passes)
+            outputs.append(dict((r[0], r[1]) for r in rows))
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+        assert len(outputs[0]) == 553
+        assert len(outputs[1]) == 461
+        assert all(outputs[0][k] == v for k, v in outputs[1].items())
+
+    def test_vnc_startup(self, cmd_tshark, capture_file, test_env):
+        '''Protocol versions 3.3, 3.7, 3.8 and 3.889, the security type list
+        of frame 6 and a failed authentication with its reason (3.8).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'vnc.server_proto_ver', 'vnc.server_proto_ver')
+        assert sorted({r[1] for r in rows}) == ['003.003', '003.007', '003.008', '003.889']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 6',
+                            'vnc.num_security_types', 'vnc.security_type')
+        assert rows == [['6', '10', '1,2,5,6,16,17,18,19,20,30']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vnc.auth_error',
+                            'vnc.auth_error', 'vnc.auth_result')
+        assert rows == [['343', 'Wrong password', 'True']]
+
+    def test_vnc_tight_auth_warnings(self, cmd_tshark, capture_file, test_env):
+        '''The six TightVNC authentication capabilities whose vendor or
+        signature does not match the code get a warning.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vnc.auth_code_mismatch',
+                            'vnc.tight_auth_code', 'vnc.server_vendor')
+        assert [r[1:] for r in rows] == [
+            ['1', 'XXXX'], ['2', 'STDV'], ['19', 'VENC'],
+            ['20', 'XXXX'], ['119', 'TGHT'], ['130', 'XXXX'],
+        ]
+
+    def test_vnc_pixel_format_state(self, cmd_tshark, capture_file, test_env):
+        '''The raw pixel data length follows the pixel format of the
+        session at that point (SetPixelFormat and ServerInit): 2x2 pixels
+        are 16 octets at 32 bits per pixel, 8 at 16 and 4 at 8.'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                'frame.number in {48, 144, 152} && vnc.raw_pixel_data',
+                                'vnc.raw_pixel_data', passes=passes)
+            assert [(r[0], len(r[1]) // 2) for r in rows] == [('48', 16), ('144', 8), ('152', 4)]
+
+    def test_vnc_tight(self, cmd_tshark, capture_file, test_env):
+        '''Tight rectangles: fill, JPEG, basic with the copy, palette and
+        gradient filters, and the 3 octet compact length (16400).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {73, 75, 76, 80, 81, 84, 85} || (vnc.tight_image_data && vnc.tight_image_len == 16400)',
+                            'vnc.tight_rect_type', 'vnc.tight_filter_id', 'vnc.tight_palette_num_colors',
+                            'vnc.tight_image_len', 'vnc.tight_fill_color')
+        assert rows == [
+            ['73', '0x08', '', '', '', '102030'],
+            ['75', '0x09', '', '', '5', ''],
+            ['76', '0x09', '', '', '200', ''],
+            ['80', '0x04', '1', '1', '', ''],
+            ['81', '0x04', '1', '3', '6', ''],
+            ['84', '0x04', '2', '', '', ''],
+            ['85', '0x04', '7', '', '', ''],
+            ['99', '0x09', '', '', '16400', ''],
+        ]
+
+    def test_vnc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU of 4096 octets of raw pixels over several segments is
+        decoded in the last one.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'vnc.raw_pixel_data && vnc.fb_update_width == 32',
+                            'vnc.fb_update_width', 'vnc.fb_update_height', 'vnc.raw_pixel_data')
+        assert len(rows) == 1
+        assert rows[0][1:3] == ['32', '32']
+        assert len(rows[0][3]) // 2 == 4096
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vnc.reassemble', 'vnc.reassemble')
+        assert len(rows) == 86
+
+    def test_vnc_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''TCP port 17000 is not a VNC port; the RFB version message makes
+        the heuristic dissector take the conversation. On port 17002
+        nothing is VNC.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vnc && tcp.port == 17000')
+        assert len(rows) == 10
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vnc && tcp.port == 17002')
+        assert rows == []
+
+    def test_vnc_colormap_count_offset(self, cmd_tshark, capture_file, test_env):
+        '''SetColourMapEntries that is not the first message of a segment
+        (frame 673, after a bell): the colour count is read relative to
+        the message start (it failed without "VNC: Fix Tight assert and
+        several decoding errors").'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 673',
+                            'vnc.colormap_first_color', 'vnc.colormap_groups', 'vnc.colormap_red')
+        assert rows == [['673', '3', '2', '1,4']]
+
+    def test_vnc_client_cut_text_extended(self, cmd_tshark, capture_file, test_env):
+        '''With the extended clipboard enabled, a positive length is the
+        original format and shows all the text (it showed message_length -
+        4 octets); the negative lengths are the extended format.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {692, 694, 695}',
+                            'vnc.client_cut_text_len_ext', 'vnc.client_cut_text', 'vnc.ext_clipboard.flags')
+        assert rows == [
+            ['692', '31', 'old style text in extended mode', ''],
+            ['694', '5', 'abcde', ''],
+            ['695', '-4', '', '0x04000000'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vnc.ext_clipboard.flags',
+                            'vnc.ext_clipboard.flags', 'vnc.client_cut_text_len_ext')
+        assert [(r[1], r[2]) for r in rows] == [
+            ('0x01000001', '-8'), ('0x0100000f', '-20'), ('0x02000001', '-4'),
+            ('0x04000000', '-4'), ('0x08000003', '-4'), ('0x1000000f', '-57'),
+            ('0x10000001', '-26'), ('0x04000000', '-4'),
+        ]
+
+    def test_vnc_extended_clipboard_values(self, cmd_tshark, capture_file, test_env):
+        '''Provided clipboard values are uncompressed (zlib).'''
+        if not self._have_zlib(cmd_tshark, test_env):
+            pytest.skip('Requires zlib.')
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vnc.clipboard.text',
+                            'vnc.clipboard.text', 'vnc.clipboard.html', 'vnc.clipboard.dib')
+        assert rows == [
+            ['690', 'text', '<b>html</b>', '01020304'],
+            ['691', 'only text', '', ''],
+        ]
+
+    def test_vnc_zrle(self, cmd_tshark, capture_file, test_env):
+        '''ZRLE rectangles: raw and palette subencodings (zlib).'''
+        if not self._have_zlib(cmd_tshark, test_env):
+            pytest.skip('Requires zlib.')
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {70, 71, 72}',
+                            'vnc.zrle_subencoding', 'vnc.zrle_palette_size', 'vnc.zrle_raw', 'vnc.zrle_palette')
+        assert rows == [
+            ['70', '0', '0', '11223344', ''],
+            ['71', '130', '2', '', '0102030405060708'],
+            ['72', '1', '1', '', ''],
+        ]
+
+    def test_vnc_vencrypt(self, cmd_tshark, capture_file, test_env):
+        '''After the VeNCrypt acknowledgement the stream is TLS.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'tcp.port == 40032 && tls',
+                            '_ws.col.info')
+        assert rows == [['575', 'Client Hello'], ['576', 'Server Hello Done'], ['577', 'Application Data']]
