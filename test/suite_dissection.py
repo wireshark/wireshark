@@ -164730,3 +164730,193 @@ class TestDissectWaveagent:
                 'waveagent.cword == 0x31 && waveagent.protocolversion == 3',
                 'waveagent.iftype', 'waveagent.snap')
         assert [len(r[2].split('|')) if r[2] else 0 for r in rows] == [4, 2, 0]
+
+
+class TestDissectWbxml:
+    CAP = 'wbxml_coverage.pcap.gz'
+    # Frames of the capture: 5-73 one document per content type and
+    # public identifier, 78-101 opaque values, 106-140 header variants,
+    # recursion depth and multipart, 141-146 WSP.
+    WBXML_FRAMES = [5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 26, 29, 32, 35, 37, 39, 41, 43, 45, 47,
+                    49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 78, 80, 82, 84, 86, 88,
+                    90, 93, 95, 97, 99, 101, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124,
+                    126, 128, 130, 132, 134, 136, 138, 140, 141, 142, 143, 144, 145, 146]
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file(TestDissectWbxml.CAP),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    @staticmethod
+    def tree(cmd_tshark, capture_file, test_env, frame, opts=()):
+        return subprocess.check_output((cmd_tshark, *opts, '-r', capture_file(TestDissectWbxml.CAP),
+                '-Y', 'frame.number == %d' % frame, '-V', '-O', 'wbxml,mime_multipart'),
+                encoding='utf-8', env=test_env)
+
+    def test_wbxml_frames(self, cmd_tshark, capture_file, test_env):
+        '''Documents of every public identifier and content type, in HTTP
+        responses and WSP, are dissected without malformed packets, in one
+        and two passes. The expert infos are the content types without a
+        token mapping and the two documents past the recursion limit.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'wbxml', 'frame.number', opts=passes)
+            assert [int(r[0]) for r in rows] == self.WBXML_FRAMES
+            rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.malformed',
+                               'frame.number', opts=passes)
+            assert rows == []
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'wbxml.content_type.not_supported',
+                           'frame.number')
+        assert [r[0] for r in rows] == ['53', '67', '69', '71', '73', '145']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'wbxml.too_much_recursion', 'frame.number')
+        assert [r[0] for r in rows] == ['134', '136']
+
+    def test_wbxml_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The WBXML part of the tree is the same in one and two passes.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP), '-Y', 'wbxml',
+                    '-O', 'wbxml,mime_multipart'), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_wbxml_header(self, cmd_tshark, capture_file, test_env):
+        '''Version, public identifier and character set; a literal public
+        identifier from the string table; an unknown version.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 37, 39, 41, 43, 45, 55, 106, 114, 118}',
+                           'frame.number', 'wbxml.version', 'wbxml.public_id.known', 'wbxml.charset')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[5] == ['0x03', '0x00000002', '106']          # WML 1.0
+        assert by_frame[7] == ['0x03', '0x00001108', '4']            # Phone.com WML 1.1
+        assert by_frame[9] == ['0x02', '0x00000005', '3']            # SI
+        assert by_frame[11] == ['0x01', '0x00000006', '106']         # SL
+        assert by_frame[37] == ['0x02', '0x0000020b', '3']           # Nokia provisioning
+        assert by_frame[43] == ['0x03', '0x00001201', '4']           # SyncML 1.2
+        assert by_frame[55] == ['0x03', '', '106']                   # literal public identifier
+        assert by_frame[106][0] == '0x00'                            # WBXML 1.0: no charset
+        assert by_frame[114] == ['0x03', '0x00000004', '1015']
+        assert by_frame[118] == ['', '', '']                         # unknown version 9
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 118', '_ws.col.info')
+        assert 'Unknown WBXML version 0x09' in rows[0][0]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 55', '_ws.col.info')
+        assert 'Public ID: "-//EXAMPLE//DTD ACTIVESYNC//EN"' in rows[0][0]
+
+    def test_wbxml_token_maps(self, cmd_tshark, capture_file, test_env):
+        '''Tokens are named from the content type: by public identifier
+        (WML), by media type (ActiveSync, also with a literal public
+        identifier) and by the WV-CSP discriminator.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 5', 'wbxml.known_tag')
+        assert rows[0][0].startswith('A,A,ACCESS,B,BIG,')
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 45 || frame.number == 55',
+                           'wbxml.known_tag')
+        assert rows == [['Sync,Sync'], ['Sync,Sync']]
+        chosen = {}
+        for frame in (57, 59, 61, 63, 65):
+            out = self.tree(cmd_tshark, capture_file, test_env, frame)
+            chosen[frame] = [l.split('chosen decoding: ')[1].rstrip(')') for l in out.splitlines()
+                             if 'chosen decoding' in l][0]
+        assert chosen == {
+            57: 'Wireless-Village Client-Server Protocol 1.0',
+            59: 'Wireless-Village Client-Server Protocol 1.1',
+            61: 'Wireless-Village Client-Server Protocol 1.2',
+            63: 'Wireless-Village Client-Server Protocol 1.3',
+            65: 'Wireless-Village Client-Server Protocol 1.2',     # unknown magic: default 1.2
+        }
+        # without a mapping the tokens are shown as numbers
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 5', 'wbxml.known_tag',
+                           opts=('-o', 'wbxml.skip_wbxml_token_mapping:TRUE'))
+        assert rows[0][0].startswith('Tag_0x22,Tag_0x22,Tag_0x23,')
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'wbxml.content_type.disabled',
+                           'frame.number', opts=('-o', 'wbxml.skip_wbxml_token_mapping:TRUE'))
+        assert len(rows) > 50
+
+    def test_wbxml_disable_parsing(self, cmd_tshark, capture_file, test_env):
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'wbxml.data_not_shown', 'frame.number',
+                           opts=('-o', 'wbxml.disable_wbxml_token_parsing:TRUE'))
+        assert len(rows) == 67
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'wbxml.known_tag', 'frame.number',
+                           opts=('-o', 'wbxml.disable_wbxml_token_parsing:TRUE'))
+        assert rows == []
+
+    def test_wbxml_global_tokens(self, cmd_tshark, capture_file, test_env):
+        '''Inline and table strings, entities, literal tags, extension
+        tokens, string table with a non-ASCII string.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 73',
+                           'wbxml.literal_c', 'wbxml.literal_ac', 'wbxml.literal_a', 'wbxml.literal',
+                           'wbxml.ext_i', 'wbxml.str_t', 'wbxml.entity')
+        assert rows == [['lit,lit', 'lit,lit', 'lit', 'lit,long-literal-name,long-literal-name,lit',
+                         'ext-i-0,ext-i-1,ext-i-2,ai,ai1,ai2,ai,ai1,ai2', 'abc,abc,abc',
+                         '8364,65,300,65,300']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 116', 'wbxml.str_t')
+        assert rows == [['€']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 120', 'wbxml.entity')
+        assert rows == [['8364']]
+
+    def test_wbxml_opaque(self, cmd_tshark, capture_file, test_env):
+        '''OPAQUE values that the WV-CSP, SI and EMN handlers decode, and the
+        error text for a wrong length.'''
+        out = self.tree(cmd_tshark, capture_file, test_env, 78)
+        assert 'WV-CSP Integer: 66051' in out
+        assert 'WV-CSP Integer: 16909060' in out
+        assert 'WV-CSP DateTime: 2002-12-31T17:34:56Z' in out
+        assert '(2 bytes of unparsed opaque data)' in out
+        out = self.tree(cmd_tshark, capture_file, test_env, 80)
+        assert '<Error: invalid binary WV-CSP Integer value (5 bytes of opaque data)>' in out
+        assert '<Error: invalid binary WV-CSP DateTime value (3 bytes of opaque data)>' in out
+        out = self.tree(cmd_tshark, capture_file, test_env, 95)
+        for s in ('%DateTime: 2001-12-31T00:00:00Z', '%DateTime: 2001-12-31T12:00:00Z',
+                  '%DateTime: 2001-12-31T12:34:00Z', '%DateTime: 2001-12-31T12:34:56Z'):
+            assert s in out
+        out = self.tree(cmd_tshark, capture_file, test_env, 97)
+        assert '<Error: invalid binary %DateTime (2 bytes of opaque data)>' in out
+        out = self.tree(cmd_tshark, capture_file, test_env, 99)
+        assert '%DateTime: 2001-12-31T12:34:56Z' in out
+
+    def test_wbxml_recursion_limit(self, cmd_tshark, capture_file, test_env):
+        '''255 nested elements decode completely; 256 stop with an expert
+        info (so do 300).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 130 || frame.number == 132',
+                           'frame.number', 'wbxml.known_tag', 'wbxml.too_much_recursion')
+        assert [r[0] for r in rows] == ['130', '132']
+        assert len(rows[0][1].split(',')) == 254 and rows[0][2] == ''
+        assert len(rows[1][1].split(',')) == 255 and rows[1][2] == ''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 134 || frame.number == 136',
+                           'frame.number', 'wbxml.too_much_recursion')
+        assert [r[0] for r in rows] == ['134', '136']
+        assert all(r[1] != '' for r in rows)
+
+    def test_wbxml_second_body_in_frame(self, cmd_tshark, capture_file, test_env):
+        '''Two WBXML bodies in one multipart message are both decoded (the
+        second one stopped with "Too much recursion" before the fix, because
+        the depth of the first was left at UINT_MAX).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 138',
+                           'wbxml.version', 'wbxml.known_tag', 'wbxml.too_much_recursion')
+        assert rows[0][2] == ''
+        assert rows[0][0] == '0x03,0x03'
+        assert rows[0][1] == 'card,card,card,card'
+        # a literal attribute start with opaque data
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 140',
+                           'wbxml.opaque_data', 'wbxml.too_much_recursion')
+        assert rows == [['c303050607', '']]
+
+    def test_wbxml_version_1_0(self, cmd_tshark, capture_file, test_env):
+        '''OPAQUE is RESERVED_2 in WBXML 1.0 and stops the parsing.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 106 || frame.number == 108',
+                           'frame.number', 'wbxml.reserved_2')
+        assert [r[0] for r in rows] == ['106', '108']
+        out = self.tree(cmd_tshark, capture_file, test_env, 106)
+        assert 'RESERVED_2     (Invalid Token!) | WBXML 1.0 parsing stops here.' in out
+
+    def test_wbxml_wsp(self, cmd_tshark, capture_file, test_env):
+        '''WBXML in WSP: a Profile-Diff header (UAProf) and Reply and Push
+        PDUs with an inline content type.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 141', 'wbxml.known_tag')
+        assert rows[0][0].startswith('rdf:RDF')
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 142 && frame.number <= 146',
+                           'frame.number', 'wbxml.public_id.known', '_ws.col.info')
+        assert [r[1] for r in rows[:3]] == ['0x00000004', '0x00000005', '0x00000006']
+        assert 'WSP Reply' in rows[0][2] and 'WSP Push' in rows[1][2]
