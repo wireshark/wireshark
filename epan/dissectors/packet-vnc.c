@@ -2228,26 +2228,29 @@ static unsigned
 vnc_client_cut_text_extended(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		    proto_tree *tree)
 {
-	int message_length;
+	int32_t raw_length;
+	unsigned message_length;
 	bool original_format;
 
-	message_length = (int) tvb_get_ntohil(tvb, *offset + 3);
+	raw_length = tvb_get_ntohil(tvb, *offset + 3);
 
-	if (message_length >= 0) {
+	if (raw_length >= 0) {
 		original_format = true;
+		message_length = (unsigned) raw_length;
 	} else {
 		original_format = false;
-		message_length = abs(message_length);
+		/* Negate in unsigned arithmetic; well defined for INT32_MIN. */
+		message_length = 0U - (unsigned) raw_length;
 	}
-	VNC_BYTES_NEEDED((uint32_t) message_length);
+	VNC_BYTES_NEEDED(message_length);
 	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, ENC_NA);
 	*offset += 3; /* Skip over 3 bytes of padding */
 	col_set_str(pinfo->cinfo, COL_INFO, "Client cut text (extended)");
-	proto_tree_add_int(tree, hf_vnc_client_cut_text_len_ext, tvb, *offset, 4, message_length);
+	proto_tree_add_int(tree, hf_vnc_client_cut_text_len_ext, tvb, *offset, 4, raw_length);
 	*offset += 4;
 	if (original_format) {
 		proto_tree_add_item(tree, hf_vnc_client_cut_text, tvb, *offset,
-	    message_length - 4, ENC_ASCII);
+	    message_length, ENC_ASCII);
 	} else {
 		vnc_client_cut_text_extended_non_compatible(
 		    tvb, pinfo, offset, tree, message_length);
@@ -2589,7 +2592,7 @@ vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 	uint8_t bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
 	unsigned length;
 
-	length = width * height * bytes_per_pixel;
+	length = (unsigned)width * height * bytes_per_pixel;
 	VNC_BYTES_NEEDED(length);
 
 	proto_tree_add_item(tree, hf_vnc_raw_pixel_data, tvb, *offset,
@@ -3400,7 +3403,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned *offset,
 		uncomp_offset += 1;
 
 		if(subencoding_type == 0) { /* Raw */
-			length = width * height * bytes_per_cpixel;
+			length = (unsigned)width * height * bytes_per_cpixel;
 			VNC_BYTES_NEEDED(length);
 
 			/* XXX - not working yet! */
@@ -3594,6 +3597,7 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 		/* invalid encoding */
 
 		expert_add_info(pinfo, compression_type_ti, &ei_vnc_invalid_encoding);
+		bytes_needed = 0;
 	} else {
 		unsigned row_size;
 		int bits_per_pixel;
@@ -3689,7 +3693,7 @@ vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 	uint8_t bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
 	unsigned  pixels_bytes, mask_bytes;
 
-	pixels_bytes = width * height * bytes_per_pixel;
+	pixels_bytes = (unsigned)width * height * bytes_per_pixel;
 	mask_bytes   = ((width + 7) / 8) * height;
 
 	return decode_cursor(tvb, offset, tree,
@@ -3725,7 +3729,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, unsigned *off
 
 	col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Server set colormap entries");
 
-	number_of_colors = tvb_get_ntohs(tvb, 4);
+	number_of_colors = tvb_get_ntohs(tvb, *offset + 3);
 
 	VNC_BYTES_NEEDED(3);
 	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 1, ENC_NA);
@@ -3747,7 +3751,8 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, unsigned *off
 		return 0;
 	}
 
-	bytes_needed = (number_of_colors * 6) + 5;
+	/* the count itself and the colors; the first 3 bytes are already consumed */
+	bytes_needed = (number_of_colors * 6) + 2;
 	VNC_BYTES_NEEDED(bytes_needed);
 
 	*offset += 2;
@@ -3799,6 +3804,11 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 
 	col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Server cut text");
 
+	VNC_BYTES_NEEDED(7);
+
+	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, ENC_NA);
+	*offset += 3; /* Skip over 3 bytes of padding */
+
 	text_len = tvb_get_ntohl(tvb, *offset);
 	pi = proto_tree_add_item(tree, hf_vnc_server_cut_text_len, tvb, *offset, 4,
 			    ENC_BIG_ENDIAN);
@@ -3816,7 +3826,7 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset,
 			    text_len, ENC_ASCII);
 	*offset += text_len;
 
-	return *offset;
+	return 0;
 }
 
 
