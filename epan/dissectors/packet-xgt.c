@@ -682,17 +682,18 @@ dissect_xgt_instruction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
 
         /* For requests, extract variable name and save it */
         if (is_request && conv_info) {
-            /* Check if already in map */
-            var_name = (char *)wmem_map_lookup(conv_info->invoke_id_map, (void *)(uintptr_t)invoke_id);
-
-            /* If not found, peek ahead to get variable name and store it */
-            if (!var_name && tvb_reported_length_remaining(tvb, offset) >= 2) {
+            /* Peek ahead to get the variable name of this request and
+             * store it, replacing the entry of an earlier use of the
+             * same invoke id (first pass only). */
+            if (tvb_reported_length_remaining(tvb, offset) >= 2) {
                 uint16_t var_length = tvb_get_letohs(tvb, offset);
                 if (var_length > 0 && var_length <= 16 &&
                     tvb_reported_length_remaining(tvb, offset + 2) >= var_length) {
                     var_name = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset + 2, var_length, ENC_ASCII);
                     /* Store in conversation map */
-                    wmem_map_insert(conv_info->invoke_id_map, (void *)(uintptr_t)invoke_id, wmem_strdup(wmem_file_scope(), var_name));
+                    if (!PINFO_FD_VISITED(pinfo)) {
+                        wmem_map_insert(conv_info->invoke_id_map, (void *)(uintptr_t)invoke_id, wmem_strdup(wmem_file_scope(), var_name));
+                    }
                 }
             }
         }
