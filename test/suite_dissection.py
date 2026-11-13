@@ -29089,8 +29089,8 @@ class TestDissectOran:
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.split()
-        assert len(protocols) == 92
-        assert protocols.count('O-RAN-FH-C') == 65
+        assert len(protocols) == 89
+        assert protocols.count('O-RAN-FH-C') == 62
         assert protocols.count('O-RAN-FH-U') == 27
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *passes,
@@ -29116,7 +29116,7 @@ class TestDissectOran:
             for i, field in enumerate(line.split('\t')):
                 values[i].update(int(v) for v in field.split(',') if v)
         sts, ses, cmds, laa, meas = values
-        assert sts == {0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
+        assert sts == {0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11}
         assert ses == set(range(1, 35))
         assert cmds == set(range(1, 7))
         assert laa == set(range(7))
@@ -29135,7 +29135,7 @@ class TestDissectOran:
         assert stdout.splitlines() == [
             '2\t9,9\t', '3\t9,9\t', '12\t9\t48', '13\t0,0,1,9,14,0\t', '14\t2,3,12\t29,13',
             '15\t9\t', '16\t1\t', '19\t12,12\t46', '23\t9,8\t', '24\t9\t', '26\t10\t',
-            '28\t2,3,4,4\t24', '32\t9,9\t', '33\t9,9\t', '91\t9,9,4\t41,57,17', '92\t0,2\t',
+            '28\t2,3,4,4\t24', '32\t9,9\t', '33\t9,9\t', '88\t9,9,4\t41,57,17', '89\t0,2\t',
         ]
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('oran_coverage.pcap.gz'),
@@ -29210,8 +29210,8 @@ class TestDissectOran:
             '58\t\t56,54,53\t4,5,6',
             '60\t\t41,44\t0,0',
             # ST8 sent from the O-RU address finds the SE 22 request
-            '89\t90\t\t',
-            '90\t\t89\t0',
+            '86\t87\t\t',
+            '87\t\t86\t0',
         ]
 
     def test_oran_reassembly(self, cmd_tshark, capture_file, test_env):
@@ -29250,7 +29250,7 @@ class TestDissectOran:
             '54\ta50f,0102030405060708', '55\t0001']
         assert fields('-Y', 'oran_fh_cus.ueLayerPreEqSinr',
                       '-Tfields', '-eframe.number', '-eoran_fh_cus.ueLayerPreEqSinr') == [
-            '74\t0x0101,0x0202,0x0303,0x0404', '75\t0x0505,0x0606']
+            '74\t0x0101,0x0202,0x0303,0x0404']
         # SE 6 (rbgSize 4, bits 0 and 2) + SE 11 (numBundPrb 2): 4 bundles in
         # each of the two sections (with and without weights)
         assert fields('-Y', 'frame.number == 38 && count(oran_fh_cus.bfw.bundle) == 8',
@@ -29285,7 +29285,7 @@ class TestDissectOran:
         for frame, count in zip(range(68, 74), (2, 4, 6, 8, 12, 24)):
             assert fields('-Y', 'frame.number == %u && count(oran_fh_cus.sinrValue) == %u' % (frame, count),
                           '-Tfields', '-eframe.number') == [str(frame)]
-        verbose = run('-Y', 'frame.number in {34, 36, 79, 83, 86, 88}', '-V', '-O', 'oran_fh_cus')
+        verbose = run('-Y', 'frame.number in {34, 36, 76, 80, 81, 85}', '-V', '-O', 'oran_fh_cus')
         # activeBeamspaceCoefficientMask 80 00 01 05: TRX 1, 24, 30, 32
         beamspace = verbose[verbose.index('[Array elements set: 4]'):]
         assert re.findall(r'^ {12}TRX +(\d+): ', beamspace, re.M)[:4] == ['1', '24', '30', '32']
@@ -29294,34 +29294,34 @@ class TestDissectOran:
                              verbose, re.M)
         assert [a or b for a, b in orphans] == [
             'PRB        4',            # frame 36: 5 PRBs in bundles of 2
-            'PRB        3',            # frame 79: 4 PRBs in bundles of 3
+            'PRB        3',            #
             'PRBs   9-  9',            # disableBFWs, 4 PRBs from 6
             'PRBs   0- 11',            # SE 6, numBundPrb larger than the rbg
             'PRBs   5-  5',            # SE 12 pair 3-5 in bundles of 2
             'PRBs   0-  0',            # frame 83: SE 12 range and pair of 1 PRB
             'PRBs   1-  1',
-            'PRBs  42- 42',            # frame 88: SE 13 hops to 30 and 60 (+10)
-            'PRBs  72- 72',
+            'PRBs  42- 42',            # frame 85: SE 13 hops to 30 and 60 (+10)
+            'PRBs  72- 72',            # frame 85
         ]
         # ST4 command 1 TRX numbering from 1 (frame 86 has 32 weights)
-        st4 = run('-Y', 'frame.number == 86', '-V', '-O', 'oran_fh_cus')
+        st4 = run('-Y', 'frame.number == 83', '-V', '-O', 'oran_fh_cus')
         assert re.findall(r'^ {12}TRX +(\d+): ', st4, re.M) == [str(n) for n in range(1, 33)]
         # U-plane methods 7 and 8: REs from sReSMask1/2; unscaled BFP values
-        i_samples = fields('-Y', 'frame.number == 91', '-o', 'oran_fh_cus.oran.unscaled_iq:TRUE',
+        i_samples = fields('-Y', 'frame.number == 88', '-o', 'oran_fh_cus.oran.unscaled_iq:TRUE',
                            '-Tfields', '-eoran_fh_cus.iSample')[0].split(',')
         assert i_samples[:30] == ['32', '88', '144', '200', '40', '96', '152', '208', '264', '320', '376',
                                   '432'] + ['0'] * 18
-        assert fields('-Y', 'frame.number == 91 && count(oran_fh_cus.iSample) == 35', '-Tfields',
+        assert fields('-Y', 'frame.number == 88 && count(oran_fh_cus.iSample) == 35', '-Tfields',
                       '-eoran_fh_cus.sReSMask1', '-eoran_fh_cus.sReSMask2') == ['0x000f,0x03f0,0x0801\t0x0ff0,0x0000,0x0700']
         # The last section of frame 92 has smaller PRBs than the first
-        assert fields('-Y', 'frame.number == 92', '-Tfields', '-eoran_fh_cus.sectionId',
+        assert fields('-Y', 'frame.number == 89', '-Tfields', '-eoran_fh_cus.sectionId',
                       '-eoran_fh_cus.numPrbu') == ['4,5\t2,1']
         # ST4 command 1 with startSymbolId 2, and with BFP weights and padding
-        assert fields('-Y', 'frame.number == 86', '-Tfields', '-eoran_fh_cus.tdBeamNum') == [
+        assert fields('-Y', 'frame.number == 83', '-Tfields', '-eoran_fh_cus.tdBeamNum') == [
             '0x0041,0x0031,0x0033,0x0032']
         # SE 1 with 4-bit BFP weights: 4 weights after bfwCompParam
-        assert fields('-Y', 'frame.number == 87 && count(oran_fh_cus.bfwI) == 4 && !_ws.malformed',
-                      '-Tfields', '-eframe.number') == ['87']
+        assert fields('-Y', 'frame.number == 84 && count(oran_fh_cus.bfwI) == 4 && !_ws.malformed',
+                      '-Tfields', '-eframe.number') == ['84']
         assert fields('-Y', 'frame.number == 35', '-Tfields', '-eoran_fh_cus.beamIdAP1',
                       '-eoran_fh_cus.beamIdAP2', '-eoran_fh_cus.beamIdAP3') == ['4660\t66\t32767']
         assert fields('-Y', 'frame.number == 41', '-Tfields', '-eoran_fh_cus.puncReMask') == ['4095,240']
