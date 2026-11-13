@@ -165552,3 +165552,105 @@ class TestDissectWhois:
         # the response time is shown once per conversation
         assert len([v for v in answered.values() if v[1]]) == 7
         assert two == one
+
+
+class TestDissectWifiDisplay:
+    '''Wi-Fi Display subelements in the Wi-Fi Alliance vendor IE of 802.11
+    probe and association frames and in P2P ANQP service responses, from
+    the synthetic capture wifi-display_coverage.pcap.gz.'''
+
+    @staticmethod
+    def make_probe_request(path, wfd_payload):
+        # radiotap + probe request + WFA vendor IE (subtype 10 = Wi-Fi Display)
+        ie = b'\xdd' + bytes([4 + len(wfd_payload)]) + b'\x50\x6f\x9a\x0a' + wfd_payload
+        frame = (struct.pack('<BBHI', 0, 0, 8, 0) + struct.pack('<HH', 0x0040, 0) +
+                 b'\xff' * 6 + b'\x02\xaa\x00\x00\x00\x01' + b'\xff' * 6 +
+                 struct.pack('<H', 0) + ie)
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 127))
+            f.write(struct.pack('<IIII', 0, 0, len(frame), len(frame)))
+            f.write(frame)
+
+    def test_wifi_display_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 62 frames carry Wi-Fi Display subelements; only the six
+        frames with subelements that have no decoder get a warning, and
+        nothing is malformed, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-display_coverage.pcap.gz'),
+                '-Y', 'wifi_display.subelem.id',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 62
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wifi-display_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-display_coverage.pcap.gz'),
+                '-Y', '_ws.expert.message == "Unknown subelement payload"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['53', '54', '55', '56', '57', '58']
+
+    def test_wifi_display_subelements(self, cmd_tshark, capture_file, test_env):
+        '''Subelement IDs, device information, session descriptors and
+        the ANQP service response.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-display_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 19, 20, 21, 36, 59, 62}',
+                '-Tfields', '-eframe.number', '-ewifi_display.subelem.id',
+                '-ewifi_display.subelem.dev_info.control_port',
+                '-ewifi_display.subelem.dev_info.max_throughput',
+                '-ewifi_display.subelem.session.device_address',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t0\t7238\t102\t',
+            '19\t0\t65535\t65535\t',
+            '20\t0,1\t7236\t20\t',
+            '21\t1,6,7\t\t\t',
+            '36\t9\t\t\t02:aa:00:00:00:01,02:aa:00:00:00:02,02:aa:00:00:00:03',
+            '59\t0,10,1,6,7,10\t7236\t50\t',
+            '62\t9\t\t\t02:aa:00:00:00:01',
+        ]
+
+    def test_wifi_display_session_info_tree(self, cmd_tshark, capture_file, test_env):
+        '''The device information bits of a session descriptor are in the
+        descriptor's tree, not in the subelement's (fixed in "Wi-Fi
+        Display: Fix length checks and tree for session info"), and the
+        extra information after the descriptor is shown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-display_coverage.pcap.gz'),
+                '-Y', 'frame.number == 37', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('                WFD Device Info Descriptor: 02:aa:00:00:00:01')
+        assert lines[start + 1:start + 6] == [
+            '                    Descriptor length: 27',
+            '                    Device address: 02:aa:00:00:00:01 (02:aa:00:00:00:01)',
+            '                    Associated BSSID: 02:aa:00:00:00:02 (02:aa:00:00:00:02)',
+            '                    .... .... .... ..01 = Device type: WFD primary sink (1)',
+            '                    .... .... .... .1.. = Coupled sink operation supported by WFD source: True',
+        ]
+        assert '                    Extra info in the end of descriptor: deadbeef' in lines
+
+    def test_wifi_display_short_subelements(self, cmd_tshark, result_file, test_env):
+        '''A Device Information subelement shorter than 6 octets and a
+        header of fewer than 3 octets are reported as malformed instead
+        of being read past their length ("Wi-Fi Display: Fix length
+        checks and tree for session info").'''
+        path = result_file('wifi-display-short.pcap')
+        # Device Information of length 3 followed by an Alternative MAC Address
+        self.make_probe_request(path, b'\x00\x00\x03\x00\x01\x02' +
+                                b'\x0a\x00\x06\x02\xaa\x00\x00\x00\x01')
+        stdout = subprocess.check_output((cmd_tshark, '-r', path,
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'Subelement length invalid' in stdout
+        self.make_probe_request(path, b'\x00\x00')
+        stdout = subprocess.check_output((cmd_tshark, '-r', path,
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'Packet too short for Wi-Fi Display subelement' in stdout
