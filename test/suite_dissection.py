@@ -161891,3 +161891,54 @@ class TestDissectV150fw:
             '110\t17\t\t\t\t',
             '111\t17\t0\t\t\t<MISSING>',
         ]
+
+
+class TestDissectV52:
+    def test_v52_frames(self, cmd_tshark, capture_file, test_env):
+        '''The EyeSDN file holds 60 V5 envelope function records: 48
+        carry V5.2 messages in V5 data link frames, 8 are data link frames
+        without a message (SABME, UA, RR, RNR, REJ, DISC, SARM/DM, UA) and
+        4 have envelope function addresses that select LAPD (LAPD, TEI
+        management and two Q.931 messages). None is malformed or has an
+        error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v52_coverage.eyesdn.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 60
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'V52': 48, 'V5DL': 8, 'LAPD': 1, 'Q.931': 2, 'TEI': 1}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('v52_coverage.eyesdn.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_v52_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of messages of every protocol of the V5.2
+        interface: PSTN (address, sequence number, signals), control (PSTN
+        and ISDN addresses, control functions, variant and interface ID),
+        protection (logical C-channel, physical C-channel), BCC (user
+        port, time slots, multi-slot map) and link control.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v52_coverage.eyesdn.gz'),
+                '-Y', 'frame.number in {3, 9, 12, 16, 17, 20, 23, 29, 43, 44, 49, 50}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [line[:120] for line in stdout.splitlines()] == [
+            '3\tI, N(R)=0, N(S)=0 | PSTN: 5 | Establish | SN: 5',
+            '9\tI P, N(R)=1, N(S)=3 | PSTN: 8 | Signal | DAA | DAA | DAA',
+            '12\tI, N(R)=4, N(S)=4 | PSTN: 10 | Status Enq | LI | ST | ASS | SR | PN',
+            '16\tI, N(R)=3, N(S)=0 | PSTN: 33 | PortCtrl | FE101 (activate access) | Re-pro Started',
+            '17\tI P, N(R)=4, N(S)=0 | ISDN: 291 | PortCtrl | FE201/202 (unblock) | FE209 (TE out of service) | FE210 (failure inside ',
+            '20\tI, N(R)=2, N(S)=2 | PSTN: 0 | CCtrl | RestartReq | Var: 5 | Intf. ID: 3',
+            '23\tI, N(R)=0, N(S)=0 | Log C-ch: 25 | SO Req | SN: 24 | Phy C-ch: 2, 31 | No standby C-channel available | Protocol disc',
+            '29\tI P, N(R)=1, N(S)=3 | Res SN Com | SN: 30 | Phy C-ch: 2, 31 | Target physical C-channel not provisioned | Protocol di',
+            '43\tI, N(R)=0, N(S)=0 | LinkId: 5 | LinkCtrl | FE-IDRel',
+            '44\tI, N(R)=1, N(S)=0 | LinkId: 5 | LinkCtrl Ack',
+            '49\tI, N(R)=1, N(S)=2 | PSTN: 3 | Signal | SS: Off hook (loop closed)',
+            '50\tI, N(R)=1, N(S)=3 | PSTN: 4 | Status Enq',
+        ]
