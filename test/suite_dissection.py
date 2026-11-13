@@ -168837,3 +168837,82 @@ class TestDissectXdlc:
         assert by[293] == 'DLCI 0, U F, func=RD'
         assert by[294] == 'DLCI 0, U F, func=DM'
         assert by[296] == 'DLCI 0, S F, func=RR, N(R)=9'
+
+
+class TestDissectXdmcp:
+    '''XDMCP (X Display Manager Control Protocol, UDP 177) from the
+    synthetic capture xdmcp_coverage.pcap.gz: every opcode, the Forward
+    query address and port forms, the connection arrays of the Request
+    and the byte arrays, which are the reproducer of "XDMCP: Do not
+    include the length in the byte array item" (the item covered the
+    length and started at the length).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('xdmcp_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_xdmcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''32 frames, 31 of them XDMCP (the version 2 message is not),
+        without malformed packets or error expert infos in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-e_ws.col.protocol', passes=passes)
+            assert len(rows) == 32
+            assert rows.count('XDMCP') == 31
+            assert rows[30] == 'UDP'
+
+    def test_xdmcp_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''The opcode of every frame.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info')
+        assert rows[:4] == ['Broadcast_query', 'Query', 'Query', 'Indirect_query']
+        assert rows[4:8] == ['Forward_query'] * 4
+        assert rows[8:11] == ['Willing', 'Willing', 'Unwilling']
+        assert rows[11:15] == ['Request'] * 4
+        assert rows[15:19] == ['Accept ', 'Accept ', 'Decline', 'Decline']
+        assert rows[19:27] == ['Manage', 'Manage', 'Refuse', 'Failed', 'Failed',
+                               'Keepalive', 'Alive', 'Alive']
+        assert rows[27:30] == ['Unknown (0x0000)', 'Unknown (0x00ff)', 'Refuse']
+
+    def test_xdmcp_byte_arrays(self, cmd_tshark, capture_file, test_env):
+        '''The authentication data of the Request and the Accept is the
+        byte array without its length.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xdmcp.authentication_data_len && frame.number in {12, 16, 18}',
+                '-Tfields', '-eframe.number', '-exdmcp.authentication_data_len',
+                '-exdmcp.authentication_data', '-exdmcp.authorization_data')
+        assert rows == [
+            '12\t8\t0102030405060708\t',
+            '16\t8\t1111111111111111\t22222222222222222222222222222222',
+            '18\t8\t3333333333333333\t',
+        ]
+
+    def test_xdmcp_forward_query(self, cmd_tshark, capture_file, test_env):
+        '''The client address as IPv4, IPv6 and raw bytes; the client
+        port as a number and raw bytes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xdmcp.opcode == 4 && frame.number < 8', '-Tfields', '-eframe.number',
+                '-exdmcp.client_address_ipv4', '-exdmcp.client_address_ipv6',
+                '-exdmcp.client_address_bytes', '-exdmcp.client_port',
+                '-exdmcp.client_port_bytes')
+        assert rows == [
+            '5\t192.0.2.2\t\t\t6000\t',
+            '6\t\t2001:db8::2\t\t6001\t',
+            '7\t\t\t010203\t\t17700001',
+        ]
+
+    def test_xdmcp_connections(self, cmd_tshark, capture_file, test_env):
+        '''The connection types and addresses of the Request.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 14', '-Tfields',
+                '-exdmcp.connection_type', '-exdmcp.connection_address_ipv4',
+                '-exdmcp.connection_address_ipv6', '-exdmcp.connection_address_bytes')
+        assert rows == ['0x0001,0x0002,0x0000,0x0006,0x0000\t192.0.2.2\t2001:db8::2\t0102,00010203,010203']
