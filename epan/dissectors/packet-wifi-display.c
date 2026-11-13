@@ -148,8 +148,13 @@ static const value_string wfd_coupled_sink_status_bitmap[] = {
 };
 
 static void
-dissect_wfd_subelem_device_info(proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_wfd_subelem_device_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int len)
 {
+  if (len < 6) {
+    expert_add_info(pinfo, tree, &ei_wfd_subelem_len_invalid);
+    return;
+  }
+
   proto_tree_add_item(tree, hf_wfd_subelem_dev_info_type,
                       tvb, offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(tree, hf_wfd_subelem_dev_info_coupled_sink_source,
@@ -269,19 +274,19 @@ dissect_wfd_subelem_session_info(packet_info *pinfo, proto_tree *tree,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(descr, hf_wfd_subelem_session_dev_info_time_sync,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree,
+    proto_tree_add_item(descr,
                         hf_wfd_subelem_session_dev_info_audio_unsupp_pri_sink,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree,
+    proto_tree_add_item(descr,
                         hf_wfd_subelem_session_dev_info_audio_only_supp_source,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree,
+    proto_tree_add_item(descr,
                         hf_wfd_subelem_session_dev_info_tdls_persistent_group,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree,
+    proto_tree_add_item(descr,
                         hf_wfd_subelem_session_dev_info_tdls_persistent_group_reinvoke,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree,
+    proto_tree_add_item(descr,
                         hf_wfd_subelem_session_dev_info_reserved,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -361,7 +366,7 @@ dissect_wifi_display_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   proto_item *subelem;
 
   while (offset < end) {
-    if (end - offset < 2) {
+    if (end - offset < 3) {
       expert_add_info_format(pinfo, tree, &ei_wfd_subelem_len_invalid, "Packet too short for Wi-Fi Display subelement");
       break;
     }
@@ -385,7 +390,7 @@ dissect_wifi_display_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     switch (id) {
     case WFD_SUBELEM_DEVICE_INFO:
-      dissect_wfd_subelem_device_info(wfd_tree, tvb, offset);
+      dissect_wfd_subelem_device_info(pinfo, wfd_tree, tvb, offset, len);
       break;
     case WFD_SUBELEM_ASSOCIATED_BSSID:
       dissect_wfd_subelem_associated_bssid(pinfo, wfd_tree, tvb, offset, len);
