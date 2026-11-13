@@ -164430,3 +164430,55 @@ class TestDissectWai:
         assert len(rows) == 2
         assert len(rows[0][1]) == 80 and rows[1][1] in ('', '<MISSING>')
         assert rows[0][2] == '13' * 20
+
+
+class TestDissectWap:
+    '''The WAP variable length integer (tvb_get_uintvar() in packet-wap.c)
+    as used by connectionless WSP on UDP 9200: URI and header lengths in
+    one, two and three octets, from the synthetic capture
+    wap_coverage.pcap.gz.'''
+
+    def test_wap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 12 WSP PDUs decode without malformed packets or warning or
+        error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wap_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['WSP'] * 12
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wap_uintvar_lengths(self, cmd_tshark, capture_file, test_env):
+        '''The decoded lengths: a URI of 11, 200 and 16400 octets (one,
+        two and three octets), a length with a redundant leading 0x80
+        octet, and header lengths of 1 and 126 octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ewsp.pdu_type',
+                '-ewsp.uri_length', '-ewsp.headers_length',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [(r[1], r[2], r[3]) for r in rows] == [
+            ('0x40', '11', ''), ('0x40', '200', ''), ('0x40', '16400', ''),
+            ('0x40', '5', ''), ('0x40', '2', ''),
+            ('0x60', '2', '1'), ('0x60', '2', '126'), ('0x61', '2', '1'),
+            ('0x06', '', '1'), ('0x07', '', '126'),
+            ('0x04', '', '1'), ('0x04', '', '126')]
+
+    def test_wap_uri_text(self, cmd_tshark, capture_file, test_env):
+        '''The URI taken with the decoded length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wap_coverage.pcap.gz'),
+                '-Y', 'wsp.uri', '-Tfields', '-ewsp.uri',
+            ), encoding='utf-8', env=test_env)
+        uris = stdout.split()
+        assert uris[0] == '/index.html'
+        assert uris[1] == '/' + 'a' * 199
+        assert uris[2] == '/' + 'b' * 16399
+        assert uris[3] == '/pad/'
