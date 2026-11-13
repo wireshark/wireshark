@@ -166449,3 +166449,55 @@ class TestDissectWisun:
         assert lines[0] == ('Data, Src: 0x0002, Dst: 0x0001, Routing Cost: 300, Routing Cost: 65535, '
                             'Routing Cost: 0, Routing Cost: 6, Netname: WiSUN-Net, Netname: , '
                             'Netname: ' + 'A' * 32 + ', PAN Version: 4660\tWiSUN-Net,,' + 'A' * 32)
+
+
+class TestDissectWlancertextn:
+    def test_wlancertextn_decode(self, cmd_tshark, capture_file, test_env):
+        '''The SSID lists of certificates in TLS (id-pe-wlanSSID) and of
+        attribute certificates in CMS (id-aca-wlanSSID) decode without a
+        malformed packet or a BER or size constraint error, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wlancertextn_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.message contains "BER" || '
+                          '_ws.expert.message contains "Size constraint"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wlancertextn_coverage.pcapng.gz'),
+                '-Y', 'wlancertextn.SSID',
+                '-Tfields', '-e_ws.col.protocol', '-ewlancertextn.SSID', '-Eoccurrence=a',
+                '-Eaggregator=,',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['TLSv1.2'] * 5 + ['CMS'] * 3
+        ssids = [[bytes.fromhex(s).decode() for s in l[1].split(',')] for l in lines]
+        assert ssids[0] == ['corp-wifi']
+        assert ssids[1] == ['guest', 'corp-wifi', 'lab-5G']
+        assert ssids[2] == ['A', 'S' * 32, 'Z']
+        assert ssids[3] == ['ssid-%02d' % i for i in range(20)]
+        assert ssids[4] == [bytes(range(1, 33)).decode('latin-1')]
+        assert ssids[5] == ['corp-wifi']
+        assert ssids[6] == ['a', 'b', 'c', 'D' * 32]
+        assert ssids[7] == ['xxxxx', 'yyyyyyyy']
+
+    def test_wlancertextn_oids(self, cmd_tshark, capture_file, test_env):
+        '''The extension and attribute OIDs, the critical flag and the EAP
+        over PPP / EAP over LAN key usage names.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wlancertextn_coverage.pcapng.gz'),
+                '-Y', 'wlancertextn.SSID',
+                '-Tfields', '-ex509af.extension.id', '-ex509af.critical', '-ex509ce.KeyPurposeId',
+                '-Eoccurrence=a', '-Eaggregator=,',
+            ), encoding='utf-8', env=test_env)
+        assert '1.3.6.1.5.5.7.1.13' in stdout
+        assert '1.3.6.1.5.5.7.3.13,1.3.6.1.5.5.7.3.14' in stdout
+        assert stdout.count('\tTrue\t') == 1
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wlancertextn_coverage.pcapng.gz'),
+                '-Y', 'cms && wlancertextn.SSID', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('Object Id: 1.3.6.1.5.5.7.10.6 (id-aca-wlanSSID)') == 4
+        assert 'Extension Id: 1.3.6.1.5.5.7.1.13 (id-pe-wlanSSID)' not in stdout
