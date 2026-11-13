@@ -352,7 +352,7 @@ dissect_x509af_SubjectName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   proto_item_append_text(proto_item_get_parent(tree), " (%s)", str?str:"");
   x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0);
   if (eo_info) {
-    eo_info->subjectname = str;
+    eo_info->subjectname = str ? wmem_strdup(actx->pinfo->pool, str) : NULL;
   }
 
 
