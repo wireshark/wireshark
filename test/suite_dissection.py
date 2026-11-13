@@ -165738,3 +165738,126 @@ class TestDissectWifiDpp:
             ['93', '47,17', '0x09,0x09'], ['94', '', ''], ['95', '247', '0x09'],
             ['96', '', ''], ['97', '', ''], ['98', '36', '0x09'],
         ]
+
+
+class TestDissectWifiNan:
+    '''Wi-Fi NAN attributes in beacons (WFA vendor IE), Service Discovery
+    frames and NAN action frames, from the synthetic capture
+    wifi-nan_coverage.pcap.gz.'''
+
+    @staticmethod
+    def attr(i, data):
+        return bytes([i]) + struct.pack('<H', len(data)) + data
+
+    @staticmethod
+    def make_beacon(path, attrs, interval=100):
+        # radiotap + beacon + WFA vendor IE (subtype 19 = NAN)
+        body = b'\x50\x6f\x9a\x13' + attrs
+        assert len(body) <= 255
+        frame = (struct.pack('<BBHI', 0, 0, 8, 0) + struct.pack('<HH', 0x0080, 0) +
+                 b'\xff' * 6 + b'\x02\xcc\x00\x00\x00\x01' + b'\x50\x6f\x9a\x01\x0a\x0b' +
+                 struct.pack('<H', 0) + struct.pack('<QHH', 0, interval, 0x0420) +
+                 b'\xdd' + bytes([len(body)]) + body)
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 127))
+            f.write(struct.pack('<IIII', 0, 0, len(frame), len(frame)))
+            f.write(frame)
+
+    @classmethod
+    def nested(cls, levels, inner):
+        for _ in range(levels):
+            inner = cls.attr(0xdd, b'\x50\x6f\x9a\x13' + inner)
+        return inner
+
+    def test_wifi_nan_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 52 frames are NAN; nothing is malformed and no expert info
+        is a warning or an error, in one and two passes, and the -V
+        output is the same in both.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-nan_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 52
+        assert protocols.count('NAN') == 52
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wifi-nan_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wifi-nan_coverage.pcap.gz'), '-V',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_wifi_nan_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Every attribute type that NAN defines (reserved IDs excluded)
+        is present, the beacon kind and the action frame subtypes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-nan_coverage.pcap.gz'),
+                '-Y', 'wifi_nan.attribute.type',
+                '-Tfields', '-ewifi_nan.attribute.type',
+            ), encoding='utf-8', env=test_env)
+        types = sorted({int(t) for l in stdout.splitlines() for t in l.split(',')})
+        reserved = {17, 22, 24, 25, 37, 38}
+        assert types == [t for t in range(45) if t not in reserved] + [221]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-nan_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 11}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['1'].startswith('Discovery Beacon') and info['1'].endswith('BI=100')
+        assert info['2'].startswith('Sync Beacon') and info['2'].endswith('BI=512')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-nan_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 32', '-Tfields', '-ewifi_nan.action.subtype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['0x05', '0x05', '0x06', '0x06', '0x07', '0x08', '0x09',
+                                  '0x05', '0x05', '0x06', '0x01', '0x02', '0x03', '0x04',
+                                  '0x0a', '0x0b', '0x0c', '0x0d', '0x0d', '0x00', '0x63']
+
+    def test_wifi_nan_extended_mesh_id(self, cmd_tshark, capture_file, test_env):
+        '''The mesh ID of the Extended Mesh attribute has the length
+        attr_len - 13 ("Wi-Fi NAN: Bound nesting of vendor specific
+        attributes").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-nan_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9', '-Tfields', '-ewifi_nan.mesh.id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '6d-65-73-68,<MISSING>'
+
+    def test_wifi_nan_vendor_attribute_nesting(self, cmd_tshark, capture_file, result_file, test_env):
+        '''Vendor specific attributes may be nested 8 deep; the 9th level
+        gets an expert info and is skipped. Two dozen attributes next to
+        each other are dissected once each (they took 2^n dissections:
+        22 siblings 13 s, 35 more than a day).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wifi-nan_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 15 && frame.number <= 20',
+                '-Tfields', '-eframe.number', '-ewifi_nan.expert.nesting_too_deep',
+            ), encoding='utf-8', env=test_env, timeout=60)
+        assert stdout.splitlines() == ['%d\t' % i for i in range(15, 21)]
+        path = result_file('wifi-nan-nested.pcap')
+        for levels, expected in ((8, ''), (9, '1'), (12, '1')):
+            self.make_beacon(path, self.nested(levels, self.attr(0, b'\x01\x02')))
+            stdout = subprocess.check_output((cmd_tshark, '-r', path,
+                    '-Tfields', '-ewifi_nan.expert.nesting_too_deep',
+                ), encoding='utf-8', env=test_env, timeout=60)
+            assert stdout.strip() == expected
+
+    def test_wifi_nan_vendor_attribute_length(self, cmd_tshark, result_file, test_env):
+        '''The nested IE is the vendor attribute only, not the rest of the
+        frame: the WPS IE of the first attribute is not extended by the
+        following Master Indication attribute.'''
+        path = result_file('wifi-nan-vendor.pcap')
+        wps = b'\x00\x50\xf2\x04' + b'\x10\x4a\x00\x01\x10'
+        self.make_beacon(path, self.attr(0xdd, wps) + self.attr(0, b'\x07\x08'))
+        stdout = subprocess.check_output((cmd_tshark, '-r', path,
+                '-Tfields', '-ewps.version', '-ewifi_nan.master_indication.preference',
+                '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n') == '0x10\t0x07\t'
