@@ -162975,3 +162975,65 @@ class TestDissectVnc:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'tcp.port == 40032 && tls',
                             '_ws.col.info')
         assert rows == [['575', 'Client Hello'], ['576', 'Server Hello Done'], ['577', 'Application Data']]
+
+
+class TestDissectVntag:
+    '''VN-Tag (ethertype 0x8926) from the synthetic capture
+    vntag_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('vntag_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.split('\n') if line]
+
+    def test_vntag_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 15 frames are VN-Tag without malformed packets or error
+        expert infos, in one and two passes, with the same VN-Tag fields
+        (the Info column is not compared: ICMP shows "no response found"
+        only in the second pass).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'vntag', 'vntag.dir', 'vntag.ptr',
+                                'vntag.dst', 'vntag.looped', 'vntag.r', 'vntag.version', 'vntag.src',
+                                'vntag.etype', 'vntag.len', 'vntag.trailer', passes=passes)
+            assert len(rows) == 15
+            outputs.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+        assert outputs[0] == outputs[1]
+
+    def test_vntag_fields(self, cmd_tshark, capture_file, test_env):
+        '''Direction, pointer, destination, looped, reserved, version and
+        source with the smallest and the largest values.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 5',
+                            'vntag.dir', 'vntag.ptr', 'vntag.dst', 'vntag.looped',
+                            'vntag.r', 'vntag.version', 'vntag.src', 'vntag.etype')
+        assert rows == [
+            ['1', 'False', 'False', '5', 'False', '0', '0', '3', '0x0800'],
+            ['2', 'True', 'False', '16383', 'False', '0', '0', '4095', '0x0800'],
+            ['3', 'False', 'True', '1', 'True', '0', '0', '1', '0x0800'],
+            ['4', 'True', 'True', '10922', 'True', '1', '3', '1365', '0x0800'],
+            ['5', 'False', 'False', '0', 'False', '1', '2', '0', '0x0800'],
+        ]
+
+    def test_vntag_encapsulations(self, cmd_tshark, capture_file, test_env):
+        '''ARP, UDP and an unknown ethertype; LLC (STP) and SNAP with
+        trailers, IPX without LLC; a VLAN in a VN-Tag, a VN-Tag in a VLAN
+        and in a VN-Tag.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 6', '_ws.col.protocol',
+                            'vntag.len', 'vntag.trailer')
+        assert rows == [
+            ['6', 'ARP', '', ''], ['7', 'ARP', '', ''], ['8', 'UDP', '', ''], ['9', '0x1234', '', ''],
+            ['10', 'STP', '38', '00000000'], ['11', 'ICMP', '52', 'deadbeef'], ['12', 'IPX MSG', '38', ''],
+            ['13', 'ICMP', '', ''], ['14', 'ICMP', '', ''], ['15', 'ICMP', '', ''],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vntag && vlan', 'vntag.src', 'vlan.id')
+        assert rows == [['13', '10', '100'], ['14', '12', '100']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 15', 'vntag.src')
+        assert rows == [['15', '2,4']]
