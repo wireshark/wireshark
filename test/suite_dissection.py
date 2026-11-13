@@ -167387,3 +167387,72 @@ class TestDissectWsp:
                 '-Y', 'wsp.variable_value', '-Tfields', '-eframe.number',
                 '-ewsp.variable_value')
         assert stdout.splitlines() == ['568\t1,two,,5', '569\tx,']
+
+
+class TestDissectWtls:
+    '''WTLS records and handshake messages on UDP 9202, 9203 and 2949 from
+    the synthetic capture wtls_coverage.pcap.gz. Encrypted records hold
+    made-up opaque bytes; nothing is decrypted.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wtls_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_wtls_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 40 frames decode as WTLS (the protocol column depends on the
+        port) without malformed packets or error expert infos, in one and
+        two passes.'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 40
+        assert protocols.count('WTLS+WSP') == 31
+        assert protocols.count('WTLS+WTP+WSP') == 7
+        assert protocols.count('UDP') == 2   # port 2949 leaves the column alone
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'wtls', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 40
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_wtls_session_ids(self, cmd_tshark, capture_file, test_env):
+        '''Session IDs of up to 8 octets are shown as a number, longer ones
+        as bytes (before "WTLS: Fix long session IDs and key parameter set
+        strings" a 10 octet ID gave a malformed packet).'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-ewtls.handshake.sessionid.bytes',
+                '-ewtls.handshake.client_hello.sessionid',
+                '-ewtls.handshake.server_hello.sessionid',
+                '-ewtls.handshake.client_hello.session.str')
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['1'] == ['', '', '', 'NULL']
+        assert rows['2'] == ['', '0x0000000010111213', '', '']
+        assert rows['4'] == ['10111213141516171819', '', '', '']
+        assert rows['5'] == ['101112131415161718191a1b1c1d1e1f', '', '', '']
+        assert rows['6'] == ['101112131415161718', '', '', '']
+        assert rows['8'] == ['', '', '0x1011121314151617', '']
+
+    def test_wtls_key_parameter_sets(self, cmd_tshark, capture_file, test_env):
+        '''The parameter set strings of the client hello (client and trusted
+        keys) and of a WTLS certificate.'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number',
+                '-ewtls.handshake.client_hello.parameter',
+                '-ewtls.handshake.certificate.parameter')
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['1'] == ['secp160r1,secp160r1', '']
+        assert rows['4'] == ['secp160r1,secp160r1', '']
+        assert rows['13'] == ['', 'rsa-params']
+
+    def test_wtls_alerts(self, cmd_tshark, capture_file, test_env):
+        '''Alert descriptions from several levels (the last one is in a datagram with several records).'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'wtls.alert.description', '-Tfields',
+                '-ewtls.alert.level', '-ewtls.alert.description')
+        assert stdout.splitlines() == [
+            '1\t0', '2\t10', '3\t40', '1\t90', '3\t100', '2\t255', '1\t0']
