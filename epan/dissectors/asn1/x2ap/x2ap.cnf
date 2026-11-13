@@ -85,6 +85,10 @@ GlobalGNB-ID/gNB-ID gnb-id-choice
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
+#.FN_HDR PrivateIE-ID
+  actx->external.direct_ref_present = false;
+  actx->external.direct_reference = NULL;
+
 #.FN_BODY PrivateIE-ID/global  FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
 %(DEFAULT_BODY)s
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
@@ -633,10 +637,17 @@ LHN-ID TYPE=FT_STRING DISPLAY = BASE_NONE
 
 #.FN_BODY X2AP-Message VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_X2AP_Message);
-    dissect_X2AP_PDU_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    if (x2ap_data->message_depth >= X2AP_MAX_NESTED_MESSAGES) {
+      expert_add_info(actx->pinfo, actx->created_item, &ei_x2ap_nested_too_deep);
+    } else {
+      x2ap_data->message_depth++;
+      dissect_X2AP_PDU_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      x2ap_data->message_depth--;
+    }
   }
 
 #.TYPE_ATTR
