@@ -169928,3 +169928,74 @@ class TestDissectXti:
             '484\t10011\t16\t',
             '485\t10122,10012\t20120,32\t20120',
         ]
+
+
+class TestDissectXtp:
+    '''XTP (IP protocol 36) from the synthetic capture
+    xtp_coverage.pcap.gz: DATA with and without BTAG, every command
+    option, CNTL, FIRST, ECNTL with spans, TCNTL, JCNTL, JOIN, DIAG and
+    unknown packet formats. Frames 39-42 and 36 are the reproducers of
+    "XTP: Fix field offsets and span byte order".'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('xtp_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_xtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''76 XTP frames with verified checksums, without malformed
+        packets or warning and error expert infos in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', 'xtp.checksum.status == 1', '-Tfields',
+                    '-e_ws.col.protocol', passes=passes)
+            assert rows == ['XTP'] * 76
+
+    def test_xtp_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One and two passes give the same summary lines.'''
+        args = ('-Tfields', '-eframe.number', '-e_ws.col.info')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, *args, passes=('-2',))
+        assert one == two
+        assert len(one) == 76
+
+    def test_xtp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the packet format, options, sequence
+        number and length.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info')
+        assert rows[0] == 'DATA [] Seq=1 Len=20'
+        assert rows[3] == 'DATA [EOM, END] Seq=4 Len=300'
+        assert rows[21] == 'CNTL [SREQ, DREQ] Seq=40 Len=20 Recv-Seq=100 Alloc=2000'
+        assert rows[42] == 'JOIN<obsolete> [] Seq=90 Len=8'
+        assert rows[43] == 'Unknown pformat (4) [] Seq=95 Len=14'
+
+    def test_xtp_control_segments(self, cmd_tshark, capture_file, test_env):
+        '''The traffic control segment fields (shown 4 octets early
+        before the fix) and the span fields (big endian).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {22, 39, 40}', '-Tfields', '-eframe.number',
+                '-extp.cntl.echo', '-extp.tcntl.echo', '-extp.tcntl.rsvd',
+                '-extp.tcntl.xkey')
+        assert rows == ['22\t287454020\t\t\t',
+                        '39\t\t287454020\t7\t0x8000000000000042',
+                        '40\t\t3\t4\t0x0000000000000005']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 36', '-Tfields', '-extp.ecntl.nspan',
+                '-extp.ecntl.span_le', '-extp.ecntl.span_re')
+        assert rows == ['3\t10,30,18446744073709486080\t20,40,18446744073709551615']
+
+    def test_xtp_data_and_diag(self, cmd_tshark, capture_file, test_env):
+        '''The BTAG of a DATA segment and the diagnostic segment.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 49}', '-Tfields', '-eframe.number',
+                '-extp.data.btag', '-extp.diag.code', '-extp.diag.val',
+                '-extp.diag.msg')
+        assert rows == ['2\t0x1122334455667788\t\t\t', '49\t\t1\t2\tdiagnostic message 1']
