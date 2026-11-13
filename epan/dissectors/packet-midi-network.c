@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-midi.h"
 
 #define NMP_IDENTIFIER ((const uint8_t*)"MIDI")
@@ -59,6 +60,8 @@ static int hf_nmp_bye_message;
 static int hf_nmp_nak_reason;
 static int hf_nmp_nak_header;
 static int hf_nmp_nak_message;
+
+static expert_field ei_nmp_command_too_short;
 
 static int hf_nmp_ping_response_in;
 static int hf_nmp_ping_response_to;
@@ -183,6 +186,10 @@ dissect_nmp_invitation(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsi
         uint8_t ep_name_len;
         proto_tree_add_item_ret_uint8(tree, hf_nmp_invitation_endpoint_name_len, tvb, offset, 1, ENC_NA, &ep_name_len);
         offset += 1;
+        if (end_offset - offset < 1U + (unsigned)ep_name_len * 4) {
+            proto_tree_add_expert(tree, pinfo, &ei_nmp_command_too_short, tvb, offset, 0);
+            return;
+        }
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_nmp_invitation_capabilities,
             ett_nmp_invitation_capabilities, nmp_invitation_capabilities, ENC_NA);
@@ -191,17 +198,22 @@ dissect_nmp_invitation(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsi
         const uint8_t* ep_name;
         proto_tree_add_item_ret_string(tree, hf_nmp_invitation_endpoint_name, tvb, offset, ep_name_len*4, ENC_UTF_8, pinfo->pool, &ep_name);
         offset += ep_name_len * 4;
-        proto_tree_add_item(tree, hf_nmp_invitation_product_instance_id, tvb, offset, end_offset-offset, ENC_UTF_8);
+        if (offset < end_offset)
+            proto_tree_add_item(tree, hf_nmp_invitation_product_instance_id, tvb, offset, end_offset-offset, ENC_UTF_8);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", ep_name);
     } else {
+        if (end_offset - offset < 34) {
+            proto_tree_add_expert(tree, pinfo, &ei_nmp_command_too_short, tvb, offset, 0);
+            return;
+        }
         proto_tree_add_item(tree, hf_nmp_reserved, tvb, offset, 2, ENC_NA);
         offset += 2;
 
         proto_tree_add_item(tree, hf_nmp_invitation_auth_digest, tvb, offset, 32, ENC_NA);
         offset += 32;
 
-        if (command_code == NMP_COMMAND_INVITATION_USER_AUTH) {
+        if (command_code == NMP_COMMAND_INVITATION_USER_AUTH && offset < end_offset) {
             proto_tree_add_item(tree, hf_nmp_invitation_user_name, tvb, offset, end_offset-offset, ENC_UTF_8);
         }
     }
@@ -212,6 +224,14 @@ dissect_nmp_invitation_reply(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
     uint8_t ep_name_len;
     proto_tree_add_item_ret_uint8(tree, hf_nmp_invitation_endpoint_name_len, tvb, offset, 1, ENC_NA, &ep_name_len);
     offset += 1;
+
+    unsigned fixed_len = 1;
+    if (command_code==NMP_COMMAND_INVITATION_REPLY_AUTH_REQ || command_code==NMP_COMMAND_INVITATION_REPLY_USER_AUTH_REQ)
+        fixed_len += 16;
+    if (end_offset - offset < fixed_len + (unsigned)ep_name_len * 4) {
+        proto_tree_add_expert(tree, pinfo, &ei_nmp_command_too_short, tvb, offset, 0);
+        return;
+    }
 
     if (command_code==NMP_COMMAND_INVITATION_REPLY_AUTH_REQ || command_code==NMP_COMMAND_INVITATION_REPLY_USER_AUTH_REQ) {
         proto_tree_add_item(tree, hf_nmp_invitation_auth_state, tvb, offset, 1, ENC_NA);
@@ -228,13 +248,18 @@ dissect_nmp_invitation_reply(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
     proto_tree_add_item_ret_string(tree, hf_nmp_invitation_endpoint_name, tvb, offset, ep_name_len*4, ENC_UTF_8, pinfo->pool, &ep_name);
     offset += ep_name_len * 4;
 
-    proto_tree_add_item(tree, hf_nmp_invitation_product_instance_id, tvb, offset, end_offset-offset, ENC_UTF_8);
+    if (offset < end_offset)
+        proto_tree_add_item(tree, hf_nmp_invitation_product_instance_id, tvb, offset, end_offset-offset, ENC_UTF_8);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", ep_name);
 }
 
 static void
-dissect_nmp_nak(tvbuff_t* tvb, proto_tree* tree, unsigned offset, unsigned end_offset) {
+dissect_nmp_nak(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset, unsigned end_offset) {
+    if (end_offset - offset < 6) {
+        proto_tree_add_expert(tree, pinfo, &ei_nmp_command_too_short, tvb, offset, 0);
+        return;
+    }
     proto_tree_add_item(tree, hf_nmp_nak_reason, tvb, offset, 1, ENC_NA);
     offset += 1;
     proto_tree_add_item(tree, hf_nmp_reserved, tvb, offset, 1, ENC_NA);
@@ -297,7 +322,7 @@ dissect_nmp_nak(tvbuff_t* tvb, proto_tree* tree, unsigned offset, unsigned end_o
         offset += 2;
     }
 
-    if (end_offset-offset)
+    if (end_offset > offset)
         proto_tree_add_item(tree, hf_nmp_nak_message, tvb, offset, end_offset-offset, ENC_UTF_8);
 }
 
@@ -318,6 +343,7 @@ dissect_nmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
     proto_tree_add_item(tree, hf_nmp_signature, tvb, offset, 4, ENC_ASCII);
     offset += 4;
 
+    uint32_t cmd_idx = 0;
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         uint8_t command_code, payload_length;
         proto_item* comm = proto_tree_add_item(tree, hf_nmp_command, tvb, offset, 4, ENC_NA);
@@ -338,6 +364,16 @@ dissect_nmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
 
         proto_item_set_len(comm, 4 + payload_length*4);
         unsigned end_offset = offset + 2 + payload_length*4;
+        cmd_idx++;
+
+        /* Commands that read a fixed number of bytes beyond the 2 command specific bytes */
+        if (payload_length == 0 &&
+            (command_code == NMP_COMMAND_PING || command_code == NMP_COMMAND_PING_REPLY ||
+             command_code == NMP_COMMAND_RETRANSMIT_REQ || command_code == NMP_COMMAND_RETRANSMIT_ERROR)) {
+            proto_tree_add_expert(comm_tree, pinfo, &ei_nmp_command_too_short, tvb, offset, 0);
+            offset = end_offset;
+            continue;
+        }
 
         switch(command_code) {
             case NMP_COMMAND_UMP_DATA:
@@ -371,7 +407,7 @@ dissect_nmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
 
                     conversation_add_proto_data(conversation, proto_nmp, nmp_info);
                 }
-                nmp_ping_transaction_t *ping_trans;
+                nmp_ping_transaction_t *ping_trans = NULL;
                 if (!PINFO_FD_VISITED(pinfo)) {
                     if (command_code == NMP_COMMAND_PING) {
                         /* This is a request */
@@ -386,8 +422,12 @@ dissect_nmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
                             ping_trans->rep_frame = pinfo->num;
                         }
                     }
+                    /* Later passes must see the transaction matched now, not
+                     * whatever the map holds after the whole file is read. */
+                    if (ping_trans)
+                        p_add_proto_data(wmem_file_scope(), pinfo, proto_nmp, cmd_idx, ping_trans);
                 } else {
-                    ping_trans = wmem_map_lookup(nmp_info->ping_pdus, GUINT_TO_POINTER(ping_id));
+                    ping_trans = (nmp_ping_transaction_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_nmp, cmd_idx);
                 }
                 if (ping_trans) {
                     if (command_code == NMP_COMMAND_PING) {
@@ -436,7 +476,7 @@ dissect_nmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
                 proto_tree_add_item(comm_tree, hf_nmp_reserved, tvb, offset, 2, ENC_NA);
                 break;
             case NMP_COMMAND_NAK:
-                dissect_nmp_nak(tvb, comm_tree, offset, end_offset);
+                dissect_nmp_nak(tvb, pinfo, comm_tree, offset, end_offset);
                 break;
             case NMP_COMMAND_BYE: {
                 uint8_t bye_val;
@@ -671,6 +711,13 @@ proto_register_midi_network(void)
         },
     };
 
+    static ei_register_info ei[] = {
+        { &ei_nmp_command_too_short,
+            { "nmp.command_too_short", PI_MALFORMED, PI_ERROR,
+            "Command payload length too short for its contents", EXPFILL }
+        },
+    };
+
     static int *ett[] = {
         &ett_nmp,
         &ett_nmp_command,
@@ -681,6 +728,8 @@ proto_register_midi_network(void)
     proto_nmp = proto_register_protocol("Network MIDI 2.0", "NetMIDI", "nmp");
     proto_register_field_array(proto_nmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_module_t* expert_nmp = expert_register_protocol(proto_nmp);
+    expert_register_field_array(expert_nmp, ei, array_length(ei));
 
     nmp_handle = register_dissector("net_midi2", dissect_nmp, proto_nmp);
 }
