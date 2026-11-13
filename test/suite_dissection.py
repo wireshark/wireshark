@@ -167827,3 +167827,86 @@ class TestDissectX29:
         lines = self.tshark(cmd_tshark, capture_file, test_env, 'exported_pdu', '-Tfields', '-eframe.number',
                             '-ex29.msg_code', '-edata.len')
         assert lines == ['46\t\t3', '47\t\t12', '48\t\t']
+
+
+class TestDissectX2ap:
+    '''X2AP synthetic coverage captures: x2ap_coverage.pcap.gz (valid traffic)
+    and x2ap_nested.pcap.gz (X2AP-Message nesting at and past the limit).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, test_env, capture, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_x2ap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All messages of all procedures decode without malformed packets or
+        error expert infos, in one and in two passes.'''
+        cap = capture_file('x2ap_coverage.pcap.gz')
+        stdout = self._fields(cmd_tshark, test_env, cap, '-Y', 'x2ap', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 346       # 348 frames: 2 are SCTP fragments
+        for passes in ((), ('-2',)):
+            stdout = self._fields(cmd_tshark, test_env, cap, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert.severity == error',
+                                  '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_x2ap_two_passes_same_tree(self, cmd_tshark, capture_file, test_env):
+        '''The tree is the same in one and two passes (all procedure codes and IE ids).'''
+        cap = capture_file('x2ap_coverage.pcap.gz')
+        one = self._fields(cmd_tshark, test_env, cap, '-Tfields', '-eframe.number',
+                           '-ex2ap.procedureCode', '-ex2ap.id', '-e_ws.col.info')
+        two = self._fields(cmd_tshark, test_env, cap, '-2', '-Tfields', '-eframe.number',
+                           '-ex2ap.procedureCode', '-ex2ap.id', '-e_ws.col.info')
+        assert one == two
+        assert len(one.splitlines()) == 348
+
+    def test_x2ap_message_nesting(self, cmd_tshark, capture_file, test_env):
+        '''X2AP-Message carries an X2AP-PDU: two nested levels (the limit)
+        decode; the third level is cut off with an expert info instead of
+        recursing (used to hit the tree depth assertion at 250 levels).'''
+        cap = capture_file('x2ap_nested.pcap.gz')
+        stdout = self._fields(cmd_tshark, test_env, cap, '-Tfields', '-eframe.number',
+                              '-ex2ap.procedureCode', '-ex2ap.nested_too_deep')
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert len(frames) == 5
+        # nested 2: the outer message plus two nested PDUs, no error
+        assert frames[0][1] == '17,17,17'
+        assert frames[0][2] == ''
+        # nested 3, 4, 40 and 300: the same three PDUs, then the expert info
+        for f in frames[1:]:
+            assert f[1] == '17,17,17'
+            assert f[2] != ''
+        for passes in ((), ('-2',)):
+            stdout = self._fields(cmd_tshark, test_env, cap, *passes, '-V')
+            assert 'Maximum tree depth' not in stdout
+            assert stdout.count('Expert Info (Error/Malformed): X2AP-Message nested too deeply') == 4
+
+    def test_x2ap_nested_message_in_main_capture(self, cmd_tshark, capture_file, test_env):
+        '''Nesting of one and two levels (also with real messages inside)
+        decodes without the nesting expert info.'''
+        cap = capture_file('x2ap_coverage.pcap.gz')
+        stdout = self._fields(cmd_tshark, test_env, cap, '-Y', 'x2ap.nested_too_deep',
+                              '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+        stdout = self._fields(cmd_tshark, test_env, cap, '-Y', 'frame.number == 333',
+                              '-Tfields', '-ex2ap.procedureCode')
+        assert stdout.strip() == '17,17,17'
+
+    def test_x2ap_private_ie_local_after_global(self, cmd_tshark, capture_file, test_env):
+        '''A local PrivateIE-ID after a global one is not decoded with the
+        OID of the global one (the direct reference was never cleared).'''
+        cap = capture_file('x2ap_coverage.pcap.gz')
+        stdout = self._fields(cmd_tshark, test_env, cap, '-Y', 'frame.number == 340',
+                              '-Tfields', '-e_ws.expert.message', '-E', 'aggregator=|')
+        assert stdout.strip().count('Dissector for OID not implemented') == 1
+        stdout = self._fields(cmd_tshark, test_env, cap, '-Y', 'frame.number == 339',
+                              '-Tfields', '-e_ws.expert.message', '-E', 'aggregator=|')
+        assert stdout.strip().count('Dissector for OID not implemented') == 1
+
+    def test_x2ap_transport_layer_addresses(self, cmd_tshark, capture_file, test_env):
+        '''IPv4 and IPv6 transport layer addresses are decoded.'''
+        cap = capture_file('x2ap_coverage.pcap.gz')
+        stdout = self._fields(cmd_tshark, test_env, cap,
+                              '-Y', 'x2ap.transportLayerAddressIPv4 || x2ap.transportLayerAddressIPv6',
+                              '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 50
