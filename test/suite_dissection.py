@@ -163740,3 +163740,157 @@ class TestDissectVsock:
             '27\t8\t',
             '28\t50\t' + b'DATA'.hex(),
         ]
+
+
+class TestDissectVsomeip:
+    '''vSomeIP internal routing protocol from the synthetic capture
+    vsomeip_coverage.pcapng.gz: Exported PDU frames naming "vsomeip" (the
+    protocol has no default port) in frames 1-60, and TCP on port 30509 in
+    frames 61-71. The port is registered by the ROUTING_INFO ADD_CLIENT of
+    frame 10 (vsomeip.auto_register_port is on by default).'''
+
+    def test_vsomeip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''71 frames; no malformed packets or error expert infos in one
+        and two passes; the seven security commands (50-56) are reported
+        as not implemented.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vsomeip_coverage.pcapng.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 71
+            assert protocols.count('exported_pdu:vsomeip') == 55
+            assert protocols.count('exported_pdu:vsomeip:someip') == 5
+            assert protocols.count('eth:ethertype:ip:tcp') == 4
+            assert protocols.count('eth:ethertype:ip:tcp:vsomeip') == 5
+            assert protocols.count('eth:ethertype:ip:tcp:vsomeip:someip') == 1
+            assert protocols.count('eth:ethertype:ip:tcp:vsomeip:someip:vsomeip') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vsomeip_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vsomeip_coverage.pcapng.gz'),
+                    '-Y', 'vsomeip.not_implemented',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['50', '51', '52', '53', '54', '55', '56']
+
+    def test_vsomeip_routing_info(self, cmd_tshark, capture_file, test_env):
+        '''Routing info sub commands: clients with and without an address
+        and port, service instances, several sub commands in one message,
+        an unknown sub command and a truncated one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsomeip_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 10 && frame.number <= 24',
+                '-Tfields', '-eframe.number', '-evsomeip.size',
+                '-evsomeip.routing_info.subcommand', '-evsomeip.routing_info.client',
+                '-evsomeip.routing_info.address', '-evsomeip.routing_info.port',
+                '-evsomeip.service_id', '-evsomeip.unparsed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t13\t0x00\t0x0101\t192.0.2.2\t30509\t\t',
+            '11\t13\t0x00\t0x0102\t192.0.2.2\t30510\t\t',
+            '12\t7\t0x00\t0x0103\t\t\t\t',
+            '13\t25\t0x00\t0x0104\t\t\t\t',
+            '14\t13\t0x01\t0x0101\t192.0.2.2\t30509\t\t',
+            '15\t7\t0x01\t0x0105\t\t\t\t',
+            '16\t42\t0x02\t0x0101\t\t\t0x1234,0x5678,0x0042\t',
+            '17\t30\t0x02\t0x0102\t192.0.2.3\t30511\t0x1234\t',
+            '18\t20\t0x02\t0x0103\t\t\t\t',
+            '19\t33\t0x04\t0x0101\t\t\t0x1234,0x5678\t',
+            '20\t39\t0x04\t0x0104\t192.0.2.4\t30512\t0x1234,0x5678\t',
+            '21\t99\t0x00,0x02,0x01,0x04,0x01\t0x0201,0x0202,0x0201,0x0202,0x0203\t'
+            '192.0.2.5,192.0.2.6\t30513,30514\t0x1234,0x5678,0x0042,0x1234\t',
+            '22\t11\t0x09,0x09\t\t\t\t\t09,aa',
+            '23\t0\t\t\t\t\t\t',
+            '24\t4\t\t\t\t\t\t00020000',
+        ]
+
+    def test_vsomeip_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command of the protocol appears; the Info column names it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsomeip_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 60',
+                '-Tfields', '-evsomeip.command',
+            ), encoding='utf-8', env=test_env)
+        commands = sorted(set(stdout.split()))
+        assert commands == sorted('0x%02x' % c for c in
+            list(range(0, 9)) + list(range(0x10, 0x2b)) + [0x30, 0x31, 0x7f])
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsomeip_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 3, 25, 28, 32, 36, 38, 43, 58}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tVSOMEIP_ASSIGN_CLIENT (ffff) client-app-one',
+            '3\tVSOMEIP_ASSIGN_CLIENT_ACK (ffff) --> (0101)',
+            '25\tVSOMEIP_OFFER_SERVICE (1234) [1234.0001]',
+            '28\tVSOMEIP_SUBSCRIBE (1234) [1234.0001.0010.8001]',
+            '32\tVSOMEIP_REQUEST_SERVICE (1234) [1234.0001] [5678.0002] [0042.0003]',
+            '36\tVSOMEIP_SUBSCRIBE_ACK (1234) [1234.0001.0010.8001] (0101)',
+            '38\tVSOMEIP_SEND (1234) --UDP--> (0102): SOME/IP (Service ID: 0x1234, Method ID: 0x0421, Length: 16)  ',
+            '43\tVSOMEIP_REGISTER_EVENT (1234) [1234.0001.8001] [1234.0001.8002]',
+            '58\tVSOMEIP_CONFIG (1234)  logging.level=debug  routing=app  k=',
+        ]
+
+    def test_vsomeip_send(self, cmd_tshark, capture_file, test_env):
+        '''SEND, NOTIFY and NOTIFY_ONE hand the SOME/IP message to the
+        SOME/IP dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsomeip_coverage.pcapng.gz'),
+                '-Y', 'vsomeip && someip',
+                '-Tfields', '-eframe.number', '-evsomeip.command', '-evsomeip.reliable',
+                '-evsomeip.dst_client', '-esomeip.messageid', '-esomeip.length',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l.split('\t')[:5] for l in lines] == [
+            ['38', '0x18', '0', '0x0102', '0x12340421'],
+            ['39', '0x19', '0', '0x0102', '0x12340421'],
+            ['40', '0x1a', '0', '0x0102', '0x12340421'],
+            ['41', '0x18', '1', '0xffff', '0x80018001'],
+            ['42', '0x18', '7', '0x0000', '0x12340001'],
+            ['67', '0x18', '0', '0x0102', '0x12340421'],
+            ['69', '0x18,0x07', '0', '0x0102', '0x12340421'],
+        ]
+
+    def test_vsomeip_tcp(self, cmd_tshark, capture_file, test_env):
+        '''TCP on the registered port: PDUs split over segments are
+        reassembled (frame 66 is the first part of the PDU of frame 67,
+        frame 68 ends with the start of the PDU of frame 69), several PDUs in
+        one segment are all dissected.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vsomeip_coverage.pcapng.gz'),
+                    '-Y', 'tcp.port == 30509 && tcp.len > 0',
+                    '-Tfields', '-eframe.number', '-evsomeip.command', '-evsomeip.client',
+                    '-etcp.segment.count',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '64\t0x07\t0x1234\t',
+                '65\t0x07,0x08\t0x1234,0x4321\t',
+                '66\t\t\t',
+                '67\t0x18\t0x1234\t2',
+                '68\t0x08\t0x4321\t',
+                '69\t0x18,0x07\t0x1234,0x1234\t2',
+                '70\t0x31\t0x1234\t',
+                '71\t0x05\t0x1234\t',
+            ]
+
+    def test_vsomeip_config_and_values(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsomeip_coverage.pcapng.gz'),
+                '-Y', 'vsomeip.config.key',
+                '-Tfields', '-eframe.number', '-evsomeip.config.key', '-evsomeip.config.value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['58\tlogging.level,routing,k\tdebug,app,',
+                                       '70\tlogging.level,routing,k\tdebug,app,']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsomeip_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {59, 60}',
+                '-Tfields', '-eframe.number', '-evsomeip.version', '-evsomeip.unparsed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['59\t0\t010203', '60\t1\t0908']
