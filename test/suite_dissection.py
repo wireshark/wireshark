@@ -161493,3 +161493,103 @@ class TestDissectUsbVideo:
                         '154\t1\t0x0b\t0x04\t\t\t500\t\t', '156\t1\t0x0d\t0x00\t\t\t\t\t',
                         '158\t5\t0x05\t0x09\t\t\t\t\taabb', '160\t77\t0x01\t0x00\t1\t\t\t\t',
                         '162\t0\t0x02\t0x02\t\t\t\t1\t', '164\t1\t\t\t\t\t\t\t', '166\t1\t\t\t\t\t\t\t']
+
+
+class TestDissectUserEncap:
+    '''DLT_USER encapsulation (packet-user_encap.c) from the synthetic capture
+    user_encap_coverage.pcapng.gz: one interface per link-layer type 147-162.
+    Nothing is decoded without a row in the "User DLTs" table except DLT_USER2
+    (149, PKTAP), so the tests give the rows with -o uat:user_dlts:...
+    Frames 1-9 use the rows (header, payload, trailer), 10-12 row 155 with
+    truncated and complete frames (the fix: a frame shorter than header plus
+    trailer), 13-16 DLT_USER2 with up to four PKTAP headers.'''
+    ROWS = (
+        ('User 0 (DLT=147)', 'eth_withoutfcs', 4, '', 0, ''),
+        ('User 1 (DLT=148)', 'ip', 0, '', 0, ''),
+        ('User 3 (DLT=150)', 'ip', 2, 'data', 4, 'data'),
+        ('User 4 (DLT=151)', 'ppp', 0, '', 0, ''),
+        ('User 5 (DLT=152)', 'tcp', 0, '', 0, ''),
+        ('User 6 (DLT=153)', 'udp', 0, '', 0, ''),
+        ('User 7 (DLT=154)', 'data', 0, '', 0, ''),
+        ('User 8 (DLT=155)', 'eth_withoutfcs', 4, '', 20, ''),
+        ('User 15 (DLT=162)', 'eth_withfcs', 0, '', 4, 'data'),
+        ('User 9 (DLT=156)', 'arp', 8, 'data', 8, 'data'),
+    )
+
+    @staticmethod
+    def _uat(rows, explicit_data=False):
+        args = []
+        for dlt, payload, hsize, hproto, tsize, tproto in rows:
+            if explicit_data:
+                hproto, tproto = hproto or 'data', tproto or 'data'
+            args += ['-o', 'uat:user_dlts:"%s","%s","%d","%s","%d","%s"' % (dlt, payload, hsize, hproto, tsize, tproto)]
+        return args
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('user_encap_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_user_encap_frames(self, cmd_tshark, capture_file, test_env):
+        '''16 frames with the rows: no malformed frames and no warnings or errors in one and two
+        passes, the same protocols in both; the header, payload and trailer dissectors of each row.'''
+        by_pass = []
+        for passes in ((), ('-2',)):
+            extra = (*self._uat(self.ROWS), *passes)
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', 'frame.protocols', extra=extra)
+            assert len(rows) == 16
+            by_pass.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=extra)
+            assert rows == []
+        assert by_pass[0] == by_pass[1]
+        assert by_pass[0][:9] == [
+            'user_dlt:data:eth:ethertype:ip:udp:data', 'user_dlt:ip:udp:data', 'user_dlt:data:ip:udp:data:data',
+            'user_dlt:ppp:ip:udp:data', 'user_dlt:tcp:http', 'user_dlt:udp:data', 'user_dlt:data',
+            'user_dlt:eth:ethertype:ip:udp:data:data', 'user_dlt:data:arp:data']
+
+    def test_user_encap_default(self, cmd_tshark, capture_file, test_env):
+        '''Without rows only DLT_USER2 is decoded (as PKTAP); every other type is "not handled" (a warning).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'user_dlt.not_handled', 'frame.number', '_ws.expert.message')
+        assert len(rows) == 12
+        assert rows[0] == '1\tUser encapsulation not handled: DLT=147, check your Preferences->Protocols->DLT_USER'
+        assert rows[-1] == '12\tUser encapsulation not handled: DLT=155, check your Preferences->Protocols->DLT_USER'
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'pktap', 'frame.number', 'pktap.hdrlen', 'pktap.rectype')
+        assert rows == ['13\t108\t1', '14\t108,108\t1,1', '15\t108,108,108,108\t1,1,1,1', '16\t108\t2']
+
+    def test_user_encap_truncated(self, cmd_tshark, capture_file, test_env):
+        '''Row 155 has a 4 octet header and a 20 octet trailer. Frames 10 and 12 are cut by the snap length
+        below header plus trailer: the Ethernet payload is still dissected (empty, "Packet size limited");
+        before the fix the unsigned length wrapped and nothing but the header was shown.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 10 && frame.number <= 12',
+                            'frame.number', 'frame.protocols', 'frame.cap_len', 'frame.len',
+                            extra=self._uat(self.ROWS))
+        assert rows == ['10\tuser_dlt:data:eth\t20\t100',
+                        '11\tuser_dlt:data:eth:ethertype:ip:udp:data:data\t74\t74',
+                        '12\tuser_dlt:data:eth\t10\t30']
+
+    def test_user_encap_override(self, cmd_tshark, capture_file, test_env):
+        '''A row for DLT_USER2 replaces the PKTAP default.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 13', 'frame.number', 'frame.protocols',
+                            extra=self._uat([('User 2 (DLT=149)', 'data', 0, '', 0, '')]))
+        assert rows == ['13\tuser_dlt:data', '14\tuser_dlt:data', '15\tuser_dlt:data', '16\tuser_dlt:data']
+
+    def test_user_encap_export_pdu(self, cmd_tshark, capture_file, test_env, result_file):
+        '''Exported PDU: header, payload and trailer of every frame are exported with the name of
+        their dissector (the header and trailer names are written out as "data" in this run).'''
+        out = result_file('user_encap_exp.pcapng')
+        subprocess.check_call((cmd_tshark, *self._uat(self.ROWS, explicit_data=True),
+                               '-r', capture_file('user_encap_coverage.pcapng.gz'),
+                               '-U', 'DLT User', '-w', out), env=test_env, timeout=120)
+        stdout = subprocess.check_output((cmd_tshark, '-r', out, '-Tfields', '-eexported_pdu.prot_name'),
+                                         encoding='utf-8', env=test_env, timeout=120)
+        names = stdout.splitlines()
+        assert len(names) == 30
+        assert names.count('eth_withoutfcs') == 4
+        assert names.count('data') == 11 and names.count('pktap') == 8
+        assert names[:3] == ['data', 'eth_withoutfcs', 'ip']
+        assert 'tcp' in names and 'arp' in names and 'eth_withfcs' in names
