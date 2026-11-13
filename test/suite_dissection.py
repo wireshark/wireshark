@@ -164482,3 +164482,160 @@ class TestDissectWap:
         assert uris[1] == '/' + 'a' * 199
         assert uris[2] == '/' + 'b' * 16399
         assert uris[3] == '/pad/'
+
+
+class TestDissectWassp:
+    '''WASSP (UDP 13907 and 13910, and Exported PDU) from the synthetic
+    capture wassp_coverage.pcapng.gz. Every TLV type of the main table,
+    every row of every reachable sub-table, every message type, the MU
+    data messages, the location based service tag report, fragmentation
+    and reassembly, sub-TLV nesting up to the limit of 16 levels and the
+    Exported PDU entry point. Frames 1-4 are discovery messages on UDP
+    13907, 5-84 simple messages, 85-92 the main TLVs, 93-198 sub-tables and
+    nesting (frames 93-97 nest TLVs 1, 2, 8, 15 and 16 levels deep), 199-223
+    MU data, 224-225 location based service reports, 226-230 fragments,
+    231-234 Exported PDU, 235-237 other ports and one more RSS block.'''
+
+    @staticmethod
+    def udp_pcap(payloads):
+        '''A pcap file with one UDP datagram (port 13910) per payload.'''
+        def csum(b):
+            if len(b) % 2:
+                b += b'\0'
+            s = sum(struct.unpack('!%dH' % (len(b) // 2), b))
+            while s >> 16:
+                s = (s & 0xffff) + (s >> 16)
+            return (~s) & 0xffff
+        out = struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1)
+        for i, payload in enumerate(payloads):
+            udp = struct.pack('!HHHH', 13910, 13910, 8 + len(payload), 0) + payload
+            ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), i + 1, 0, 64, 17, 0,
+                             bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2]))
+            ip = ip[:10] + struct.pack('!H', csum(ip)) + ip[12:]
+            frame = (bytes.fromhex('020000000002020000000001') + b'\x08\x00' + ip + udp)
+            out += struct.pack('<IIII', 1700000000 + i, 0, len(frame), len(frame)) + frame
+        return out
+
+    @staticmethod
+    def nested_event_blocks(levels):
+        '''A configuration request: TLV 59 (event block), holding `levels`
+        nested block TLVs 59 and a string TLV, so that the deepest
+        sub-TLV call has depth `levels`.'''
+        inner = struct.pack('>HH', 2, 12) + b'deep\0\0\0\0'
+        for _ in range(levels + 1):
+            inner = struct.pack('>HH', 59, 4 + len(inner)) + inner
+        return struct.pack('>BBHHH', 3, 11, 64, 0x1234, 8 + len(inner)) + inner
+
+    def test_wassp_messages(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode without malformed packets or expert infos above
+        the note level, in one and two passes, with identical output.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wassp_coverage.pcapng.gz'),
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env, timeout=300)
+            outputs.append(stdout)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert len(rows) == 237
+            protocols = [r[0] for r in rows]
+            assert protocols.count('WASSP') == 230
+            assert all(r[2] == '' for r in rows)
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wassp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=300)
+            assert count_output(stdout) == 0
+        assert outputs[0] == outputs[1]
+
+    def test_wassp_tlv_types(self, cmd_tshark, capture_file, test_env):
+        '''Every main TLV type from 1 to 407 and 374 different sub-TLV
+        types decode, and the topology modes of a site configuration are
+        printed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wassp_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 198', '-Tfields', '-ewassp.tlv.type',
+                '-ewassp.tlv.type.sub', '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        main, sub = set(), set()
+        for line in stdout.splitlines():
+            a, _, b = line.partition('\t')
+            main.update(int(x) for x in a.split(',') if x)
+            sub.update(int(x) for x in b.split(',') if x)
+        assert main >= set(range(1, 408))
+        assert len(main) == 409
+        assert len(sub) == 374
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('wassp_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 93 && frame.number <= 198',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        assert ' Routed At Controller  with vlanId = 5  (0xc005)' in stdout
+        assert ' Bridge At AP,  Untagged  (0x4000) ' in stdout
+        assert ' Unknown mode,  Untagged (0x0) ' in stdout
+
+    def test_wassp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A configuration response in three fragments (frames 226-228)
+        and messages sent in a single fragment.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('wassp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {226, 227, 228, 229, 230}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ewassp.reassembled.length', '-ewassp.reassembled_in',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert rows[0][1:] == ['RU Configuration Response (Message fragment 20)', '', '228']
+        assert rows[1][1:] == ['RU Configuration Response (Message fragment 21)', '', '228']
+        assert rows[2][1:3] == ['RU Configuration Response (Message Reassembled)', '11531']
+        assert rows[3][1] == 'RU Configuration Request (Message Reassembled)'
+        assert rows[4][1] == 'RU Software Version Command (Message Reassembled)'
+
+    def test_wassp_mu_and_lbs(self, cmd_tshark, capture_file, test_env):
+        '''MU data messages: the MU header, the association status of an
+        association response, Ethernet frames, netflow, and the location
+        based service tag report (frame 225 has no tag magic).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wassp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {199, 202, 211, 212, 213, 220, 224, 225}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ewassp.data.mu_mac',
+                '-ewassp.data.mu_assoc_status', '-ewassp.aeroscout.header_magic',
+                '-eframe.protocols',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = {r[0]: r for r in (line.split('\t') for line in stdout.splitlines())}
+        assert rows['199'][5].endswith('wassp:eth:ethertype:ip:udp:data')
+        assert rows['202'][1:3] == ['MU Roam Notify', '02:00:00:00:00:33']
+        assert rows['211'][1] == 'MU Association Response'
+        assert [rows[f][3] for f in ('211', '212', '213')] == ['1', '2', '3']
+        assert rows['220'][1] == 'MU Netflow'
+        assert rows['224'][4] == '0x7c83'
+        assert rows['225'][4] == ''
+
+    def test_wassp_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''A fragmented message in Exported PDU has no addresses or ports.
+        It used to fail DISSECTOR_ASSERT(conv) ("WASSP: Bound sub-TLV
+        recursion and avoid a conversation assert").'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wassp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {231, 232, 233, 234}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-e_ws.expert.message',
+            ), encoding='utf-8', env=env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert rows[0] == ['231', 'RU Configuration Request (Message fragment 0)', '']
+        assert rows[1][1] == 'RU Configuration Request (Message Reassembled)'
+        assert rows[2][1] == 'RU Configuration Response'
+        assert rows[3][1] == '5000 → 5001 Len=4'   # the MU data frame holds an Ethernet frame
+
+    def test_wassp_subtlv_depth(self, cmd_tshark, test_env, tmp_path):
+        '''Sub-TLVs nest up to 16 levels; the 17th is refused with an expert
+        info instead of recursing 16000 levels (the old reproducer).'''
+        pcap = tmp_path / 'wassp_depth.pcap'
+        pcap.write_bytes(self.udp_pcap([self.nested_event_blocks(n)
+                                         for n in (1, 14, 15, 16, 17, 40)]))
+        stdout = subprocess.check_output((cmd_tshark, '-r', str(pcap),
+                '-Tfields', '-eframe.number', '-ewassp.subtlv_too_deep',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [r[0] for r in rows if len(r) > 1 and r[1]] == ['4', '5', '6']
