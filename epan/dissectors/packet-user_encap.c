@@ -77,13 +77,17 @@ static dissector_handle_t user_encap_handle;
  */
 static user_encap_t user2_encap = {WTAP_ENCAP_USER2, "pktap", NULL, "", NULL, "", NULL, 0, 0};
 
-static void export_pdu(tvbuff_t *tvb, packet_info* pinfo, char *proto_name)
+static void export_pdu(tvbuff_t *tvb, packet_info* pinfo, const char *proto_name)
 {
     if (have_tap_listener(exported_pdu_tap)) {
         static const exp_pdu_data_item_t *user_encap_exp_pdu_items[] = {
             &exp_pdu_data_orig_frame_num,
             NULL
         };
+
+        /* An empty protocol name in the UAT means "data" */
+        if (proto_name == NULL || proto_name[0] == '\0')
+            proto_name = "data";
 
         exp_pdu_data_t *exp_pdu_data = export_pdu_create_tags(pinfo, proto_name, EXP_PDU_TAG_DISSECTOR_NAME, user_encap_exp_pdu_items);
 
@@ -98,7 +102,7 @@ static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
     user_encap_t* encap = NULL;
     tvbuff_t* payload_tvb;
     proto_item* item;
-    int len, reported_len;
+    unsigned len, reported_len, cap_rem, rep_rem;
     unsigned i;
 
     for (i = 0; i < num_encaps; i++) {
@@ -155,8 +159,10 @@ static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
         }
     }
 
-    len = tvb_captured_length(tvb) - (encap->header_size + encap->trailer_size);
-    reported_len = tvb_reported_length(tvb) - (encap->header_size + encap->trailer_size);
+    cap_rem = tvb_captured_length_remaining(tvb, encap->header_size);
+    rep_rem = tvb_reported_length_remaining(tvb, encap->header_size);
+    len = cap_rem > encap->trailer_size ? cap_rem - encap->trailer_size : 0;
+    reported_len = rep_rem > encap->trailer_size ? rep_rem - encap->trailer_size : 0;
 
     payload_tvb = tvb_new_subset_length_caplen(tvb, encap->header_size, len, reported_len);
     export_pdu(payload_tvb, pinfo, encap->payload_proto_name);
@@ -169,7 +175,7 @@ static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
     }
 
     if (encap->trailer_size) {
-        tvbuff_t* trailer_tvb = tvb_new_subset_length(tvb, encap->header_size + len, encap->trailer_size);
+        tvbuff_t* trailer_tvb = tvb_new_subset_length(tvb, encap->header_size + reported_len, encap->trailer_size);
         export_pdu(trailer_tvb, pinfo, encap->trailer_proto_name);
         call_dissector(encap->trailer_proto, trailer_tvb, pinfo, tree);
         if (encap->trailer_proto_name) {
