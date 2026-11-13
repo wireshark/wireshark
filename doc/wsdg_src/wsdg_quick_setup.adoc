@@ -114,7 +114,7 @@ You can use `tools/os_setup/macos-setup-brew.sh` to install CMake, Ninja, and ot
 * `--install-stratoshark` install libraries required to build Stratoshark and the Falco Events plugin
 * `[other]` other options are passed as-is to brew
 
-Running `tools/os_setup/macos-setup-brew.sh` with no options will install CMake, Ninja, pgkconf, and ccache.
+Running `tools/os_setup/macos-setup-brew.sh` with no options will install CMake, Ninja, pkgconf, and ccache.
 
 In the past, `tools/os_setup/macos-setup.sh` could be used to build third party libraries locally.
 It is now deprecated, and can only be used to install the tools required to build Wireshark or to remove any previously installed libraries.
