@@ -119,7 +119,7 @@ static unsigned get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
    unsigned tvb_len;
 
    while ((tvb_len = tvb_captured_length_remaining(tvb, offset)) > 0){
-      uint16_t plen = 0;
+      unsigned plen = 0;
       int modulo;
       uint16_t bytes0_1;
       uint8_t pkt_type;
