@@ -22,6 +22,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <wsutil/array.h>
 
 static dissector_handle_t elf_handle;
@@ -644,7 +645,10 @@ dissect_leb128(tvbuff_t *tvb, int offset, int64_t *value)
 static int
 value_guard(uint64_t value)
 {
-    DISSECTOR_ASSERT_HINT(value <= INT_MAX, "Too big file - not supported");
+    if (value > INT_MAX) {
+        /* Beyond any tvb we can have; not a dissector bug. */
+        THROW(ReportedBoundsError);
+    }
 
     return (int) value;
 }
@@ -699,6 +703,22 @@ get_dwarf_extension_length(uint8_t format, unsigned register_size)
     return 0;
 }
 
+/* Names are fetched with a length cap, so that many symbols or sections
+ * pointing at one very long string do not copy it each time. */
+#define ELF_MAX_NAME_LEN 256
+static const char *
+elf_get_name(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
+{
+    int len = tvb_strnlen(tvb, offset, ELF_MAX_NAME_LEN);
+
+    if (len < 0) {
+        len = ELF_MAX_NAME_LEN;
+        if (len > tvb_captured_length_remaining(tvb, offset))
+            len = tvb_captured_length_remaining(tvb, offset);
+    }
+    return (const char*)tvb_get_string_enc(scope, tvb, offset, len, ENC_ASCII);
+}
+
 static const char *
 get_section_name_offset(wmem_allocator_t *scope, tvbuff_t *tvb, uint64_t shoff, uint16_t shnum, uint16_t shentsize, uint16_t shndx, uint64_t shstrtab_offset, unsigned machine_encoding)
 {
@@ -710,7 +730,7 @@ get_section_name_offset(wmem_allocator_t *scope, tvbuff_t *tvb, uint64_t shoff, 
 
     offset = value_guard(shoff + (uint32_t)shndx * (uint32_t)shentsize);
     sh_name = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
-    return tvb_get_stringz_enc(scope, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
+    return elf_get_name(scope, tvb, value_guard(shstrtab_offset + sh_name));
 }
 
 #define MAX_TAG_TO_TYPE 34
@@ -819,7 +839,7 @@ dissect_symbol_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *entry_tree, 
     pitem = proto_tree_add_item(entry_tree, hf_elf_symbol_table_name_index, tvb, offset, 4, machine_encoding);
     if (strtab_offset) {
         name_index = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
-        name = tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(strtab_offset + name_index), NULL, ENC_ASCII);
+        name = elf_get_name(pinfo->pool, tvb, value_guard(strtab_offset + name_index));
         if (name) {
             proto_item_append_text(pitem, ": %s", name);
             proto_item_append_text(entry_item, ": %s", name);
@@ -907,7 +927,7 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
     int          fde_count_length;
     int          table_entry_length;
     uint64_t     fde_count;
-    unsigned     i_entry;
+    uint64_t     i_entry;
 
     proto_tree_add_item(segment_tree, hf_elf_eh_frame_hdr_version, tvb, offset, 1, machine_encoding);
     offset += 1;
@@ -982,6 +1002,11 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
         table_entry_length = dissect_leb128(tvb, offset, &value);
     }
 
+    if (table_entry_length <= 0) {
+        /* Omitted or unsupported table encoding; nothing to step over. */
+        return offset;
+    }
+
     i_entry = 0;
 
     table_tree = proto_tree_add_subtree(segment_tree, tvb, offset, value_guard(fde_count * table_entry_length * 2),
@@ -991,7 +1016,7 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
         proto_tree *entry_tree;
 
         entry_tree = proto_tree_add_subtree_format(table_tree, tvb, offset, table_entry_length * 2, ett_binary_table_entry,
-                NULL, "Binary Table Entry #%u", i_entry);
+                NULL, "Binary Table Entry #%" PRIu64, i_entry);
 
         proto_tree_add_item(entry_tree, hf_elf_eh_frame_hdr_binary_search_table_entry_initial_location, tvb, offset, table_entry_length, machine_encoding);
         offset += table_entry_length;
@@ -1479,7 +1504,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     tvb_get_ntoh64(tvb, value_guard(length)) : tvb_get_letoh64(tvb, value_guard(length));
         }
 
-        section_name = tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
+        section_name = elf_get_name(pinfo->pool, tvb, value_guard(shstrtab_offset + sh_name));
 
         if (register_size == REGISTER_64_SIZE && machine_encoding == ENC_BIG_ENDIAN) {
             offset += 4;
@@ -1554,7 +1579,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     tvb_get_ntoh64(tvb, value_guard(length)) : tvb_get_letoh64(tvb, value_guard(length));
         }
 
-        section_name = tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
+        section_name = elf_get_name(pinfo->pool, tvb, value_guard(shstrtab_offset + sh_name));
         if (section_name)
             proto_item_append_text(sh_entry_item, ": %s", section_name);
 
@@ -1754,7 +1779,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
 
     if (segment_info[area_counter - 1].offset + segment_info[area_counter - 1].size < tvb_captured_length(tvb)) {
-            len = tvb_captured_length(tvb) - (unsigned) (segment_info[area_counter - 1].offset - segment_info[area_counter - 1].size);
+            len = tvb_captured_length(tvb) - (unsigned) (segment_info[area_counter - 1].offset + segment_info[area_counter - 1].size);
 
             ti = proto_tree_add_uint_format(blackhole_tree, hf_elf_blackhole_size, tvb,
                     value_guard(segment_info[area_counter - 1].offset +
