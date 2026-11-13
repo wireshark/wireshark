@@ -166309,3 +166309,143 @@ class TestDissectWireguard:
                 '-Y', 'frame.number == 3', '-V',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert 'This is a Keepalive message' in stdout
+
+
+class TestDissectWisun:
+    def test_wisun_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol (Wi-SUN IEs and commands in IEEE
+        802.15.4, the security extension, the EAPOL relay, Netricity
+        segments from Exported PDU) and no malformed packet or expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wisun_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 105
+        assert protocols.count('Wi-SUN') == 45
+        assert protocols.count('IEEE 802.15.4') == 54
+        assert protocols.count('Wi-SUN Netricity') == 1
+        assert protocols.count('EAP') == 2
+        assert protocols.count('EAPOL') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wisun_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wisun_frame_types(self, cmd_tshark, capture_file, test_env):
+        '''The Info column from the unicast and LFN unicast timing IEs, the
+        MDR command, other vendor commands and the security extension.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wisun_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 21',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'PAN Advertisement', 'PAN Advertisement Solicit', 'PAN Configuration',
+            'PAN Configuration Solicit', 'Data', 'Acknowledgment', 'EAPOL', 'Reserved',
+            'LFN PAN Advertisement', 'LFN PAN Advertisement Solicit', 'LFN PAN Configuration',
+            'LFN PAN Configuration Solicit', 'LFN Time Synchronization', 'Reserved (Extended Type)',
+            'Unknown Wi-SUN Frame',
+            'LFN PAN Advertisement', 'LFN PAN Advertisement Solicit', 'LFN PAN Configuration',
+            'LFN PAN Configuration Solicit', 'LFN Time Synchronization',
+            'Unknown LFN Wi-SUN Frame']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wisun_coverage.pcapng.gz'),
+                '-Y', 'wisun.cmd || wpan.cmd == 0x24 || wisun.sec.function',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == (
+            ['MDR Command'] * 8 + ['Unknown Wi-SUN MAC Command', 'Vendor Specific'] +
+            ['SM Error: No Session', 'SM Error: Unavailable Key', 'SM Error: Unsupported Security',
+             'SM Error: Invalid Parameter', 'SM Error: Unsupported Security', 'SM Error: Unknown Error',
+             'SM Error: Unknown Error', 'Unknown Function'])
+
+    def test_wisun_edfe(self, cmd_tshark, capture_file, test_env):
+        '''EDFE exchanges are tracked by address: the initial, response and
+        final frames of an exchange name the initiator's first frame, a new
+        exchange starts after a final frame. Same in one and two passes.'''
+        expected = [
+            ('EDFE Initial Frame', ''),
+            ('EDFE Response Frame', '32'),
+            ('EDFE Response Frame', '32'),
+            ('EDFE Response Frame', '32'),
+            ('EDFE Final Frame', '32'),
+            ('EDFE Initial Frame', ''),
+            ('EDFE Initial Frame', ''),
+            ('EDFE Response Frame', '38'),
+            ('EDFE Final Frame', '38'),
+            ('EDFE Initial Frame', ''),
+            ('EDFE Initial Frame', ''),
+            ('EDFE Response Frame', '42'),
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wisun_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 32 && frame.number <= 43',
+                    '-Tfields', '-e_ws.col.info', '-ewisun.fcie.initial_frame',
+                ), encoding='utf-8', env=test_env)
+            assert [tuple(l.split('\t')) for l in stdout.splitlines()] == expected
+
+    def test_wisun_netricity_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Netricity segments: in order, with the last segment first and
+        out of order. The reassembled message says how many segments it
+        had (it used to count the last segment's number, so 2 segments
+        with the last one first said 1).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wisun_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 92 && frame.number <= 105',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            info = [l.split('\t')[1].split(', Dst: ')[1].split(' ', 1)[1:] for l in stdout.splitlines()]
+            assert [i[0] if i else '' for i in info] == [
+                '(Segment 0)', '(Segment 1)', '(Reassembled 3 segments)',
+                '(Segment 1)', '(Reassembled 2 segments)',
+                '(Segment 0)', '(Segment 2)', '(Segment 1)', '(Reassembled 4 segments)',
+                '', '', '(Segment 0)', '(Segment 1)', '(Segment 0)']
+
+    def test_wisun_exclude_mask(self, cmd_tshark, capture_file, test_env):
+        '''An excluded channel mask longer than 255 octets (the length was
+        kept in an 8 bit variable).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wisun_coverage.pcapng.gz'),
+                '-Y', 'wisun.usie.exclude.mask',
+                '-Tfields', '-ewisun.usie.exclude.mask', '-Eoccurrence=a', '-Eaggregator=;',
+            ), encoding='utf-8', env=test_env)
+        lengths = [len(m) // 2 for line in stdout.splitlines() for m in line.split(';')]
+        assert lengths.count(300) == 1
+        assert 255 in lengths and 40 in lengths and 4 in lengths
+
+    def test_wisun_eapol_relay(self, cmd_tshark, capture_file, test_env):
+        '''The direction of relayed EAPOL packets: an EAP response and an
+        EAPOL-Key without the ACK bit go up, requests and keys with the ACK
+        bit go down.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wisun_coverage.pcapng.gz'),
+                '-Y', 'wisun.eapol_relay',
+                '-Tfields', '-e_ws.col.info', '-ewisun.eapol_relay.kmp_id',
+                '-ewisun.eapol_relay.direction',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Request, Identity [Relay ↓]\t1\tFalse',
+            'Response, Identity [Relay ↑]\t1\tTrue',
+            'Key (Message 1 of 4) [Relay ↓]\t6\tFalse',
+            'Key (Message 4 of 4) [Relay ↑]\t6\tTrue',
+            'Key (Message 1 of 4) [Relay ↓]\t7\tFalse',
+        ]
+
+    def test_wisun_payload_ies(self, cmd_tshark, capture_file, test_env):
+        '''The PAN, network name and version IEs, in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wisun_coverage.pcapng.gz'),
+                '-Y', 'wisun.panie.cost == 300 && frame.number > 60',
+                '-Tfields', '-e_ws.col.info', '-ewisun.netnameie.name', '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == ('Data, Src: 0x0002, Dst: 0x0001, Routing Cost: 300, Routing Cost: 65535, '
+                            'Routing Cost: 0, Routing Cost: 6, Netname: WiSUN-Net, Netname: , '
+                            'Netname: ' + 'A' * 32 + ', PAN Version: 4660\tWiSUN-Net,,' + 'A' * 32)
