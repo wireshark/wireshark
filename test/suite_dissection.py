@@ -163313,3 +163313,122 @@ class TestDissectVpp:
             ), encoding='utf-8', env=test_env)
         assert '\nVPP Dispatch Trace\n    MinorVersion: 3\n' in stdout
         assert '\nVPP Dispatch Trace\n    ProtocolHint: 9\n' in stdout
+
+
+class TestDissectVrrp:
+    '''VRRP versions 1-4 over IPv4 and IPv6 (IP protocol 112) from the
+    synthetic capture vrrp_coverage.pcap.gz. Frames 12 and 19-21 have a
+    bad checksum (frame 12 has the IPv4 version 3 pseudo header checksum,
+    valid only with vrrp.v3_checksum_as_in_v2:FALSE).'''
+
+    def test_vrrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''24 VRRP advertisements; the first IP fragment (frame 23) is data;
+        only the four bad checksums are reported, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vrrp_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 25
+            assert protocols.count('eth:ethertype:ip:vrrp') == 19
+            assert protocols.count('eth:ethertype:ipv6:vrrp') == 5
+            assert protocols.count('eth:ethertype:ip:data') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vrrp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['12', '19', '20', '21']
+
+    def test_vrrp_fields(self, cmd_tshark, capture_file, test_env):
+        '''Header fields for versions 2 and 3, priorities, address lists
+        and the authentication data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vrrp_coverage.pcap.gz'),
+                '-Y', 'vrrp.virt_rtr_id <= 11',
+                '-Tfields', '-eframe.number', '-evrrp.version', '-evrrp.type',
+                '-evrrp.virt_rtr_id', '-evrrp.prio', '-evrrp.addr_count',
+                '-evrrp.auth_type', '-evrrp.adver_int', '-evrrp.short_adver_int',
+                '-evrrp.ip_addr', '-evrrp.auth_string', '-evrrp.md5_auth_data',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        by = {l[0]: l for l in lines}
+        assert by['2'][1:] == ['2', '1', '2', '255', '3', '0', '3', '',
+                               '192.0.2.100,192.0.2.101,192.0.2.102', '', '']
+        assert by['3'][1:] == ['2', '1', '3', '0', '1', '1', '1', '',
+                               '192.0.2.100', 'secret', '']
+        assert by['4'][5:7] == ['1', '2']
+        assert by['5'][1:] == ['2', '1', '5', '200', '1', '254', '1', '',
+                               '192.0.2.100', '', bytes(range(16)).hex()]
+        assert by['6'][3:6] == ['6', '100', '0']
+        assert by['7'][6] == '254' and by['7'][-1] == ''     # MD5 data shorter than 16
+        assert by['10'][1:] == ['3', '1', '10', '100', '1', '', '', '100',
+                                '192.0.2.100', '', '']
+        assert by['11'][8] == '4095'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vrrp_coverage.pcap.gz'),
+                '-Y', 'ipv6',
+                '-Tfields', '-eframe.number', '-evrrp.ipv6_addr',
+                '-evrrp.checksum.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '13\t2001:db8::64\t1',
+            '14\t2001:db8::64,2001:db8::65\t1',
+            '15\t\t1',
+            '16\t2001:db8::64\t1',
+            '21\t2001:db8::64\t0',
+        ]
+
+    def test_vrrp_unknown(self, cmd_tshark, capture_file, test_env):
+        '''Unknown packet type, authentication type and versions 1 and 4
+        decode with the version 2 layout.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vrrp_coverage.pcap.gz'),
+                '-Y', 'vrrp.virt_rtr_id in {8, 9, 17, 18}',
+                '-Tfields', '-eframe.number', '-evrrp.version', '-evrrp.type',
+                '-evrrp.auth_type', '-e_ws.col.info', '-evrrp.checksum.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t2\t2\t0\tAnnouncement (v2)\t1',
+            '9\t2\t1\t77\tAnnouncement (v2)\t1',
+            '17\t1\t1\t0\tAnnouncement (v1)\t1',
+            '18\t4\t1\t0\tAnnouncement (v4)\t1',
+        ]
+
+    def test_vrrp_checksum(self, cmd_tshark, capture_file, test_env):
+        '''The truncated frame 22 is not verified (status 2: unverified),
+        the fragmented datagram is verified after reassembly. The IPv4
+        version 3 pseudo header checksum is valid with the preference off.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vrrp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {22, 24}',
+                '-Tfields', '-eframe.number', '-evrrp.checksum.status',
+                '-evrrp.addr_count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['22\t2\t3', '24\t1\t6']
+        for pref, status in (('TRUE', '0'), ('FALSE', '1')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-o', 'vrrp.v3_checksum_as_in_v2:' + pref,
+                    '-r', capture_file('vrrp_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {10, 12}',
+                    '-Tfields', '-eframe.number', '-evrrp.checksum.status',
+                ), encoding='utf-8', env=test_env)
+            if pref == 'TRUE':
+                assert stdout.splitlines() == ['10\t1', '12\t0']
+            else:
+                assert stdout.splitlines() == ['10\t0', '12\t1']
+
+    def test_vrrp_no_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Without IP reassembly the first fragment (frame 23) reaches
+        VRRP without a checksum check; the second is not VRRP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'ip.defragment:FALSE',
+                '-r', capture_file('vrrp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {23, 24}',
+                '-Tfields', '-eframe.number', '-eframe.protocols', '-evrrp.checksum.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '23\teth:ethertype:ip:vrrp\t2',
+            '24\teth:ethertype:ip:data\t',
+        ]
