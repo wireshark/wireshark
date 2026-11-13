@@ -166114,3 +166114,92 @@ class TestDissectWindowsCommon:
         lines = self.fields(cmd_tshark, capture_file, test_env, 'nt.sid',
                             cap='windows_common_fix.pcap.gz', passes=('-2',))
         assert len(lines) == 4
+
+
+class TestDissectWinsrepl:
+    '''WINS replication over TCP port 42, from the synthetic capture
+    winsrepl_coverage.pcap.gz: association start and stop, the table,
+    send request/reply, update and inform commands, every name record
+    type, two PDUs in one segment and a send reply over three segments.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('winsrepl_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + e for e in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_winsrepl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every PDU is dissected without malformed packets or error
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, 'winsrepl',
+                                '_ws.col.info', passes=passes)
+            assert [l.split('\t')[0] for l in lines] == [
+                '4', '6', '8', '10', '12', '14', '16', '18', '20', '22', '24',
+                '26', '28', '30', '32', '34', '36', '41', '43', '51', '53', '55']
+            assert [l.split('\t')[1] for l in lines[:16]] == [
+                'WREPL_START_ASSOCIATION', 'WREPL_START_ASSOCIATION_REPLY',
+                'WREPL_REPL_TABLE_QUERY', 'WREPL_REPL_TABLE_REPLY',
+                'WREPL_REPL_TABLE_QUERY', 'WREPL_REPL_TABLE_REPLY',
+                'WREPL_REPL_SEND_REQUEST', 'WREPL_REPL_SEND_REPLY',
+                'WREPL_REPL_SEND_REPLY', 'WREPL_REPL_SEND_REPLY',
+                'WREPL_REPL_UPDATE', 'WREPL_REPL_UPDATE2',
+                'WREPL_REPL_INFORM', 'WREPL_REPL_INFORM2', '', '']
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert lines == []
+
+    def test_winsrepl_send_reply_names(self, cmd_tshark, capture_file, test_env):
+        '''Frame 18 carries eight name records: unique, normal group,
+        special group, multihomed, with a scope, already aligned and
+        without addresses; flags, version IDs and address lists.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 18', 'winsrepl.num_names',
+                            'winsrepl.name_flags', 'winsrepl.name_len',
+                            'winsrepl.ip_address', 'winsrepl.num_ips',
+                            'winsrepl.name_version_id')
+        assert lines == ['18\t8\t'
+            '0x00000000,0x00000001,0x00000036,0x000000cb,0x0000006c,'
+            '0x00000000,0x00000000,0x00000002\t16,16,16,16,16,27,19,16\t'
+            '192.0.2.10,192.0.2.11,192.0.2.20,192.0.2.21,198.51.100.1,'
+            '198.51.100.2,198.51.100.3,192.0.2.13,192.0.2.14,192.0.2.15\t'
+            '2,3,0\t1001,1002,1003,1004,1005,1006,1007,1008']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('winsrepl_coverage.pcap.gz'),
+                '-Y', 'frame.number == 18', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'WINS Name [2]: DOMAIN<1c>: 192.0.2.20, 192.0.2.21' in stdout
+        assert 'WINS Name [5]: SCOPED<20>: 192.0.2.14' in stdout
+        assert 'WINS Name [7]: NOADDR<1d>' in stdout
+
+    def test_winsrepl_table(self, cmd_tshark, capture_file, test_env):
+        '''Table reply partner counts, owners and initiator; the update
+        and inform commands carry the same table.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'winsrepl.partner_count', 'winsrepl.partner_count',
+                            'winsrepl.owner_address', 'winsrepl.max_version',
+                            'winsrepl.initiator')
+        assert lines[:3] == [
+            '10\t0\t\t\t192.0.2.1',
+            '14\t3\t192.0.2.10,192.0.2.11,198.51.100.7\t5000,123456789012,9\t192.0.2.1',
+            '24\t2\t192.0.2.10,192.0.2.11\t5000,123456789012\t192.0.2.50',
+        ]
+        assert len(lines) == 6
+
+    def test_winsrepl_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The send reply split over frames 38-41 is dissected in frame 41;
+        frame 36 holds two PDUs.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 41', 'tcp.reassembled.length',
+                            'tcp.segment')
+        assert lines == ['41\t456\t38,39,40,41']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 41', 'winsrepl.num_names')
+        assert lines == ['41\t8']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 36', 'winsrepl.repl_cmd')
+        assert lines == ['36\t0x00000000,0x00000000']
