@@ -78,6 +78,7 @@ typedef struct {
 typedef struct {
   uint8_t *decompr_payload;
   unsigned decompr_len;
+  bool     truncated;
 } websocket_packet_t;
 #endif /* USE_ZLIB_OR_ZLIBNG */
 
@@ -124,6 +125,7 @@ static int ett_ws_fragment;
 
 static expert_field ei_ws_payload_unknown;
 static expert_field ei_ws_decompression_failed;
+static expert_field ei_ws_decompression_truncated;
 static expert_field ei_ws_not_fully_unmasked;
 
 #define WS_CONTINUE 0x0
@@ -276,9 +278,12 @@ websocket_init_z_stream_context(int8_t wbits)
 /* Same constants as tvbuff_zlib.c */
 #define TVB_Z_MIN_BUFSIZ 32768
 #define TVB_Z_MAX_BUFSIZ 1048576 * 10
+/* Maximum decompressed size kept per message; the rest is inflated and
+ * discarded so that the sliding window stays in sync. */
+#define WS_MAX_DECOMPRESSED (10U * 1024U * 1024U)
 
 static bool
-websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zlib_streamp z_strm, tvbuff_t** uncompressed_tvb, uint32_t key)
+websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zlib_streamp z_strm, tvbuff_t** uncompressed_tvb, uint32_t key, bool *truncated)
 {
   /*
    * Decompressing a message: append "0x00 0x00 0xff 0xff" to the end of
@@ -291,6 +296,7 @@ websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zlib_streamp z_strm, tvb
   uint8_t  *compr_payload, *decompr_buf;
   int       err;
 
+  *truncated = false;
   compr_len = tvb_captured_length(tvb) + 4;
   compr_payload = (uint8_t *)wmem_alloc(pinfo->pool, compr_len);
   tvb_memcpy(tvb, compr_payload, 0, compr_len-4);
@@ -329,6 +335,13 @@ websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zlib_streamp z_strm, tvb
          * probably gets left in a bad state.  */
         continue;
       }
+      if (avail_bytes && decompr_len >= WS_MAX_DECOMPRESSED) {
+        *truncated = true;
+        avail_bytes = 0;
+      } else if (avail_bytes > WS_MAX_DECOMPRESSED - decompr_len) {
+        *truncated = true;
+        avail_bytes = WS_MAX_DECOMPRESSED - decompr_len;
+      }
       if (avail_bytes) {
         decompr_payload = (uint8_t *)wmem_realloc(wmem_file_scope(), decompr_payload,
                                                  decompr_len + avail_bytes);
@@ -341,6 +354,7 @@ websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zlib_streamp z_strm, tvb
   if (err == Z_STREAM_END || err == Z_BUF_ERROR) {
     /* Data was (partially) uncompressed. */
     websocket_packet_t *pkt_info = wmem_new0(wmem_file_scope(), websocket_packet_t);
+    pkt_info->truncated = *truncated;
     if (decompr_len > 0) {
       pkt_info->decompr_payload = decompr_payload;
       pkt_info->decompr_len = decompr_len;
@@ -415,6 +429,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   if (websocket_conv->permessage_deflate_ok && pmc) {
     tvbuff_t   *uncompressed = NULL;
     bool        uncompress_ok = false;
+    bool        truncated = false;
 
     if (!PINFO_FD_VISITED(pinfo)) {
       zlib_streamp z_strm;
@@ -429,12 +444,12 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       }
 
       if (z_strm) {
-        uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed, raw_offset);
+        uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed, raw_offset, &truncated);
       } else {
         /* no context take over, initialize a new context */
         z_strm = wmem_new0(pinfo->pool, zlib_stream);
         if (ZLIB_PREFIX(inflateInit2)(z_strm, wbits) == Z_OK) {
-          uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed, raw_offset);
+          uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed, raw_offset, &truncated);
         }
         ZLIB_PREFIX(inflateEnd)(z_strm);
       }
@@ -443,6 +458,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           (websocket_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_websocket, raw_offset);
       if (pkt_info) {
         uncompress_ok = true;
+        truncated = pkt_info->truncated;
         if (pkt_info->decompr_len > 0) {
           uncompressed = tvb_new_child_real_data(tvb, pkt_info->decompr_payload, pkt_info->decompr_len, pkt_info->decompr_len);
         }
@@ -456,6 +472,10 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (uncompressed) {
       add_new_data_source(pinfo, uncompressed, "Decompressed payload");
       tvb = uncompressed;
+    }
+    if (truncated) {
+      proto_tree_add_expert_format(tree, pinfo, &ei_ws_decompression_truncated, tvb, 0, 0,
+                                   "Decompressed payload truncated to %u bytes", WS_MAX_DECOMPRESSED);
     }
   }
 #endif /* USE_ZLIB_OR_ZLIBNG */
@@ -648,6 +668,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
   if (pinfo->fragmented && opcode == WS_CONTINUE) {
     /* Not last fragment, dissect continue fragment as is */
     proto_tree_add_item(tree, hf_ws_payload_continue, tvb_appdata, offset, length, ENC_NA);
+    pinfo->fragmented = save_fragmented;
     return;
   }
 
@@ -725,7 +746,9 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     mask_offset += 2;
   } else if (short_length == 127) {
     /* warning C4244: '=' : conversion from 'uint64_t' to 'unsigned ', possible loss of data */
-    payload_length = (unsigned)tvb_get_ntoh64(tvb, 2);
+    uint64_t len64 = tvb_get_ntoh64(tvb, 2);
+    /* Clamp so that offsets and the frame length cannot wrap. */
+    payload_length = (len64 > UINT32_MAX - 14) ? UINT32_MAX - 14 : (unsigned)len64;
     mask_offset += 8;
   } else {
     payload_length = short_length;
@@ -819,7 +842,9 @@ get_websocket_frame_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, vo
     if (tvb_reported_length_remaining(tvb, offset) < 8)
       return 0; /* Need more data. */
 
-    payload_length = (unsigned)tvb_get_ntoh64(tvb, offset);
+    uint64_t len64 = tvb_get_ntoh64(tvb, offset);
+    /* Clamp so that the frame length cannot wrap. */
+    payload_length = (len64 > UINT32_MAX - 14) ? UINT32_MAX - 14 : (unsigned)len64;
     frame_length += 8;              /* Extended payload length */
   }
 
@@ -1067,6 +1092,7 @@ proto_register_websocket(void)
   static ei_register_info ei[] = {
     { &ei_ws_payload_unknown, { "websocket.payload.unknown.expert", PI_UNDECODED, PI_NOTE, "Dissector for Websocket Opcode", EXPFILL }},
     { &ei_ws_decompression_failed, { "websocket.decompression.failed.expert", PI_PROTOCOL, PI_WARN, "Decompression failed", EXPFILL }},
+    { &ei_ws_decompression_truncated, { "websocket.decompression.truncated.expert", PI_PROTOCOL, PI_WARN, "Decompressed payload truncated", EXPFILL }},
     { &ei_ws_not_fully_unmasked, { "websocket.payload.not.fully.unmasked", PI_UNDECODED, PI_NOTE, "Payload not fully unmasked", EXPFILL }},
   };
 
