@@ -162739,3 +162739,73 @@ class TestDissectVmlab:
         assert rows == [['12', '100']]
         rows = self._fields(cmd_tshark, capture_file, test_env, 'vmlab.fragment == 1', 'vmlab.pgrp')
         assert rows == [['2', '1'], ['4', '255'], ['7', '3']]
+
+
+class TestDissectVmwareHb:
+    '''VMware heartbeat (UDP port 902) from the synthetic capture
+    vmware_hb_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('vmware_hb_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.split('\n') if line]
+
+    def test_vmware_hb_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 28 frames are heartbeats without malformed packets or error
+        expert infos, in one and two passes, with the same Info column.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'vmware_hb', '_ws.col.info', passes=passes)
+            assert len(rows) == 28
+            outputs.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+        assert outputs[0] == outputs[1]
+
+    def test_vmware_hb_build_numbers(self, cmd_tshark, capture_file, test_env):
+        '''Known builds are named; unknown ones show the number only.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vmware_hb_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 3, 5, 6, 8, 10, 11, 12}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        builds = [l.strip() for l in stdout.splitlines() if l.strip().startswith('Build Number:')]
+        assert builds == [
+            'Build Number: ESXi 4.0.0 GA (164009)',
+            'Build Number: ESXi 5.0.0 (469512)',
+            'Build Number: ESXi 6.0 GA (2494585)',
+            'Build Number: ESXi 6.5 GA (4564106)',
+            'Build Number: ESXi 7.0 GA (15843807)',
+            'Build Number: ESXi 9.0 (24755229)',
+            'Build Number: ESXi 9.1.1.0100 (25782009)',
+            'Build Number: Unknown (12345)',
+        ]
+
+    def test_vmware_hb_fields(self, cmd_tshark, capture_file, test_env):
+        '''Host key (0, 1, 36 and 255 octets), the IP address (absent, 1 and
+        15 octets), the signed generations, the counter and the signature.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 15, 16, 20, 21, 22, 23, 24, 25}',
+                            'vmware_hb.host_key.length', 'vmware_hb.ip4_address', 'vmware_hb.change_gen',
+                            'vmware_hb.spec_gen', 'vmware_hb.bundle_version', 'vmware_hb.heartbeat_counter',
+                            'vmware_hb.verification_signature')
+        sig20 = bytes(range(20)).hex()
+        sig32 = bytes(range(32)).hex()
+        assert rows == [
+            ['1', '36', '192.0.2.10', '1', '2', '3', '1', ''],
+            ['15', '0', '192.0.2.11', '1', '2', '3', '1', ''],
+            ['16', '1', '192.0.2.11', '1', '2', '3', '1', ''],
+            ['20', '36', '', '1', '2', '3', '1', ''],
+            ['21', '36', '1', '1', '2', '3', '1', ''],
+            ['22', '36', '192.168.100.200', '1', '2', '3', '1', ''],
+            ['23', '36', '192.0.2.12', '1', '2', '3', '1', sig20],
+            ['24', '36', '', '1', '2', '3', '1', sig32],
+            ['25', '36', '192.0.2.13', '-1', '-2147483648', '2147483647', '4294967295', ''],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vmware_hb.host_key.length == 255',
+                            'vmware_hb.host_key.length')
+        assert rows == [['18', '255']]
