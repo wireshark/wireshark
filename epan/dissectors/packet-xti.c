@@ -9561,13 +9561,13 @@ dissect_xti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         NULL
     };
     if (templateid < 10000 || templateid > 10817) {
-        proto_tree_add_expert_format(root, pinfo, &ei_xti_invalid_template, tvb, 4, 4,
+        proto_tree_add_expert_format(root, pinfo, &ei_xti_invalid_template, tvb, 4, 2,
             "Template ID out of range: %" PRIu16, templateid);
         return tvb_captured_length(tvb);
     }
     int fidx = tid2fidx[templateid - 10000];
     if (fidx == -1) {
-        proto_tree_add_expert_format(root, pinfo, &ei_xti_invalid_template, tvb, 4, 4,
+        proto_tree_add_expert_format(root, pinfo, &ei_xti_invalid_template, tvb, 4, 2,
             "Unallocated Template ID: %" PRIu16, templateid);
         return tvb_captured_length(tvb);
     }
