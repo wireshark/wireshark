@@ -161044,3 +161044,91 @@ class TestDissectUsbMasstorage:
         '''Get Max LUN returns 1; the class request of another protocol is left to USB.'''
         rows = self._fields(cmd_tshark, capture_file, test_env, 'usbms.setup.maxlun', 'frame.number', 'usbms.setup.maxlun')
         assert rows == ['12\t1']
+
+
+class TestDissectUsbmsBot:
+    '''USB mass storage Bulk-Only Transport (packet-usbms-bot.c) from the
+    synthetic Linux usbmon / USBPcap capture usbms_bot_coverage.pcapng.gz.
+    Frames 1-98 are a BOT disk (device 2): enumeration, Get Max LUN, Reset
+    and SCSI commands on LUN 0; 99-122 LUN 1 with a target number; 123-144
+    data concatenated with a CSW or the next CBW; 145-176 a USBPcap device
+    with data and a CSW before any command; 177-198 a device without
+    descriptors (bulk heuristic); 199-214 a UAS endpoint that receives a
+    CBW signature; 215-228 a Bulk-Only interface that UAS owns.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('usbms_bot_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_usbms_bot_frames(self, cmd_tshark, capture_file, test_env):
+        '''83 USBMS and 2 UASP frames out of 228; no malformed frames and no
+        warnings or errors in one and two passes, the same protocols in both.'''
+        by_pass = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol', extra=passes)
+            assert len(rows) == 228
+            assert rows.count('USBMS') == 83
+            assert rows.count('UASP') == 2
+            by_pass.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+        assert by_pass[0] == by_pass[1]
+
+    def test_usbms_bot_control(self, cmd_tshark, capture_file, test_env):
+        '''Get Max LUN (answer 2) and Reset requests and responses.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbms && frame.number < 16',
+                            'frame.number', 'usbms.setup.bRequest', 'usbms.setup.maxlun', '_ws.col.info')
+        assert rows == ['11\t0xfe\t\tGET MAX LUN Request', '12\t\t2\tGET MAX LUN Response',
+                        '13\t0xff\t\tRESET Request', '14\t\t\tRESET Response']
+
+    def test_usbms_bot_cbw_csw(self, cmd_tshark, capture_file, test_env):
+        '''CBW fields (tag, length, direction flag, target and LUN, CDB
+        length) and CSW status and residue.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbms.dCBWSignature && frame.number in {17, 65, 99, 139}',
+                            'frame.number', 'usbms.dCBWTag', 'usbms.dCBWDataTransferLength', 'usbms.dCBWFlags',
+                            'usbms.dCBWTarget', 'usbms.dCBWLUN', 'usbms.dCBWCBLength')
+        assert rows == ['17\t0x00000101\t0\t0x80\t0x00\t0x00\t0x06',
+                        '65\t0x0000010a\t512\t0x00\t0x00\t0x00\t0x0a',
+                        '99\t0x00000111\t96\t0x80\t0x01\t0x01\t0x06',
+                        '139\t0x00000119\t4294967280\t0x80\t0x00\t0x00\t0x1f']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbms.dCSWSignature && frame.number in {20, 54, 76, 90}',
+                            'frame.number', 'usbms.dCSWStatus', 'usbms.dCSWDataResidue')
+        assert rows == ['20\t0x01\t0', '54\t0x00\t188', '76\t0x01\t512', '90\t0x02\t0']
+
+    def test_usbms_bot_concatenated(self, cmd_tshark, capture_file, test_env):
+        '''Data and a CSW in one IN transfer, data and the next CBW in one
+        OUT transfer (frames 126, 129, 132): both parts are dissected.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {126, 129, 132}',
+                            'frame.number', 'usbms.dCBWTag', 'usbms.dCSWStatus', 'scsi.request_frame')
+        assert rows == ['126\t0x00000115\t0x00\t123,123',
+                        '129\t0x00000117\t\t127',
+                        '132\t0x00000117\t0x00\t129,129']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {132, 144}', 'frame.number', '_ws.col.info')
+        assert rows == ['132\tSCSI Response LUN: 0x00 Inquiry, 96 bytes (0 blocks) (Good) ',
+                        '144\tSCSI Response LUN: 0x00 Read(10), 4294967280 bytes (8388607 blocks) (Good) ']
+
+    def test_usbms_bot_no_command(self, cmd_tshark, capture_file, test_env):
+        '''A CSW, data in and data out before any CBW on a fresh device (frames
+        160-163): only the USBMS tree, no SCSI response.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {160, 162, 163}',
+                            'frame.number', '_ws.col.protocol', 'usbms.dCSWStatus', 'scsi.response_frame')
+        assert rows == ['160\tUSBMS\t0x00\t', '162\tUSBMS\t\t', '163\tUSBMS\t\t']
+
+    def test_usbms_bot_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''Device 5 has no descriptors: the CBW and CSW signatures select BOT
+        (frames 179-198). A short transfer and plain bytes are not claimed.
+        On a UAS endpoint the CBW signature is left to UAS: the heuristic
+        returns false when BOT does not own the conversation (frame 213).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {179, 185, 190, 191, 194, 195, 196}',
+                            'frame.number', '_ws.col.protocol')
+        assert rows == ['179\tUSBMS', '185\tUSBMS', '190\tUSBMS', '191\tUSBMS', '194\tUSBMS',
+                        '195\tUSB', '196\tUSB']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {211, 213}',
+                            'frame.number', '_ws.col.protocol', '_ws.col.info')
+        assert rows == ['211\tUASP\tSCSI Test Unit Ready LUN: 0x00 ', '213\tUASP\tUnknown IU [0x55]']
