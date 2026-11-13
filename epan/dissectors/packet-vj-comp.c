@@ -325,7 +325,11 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             (uint8_t *)tvb_memdup(wmem_file_scope(), tcpip_tvb, 0, tcp_len);
 
         // This value is used for re-calculating seq/ack numbers
-        pkt_data->last_frame_len = tvb_reported_length(tvb) - ip_len;
+        {
+            unsigned hdrs_len = ip_len + 4 * (unsigned)(pdata[ip_len + 12] >> 4);
+            pkt_data->last_frame_len = tvb_reported_length(tvb) > hdrs_len ?
+                tvb_reported_length(tvb) - hdrs_len : 0;
+        }
 
         pkt_data->vjc_headers.ip_id = pntohu16(pdata + 4);
         pkt_data->vjc_headers.seq = pntohu32(pdata + ip_len + 4);
