@@ -10,6 +10,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <wiretap/wtap.h>
 
 #define RECORD_SIZE_DEFAULT  0x30
@@ -39,6 +40,8 @@ static int hf_len;
 static int hf_elen;
 static int hf_mentry;
 static int hf_mcontent;
+
+static expert_field ei_m_module_bad_entries;
 
 
 /* subtree array */
@@ -222,6 +225,15 @@ static int dissect_m_module(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item_ret_uint(subtree, hf_ood, tvb, 0x28, 4, ENC_LITTLE_ENDIAN, &entsz);
     proto_tree_add_item(subtree, hf_cksm, tvb, 0x2c, 4, ENC_NA);
 
+    /* Each entry needs at least 0x2d bytes and must fit in the file (entry i
+     * starts at (i + 1) * entsz); this also bounds the loop (entsz == 0
+     * would never advance the offset). */
+    if (entsz < 0x2d || nentries >= (uint32_t)len / entsz) {
+        proto_tree_add_expert_format(subtree, pinfo, &ei_m_module_bad_entries, tvb, 0x24, 8,
+                                     "Invalid entry count %u or entry size %u", nentries, entsz);
+        return len;
+    }
+
     struct mentry_info * mentry = wmem_new(pinfo->pool, struct mentry_info);
 
     for (uint32_t i = 0; i<nentries; i++){
@@ -288,8 +300,15 @@ void proto_register_m_module(void)
 
     proto_m_module = proto_register_protocol("M-Module", "M-Module", "m_module");
 
+    static ei_register_info ei[] = {
+        { &ei_m_module_bad_entries, { "m_module.bad_entries", PI_MALFORMED, PI_ERROR,
+            "Invalid entry count or entry size", EXPFILL }},
+    };
+
     proto_register_field_array(proto_m_module, m_module_hf, array_length(m_module_hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_module_t *expert_m_module = expert_register_protocol(proto_m_module);
+    expert_register_field_array(expert_m_module, ei, array_length(ei));
 
     mm_handle = register_dissector("m_module", dissect_m_module, proto_m_module);
 }
