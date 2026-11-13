@@ -162516,3 +162516,96 @@ class TestDissectVjc:
         assert [r[3] for r in rows] == ['', '', '', '', '1', '1', '1']
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {2, 3, 29, 31} && tcp')
         assert rows == []
+
+
+class TestDissectVlan:
+    '''802.1Q VLAN from the synthetic capture vlan_coverage.pcapng.gz
+    (two Ethernet interfaces; frames 23-29 are on the second one).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('vlan_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.split('\n') if line]
+
+    def test_vlan_clean(self, cmd_tshark, capture_file, test_env):
+        '''28 of the 29 frames are VLAN (the last one has no tag), without
+        malformed packets or error expert infos in one and two passes, and
+        with the same VLAN fields (the Info column is not compared: ICMP
+        shows "no response found" only in the second pass).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'vlan', 'vlan.priority', 'vlan.dei',
+                                'vlan.id', 'vlan.etype', 'vlan.len', 'vlan.trailer', passes=passes)
+            assert len(rows) == 28
+            outputs.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+        assert outputs[0] == outputs[1]
+
+    def test_vlan_priority_dei_id(self, cmd_tshark, capture_file, test_env):
+        '''Priority 0-7, the drop eligible bit and the VLAN IDs 0, 1, 100 and 4094.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 9',
+                            'vlan.priority', 'vlan.dei', 'vlan.id')
+        assert rows == [
+            ['1', '0', 'False', '1'], ['2', '1', 'True', '100'], ['3', '2', 'False', '4094'],
+            ['4', '3', 'True', '0'], ['5', '4', 'False', '10'], ['6', '5', 'True', '20'],
+            ['7', '6', 'False', '30'], ['8', '7', 'True', '40'], ['9', '3', 'True', '4094'],
+        ]
+
+    def test_vlan_qinq(self, cmd_tshark, capture_file, test_env):
+        '''0x9100 is the QinQ ethertype by default: one, two and three nested tags.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {14, 15, 16}',
+                            'vlan.id', 'vlan.etype')
+        assert rows == [
+            ['14', '200,10', '0x8100,0x0800'],
+            ['15', '300,20,30', '0x8100,0x8100,0x0800'],
+            ['16', '7,8,9', '0x9100,0x8100,0x0800'],
+        ]
+
+    def test_vlan_802_3(self, cmd_tshark, capture_file, test_env):
+        '''A length instead of an ethertype: LLC (STP) with a trailer, SNAP
+        with a trailer, and IPX without LLC.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {17, 18, 19, 20}',
+                            '_ws.col.protocol', 'vlan.len', 'vlan.trailer')
+        assert rows == [
+            ['17', 'STP', '38', '00000000'],
+            ['18', 'ICMP', '52', 'deadbeef'],
+            ['19', 'IPX MSG', '38', ''],
+            ['20', 'STP', '38', ''],
+        ]
+
+    def test_vlan_nested_limit(self, cmd_tshark, capture_file, test_env):
+        '''20 nested tags (the limit) are all dissected and the ping behind
+        them too; the VLAN ID of the packet is the first one.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {21, 22}',
+                            '_ws.col.protocol', 'vlan.id')
+        assert [(r[0], r[1], len(r[2].split(','))) for r in rows] == [('21', 'ICMP', 20), ('22', 'ICMP', 19)]
+        assert rows[0][2].split(',')[:3] == ['100', '101', '102']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vlan.too_many_tags')
+        assert rows == []
+
+    def test_vlan_preferences(self, cmd_tshark, capture_file, test_env):
+        '''IEEE 802.1Q-1998 and -2005 have the CFI where 2011 has the DEI.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 2',
+                            'vlan.cfi', 'vlan.dei')
+        assert rows == [['2', '', 'True']]
+        for version in ('1998', '2005'):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 2',
+                                'vlan.cfi', 'vlan.dei', opts=('-o', 'vlan.version:' + version))
+            assert rows == [['2', 'True', '']]
+
+    def test_vlan_names(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''VLAN IDs are resolved with the "vlans" file of the configuration.'''
+        with open(os.path.join(conf_path, 'vlans'), 'w') as f:
+            f.write('1\tDefault\n10\tOffice\n100\tServers\n4094\tMgmt\n')
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 2, 3, 7}',
+                            'vlan.id', 'vlan.id_name', opts=('-o', 'nameres.vlan_name:TRUE'))
+        assert rows == [
+            ['1', '1', 'Default'], ['2', '100', 'Servers'], ['3', '4094', 'Mgmt'], ['7', '30', '<30>'],
+        ]
