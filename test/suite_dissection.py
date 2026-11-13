@@ -160982,3 +160982,65 @@ class TestDissectUsbll:
         rows = self.usbll_fields(cmd_tshark, capture_file, test_env,
                 'usbll.split_hub_addr == 3 && usbll.split_et == 1')
         assert len(rows) == 13
+
+
+class TestDissectUsbMasstorage:
+    '''USB Mass Storage Class dispatcher (packet-usb-masstorage.c) from the
+    synthetic Linux usbmon / USBPcap capture usb_masstorage_coverage.pcapng.gz.
+    Frames 1-26 are a Bulk-Only disk (device 2), 27-40 a UAS disk (3),
+    41-60 a CBI floppy with an interrupt endpoint (4), 61-80 a CBI device
+    on USBPcap (5) and 81-108 devices with a vendor specific and an
+    obsolete protocol (6, 7).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('usb_masstorage_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_usb_masstorage_frames(self, cmd_tshark, capture_file, test_env):
+        '''108 frames: 9 USBMS and 2 UASP; no malformed frames and no
+        warnings or errors in one and two passes, the same protocols in both.'''
+        by_pass = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol', extra=passes)
+            assert len(rows) == 108
+            assert rows.count('USBMS') == 9
+            assert rows.count('UASP') == 2
+            by_pass.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+        assert by_pass[0] == by_pass[1]
+
+    def test_usb_masstorage_dispatch(self, cmd_tshark, capture_file, test_env):
+        '''The interface protocol selects the sub-dissector: 0x50 goes to Bulk-Only
+        (Get Max LUN, Reset, data), 0x62 to UAS; CBI, vendor and obsolete
+        protocols have none and stay plain USB.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.protocols contains "usbmsclass"',
+                            'frame.number', 'frame.protocols')
+        assert rows == ['11\tusb:usbmsclass:usbms', '12\tusb:usbmsclass:usbms', '13\tusb:usbmsclass:usbms',
+                        '20\tusb:usbmsclass:usbms', '26\tusb:usbmsclass:usbms',
+                        # the four pipe usage descriptors of the UAS configuration
+                        '34\tusb:usbmsclass:uasp:usbmsclass:uasp:usbmsclass:uasp:usbmsclass:uasp',
+                        '37\tusb:usbmsclass:uasp', '40\tusb:usbmsclass:uasp']
+        # Bulk-Only commands and status are taken by the bulk heuristic before the class table
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {17, 23}', 'frame.number', 'frame.protocols')
+        assert rows == ['17\tusb:usbms', '23\tusb:usbms']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number > 40 && frame.protocols contains "usbms"',
+                            'frame.number')
+        assert rows == []
+
+    def test_usb_masstorage_no_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''With the bulk heuristic off the CBW and CSW go through the class table to Bulk-Only.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {17, 23}', 'frame.number', 'frame.protocols',
+                            extra=('-o', 'usb.try_heuristics:FALSE'))
+        assert rows == ['17\tusb:usbmsclass:usbms', '23\tusb:usbmsclass:usbms']
+
+    def test_usb_masstorage_bot_control(self, cmd_tshark, capture_file, test_env):
+        '''Get Max LUN returns 1; the class request of another protocol is left to USB.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbms.setup.maxlun', 'frame.number', 'usbms.setup.maxlun')
+        assert rows == ['12\t1']
