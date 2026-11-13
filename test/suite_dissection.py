@@ -166828,3 +166828,93 @@ class TestDissectWow:
         out = self.fields(cmd_tshark, capture_file, test_env,
                           'frame.number == 6', 'wow.number.of.telemetry.keys')
         assert out == ['0x02']
+
+
+class TestDissectWoww:
+    '''World of Warcraft world protocol (WoWW) from the synthetic Exported
+    PDU capture woww_coverage.pcap.gz. WoWW has no port or heuristic (Decode
+    As only), so every frame is an Exported PDU naming "woww" with TCP port
+    tags. The headers after the first one per direction are encrypted, so
+    each frame is its own conversation and carries one message with a plain
+    header; the bodies are generated from the parser of each opcode.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('woww_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_woww_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 2363 frames decode as WOWW, without malformed packets or
+        error or warning expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env, 'woww',
+                              '_ws.col.protocol', passes=passes)
+            assert len(out) == 2363
+            assert set(out) == {'WOWW'}
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              'frame.number', passes=passes)
+            assert out == []
+
+    def test_woww_two_passes_equal(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes decode every frame the same way.'''
+        one = self.fields(cmd_tshark, capture_file, test_env, 'woww',
+                          '_ws.col.info', 'woww.opcode')
+        two = self.fields(cmd_tshark, capture_file, test_env, 'woww',
+                          '_ws.col.info', 'woww.opcode', passes=('-2',))
+        assert one == two
+
+    def test_woww_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''A broad sample of the message types: 540 distinct opcodes, in
+        both directions (MSG_ opcodes appear in both), and two unknown
+        opcodes whose plain headers show "Encrypted Header".'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'woww', 'woww.opcode')
+        assert len(set(out)) == 540
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'woww.opcode in {0x7ffe, 0x7fffe}', 'frame.number',
+                          '_ws.col.info')
+        assert out == ['2353\tEncrypted Header', '2354\tEncrypted Header']
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'woww.opcode == 0x1dc', 'frame.number')
+        assert len(out) == 2   # CMSG_PING and its two-message variant
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {2355, 2356}', 'frame.number',
+                          '_ws.col.info')
+        # Two messages in one PDU: only the first (plain) header is read
+        assert out == ['2355\tSMSG_PONG', '2356\tCMSG_PING']
+
+    def test_woww_packed_guid_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''SMSG_UPDATE_OBJECT and SMSG_COMPRESSED_UPDATE_OBJECT with
+        thousands of packed GUIDs (frames 2358-2361) decode quickly: before
+        "WoWW: Fix CPU blow-ups on unterminated strings and packed GUIDs"
+        every GUID added a data source (quadratic time), and 65 KB frames
+        took many seconds.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {2358, 2359, 2360, 2361}',
+                          'frame.number', 'woww.guid')
+        counts = {l.split('\t')[0]: len(l.split('\t')[1].split(',')) for l in out}
+        assert counts == {'2358': 1000, '2359': 1000, '2360': 3000, '2361': 3000}
+
+    def test_woww_compressed_addon_info(self, cmd_tshark, capture_file, test_env):
+        '''CMSG_AUTH_SESSION carries 2000 AddonInfo entries in a zlib stream
+        (frame 2363); the account name before it is a C string.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number == 2363', 'woww.username', 'woww.addon.name')
+        user, names = out[0].split('\t')
+        assert user == 'ACCOUNT'
+        names = names.split(',')
+        assert len(names) == 2000
+        assert names[0] == 'Addon0' and names[-1] == 'Addon1999'
+
+    def test_woww_cstring_loop(self, cmd_tshark, capture_file, test_env):
+        '''SMSG_EXPECTED_SPAM_RECORDS with 100 terminated strings (frame
+        2362).'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number == 2362', 'woww.amount.of.records',
+                          'woww.records')
+        count, records = out[0].split('\t')
+        assert count == '0x00000064'
+        assert records.split(',') == ['spam'] * 100
