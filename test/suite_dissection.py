@@ -168142,3 +168142,137 @@ class TestDissectX509ce:
                 '-Y', 'frame.number == 58', '-V'), encoding='utf-8', env=test_env)
         assert 'ECP Security Level' in stdout
         assert 'DES and AES' in stdout
+
+
+class TestDissectX509if:
+    '''X.509 Information Framework (x509if) from the synthetic capture
+    x509if_coverage.pcap.gz: distinguished names, attributes with
+    contexts, SubtreeSpecification, HierarchyLevel and HierarchyBelow
+    and the DistinguishedName OIDs, in certificates carried by TLS
+    Certificate messages (TCP 443) and a CRL over HTTP. The limits that
+    only malformed data reaches (Refinement nesting) are tested with a
+    capture built by the test.'''
+
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, capture, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture, '-Y', flt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env).splitlines()
+
+    @staticmethod
+    def nested_pcap(path, depth):
+        '''One TLS Certificate frame whose extension 2.5.18.6
+        (SubtreeSpecification) holds a Refinement "not" nested depth levels.'''
+        def tlv(tag, content):
+            n = len(content)
+            ln = bytes([n]) if n < 0x80 else (bytes([0x80 | ((n.bit_length() + 7) // 8)])
+                                              + n.to_bytes((n.bit_length() + 7) // 8, 'big'))
+            return bytes([tag]) + ln + content
+        oid_cn = tlv(6, b'\x55\x04\x03')
+        name = tlv(0x30, tlv(0x31, tlv(0x30, oid_cn + tlv(0x0c, b'x'))))
+        alg = tlv(0x30, tlv(6, b'\x2a\x86\x48\x86\xf7\x0d\x01\x01\x0b') + b'\x05\x00')
+        ref = tlv(0xa0, tlv(6, b'\x55\x06\x00'))
+        for _ in range(depth):
+            ref = tlv(0xa3, ref)
+        ext = tlv(0x30, tlv(6, b'\x55\x12\x06') + tlv(4, tlv(0x30, tlv(0xa4, ref))))
+        tbs = tlv(0x30, tlv(0xa0, tlv(2, b'\x02')) + tlv(2, b'\x01') + alg + name
+                  + tlv(0x30, tlv(0x17, b'230101000000Z') + tlv(0x17, b'330101000000Z'))
+                  + name + tlv(0x30, alg + tlv(3, b'\x00\x01')) + tlv(0xa3, tlv(0x30, ext)))
+        cert = tlv(0x30, tbs + alg + tlv(3, b'\x00\x11'))
+        cl = len(cert).to_bytes(3, 'big') + cert
+        hs = b'\x0b' + (len(cl) + 3).to_bytes(3, 'big') + len(cl).to_bytes(3, 'big') + cl
+        payload = b'\x16\x03\x03' + len(hs).to_bytes(2, 'big') + hs
+        tcp = struct.pack('!HHIIBBHHH', 443, 50000, 1000, 1, 0x50, 0x18, 65535, 0, 0) + payload
+        ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(tcp), 1, 0, 64, 6, 0,
+                         bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2]))
+        frame = b'\x02\x00\x00\x00\x00\x02\x02\x00\x00\x00\x00\x01\x08\x00' + ip + tcp
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 1))
+            f.write(struct.pack('<IIII', 1700000000, 0, len(frame), len(frame)))
+            f.write(frame)
+
+    def test_x509if_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two
+        passes, identical decoded fields; the frame mix is what the
+        generator wrote.'''
+        cap = capture_file('x509if_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, test_env, cap, self.BAD, passes=passes) == []
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Tfields', '-e_ws.col.protocol'),
+                encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 52
+        assert protocols.count('TLSv1.2') == 11
+        assert protocols.count('PKIX-CRL') == 1
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap, '-Tfields',
+                    '-eframe.number', '-ex509if.oid', '-ex509if.item', '-ex509if.minimum',
+                    '-ex509if.maximum', '-ex509if.HierarchyLevel', '-ex509if.DistinguishedName',
+                    '-ex509sat.uTF8String', '-ex509af.serialNumber'),
+                    encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_x509if_subtree_specification(self, cmd_tshark, capture_file, test_env):
+        '''SubtreeSpecification: base, chopBefore/chopAfter, minimum and
+        maximum, and Refinement item/and/or/not.'''
+        cap = capture_file('x509if_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, capture_file('x509if_coverage.pcap.gz'),
+                'x509if.SubtreeSpecification_element && frame.number < 30',
+                'x509if.minimum', 'x509if.maximum', 'x509if.item')
+        assert rows == ['13\t1,0,2\t5,10\t2.5.6.6,2.5.6.6,2.5.6.7,2.5.6.8,2.5.6.0,2.5.6.2,2.5.6.9']
+        assert self.fields(cmd_tshark, test_env, cap, 'count(x509if.refinement_not) == 2 && frame.number < 30') == ['13']
+        assert self.fields(cmd_tshark, test_env, cap, 'x509if.chopBefore && x509if.chopAfter') == ['13']
+
+    def test_x509if_hierarchy(self, cmd_tshark, capture_file, test_env):
+        '''HierarchyLevel (INTEGER) and HierarchyBelow (BOOLEAN) extensions.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('x509if_coverage.pcap.gz'),
+                'x509if.HierarchyLevel', 'x509if.HierarchyLevel', 'x509if.HierarchyBelow')
+        assert rows == ['17\t3,0\tTrue,False']
+
+    def test_x509if_distinguished_names(self, cmd_tshark, capture_file, test_env):
+        '''The 30 OIDs that carry a DistinguishedName (aliasedEntryName,
+        member, owner, ...); each value has 2 or 3 RDNs.'''
+        cap = capture_file('x509if_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap,
+                'x509if.DistinguishedName && frame.number > 20', 'x509if.DistinguishedName')
+        assert rows == ['21\t2,3,2,3,2,3,2,3,2,3', '25\t2,3,2,3,2,3,2,3,2,3', '29\t2,3,2,3,2,3,2,3,2,3']
+
+    def test_x509if_contexts(self, cmd_tshark, capture_file, test_env):
+        '''A subject with a multi-valued RDN, an AVA that is not
+        primaryDistinguished and has valuesWithContext (fallback TRUE),
+        and Attributes with values and valuesWithContext.'''
+        cap = capture_file('x509if_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap, 'x509if.primaryDistinguished',
+                'x509if.primaryDistinguished', 'x509if.fallback') == ['4\tFalse,True\tTrue', '52\tFalse,True\tTrue']
+        assert self.fields(cmd_tshark, test_env, cap, 'x509if.contextList && frame.number == 8',
+                'x509if.contextList') == ['8\t2,1']
+
+    def test_x509if_long_dn(self, cmd_tshark, capture_file, test_env):
+        '''Names of 18, 19 and 200 RDNs (the DN text kept for display is
+        limited to 1024 bytes): all of them are dissected.'''
+        cap = capture_file('x509if_coverage.pcap.gz')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', 'frame.number in {33, 37, 44}', '-V'),
+                encoding='utf-8', env=test_env)
+        assert 'rdnSequence […]: 18 items' in stdout
+        assert 'rdnSequence […]: 19 items' in stdout
+        assert 'rdnSequence […]: 200 items' in stdout
+
+    def test_x509if_refinement_nesting(self, cmd_tshark, capture_file, test_env, result_file):
+        '''A Refinement nested 200 levels decodes (frame 48 of the capture and the
+        test's own frame); 300 levels give the "Nested too deeply" expert
+        info and a ReportedBoundsError, without a dissector bug assertion
+        (WIRESHARK_ABORT_ON_DISSECTOR_BUG=1 and exit status 0).'''
+        cap = capture_file('x509if_coverage.pcap.gz')
+        assert self.fields(cmd_tshark, test_env, cap,
+                'count(x509if.refinement_not) == 200 && !x509if.nested_too_deep') == ['48']
+        env = dict(test_env, WIRESHARK_ABORT_ON_DISSECTOR_BUG='1')
+        for depth, expect in ((200, False), (300, True)):
+            pcap = result_file('nested%d.pcap' % depth)
+            self.nested_pcap(pcap, depth)
+            stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-Y', 'x509if.nested_too_deep',
+                    '-Tfields', '-eframe.number'), encoding='utf-8', env=env)
+            assert (stdout.split() == ['1']) == expect, depth
