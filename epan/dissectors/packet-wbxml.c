@@ -7199,7 +7199,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 										 attr_save_known, *codepage_attr, &len, pinfo);
 						}
 					} else { /* lITERAL attribute */
-						if (map->opaque_literal_tag) {
+						if (map->opaque_literal_attr) {
 							tmp_str = map->opaque_literal_attr(tvb, off + 1,
 									       attr_save_literal, *codepage_attr, &len, pinfo);
 						} else {
@@ -7362,7 +7362,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 						     "  %3d | Tag   | T %3d    | END (Literal Tag)               | %s</%s>",
 						     recursion_level, *codepage_stag, Indent (recursion_level), tag_save_literal ? tag_save_literal : "");
 			}
-			recursion_level--;
+			if (recursion_level > 0)
+				recursion_level--;
 			p_set_proto_depth(pinfo, proto_wbxml, recursion_level);
 			off++;
 			/* Reset code page: not needed as return from recursion */
@@ -7887,6 +7888,9 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	tag_tree = proto_tree_add_subtree(wbxml_content_tree, tvb, offset, -1, ett_wbxml_tags, NULL,
 					"Level | State | Codepage | WBXML Token Description         | Rendering");
+
+	/* Start from depth 0 for each WBXML body in the frame */
+	p_set_proto_depth(pinfo, proto_wbxml, 0);
 
 	/* If content_map == NULL, WBXML only, no interpretation of the content */
 	parse_wbxml_tag_defined (tag_tree,
