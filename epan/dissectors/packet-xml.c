@@ -1578,7 +1578,9 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             if (!wmem_map_lookup(root_element->elements, curr_name)) {
                 xml_ns_t* fresh = make_xml_hier(curr_name, root_element, elements, hier, errors,
                     hfs, etts, dtd_data->proto_name);
-                wmem_map_insert(root_element->elements, (void*)fresh->name, fresh);
+                /* NULL when the name is already in the hierarchy (an error was recorded) */
+                if (fresh)
+                    wmem_map_insert(root_element->elements, (void*)fresh->name, fresh);
             }
         }
 
