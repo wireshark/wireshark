@@ -169373,3 +169373,238 @@ class TestDissectXml:
         assert [l.split('\t')[1] for l in lines] == [
             'HTTP/XML', 'HTTP/XML', 'SIP/XML', 'TCP/XML', 'UDP/XML',
             'UDP/XML']
+
+
+class TestDissectXmpp:
+    '''XMPP over TCP 5222 (before STARTTLS) from the synthetic capture
+    xmpp_coverage.pcap.gz: SASL login, stanzas (iq, presence, message),
+    service discovery, roster, Jingle, Google Talk, multi-user chat,
+    conference info, SOCKS5 and in-band bytestreams, stream
+    initiation, STARTTLS.  Frames 206 and 207 end the stream.'''
+
+    ELEMENT_DEPTH = 64   # XMPP_MAX_ELEMENT_DEPTH
+    UNKNOWN_DEPTH = 20   # ETT_UNKNOWN_LEN
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, extra=()):
+        args = [cmd_tshark, *extra, '-r', capture_file('xmpp_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    @staticmethod
+    def _nested_pcap(path, payloads):
+        '''Write a capture with one TCP segment to port 5222 per payload.'''
+        import struct
+
+        def csum(b):
+            if len(b) % 2:
+                b += b'\0'
+            s = sum(struct.unpack('!%dH' % (len(b) // 2), b))
+            while s >> 16:
+                s = (s & 0xffff) + (s >> 16)
+            return (~s) & 0xffff
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            seq = 1000
+            for i, data in enumerate(payloads):
+                tcp = struct.pack('!HHIIBBHHH', 40000 + i, 5222, seq, 1,
+                                  0x50, 0x18, 65535, 0, 0) + data
+                src, dst = bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2])
+                pseudo = src + dst + struct.pack('!BBH', 0, 6, len(tcp))
+                tcp = tcp[:16] + struct.pack('!H', csum(pseudo + tcp)) + tcp[18:]
+                ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(tcp), 1,
+                                 0, 64, 6, 0, src, dst)
+                ip = ip[:10] + struct.pack('!H', csum(ip)) + ip[12:] + tcp
+                pkt = (b'\x02\0\0\0\0\x02\x02\0\0\0\0\x01\x08\x00' + ip)
+                f.write(struct.pack('<IIII', 1 + i, 0, len(pkt), len(pkt)))
+                f.write(pkt)
+
+    def test_xmpp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-205 decode as XMPP without malformed packets or
+        error expert infos, in one and two passes.  The columns of the
+        XMPP frames are the same in both passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number <= 205 && xmpp',
+                             '_ws.col.protocol')
+        assert lines.count('XMPP/XML') == 175
+        assert lines.count('XMPP') == 1
+        assert len(lines) == 176
+        infos = []
+        for passes in ((), ('-2',)):
+            lines = self._fields(
+                cmd_tshark, capture_file, test_env,
+                'frame.number <= 205 && (_ws.malformed || '
+                '_ws.expert.severity >= 0x00800000)', 'frame.number',
+                extra=passes)
+            assert lines == []
+            infos.append(self._fields(cmd_tshark, capture_file, test_env,
+                                      'xmpp', 'frame.number', '_ws.col.info',
+                                      extra=passes))
+        assert infos[0] == infos[1]
+
+    def test_xmpp_stream_end(self, cmd_tshark, capture_file, test_env):
+        '''A closing </stream:stream> alone in a segment is the stream end
+        (the XML dissector flags such a lone closing tag as an error).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xmpp.stream_end', 'frame.number',
+                             '_ws.col.info', 'xml.closing_unopened_tag')
+        assert [l.split('\t')[:2] for l in lines] == [
+            ['206', 'STREAM END'], ['207', 'STREAM END']]
+
+    def test_xmpp_login(self, cmd_tshark, capture_file, test_env):
+        '''SASL, resource binding and the session, with the direction of
+        the first frames.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number >= 4 && frame.number <= 25',
+                             'frame.number', '_ws.col.info')
+        assert [l.split('\t') for l in lines] == [
+            ['4', 'STREAM > example.com '], ['5', 'STREAM < example.com '],
+            ['6', 'FEATURES '], ['7', 'FEATURES '], ['8', 'AUTH'],
+            ['9', 'AUTH'], ['10', 'AUTH'], ['11', 'AUTH'],
+            ['12', 'CHALLENGE'], ['13', 'RESPONSE'], ['14', 'RESPONSE'],
+            ['15', 'FAILURE '], ['16', 'FAILURE '], ['17', 'FAILURE '],
+            ['18', 'SUCCESS'], ['19', 'STREAM > example.com '],
+            ['20', 'STREAM < example.com '], ['21', 'FEATURES '],
+            ['22', 'IQ(set) BIND '], ['23', 'IQ(result) BIND '],
+            ['24', 'IQ(set) SESSION '], ['25', 'IQ(result) ']]
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xmpp.iq.bind.jid', 'frame.number',
+                             'xmpp.iq.bind.jid')
+        assert lines == ['23\tjuliet@example.com/laptop']
+
+    def test_xmpp_request_response(self, cmd_tshark, capture_file, test_env):
+        '''iq responses point to their requests by id; the request points
+        to its response in the second pass.  Requests without response
+        and responses without request are flagged.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xmpp.response_to', 'frame.number',
+                             'xmpp.response_to')
+        assert '23\t22' in lines and '27\t26' in lines
+        assert '49\t33' in lines    # an error response to the ping of 33
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {22, 26}', 'frame.number',
+                             'xmpp.response_in', extra=('-2',))
+        assert lines == ['22\t23', '26\t27']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xmpp.packet_without_response', 'frame.number',
+                             extra=('-2',))
+        assert '47' in lines and '48' in lines and '22' not in lines
+
+    def test_xmpp_sessions(self, cmd_tshark, capture_file, test_env):
+        '''The Jingle, Google Talk and in-band bytestream session ids are
+        shown in the packets that belong to the session by iq id.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {100, 124, 138, 186}',
+                             'frame.number', 'xmpp.jingle_session',
+                             'xmpp.gtalk', 'xmpp.ibb')
+        assert lines == ['100\tsid1\t\t', '124\tft-sid\t\t',
+                         '138\t\tgsid1\t', '186\t\t\tibb-1']
+
+    def test_xmpp_starttls(self, cmd_tshark, capture_file, test_env):
+        '''A second STARTTLS in a conversation and a PROCEED without a
+        STARTTLS are warned about; a proper STARTTLS/PROCEED is not.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xmpp.starttls.already_in_frame || '
+                             'xmpp.starttls.missing || '
+                             'xmpp.proceed.already_in_frame',
+                             'frame.number', '_ws.expert.message')
+        assert lines == [
+            '90\tAlready saw STARTTLS in frame 89',
+            '95\tHaven\'t seen a STARTTLS, did the capture start in the '
+            'middle of a session?']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {89, 91}', 'frame.number',
+                             '_ws.col.info')
+        assert lines == ['89\tSTARTTLS ', '91\tPROCEED ']
+
+    def test_xmpp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message split over three segments (frames 78-80) is
+        dissected once, in the last one; a segment with only a space is
+        a whitespace keepalive (frame 81).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xmpp && frame.number >= 78 && frame.number <= 82',
+                             'frame.number', '_ws.col.info')
+        assert lines == ['80\tMESSAGE > romeo@example.net/orchard ',
+                         '81\tWhitespace Keepalive',
+                         '82\tPRESENCE > c@e.com ']
+        out = subprocess.check_output(
+            (cmd_tshark, '-r', capture_file('xmpp_coverage.pcap.gz'),
+             '-Y', 'frame.number == 80', '-V'),
+            encoding='utf-8', env=test_env, timeout=120)
+        assert 'BODY [value="split in three"]' in out
+
+    def test_xmpp_unknown_and_values(self, cmd_tshark, capture_file, test_env):
+        '''Unknown elements, enumerated values that do not match and
+        missing required attributes are expert infos; known values are
+        decoded.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xmpp.packet_unknown', 'frame.number',
+                             '_ws.expert.message')
+        assert lines == ['73\tUnknown packet: bogus',
+                         '74\tUnknown packet: <NULL>']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xmpp.field.unexpected_value', 'frame.number')
+        assert lines[:3] == ['27', '61', '71']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xmpp.presence.show', 'frame.number',
+                             'xmpp.presence.show')
+        assert lines == ['53\taway', '61\tbogus', '62\tdnd', '63\txa']
+
+    def test_xmpp_jingle(self, cmd_tshark, capture_file, test_env):
+        '''Jingle actions of frames 99-129.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'xmpp.jingle.action', 'frame.number',
+                             'xmpp.jingle.action')
+        actions = [l.split('\t')[1] for l in lines]
+        # frame 44 is a jingle element without an iq id
+        assert actions[:9] == ['session-info', 'session-initiate',
+                               'session-info', 'session-info',
+                               'session-info', 'session-info',
+                               'session-accept', 'transport-info',
+                               'content-add']
+        assert 'transport-replace' in actions and 'bogus-action' in actions
+
+    def test_xmpp_nesting_limits(self, cmd_tshark, test_env, tmp_path):
+        '''Unknown elements nested to the limit of 20 levels
+        (xmpp_unknown_items asserted) and to 64 levels or deeper
+        (xmpp_xml_frame_to_element_t recursed until the tree depth
+        assertion) are cut off with the xmpp.too_deep expert info and do
+        not abort the dissector; frame 1 is just under the first limit.
+        Without a tree the XML dissector has no depth limit and the
+        600 deep frame reaches the XMPP limit of 64 levels.'''
+        def nest(n):
+            return b'<a>' * n + b'</a>' * n
+
+        def iq(n):
+            return b"<iq type='get' id='%d'>" % n + nest(n) + b'</iq>'
+        cap = str(tmp_path / 'nested.pcap')
+        sizes = (19, 20, 21, 63, 64, 65, 66, 600)
+        self._nested_pcap(cap, [iq(n) for n in sizes])
+        env = dict(test_env)
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        for extra in ((), ('-V',), ('-2',)):
+            out = subprocess.check_output(
+                (cmd_tshark, *extra, '-r', cap, '-Y', 'xmpp.too_deep',
+                 '-Tfields', '-eframe.number'),
+                encoding='utf-8', env=env, timeout=120)
+            # frame 8 (600 levels) is past the tree depth limit of the XML
+            # dissector (500), which gives up before XMPP sees it
+            assert out.split() == ['2', '3', '4', '5', '6', '7']
+            out = subprocess.check_output(
+                (cmd_tshark, *extra, '-r', cap, '-Tfields', '-e_ws.col.info'),
+                encoding='utf-8', env=env, timeout=120)
+            assert out.splitlines()[:3] == ['IQ(get) A ', 'IQ(get) A ',
+                                            'IQ(get) A ']
+            assert len(out.splitlines()) == len(sizes)
+
+    def test_xmpp_unknown_depth_in_capture(self, cmd_tshark, capture_file, test_env):
+        '''The iq of frame 201 has 19 nested unknown elements, the deepest
+        level that is displayed; frame 202 has 5.  Neither has an expert
+        info about the depth.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {201, 202}', 'frame.number',
+                             'xmpp.too_deep')
+        assert lines == ['201\t', '202\t']
