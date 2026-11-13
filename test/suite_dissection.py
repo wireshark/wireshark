@@ -165426,3 +165426,56 @@ class TestDissectWfleetHdlc:
         assert 'Wellfleet HDLC' in stdout
         assert 'Command: Un-numbered I frame (0x03)' in stdout
         assert 'Address: 0x07' in stdout
+
+
+class TestDissectWho:
+    '''rwho status packets (UDP 513), from the synthetic capture
+    who_coverage.pcap.gz.'''
+
+    def test_who_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 7 frames decode as WHO, with no malformed packets or error
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('who_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['WHO'] * 7
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('who_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_who_entries(self, cmd_tshark, capture_file, test_env):
+        '''The host name, the utmp entries (tty, user, idle time) and the
+        limit of 42 entries (1024 / sizeof(struct whoent)) per packet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('who_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ewho.hostname', '-ewho.tty',
+                '-ewho.uid', '-ewho.idle', '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r for r in (line.split('\t') for line in stdout.splitlines())}
+        assert rows['1'][1:] == ['idlehost', '', '', '']
+        assert rows['2'][1] == 'build1.example.net'
+        assert rows['2'][2] == 'ttyp0,ttyp1,ttyp2,console,ttyq3,pts/12'
+        assert rows['2'][3] == 'alice,bob,carol,root,dave,longuser'
+        assert rows['2'][4] == '0,59,10861,172805,4294967280,2147483647'
+        assert rows['4'][1] == 'h' * 32
+        assert rows['4'][2:] == ['12345678', 'abcdefgh', '1']
+        assert len(rows['5'][2].split(',')) == 42
+        # 45 entries in the packet, only 42 are decoded
+        assert len(rows['6'][2].split(',')) == 42
+        assert rows['6'][2].split(',')[-1] == 'tty41'
+
+    def test_who_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column has the host name and the three load averages
+        (no assumption about the decimal separator).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('who_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        host, *loads = stdout.split()
+        assert host == 'build1.example.net:'
+        assert [v.replace(',', '.') for v in loads] == ['1.50', '2.75', '10.00']
