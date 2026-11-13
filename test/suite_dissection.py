@@ -163641,3 +163641,102 @@ class TestDissectVsip:
                 '-evsip.GetCapabilitiesResp_CapabilityArray.EntityType',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '16\t0,1,2,3,4,5,6,7,11,12,13,17,18,20,22,99'
+
+
+class TestDissectVsock:
+    '''AF_VSOCK monitor frames (pcap link type 271, DLT_VSOCK) from the
+    synthetic capture vsock_coverage.pcap.gz.'''
+
+    def test_vsock_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 28 frames are vSocket frames without malformed packets or
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vsock_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['vsock'] * 28
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vsock_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_vsock_virtio(self, cmd_tshark, capture_file, test_env):
+        '''Virtio transport: operations of a connection and unknown values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsock_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 10',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-evsock.virtio.len',
+                '-evsock.virtio.flags', '-evsock.virtio.fwd_cnt', '-evsock.virtio.buf_alloc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t[Connect] Virtio: Stream, Op: Request, Buf alloc: 262144, Fwd cnt: 0\t0\t0x00000000\t0\t262144',
+            '2\t[Control] Virtio: Stream, Op: Response, Buf alloc: 262144, Fwd cnt: 0\t0\t0x00000000\t0\t262144',
+            '3\t[Payload] Virtio: Stream, Op: RW, Buf alloc: 262144, Fwd cnt: 0\t18\t0x00000000\t0\t262144',
+            '4\t[Payload] Virtio: Stream, Op: RW, Buf alloc: 262144, Fwd cnt: 18\t200\t0x00000000\t18\t262144',
+            '5\t[Control] Virtio: Stream, Op: Credit update, Buf alloc: 262144, Fwd cnt: 0\t0\t0x00000000\t0\t262144',
+            '6\t[Control] Virtio: Stream, Op: Credit response, Buf alloc: 262144, Fwd cnt: 0\t0\t0x00000000\t0\t262144',
+            '7\t[Control] Virtio: Stream, Op: Shutdown, Buf alloc: 262144, Fwd cnt: 0\t0\t0x00000003\t0\t262144',
+            '8\t[Control] Virtio: Stream, Op: Rst, Buf alloc: 262144, Fwd cnt: 0\t0\t0x00000000\t0\t262144',
+            '9\t[Disconnect] Virtio: Stream, Op: Invalid, Buf alloc: 262144, Fwd cnt: 0\t0\t0x00000000\t0\t262144',
+            '10\t[Control] Virtio: Unknown (7), Op: Unknown (99), Buf alloc: 262144, Fwd cnt: 0\t0\t0x00000000\t0\t262144',
+        ]
+
+    def test_vsock_operations(self, cmd_tshark, capture_file, test_env):
+        '''Operations and transports without transport information.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsock_coverage.pcap.gz'),
+                '-Y', 'frame.number in {11 .. 18}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-evsock.payload',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t[Unknown] No info\t',
+            '12\t[Connect] No info\t50',
+            '13\t[Disconnect] No info\t5050',
+            '14\t[Control] No info\t505050',
+            '15\t[Payload] No info\t50505050',
+            '16\t[Unknown (17)] No info\t' + '50' * 17,
+            '17\t[Connect] Unknown\t',
+            '18\t[Payload] Unknown (9)\t' + b'unknown transport 9'.hex(),
+        ]
+
+    def test_vsock_cid_strings(self, cmd_tshark, capture_file, test_env):
+        '''Context IDs: the host is shown as "host", large values in full
+        (the address string buffer used to be one byte too short for a
+        20 digit value).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsock_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 19, 20, 21, 22}',
+                '-Tfields', '-eframe.number', '-e_ws.col.def_src', '-e_ws.col.def_dst',
+                '-evsock.src_cid', '-evsock.dst_cid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t3\thost\t3\t2',
+            '2\thost\t3\t2\t3',
+            '19\t1000000000000000000\t1000000000000000001\t1000000000000000000\t1000000000000000001',
+            '20\t18446744073709551615\t18446744073709551614\t18446744073709551615\t18446744073709551614',
+            '21\t18446744073709551615\t1000000000000000000\t18446744073709551615\t1000000000000000000',
+            '22\t0\t1\t0\t1',
+        ]
+
+    def test_vsock_transport_length(self, cmd_tshark, capture_file, test_env):
+        '''A transport length that does not fit (frames 23-25) leaves no
+        payload; the payload offset used to wrap in 16 bits and show
+        bytes of the header as payload ("VSOCK: Fix payload offset wrap
+        and address string length"). A short one (frames 26, 27) skips the
+        transport bytes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsock_coverage.pcap.gz'),
+                '-Y', 'frame.number in {23 .. 28}',
+                '-Tfields', '-eframe.number', '-evsock.trans_len', '-evsock.payload',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '23\t65535\t',
+            '24\t65504\t',
+            '25\t65508\t',
+            '26\t8\t' + b'PAYLOAD-'.hex(),
+            '27\t8\t',
+            '28\t50\t' + b'DATA'.hex(),
+        ]
