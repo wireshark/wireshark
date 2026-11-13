@@ -164354,3 +164354,79 @@ class TestDissectVxlan:
         assert rows['19'][2].endswith(':vxlan_gpe:data')
         assert rows['20'][2].endswith(':vxlan_gpe:data')
         assert rows['21'][1] == '109'
+
+
+class TestDissectWai:
+    '''WAI (WAPI authentication, ethertype 0x88b4) from the synthetic
+    capture wai_coverage.pcap.gz. Certificates, signatures and MACs are
+    filler bytes.'''
+
+    @staticmethod
+    def wai_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, args=()):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('wai_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number', '-Eaggregator=|',
+                *(f'-e{f}' for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_wai_protocols(self, cmd_tshark, capture_file, test_env):
+        '''32 WAI frames (frame 26 has subtype 13 and is not WAI) decode
+        without malformed packets or error expert infos, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.wai_fields(cmd_tshark, capture_file, test_env, 'wai', args=passes)
+            assert len(rows) == 32
+            assert '26' not in [r[0] for r in rows]
+            rows = self.wai_fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity == error', args=passes)
+            assert rows == []
+
+    def test_wai_subtypes(self, cmd_tshark, capture_file, test_env):
+        '''The number of frames of each subtype.'''
+        rows = self.wai_fields(cmd_tshark, capture_file, test_env, 'wai', 'wai.subtype')
+        counts = {}
+        for r in rows:
+            counts[r[1]] = counts.get(r[1], 0) + 1
+        assert counts == {'0': 1, '1': 1, '2': 1, '3': 3, '4': 4, '5': 6, '6': 4,
+                          '7': 3, '8': 3, '9': 2, '10': 2, '11': 1, '12': 1}
+
+    def test_wai_long_certificate(self, cmd_tshark, capture_file, test_env):
+        '''A certificate of 0x8000 octets in the first position of a
+        certificate verification result: the second result and certificate
+        follow (the offset used to go backwards, "WAI: Fix certificate
+        length handling and short key messages").'''
+        rows = self.wai_fields(cmd_tshark, capture_file, test_env,
+                'wai.cert.len == 32768', 'wai.cert.len', 'wai.ver.res', 'wai.sign')
+        assert len(rows) == 1
+        assert rows[0][1] == '32768|44'
+        assert rows[0][2] == '0x00|0x00'
+
+    def test_wai_fragments(self, cmd_tshark, capture_file, test_env):
+        '''A message in three fragments and one in two are reassembled
+        and dissected in the last fragment.'''
+        rows = self.wai_fields(cmd_tshark, capture_file, test_env,
+                'wai.reassembled.length', 'wai.subtype', 'wai.reassembled.length')
+        assert [(r[1], r[2]) for r in rows] == [('5', '210'), ('6', '226')]
+        rows = self.wai_fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 27 && frame.number <= 33', '_ws.col.info')
+        assert [r[1] for r in rows] == [
+            'Fragment (0) of message, data not dissected',
+            'Fragment (1) of message, data not dissected',
+            'Last fragment of message, data dissected: Access authentication response',
+            'Fragment (0) of message, data not dissected',
+            'Last fragment of message, data dissected: Certificate authentication request',
+            'Unicast key negotiation request',
+            'Fragment (5) of message, data not dissected']
+
+    def test_wai_optional_fields(self, cmd_tshark, capture_file, test_env):
+        '''Identity lists (optional field), key data and the unicast key
+        messages with WIE and message authentication code.'''
+        rows = self.wai_fields(cmd_tshark, capture_file, test_env,
+                'wai.identity_list', 'wai.no.of.ids')
+        assert [r[1] for r in rows] == ['3', '0', '2']
+        rows = self.wai_fields(cmd_tshark, capture_file, test_env,
+                'wai.subtype == 9', 'wai.wie', 'wai.message.auth.code')
+        assert len(rows) == 2
+        assert len(rows[0][1]) == 80 and rows[1][1] in ('', '<MISSING>')
+        assert rows[0][2] == '13' * 20
