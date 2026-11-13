@@ -167017,3 +167017,75 @@ class TestDissectWps:
         cats = [l.split(',') for l in stdout.splitlines()]
         assert [len(c) for c in cats] == [5, 4, 6, 5, 6, 4, 8, 4, 3, 9, 7]
         assert [c[0] for c in cats] == ['0x%04x' % i for i in range(1, 12)]
+
+
+class TestDissectWreth:
+    '''WRETH (WSE remote ethernet, ethertype 0xAAAA) from the synthetic
+    capture wreth_coverage.pcap.gz: every function code, the mail
+    frames with the Master Info and Equipment Info data, fragments.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wreth_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_wreth_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 50 frames decode as Wreth without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['Wreth'] * 50
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_wreth_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column for the function codes, error codes and the sizes
+        that do not fit a function.'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = dict(l.split('\t', 1) for l in stdout.splitlines())
+        assert info['1'] == 'Identification question'
+        assert info['2'] == 'Identification response'
+        assert info['4'] == 'Connection'
+        assert info['5'] == 'Acknowledge'
+        assert info['7'] == 'Bad function code'
+        assert info['15'] == 'Task registered'
+        assert info['20'] == 'Unknown 0x004d'
+        assert info['21'] == 'Disconnection'
+        assert info['24'] == 'Get value response'
+        assert info['25'] == 'Set value question'
+        assert info['26'] == 'Boost'
+        assert info['38'] == 'Mail : Data Second Fragment '
+        assert info['41'] == 'Invalid fragmented byte'
+        assert info['42'] == 'Invalid identification frame'
+        assert info['43'] == 'Invalid connection frame'
+        assert info['44'] == 'Invalid acknowledge frame'
+        assert info['45'] == 'Invalid non acknowledge frame'
+        assert info['46'] == 'Invalid disconnection frame'
+        assert info['47'] == 'Invalid blinky frame'
+        assert info['48'] == 'Invalid get value frame'
+        assert info['49'] == 'Invalid boost frame'
+        assert info['50'] == 'Set value question'
+
+    def test_wreth_mail(self, cmd_tshark, capture_file, test_env):
+        '''Mail frames: Codef and status names (also a negative status),
+        Master Info and Equipment Info data.'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {29, 30, 35, 36}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '29\tMail : Codef = Ox1002 (cod_masterinfo), Status = 00 (stat_ok), Card = 1, Chan = 2',
+            '30\tMail : Codef = Ox1079 (COD_EQUIPMENTINFO), Status = 01 (stat_err_fonc), Card = 1, Chan = 2',
+            '35\tMail : Codef = OxA001 (COD_REFRESH_INPUT), Status = -11 (index not updated), Card = 1, Chan = 2',
+            '36\tMail : Codef = Ox4242 (Unknown 0x4242), Status = 51 (stat_sys), Card = 1, Chan = 2',
+        ]
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 29', '-V')
+        assert 'WSE_PROTOCOL' in stdout
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 30', '-V')
+        assert 'EQUIPMENT_NAME' in stdout
