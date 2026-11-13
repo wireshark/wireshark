@@ -968,6 +968,10 @@ static int ett_xcp_element;
 
 /* expert info items */
 static expert_field ei_xcp_not_implemented;
+static expert_field ei_xcp_daq_count_too_large;
+
+/* Largest DAQ_COUNT of an ALLOC_DAQ that is tracked. */
+#define XCP_MAX_DAQ_COUNT 256
 
 void proto_register_xcp(void);
 void proto_reg_handoff_xcp(void);
@@ -1012,6 +1016,8 @@ typedef struct _xcp_message {
 
     uint32_t                        number_of_daqs;
     wmem_array_t *                  current_daqs;
+
+    unsigned int                    endianess;
 } xcp_message_t;
 
 #define INIT_XCP_MESSAGE_T(X) \
@@ -1025,7 +1031,8 @@ typedef struct _xcp_message {
     (X)->peer_message = NULL; \
     (X)->current_daq_list_number = 0xffffffff; \
     (X)->number_of_daqs = 0; \
-    (X)->current_daqs = NULL;
+    (X)->current_daqs = NULL; \
+    (X)->endianess = ENC_LITTLE_ENDIAN;
 
 typedef struct _xcp_stream {
     xcp_message_t                  *last_m2s;
@@ -1290,7 +1297,7 @@ static bool
 update_xcp_eth_mapping_cb(void *r, char **err) {
     xcp_eth_mapping_uat_t *rec = (xcp_eth_mapping_uat_t *)r;
 
-    if ((rec->port_type) != XCP_PROTO_IPV4 && (rec->port_type) != XCP_PROTO_IPV6) {
+    if ((rec->protocol) != XCP_PROTO_IPV4 && (rec->protocol) != XCP_PROTO_IPV6 && (rec->protocol) != XCP_PROTO_ANY) {
         *err = g_strdup_printf("Invalid Proto Type (0x%d)", rec->protocol);
         return false;
     }
@@ -1789,7 +1796,7 @@ dissect_pod_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
         proto_tree_add_item_ret_uint(tree, hf_xcp_pod_command, tvb, offset, 2, stream->endianess, &cmd);
         message->cmd_pod = cmd;
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(pinfo->pool, cmd, cmd_pod_mnemonics, "Unknown POD Command (0x%04x)"));
-        offset += 1;
+        offset += 2;
 
         switch (message->cmd_pod) {
         //case XCP_CMD_POD_GET_INFO:
@@ -2269,9 +2276,11 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ": DAQ_LIST:%d ODT:%d ODT_ENTRY:%d", daq_list_number, odt_number, odt_entry_number);
 
-        stream->current_daq = daq_list_number;
-        stream->current_odt = odt_number;
-        stream->current_odt_entry = odt_entry_number;
+        if (!PINFO_FD_VISITED(pinfo)) {
+            stream->current_daq = daq_list_number;
+            stream->current_odt = odt_number;
+            stream->current_odt_entry = odt_entry_number;
+        }
     }
         break;
 
@@ -2307,16 +2316,19 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
             col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x%04x", address_extension, memory_address);
         }
 
-        xcp_odt_entry_t *odt_entry = get_odt_entry_from_message(message, stream->current_daq, stream->current_odt, stream->current_odt_entry);
+        xcp_odt_entry_t *odt_entry = PINFO_FD_VISITED(pinfo) ? NULL :
+            get_odt_entry_from_message(message, stream->current_daq, stream->current_odt, stream->current_odt_entry);
         if (odt_entry != NULL) {
             odt_entry->ecu_id = stream->ecu_id;
             odt_entry->addr_ext = address_extension;
             odt_entry->address = memory_address;
-            odt_entry->name = name_string == false ? NULL : wmem_strdup(wmem_file_scope(), name_string);
+            odt_entry->name = name_string == NULL ? NULL : wmem_strdup(wmem_file_scope(), name_string);
             odt_entry->size = size_of_daq_element;
         }
 
-        stream->current_odt_entry += 1;
+        if (!PINFO_FD_VISITED(pinfo)) {
+            stream->current_odt_entry += 1;
+        }
     }
         break;
 
@@ -2466,8 +2478,10 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
     case XCP_CMD_FREE_DAQ:
         /* No Parameters */
 
-        stream->number_of_daqs = 0;
-        message->number_of_daqs = 0;
+        if (!PINFO_FD_VISITED(pinfo)) {
+            stream->number_of_daqs = 0;
+            message->number_of_daqs = 0;
+        }
         break;
 
     case XCP_CMD_ALLOC_DAQ: {
@@ -2475,24 +2489,29 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
         offset += 1;
 
         uint32_t daq_count;
-        proto_tree_add_item_ret_uint(xcp_tree, hf_xcp_daq_count, tvb, offset, 2, stream->endianess, &daq_count);
+        proto_item *ti_daq_count = proto_tree_add_item_ret_uint(xcp_tree, hf_xcp_daq_count, tvb, offset, 2, stream->endianess, &daq_count);
         offset += 2;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ": DAQ_COUNT:%d", daq_count);
 
-        stream->number_of_daqs = daq_count;
-        message->number_of_daqs = daq_count;
+        if (daq_count > XCP_MAX_DAQ_COUNT) {
+            expert_add_info_format(pinfo, ti_daq_count, &ei_xcp_daq_count_too_large,
+                                   "DAQ_COUNT %u exceeds the limit of %u, not tracked", daq_count, XCP_MAX_DAQ_COUNT);
+        } else if (!PINFO_FD_VISITED(pinfo)) {
+            stream->number_of_daqs = daq_count;
+            message->number_of_daqs = daq_count;
 
-        stream->current_daqs = wmem_array_new(wmem_file_scope(), sizeof(xcp_daq_t));
-        message->current_daqs = stream->current_daqs;
+            stream->current_daqs = wmem_array_new(wmem_file_scope(), sizeof(xcp_daq_t));
+            message->current_daqs = stream->current_daqs;
 
-        uint32_t i;
-        for (i = 0; i < daq_count; i++) {
-            xcp_daq_t tmp;
-            tmp.daq_number = i;
-            tmp.number_of_odts = 0;
-            tmp.current_odts = NULL;
-            wmem_array_append(message->current_daqs, &tmp, 1);
+            uint32_t i;
+            for (i = 0; i < daq_count; i++) {
+                xcp_daq_t tmp;
+                tmp.daq_number = i;
+                tmp.number_of_odts = 0;
+                tmp.current_odts = NULL;
+                wmem_array_append(message->current_daqs, &tmp, 1);
+            }
         }
 
     }
@@ -2512,7 +2531,7 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ": DAQ_LIST:%d ODT_COUNT:%d", daq_list_number, odt_count);
 
-        xcp_daq_t *daq = get_daq_from_message(message, daq_list_number);
+        xcp_daq_t *daq = PINFO_FD_VISITED(pinfo) ? NULL : get_daq_from_message(message, daq_list_number);
         if (daq != NULL) {
             if (odt_count > 0) {
                 daq->number_of_odts = odt_count;
@@ -2551,7 +2570,7 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ": DAQ_LIST:%d ODT:%d ODT_ENTRIES_COUNT:%d", daq_list_number, odt_number, odt_entries_count);
 
-        xcp_odt_t *odt = get_odt_from_message(message, daq_list_number, odt_number);
+        xcp_odt_t *odt = PINFO_FD_VISITED(pinfo) ? NULL : get_odt_from_message(message, daq_list_number, odt_number);
         if (odt != NULL) {
             if (odt_entries_count > 0) {
                 odt->number_of_odt_entries = odt_entries_count;
@@ -2871,6 +2890,9 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
 
             uint64_t comm_mode_basic;
             proto_tree_add_bitmask_ret_uint64(xcp_tree, tvb, offset, hf_xcp_conn_comm_mode_bsc, ett_xcp_comm_mode_basic_flags, comm_mode_basic_flags, ENC_NA, &comm_mode_basic);
+            /* Set on every pass: dissect_xcp() reloads the byte order saved
+             * for each frame, so this only changes the rest of this frame
+             * on later passes, as it did on the first one. */
             stream->endianess = ((comm_mode_basic & 0x01) == 0x01) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
             offset += 1;
 
@@ -3175,7 +3197,7 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
 
         case XCP_CMD_START_STOP_DAQ_LIST: {
             uint32_t odt_pid;
-            proto_tree_add_item_ret_uint(tree, hf_xcp_first_pid, tvb, offset, 1, ENC_NA, &odt_pid);
+            proto_tree_add_item_ret_uint(xcp_tree, hf_xcp_first_pid, tvb, offset, 1, ENC_NA, &odt_pid);
             offset += 1;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ": PID:0x%02x", odt_pid);
@@ -3187,7 +3209,7 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
                     xcp_odt_t *odt;
 
                     uint32_t i;
-                    for (i = 0; i < daq->number_of_odts; i++) {
+                    for (i = 0; i < daq->number_of_odts && !PINFO_FD_VISITED(pinfo); i++) {
                         odt = (xcp_odt_t *)wmem_array_index(daq->current_odts, i);
                         odt->pid = odt_pid + i;
 
@@ -3233,7 +3255,7 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
              * Maybe the standard means TIME_CORRELATION_PROPERTIES???
              */
             if (stream->timestamp_extended) {
-                proto_tree_add_expert_remaining(tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
+                proto_tree_add_expert_remaining(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset);
                 /* TODO */
             } else {
                 proto_tree_add_item(xcp_tree, hf_xcp_payload_timestamp_legacy, tvb, offset, 4, stream->endianess);
@@ -3549,7 +3571,7 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
                     if (odt_entry->name != NULL) {
                         proto_tree_add_string(element_tree, hf_xcp_data_element_name, tvb, offset, element_length, odt_entry->name);
                     } else {
-                        proto_tree_add_string(element_tree, hf_xcp_data_element_name, tvb, offset, element_length, wmem_strdup_printf(wmem_file_scope(), "Param %d", i));
+                        proto_tree_add_string(element_tree, hf_xcp_data_element_name, tvb, offset, element_length, wmem_strdup_printf(pinfo->pool, "Param %d", i));
                     }
 
                     switch (element_length) {
@@ -3625,8 +3647,11 @@ dissect_xcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, xcp_stream_t *s
     if (!message_info) {
         message_info = wmem_new0(wmem_file_scope(), xcp_message_t);
         INIT_XCP_MESSAGE_T(message_info);
+        message_info->endianess = stream->endianess;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_xcp, 0, message_info);
     }
+    /* The byte order is stream state; later passes use what the first pass saw. */
+    stream->endianess = message_info->endianess;
 
     ti_root = proto_tree_add_item(tree, proto_xcp, tvb, 0, -1, ENC_NA);
     xcp_tree = proto_item_add_subtree(ti_root, ett_xcp);
@@ -3810,10 +3835,10 @@ dissect_xcp_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         mapping->stream->ecu_id = mapping->ecu_id;
 
         if (direction == XCP_DIR_M2S) {
-            copy_address(&(mapping->stream->s_addr), &(pinfo->net_dst));
+            copy_address_wmem(wmem_epan_scope(), &(mapping->stream->s_addr), &(pinfo->net_dst));
             mapping->stream->s_port_number = pinfo->destport;
         } else {
-            copy_address(&(mapping->stream->s_addr), &(pinfo->net_src));
+            copy_address_wmem(wmem_epan_scope(), &(mapping->stream->s_addr), &(pinfo->net_src));
             mapping->stream->s_port_number = pinfo->srcport;
         }
     }
@@ -3845,6 +3870,45 @@ check_config(void) {
     if (global_xcp_address_granularity_default != 0 && global_xcp_address_granularity_default != 1 &&
         global_xcp_address_granularity_default != 2 && global_xcp_address_granularity_default != 4) {
         global_xcp_address_granularity_default = 0;
+    }
+}
+
+static void
+xcp_reset_stream(xcp_stream_t *stream) {
+    /* These point into file scope memory, which is gone at a file change. */
+    stream->last_m2s = NULL;
+    stream->last_s2m = NULL;
+    stream->addr_granularity = global_xcp_address_granularity_default;
+    stream->endianess = ENC_LITTLE_ENDIAN;
+    stream->timestamp_extended = false;
+    stream->number_of_daqs = 0;
+    stream->current_daqs = NULL;
+    stream->current_daq = 0xFFFFFFFF;
+    stream->current_odt = 0xFFFFFFFF;
+    stream->current_odt_entry = 0xFFFFFFFF;
+    if (stream->pid_map != NULL) {
+        wmem_map_destroy(stream->pid_map, false, false);
+    }
+    stream->pid_map = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
+}
+
+static void
+xcp_init(void) {
+    uint32_t i;
+
+    if (xcp_eth_mappings_priv != NULL) {
+        for (i = 0; i < xcp_uat_eth_mapping_num_current; i++) {
+            if (xcp_eth_mappings_priv[i].stream != NULL) {
+                xcp_reset_stream(xcp_eth_mappings_priv[i].stream);
+            }
+        }
+    }
+    if (xcp_can_mappings_priv != NULL) {
+        for (i = 0; i < xcp_uat_can_mapping_num_current; i++) {
+            if (xcp_can_mappings_priv[i].stream != NULL) {
+                xcp_reset_stream(xcp_can_mappings_priv[i].stream);
+            }
+        }
     }
 }
 
@@ -4177,6 +4241,7 @@ proto_register_xcp(void) {
 
     static ei_register_info ei[] = {
         { &ei_xcp_not_implemented,{ "xcp.not_implemented", PI_UNDECODED, PI_WARN, "Not implemented yet. Please consider creating a ticket and attaching an example trace.", EXPFILL } },
+        { &ei_xcp_daq_count_too_large,{ "xcp.daq_count_too_large", PI_PROTOCOL, PI_WARN, "DAQ_COUNT too large", EXPFILL } },
     };
 
     proto_xcp = proto_register_protocol("Universal Measurement and Calibration Protocol (XCP)", "XCP", "xcp");
@@ -4188,6 +4253,8 @@ proto_register_xcp(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_module_xcp = expert_register_protocol(proto_xcp);
     expert_register_field_array(expert_module_xcp, ei, array_length(ei));
+
+    register_init_routine(xcp_init);
 
     xcp_module = prefs_register_protocol(proto_xcp, &check_config);
 
