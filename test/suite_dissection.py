@@ -164639,3 +164639,94 @@ class TestDissectWassp:
             ), encoding='utf-8', env=test_env, timeout=120)
         rows = [line.split('\t') for line in stdout.splitlines()]
         assert [r[0] for r in rows if len(r) > 1 and r[1]] == ['4', '5', '6']
+
+
+class TestDissectWaveagent:
+    '''WaveAgent (found by the UDP heuristic) from the synthetic capture
+    waveagent_coverage.pcap.gz: every control word of protocol versions
+    2 and 3.'''
+
+    @staticmethod
+    def wa_fields(cmd_tshark, capture_file, test_env, display_filter, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('waveagent_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number', '-Eaggregator=|',
+                *(f'-e{f}' for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_waveagent_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 94 frames decode as WA without malformed packets or error
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('waveagent_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['WA'] * 94
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('waveagent_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_waveagent_scan_rates(self, cmd_tshark, capture_file, test_env):
+        '''Every BSS entry of a scan results response shows its own
+        supported rates. The rates of the first entry were shown for all
+        entries before "WaveAgent: Use the current BSS entry for the
+        supported rates". More than 16 rate octets are limited to 16.
+        (The decimal separator is the locale's.)'''
+        rows = self.wa_fields(cmd_tshark, capture_file, test_env,
+                'waveagent.cword == 0x2e', 'waveagent.returnedbssid',
+                'waveagent.scanssid', 'waveagent.ifwlansupportedrates')
+        assert [r[1] for r in rows] == ['2', '2', '5', '20']
+        rates = [r[3].replace(',', '.').split('|') for r in rows]
+        assert rates[0] == ['1.0(B) 2.0(B)  [Mbit/sec]', '6.0 9.0 12.0  [Mbit/sec]']
+        assert rates[1] == rates[0]
+        assert rates[2][2].startswith('BSS requires support for mandatory features of HT PHY')
+        assert rates[2][3] == '6.0(B) 9.0 12.0(B) 18.0  [Mbit/sec]'
+        assert rates[2][4] == 'Not defined'
+        assert rates[2][5] == '1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 1.0 2.0 3.0 4.0  [Mbit/sec]'
+        # 20 entries announced: the first 8 are shown
+        assert len(rows[3][2].split('|')) == 8
+        assert rows[2][2] == 'first|second|ht|norates|longrates'
+
+    def test_waveagent_connect_request(self, cmd_tshark, capture_file, test_env):
+        '''The BSSID list of a client connect request: 0, 3 and 16
+        entries, and at most 16 for a count of 100.'''
+        rows = self.wa_fields(cmd_tshark, capture_file, test_env,
+                'waveagent.cword == 0x40', 'waveagent.scanbssid')
+        assert [len(r[1].split('|')) if r[1] else 0 for r in rows] == [0, 3, 16, 16]
+
+    def test_waveagent_relay_and_versions(self, cmd_tshark, capture_file, test_env):
+        '''Relay messages carry a complete WaveAgent message; the protocol
+        version is taken from the header.'''
+        rows = self.wa_fields(cmd_tshark, capture_file, test_env,
+                'waveagent.relaydestid', 'waveagent.relaydestid',
+                'waveagent.relaysrcid', 'waveagent.cword')
+        assert [r[1:] for r in rows] == [
+            ['17', '34', '0x003e|0x0024'], ['17', '34', '0x003e|0x008f'],
+            ['17', '34', '0x003e|0x0012']]
+        rows = self.wa_fields(cmd_tshark, capture_file, test_env,
+                'waveagent.cword == 0x81', 'waveagent.protocolversion', 'waveagent.id',
+                'waveagent.ifmask')
+        assert [r[1] for r in rows] == ['3', '2']
+        assert rows[0][2] == 'WaveAgent-PC-01'
+        assert rows[0][3] == '0x00000003' and rows[1][3] == ''
+
+    def test_waveagent_interfaces(self, cmd_tshark, capture_file, test_env):
+        '''Interface info responses (WLAN with a reported and a not
+        reported noise floor, Ethernet with IPv6) and the interface state
+        changes: 4 and 2 slots in use.'''
+        rows = self.wa_fields(cmd_tshark, capture_file, test_env,
+                'waveagent.cword == 0x30 && waveagent.protocolversion == 3',
+                'waveagent.iftype', 'waveagent.ifiptype', 'waveagent.ifipv4',
+                'waveagent.ifipv6', 'waveagent.ifwlanssid')
+        assert [r[1:3] for r in rows] == [['2', '2'], ['1', '10'], ['2', '2']]
+        assert rows[0][3] == '192.0.2.77' and rows[1][4] == '2001:db8::77'
+        assert rows[0][5] == 'lab-ap'
+        rows = self.wa_fields(cmd_tshark, capture_file, test_env,
+                'waveagent.cword == 0x31 && waveagent.protocolversion == 3',
+                'waveagent.iftype', 'waveagent.snap')
+        assert [len(r[2].split('|')) if r[2] else 0 for r in rows] == [4, 2, 0]
