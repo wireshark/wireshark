@@ -169679,3 +169679,58 @@ class TestDissectXnap:
             stdout = self._tshark(cmd_tshark, test_env, cap, '-Y', f'frame.number == {frame}',
                                   '-Tfields', '-e_ws.expert.message', '-E', 'aggregator=|')
             assert stdout.strip().count('Dissector for OID not implemented') == 1
+
+
+class TestDissectXot:
+    '''X.25 over TCP (XOT, TCP 1998) from the synthetic capture
+    xot_coverage.pcap.gz: PVC setup messages, X.25 packets one per
+    segment, several per segment and split over segments, M-bit
+    sequences, short PDUs and other XOT versions.'''
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, flt, *args, passes=(), opts=()):
+        stdout = subprocess.check_output([cmd_tshark, *passes, *opts, '-r', capture_file('xot_coverage.pcap.gz'),
+                                          '-Y', flt, *args],
+                                         encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_xot_frames(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two
+        passes, also with the X.25 sequence collection of XOT on; 4 PVC
+        setup messages.'''
+        t = self.tshark
+        assert len(t(cmd_tshark, capture_file, test_env, 'xot', '-Tfields', '-eframe.number')) == 27
+        assert len(t(cmd_tshark, capture_file, test_env, 'xot.pvc.status', '-Tfields', '-eframe.number')) == 4
+        for passes in ((), ('-2',)):
+            for opts in ((), ('-o', 'xot.x25_desegment:TRUE')):
+                assert t(cmd_tshark, capture_file, test_env,
+                         '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                         '-Tfields', '-eframe.number', passes=passes, opts=opts) == []
+
+    def test_xot_pvc_setup(self, cmd_tshark, capture_file, test_env):
+        lines = self.tshark(cmd_tshark, capture_file, test_env, 'xot.pvc.status', '-Tfields', '-eframe.number',
+                            '-exot.pvc.status', '-exot.pvc.init_itf_name', '-exot.pvc.resp_itf_name',
+                            '-exot.pvc.init_lcn', '-exot.pvc.resp_lcn')
+        assert lines == ['4\t0x00\tSerial0\tSerial1\t5\t6', '5\t0x12\tSerial0\tSerial1\t5\t6',
+                         '6\t0x1a\t\t\t1\t2', '7\t0x77\tEthernet0/1\tx\t100\t200']
+
+    def test_xot_multiple_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Three PDUs in a segment: X.25 shows the last packet.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, 'frame.number in {12}',
+                            '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == ['12\tRNR VC:1 P(R):1']
+
+    def test_xot_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''M-bit sequences are shown as fragments and reassembled by X.25
+        in both modulos; a PDU split over TCP segments is decoded once
+        complete; the connection of frame 36 starts with a one octet
+        segment and is decoded from the first full PDU.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env,
+                            'frame.number in {13, 15, 16, 19, 23, 25, 36}',
+                            '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == ['13\tData VC:2 P(S):0 P(R):0  M', '15\tData VC:2 P(S):2 P(R):0 ',
+                         '16\tData VC:3 P(R):0 P(S):2 ', '19\tData VC:4 P(S):4 P(R):0 ',
+                         '23\tData VC:6 P(S):1 P(R):0 ', '25\tData VC:7 P(S):0 P(R):0 ',
+                         '36\tInc. call/Call req. VC:9']
+        n = self.tshark(cmd_tshark, capture_file, test_env, 'x25.reassembled.length', '-Tfields', '-eframe.number')
+        assert len(n) >= 4
