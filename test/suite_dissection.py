@@ -169999,3 +169999,58 @@ class TestDissectXtp:
                 '-extp.data.btag', '-extp.diag.code', '-extp.diag.val',
                 '-extp.diag.msg')
         assert rows == ['2\t0x1122334455667788\t\t\t', '49\t\t1\t2\tdiagnostic message 1']
+
+
+class TestDissectXyplex:
+    '''Xyplex (UDP 173 registration and the TCP return connection) from
+    the synthetic capture xyplex_coverage.pcap.gz.'''
+
+    CAP = 'xyplex_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('xyplex_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_xyplex_protocols(self, cmd_tshark, capture_file, test_env):
+        '''38 frames, 20 of them Xyplex, without malformed packets or
+        error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-e_ws.col.protocol', passes=passes)
+            assert len(rows) == 38
+            assert rows.count('XYPLEX') == 20
+
+    def test_xyplex_registration(self, cmd_tshark, capture_file, test_env):
+        '''Registration requests and replies, including the Queue Full
+        reply and an unknown reply code.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xyplex.server_port || xyplex.reply',
+                '-Tfields', '-eframe.number', '-exyplex.server_port',
+                '-exyplex.return_port', '-exyplex.reply')
+        assert rows[:6] == [
+            '1\t2000\t7001\t',
+            '2\t\t\t0',
+            '13\t2001\t7002\t',
+            '14\t\t\t5',
+            '15\t2001\t7002\t',
+            '16\t\t\t0',
+        ]
+        assert '26\t\t\t66' in rows
+        assert '27\t65535\t65535\t' in rows
+
+    def test_xyplex_data(self, cmd_tshark, capture_file, test_env):
+        '''The TCP stream to the return port is claimed by the
+        conversation that the request created.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xyplex.data', '-Tfields', '-eframe.number',
+                '-e_ws.col.info')
+        assert rows[0] == '6\t33000 > 7001 Data'
+        assert rows[1] == '7\t7001 > 33000 Data'
+        assert len(rows) == 7
