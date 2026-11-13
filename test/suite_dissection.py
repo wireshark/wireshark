@@ -166918,3 +166918,102 @@ class TestDissectWoww:
         count, records = out[0].split('\t')
         assert count == '0x00000064'
         assert records.split(',') == ['spam'] * 100
+
+
+class TestDissectWps:
+    '''Wi-Fi Protected Setup: the WPS IE in 802.11 management frames, the
+    WFA Multi-AP extension, and EAP-WSC over EAPOL (expanded EAP type), from
+    the synthetic capture wps_coverage.pcapng.gz. Keys, hashes, nonces and
+    encrypted settings are made-up opaque bytes.'''
+
+    def test_wps_protocols(self, cmd_tshark, capture_file, test_env):
+        '''96 frames (27 802.11, 69 EAP); no malformed packets and no
+        expert infos of warning or error level, and the same -V output
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wps_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 96
+        assert protocols.count('802.11') == 27
+        assert protocols.count('EAP') == 69
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wps_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wps_coverage.pcapng.gz'), '-V',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_wps_eap_wsc_messages(self, cmd_tshark, capture_file, test_env):
+        '''WSC_Start, M1-M8, Done, ACK, NACK, FRAG_ACK and a message in
+        three fragments (the length field only in the first).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wps_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 30 && frame.number <= 49',
+                '-Tfields', '-eframe.number', '-eeap.wps.code', '-eeap.wps.flags',
+                '-eeap.wps.msglen', '-ewps.message_type',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['30', '1', '0x00', '', ''], ['31', '4', '0x00', '', '0x04'],
+            ['32', '4', '0x00', '', '0x05'], ['33', '4', '0x00', '', '0x07'],
+            ['34', '4', '0x00', '', '0x08'], ['35', '4', '0x00', '', '0x09'],
+            ['36', '4', '0x00', '', '0x0a'], ['37', '4', '0x00', '', '0x0b'],
+            ['38', '4', '0x00', '', '0x0c'], ['39', '5', '0x00', '', '0x0f'],
+            ['40', '2', '0x00', '', '0x0d'], ['41', '3', '0x00', '', '0x0e'],
+            ['42', '6', '0x00', '', ''], ['43', '4', '0x03', '386', '0x05'],
+            ['44', '6', '0x00', '', ''], ['45', '4', '0x01', '', ''],
+            ['46', '6', '0x00', '', ''], ['47', '4', '0x00', '', ''],
+            ['48', '4', '0x02', '7', ''], ['49', '7', '0x00', '', ''],
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wps_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {31, 32}',
+                '-Tfields', '-ewps.device_name', '-ewps.manufacturer',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['Printer\tAcme', 'AP\tAcme']
+
+    def test_wps_wfa_extension_trailing_entry(self, cmd_tshark, capture_file, test_env):
+        '''A WFA extension entry of length 0 as the last two octets is
+        dissected, in the Multi-AP IE and in the WPS vendor extension TLV
+        ("WPS: Dissect a trailing zero-length WFA extension"); a lone
+        octet and a length past the end are not.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wps_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 8 && frame.number <= 27 && wps.ext.id',
+                '-Tfields', '-eframe.number', '-ewps.ext.id',
+            ), encoding='utf-8', env=test_env)
+        rows = dict(l.split('\t') for l in stdout.splitlines())
+        assert rows['8'] == '6,7,8'
+        assert rows['18'] == '0,1,2,3,4,5'
+        assert rows['19'] == '6,127'
+        assert rows['20'] == '126'
+        assert rows['21'] == '125'
+        assert rows['22'] == '6'
+        assert rows['23'] == '0,127'
+        assert rows['24'] == '6,7,8'
+
+    def test_wps_multi_ap_and_device_types(self, cmd_tshark, capture_file, test_env):
+        '''Multi-AP profile and VLAN ID, the 8 flag bits, and the
+        primary device type categories with their sub-categories.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wps_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {8, 24}',
+                '-Tfields', '-eframe.number', '-ewps.ext.multi_ap_profile',
+                '-ewps.ext.primary_vlan_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['8\t0x02\t25600', '24\t0x01\t256']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wps_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 79 && frame.number <= 89',
+                '-Tfields', '-ewps.primary_device_type.category',
+            ), encoding='utf-8', env=test_env)
+        cats = [l.split(',') for l in stdout.splitlines()]
+        assert [len(c) for c in cats] == [5, 4, 6, 5, 6, 4, 8, 4, 3, 9, 7]
+        assert [c[0] for c in cats] == ['0x%04x' % i for i in range(1, 12)]
