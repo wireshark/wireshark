@@ -163551,3 +163551,93 @@ class TestDissectVrt:
                     '-Y', field, '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert len(stdout.split()) == count, field
+
+
+class TestDissectVsip:
+    '''Video Services over IP (VSIP) from the synthetic capture
+    vsip_coverage.pcap.gz: Exported PDU frames naming the dissector "vsip"
+    (the protocol has no default port), versions 1.00 and 1.01.'''
+
+    def test_vsip_messages(self, cmd_tshark, capture_file, test_env):
+        '''58 frames, each of the 20 message types once per version plus
+        an unknown type, without malformed packets or expert infos, in one
+        and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vsip_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['exported_pdu:vsip'] * 58
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vsip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsip_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 29',
+                '-Tfields', '-evsip.Type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1', '1', '2', '2', '19', '20', '3', '4', '4', '5', '21', '6', '22',
+                                  '7', '7', '8', '8', '9', '10', '10', '24', '24', '11', '12', '23',
+                                  '13', '48', '48', '77']
+
+    def test_vsip_versions(self, cmd_tshark, capture_file, test_env):
+        '''The packet size is 16 bit in version 1.00 and 32 bit in 1.01.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsip_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3, 30, 32}',
+                '-Tfields', '-eframe.number', '-evsip.Version', '-evsip.PacketSize',
+                '-evsip.TransacId',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t256\t14\t1', '3\t256\t44\t3',
+                                       '30\t257\t16\t1', '32\t257\t46\t3']
+
+    def test_vsip_values(self, cmd_tshark, capture_file, test_env):
+        '''Value types 1 to 8 and an unknown type in configuration items,
+        command arguments and error arguments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsip_coverage.pcap.gz'),
+                '-Y', 'frame.number == 14',
+                '-Tfields', '-evsip.SetConfigReq_ConfigItemArray.ValueType',
+                '-evsip.SetConfigReq_ConfigItemArray.CharValue',
+                '-evsip.SetConfigReq_ConfigItemArray.ShortValue',
+                '-evsip.SetConfigReq_ConfigItemArray.IntValue',
+                '-evsip.SetConfigReq_ConfigItemArray.StringValue',
+                '-evsip.SetConfigReq_ConfigItemArray.UintValue',
+                '-evsip.SetConfigReq_ConfigItemArray.GuidValue',
+                '-evsip.SetConfigReq_ConfigItemArray.BinaryValue',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == [
+            '1,2,3,4,5,6,7,8,4,9', '65', '65534', '4294897296', 'text value,text value',
+            '4000000000', 'a0a1a2a3-a4a5-a6a7-a8a9-aaabacadaeaf', '00010262696e617279']
+        for frame, field in ((21, 'vsip.SendCommandEx_AddArgsArray.ValueType'),
+                             (27, 'vsip.ErrorVAResponse_AddArgsArray.ValueType')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('vsip_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}',
+                    '-Tfields', '-e' + field,
+                ), encoding='utf-8', env=test_env)
+            assert stdout.strip() == '1,2,3,4,5,6,7,8,9'
+
+    def test_vsip_ping_capabilities(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsip_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 4}',
+                '-Tfields', '-eframe.number', '-evsip.PingResp.DeviceIP',
+                '-evsip.PingResp.DevicePort', '-evsip.PingResp.VendorID',
+                '-evsip.PingResp.SubtypeLen', '-evsip.PingResp.Subtype',
+                '-evsip.PingResp_SuppConnTypes.VOLATILE',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t192.0.2.2\t2300\t8193\t7\tcamera1\tTrue',
+            '4\t192.0.2.3\t2300\t8200\t0\t\tFalse',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vsip_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8',
+                '-Tfields', '-evsip.GetCapabilitiesResp.CapabilityCount',
+                '-evsip.GetCapabilitiesResp_CapabilityArray.EntityType',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '16\t0,1,2,3,4,5,6,7,11,12,13,17,18,20,22,99'
