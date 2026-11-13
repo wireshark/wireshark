@@ -16,6 +16,9 @@
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/prefs.h>
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
@@ -46,6 +49,9 @@ static wmem_strbuf_t *last_dn_buf;
 static wmem_strbuf_t *last_rdn_buf;
 
 static int ava_hf_index;
+static expert_field ei_x509if_nested_too_deep;
+#define MAX_DN_STR_LEN 1024
+static bool frame_end_registered;
 #define MAX_FMT_VALS   32
 static value_string fmt_vals[MAX_FMT_VALS];
 #define MAX_AVA_STR_LEN   64
@@ -64,6 +70,18 @@ x509if_frame_end(void)
   last_dn_buf = NULL;
   last_rdn_buf = NULL;
   last_ava = NULL;
+
+  ava_hf_index = -1;
+  frame_end_registered = false;
+}
+
+static void
+x509if_register_frame_end(packet_info *pinfo)
+{
+  if (!frame_end_registered) {
+    frame_end_registered = true;
+    register_frame_end_routine(pinfo, x509if_frame_end);
+  }
 }
 
 #include "packet-x509if-fn.c"
@@ -110,6 +128,11 @@ void proto_register_x509if(void) {
 #include "packet-x509if-hfarr.c"
   };
 
+  static ei_register_info ei[] = {
+    { &ei_x509if_nested_too_deep, { "x509if.nested_too_deep", PI_UNDECODED, PI_ERROR, "Nested too deeply. Giving up.", EXPFILL }},
+  };
+  expert_module_t *expert_x509if;
+
   /* List of subtrees */
   static int *ett[] = {
 #include "packet-x509if-ettarr.c"
@@ -121,6 +144,8 @@ void proto_register_x509if(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509if, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_x509if = expert_register_protocol(proto_x509if);
+  expert_register_field_array(expert_x509if, ei, array_length(ei));
 
   /* initialise array */
   fmt_vals[0].value = 0;
