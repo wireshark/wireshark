@@ -253,8 +253,10 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /*
      * OK, this should be base64-encoded binary data.
      */
-    uint8_t *databuf = NULL;
-    size_t databufsize = 0;
+    /* Decoded data is at most 3/4 of the input, plus slack for the
+     * base64 decoder state; allocate once instead of growing per line. */
+    size_t databufsize = ((size_t)tvb_captured_length_remaining(tvb, offset) / 4) * 3 + 8;
+    uint8_t *databuf = (uint8_t *)wmem_alloc(pinfo->pool, databufsize);
     int base64_state = 0;
     unsigned base64_save = 0;
     unsigned datasize = 0;
@@ -293,11 +295,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
         /*
          * Decode it and add that to the buffer.
-         * First, grow the buffer as needed.
          */
-        databufsize += (linelen / 4) * 3 + 3;
-        databuf = (uint8_t *)wmem_realloc(pinfo->pool, databuf, databufsize);
-
         /*
          * Now decode into it.
          */
