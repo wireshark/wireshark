@@ -163120,3 +163120,103 @@ class TestDissectVp8:
             '16\tFalse\tFalse\tFalse\tTrue\t\t\t0\tFalse\t10\t2',
             '17\tFalse\tFalse\tFalse\tFalse\t\t\t\t\t\t0',
         ]
+
+
+class TestDissectVp9:
+    '''VP9 RTP payload descriptors (draft-ietf-payload-vp9) from the
+    synthetic capture vp9_coverage.pcap.gz. A SIP INVITE with SDP
+    (a=rtpmap:98 VP9/90000) in frame 1 maps RTP payload type 98 on UDP
+    port 4004 to VP9.'''
+
+    def test_vp9_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 is SIP/SDP, frames 2-22 are VP9; no malformed packets
+        or error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vp9_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 22
+            assert protocols[0] == 'SIP/SDP'
+            assert protocols[1:] == ['VP9'] * 21
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vp9_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_vp9_picture_id(self, cmd_tshark, capture_file, test_env):
+        '''7 and 15 bit picture IDs in flexible and non-flexible mode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vp9_coverage.pcap.gz'),
+                '-Y', 'vp9.pld.i == 1 && vp9.pld.l == 0 && vp9.pld.v == 0 && vp9.pld.p == 0',
+                '-Tfields', '-eframe.number', '-evp9.pld.f', '-evp9.pld.m',
+                '-evp9.pld.pg', '-evp9.pld.pg_ext', '-evp9.pld.pid', '-evp9.pld.pid_ext',
+                '-evp9.pld.b', '-evp9.pld.e', '-evp9.pld.z',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\tFalse\tFalse\t21\t\t\t\tTrue\tTrue\tFalse',
+            '3\tFalse\tTrue\t\t4660\t\t\tFalse\tFalse\tFalse',
+            '4\tTrue\tFalse\t\t\t102\t\tTrue\tTrue\tFalse',
+            '5\tTrue\tTrue\t\t\t\t32767\tTrue\tTrue\tTrue',
+        ]
+
+    def test_vp9_no_picture_id(self, cmd_tshark, capture_file, test_env):
+        '''Without the I bit there is no picture ID byte: frames 17 and 18
+        (reproducers of "VP9: Decode the picture ID only when the I bit is
+        set") carry no picture ID or M bit although the payload that
+        follows has a clear top bit.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vp9_coverage.pcap.gz'),
+                '-Y', 'frame.number in {17, 18, 19, 20}',
+                '-Tfields', '-eframe.number', '-evp9.pld.i', '-evp9.pld.f',
+                '-evp9.pld.m', '-evp9.pld.pid', '-evp9.pld.pg', '-evp9.pld.tid',
+                '-evp9.pld.tl0picidx', '-evp9.pld.sid',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:9] for l in lines] == [
+            ['17', 'False', 'False', '', '', '', '', '', ''],
+            ['18', 'False', 'True', '', '', '', '', '', ''],
+            ['19', 'False', 'False', '', '', '', '2', '7', '0'],
+            ['20', 'False', 'True', '', '', '', '4', '', '0'],
+        ]
+
+    def test_vp9_layers_and_references(self, cmd_tshark, capture_file, test_env):
+        '''Layer indices, P_DIFF references and the scalability structure.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vp9_coverage.pcap.gz'),
+                '-Y', 'vp9.pld.l == 1 && vp9.pld.i == 1',
+                '-Tfields', '-eframe.number', '-evp9.pld.tid', '-evp9.pld.u',
+                '-evp9.pld.sid', '-evp9.pld.d', '-evp9.pld.tl0picidx', '-evp9.pld.p_diff',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t3\tFalse\t5\tTrue\t51\t',
+            '7\t4\tTrue\t3\tFalse\t\t',
+            '11\t1\tFalse\t0\tTrue\t\t',
+            '22\t7\tTrue\t7\tTrue\t\t127,127',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vp9_coverage.pcap.gz'),
+                '-Y', 'vp9.pld.p == 1 && vp9.pld.f == 1',
+                '-Tfields', '-eframe.number', '-evp9.pld.p_diff', '-evp9.pld.n',
+            ), encoding='utf-8', env=test_env)
+        # the dissector shows a P_DIFF only when the N bit of its byte is set
+        assert stdout.splitlines() == [
+            '8\t\t', '9\t2\tTrue', '10\t4,5\tTrue,True', '11\t\t', '22\t127,127\tTrue,True']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vp9_coverage.pcap.gz'),
+                '-Y', 'vp9.pld.v == 1',
+                '-Tfields', '-eframe.number', '-evp9.pld.n_s',
+                '-evp9.pld.spatial_layers_number', '-evp9.pld.y', '-evp9.pld.g',
+                '-evp9.pld.width', '-evp9.pld.height', '-evp9.pld.n_g',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '12\t0\t1\tFalse\tFalse\t\t\t',
+            '13\t2\t3\tTrue\tTrue\t320,640,1280\t180,360,720\t2',
+            '14\t1\t2\tTrue\tFalse\t1920,3840\t1080,2160\t',
+            '15\t0\t1\tFalse\tTrue\t\t\t5',
+            '16\t7\t8\tTrue\tTrue\t100,200,300,400,500,600,700,800\t100,200,300,400,500,600,700,800\t255',
+            '22\t0\t1\tFalse\tFalse\t\t\t',
+        ]
