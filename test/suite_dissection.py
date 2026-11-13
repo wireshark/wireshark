@@ -163037,3 +163037,86 @@ class TestDissectVntag:
         assert rows == [['13', '10', '100'], ['14', '12', '100']]
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 15', 'vntag.src')
         assert rows == [['15', '2,4']]
+
+
+class TestDissectVp8:
+    '''VP8 RTP payload descriptors (RFC 7741) from the synthetic capture
+    vp8_coverage.pcap.gz. A SIP INVITE with SDP (a=rtpmap:96 VP8/90000)
+    in frame 1 maps RTP payload type 96 on UDP port 4002 to VP8.'''
+
+    def test_vp8_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 is SIP/SDP, frames 2-21 are VP8; no malformed packets
+        or error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vp8_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 21
+            assert protocols[0] == 'SIP/SDP'
+            assert protocols[1:] == ['VP8'] * 20
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vp8_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_vp8_partitions(self, cmd_tshark, capture_file, test_env):
+        '''Frames with a payload header report whether the first
+        partition is complete; the others are continuations.'''
+        for field, frames in (
+                ('vp8.continuation', '4 5 9 14 15 16 17'),
+                ('vp8.first_partition_split', '3 7 8 21'),
+                ('vp8.first_partition_plus', '2 6 10 11 12 13 18 19 20')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('vp8_coverage.pcap.gz'),
+                    '-Y', field,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == frames.split()
+
+    def test_vp8_keyframes(self, cmd_tshark, capture_file, test_env):
+        '''Key frame header: start code, width, height; the version and
+        show bit of the payload header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vp8_coverage.pcap.gz'),
+                '-Y', 'vp8.keyframe.start_code',
+                '-Tfields', '-eframe.number', '-evp8.keyframe.start_code',
+                '-evp8.keyframe.width', '-evp8.keyframe.height',
+                '-evp8.hdr.version', '-evp8.hdr.show',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t0x9d012a\t640\t480\t0\tTrue',
+            '3\t0x9d012a\t1280\t720\t1\tTrue',
+            '12\t0x9d012a\t352\t288\t0\tTrue',
+            '18\t0x9d012a\t1920\t1080\t0\tTrue',
+            '19\t0x9d012a\t16383\t16383\t0\tTrue',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vp8_coverage.pcap.gz'),
+                '-Y', 'vp8.hdr.version >= 3',
+                '-Tfields', '-eframe.number', '-evp8.hdr.version', '-evp8.hdr.show',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['7\t3\tFalse', '8\t3\tTrue', '10\t4\tTrue', '11\t7\tTrue']
+
+    def test_vp8_descriptor(self, cmd_tshark, capture_file, test_env):
+        '''Extended control bits: 7 and 15 bit picture IDs, TL0PICIDX, TID,
+        Y bit and KEYIDX, each flag alone.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vp8_coverage.pcap.gz'),
+                '-Y', 'vp8.pld.x == 1',
+                '-Tfields', '-eframe.number', '-evp8.pld.i', '-evp8.pld.l',
+                '-evp8.pld.t', '-evp8.pld.k', '-evp8.pld.pictureid',
+                '-evp8.pld.tl0picidx', '-evp8.pld.tid', '-evp8.pld.y',
+                '-evp8.pld.keyidx', '-evp8.pld.partid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '12\tTrue\tFalse\tFalse\tFalse\t85\t\t\t\t\t0',
+            '13\tTrue\tTrue\tTrue\tTrue\t4660\t119\t3\tTrue\t31\t0',
+            '14\tFalse\tTrue\tFalse\tFalse\t\t9\t\t\t\t2',
+            '15\tFalse\tFalse\tTrue\tFalse\t\t\t1\tTrue\t5\t2',
+            '16\tFalse\tFalse\tFalse\tTrue\t\t\t0\tFalse\t10\t2',
+            '17\tFalse\tFalse\tFalse\tFalse\t\t\t\t\t\t0',
+        ]
