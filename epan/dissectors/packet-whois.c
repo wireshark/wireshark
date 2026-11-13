@@ -104,10 +104,10 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 pinfo->desegment_offset = 0;
                 return -1;
             }
+        } else if (is_query && (whois_trans->req_frame == 0)) {
+            whois_trans->req_frame = pinfo->num;
+            whois_trans->req_time = pinfo->abs_ts;
         }
-    } else if (is_query && (whois_trans->req_frame == 0)) {
-        whois_trans->req_frame = pinfo->num;
-        whois_trans->req_time = pinfo->abs_ts;
     }
 
     if (!is_query && (whois_trans->rep_frame == 0)) {
