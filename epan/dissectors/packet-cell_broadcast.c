@@ -248,10 +248,13 @@ tvbuff_t * dissect_cbs_data(uint8_t sms_encoding, tvbuff_t *tvb, proto_tree *tre
        * fourth character. Coding group 0000 carries its language in the data
        * coding scheme itself instead, and must not be shortened here.
        */
-      if (sms_encoding == SMS_ENCODING_7BIT_LANG && strlen(text) >= 3) {
+      if (sms_encoding == SMS_ENCODING_7BIT_LANG && g_utf8_strlen(text, -1) >= 3) {
+         /* GSM 7 bit characters can be more than one octet in UTF-8, so
+          * count characters, not octets. */
+         const char *lang_end = g_utf8_offset_to_pointer(text, 2);
          proto_tree_add_string(tree, hf_gsm_cbs_language, tvb, offset, 3,
-                               wmem_strndup(pinfo->pool, text, 2));
-         text += 3;
+                               wmem_strndup(pinfo->pool, text, lang_end - text));
+         text = g_utf8_offset_to_pointer(text, 3);
       }
       tvb_out = tvb_new_child_real_data(tvb, (const uint8_t*)text, (unsigned)strlen(text), (unsigned)strlen(text));
       add_new_data_source(pinfo, tvb_out, "unpacked 7 bit data");
