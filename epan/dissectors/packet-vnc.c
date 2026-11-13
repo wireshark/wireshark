@@ -2352,7 +2352,7 @@ vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 	uint8_t bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
 	unsigned length;
 
-	length = width * height * bytes_per_pixel;
+	length = (unsigned)width * height * bytes_per_pixel;
 	VNC_BYTES_NEEDED(length);
 
 	proto_tree_add_item(tree, hf_vnc_raw_pixel_data, tvb, *offset,
@@ -3127,7 +3127,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset,
 		uncomp_offset += 1;
 
 		if(subencoding_type == 0) { /* Raw */
-			length = width * height * bytes_per_cpixel;
+			length = (unsigned)width * height * bytes_per_cpixel;
 			VNC_BYTES_NEEDED(length);
 
 			/* XXX - not working yet! */
@@ -3319,6 +3319,7 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 		/* invalid encoding */
 
 		expert_add_info(pinfo, compression_type_ti, &ei_vnc_invalid_encoding);
+		bytes_needed = 0;
 	} else {
 		unsigned row_size;
 		int bits_per_pixel;
@@ -3415,7 +3416,7 @@ vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 	uint8_t bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
 	unsigned  pixels_bytes, mask_bytes;
 
-	pixels_bytes = width * height * bytes_per_pixel;
+	pixels_bytes = (unsigned)width * height * bytes_per_pixel;
 	mask_bytes   = ((width + 7) / 8) * height;
 
 	return decode_cursor(tvb, offset, tree,
@@ -3451,7 +3452,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 	col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Server set colormap entries");
 
-	number_of_colors = tvb_get_ntohs(tvb, 4);
+	number_of_colors = tvb_get_ntohs(tvb, *offset + 3);
 
 	VNC_BYTES_NEEDED(3);
 	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 1, ENC_NA);
@@ -3473,7 +3474,8 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 		return 0;
 	}
 
-	bytes_needed = (number_of_colors * 6) + 5;
+	/* the count itself and the colors; the first 3 bytes are already consumed */
+	bytes_needed = (number_of_colors * 6) + 2;
 	VNC_BYTES_NEEDED(bytes_needed);
 
 	*offset += 2;
@@ -3525,6 +3527,11 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 	col_append_sep_str(pinfo->cinfo, COL_INFO, "; ", "Server cut text");
 
+	VNC_BYTES_NEEDED(7);
+
+	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, ENC_NA);
+	*offset += 3; /* Skip over 3 bytes of padding */
+
 	text_len = tvb_get_ntohl(tvb, *offset);
 	pi = proto_tree_add_item(tree, hf_vnc_server_cut_text_len, tvb, *offset, 4,
 			    ENC_BIG_ENDIAN);
@@ -3542,7 +3549,7 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 			    text_len, ENC_ASCII);
 	*offset += text_len;
 
-	return *offset;
+	return 0;
 }
 
 
