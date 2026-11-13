@@ -16,6 +16,9 @@
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/prefs.h>
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
@@ -33,6 +36,8 @@ static int proto_x509sat;
 /* Initialize the subtree pointers */
 #include "packet-x509sat-ett.c"
 
+static expert_field ei_x509sat_nested_too_deep;
+
 #include "packet-x509sat-fn.c"
 
 
@@ -43,6 +48,11 @@ void proto_register_x509sat(void) {
   static hf_register_info hf[] = {
 #include "packet-x509sat-hfarr.c"
   };
+
+  static ei_register_info ei[] = {
+    { &ei_x509sat_nested_too_deep, { "x509sat.nested_too_deep", PI_UNDECODED, PI_ERROR, "Nested too deeply. Giving up.", EXPFILL }},
+  };
+  expert_module_t *expert_x509sat;
 
   /* List of subtrees */
   static int *ett[] = {
@@ -55,6 +65,8 @@ void proto_register_x509sat(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509sat, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_x509sat = expert_register_protocol(proto_x509sat);
+  expert_register_field_array(expert_x509sat, ei, array_length(ei));
 
 #include "packet-x509sat-syn-reg.c"
 

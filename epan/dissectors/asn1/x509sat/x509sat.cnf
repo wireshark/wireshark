@@ -402,6 +402,13 @@ SyntaxUTCTime TYPE=FT_ABSOLUTE_TIME DISPLAY=ABSOLUTE_TIME_UTC
     proto_tree_add_time(tree, hf_index, tvb, old_offset, offset - old_offset, &time_val);
   }
 
+#.FN_HDR Criteria
+  /* Stop before the dissection depth limit, which asserts. */
+  if (actx->pinfo->dissection_depth + 16 >= prefs.gui_max_tree_depth) {
+    expert_add_info(actx->pinfo, tree, &ei_x509sat_nested_too_deep);
+    THROW(ReportedBoundsError);
+  }
+
 #.FN_BODY GUID
   int8_t ber_class;
   bool pc;
@@ -419,6 +426,7 @@ SyntaxUTCTime TYPE=FT_ABSOLUTE_TIME DISPLAY=ABSOLUTE_TIME_UTC
 
   tvb_get_ntohguid (tvb, offset, &uuid);
   actx->created_item = proto_tree_add_guid(tree, hf_index, tvb, offset, len, &uuid);
+  offset += len;
 #.END
 
 #.TYPE_ATTR
