@@ -161593,3 +161593,59 @@ class TestDissectUserEncap:
         assert names.count('data') == 11 and names.count('pktap') == 8
         assert names[:3] == ['data', 'eth_withoutfcs', 'ip']
         assert 'tcp' in names and 'arp' in names and 'eth_withfcs' in names
+
+
+class TestDissectUserlog:
+    '''H3C UserLog (packet-userlog.c) from the synthetic capture
+    userlog_coverage.pcap.gz (Ethernet, IPv4, UDP port 6000: the dissector
+    has no port of its own, so the tests use Decode As). Frames 1-4 are
+    NAT, BAS and Flow logs (V1 and V3) with every operator, 5-8 unknown
+    values, data after the last entry, 22 entries and extreme values,
+    9-10 datagrams shorter than the 8 octet minimum.'''
+    DECODE_AS = ('-d', 'udp.port==6000,userlog')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *TestDissectUserlog.DECODE_AS, *extra,
+                '-r', capture_file('userlog_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_userlog_frames(self, cmd_tshark, capture_file, test_env):
+        '''8 UserLog frames and 2 UDP frames; no malformed frames and no warnings or errors in
+        one and two passes (the output is the same in both).'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol', extra=passes)
+            assert rows == ['UserLog'] * 8 + ['UDP'] * 2
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+
+    def test_userlog_header(self, cmd_tshark, capture_file, test_env):
+        '''Version, log type and count of the header, and the info column.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'userlog', 'frame.number', 'userlog.version',
+                            'userlog.logtype', 'userlog.count', '_ws.col.info')
+        assert rows == ['1\t1\t1\t1\tLogType = NAT', '2\t3\t2\t3\tLogType = BAS', '3\t3\t4\t8\tLogType = Flow',
+                        '4\t1\t1\t0\tLogType = NAT', '5\t2\t9\t2\tLogType = Unknown (0x09)',
+                        '6\t3\t4\t1\tLogType = Flow', '7\t3\t4\t22\tLogType = Flow', '8\t1\t1\t1\tLogType = NAT']
+
+    def test_userlog_entries(self, cmd_tshark, capture_file, test_env):
+        '''Eight entries with the operators 1-8; unknown operator, protocol and IP version; extreme values.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 3', 'userlog.Operator',
+                            'userlog.Source-Port', 'userlog.Destination-IP')
+        assert rows == ['1,2,3,4,5,6,7,8\t2001,2002,2003,2004,2005,2006,2007,2008\t' + ','.join(['203.0.113.9'] * 8)]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 5', 'userlog.Operator',
+                            'userlog.proto', 'userlog.IPVersion', 'userlog.IPToS', 'userlog.reserved')
+        assert rows == ['0,9\t253,6\t4,6\t0,184\t0001020304050607']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 8', 'userlog.SourceIP',
+                            'userlog.Source-NAT-IP', 'userlog.Source-NAT-Port', 'userlog.InTotalPkg')
+        assert rows == ['0.0.0.0\t255.255.255.255\t65535\t4294967295']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 7', 'userlog.Source-Port')
+        assert rows == [','.join(str(3000 + i) for i in range(22))]
+
+    def test_userlog_short(self, cmd_tshark, capture_file, test_env):
+        '''A 7 octet datagram and an empty one are not UserLog (the minimum is 8 octets).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'udp && !userlog', 'frame.number', '_ws.col.protocol')
+        assert rows == ['9\tUDP', '10\tUDP']
