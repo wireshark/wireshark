@@ -168511,3 +168511,140 @@ class TestDissectX75:
                               extra=('-d', 'x75.subdissector,data'))
         assert len(default) == 37
         assert decoded == default
+
+
+class TestDissectXcp:
+    '''XCP (Universal Measurement and Calibration Protocol) from the
+    synthetic capture xcp_coverage.pcapng.gz. XCP has no port: the
+    capture is built for mapping tables (UATs) that the tests write
+    into the configuration directory: ECU 1 on UDP 5555, ECU 2 on TCP
+    5556, ECU 3 on UDP 6666 of any address, ECU 4 on IPv6, ECUs 7 and
+    8 whose first frame comes from the slave, and the CAN ECUs 5 and 6
+    (standard and extended IDs), with names for memory addresses.
+    Frames 462-472 are the reproducers of "XCP: Fix stale file scope
+    pointers and unbounded DAQ allocation" (the byte order of frames
+    before a CONNECT on the second pass; DAQ_COUNT above 256).'''
+
+    MAPPING_ETH = ((
+        '"IPv4","192.0.2.85","UDP","5555","1"\n'
+        '"IPv4","192.0.2.85","TCP","5556","2"\n'
+        '"ANY","","UDP","6666","3"\n'
+        '"IPv6","2001:db8::85","UDP","5557","4"\n'
+        '"IPv4","192.0.2.86","UDP","5558","7"\n'
+        '"ANY","","TCP","6667","8"\n',
+    ))
+    MAPPING_CAN = ((
+        '"0","101","102","5"\n'
+        '"0","98DA00F1","98DAF100","6"\n',
+    ))
+    ADDRESSES = ((
+        '"1","0","1000","engine_speed"\n'
+        '"1","0","1004","coolant_temp"\n'
+        '"1","0","3000","throttle"\n'
+        '"1","1","2345","gear"\n'
+        '"2","0","1000","engine_speed"\n'
+        '"3","0","1000","engine_speed"\n'
+        '"5","1","2000","gear_can"\n',
+    ))
+
+    @pytest.fixture
+    def xcp_env(self, conf_path, test_env):
+        '''test_env with the mapping tables of the capture'''
+        for name, lines in (('XCP_Mapping_UDP_TCP', self.MAPPING_ETH),
+                            ('XCP_Mapping_CAN', self.MAPPING_CAN),
+                            ('XCP_Addresses', self.ADDRESSES)):
+            with open(os.path.join(conf_path, name), 'w') as f:
+                f.write(''.join(lines))
+        return test_env
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('xcp_coverage.pcapng.gz'), *args),
+            encoding='utf-8', env=env, timeout=120)
+        return stdout.splitlines()
+
+    def test_xcp_needs_mapping(self, cmd_tshark, capture_file, test_env):
+        '''Without the mapping tables no frame is XCP.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'xcp', '-Tfields', '-eframe.number')
+        assert rows == []
+
+    def test_xcp_protocols(self, cmd_tshark, capture_file, xcp_env):
+        '''757 frames, 750 of them XCP, without malformed packets or error
+        expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, capture_file, xcp_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+            rows = self.fields(cmd_tshark, capture_file, xcp_env,
+                    '-Tfields', '-e_ws.col.protocol', passes=passes)
+            assert len(rows) == 757
+            assert rows.count('XCP') == 750
+
+    def test_xcp_two_passes(self, cmd_tshark, capture_file, xcp_env):
+        '''One and two passes decode the XCP frames the same way: the byte
+        order and the address granularity of each frame, and the DAQ
+        state (frames 159-161, the DTOs, use the ODTs set up earlier).'''
+        args = ('-Y', 'xcp', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-excp.packet.session_configuration_id')
+        one = self.fields(cmd_tshark, capture_file, xcp_env, *args)
+        two = self.fields(cmd_tshark, capture_file, xcp_env, *args, passes=('-2',))
+        assert one == two
+        assert len(one) == 750
+
+    def test_xcp_byte_order(self, cmd_tshark, capture_file, xcp_env):
+        '''ECU 3: SET_REQUEST before the CONNECT is little endian
+        (0x3412 = 13330), after the CONNECT response it is big endian
+        (4660); ECU 1 is little endian throughout.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, xcp_env,
+                    '-Y', 'frame.number in {4, 25, 462, 465, 468}', '-Tfields',
+                    '-eframe.number', '-excp.packet.session_configuration_id',
+                    passes=passes)
+            assert rows == ['4\t4660', '25\t22136', '462\t13330', '465\t4660', '468\t4660']
+
+    def test_xcp_daq_count_limit(self, cmd_tshark, capture_file, xcp_env):
+        '''DAQ_COUNT above 256 gets an expert info and is not tracked: 256
+        (frame 735) is, 257 (frame 737) and 65535 (frame 739 and four
+        PDUs in frame 741) are not.'''
+        rows = self.fields(cmd_tshark, capture_file, xcp_env,
+                '-Y', 'xcp.daq_count_too_large', '-Tfields', '-eframe.number')
+        assert rows == ['737', '739', '741']
+        rows = self.fields(cmd_tshark, capture_file, xcp_env,
+                '-Y', 'xcp.packet.daq_count', '-Tfields', '-eframe.number',
+                '-excp.packet.daq_count')
+        assert [r.split('\t')[1] for r in rows if r.split('\t')[0] in ('733', '735', '737', '739')] == ['256', '257', '65535']
+
+    def test_xcp_memory_names_and_daq(self, cmd_tshark, capture_file, xcp_env):
+        '''Memory addresses get their names from the table and the DAQ
+        data packets are decoded with the elements of the ODTs.'''
+        rows = self.fields(cmd_tshark, capture_file, xcp_env,
+                '-Y', 'frame.number in {35, 37, 41, 43}', '-Tfields', '-e_ws.col.info')
+        assert rows == ['XCP M->S: SET_MTA 0x001000 engine_speed',
+                        'XCP M->S: SET_MTA 0x012345 gear',
+                        'XCP M->S: SHORT_UPLOAD 0x001000 [4] engine_speed',
+                        'XCP M->S: SHORT_UPLOAD 0x019999 [2]']
+        rows = self.fields(cmd_tshark, capture_file, xcp_env,
+                '-Y', 'frame.number in {159, 160, 161}', '-Tfields', '-e_ws.col.info')
+        assert rows == ['XCP S->M: DAQ: engine_speed: 0x1212 throttle: 0x34',
+                        'XCP S->M: DAQ: gear: 0x07070707',
+                        'XCP S->M: DAQ: coolant_temp: 0x0101 Param 1: 0x02 0x02 0x02 Param 2: 0x03']
+
+    def test_xcp_address_granularity(self, cmd_tshark, capture_file, xcp_env):
+        '''ECU 2 uses 2 octet elements and big endian, ECU 3 4 octet
+        elements.'''
+        rows = self.fields(cmd_tshark, capture_file, xcp_env,
+                '-Y', 'xcp.packet.data_element_2bytes && frame.number < 400 && frame.number > 230',
+                '-Tfields', '-eframe.number', '-excp.packet.data_element_2bytes')
+        assert rows[0].startswith('27')
+        rows = self.fields(cmd_tshark, capture_file, xcp_env,
+                '-Y', 'xcp.packet.data_element_4bytes && frame.number > 450', '-Tfields',
+                '-eframe.number')
+        assert len(rows) > 5
+
+    def test_xcp_can(self, cmd_tshark, capture_file, xcp_env):
+        '''XCP over SocketCAN with standard and extended IDs.'''
+        rows = self.fields(cmd_tshark, capture_file, xcp_env,
+                '-Y', 'xcp && can', '-Tfields', '-eframe.number')
+        assert len(rows) == 18
