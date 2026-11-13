@@ -169007,3 +169007,67 @@ class TestDissectXgt:
         assert rows == ['86\t203,204\t1,1\t', '87\t203,204\t\t1,1',
                         '90\t205\t12\t', '93\t205\t\t12',
                         '95\t205\t12\t', '97\t205\t\t12']
+
+
+class TestDissectXip:
+    '''XIP (eXpressive Internet Protocol, ethertype 0xC0DE) from the
+    synthetic capture xip_coverage.pcap.gz: DAGs of one to nine nodes,
+    ill-formed DAGs (printed with a leading '!'), packets without
+    destination or source DAG and the hand-over to XIP Serval.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('xip_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_xip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''61 frames, 60 of them XIP (the last is too short for XIP),
+        without malformed packets or error expert infos in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-e_ws.col.protocol', passes=passes)
+            assert len(rows) == 61
+            assert rows.count('XIP') == 60
+
+    def test_xip_dags(self, cmd_tshark, capture_file, test_env):
+        '''Valid DAGs have no '!', the ill-formed ones do; the DAG
+        strings of a two node DAG, a fallback DAG and nine nodes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xip.dst_dag_entry contains "!" || xip.src_dag_entry contains "!"',
+                '-Tfields', '-eframe.number')
+        assert len(rows) == 29
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {13, 14, 16}', '-Tfields',
+                '-exip.dst_dag_entry', '-exip.num_dst')
+        assert rows[0] == ('ad-0000000100000004000000070000000a0000000f-1:\\n'
+                           'hid-00000002000000070000000c000000110000001a-0\t2')
+        assert rows[1].startswith('cid-0000000100000004000000070000000a0000000f-21:\\nad-')
+        assert rows[1].endswith('\t3')
+        assert rows[2].count('\\n') == 8
+        assert rows[2].endswith('\t9')
+
+    def test_xip_no_dag_nodes(self, cmd_tshark, capture_file, test_env):
+        '''Frames 23 and 25 have no destination DAG (the reproducer of
+        "XIP: Do not read the sink node when there are no destination
+        nodes", which read the sink node before the destination DAG); they are
+        dissected as XIP followed by data.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xip.num_dst == 0', '-Tfields', '-eframe.number',
+                '-exip.num_src', '-edata.len', '-e_ws.col.protocol')
+        assert rows == ['23\t1\t23\tXIP', '25\t0\t40\tXIP']
+
+    def test_xip_serval(self, cmd_tshark, capture_file, test_env):
+        '''A FLOWID or SERVAL sink node hands the rest of the packet to
+        XIP Serval (frames 58 and 59); another type does not.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xipserval', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-exip_serval.proto')
+        assert rows == ['58\tXIP Packet (with Serval)\t0',
+                        '59\tXIP Packet (with Serval)\t0']
