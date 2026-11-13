@@ -194,7 +194,10 @@ xmpp_unknown_items(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
 {
     GList *childs = element->elements;
 
-    DISSECTOR_ASSERT( level < ETT_UNKNOWN_LEN );
+    if (level >= ETT_UNKNOWN_LEN) {
+        proto_tree_add_expert(tree, pinfo, &ei_xmpp_too_deep, tvb, element->offset, element->length);
+        return;
+    }
 
     xmpp_unknown_attrs(tree, tvb, pinfo, element, true);
 
@@ -536,6 +539,7 @@ xmpp_element_t*
 xmpp_xml_frame_to_element_t(packet_info *pinfo, xml_frame_t *xml_frame, xmpp_element_t *parent, tvbuff_t *tvb)
 {
     xml_frame_t *child;
+    bool too_deep_reported = false;
     xmpp_element_t *node = wmem_new0(pinfo->pool, xmpp_element_t);
 
     tvbparse_t* tt;
@@ -550,6 +554,7 @@ xmpp_xml_frame_to_element_t(packet_info *pinfo, xml_frame_t *xml_frame, xmpp_ele
     node->name = wmem_strdup(pinfo->pool, xml_frame->name_orig_case);
     node->offset = 0;
     node->length = 0;
+    node->depth = parent ? parent->depth + 1 : 0;
 
     node->namespaces = g_hash_table_new(g_str_hash, g_str_equal);
     if(parent)
@@ -643,6 +648,13 @@ xmpp_xml_frame_to_element_t(packet_info *pinfo, xml_frame_t *xml_frame, xmpp_ele
                 data->offset = child->start_offset;
                 data->length = child->length;
                 node->data = data;
+            }
+        } else if (node->depth >= XMPP_MAX_ELEMENT_DEPTH)
+        {
+            /* Too deeply nested: do not convert (or display) the children. */
+            if (!too_deep_reported) {
+                expert_add_info(pinfo, NULL, &ei_xmpp_too_deep);
+                too_deep_reported = true;
             }
         } else
         {
