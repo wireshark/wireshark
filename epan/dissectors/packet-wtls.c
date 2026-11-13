@@ -44,6 +44,7 @@ static int hf_wtls_hands_cli_hello_version;
 static int hf_wtls_hands_cli_hello_gmt;
 static int hf_wtls_hands_cli_hello_random;
 static int hf_wtls_hands_cli_hello_session;
+static int hf_wtls_session_id_bytes;
 static int hf_wtls_hands_cli_hello_session_str;
 static int hf_wtls_hands_cli_hello_cli_key_id;
 static int hf_wtls_hands_cli_hello_cli_key_len;
@@ -447,10 +448,10 @@ add_session_id(proto_tree *tree, int hf, int hf_str, tvbuff_t *tvb, int offset)
 	else if (count <= 8) {
 		session_id = 0;
 		for (i = 0; i < count; i++)
-			session_id = (session_id << 8) | tvb_get_uint8(tvb, offset + i);
+			session_id = (session_id << 8) | tvb_get_uint8(tvb, offset + 1 + i);
 		proto_tree_add_uint64 (tree, hf, tvb, offset, count+1, session_id);
 	} else {
-		proto_tree_add_item(tree, hf, tvb, offset, count+1, ENC_NA);
+		proto_tree_add_item(tree, hf_wtls_session_id_bytes, tvb, offset+1, count, ENC_NA);
 	}
 	return offset+1+count;
 }
@@ -547,7 +548,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 					size = tvb_get_ntohs (tvb, offset);
 					proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
 						hf_wtls_hands_cli_hello_key_parameter_set,
-						tvb,offset,size+2,ENC_ASCII);
+						tvb,offset+2,size,ENC_ASCII);
 					offset+=size+2;
 					client_size+=size+2;
 				}
@@ -664,7 +665,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 					size = tvb_get_ntohs (tvb, offset);
 					proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
 						hf_wtls_hands_cli_hello_key_parameter_set,
-						tvb,offset,size+2,ENC_ASCII);
+						tvb,offset+2,size,ENC_ASCII);
 					offset+=size+2;
 					client_size+=size+2;
 				}
@@ -963,7 +964,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, unsigned offset, unsigne
 							size = tvb_get_ntohs (tvb, offset);
 							proto_tree_add_item(wtls_msg_type_item_sub_tree,
 								hf_wtls_hands_certificate_wtls_key_parameter_set,
-								tvb,offset,size+2,ENC_ASCII);
+								tvb,offset+2,size,ENC_ASCII);
 							offset+=size+2;
 							client_size+=size+2;
 						}
@@ -1114,6 +1115,13 @@ proto_register_wtls(void)
 			{ 	"Session ID",
 				"wtls.handshake.client_hello.sessionid",
 				 FT_UINT64, BASE_HEX_DEC, NULL, 0x00,
+				NULL, HFILL
+			}
+		},
+		{ &hf_wtls_session_id_bytes,
+			{ 	"Session ID",
+				"wtls.handshake.sessionid.bytes",
+				 FT_BYTES, BASE_NONE, NULL, 0x00,
 				NULL, HFILL
 			}
 		},
