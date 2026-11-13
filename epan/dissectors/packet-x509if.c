@@ -21,6 +21,9 @@
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/prefs.h>
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
@@ -277,6 +280,9 @@ static wmem_strbuf_t *last_dn_buf;
 static wmem_strbuf_t *last_rdn_buf;
 
 static int ava_hf_index;
+static expert_field ei_x509if_nested_too_deep;
+#define MAX_DN_STR_LEN 1024
+static bool frame_end_registered;
 #define MAX_FMT_VALS   32
 static value_string fmt_vals[MAX_FMT_VALS];
 #define MAX_AVA_STR_LEN   64
@@ -295,6 +301,18 @@ x509if_frame_end(void)
   last_dn_buf = NULL;
   last_rdn_buf = NULL;
   last_ava = NULL;
+
+  ava_hf_index = -1;
+  frame_end_registered = false;
+}
+
+static void
+x509if_register_frame_end(packet_info *pinfo)
+{
+  if (!frame_end_registered) {
+    frame_end_registered = true;
+    register_frame_end_routine(pinfo, x509if_frame_end);
+  }
 }
 
 /*--- Cyclic dependencies ---*/
@@ -511,7 +529,7 @@ static const ber_sequence_t Attribute_sequence[] = {
 unsigned
 dissect_x509if_Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	doing_attr = true;
-	register_frame_end_routine (actx->pinfo, x509if_frame_end);
+	x509if_register_frame_end(actx->pinfo);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Attribute_sequence, hf_index, ett_x509if_Attribute);
@@ -671,7 +689,7 @@ dissect_x509if_AttributeValueAssertion(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 
 	ava_hf_index = hf_index;
 	last_ava = (char *)wmem_alloc(actx->pinfo->pool, MAX_AVA_STR_LEN); *last_ava = '\0';
-	register_frame_end_routine (actx->pinfo, x509if_frame_end);
+	x509if_register_frame_end(actx->pinfo);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AttributeValueAssertion_sequence, hf_index, ett_x509if_AttributeValueAssertion);
@@ -749,7 +767,7 @@ dissect_x509if_T_type_02(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offs
     if((fmt = val_to_str_const(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
       last_ava = (char *)wmem_alloc(actx->pinfo->pool, MAX_AVA_STR_LEN); *last_ava = '\0';
-      register_frame_end_routine (actx->pinfo, x509if_frame_end);
+      x509if_register_frame_end(actx->pinfo);
 
       snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s", name, fmt);
 
@@ -910,7 +928,7 @@ dissect_x509if_RelativeDistinguishedName(bool implicit_tag _U_, tvbuff_t *tvb _U
   rdn_one_value = false;
   top_of_rdn = tree;
   last_rdn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
-  register_frame_end_routine (actx->pinfo, x509if_frame_end);
+  x509if_register_frame_end(actx->pinfo);
 
     offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, NO_BOUND, RelativeDistinguishedName_set_of, hf_index, ett_x509if_RelativeDistinguishedName);
@@ -922,7 +940,9 @@ dissect_x509if_RelativeDistinguishedName(bool implicit_tag _U_, tvbuff_t *tvb _U
 
     /* now append this to the DN */
     if (last_dn_buf) {
-      if(wmem_strbuf_get_len(last_dn_buf) > 0) {
+      if(wmem_strbuf_get_len(last_dn_buf) >= MAX_DN_STR_LEN) {
+        /* DN string already long enough; stop growing it (avoids quadratic cost) */
+      } else if(wmem_strbuf_get_len(last_dn_buf) > 0) {
         wmem_strbuf_t *temp_dn_buf = wmem_strbuf_new_sized(actx->pinfo->pool, wmem_strbuf_get_len(last_rdn_buf) + wmem_strbuf_get_len(last_dn_buf) + 1);
         wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
         wmem_strbuf_append_c(temp_dn_buf, ',');
@@ -972,7 +992,7 @@ dissect_x509if_RDNSequence(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
   dn_one_rdn = false; /* reset */
   last_dn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
   top_of_dn = NULL;
-  register_frame_end_routine (actx->pinfo, x509if_frame_end);
+  x509if_register_frame_end(actx->pinfo);
 
 
     offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
@@ -1110,6 +1130,12 @@ unsigned
 dissect_x509if_Refinement(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // Refinement -> Refinement/and -> Refinement
   increment_dissection_depth_by_n(actx->pinfo, 2);
+  /* Stop before the dissection depth limit, which asserts. */
+  if (actx->pinfo->dissection_depth + 16 >= prefs.gui_max_tree_depth) {
+    expert_add_info(actx->pinfo, tree, &ei_x509if_nested_too_deep);
+    THROW(ReportedBoundsError);
+  }
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Refinement_choice, hf_index, ett_x509if_Refinement,
                                  NULL);
@@ -1561,6 +1587,12 @@ unsigned
 dissect_x509if_ContextCombination(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // ContextCombination -> ContextCombination/and -> ContextCombination
   increment_dissection_depth_by_n(actx->pinfo, 2);
+  /* Stop before the dissection depth limit, which asserts. */
+  if (actx->pinfo->dissection_depth + 16 >= prefs.gui_max_tree_depth) {
+    expert_add_info(actx->pinfo, tree, &ei_x509if_nested_too_deep);
+    THROW(ReportedBoundsError);
+  }
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ContextCombination_choice, hf_index, ett_x509if_ContextCombination,
                                  NULL);
@@ -1686,6 +1718,12 @@ unsigned
 dissect_x509if_AttributeCombination(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // AttributeCombination -> AttributeCombination/and -> AttributeCombination
   increment_dissection_depth_by_n(actx->pinfo, 2);
+  /* Stop before the dissection depth limit, which asserts. */
+  if (actx->pinfo->dissection_depth + 16 >= prefs.gui_max_tree_depth) {
+    expert_add_info(actx->pinfo, tree, &ei_x509if_nested_too_deep);
+    THROW(ReportedBoundsError);
+  }
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  AttributeCombination_choice, hf_index, ett_x509if_AttributeCombination,
                                  NULL);
@@ -2772,6 +2810,11 @@ void proto_register_x509if(void) {
         NULL, HFILL }},
   };
 
+  static ei_register_info ei[] = {
+    { &ei_x509if_nested_too_deep, { "x509if.nested_too_deep", PI_UNDECODED, PI_ERROR, "Nested too deeply. Giving up.", EXPFILL }},
+  };
+  expert_module_t *expert_x509if;
+
   /* List of subtrees */
   static int *ett[] = {
     &ett_x509if_Attribute,
@@ -2855,6 +2898,8 @@ void proto_register_x509if(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509if, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_x509if = expert_register_protocol(proto_x509if);
+  expert_register_field_array(expert_x509if, ei, array_length(ei));
 
   /* initialise array */
   fmt_vals[0].value = 0;
