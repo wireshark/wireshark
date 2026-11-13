@@ -161283,3 +161283,114 @@ class TestDissectUsbPrinter:
             '51\t0x0069\tMFG:Hewlett-Packard;CMD:PJL,PCL,PCLXL,POSTSCRIPT;MDL:HP LaserJet 4000;CLS:PRINTER;DES:HP LaserJet 4000;',
             '57\t0x0045\tMFG:EPSON;CMD:ESCPL2,BDC,D4,D4PX;MDL:Stylus Photo R200;CLS:PRINTER;',
             '74\t0x0030\tMFG:Canon;CMD:LBP-SIM;MDL:LBP2900;CLS:PRINTER;']
+
+
+class TestDissectUsbPtpCoverage:
+    '''USB PTP/MTP (packet-usb-ptp.c) from the synthetic Linux usbmon /
+    USBPcap capture usb_ptp_coverage.pcapng.gz. Frames 1-100 are a generic
+    camera (device 2), 101-146 an MTP device that sends a command before
+    GetDeviceInfo (3), 147-506 one device per vendor of the flavor table
+    (4-13: Canon, Nikon, Fuji, Kodak, Casio, Olympus, Leica, Parrot,
+    Panasonic, Sony), 507-540 a Canon camera on USBPcap (14) and 541-554 a
+    Still Image interface that UAS owns (15). Events are sent on the bulk IN
+    endpoint because PTP is registered for bulk only.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('usb_ptp_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_usb_ptp_frames(self, cmd_tshark, capture_file, test_env):
+        '''203 frames decoded as PTP out of 554 (the protocol column also says USB-PTP
+        for the two frames of the interface that UAS owns, which PTP leaves
+        undecoded); no malformed frames and no warnings or errors in one and two
+        passes; the decode (info column) is the same in both passes, including
+        the opcode names.'''
+        by_pass = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol', '_ws.col.info',
+                                'frame.protocols', extra=passes)
+            assert len(rows) == 554
+            assert [r.split('\t')[0] for r in rows].count('USB-PTP') == 205
+            assert len([r for r in rows if r.split('\t')[2].endswith(':usb-ptp')]) == 203
+            by_pass.append([r for r in rows if r.startswith('USB-PTP')])
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+        assert by_pass[0] == by_pass[1]
+
+    def test_usb_ptp_flavor_state(self, cmd_tshark, capture_file, test_env):
+        '''GetObjectPropsSupported (0x9801) is an MTP opcode. Before GetDeviceInfo has
+        shown that the device is MTP (vendor extension 6) it is "UNKNOWN", afterwards
+        GetObjectPropsSupported, and again UNKNOWN after a device info without the
+        MTP extension; one pass and two passes give the same answer.'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {111, 121, 124, 143}',
+                                'frame.number', '_ws.col.info', extra=passes)
+            assert rows == ['111\tCMD 00000001 (9801) UNKNOWN Undefined',
+                            '121\tCMD 00000003 (9801) GetObjectPropsSupported Undefined',
+                            '124\tDAT 00000003 (9801) GetObjectPropsSupported',
+                            '143\tCMD 00000007 (9801) UNKNOWN Undefined']
+
+    def test_usb_ptp_device_info(self, cmd_tshark, capture_file, test_env):
+        '''GetDeviceInfo data: arrays, strings, vendor extension (generic and MTP) and empty arrays.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {14, 118, 140}', 'frame.number',
+                            'usb-ptp.device.standardversion', 'usb-ptp.device.vendorextensionid',
+                            'usb-ptp.device.vendorextensiondesc', 'usb-ptp.device.operationssupported',
+                            'usb-ptp.device.eventsupported', 'usb-ptp.device.imageformat',
+                            'usb-ptp.device.manufacturer', 'usb-ptp.device.model', 'usb-ptp.device.serialnumber')
+        assert rows == [
+            '14\t0x0064\t0x00000000\t\t0x1001,0x1002,0x1003,0x1004,0x1007,0x9001,0x9801\t0x4002,0x400d,0xc001\t0x3801,0x3000,0x3804\t'
+            'Wireshark Test\tSynthetic Camera\t0001',
+            '118\t0x0064\t0x00000006\tmicrosoft.com: 1.0; android.com: 1.0;\t0x1001,0x9801,0x9802,0x9803,0x9810\t0x4002,0x400d,0xc001\t'
+            '0x3801,0x3000,0x3804\tSynthetic MTP\tPlayer\t0001',
+            '140\t0x0064\t0x00000000\t\t0x1001\t\t\tWireshark Test\tSynthetic Camera\t0001']
+
+    def test_usb_ptp_payloads(self, cmd_tshark, capture_file, test_env):
+        '''Storage ID and object handle arrays (also an empty one), device property, object format
+        and object property parameters of commands, and parameters of events.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {24, 32, 38, 124}',
+                            'frame.number', 'usb-ptp.device.storageid', 'usb-ptp.object.handle', 'usb-ptp.object.code')
+        assert rows == ['24\t0x00010001,0x00020001\t\t', '32\t\t0x00000001,0x00000002,0x00000003\t',
+                        '38\t\t\t', '124\t\t\t0xdc01,0xdc02,0xdc04,0xdc41']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {53, 59, 79, 127}',
+                            'frame.number', 'usb-ptp.device.property', 'usb-ptp.device.propertydesc',
+                            'usb-ptp.object.format', 'usb-ptp.object.code', '_ws.col.info')
+        assert rows == ['53\t\t0x5001\t\t\tCMD 00000009 (1014) GetDevicePropDesc BatteryLevel',
+                        '59\t0x5005\t\t\t\tCMD 0000000a (1016) SetDevicePropValue WhiteBalance',
+                        '79\t\t\t0x3801\t0xdc07\tCMD 0000000e (9802) UNKNOWN ObjectFileName EXIF_JPEG',
+                        '127\t\t\t0x3000\t0xdc01\tCMD 00000004 (9802) GetObjectPropDesc StorageID Undefined']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {92, 98, 136}',
+                            'frame.number', 'usb-ptp.event.code', 'usb-ptp.event.parameter', '_ws.col.info')
+        assert rows == ['92\t0x4002\t0x00000010\tEVT ffffffff (4002) ObjectAdded',
+                        '98\t0x4004\t\tEVT ffffffff (4004) StoreAdded',
+                        '136\t0xc801\t0x00000001\tEVT ffffffff (c801) ObjectPropChanged']
+
+    def test_usb_ptp_vendors(self, cmd_tshark, capture_file, test_env):
+        '''The vendor of the device descriptor selects the vendor specific opcode names.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {163, 203, 235, 275, 307, 347, 383, 419, 455, 487, 537}',
+                            'frame.number', '_ws.col.info')
+        assert rows == ['163\tCMD 00000002 (9001) GetPartialObjectInfo',      # Canon
+                        '203\tCMD 00000003 (9006) GetProfileAllData',          # Nikon
+                        '235\tCMD 00000002 (9020) InitiateMovieCapture',       # Fuji
+                        '275\tCMD 00000003 (9003) GetSerial',                  # Kodak
+                        '307\tCMD 00000002 (9001) STILL_START',                # Casio
+                        '347\tCMD 00000003 (9101) Capture',                    # Olympus
+                        '383\tCMD 00000003 (9003) GetLensParameter',           # Leica
+                        '419\tCMD 00000003 (9201) GetSunshineValues',          # Parrot
+                        '455\tCMD 00000003 (9102) OpenSession',                # Panasonic
+                        '487\tCMD 00000002 (9201) SDIO_Connect',               # Sony
+                        '537\tCMD 00000004 (9001) GetPartialObjectInfo']       # Canon on USBPcap
+
+    def test_usb_ptp_foreign_class_data(self, cmd_tshark, capture_file, test_env):
+        '''Device 15: the pipe usage descriptors of alternate setting 1 gave the interface to UAS, so PTP
+        finds class data of another class and decodes nothing (frames 551 and 554); it has already
+        set the protocol column by then.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {551, 554}', 'frame.number',
+                            '_ws.col.protocol', 'frame.protocols')
+        assert rows == ['551\tUSB-PTP\tusb', '554\tUSB-PTP\tusb']
