@@ -419,9 +419,9 @@ dissect_zip_extra_ntfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 }
 
 static int
-dissect_zip_extra_utf8_comment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+dissect_zip_extra_utf8_comment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    _U_ zip_info_t *extra_info = (zip_info_t*)data;
+    zip_info_t *extra_info = (zip_info_t*)data;
 
     unsigned offset = 0;
     uint8_t version;
@@ -432,8 +432,12 @@ dissect_zip_extra_utf8_comment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         return offset;
     }
 
-    uint32_t computed_crc32 = crc32_ccitt_tvb(extra_info->comment_tvb, tvb_reported_length(extra_info->comment_tvb));
-    proto_tree_add_checksum(tree, tvb, offset, hf_zip_crc32, hf_zip_crc32_status, &ei_zip_crc32, pinfo, computed_crc32, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    if (extra_info && extra_info->comment_tvb) {
+        uint32_t computed_crc32 = crc32_ccitt_tvb(extra_info->comment_tvb, tvb_reported_length(extra_info->comment_tvb));
+        proto_tree_add_checksum(tree, tvb, offset, hf_zip_crc32, hf_zip_crc32_status, &ei_zip_crc32, pinfo, computed_crc32, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    } else {
+        proto_tree_add_checksum(tree, tvb, offset, hf_zip_crc32, hf_zip_crc32_status, &ei_zip_crc32, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+    }
     offset += 4;
     proto_tree_add_item(tree, hf_zip_file_comment, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8);
 
@@ -532,10 +536,16 @@ dissect_zip_extra_unix3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
     proto_tree_add_item_ret_uint8(tree, hf_zip_extra_unix_uid_size, tvb, offset, 1, ENC_NA, &size);
     offset += 1;
+    if (size < 1 || size > 8) {
+        return offset;
+    }
     proto_tree_add_item(tree, hf_zip_extra_unix_uid, tvb, offset, size, ENC_LITTLE_ENDIAN);
     offset += size;
     proto_tree_add_item_ret_uint8(tree, hf_zip_extra_unix_gid_size, tvb, offset, 1, ENC_NA, &size);
     offset += 1;
+    if (size < 1 || size > 8) {
+        return offset;
+    }
     proto_tree_add_item(tree, hf_zip_extra_unix_gid, tvb, offset, size, ENC_LITTLE_ENDIAN);
     offset += size;
 
@@ -657,6 +667,11 @@ dissect_zip_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
          */
         expert_add_info_format(pinfo, flags_ti, &ei_zip_unsupported, "%s", "Data descriptors are not supported yet");
         return offset;
+    }
+    if (extra_info.compressed_size > tvb_reported_length_remaining(tvb, offset)) {
+        /* Also keeps the returned length from exceeding the tvb. */
+        expert_add_info_format(pinfo, size_ti, &ei_zip_overflow, "Compressed size (%" PRIu64 " bytes) exceeds the remaining data", extra_info.compressed_size);
+        return tvb_reported_length(tvb);
     }
     if (flags & ZIP_FLAG_ENCRYPTION) {
         if (!(flags & ZIP_FLAG_STRONG_ENCRYPTION)) {
@@ -792,6 +807,9 @@ dissect_zip_directory(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
     proto_tree_add_item_ret_string(record_tree, hf_zip_file_name, tvb, offset, file_name_length, encoding, pinfo->pool, &extra_info.filename);
     extra_info.filename_tvb = tvb_new_subset_length(tvb, offset, file_name_length);
     offset += file_name_length;
+    if (file_comment_length) {
+        extra_info.comment_tvb = tvb_new_subset_length(tvb, offset + extra_fields_length, file_comment_length);
+    }
     if (extra_fields_length) {
         dissect_zip_extra_fields(tvb_new_subset_length(tvb, offset, extra_fields_length), pinfo, record_tree, &extra_info);
         offset += extra_fields_length;
@@ -922,7 +940,8 @@ dissect_zip(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data 
            tvb_reported_length_remaining(tvb, offset) >= 4) {
         uint32_t signature = tvb_get_letohl(tvb, offset);
         tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
-        if (!(dissected = dissector_try_uint_with_data(zip_record_dissector_table, signature, next_tvb, pinfo, zip_tree, false, data))) {
+        dissected = dissector_try_uint_with_data(zip_record_dissector_table, signature, next_tvb, pinfo, zip_tree, false, data);
+        if (dissected <= 0) {
             proto_tree_add_item(zip_tree, hf_zip_record_signature, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             break;
         }
@@ -1162,7 +1181,7 @@ proto_register_zip(void)
         },
         { &hf_zip_extra_unix_uid,
             { "User ID", "zipfile.extra.unix.uid",
-            FT_UINT16, BASE_DEC, NULL,
+            FT_UINT64, BASE_DEC, NULL,
             0x0, NULL, HFILL },
         },
         { &hf_zip_extra_unix_gid_size,
@@ -1172,7 +1191,7 @@ proto_register_zip(void)
         },
         { &hf_zip_extra_unix_gid,
             { "Group ID", "zipfile.extra.unix.gid",
-            FT_UINT16, BASE_DEC, NULL,
+            FT_UINT64, BASE_DEC, NULL,
             0x0, NULL, HFILL },
         },
 
@@ -1363,7 +1382,6 @@ proto_reg_handoff_zip(void)
     dissector_add_uint("zip.extra", ZIP_EXTRA_UT, create_dissector_handle(dissect_zip_extra_unix_time, proto_zip));
     dissector_add_uint("zip.extra", ZIP_EXTRA_UCOM, create_dissector_handle(dissect_zip_extra_utf8_comment, proto_zip));
     dissector_add_uint("zip.extra", ZIP_EXTRA_UPATH, create_dissector_handle(dissect_zip_extra_utf8_path, proto_zip));
-    dissector_add_uint("zip.extra", ZIP_EXTRA_UT, create_dissector_handle(dissect_zip_extra_unix_time, proto_zip));
     dissector_add_uint("zip.extra", ZIP_EXTRA_UNIX2, create_dissector_handle(dissect_zip_extra_unix2, proto_zip));
     dissector_add_uint("zip.extra", ZIP_EXTRA_UNIX3, create_dissector_handle(dissect_zip_extra_unix3, proto_zip));
 
