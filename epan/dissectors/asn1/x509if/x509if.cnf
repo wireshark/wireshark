@@ -211,7 +211,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
     if((fmt = val_to_str_const(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
       last_ava = (char *)wmem_alloc(actx->pinfo->pool, MAX_AVA_STR_LEN); *last_ava = '\0';
-      register_frame_end_routine (actx->pinfo, x509if_frame_end);
+      x509if_register_frame_end(actx->pinfo);
 
       snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s", name, fmt);
 
@@ -327,11 +327,32 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 #.FN_BODY AttributeTypeAndDistinguishedValue/valuesWithContext/_item/distingAttrValue
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
+#.FN_HDR Refinement
+  /* Stop before the dissection depth limit, which asserts. */
+  if (actx->pinfo->dissection_depth + 16 >= (int)prefs.gui_max_tree_depth) {
+    expert_add_info(actx->pinfo, tree, &ei_x509if_nested_too_deep);
+    THROW(ReportedBoundsError);
+  }
+
+#.FN_HDR ContextCombination
+  /* Stop before the dissection depth limit, which asserts. */
+  if (actx->pinfo->dissection_depth + 16 >= (int)prefs.gui_max_tree_depth) {
+    expert_add_info(actx->pinfo, tree, &ei_x509if_nested_too_deep);
+    THROW(ReportedBoundsError);
+  }
+
+#.FN_HDR AttributeCombination
+  /* Stop before the dissection depth limit, which asserts. */
+  if (actx->pinfo->dissection_depth + 16 >= (int)prefs.gui_max_tree_depth) {
+    expert_add_info(actx->pinfo, tree, &ei_x509if_nested_too_deep);
+    THROW(ReportedBoundsError);
+  }
+
 #.FN_BODY RelativeDistinguishedName
   rdn_one_value = false;
   top_of_rdn = tree;
   last_rdn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
-  register_frame_end_routine (actx->pinfo, x509if_frame_end);
+  x509if_register_frame_end(actx->pinfo);
 
   %(DEFAULT_BODY)s
 
@@ -341,7 +362,9 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
     /* now append this to the DN */
     if (last_dn_buf) {
-      if(wmem_strbuf_get_len(last_dn_buf) > 0) {
+      if(wmem_strbuf_get_len(last_dn_buf) >= MAX_DN_STR_LEN) {
+        /* DN string already long enough; stop growing it (avoids quadratic cost) */
+      } else if(wmem_strbuf_get_len(last_dn_buf) > 0) {
         wmem_strbuf_t *temp_dn_buf = wmem_strbuf_new_sized(actx->pinfo->pool, wmem_strbuf_get_len(last_rdn_buf) + wmem_strbuf_get_len(last_dn_buf) + 1);
         wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
         wmem_strbuf_append_c(temp_dn_buf, ',');
@@ -377,7 +400,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   dn_one_rdn = false; /* reset */
   last_dn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
   top_of_dn = NULL;
-  register_frame_end_routine (actx->pinfo, x509if_frame_end);
+  x509if_register_frame_end(actx->pinfo);
 
 
   %(DEFAULT_BODY)s
@@ -407,7 +430,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
 	ava_hf_index = hf_index;
 	last_ava = (char *)wmem_alloc(actx->pinfo->pool, MAX_AVA_STR_LEN); *last_ava = '\0';
-	register_frame_end_routine (actx->pinfo, x509if_frame_end);
+	x509if_register_frame_end(actx->pinfo);
 
 	%(DEFAULT_BODY)s
 
@@ -415,7 +438,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
 #.FN_BODY Attribute
 	doing_attr = true;
-	register_frame_end_routine (actx->pinfo, x509if_frame_end);
+	x509if_register_frame_end(actx->pinfo);
 
 	%(DEFAULT_BODY)s
 #.END
