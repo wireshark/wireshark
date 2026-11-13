@@ -346,12 +346,12 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
             proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v91,                tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case V150FW_RIC_TIMEOUT:
-            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_timeout,                  tvb, offset,     1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_timeout_vendor,           tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_timeout,                  tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_timeout_vendor,           tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case V150FW_RIC_CLEARDOWN:
-            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown,                tvb, offset,     1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown_reserved,       tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown,                tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown_reserved,       tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         default:
             proto_tree_add_item(v150fw_tree, hf_v150fw_reason_id_code_info,               tvb, offset,     2, ENC_BIG_ENDIAN);
