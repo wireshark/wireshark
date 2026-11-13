@@ -169,7 +169,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      *          .... .ppp : bits per pixel in image (add one)
      */
     color_map_present = peek & 0x80;
-    color_resolution = 1 + ((peek & 0x60) >> 4);
+    color_resolution = 1 + ((peek & 0x70) >> 4);
     image_bpp = 1 + (peek & 0x07);
 
     subtree = proto_tree_add_subtree(gif_tree, tvb, offset, 1, ett_global_flags, &ti,
@@ -321,7 +321,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             /* bit field */
             peek = tvb_get_uint8(tvb, offset);
             color_map_present = peek & 0x80;
-            color_resolution = 1 + ((peek & 0x60) >> 4);
+            color_resolution = 1 + ((peek & 0x70) >> 4);
             image_bpp = 1 + (peek & 0x07);
 
             subtree2 = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_local_flags, &ti2,
@@ -371,7 +371,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             offset++;
             break;
         } else {
-            proto_tree_add_expert(gif_tree, pinfo,
+            ti = proto_tree_add_expert(gif_tree, pinfo,
                     &ei_gif_unknown_data_block_type,
                     tvb, offset, 1);
             offset++;
