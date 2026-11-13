@@ -1012,7 +1012,7 @@ static void dissect_advertised_service(proto_item *tlv_root,
                         s_offset, 2, ENC_BIG_ENDIAN);
     s_offset += 2;
     proto_tree_add_item(subtree, hf_p2p_attr_advertised_service_service_name_length, tvb,
-                        s_offset, 2, ENC_BIG_ENDIAN);
+                        s_offset, 1, ENC_BIG_ENDIAN);
     len_service_name = tvb_get_uint8(tvb, s_offset);
     s_offset += 1;
 
@@ -1046,15 +1046,20 @@ static void dissect_feature_capability(proto_item *tlv_root,
 
 }
 
-static void dissect_persistent_group(proto_item *tlv_root,
-                                     proto_item *tlv_item _U_,
+static void dissect_persistent_group(packet_info *pinfo, proto_item *tlv_root,
+                                     proto_item *tlv_item,
                                      tvbuff_t *tvb, int offset, int slen)
 {
+  if (slen < 6) {
+    expert_add_info_format(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Too short Persistent Group Info");
+    return;
+  }
+
   proto_tree_add_item(tlv_root, hf_p2p_attr_persistent_group_p2p_device_address, tvb,
                       offset+3, 6, ENC_NA);
 
   proto_tree_add_item(tlv_root, hf_p2p_attr_persistent_group_ssid, tvb,
-                      offset+3+6, slen+6, ENC_ASCII);
+                      offset+3+6, slen-6, ENC_ASCII);
 
 }
 
@@ -1164,7 +1169,7 @@ dissect_wifi_p2p_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
       dissect_feature_capability(tlv_root, tlv_item, tvb, offset, slen);
       break;
     case P2P_ATTR_PERSISTENT_GROUP_INFO:
-      dissect_persistent_group(tlv_root, tlv_item, tvb, offset, slen);
+      dissect_persistent_group(pinfo, tlv_root, tlv_item, tvb, offset, slen);
       break;
     }
 
@@ -1235,6 +1240,11 @@ dissect_wifi_p2p_anqp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
     }
     if (len > tvb_reported_length_remaining(tvb, offset + 2)) {
       expert_add_info_format(pinfo, item, &ei_wifi_p2p_anqp_length, "Too short frame for Service TLV field");
+      return offset;
+    }
+
+    if (!anqp_data->request && len < 3) {
+      expert_add_info_format(pinfo, item, &ei_wifi_p2p_anqp_length, "Too short Service TLV field");
       return offset;
     }
 
@@ -1749,7 +1759,7 @@ proto_register_p2p(void)
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_p2p_attr_advertised_service_service_name_length,
       { "Service Name Length", "wifi_p2p.advertised_service.service_name_length",
-        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_p2p_attr_advertised_service_service_name,
       { "Service Name", "wifi_p2p.advertised_service.service_name",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
