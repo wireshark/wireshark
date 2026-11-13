@@ -10,6 +10,7 @@
 #include <config.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-ieee80211.h"
 
 #include <wsutil/str_util.h>
@@ -63,9 +64,12 @@ static dissector_table_t ie_handle_table;
 #define NAN_UNALIGNED_SCH_CHANNEL_ENTRY_EXIST 1
 #define NAN_UNALIGNED_SCH_CHANNEL_ENTRY_W_AUX_EXIST 2
 
+#define NAN_MAX_NESTING 8
+
 static int proto_nan;
 
 static expert_field ei_nan_elem_len_invalid;
+static expert_field ei_nan_nesting_too_deep;
 static expert_field ei_nan_unknown_attr_id;
 static expert_field ei_nan_unknown_op_class;
 static expert_field ei_nan_unknown_beacon_type;
@@ -2193,6 +2197,21 @@ dissect_attr_ftm_report(proto_tree* attr_tree, tvbuff_t* tvb, int offset)
 }
 
 static void
+nan_dissect_nested_ie(tvbuff_t* ie_tvb, packet_info* pinfo, proto_tree* tree,
+    unsigned tag, ieee80211_tagged_field_data_t* field_data)
+{
+    unsigned depth = p_get_proto_depth(pinfo, proto_nan);
+    if (depth >= NAN_MAX_NESTING)
+    {
+        proto_tree_add_expert(tree, pinfo, &ei_nan_nesting_too_deep, ie_tvb, 0, 0);
+        return;
+    }
+    p_set_proto_depth(pinfo, proto_nan, depth + 1);
+    dissector_try_uint_new(ie_handle_table, tag, ie_tvb, pinfo, tree, true, field_data);
+    p_set_proto_depth(pinfo, proto_nan, depth);
+}
+
+static void
 dissect_attr_element_container(proto_tree* attr_tree, tvbuff_t* tvb, int offset, uint16_t attr_len, packet_info* pinfo)
 {
     unsigned sub_offset = offset + 3;
@@ -2223,7 +2242,7 @@ dissect_attr_element_container(proto_tree* attr_tree, tvbuff_t* tvb, int offset,
         ieee80211_tagged_field_data_t field_data = { 0 };
         tvbuff_t* ie_tvb = tvb_new_subset_length(tvb, sub_offset, element_len);
         field_data.item_tag = sub_tree;
-        dissector_try_uint_new(ie_handle_table, element_id, ie_tvb, pinfo, sub_tree, true, &field_data);
+        nan_dissect_nested_ie(ie_tvb, pinfo, sub_tree, element_id, &field_data);
         sub_offset += element_len;
         dissected_length += element_len + 2;
     }
@@ -2351,7 +2370,6 @@ dissect_attr_extended_mesh(proto_tree* attr_tree, tvbuff_t* tvb, int offset, uin
     }
 
     unsigned sub_offset = offset + 3;
-    unsigned length = tvb_get_uint16(tvb, sub_offset - 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(attr_tree, hf_nan_mac_address, tvb, sub_offset, 6, ENC_NA);
     sub_offset += 6;
 
@@ -2373,7 +2391,7 @@ dissect_attr_extended_mesh(proto_tree* attr_tree, tvbuff_t* tvb, int offset, uin
     proto_tree_add_item(sub_attr_tree_beacon, hf_nan_non_beacon_interval, tvb, sub_offset, 2, ENC_LITTLE_ENDIAN);
     sub_offset += 2;
 
-    proto_tree_add_item(attr_tree, hf_nan_attr_mesh_id, tvb, sub_offset, length - sub_offset + 3, ENC_NA);
+    proto_tree_add_item(attr_tree, hf_nan_attr_mesh_id, tvb, sub_offset, attr_len - 13, ENC_NA);
 }
 
 static void
@@ -2489,10 +2507,10 @@ dissect_attr_vendor_specific(proto_tree* attr_tree, tvbuff_t* tvb, int offset, u
     }
 
     unsigned sub_offset = offset + 3;
-    tvbuff_t* ie_tvb = tvb_new_subset_length(tvb, sub_offset, -1);
+    tvbuff_t* ie_tvb = tvb_new_subset_length(tvb, sub_offset, attr_len);
     ieee80211_tagged_field_data_t field_data = { 0 };
     field_data.item_tag = attr_tree;
-    dissector_try_uint_new(ie_handle_table, TAG_VENDOR_SPECIFIC_IE, ie_tvb, pinfo, attr_tree, true, &field_data);
+    nan_dissect_nested_ie(ie_tvb, pinfo, attr_tree, TAG_VENDOR_SPECIFIC_IE, &field_data);
 }
 
 static void
@@ -4827,6 +4845,14 @@ proto_register_nan(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_nan_nesting_too_deep,
+            {
+            "wifi_nan.expert.nesting_too_deep",
+            PI_MALFORMED, PI_ERROR,
+            "NAN attributes nested too deeply",
+            EXPFILL
+            }
+        },
         { &ei_nan_elem_len_invalid,
             {
             "wifi_nan.expert.elem_len_invalid",
