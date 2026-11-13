@@ -321,7 +321,8 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item *ti;
     proto_tree *wsmp_tree, *wsmdata_tree;
     tvbuff_t   *wsmdata_tvb;
-    uint16_t    wsmlength, offset = 0;
+    uint16_t    wsmlength;
+    unsigned    offset = 0;
     uint32_t    psid, supLen;
     uint8_t     elemenId, elemenLen, msb, oct, version;
 
