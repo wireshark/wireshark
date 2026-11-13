@@ -240,7 +240,8 @@ smex_time_to_string (wmem_allocator_t *pool, int pb5_days_since_midnight_9_10_oc
         utcdiff += days * 24 * 60 * 60;  /* add days in 1995 prior to October 10 */
     }
 
-    t.secs = (pb5_days_since_midnight_9_10_oct_1995 * 86400) + pb5_seconds + utcdiff;
+    /* time_t: days up to 16383 * 86400 plus utcdiff do not fit in an int */
+    t.secs = ((time_t)pb5_days_since_midnight_9_10_oct_1995 * 86400) + pb5_seconds + utcdiff;
     t.nsecs = pb5_milliseconds*1000000; /* msecs to nsecs */
 
     return abs_time_to_str(pool, &t, ABSOLUTE_TIME_DOY_UTC, true);
@@ -297,7 +298,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* extract smex ground receipt time tag */
     long_word   = tvb_get_ntohl(tvb, offset);
-    pb5_days    = (long_word >> 17) & PB5_JULIAN_DAY_MASK;
+    pb5_days    = (long_word >> 17) & 0x3fff;
     pb5_seconds = (long_word & PB5_SECONDS_MASK);
 
     first_word = tvb_get_ntohs(tvb, offset+4);
@@ -553,7 +554,7 @@ proto_register_vcdu(void)
 
         { &hf_vcdu_version,
           { "Version",           "vcdu.version",
-            FT_UINT16, BASE_DEC, NULL, 0xc0,
+            FT_UINT16, BASE_DEC, NULL, 0xc000,
             "VCDU Version", HFILL }
         },
         { &hf_vcdu_sp_id,
