@@ -169734,3 +169734,123 @@ class TestDissectXot:
                          '36\tInc. call/Call req. VC:9']
         n = self.tshark(cmd_tshark, capture_file, test_env, 'x25.reassembled.length', '-Tfields', '-eframe.number')
         assert len(n) >= 4
+
+
+class TestDissectXra:
+    '''XRA (Excentis DOCSIS 3.1 sniffer header, link-layer type 273) from
+    the synthetic capture xra_coverage.pcap.gz: every packet type with
+    its TLVs, the codeword, burst and minislot sub-TLVs, PLC message
+    blocks, NCP message blocks, OFDMA segments, initial ranging
+    requests and the DOCSIS frames behind the header.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('xra_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def dec(value):
+        '''The locale's decimal separator in a decimal number'''
+        return value.replace(',', '.')
+
+    def test_xra_protocols(self, cmd_tshark, capture_file, test_env):
+        '''80 frames, all with an XRA header, without malformed packets
+        or error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', 'xra', '-Tfields', '-eframe.number', passes=passes)
+            assert len(rows) == 80
+
+    def test_xra_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One and two passes give the same summary lines.'''
+        args = ('-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, *args, passes=('-2',))
+        assert one == two
+        assert len(one) == 80
+
+    def test_xra_packet_types(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the packet type.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = {int(r.split('\t')[0]): r.split('\t')[1] for r in rows}
+        assert info[4] == 'SC-QAM DOCSIS MAC Frame'
+        assert info[24] == 'OFDM NCP: (Symbol ID: 7):'
+        assert info[30] == 'OFDM PLC: TS-MB, MC-MB'
+        assert info[32] == 'OFDM PLC: TS-MB, FUT-MB, FUT-MB, FUT-MB, TR-MB, MC-MB'
+        assert info[37] == 'TDMA Burst: Segment'
+        assert info[43] == 'OFDMA Data Burst'
+        assert info[50] == 'OFDMA Initial Ranging'
+        assert info[67] == 'OFDMA Probing Sequence'
+        assert info[68] == 'Unknown XRA Packet Type: 99'
+        assert info[69] == 'Unknown XRA Packet Type: 129'
+
+    def test_xra_tlv_length_65535(self, cmd_tshark, capture_file, test_env):
+        '''Frame 78 has a TLV length of 65535: the header is 65539
+        octets. The length was kept in a 16 bit variable before "XRA: Use
+        an unsigned xra_length" and shown as 3 octets.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 78', '-V')
+        assert [r for r in rows if r.startswith('XRA (Excentis XRA header: 65539 bytes).')]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xra.tlvlength >= 65532', '-Tfields', '-eframe.number',
+                '-exra.tlvlength')
+        assert rows == ['78\t65535', '79\t65535', '80\t65532']
+
+    def test_xra_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The TLVs of the downstream frames, the codeword info
+        sub-TLVs and the burst, minislot and grant size TLVs.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 3, 22, 37}', '-Tfields',
+                '-eframe.number', '-exra.tlv.ds_channel_frequency',
+                '-exra.tlv.modulation', '-exra.tlv.annex',
+                '-exra.tlv.cw_info.ldpc_nr_of_code_bits',
+                '-exra.tlv.ms_info.start_minislot_id_abs',
+                '-exra.tlv.grant_size', '-exra.tlv.burst_info.burst_id_reference')
+        assert rows[0] == '2\t855000000\t1\t1\t\t\t\t'
+        assert rows[1] == '3\t0\t1\t0\t\t\t\t'
+        assert rows[2].startswith('22\t\t\t\t5940\t')
+        assert rows[3] == '37\t\t\t\t\t1000\t4660,4660\t1234605616436508552'
+
+    def test_xra_ncp_plc_segment(self, cmd_tshark, capture_file, test_env):
+        '''NCP message blocks and CRC, PLC message blocks and the
+        DOCSIS PDUs in the message channel, OFDMA segments (header check
+        sequence verified) and the initial ranging request.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'docsis_ncp.crc', '-Tfields', '-eframe.number',
+                '-edocsis_ncp.mb.profileid', '-edocsis_ncp.mb.subcarrier_start_pointer')
+        assert rows[:2] == ['24\t1,2\t100,8191', '25\t15\t8191']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {28, 29, 32}', '-Tfields', '-eframe.number',
+                '-edocsis_plc.mb_type', '-edocsis_plc.mb_mc_psp', '-edocsis.hcs.status')
+        assert rows[0].startswith('28\t1,3\t0\t')
+        assert rows[1].startswith('29\t1,3\t4\t')
+        assert rows[2].startswith('32\t1,5,6,15,4,3\t0')
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'docsis_segment', '-Tfields', '-eframe.number',
+                '-edocsis_segment.hcs.status', '-edocsis_segment.sequencenumber',
+                '-edocsis_segment.request')
+        assert rows == ['37\t1\t33\t258', '40\t1\t2\t4', '42\t1\t33\t258', '45\t1\t2\t4']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xra.init_ranging.mac', '-Tfields', '-eframe.number',
+                '-exra.init_ranging.mac', '-exra.init_ranging.ds_channel_id')
+        assert len(rows) == 17
+        assert rows[0] == '50\t02:00:00:00:00:aa\t3'
+
+    def test_xra_ranging_values(self, cmd_tshark, capture_file, test_env):
+        '''Estimated power levels and MER values (decimals; the locale's
+        decimal separator is accepted).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {49, 50, 51, 52}', '-Tfields',
+                '-eframe.number', '-exra.tlv.power_level',
+                '-exra.tlv.ranging.timing_adjust')
+        assert [self.dec(r) for r in rows] == ['49\t-10\t-16', '50\t10\t0', '51\t11.3\t100', '52\t12.6\t200']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xra.tlv.mer', '-Tfields', '-eframe.number', '-exra.tlv.mer')
+        assert [self.dec(r) for r in rows[:5]] == ['1\t36', '2\t40', '3\t0', '73\t0.25', '74\t63.75']
