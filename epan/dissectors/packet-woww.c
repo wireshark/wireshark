@@ -12189,16 +12189,15 @@ static int32_t
 get_null_terminated_string_length( tvbuff_t* tvb,
                                    int32_t offset)
 {
-    const int32_t maximum_length = 0x7FFF;
-    for (int32_t length = 0; length < maximum_length; length++) {
-        uint8_t character = tvb_get_uint8(tvb, offset + length);
-        if (character == 0) {
-            // Include the null character in the length
-            return length + 1;
-        }
+    int end = tvb_find_uint8(tvb, offset, -1, 0);
+    if (end < 0) {
+        // No terminator: consume the rest of the tvb so that adding the
+        // item ends at the boundary (or throws) instead of not advancing.
+        return (int32_t)tvb_ensure_captured_length_remaining(tvb, offset) + 1;
     }
 
-    return 0;
+    // Include the null character in the length
+    return end - offset + 1;
 }
 
 static void
@@ -12256,34 +12255,17 @@ add_update_mask(ptvcursor_t* ptv, packet_info* pinfo) {
     }
     ptvcursor_pop_subtree(ptv);
 
-    uint32_t amount_of_indices = 0;
-    for (uint32_t mask = 0; mask < amount_of_masks; ++mask) {
-        for (unsigned bit = 0; bit < 32; ++bit) {
-            if (masks[mask] & (1u << bit)) {
-                amount_of_indices += 1;
-            }
-        }
-    }
-
-    uint32_t indices_length = amount_of_indices * 4;
-    uint32_t* indices = (uint32_t*)wmem_alloc0(pinfo->pool, indices_length);
     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Update Mask Values");
 
     tvbuff_t* tvb = ptvcursor_tvbuff(ptv);
 
-    tvbuff_t* next_tvb = tvb_new_child_real_data(tvb, (uint8_t*)indices, indices_length, indices_length);
-    add_new_data_source(pinfo, next_tvb, "Update Mask Indices");
-
-    uint32_t indices_index = 0;
     for (uint32_t mask = 0; mask < amount_of_masks; ++mask) {
         for (uint32_t i = 0; i < 32; ++i) {
             if (masks[mask] & (1u << i)) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Update Mask Pair");
 
-                indices[indices_index] = (32 * mask) + i;
                 proto_tree* tree = ptvcursor_tree(ptv);
-                proto_tree_add_item(tree, hf_woww_update_mask_index, next_tvb, 4 * indices_index, 4, ENC_LITTLE_ENDIAN);
-                indices_index += 1;
+                proto_tree_add_uint(tree, hf_woww_update_mask_index, tvb, ptvcursor_current_offset(ptv), 0, (32 * mask) + i);
 
                 ptvcursor_add(ptv, hf_woww_update_mask_value, 4, ENC_LITTLE_ENDIAN);
 
@@ -12295,26 +12277,24 @@ add_update_mask(ptvcursor_t* ptv, packet_info* pinfo) {
 }
 
 static void
-add_packed_guid(ptvcursor_t* ptv, packet_info* pinfo) {
+add_packed_guid(ptvcursor_t* ptv, packet_info* pinfo _U_) {
     tvbuff_t* tvb = ptvcursor_tvbuff(ptv);
     proto_tree* tree = ptvcursor_tree(ptv);
 
-    uint8_t byte_mask = tvb_get_uint8(tvb, ptvcursor_current_offset(ptv));
+    int start = ptvcursor_current_offset(ptv);
+    uint8_t byte_mask = tvb_get_uint8(tvb, start);
     ptvcursor_advance(ptv, 1);
 
-    uint8_t* guid = (uint8_t*)wmem_alloc(pinfo->pool, 8);
+    uint64_t guid = 0;
 
     for (int i = 0; i < 8; ++i) {
         if (byte_mask & (1 << i)) {
-            guid[i] = tvb_get_uint8(tvb, ptvcursor_current_offset(ptv));
+            guid |= (uint64_t)tvb_get_uint8(tvb, ptvcursor_current_offset(ptv)) << (8 * i);
             ptvcursor_advance(ptv, 1);
         }
     }
 
-    tvbuff_t* next_tvb = tvb_new_child_real_data(tvb, (uint8_t*)guid, 8, 8);
-    add_new_data_source(pinfo, next_tvb, "Packed Guid");
-
-    proto_tree_add_item(tree, hf_woww_guid, next_tvb, 0, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_uint64(tree, hf_woww_guid, tvb, start, ptvcursor_current_offset(ptv) - start, guid);
 }
 
 static void
@@ -18945,7 +18925,7 @@ add_header_to_tree(WowwDecryptedHeader_t* decrypted_header,
                    int start_offset)
 {
     // Size field does not count in the reported size, so we need to add it.
-    const uint16_t packet_size = (decrypted_header->size[0] << 8 | decrypted_header->size[1]) + WOWW_HEADER_SIZE_FIELD_WIDTH;
+    const unsigned packet_size = (decrypted_header->size[0] << 8 | decrypted_header->size[1]) + WOWW_HEADER_SIZE_FIELD_WIDTH;
 
     proto_tree* ti = proto_tree_add_item(tree, proto_woww, tvb, start_offset, packet_size, ENC_NA);
 
