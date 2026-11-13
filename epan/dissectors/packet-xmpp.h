@@ -15,6 +15,8 @@
 #include <epan/expert.h>
 
 #define ETT_UNKNOWN_LEN 20
+/* Maximum nesting of XML elements converted to xmpp_element_t */
+#define XMPP_MAX_ELEMENT_DEPTH 64
 
 /*#define XMPP_DEBUG*/
 
@@ -334,6 +336,7 @@ extern expert_field ei_xmpp_proceed_already_in_frame;
 extern expert_field ei_xmpp_starttls_already_in_frame;
 extern expert_field ei_xmpp_packet_without_response;
 extern expert_field ei_xmpp_unknown_element;
+extern expert_field ei_xmpp_too_deep;
 extern expert_field ei_xmpp_field_unexpected_value;
 extern expert_field ei_xmpp_unknown_attribute;
 extern expert_field ei_xmpp_required_attribute;
