@@ -18,6 +18,7 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <math.h>
 
@@ -298,6 +299,7 @@ static int ett_gps_ascii;
 static int ett_assoc_lists;
 static int ett_pol;
 static int ett_ver;
+static int ett_spectrum;
 
 /* constants (unit conversion) */
 static const double FEMTOSEC_PER_SEC = 1e-15;
@@ -311,21 +313,6 @@ static const double RADIX_METER_UNSIGNED = 1.0/64.0;
 static const double RADIX_METERS_PER_SECOND = 1.0/65536.0;
 static const double RADIX_RADIAN_PHASE = 1.0/128.0;
 static const double RADIX_RADIAN_POL = 1.0/8192.0;
-
-/* constants (tree index) */
-static const int ETT_IDX_GAIN = 8;
-static const int ETT_IDX_DEVICE_ID = 9;
-static const int ETT_IDX_STATE_EVENT = 10;
-static const int ETT_IDX_SIGNAL_DATA_FORMAT = 11;
-static const int ETT_IDX_GPS = 12;
-static const int ETT_IDX_INS = 13;
-static const int ETT_IDX_ECEF_EPHEM = 14;
-static const int ETT_IDX_REL_EPHEM = 15;
-static const int ETT_IDX_GPS_ASCII = 16;
-static const int ETT_IDX_ASSOC_LISTS = 17;
-static const int ETT_IDX_POL = 18;
-static const int ETT_IDX_SPECTRUM = 19;
-static const int ETT_IDX_VER = 20;
 
 static const value_string packet_types[] = {
     {0x00, "IF data packet without stream ID"},
@@ -727,10 +714,20 @@ static int dissect_context_as_cif(tvbuff_t *tvb, proto_tree *tree, int offset, u
     return offset;
 }
 
+/* Convert a word count from the packet to a byte count that must fit in the
+ * remaining data (after 'hdr' header bytes at offset). */
+static int vrt_words_to_bytes(tvbuff_t *tvb, int offset, uint32_t words, int hdr) {
+    int remaining = tvb_reported_length_remaining(tvb, offset);
+    if (remaining < hdr || words > (uint32_t)(remaining - hdr) / 4) {
+        THROW(ReportedBoundsError);
+    }
+    return (int)(words * 4);
+}
+
 static int dissect_context_array_of_records(proto_tree *tree _U_, tvbuff_t *tvb, int offset) {
     // This is a placeholder that does not populate a proto tree, but computes & returns the
     // variable field length so subsequent field indexing is correct.
-    return tvb_get_ntohl(tvb, offset)*4;
+    return vrt_words_to_bytes(tvb, offset, tvb_get_ntohl(tvb, offset), 0);
 }
 
 static int dissect_context_assoc_lists(proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -743,8 +740,9 @@ static int dissect_context_assoc_lists(proto_tree *tree, tvbuff_t *tvb, int offs
     bool a_bit = (word2 & 0x8000) != 0;
     uint32_t asy_size = word2 & 0x7FFF;
     uint32_t num_words = src_size + sys_size + vec_size + asy_size + (a_bit ? asy_size : 0);
+    vrt_words_to_bytes(tvb, offset, num_words, 8);
 
-    proto_tree *assoc_tree = proto_tree_add_subtree(tree, tvb, offset, 8 + num_words*4, ETT_IDX_ASSOC_LISTS, NULL,
+    proto_tree *assoc_tree = proto_tree_add_subtree(tree, tvb, offset, 8 + num_words*4, ett_assoc_lists, NULL,
                                                     "Context association lists");
     proto_tree_add_item(assoc_tree, hf_vrt_context_assoc_lists_src_size, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(assoc_tree, hf_vrt_context_assoc_lists_sys_size, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -917,14 +915,14 @@ static int dissect_context_cif1(proto_tree *tree, tvbuff_t *tvb, int offset) {
 }
 
 static int dissect_context_device_id(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *id_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ETT_IDX_DEVICE_ID, NULL, "Device identifier");
+    proto_tree *id_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_device_id, NULL, "Device identifier");
     proto_tree_add_item(id_tree, hf_vrt_context_device_id_oui, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(id_tree, hf_vrt_context_device_id_code, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
     return 0;
 }
 
 static int dissect_context_ecef_ephemeris(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *ecef_tree = proto_tree_add_subtree(tree, tvb, offset, 52, ETT_IDX_ECEF_EPHEM, NULL, "ECEF ephemeris");
+    proto_tree *ecef_tree = proto_tree_add_subtree(tree, tvb, offset, 52, ett_ecef_ephem, NULL, "ECEF ephemeris");
     dissect_context_ephemeris(&hf_vrt_context_ecef_ephemeris, ecef_tree, tvb, offset);
     return 0;
 }
@@ -977,21 +975,22 @@ static void dissect_context_formatted_gps_ins(const formatted_gps_ins_fields *s,
 }
 
 static int dissect_context_gain(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *gain_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ETT_IDX_GAIN, NULL, "Gain");
+    proto_tree *gain_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_gain, NULL, "Gain");
     proto_tree_add_item(gain_tree, hf_vrt_context_gain_stage2, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(gain_tree, hf_vrt_context_gain_stage1, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     return 0;
 }
 
 static int dissect_context_gps(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *gps_tree = proto_tree_add_subtree(tree, tvb, offset, 44, ETT_IDX_GPS, NULL, "Formatted GPS");
+    proto_tree *gps_tree = proto_tree_add_subtree(tree, tvb, offset, 44, ett_gps, NULL, "Formatted GPS");
     dissect_context_formatted_gps_ins(&hf_vrt_context_gps, gps_tree, tvb, offset);
     return 0;
 }
 
 static int dissect_context_gps_ascii(proto_tree *tree, tvbuff_t *tvb, int offset) {
     uint32_t nword = tvb_get_ntohl(tvb, offset + 4);
-    proto_tree *gps_tree = proto_tree_add_subtree(tree, tvb, offset, 8 + nword*4, ETT_IDX_GPS_ASCII, NULL, "GPS ASCII");
+    vrt_words_to_bytes(tvb, offset, nword, 8);
+    proto_tree *gps_tree = proto_tree_add_subtree(tree, tvb, offset, 8 + nword*4, ett_gps_ascii, NULL, "GPS ASCII");
     proto_tree_add_item(gps_tree, hf_vrt_context_gps_ascii_oui, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(gps_tree, hf_vrt_context_gps_ascii_size, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 
@@ -1003,7 +1002,7 @@ static int dissect_context_gps_ascii(proto_tree *tree, tvbuff_t *tvb, int offset
 }
 
 static int dissect_context_ins(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *ins_tree = proto_tree_add_subtree(tree, tvb, offset, 44, ETT_IDX_INS, NULL, "Formatted INS");
+    proto_tree *ins_tree = proto_tree_add_subtree(tree, tvb, offset, 44, ett_ins, NULL, "Formatted INS");
     dissect_context_formatted_gps_ins(&hf_vrt_context_ins, ins_tree, tvb, offset);
     return 0;
 }
@@ -1014,7 +1013,7 @@ static int dissect_context_phase_offset(proto_tree *tree, tvbuff_t *tvb, int off
 }
 
 static int dissect_context_polarization(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *pol_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ETT_IDX_POL, NULL, "Polarization");
+    proto_tree *pol_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_pol, NULL, "Polarization");
     proto_tree_add_item(pol_tree, hf_vrt_context_pol_tilt, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(pol_tree, hf_vrt_context_pol_ellipticity, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     return 0;
@@ -1026,13 +1025,13 @@ static int dissect_context_ref_level(proto_tree *tree, tvbuff_t *tvb, int offset
 }
 
 static int dissect_context_rel_ephemeris(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *rel_tree = proto_tree_add_subtree(tree, tvb, offset, 52, ETT_IDX_REL_EPHEM, NULL, "Relative ephemeris");
+    proto_tree *rel_tree = proto_tree_add_subtree(tree, tvb, offset, 52, ett_rel_ephem, NULL, "Relative ephemeris");
     dissect_context_ephemeris(&hf_vrt_context_rel_ephemeris, rel_tree, tvb, offset);
     return 0;
 }
 
 static int dissect_context_signal_data_format(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *format_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ETT_IDX_SIGNAL_DATA_FORMAT, NULL,
+    proto_tree *format_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_signal_data_format, NULL,
                                                      "Signal data packet payload format");
     proto_tree_add_item(format_tree, hf_vrt_context_signal_data_format_packing, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(format_tree, hf_vrt_context_signal_data_format_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1054,7 +1053,7 @@ static int dissect_context_signal_data_format(proto_tree *tree, tvbuff_t *tvb, i
 }
 
 static int dissect_context_state_event(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *state_event_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ETT_IDX_STATE_EVENT, NULL,
+    proto_tree *state_event_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_state_event, NULL,
                                                           "State and event indicators");
     proto_tree_add_item(state_event_tree, hf_vrt_context_state_event_en_cal_time, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(state_event_tree, hf_vrt_context_state_event_en_valid_data, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1084,7 +1083,7 @@ static int dissect_context_temperature(proto_tree *tree, tvbuff_t *tvb, int offs
 }
 
 static int dissect_context_ver(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *ver_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ETT_IDX_VER, NULL,
+    proto_tree *ver_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_ver, NULL,
                                                   "Version and build code");
     proto_tree_add_item(ver_tree, hf_vrt_context_ver_year, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ver_tree, hf_vrt_context_ver_day, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1094,7 +1093,7 @@ static int dissect_context_ver(proto_tree *tree, tvbuff_t *tvb, int offset) {
 }
 
 static int dissect_context_spectrum(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    proto_tree *spectrum_tree = proto_tree_add_subtree(tree, tvb, offset, 52, ETT_IDX_SPECTRUM, NULL, "Spectrum");
+    proto_tree *spectrum_tree = proto_tree_add_subtree(tree, tvb, offset, 52, ett_spectrum, NULL, "Spectrum");
     proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_spectrum_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_window_type, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(spectrum_tree, hf_vrt_context_spectrum_num_transform_points, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
@@ -1165,6 +1164,9 @@ static void format_second(char *str, int64_t val) {
 
 static const char* get_engr_prefix(double *val) {
     const char* prefix_str = "";
+    if (*val == 0.0 || !isfinite(*val)) {
+        return "";
+    }
     int32_t exp = (int32_t)floor(log10(fabs(*val))/(double)3.0)*3;
 
     switch (exp) {
@@ -2759,7 +2761,6 @@ proto_register_vrt(void)
         }
     };
 
-    // update ETT_IDX_* as new items added to track indices
     static int *ett[] = {
         &ett_vrt,
         &ett_header,
@@ -2769,18 +2770,19 @@ proto_register_vrt(void)
         &ett_cid,
         &ett_cif0,
         &ett_cif1,
-        &ett_gain, // ETT_IDX_GAIN
-        &ett_device_id,  // ETT_IDX_DEVICE_ID
-        &ett_state_event, // ETT_IDX_STATE_EVENT
-        &ett_signal_data_format, // ETT_IDX_SIGNAL_DATA_FORMAT
-        &ett_gps, // ETT_IDX_GPS
-        &ett_ins, // ETT_IDX_INS
-        &ett_ecef_ephem, // ETT_IDX_ECEF_EPHEM
-        &ett_rel_ephem, // ETT_IDX_REL_EPHEM
-        &ett_gps_ascii, // ETT_IDX_GPS_ASCII
-        &ett_assoc_lists, // ETT_IDX_ASSOC_LISTS
-        &ett_pol, // ETT_IDX_POL
-        &ett_ver, // ETT_IDX_VER
+        &ett_gain,
+        &ett_device_id,
+        &ett_state_event,
+        &ett_signal_data_format,
+        &ett_gps,
+        &ett_ins,
+        &ett_ecef_ephem,
+        &ett_rel_ephem,
+        &ett_gps_ascii,
+        &ett_assoc_lists,
+        &ett_pol,
+        &ett_ver,
+        &ett_spectrum,
      };
 
     proto_vrt = proto_register_protocol ("VITA 49 radio transport protocol", "VITA 49", "vrt");
