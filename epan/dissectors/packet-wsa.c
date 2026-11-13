@@ -348,8 +348,9 @@ dissect_wsa_location(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool w
     v = wsa_add_int(tree, hf_wsa_latitude, tvb, &bo, 31, LAT_MIN, &pi);
     if (v > LAT_UNAVAIL)
         expert_add_info(pinfo, pi, &ei_wsa_lat_range);
-    v = wsa_add_int(tree, hf_wsa_longitude, tvb, &bo, 32, LON_MIN, &pi);
-    if (v > LON_UNAVAIL)
+    int64_t lon = (int64_t)tvb_get_bits32(tvb, bo, 32, ENC_BIG_ENDIAN) + LON_MIN;
+    wsa_add_int(tree, hf_wsa_longitude, tvb, &bo, 32, LON_MIN, &pi);
+    if (lon > LON_UNAVAIL)
         expert_add_info(pinfo, pi, &ei_wsa_lon_range);
     if (with_elev)
         wsa_add_int(tree, hf_wsa_elevation, tvb, &bo, 16, ELEV_MIN, NULL);
