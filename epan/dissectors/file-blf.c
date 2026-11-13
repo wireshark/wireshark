@@ -183,6 +183,7 @@ static int hf_blf_canxl_data;
 static expert_field ei_blf_file_header_length_too_short;
 static expert_field ei_blf_object_header_length_too_short;
 static expert_field ei_blf_object_length_less_than_header_length;
+static expert_field ei_blf_nested_container;
 
 static int ett_blf;
 static int ett_blf_header;
@@ -498,7 +499,7 @@ static const value_string blf_direction[] = {
 
 void proto_register_file_blf(void);
 void proto_reg_handoff_file_blf(void);
-static int dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t *frame_number);
+static int dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t *frame_number, bool in_container);
 
 #define MAGIC_NUMBER_SIZE 4
 static const uint8_t blf_file_magic[MAGIC_NUMBER_SIZE] = { 'L', 'O', 'G', 'G' };
@@ -526,12 +527,18 @@ dissect_blf_header_date(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *
     tm.tm_year = year;
     if (tm.tm_year != 0)
         tm.tm_year -= 1900;
-    tm.tm_mon            = tvb_get_letohs(tvb, offset +  2);
-    tm.tm_wday           = tvb_get_letohs(tvb, offset +  4);
-    tm.tm_mday           = tvb_get_letohs(tvb, offset +  6);
-    tm.tm_hour           = tvb_get_letohs(tvb, offset +  8);
-    tm.tm_min            = tvb_get_letohs(tvb, offset + 10);
-    tm.tm_sec            = tvb_get_letohs(tvb, offset + 12);
+    uint16_t month       = tvb_get_letohs(tvb, offset +  2);
+    uint16_t wday        = tvb_get_letohs(tvb, offset +  4);
+    uint16_t mday        = tvb_get_letohs(tvb, offset +  6);
+    uint16_t hour        = tvb_get_letohs(tvb, offset +  8);
+    uint16_t min         = tvb_get_letohs(tvb, offset + 10);
+    uint16_t sec         = tvb_get_letohs(tvb, offset + 12);
+    tm.tm_mon            = month > 0 ? month - 1 : 0; /* SYSTEMTIME months are 1-12 */
+    tm.tm_wday           = wday;
+    tm.tm_mday           = mday;
+    tm.tm_hour           = hour;
+    tm.tm_min            = min;
+    tm.tm_sec            = sec;
     tm.tm_isdst          = -1; // Let mktime() determine if DST is in effect
     uint16_t ms = tvb_get_letohs(tvb, offset + 14);
 
@@ -540,8 +547,8 @@ dissect_blf_header_date(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *
 
     return proto_tree_add_time_format_value(tree, hf, tvb, offset, length, &ns_ts,
                                             "%s %d-%02d-%02d %02d:%02d:%02d.%03d",
-                                            val_to_str(pinfo->pool, tm.tm_mday, weekday_names, "%d"),
-                                            year, tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ms);
+                                            val_to_str(pinfo->pool, wday, weekday_names, "%d"),
+                                            year, month, mday, hour, min, sec, ms);
 }
 
 static void
@@ -563,7 +570,7 @@ version_format(char* string, uint32_t value)
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset_orig, uint32_t *frame_number) {
+dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset_orig, uint32_t *frame_number, bool in_container) {
     proto_item    *ti_root = NULL;
     proto_item    *ti = NULL;
     proto_item    *ti_lobj_hdr;
@@ -571,6 +578,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
     proto_tree    *subtree = NULL;
     volatile int   offset = offset_orig;
     tvbuff_t      *sub_tvb;
+    unsigned       cont_len;
 
     uint32_t       hdr_length;
     uint32_t       hdr_type;
@@ -674,10 +682,21 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             offset += 4;
             proto_tree_add_item(objtree, hf_blf_cont_res4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
+            if (obj_length < (uint32_t)(offset - offset_orig)) {
+                expert_add_info(pinfo, ti_root, &ei_blf_object_length_less_than_header_length);
+                break;
+            }
+            if (in_container && comp_method != BLF_COMPRESSION_NONE) {
+                /* Real writers do not nest compressed containers; refuse to
+                 * decompress again (decompression bomb). */
+                expert_add_info(pinfo, ti_root, &ei_blf_nested_container);
+                break;
+            }
+            cont_len = offset_orig + obj_length - offset;
             if (comp_method == BLF_COMPRESSION_NONE) {
-                sub_tvb = tvb_new_subset_length(tvb, offset, offset_orig + obj_length - offset);
+                sub_tvb = tvb_new_subset_length(tvb, offset, cont_len);
             } else {
-                sub_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, offset_orig + obj_length - offset);
+                sub_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, cont_len);
                 if (sub_tvb) {
                     add_new_data_source(pinfo, sub_tvb, "Decompressed Data");
                 }
@@ -686,12 +705,12 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             /* TODO: actually the objects might overlap containers, which we do not consider here... */
             if (sub_tvb && tvb_captured_length(sub_tvb) > 0) {
                 unsigned offset_sub = 0;
-                ti = proto_tree_add_item(objtree, hf_blf_cont_payload, sub_tvb, 0, offset_orig + obj_length - offset, ENC_NA);
+                ti = proto_tree_add_item(objtree, hf_blf_cont_payload, sub_tvb, 0, tvb_captured_length(sub_tvb), ENC_NA);
                 subtree = proto_item_add_subtree(ti, ett_blf_logcontainer_payload);
 
                 unsigned tmp = 42;
-                while ((offset_sub + 16 <= offset_orig + obj_length - offset) && (tmp > 0)) {
-                    tmp = dissect_blf_next_object(sub_tvb, pinfo, subtree, offset_sub, frame_number);
+                while ((offset_sub + 16 <= tvb_captured_length(sub_tvb)) && (tmp > 0)) {
+                    tmp = dissect_blf_next_object(sub_tvb, pinfo, subtree, offset_sub, frame_number, true);
                     offset_sub += tmp;
                 }
             }
@@ -1136,7 +1155,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t *frame_number) {
+dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t *frame_number, bool in_container) {
     int offset_orig = offset;
 
     while (tvb_captured_length_remaining(tvb, offset) >= 16) {
@@ -1144,7 +1163,7 @@ dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             offset += 1;
         } else {
             increment_dissection_depth(pinfo);
-            int bytes_parsed = dissect_blf_lobj(tvb, pinfo, tree, offset, frame_number);
+            int bytes_parsed = dissect_blf_lobj(tvb, pinfo, tree, offset, frame_number, in_container);
             decrement_dissection_depth(pinfo);
             if (bytes_parsed <= 0) {
                 return 0;
@@ -1212,7 +1231,7 @@ dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     offset += 8;
 
     uint32_t frame_number = 1;
-    offset += dissect_blf_next_object(tvb, pinfo, blf_tree, offset, &frame_number);
+    offset += dissect_blf_next_object(tvb, pinfo, blf_tree, offset, &frame_number, false);
 
     return offset;
 }
@@ -1718,6 +1737,10 @@ proto_register_file_blf(void) {
         { &ei_blf_object_length_less_than_header_length,
             { "blf.object_length_less_than_header_length", PI_MALFORMED, PI_ERROR,
                 "object length is less than the object header length",
+                EXPFILL }},
+        { &ei_blf_nested_container,
+            { "blf.nested_container", PI_MALFORMED, PI_WARN,
+                "compressed log container nested in a log container is not decompressed",
                 EXPFILL }},
     };
 
