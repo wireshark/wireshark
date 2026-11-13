@@ -1280,8 +1280,8 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
 
       /* Add message type to the Common Msg-Header line */
       proto_item_append_text(common_header_item, " (%s)",val_to_str_const(message_class * 256 + message_type, msg_class_type_values, "Unknown Msg-Type"));
-      messageclassCopy = message_class;
    }
+   messageclassCopy = message_class;
 
    /* the following info are required to dissect IUA-Draft messages.
       In the DRAFT-Specification V5UA-Parameters are not separated by Tag-Length-Header (as defined in RFC-Spec) */
@@ -1352,6 +1352,11 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
    /* detect version of IUA */
    iua_version = RFC;
+   dlci_efa = -1;
+   linkIdentifier = -1;
+   messageclassCopy = -1;
+   sa_bit_id = -1;
+   link_status_operational = -1;
    offset = COMMON_HEADER_LENGTH;
 
    remaining_length = tvb_reported_length_remaining(tvb, offset);
