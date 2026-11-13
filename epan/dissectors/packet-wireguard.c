@@ -719,13 +719,13 @@ wg_keylog_process_lines(const void *data, unsigned datalen)
 
         /* Strip leading spaces. */
         const char *p = line;
-        while (p < line_end && *p == ' ') {
+        while (p < line + linelen && *p == ' ') {
             ++p;
         }
         char key_type[sizeof("LOCAL_EPHEMERAL_PRIVATE_KEY")];
         char key_value[45] = { 0 };
         const char *p0 = p;
-        p = (const char *)memchr(p0, '=', line_end - p);
+        p = (const char *)memchr(p0, '=', (size_t)((line + linelen) - p));
         if (p && p0 != p) {
             /* Extract "key-type" from "key-type = key-value" */
             size_t key_type_len = p - p0;
@@ -738,7 +738,7 @@ wg_keylog_process_lines(const void *data, unsigned datalen)
 
                 /* Skip '=' and any spaces. */
                 p = p + 1;
-                while (p < line_end && *p == ' ') {
+                while (p < line + linelen && *p == ' ') {
                     ++p;
                 }
                 size_t key_value_len = (line + linelen) - p;
@@ -1438,7 +1438,7 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
 
     if (!PINFO_FD_VISITED(pinfo)) {
         session = wg_sessions_lookup_initiation(pinfo, receiver_id);
-        if (session && session->hs) {
+        if (session && session->hs && session->hs->initiator_skey) {
             wg_prepare_handshake_responder_keys(session->hs, tvb);
             wg_process_response(tvb, session->hs);
         }
