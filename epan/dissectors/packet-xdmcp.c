@@ -125,7 +125,7 @@ static int xdmcp_add_bytes(proto_tree *tree, int hf_byte, int hf_length,
   len = tvb_get_ntohs(tvb, offset);
 
   proto_tree_add_item(tree, hf_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(tree, hf_byte, tvb, offset, len+2, ENC_NA);
+  proto_tree_add_item(tree, hf_byte, tvb, offset+2, len, ENC_NA);
   return len+2;
 }
 
