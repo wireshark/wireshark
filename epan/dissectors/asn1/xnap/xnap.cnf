@@ -84,6 +84,10 @@ ProtocolIE-ContainerPairList
   struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
   xnap_data->message_type = UNSUCCESSFUL_OUTCOME;
 
+#.FN_HDR PrivateIE-ID
+  actx->external.direct_ref_present = false;
+  actx->external.direct_reference = NULL;
+
 #.FN_BODY PrivateIE-ID/global  FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
 %(DEFAULT_BODY)s
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;

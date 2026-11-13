@@ -4644,6 +4644,9 @@ static const per_choice_t PrivateIE_ID_choice[] = {
 
 static unsigned
 dissect_xnap_PrivateIE_ID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  actx->external.direct_ref_present = false;
+  actx->external.direct_reference = NULL;
+
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_xnap_PrivateIE_ID, PrivateIE_ID_choice,
                                  NULL);
