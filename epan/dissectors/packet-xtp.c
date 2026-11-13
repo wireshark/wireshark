@@ -488,7 +488,7 @@ dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* alloc(8) */
 	proto_tree_add_uint64(xtp_subtree, hf_xtp_tcntl_alloc,
 			tvb, offset, 8, tcntl->alloc);
-	offset += 4;
+	offset += 8;
 	/* echo(4) */
 	proto_tree_add_uint(xtp_subtree, hf_xtp_tcntl_echo,
 			tvb, offset, 4, tcntl->echo);
@@ -690,7 +690,7 @@ dissect_xtp_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* alloc(8) */
 	proto_tree_add_uint64(xtp_subtree, hf_xtp_cntl_alloc,
 			tvb, offset, 8, cntl->alloc);
-	offset += 4;
+	offset += 8;
 	/* echo(4) */
 	proto_tree_add_uint(xtp_subtree, hf_xtp_cntl_echo,
 			tvb, offset, 4, cntl->echo);
@@ -792,10 +792,10 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* spans(16n) */
 	for (i = 0; i < ecntl->nspan; i++) {
 		proto_tree_add_item(xtp_subtree, hf_xtp_ecntl_span_left,
-				tvb, offset, 8, ENC_LITTLE_ENDIAN);
+				tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset += 8;
 		proto_tree_add_item(xtp_subtree, hf_xtp_ecntl_span_right,
-				tvb, offset, 8, ENC_LITTLE_ENDIAN);
+				tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset += 8;
 	}
 
