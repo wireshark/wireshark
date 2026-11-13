@@ -1023,7 +1023,7 @@ PS$> choco install wixtoolset
 ----
 
 Wireshark’s .msi packaging is currently experimental and the generated packages may be incomplete.
-Packages reqire a compatible version of the Visual {cpp} Redistributable.
+Packages require a compatible version of the Visual {cpp} Redistributable.
 If one is not present the installer will exit.
 See <<msvc-runtime-redistributable>> for more details.
 

@@ -776,7 +776,7 @@ Currently there are several types of groups defined, e.g. `checksum`, `sequence`
 
 Not every noteworthy field value is of equal severity. The start of a session
 is nice to know, while an invalid value may be significant error in the protocol.
-To differentiate between these severties the expert item is assigned one of them:
+To differentiate between these severities the expert item is assigned one of them:
 `comment`, `chat`, `note`, `warn` or `error`. Try to choose the lowest one which
 is suitable. The topic you're currently working on seems probably more important
 than it will look like in a few weeks.
