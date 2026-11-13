@@ -1174,6 +1174,7 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, unsigned offset
             NULL
     };
     uint8_t     count;
+    unsigned    mask_len;
     proto_item *ti;
 
     uint8_t control = tvb_get_uint8(tvb, offset);
@@ -1247,9 +1248,9 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, unsigned offset
             break;
 
         case WISUN_CHANNEL_EXCLUDE_MASK:
-            count = tvb_reported_length_remaining(tvb, offset);
-            proto_tree_add_item(tree, hf_wisun_usie_exclude_mask, tvb, offset, count, ENC_NA);
-            offset += count;
+            mask_len = tvb_reported_length_remaining(tvb, offset);
+            proto_tree_add_item(tree, hf_wisun_usie_exclude_mask, tvb, offset, mask_len, ENC_NA);
+            offset += mask_len;
             break;
 
         default:
@@ -1840,7 +1841,10 @@ static int dissect_wisun_netricity_sc(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
         if (reframe) {
             call_dissector(ieee802154_nofcs_handle, reframe, pinfo, tree);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (Reassembled %u segments)", seg_count + 1);
+            unsigned nfrags = 0;
+            for (fragment_item *fi = frag_msg ? frag_msg->next : NULL; fi; fi = fi->next)
+                nfrags++;
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Reassembled %u segments)", nfrags);
         } else {
             call_data_dissector(tvb_new_subset_remaining(frame, mhr_len), pinfo, subtree);
             col_append_fstr(pinfo->cinfo, COL_INFO, " (Segment %u)", seg_count);
