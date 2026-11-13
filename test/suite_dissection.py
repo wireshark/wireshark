@@ -162250,3 +162250,58 @@ class TestDissectVcdu:
             '19\t0\t2\t0\t3\t1\tFalse\tFalse\tFalse',
             '20\t0\t2\t0\t31\t1\tFalse\tFalse\tFalse',
         ]
+
+
+class TestDissectVicp:
+    def test_vicp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Two TCP sessions to port 1861: 19 segments carry a VICP header
+        (a 7 octet segment is too short for one and stays TCP payload).
+        None is malformed or has an error expert info, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vicp_coverage.pcap.gz'),
+                    '-Y', 'vicp',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 19
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vicp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_vicp_header(self, cmd_tshark, capture_file, test_env):
+        '''Operation flags, version, sequence number, the unused octet and
+        the data length, for commands, replies, an empty block, a large
+        waveform block and two blocks in one segment (only the first
+        header is decoded, its length covers the first block only).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vicp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 6, 16, 26, 30, 32, 34, 38}',
+                '-Tfields', '-eframe.number', '-evicp.operation',
+                '-evicp.version', '-evicp.sequence', '-evicp.unused',
+                '-evicp.length', '-evicp.data',
+            ), encoding='utf-8', env=test_env)
+        lines = [line[:78] for line in stdout.splitlines()]
+        assert lines == [
+            '4\t0x81\t1\t1\t0x00\t5\t2a49444e3f',
+            '6	0x81	1	1	0x00	29	4c4543524f592c575231303458692c4c435259303030312c312e302e30',
+            '16\t0x41\t1\t5\t0x55\t0\t<MISSING>',
+            '26\t0x81\t1\t8\t0x00\t1400\t000102030405060708090a0b0c0d0e0f101112131415161718191a1b',
+            '30\t0x81\t2\t9\t0x00\t0\t<MISSING>',
+            '32\t0x80\t1\t10\t0x00\t6\t666972737420',
+            '34\t0xff\t1\t255\t0x00\t1\t58',
+            '38\t0x81\t1\t11\t0x00\t0\t<MISSING>',
+        ]
+
+    def test_vicp_version(self, cmd_tshark, capture_file, test_env):
+        '''The protocol version octet is shown as is (version 2 in frames
+        28 and 30).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vicp_coverage.pcap.gz'),
+                '-Y', 'vicp.version == 2',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['28', '30']
