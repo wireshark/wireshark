@@ -167221,3 +167221,169 @@ class TestDissectWsmp:
         lines = self.fields(cmd_tshark, capture_file, test_env,
                             'frame.protocols contains "ieee1609dot2"')
         assert lines == ['13', '14', '15', '16', '19', '20', '24']
+
+
+class TestDissectWsp:
+    '''WSP: connectionless on UDP 9200 and 2948, connection oriented inside
+    WTP on UDP 9201, from the synthetic capture wsp_coverage.pcap.gz.
+    It has every PDU type, a sample of every well-known header (one frame
+    per value form), the Openwave header code page, content type
+    parameters, capabilities, redirects with the conversation they set up,
+    Session Initiation Requests, push to CoAP and MMS messages whose
+    content type is a multipart or form type.'''
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wsp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_wsp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 586 frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 586
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'WSP': 501, 'WTP+WSP': 75, 'WTP+WSP/XML': 1,
+                          'MMSE': 8, 'CoAP': 1}
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_wsp_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the PDU types and the reply status codes.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = dict(l.split('\t', 1) for l in stdout.splitlines())
+        assert info['479'] == 'WSP Get (0x40) http://example.com/nohdr'
+        assert info['480'].startswith('WSP Options (0x41)')
+        assert info['481'].startswith('WSP Head (0x42)')
+        assert info['482'].startswith('WSP Delete (0x43)')
+        assert info['483'].startswith('WSP Trace (0x44)')
+        assert info['484'].startswith('WSP Extended Get Method 0 (0x50)')
+        assert info['487'].startswith('WSP Put (0x61)')
+        assert info['489'].startswith('WSP Extended Post Method 15 (0x7f)')
+        assert info['516'] == 'WSP Reply (0x04): 404 Not Found (0x44) (text/plain)'
+        assert info['539'] == 'WSP Reply (0x04): 504 Gateway Timeout (0x64) (text/plain)'
+        assert info['577'] == 'WSP Redirect (0x03)'
+        assert info['583'].startswith('WSP Unknown PDU type (0x20)')
+
+    def test_wsp_headers(self, cmd_tshark, capture_file, test_env):
+        '''A sample of the well-known header encodings: short integer,
+        long integer, text, value with length, credentials, ranges.'''
+        def fields(uri, *names):
+            stdout = self.run(cmd_tshark, capture_file, test_env,
+                    '-Y', 'wsp.uri==http://example.com/' + uri, '-Tfields',
+                    *(a for n in names for a in ('-e', n)))
+            return stdout.rstrip('\n').split('\t')
+        assert fields('h5_0', 'wsp.header.age') == ['5 seconds']
+        assert fields('h5_1', 'wsp.header.age') == ['300 seconds']
+        assert fields('h13_1', 'wsp.header.content_length') == ['300']
+        assert fields('h2_4', 'wsp.header.accept_encoding') == ['br']
+        assert fields('h7_0', 'wsp.header.authorization',
+                      'wsp.header.authorization.user_id',
+                      'wsp.header.authorization.password') == ['basic', 'user', 'pw']
+        assert fields('h15_0', 'wsp.header.content_md5') == ['000102030405060708090a0b0c0d0e0f']
+        assert fields('h35_0', 'wsp.header.range.first_byte_pos',
+                      'wsp.header.range.last_byte_pos') == ['5', '10']
+        assert fields('h44_0', 'wsp.header.warning') == ['110 Response is stale']
+        assert fields('h52_5', 'wsp.header.push_flag') == [
+            ' (Initiator URI authenticated) (Content trusted) (Last push message)']
+        assert fields('h52_6', 'wsp.header.push_flag') == [' <Warning: Reserved flags set>']
+        assert fields('text', 'wsp.header.name_string', 'wsp.header_text_value') == [
+            'X-Custom,x-other', 'value,v2']
+        assert fields('h64_0', 'wsp.header.content_id') == ['<cid@x>']
+        # Content-Type style headers with parameters: charset, q, name, ...
+        assert fields('h0_4', 'wsp.header.accept', 'wsp.parameter.q',
+                      'wsp.parameter.sec') == ['application/vnd.wap.wmlc', '0.80,0.801', '0x02']
+
+    def test_wsp_openwave(self, cmd_tshark, capture_file, test_env):
+        '''The Openwave header code page (selected with the short and the
+        long code page shift).'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wsp.header.x_up_1.x_up_proxy_home_page', '-Tfields',
+                '-ewsp.uri', '-ewsp.header.x_up_1.x_up_proxy_home_page')
+        assert stdout.splitlines() == ['http://example.com/ow5_0\tv']
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wsp.header.x_up_1.x_up_devcap_screen_pixels', '-Tfields',
+                '-ewsp.header.x_up_1.x_up_devcap_screen_pixels')
+        assert stdout.splitlines()[:2] == ['1', '300']
+
+    def test_wsp_old_tod(self, cmd_tshark, capture_file, test_env):
+        '''The old style X-Wap-Tod header (textual name, binary value).'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wsp.uri==http://example.com/oldtod0', '-Tfields',
+                '-ewsp.header.name_string', '-e_ws.expert.message')
+        assert stdout.strip() == 'x-wap.tod\tShould be encoded as a textual value'
+
+    def test_wsp_q_value_zero(self, cmd_tshark, capture_file, test_env):
+        '''Q=0 is invalid and is shown as such (it used to show
+        q=0.4294967295), and the SEC parameter reads its own value octet
+        (both fixed by "WSP: Fix Q-value 0 and SEC parameter offset").'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wsp.uri==http://example.com/q0', '-Tfields',
+                '-ewsp.parameter.q', '-e_ws.expert.message')
+        assert stdout.strip('\n') == '\tInvalid Q parameter value: invalid Q-value'
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wsp.uri==http://example.com/sec', '-Tfields',
+                '-ewsp.parameter.sec')
+        assert stdout.strip() == '0x03'
+
+    def test_wsp_capabilities(self, cmd_tshark, capture_file, test_env):
+        '''Capabilities of the Connect and ConnectReply PDUs and the session
+        id of the reply.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number<=2', '-Tfields', '-eframe.number',
+                '-ewsp.capability.client_sdu_size',
+                '-ewsp.capability.server_sdu_size',
+                '-ewsp.capability.method_mor', '-ewsp.capability.push_mor',
+                '-ewsp.capability.extended_method',
+                '-ewsp.capability.client_message_size',
+                '-ewsp.capability.protocol_opt', '-ewsp.server.session_id')
+        assert stdout.splitlines() == [
+            '1\t1400\t1400\t3\t4\t0x40\t65536\t0xf8\t',
+            '2\t1400\t\t\t\t0x40,0x41\t\t\t4660']
+
+    def test_wsp_redirect(self, cmd_tshark, capture_file, test_env):
+        '''A Redirect sets up a conversation: the later frames to the
+        redirected address are dissected as WSP (connectionless and over
+        WTP).'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wsp.redirect.addresses', '-Tfields', '-eframe.number',
+                '-ewsp.address.ipv4', '-ewsp.address.port')
+        assert stdout.splitlines() == [
+            '577\t192.0.2.77\t7777', '579\t\t', '580\t\t7778,30', '581\t192.0.2.78\t7780']
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {578, 582}', '-Tfields',
+                '-eframe.number', '-e_ws.col.protocol', '-ewsp.uri')
+        assert stdout.splitlines() == [
+            '578\tWSP\thttp://example.com/redir', '582\tWTP+WSP\thttp://example.com/redir2']
+
+    def test_wsp_sir(self, cmd_tshark, capture_file, test_env):
+        '''Session Initiation Requests, version 0 and 1.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wap.sir.cpi_tag', '-Tfields', '-eframe.number',
+                '-ewap.sir.version', '-ewap.sir.prov_url', '-ewap.sir.cpi_tag')
+        assert stdout.splitlines() == [
+            '561\t1\thttp://prov/\t01020304,05060708',
+            '562\t1\thttp://prov/\t01020304,05060708']
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number==560', '-Tfields', '-ewap.sir.version',
+                '-ewsp.address.ipv4', '-ewsp.address.port')
+        assert stdout.strip() == '0\t192.0.2.1\t9201'
+
+    def test_wsp_push_and_mms(self, cmd_tshark, capture_file, test_env):
+        '''A push whose application id is lwm2m.dm is handed to CoAP; MMS
+        messages with a form or multipart content type use the WSP post
+        data code.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'coap', '-Tfields', '-eframe.number', '-ecoap.opt.uri_path')
+        assert stdout.strip() == '572\t0'
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wsp.variable_value', '-Tfields', '-eframe.number',
+                '-ewsp.variable_value')
+        assert stdout.splitlines() == ['568\t1,two,,5', '569\tx,']
