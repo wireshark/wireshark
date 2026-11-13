@@ -165479,3 +165479,76 @@ class TestDissectWho:
         host, *loads = stdout.split()
         assert host == 'build1.example.net:'
         assert [v.replace(',', '.') for v in loads] == ['1.50', '2.75', '10.00']
+
+
+class TestDissectWhois:
+    '''WHOIS on TCP port 43, from the synthetic capture
+    whois_coverage.pcap.gz: 7 connections with a query and an answer.'''
+
+    @staticmethod
+    def whois_fields(cmd_tshark, capture_file, test_env, fields, *args):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('whois_coverage.pcap.gz'),
+                '-Y', 'whois', '-Tfields', '-eframe.number', '-Eaggregator=|',
+                *(f'-e{f}' for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return {line.split('\t')[0]: line.split('\t')[1:] for line in stdout.splitlines()}
+
+    def test_whois_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The 7 queries and 7 answers decode without malformed packets or
+        error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('whois_coverage.pcap.gz'),
+                    '-Y', 'whois', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 14
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('whois_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_whois_query_answer(self, cmd_tshark, capture_file, test_env):
+        '''Queries (also one reassembled from two segments) and answers
+        (reassembled until the FIN), with the query matched to its answer.'''
+        rows = self.whois_fields(cmd_tshark, capture_file, test_env,
+                ('whois.query', 'whois.answer', 'whois.answer_to'))
+        assert rows['4'][0] == r'example.com\r\n'
+        assert rows['20'][0] == r'example.net\r\n'
+        assert rows['45'][0] == r'\r\n'
+        assert rows['12'][1].split('|')[:2] == [r'Domain Name: EXAMPLE.COM\r\n',
+                                                r'Registrar: Example Registrar, Inc.\r\n']
+        assert len(rows['12'][1].split('|')) == 5
+        assert len(rows['127'][1].split('|')) == 30
+        assert rows['135'][1] == r'a\n|b\n|c\n'
+        assert {k: v[2] for k, v in rows.items() if v[2]} == {
+            '12': '4', '26': '20', '38': '32', '47': '45', '58': '54',
+            '127': '65', '135': '133'}
+
+    def test_whois_answer_in_second_pass(self, cmd_tshark, capture_file, test_env):
+        '''The query shows the frame of its answer (known after the first
+        pass), and the response time is generated for the answer.'''
+        rows = self.whois_fields(cmd_tshark, capture_file, test_env,
+                ('whois.answer_in', 'whois.answer_to', 'whois.response_time'), '-2')
+        assert rows['4'][0] == '12'
+        assert rows['65'][0] == '127'
+        assert rows['12'][1] == '4'
+        assert rows['12'][2] != ''
+        assert rows['4'][2] == ''
+
+    def test_whois_twopass_no_desegment(self, cmd_tshark, capture_file, test_env):
+        '''Without TCP reassembly the request frame is recorded in the
+        first pass, so one pass and two passes agree. It used to be
+        recorded in the second pass only ("WHOIS: Record the request frame
+        on the first pass only").'''
+        opts = ('-o', 'tcp.desegment_tcp_streams:FALSE')
+        fields = ('whois.answer_to', 'whois.response_time')
+        one = self.whois_fields(cmd_tshark, capture_file, test_env, fields, *opts)
+        two = self.whois_fields(cmd_tshark, capture_file, test_env, fields, '-2', *opts)
+        answered = {k: v for k, v in one.items() if v[0]}
+        assert len(answered) >= 7
+        # the response time is shown once per conversation
+        assert len([v for v in answered.values() if v[1]]) == 7
+        assert two == one
