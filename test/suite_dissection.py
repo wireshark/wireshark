@@ -162679,3 +162679,63 @@ class TestDissectVlp16:
         assert rows[0][2].startswith('$GPRMC,123519,A,4807.038,N')
         assert rows[3][2] == ''
         assert rows[4][2] == '$GPRMC,' + 'x' * 65
+
+
+class TestDissectVmlab:
+    '''VMware Lab Manager (ethertype 0x88DE) from the synthetic capture
+    vmlab_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('vmlab_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.split('\n') if line]
+
+    def test_vmlab_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 14 frames are VMLAB without malformed packets or error
+        expert infos, in one and two passes, with the same VMLAB fields
+        (the Info column is not compared: ICMP shows "no response found"
+        only in the second pass).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'vmlab', 'vmlab.unknown1', 'vmlab.fragment',
+                                'vmlab.unknown2', 'vmlab.pgrp', 'vmlab.addr', 'vmlab.dst', 'vmlab.src',
+                                'vmlab.subtype', passes=passes)
+            assert len(rows) == 14
+            outputs.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+        assert outputs[0] == outputs[1]
+
+    def test_vmlab_header(self, cmd_tshark, capture_file, test_env):
+        '''Flags (the fragment bit and the unknown bits), the portgroup,
+        the three addresses and the encapsulated ethertype.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 2, 4, 5, 6, 7, 8, 14}',
+                            'vmlab.unknown1', 'vmlab.fragment', 'vmlab.unknown2', 'vmlab.pgrp',
+                            'vmlab.addr', 'vmlab.dst', 'vmlab.src', 'vmlab.subtype')
+        m = '02:00:00:00:00:'
+        assert rows == [
+            ['1', '0x00', 'False', '0x00', '0', m + '15', m + '16', m + '15', '0x0800'],
+            ['2', '0x00', 'True', '0x00', '1', m + '16', m + '15', m + '16', '0x0800'],
+            ['4', '0x00', 'True', '0x00', '255', m + '16', m + '15', m + '16', '0x0800'],
+            ['5', '0x1f', 'False', '0x00', '3', m + '15', m + '16', m + '15', '0x0800'],
+            ['6', '0x00', 'False', '0x03', '3', m + '15', m + '16', m + '15', '0x0800'],
+            ['7', '0x1f', 'True', '0x03', '3', m + '15', m + '16', m + '15', '0x0800'],
+            ['8', '0x00', 'False', '0x00', '2', m + '17', m + '16', m + '15', '0x0806'],
+            ['14', '0x00', 'False', '0x00', '9', 'ff:ff:ff:ff:ff:ff', 'ff:ff:ff:ff:ff:ff', m + '15', '0x0806'],
+        ]
+
+    def test_vmlab_encapsulated(self, cmd_tshark, capture_file, test_env):
+        '''ICMP, ARP, UDP, an unknown ethertype, a VLAN and a length
+        instead of an ethertype are handed to the ethertype dissector.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 8', '_ws.col.protocol')
+        assert [r[1] for r in rows] == ['ARP', 'ARP', 'UDP', '0x1234', 'ICMP', '0x0010', 'ARP']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vmlab && vlan', 'vlan.id')
+        assert rows == [['12', '100']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'vmlab.fragment == 1', 'vmlab.pgrp')
+        assert rows == [['2', '1'], ['4', '255'], ['7', '3']]
