@@ -531,7 +531,6 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
 	int         offset = 0;
 	uint16_t vip_pktlen;
-	uint8_t vip_tctl;	/* Transport Control */
 	uint8_t vip_proto;
 	proto_tree *vip_tree, *tctl_tree;
 	proto_item *ti;
@@ -545,12 +544,11 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 	/* capture the necessary parts of the header */
 	vip_pktlen = tvb_get_ntohs(tvb, offset+2);
-	vip_tctl = tvb_get_uint8(tvb, offset+3);
-	vip_proto = tvb_get_uint8(tvb, offset+4);
+	vip_proto = tvb_get_uint8(tvb, offset+5);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
-			val_to_str_const(vip_tctl, proto_vals, "Unknown VIP protocol"),
-			vip_tctl);
+			val_to_str_const(vip_proto, proto_vals, "Unknown VIP protocol"),
+			vip_proto);
 
 	set_address_tvb(&pinfo->net_src, AT_VINES, VINES_ADDR_LEN, tvb, offset+12);
 	copy_address_shallow(&pinfo->src, &pinfo->net_src);
@@ -1055,9 +1053,8 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		proto_tree_add_item(vspp_tree, hf_vines_spp_seq_num, tvb, offset+10, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(vspp_tree, hf_vines_spp_ack_num, tvb, offset+12, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(vspp_tree, hf_vines_spp_window, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-	} else {
-		offset += 16; /* sizeof SPP */
 	}
+	offset += 16; /* sizeof SPP */
 	/*
 	 * For data packets, try the heuristic dissectors for Vines SPP;
 	 * if none of them accept the packet, or if it's not a data packet,
@@ -1573,7 +1570,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 				offset += 1;
 				rtp_show_flags(vines_rtp_tree, tvb, offset, hf_vines_rtp_destination_flags);
 				offset += 1;
-				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_destination_sequence_number, tvb, ENC_BIG_ENDIAN, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_destination_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_preferred_gateway, tvb, offset, VINES_ADDR_LEN, ENC_NA);
 				offset += VINES_ADDR_LEN;
