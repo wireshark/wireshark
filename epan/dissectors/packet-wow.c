@@ -325,16 +325,17 @@ struct game_version {
 static int32_t
 get_null_terminated_string_length( tvbuff_t* tvb, int32_t offset)
 {
-    const int32_t maximum_length = 0xFF;
-    for (int32_t length = 0; length < maximum_length; length++) {
-        uint8_t character = tvb_get_uint8(tvb, offset + length);
-        if (character == 0) {
-            // Include the null character in the length
-            return length + 1;
-        }
+    const unsigned maximum_length = 0xFF;
+    unsigned end;
+    if (!tvb_find_uint8_length(tvb, offset, maximum_length, 0, &end)) {
+        // No terminator: consume the string area (or throw) instead of
+        // returning 0 so that the cursor always advances.
+        unsigned remaining = tvb_ensure_captured_length_remaining(tvb, offset);
+        return (int32_t)(remaining < maximum_length ? remaining : maximum_length);
     }
 
-    return 0;
+    // Include the null character in the length
+    return (int32_t)(end - (unsigned)offset + 1);
 }
 
 static void
@@ -930,7 +931,7 @@ dissect_wow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		return dissect_wow_pdu(tvb, pinfo, tree, data);
 	}
 
-	return 0;
+	return tvb_captured_length(tvb);
 }
 
 
