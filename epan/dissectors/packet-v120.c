@@ -166,27 +166,27 @@ dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 	byte0 = tvb_get_uint8(tvb, offset);
 	if (byte0 & 0x80) {
 		header_len = 1;
-		tc = proto_tree_add_item(tree, hf_v120_header8, tvb, 0, 1, ENC_BIG_ENDIAN);
+		tc = proto_tree_add_item(tree, hf_v120_header8, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		h_tree = proto_item_add_subtree(tc, ett_v120_header);
-		proto_tree_add_item(h_tree, hf_v120_header_ext8, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(h_tree, hf_v120_header_break8, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(h_tree, hf_v120_header_error_control8, tvb, 0, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(h_tree, hf_v120_header_segb8, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(h_tree, hf_v120_header_segf8, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(h_tree, hf_v120_header_ext8, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(h_tree, hf_v120_header_break8, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(h_tree, hf_v120_header_error_control8, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(h_tree, hf_v120_header_segb8, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(h_tree, hf_v120_header_segf8, tvb, offset, 1, ENC_NA);
 	} else {
 		header_len = 2;
-		tc = proto_tree_add_item(tree, hf_v120_header16, tvb, 0, 2, ENC_BIG_ENDIAN);
+		tc = proto_tree_add_item(tree, hf_v120_header16, tvb, offset, 2, ENC_BIG_ENDIAN);
 		h_tree = proto_item_add_subtree(tc, ett_v120_header);
-		proto_tree_add_item(h_tree, hf_v120_header_ext16, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(h_tree, hf_v120_header_break16, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(h_tree, hf_v120_header_error_control16, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(h_tree, hf_v120_header_segb16, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(h_tree, hf_v120_header_segf16, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(h_tree, hf_v120_header_e, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(h_tree, hf_v120_header_dr, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(h_tree, hf_v120_header_sr, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(h_tree, hf_v120_header_rr, tvb, 0, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(h_tree, hf_v120_header_ext16, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(h_tree, hf_v120_header_break16, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(h_tree, hf_v120_header_error_control16, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(h_tree, hf_v120_header_segb16, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(h_tree, hf_v120_header_segf16, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(h_tree, hf_v120_header_e, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(h_tree, hf_v120_header_dr, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(h_tree, hf_v120_header_sr, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(h_tree, hf_v120_header_rr, tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
 
 	proto_item_append_text(tc, " B: %d F: %d",
