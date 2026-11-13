@@ -118,12 +118,16 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
     M:   | EXTENDED PID  | (RECOMMENDED)
          +-+-+-+-+-+-+-+-+
     */
-    uint8_t m = tvb_get_uint8(tvb, offset) & VP9_1_BIT_MASK;
-    proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_m_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    uint8_t m = 0;
+    if (i)
+    {
+        m = tvb_get_uint8(tvb, offset) & VP9_1_BIT_MASK;
+        proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_m_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
     if (f)
     {
         //  Flexible mode
-        if (m == i)
+        if (i)
         {
             if (m)
             {
@@ -146,7 +150,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
     else
     {
         //  Non-flexible mode
-        if (m == i)
+        if (i)
         {
             if (m)
             {
