@@ -167662,3 +167662,109 @@ class TestDissectX11:
                              'Requests: CreateWindow', 'Requests: GetWindowAttributes',
                              'Requests: InternAtom', 'Reply: GetWindowAttributes', 'Event: Expose',
                              'Reply: InternAtom', 'Event: Expose']
+
+
+class TestDissectX25:
+    '''X.25 from the synthetic captures x25_coverage.pcap.gz (over XOT on
+    TCP 1998 and over LLC SAP 0x7E: call setup with all facility
+    classes, every packet type, both modulos, call user data forms,
+    X.29, IP, CLNP and COTP payloads, M-bit reassembly) and
+    x25_coverage_lapb.trc.gz (an EyeSDN file with LAPB records, the only
+    format with a DTE/DCE direction).'''
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, name, flt, *args, passes=(), opts=()):
+        stdout = subprocess.check_output([cmd_tshark, *passes, *opts, '-r', capture_file(name),
+                                          '-Y', flt, *args],
+                                         encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def main(self, cmd_tshark, capture_file, test_env, flt, *args, **kw):
+        return self.tshark(cmd_tshark, capture_file, test_env, 'x25_coverage.pcap.gz', flt, *args, **kw)
+
+    def test_x25_frames(self, cmd_tshark, capture_file, test_env):
+        '''203 X.25 frames; no malformed packets or error expert infos in
+        one and two passes, with the other preferences too (not QLLC/SNA as
+        the default: the data is not SNA); the 12
+        warnings of frames 4-15 are facility lengths that do not fit.'''
+        m = self.main
+        assert len(m(cmd_tshark, capture_file, test_env, 'x25', '-Tfields', '-eframe.number')) == 203
+        for passes in ((), ('-2',)):
+            for opts in ((), ('-o', 'x25.payload_check_data:TRUE'),
+                         ('-o', 'x25.call_request_nodata_is_cotp:TRUE'), ('-o', 'x25.reassemble:FALSE')):
+                assert m(cmd_tshark, capture_file, test_env,
+                         '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                         '-Tfields', '-eframe.number', passes=passes, opts=opts) == []
+        assert m(cmd_tshark, capture_file, test_env, 'x25 && _ws.expert.severity >= 0x00600000',
+                 '-Tfields', '-eframe.number')[:12] == [str(n) for n in range(4, 16)]
+
+    def test_x25_facility_length_underflow(self, cmd_tshark, capture_file, test_env):
+        '''A call request whose facilities length (1) is smaller than a
+        class A facility gets "Bogus length" and the rest is shown as user
+        data instead of being swallowed (reproducer of "X.25: ...
+        facility length"). Frame 4.'''
+        lines = self.main(cmd_tshark, capture_file, test_env, 'frame.number == 4', '-Tfields',
+                          '-e_ws.col.protocol', '-e_ws.expert.message')
+        assert lines == ['X.29\tBogus length']
+
+    def test_x25_facilities(self, cmd_tshark, capture_file, test_env):
+        '''Frames 16-47 carry every facility class: class A with all its
+        codes, class B, C and D, TOA/NPI addresses and odd lengths.'''
+        lines = self.main(cmd_tshark, capture_file, test_env, 'frame.number in {5, 16, 17, 18}',
+                          '-Tfields', '-eframe.number', '-ex25.facility.class')
+        assert lines[0] == '5\t0x01' and lines[1].startswith('16\t0x00,0x00,0x00')
+        assert len(self.main(cmd_tshark, capture_file, test_env, 'x25.facility.classA', '-Tfields', '-eframe.number')) >= 6
+        assert len(self.main(cmd_tshark, capture_file, test_env, 'x25.facility.classB', '-Tfields', '-eframe.number')) >= 1
+        assert len(self.main(cmd_tshark, capture_file, test_env, 'x25.facility.classD', '-Tfields', '-eframe.number')) >= 5
+        addr = self.main(cmd_tshark, capture_file, test_env, 'frame.number == 4',
+                         '-Tfields', '-ex25.called_address', '-ex25.calling_address')
+        assert addr == ['12345\t6789012']
+
+    def test_x25_clear_and_reset_causes(self, cmd_tshark, capture_file, test_env):
+        out = self.main(cmd_tshark, capture_file, test_env, 'x25.clear_cause || x25.reset_cause || x25.restart_cause',
+                        '-Tfields', '-e_ws.col.info')
+        joined = '\n'.join(out)
+        for s in ('Number Busy', 'Access Barred', 'Destination Absent', 'Unknown (0x7e)', 'Packet too short',
+                  'Network Congestion', 'Registration/cancellation confirmed', 'Remote DTE operational'):
+            assert s in joined
+
+    def test_x25_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''M-bit sequences of both modulos are reassembled; the last
+        packet shows the reassembled length.'''
+        lines = self.main(cmd_tshark, capture_file, test_env, 'x25.reassembled.length', '-Tfields',
+                          '-eframe.number', '-ex25.reassembled.length')
+        assert lines == ['174\t22', '175\t43', '179\t40']
+        off = self.main(cmd_tshark, capture_file, test_env, 'x25.reassembled.length', '-Tfields',
+                        '-eframe.number', opts=('-o', 'x25.reassemble:FALSE'))
+        assert off == []
+
+    def test_x25_payload_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Call user data selects IP, IPv6, CLNP, COTP, CLTP and X.29; the
+        data packets of the VC are handed to that protocol.'''
+        protos = self.main(cmd_tshark, capture_file, test_env, 'x25 && !(tcp.flags.syn == 1)', '-Tfields',
+                           '-e_ws.col.protocol')
+        for p in ('CLNP', 'COTP', 'CLTP', 'X.29', 'DISCARD'):
+            assert p in protos
+
+    def test_x25_over_llc(self, cmd_tshark, capture_file, test_env):
+        '''X.25 in LLC I frames (SAP 0x7E).'''
+        lines = self.main(cmd_tshark, capture_file, test_env, 'llc && x25', '-Tfields', '-e_ws.col.info')
+        assert lines[0] == 'Inc. call/Call req. VC:1' and lines[1] == 'Call conn./Call acc. VC:1'
+        assert any(l.startswith('Data VC:2 P(R):0 P(S):0') for l in lines)
+
+    def test_x25_direction_lapb(self, cmd_tshark, capture_file, test_env):
+        '''With a direction (DTE and DCE from the EyeSDN file) the same
+        packet is a "Call req." or an "Inc. call", and "Clear req." or
+        "Clear ind.".'''
+        name = 'x25_coverage_lapb.trc.gz'
+        lines = self.tshark(cmd_tshark, capture_file, test_env, name,
+                            'x25 && frame.number in {1, 2, 8, 13, 14, 20}', '-Tfields', '-eframe.number',
+                            '-e_ws.col.info')
+        assert lines == ['1\tCall req. VC:1', '2\tCall conn. VC:1',
+                         '8\tClear req. VC:1 Out Of Order - No additional information',
+                         '13\tInc. call VC:1', '14\tCall acc. VC:1',
+                         '20\tClear ind. VC:1 Out Of Order - No additional information']
+        for passes in ((), ('-2',)):
+            assert self.tshark(cmd_tshark, capture_file, test_env, name,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-Tfields', '-eframe.number', passes=passes) == []
