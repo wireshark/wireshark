@@ -526,7 +526,7 @@ dissect_device_read_resp(tvbuff_t *tvb,
     datalength = tvb_get_ntohl( tvb, offset);
     if(MAX_DATA_SHOW_SIZE <=datalength)
         datalength = MAX_DATA_SHOW_SIZE;
-    col_append_fstr( pinfo->cinfo, COL_INFO," %s",tvb_format_text(pinfo->pool, tvb, offset+4,(uint32_t) datalength));
+    col_append_fstr( pinfo->cinfo, COL_INFO," %s",tvb_format_text(pinfo->pool, tvb, offset+4, MIN((uint32_t) datalength, tvb_captured_length_remaining(tvb, offset+4))));
 
     offset = dissect_rpc_opaque_data(tvb, offset, tree, pinfo, hf_vxi11_core_data, false, 0, false, NULL, NULL);
 
@@ -598,7 +598,7 @@ dissect_device_write_parms(tvbuff_t *tvb,
     datalength = tvb_get_ntohl( tvb, offset);
     if(MAX_DATA_SHOW_SIZE <=datalength)
         datalength = MAX_DATA_SHOW_SIZE;
-    col_append_fstr( pinfo->cinfo, COL_INFO," %s",tvb_format_text(pinfo->pool, tvb, offset+4,(uint32_t) datalength));
+    col_append_fstr( pinfo->cinfo, COL_INFO," %s",tvb_format_text(pinfo->pool, tvb, offset+4, MIN((uint32_t) datalength, tvb_captured_length_remaining(tvb, offset+4))));
 
     offset = dissect_rpc_opaque_data(tvb, offset, tree, pinfo, hf_vxi11_core_data, false, 0, false, NULL, NULL);
     proto_item_append_text(tree, " (Device_WriteParms) LID=%d", lid);
@@ -661,7 +661,7 @@ proto_register_vxi11_core(void)
         },
         { &hf_vxi11_core_abort_port,
           {
-              "Abort Port", "vxi11_core.abort_port", FT_UINT16, BASE_DEC,
+              "Abort Port", "vxi11_core.abort_port", FT_UINT32, BASE_DEC,
               NULL, 0, NULL, HFILL
           }
         },
@@ -829,13 +829,13 @@ proto_register_vxi11_core(void)
         },
         { &hf_vxi11_core_stb,
           {
-              "Status Byte", "vxi11_core.stb", FT_UINT8, BASE_HEX,
+              "Status Byte", "vxi11_core.stb", FT_UINT32, BASE_HEX,
               NULL, 0, NULL, HFILL
           }
         },
         { &hf_vxi11_core_term_char,
           {
-              "Termination Character", "vxi11_core.term_char", FT_UINT8, BASE_HEX,
+              "Termination Character", "vxi11_core.term_char", FT_UINT32, BASE_HEX,
               NULL, 0, NULL, HFILL
           }
         }
