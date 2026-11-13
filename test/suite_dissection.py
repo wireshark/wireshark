@@ -169608,3 +169608,74 @@ class TestDissectXmpp:
                              'frame.number in {201, 202}', 'frame.number',
                              'xmpp.too_deep')
         assert lines == ['201\t', '202\t']
+
+
+class TestDissectXnap:
+    '''XnAP synthetic coverage capture: xnap_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, test_env, capture, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_xnap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All procedures decode without malformed packets or error expert
+        infos, in one and in two passes.'''
+        cap = capture_file('xnap_coverage.pcap.gz')
+        stdout = self._tshark(cmd_tshark, test_env, cap, '-Y', 'xnap', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 306       # 308 frames: 2 are SCTP fragments
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, test_env, cap, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert.severity == error',
+                                  '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_xnap_two_passes_same_tree(self, cmd_tshark, capture_file, test_env):
+        '''One and two passes give the same procedure codes, IEs and info
+        (the node types of the Xn Setup frames are not applied to the wrong frames).'''
+        cap = capture_file('xnap_coverage.pcap.gz')
+        args = ('-Tfields', '-eframe.number', '-exnap.procedureCode', '-exnap.id', '-e_ws.col.info',
+                '-e_ws.col.protocol')
+        one = self._tshark(cmd_tshark, test_env, cap, *args)
+        two = self._tshark(cmd_tshark, test_env, cap, '-2', *args)
+        assert one == two
+        assert len(one.splitlines()) == 308
+
+    def test_xnap_node_types_from_xn_setup(self, cmd_tshark, capture_file, test_env):
+        '''Containers are decoded as NR RRC when the receiving node announced
+        itself as a gNB and as LTE RRC when it is an ng-eNB.'''
+        cap = capture_file('xnap_coverage.pcap.gz')
+
+        def frames(display_filter, *passes):
+            stdout = self._tshark(cmd_tshark, test_env, cap, *passes, '-Y', display_filter,
+                                  '-Tfields', '-eframe.number')
+            return stdout.split()
+        for passes in ((), ('-2',)):
+            # association of two gNBs: frames 283 and 284
+            assert frames('frame.number >= 283 && frame.number <= 284 && nr-rrc', *passes) == ['283', '284']
+            assert frames('frame.number >= 283 && frame.number <= 284 && lte_rrc', *passes) == []
+            # association of two ng-eNBs: frames 291 and 292
+            assert frames('frame.number >= 291 && frame.number <= 292 && lte_rrc', *passes) == ['291', '292']
+            assert frames('frame.number >= 291 && frame.number <= 292 && nr-rrc', *passes) == []
+
+    def test_xnap_ranmode_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''Xn Setup from B (gNB), a reconfiguration complete with an M-NG-RAN to
+        S-NG-RAN container, then an Xn Setup from B (ng-eNB): the container is
+        NR RRC in one and two passes (frames 299-301).'''
+        cap = capture_file('xnap_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, test_env, cap, *passes, '-Y', 'frame.number == 300 && nr-rrc',
+                                  '-Tfields', '-eframe.number')
+            assert stdout.split() == ['300']
+            stdout = self._tshark(cmd_tshark, test_env, cap, *passes, '-Y', 'frame.number == 300 && lte_rrc',
+                                  '-Tfields', '-eframe.number')
+            assert stdout.split() == []
+
+    def test_xnap_private_ie_local_after_global(self, cmd_tshark, capture_file, test_env):
+        '''A local PrivateIE-ID after a global one is not decoded with the
+        OID of the global one (the direct reference was never cleared).'''
+        cap = capture_file('xnap_coverage.pcap.gz')
+        for frame in ('302', '303'):
+            stdout = self._tshark(cmd_tshark, test_env, cap, '-Y', f'frame.number == {frame}',
+                                  '-Tfields', '-e_ws.expert.message', '-E', 'aggregator=|')
+            assert stdout.strip().count('Dissector for OID not implemented') == 1
