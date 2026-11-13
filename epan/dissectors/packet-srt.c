@@ -32,6 +32,7 @@
 
 #include <wsutil/array.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/pint.h>
 #include <wsutil/str_util.h>
 
 /* Prototypes */
@@ -374,7 +375,7 @@ static const value_string srt_enc_kmstate[] = {
 
 #define IP_BUFFER_SIZE 64
 
-static void srt_format_ip_address(char* dest, size_t dest_size, const char* ptr)
+static void srt_format_ip_address(char* dest, size_t dest_size, tvbuff_t* tvb, int offset)
 {
     /* Initial IPv4 check.
      * The address is considered IPv4 if:
@@ -384,20 +385,18 @@ static void srt_format_ip_address(char* dest, size_t dest_size, const char* ptr)
 
     ws_in4_addr ia4;
     ws_in6_addr ia6;
-    uint32_t* p;
     int i, j;
 
-    if (ptr[0] != 0 && ptr[3] != 0)
+    if (tvb_get_uint8(tvb, offset) != 0 && tvb_get_uint8(tvb, offset + 3) != 0)
     {
         for (i = 4; i < 16; ++i)
         {
-            if (ptr[i] == 0)
+            if (tvb_get_uint8(tvb, offset + i) == 0)
                 continue;
 
             /* This is not an IP4 */
-            p = (uint32_t*)&ia6;
             for (j = 0; j < 4; ++j)
-                p[j] = g_ntohl(((uint32_t*)ptr)[j]);
+                phtonu32(&ia6.bytes[j * 4], tvb_get_letohl(tvb, offset + j * 4));
 
             ws_inet_ntop6(&ia6, dest, (unsigned)dest_size);
             return;
@@ -409,7 +408,7 @@ static void srt_format_ip_address(char* dest, size_t dest_size, const char* ptr)
     // The address must be inverted.
 
     // Here's IPv4, so invert only one l.
-    ia4 = g_ntohl(*((const uint32_t*)ptr));
+    ia4 = g_htonl(tvb_get_letohl(tvb, offset));
 
     ws_inet_ntop4(&ia4, dest, (unsigned)dest_size);
     return;
@@ -826,7 +825,7 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
             proto_tree_add_item(tree, hf_srt_handshake_cookie, tvb,
                         44,  4, ENC_BIG_ENDIAN);
 
-            srt_format_ip_address(ipbuf, sizeof ipbuf, (const char *)tvb_memdup(pinfo->pool, tvb, 48, 16));
+            srt_format_ip_address(ipbuf, sizeof ipbuf, tvb, 48);
 
             proto_tree_add_string(tree, hf_srt_handshake_peerip, tvb,
                                   48, 16, ipbuf);
