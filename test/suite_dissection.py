@@ -167768,3 +167768,62 @@ class TestDissectX25:
             assert self.tshark(cmd_tshark, capture_file, test_env, name,
                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
                                '-Tfields', '-eframe.number', passes=passes) == []
+
+
+class TestDissectX29:
+    '''X.29 (PAD messages and terminal data) as the secondary protocol of
+    X.25 calls over XOT, from the synthetic capture
+    x29_coverage.pcapng.gz, and Exported PDU frames that name x29.'''
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, flt, *args, passes=()):
+        stdout = subprocess.check_output([cmd_tshark, *passes, '-r', capture_file('x29_coverage.pcapng.gz'),
+                                          '-Y', flt, *args],
+                                         encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_x29_frames(self, cmd_tshark, capture_file, test_env):
+        '''29 X.29 frames (20 PAD messages and 9 with data); no malformed
+        packets or error expert infos in one and two passes.'''
+        t = self.tshark
+        assert len(t(cmd_tshark, capture_file, test_env, 'x29', '-Tfields', '-eframe.number')) == 29
+        assert len(t(cmd_tshark, capture_file, test_env, 'x29.msg_code', '-Tfields', '-eframe.number')) == 20
+        for passes in ((), ('-2',)):
+            assert t(cmd_tshark, capture_file, test_env,
+                     '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                     '-Tfields', '-eframe.number', passes=passes) == []
+
+    def test_x29_pad_messages(self, cmd_tshark, capture_file, test_env):
+        lines = self.tshark(cmd_tshark, capture_file, test_env, 'frame.number in {6, 7, 8, 9, 12, 14, 15, 16, 20, 23}',
+                            '-Tfields', '-eframe.number', '-ex29.msg_code', '-ex29.type_reference',
+                            '-ex29.error_type', '-e_ws.col.info')
+        assert lines == [
+            '6\t0x02\t\t\tSet PAD message', '7\t0x04\t\t\tRead PAD message',
+            '8\t0x06\t\t\tSet and read PAD message', '9\t0x00\t\t\tParameter indication PAD message',
+            '12\t0x01\t\t\tInvitation to clear PAD message', '14\t0x03\t1\t\tIndication of break PAD message',
+            '15\t0x03\t8\t\tIndication of break PAD message', '16\t0x03\t85\t\tIndication of break PAD message',
+            '20\t0x05\t\t0x02\tError PAD message', '23\t0x0e\t\t\tUnknown (0x0e) PAD message']
+
+    def test_x29_parameters(self, cmd_tshark, capture_file, test_env):
+        lines = self.tshark(cmd_tshark, capture_file, test_env, 'frame.number in {6, 8}', '-Tfields',
+                            '-eframe.number', '-ex29.parameter', '-ex29.value')
+        assert lines == ['6\t1,2,3,4\t1,0,126,0', '8\t5,6\t1,1']
+
+    def test_x29_data(self, cmd_tshark, capture_file, test_env):
+        '''Terminal data is shown line by line; the banner in the call
+        user data follows the 4 octet protocol identifier; M-bit
+        fragments are reassembled before X.29 sees them (frame 32).'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, 'frame.number in {4, 24, 26, 28, 32, 37}',
+                            '-Tfields', '-eframe.number', '-ex29.data')
+        assert lines == ['4\tPAD ready\\r\\n', '24\tlogin: root\\r\\n',
+                         '26\tline one\\n,line two\\r\\n,line three\\r,line four',
+                         '28\t\\r\\n,\\r\\n',
+                         '32\tlong line part 1, part 2\\r\\n,second line\\r\\n',
+                         '37\thello from mod 128\\r\\n']
+
+    def test_x29_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''X.29 reached by name has no Q bit from X.25: it declines, and
+        the payload stays data.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, 'exported_pdu', '-Tfields', '-eframe.number',
+                            '-ex29.msg_code', '-edata.len')
+        assert lines == ['46\t\t3', '47\t\t12', '48\t\t']
