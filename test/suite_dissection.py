@@ -166684,3 +166684,61 @@ class TestDissectWmio:
             ), encoding='utf-8', env=test_env)
         assert 'Maximum tree depth' not in stdout
         assert stdout.count('[Expert Info (Error/Malformed): Object nesting too deep]') == 4     # 2 per frame
+
+
+class TestDissectWol:
+    def test_wol_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is WOL, none is malformed or has an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wol_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 10
+        assert protocols.count('WOL') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wol_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wol_info(self, cmd_tshark, capture_file, test_env):
+        '''Ethernet and UDP (heuristic, any port) MagicPackets, with no
+        password, a 4 byte or a 6 byte password and trailing bytes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wol_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tMagicPacket for 02:00:00:00:00:09 (02:00:00:00:00:09)',
+            '2\tMagicPacket for 0a:1b:2c:3d:4e:5f (0a:1b:2c:3d:4e:5f), password 10.1.2.3',
+            '3\tMagicPacket for 02:00:00:00:00:09 (02:00:00:00:00:09), password 01:02:03:04:05:06',
+            '4\tMagicPacket for 02:00:00:00:00:09 (02:00:00:00:00:09)',
+            '5\tMagicPacket for 0a:1b:2c:3d:4e:5f (0a:1b:2c:3d:4e:5f), password 192.0.2.77',
+            '6\tMagicPacket for 02:00:00:00:00:09 (02:00:00:00:00:09), password de:ad:be:ef:00:01',
+            '7\tMagicPacket for 0a:1b:2c:3d:4e:5f (0a:1b:2c:3d:4e:5f), password 1.2.3.4',
+            '8\tMagicPacket for 02:00:00:00:00:09 (02:00:00:00:00:09), password 01:02:03:04:05:06',
+            '9\tMagicPacket for 02:00:00:00:00:09 (02:00:00:00:00:09), password 0.0.0.0',
+            '10\tMagicPacket for Broadcast (ff:ff:ff:ff:ff:ff)',
+        ]
+
+    def test_wol_password_bytes(self, cmd_tshark, capture_file, test_env):
+        '''wol.passwd holds the password bytes from the packet, not the
+        text shown for them (the text of 10.1.2.3 is 31302e312e322e33).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wol_coverage.pcap.gz'),
+                '-Y', 'wol.passwd',
+                '-Tfields', '-eframe.number', '-ewol.passwd',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t0a010203',
+            '3\t010203040506',
+            '5\tc000024d',
+            '6\tdeadbeef0001',
+            '7\t01020304',
+            '8\t010203040506',
+            '9\t00000000',
+        ]
