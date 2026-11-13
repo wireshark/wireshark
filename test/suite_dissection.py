@@ -169854,3 +169854,77 @@ class TestDissectXra:
         rows = self.fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'xra.tlv.mer', '-Tfields', '-eframe.number', '-exra.tlv.mer')
         assert [self.dec(r) for r in rows[:5]] == ['1\t36', '2\t40', '3\t0', '73\t0.25', '74\t63.75']
+
+
+class TestDissectXti:
+    '''XTI (Eurex T7 "Enhanced Cash Trading Interface" for Xetra, TCP
+    19042) from the synthetic capture xti_coverage.pcap.gz: every
+    allocated template with its repeating groups empty, repeated once,
+    several times and full, TCP reassembly and several PDUs per segment.'''
+
+    def test_xti_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All XTI frames decode without malformed packets or error or
+        warning expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('xti_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols.count('XTI') == 476
+        assert protocols.count('TCP') == 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('xti_coverage.pcap.gz'),
+                    '-Y', 'xti && (_ws.malformed || xti.counter_overflow || '
+                          'xti.invalid_template || xti.invalid_length || '
+                          'xti.unaligned || xti.missing || xti.overused)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_xti_templates(self, cmd_tshark, capture_file, test_env):
+        '''Every allocated template (118) is present, with its name in the
+        Info column, and the variable string takes its length from the
+        counter in front of it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('xti_coverage.pcap.gz'),
+                '-Y', 'xti', '-Tfields', '-exti.templateid',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        ids = {i for line in stdout.splitlines() for i in line.split(',') if i}
+        assert len(ids) == 118
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('xti_coverage.pcap.gz'),
+                '-Y', 'frame.number in {26, 380}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-exti.bodylen',
+                '-exti.vartextlen',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '26\tNewsBroadcast\t320\t1',
+            '380\tNewsBroadcast\t2312\t2000',
+        ]
+
+    def test_xti_fixed_point(self, cmd_tshark, capture_file, test_env):
+        '''A fixed-point price is shown with its decimal point, negative
+        values keep the sign.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('xti_coverage.pcap.gz'),
+                '-Y', 'frame.number in {42, 43}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'FillPx: -12.34500036' in stdout
+        assert 'FillPx: 12.34500034' in stdout
+
+    def test_xti_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Three PDUs in one segment; a 20120 byte PDU in four segments;
+        a PDU that ends in the same segment as the next one starts.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('xti_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 479 && xti',
+                '-Tfields', '-eframe.number', '-exti.templateid', '-exti.bodylen',
+                '-etcp.reassembled.length',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '479\t10000,10001,10002\t280,96,24\t',
+            '483\t10122\t20120\t20120',
+            '484\t10011\t16\t',
+            '485\t10122,10012\t20120,32\t20120',
+        ]
