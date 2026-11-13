@@ -169133,3 +169133,87 @@ class TestDissectXipServal:
             ['15', '6'], ['16', '6'], ['17', '6'], ['18', '17'], ['19', '17'],
             ['21', '6']]
         assert rows[3].endswith('\t5000 → 6000 Len=0')
+
+
+class TestDissectXmcp:
+    '''XMCP (TCP 4788 and the TCP heuristic) from the synthetic capture
+    xmcp_coverage.pcap.gz: every method, request/response matching by
+    transaction ID, keepalives, error responses, the service
+    attributes and a 65532 octet message whose attributes reach the
+    end of the 16 bit offset range (frame 141, the reproducer of
+    "XMCP: Use unsigned offsets when walking attributes": tshark did
+    not finish on it).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('xmcp_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_xmcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''156 frames, 82 of them XMCP, without malformed packets or
+        error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-e_ws.col.protocol', passes=passes)
+            assert len(rows) == 156
+            assert len([r for r in rows if r.startswith('XMCP')]) == 82
+
+    def test_xmcp_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One and two passes decode the XMCP frames the same way,
+        including the response to request links (the request to response
+        link is only known on the second pass).'''
+        args = ('-Y', 'xmcp', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-exmcp.response-to', '-e_ws.expert.message')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, *args, passes=('-2',))
+        assert one == two
+        assert len(one) == 82
+
+    def test_xmcp_attribute_offset_wrap(self, cmd_tshark, capture_file, test_env):
+        '''The 65532 octet message of frame 141 has 65 attributes, the
+        last one starting at offset 65532.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xmcp.length > 60000', '-Tfields', '-eframe.number',
+                '-exmcp.length', '-e_ws.col.info')
+        assert rows == ['141\t65532\tPublish Request']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 141', '-Tfields', '-exmcp.attr.type')
+        assert len(rows[0].split(',')) == 65
+
+    def test_xmcp_transactions(self, cmd_tshark, capture_file, test_env):
+        '''A response is linked to its request; Register with a client
+        handle and the Keepalive method are keepalives.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 5, 6, 7}', '-Tfields', '-eframe.number',
+                '-exmcp.response-in', '-exmcp.response-to')
+        assert rows == ['4\t\t', '5\t\t4', '6\t\t', '7\t\t6']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xmcp.analysis.keepalive', '-Tfields', '-eframe.number')
+        assert rows == ['6', '7', '8', '9', '77', '78', '88', '149', '150']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 6}', '-Tfields', '-e_ws.col.info')
+        assert rows[0] == 'Register Request, user "alice", name "client one", label "label-1"'
+        assert rows[1] == '[Keepalive] Register Request, handle 51966'
+
+    def test_xmcp_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Error codes, the service transport address and protocol.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xmcp.attr.error', '-Tfields', '-exmcp.attr.error')
+        assert rows == ['400', '401', '431', '435', '473', '476', '477', '499',
+                        '500', '501', '413', '606']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {10, 12, 22}', '-Tfields', '-eframe.number',
+                '-exmcp.attr.service.transport.port',
+                '-exmcp.attr.service.transport.protocol')
+        assert rows == ['10\t8080\t6', '12\t5060\t17', '22\t80\t6']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {10}', '-Tfields',
+                '-exmcp.attr.service.transport.ipv4', '-exmcp.attr.client-handle',
+                '-exmcp.attr.domain')
+        assert rows == ['192.0.2.9\t51966\t']
