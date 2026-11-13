@@ -18,6 +18,7 @@
 #include <wireshark.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
@@ -179,6 +180,8 @@ static int hf_wtp_reassembled_length;
 /* Initialize the subtree pointers */
 static int ett_wtp;
 static int ett_wtp_sub_pdu_tree;
+
+static expert_field ei_wtp_nested_concat;
 static int ett_header;
 static int ett_tpilist;
 static int ett_wsp_fragments;
@@ -288,7 +291,7 @@ wtp_handle_tpi(proto_tree *tree, tvbuff_t *tvb)
 /* Code to actually dissect the packets */
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool nested)
 {
     wmem_strbuf_t *szInfo;
     int            offCur        = 0;   /* current offset from start of WTP data */
@@ -323,6 +326,12 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         unsigned c_fieldlen = 0;        /* Length of length-field    */
         unsigned c_pdulen = 0;        /* Length of conc. PDU    */
 
+        if (nested) {
+            /* A concatenated PDU cannot contain another one. */
+            proto_tree_add_expert(tree, pinfo, &ei_wtp_nested_concat, tvb, 0, 1);
+            return;
+        }
+
         if (tree) {
             ti = proto_tree_add_item(tree, proto_wtp,
                     tvb, offCur, 1, ENC_NA);
@@ -356,8 +365,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             /* Skip the length field for the WTP sub-tvb */
             wtp_tvb = tvb_new_subset_length(tvb, offCur + c_fieldlen, c_pdulen);
-            // We recurse here, but we'll run out of packet before we run out of stack.
-            dissect_wtp_common(wtp_tvb, pinfo, wtp_tree);
+            // Recursion is bounded: a concatenated PDU cannot be nested.
+            dissect_wtp_common(wtp_tvb, pinfo, wtp_tree, true);
             offCur += c_fieldlen + c_pdulen;
             i++;
         }
@@ -449,7 +458,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 tvb,
                 offCur,             /* start of highlight */
                 1,                /* length of highlight*/
-                b0                /* value */
+                ENC_NA            /* encoding */
                 );
         proto_tree_add_item(wtp_tree, hf_wtp_header_pdu_type, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
 
@@ -735,7 +744,7 @@ dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTP+WSP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    dissect_wtp_common(tvb, pinfo, tree);
+    dissect_wtp_common(tvb, pinfo, tree, false);
     return tvb_captured_length(tvb);
 }
 
@@ -754,7 +763,7 @@ dissect_wtp_fromwtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WTP+WSP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    dissect_wtp_common(tvb, pinfo, tree);
+    dissect_wtp_common(tvb, pinfo, tree, false);
     return tvb_captured_length(tvb);
 }
 
@@ -989,6 +998,12 @@ proto_register_wtp(void)
     };
 
     /* Setup protocol subtree array */
+    static ei_register_info ei[] = {
+        { &ei_wtp_nested_concat, { "wtp.nested_concat", PI_MALFORMED, PI_ERROR,
+            "Concatenated PDU nested in another concatenated PDU", EXPFILL }},
+    };
+    expert_module_t *expert_wtp;
+
     static int *ett[] = {
         &ett_wtp,
         &ett_wtp_sub_pdu_tree,
@@ -1004,6 +1019,8 @@ proto_register_wtp(void)
 
     /* Required calls to register the header fields and subtrees used */
     proto_register_field_array(proto_wtp, hf, array_length(hf));
+    expert_wtp = expert_register_protocol(proto_wtp);
+    expert_register_field_array(expert_wtp, ei, array_length(ei));
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("wtp-wtls", dissect_wtp_fromwtls, proto_wtp);
