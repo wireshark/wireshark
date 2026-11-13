@@ -507,14 +507,17 @@ static void dissect_wa_payload(uint32_t starting_offset, proto_item *parent_tree
 
                 tag_len = tvb_get_ntohl(tvb, current_offset + 52);
 
+                if (tag_len > 16)
+                    tag_len = 16;
+
                 if (tag_len != 0) {
                     uint32_t      isr;
                     uint8_t       isr_value;
 
                     for (isr = 0; isr < tag_len; isr++) {
-                        isr_value = tvb_get_uint8(tvb, offset + 36 + isr);
+                        isr_value = tvb_get_uint8(tvb, current_offset + 36 + isr);
                         if (isr_value == 0xFF){
-                            proto_tree_add_string (bss_tree, hf_waveagent_ifwlansupprates, tvb, offset + 36 + isr,
+                            proto_tree_add_string (bss_tree, hf_waveagent_ifwlansupprates, tvb, current_offset + 36 + isr,
                                                    1,
                                                    "BSS requires support for mandatory features of HT PHY (IEEE 802.11"
                                                    " - Clause 20)");
@@ -531,7 +534,7 @@ static void dissect_wa_payload(uint32_t starting_offset, proto_item *parent_tree
                     wmem_strbuf_append(sb, "Not defined");
                 }
 
-                proto_tree_add_string (bss_tree, hf_waveagent_ifwlansupprates, tvb, offset + 36,
+                proto_tree_add_string (bss_tree, hf_waveagent_ifwlansupprates, tvb, current_offset + 36,
                     tag_len, wmem_strbuf_get_str(sb));
 
                 proto_tree_add_item(bss_tree,
@@ -746,6 +749,8 @@ static void dissect_wa_payload(uint32_t starting_offset, proto_item *parent_tree
                 hf_waveagent_scanssid, tvb, starting_offset + 12, 32, ENC_ASCII);
 
             num_bss_entries = tvb_get_ntohl(tvb, starting_offset + 142);
+            if (num_bss_entries > 16)
+                num_bss_entries = 16;
 
             offset = starting_offset + 46;
             delta = 6;
