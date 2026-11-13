@@ -754,7 +754,7 @@ dissect_mp4_ctts_body(tvbuff_t *tvb, int offset, int len,
         proto_tree *subtree;
         proto_item *subtree_item;
         uint32_t sample_count;
-        uint32_t sample_delta;
+        int32_t sample_delta;
 
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, 2 * 4,
                 ett_mp4_entry, &subtree_item, "Entry %u:", i + 1);
@@ -763,8 +763,9 @@ dissect_mp4_ctts_body(tvbuff_t *tvb, int offset, int len,
                 tvb, offset, 4, ENC_BIG_ENDIAN, &sample_count);
         offset += 4;
 
-        proto_tree_add_item_ret_uint(subtree, sample_offset_hf,
-                tvb, offset, 4, ENC_BIG_ENDIAN, &sample_delta);
+        proto_tree_add_item(subtree, sample_offset_hf,
+                tvb, offset, 4, ENC_BIG_ENDIAN);
+        sample_delta = (int32_t)tvb_get_ntohl(tvb, offset);
         offset += 4;
 
         proto_item_append_text(subtree_item,
@@ -800,10 +801,10 @@ dissect_mp4_elst_body(tvbuff_t *tvb, int offset, int len,
         int32_t rate_int;
         int32_t rate_fraction;
 
-        subtree = proto_tree_add_subtree_format (tree, tvb, offset, 2 * 4,
-                ett_mp4_entry, &subtree_item, "Entry %u:", i + 1);
-
         field_length = (version==1) ? 8 : 4;
+
+        subtree = proto_tree_add_subtree_format (tree, tvb, offset, 2 * field_length + 4,
+                ett_mp4_entry, &subtree_item, "Entry %u:", i + 1);
 
         if (version==1) {
             segment_duration = tvb_get_ntoh64(tvb, offset);
@@ -1077,6 +1078,9 @@ dissect_mp4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree *mp4_tree;
     int         ret;
 
+    /* The timescale comes from the mvhd box of this file only. */
+    mvhd_timescale = 0;
+
     /* to make sure that we have an mp4 file, we check that it starts with
         a box of a known type
        please note that we do not allow the first box to be an extended box
@@ -1243,10 +1247,10 @@ proto_register_mp4(void)
             { "Sample count", "mp4.ctts.sample_count", FT_UINT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_mp4_ctts_sample_offset_signed,
-            { "Sample count", "mp4.ctts.sample_offset", FT_INT32,
+            { "Sample offset", "mp4.ctts.sample_offset", FT_INT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_mp4_ctts_sample_offset_unsigned,
-            { "Sample count", "mp4.ctts.sample_offset", FT_UINT32,
+            { "Sample offset", "mp4.ctts.sample_offset", FT_UINT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_mp4_elst_entry_cnt,
             { "Number of entries", "mp4.elst.entry_count", FT_UINT32,
