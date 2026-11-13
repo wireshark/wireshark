@@ -21,6 +21,9 @@
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/prefs.h>
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
@@ -252,6 +255,8 @@ static int ett_x509sat_TimeAssertion;
 static int ett_x509sat_T_between;
 static int ett_x509sat_LocaleContextSyntax;
 
+static expert_field ei_x509sat_nested_too_deep;
+
 /*--- Cyclic dependencies ---*/
 
 /* Criteria -> Criteria/and -> Criteria */
@@ -435,6 +440,12 @@ int
 dissect_x509sat_Criteria(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // Criteria -> Criteria/and -> Criteria
   increment_dissection_depth_by_n(actx->pinfo, 2);
+  /* Stop before the dissection depth limit, which asserts. */
+  if ((unsigned)actx->pinfo->dissection_depth + 16 >= prefs.gui_max_tree_depth) {
+    expert_add_info(actx->pinfo, tree, &ei_x509sat_nested_too_deep);
+    THROW(ReportedBoundsError);
+  }
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Criteria_choice, hf_index, ett_x509sat_Criteria,
                                  NULL);
@@ -1616,6 +1627,7 @@ dissect_x509sat_GUID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
   tvb_get_ntohguid (tvb, offset, &uuid);
   actx->created_item = proto_tree_add_guid(tree, hf_index, tvb, offset, len, &uuid);
+  offset += len;
 
   return offset;
 }
@@ -2554,6 +2566,11 @@ void proto_register_x509sat(void) {
         NULL, HFILL }},
   };
 
+  static ei_register_info ei[] = {
+    { &ei_x509sat_nested_too_deep, { "x509sat.nested_too_deep", PI_UNDECODED, PI_ERROR, "Nested too deeply. Giving up.", EXPFILL }},
+  };
+  expert_module_t *expert_x509sat;
+
   /* List of subtrees */
   static int *ett[] = {
     &ett_x509sat_DirectoryString,
@@ -2611,6 +2628,8 @@ void proto_register_x509sat(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509sat, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_x509sat = expert_register_protocol(proto_x509sat);
+  expert_register_field_array(expert_x509sat, ei, array_length(ei));
 
   /*--- Syntax registrations ---*/
   register_ber_syntax_dissector("BitString", proto_x509sat, dissect_BitString_PDU);
