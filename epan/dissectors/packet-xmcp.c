@@ -415,7 +415,7 @@ add_xmcp_port_name (packet_info *pinfo)
 
 static void
 decode_xmcp_attr_value (proto_tree *attr_tree, uint16_t attr_type,
-                        uint16_t attr_length, tvbuff_t *tvb, uint16_t offset,
+                        uint16_t attr_length, tvbuff_t *tvb, unsigned offset,
                         packet_info *pinfo)
 {
   proto_item *it;
@@ -671,7 +671,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, uint16_t attr_type,
       expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed Flags - length not divisible by 4");
     }
     {
-      uint16_t flag_type, flag_value, current_offset = offset;
+      uint16_t flag_type, flag_value;
+      unsigned current_offset = offset;
       proto_item *ti;
       proto_tree *flag_tree;
       while ((current_offset-offset)+3 < attr_length) {
@@ -816,7 +817,8 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   uint16_t msg_type, msg_length;
   proto_item *ti = NULL;
   proto_tree *xmcp_tree, *attr_all_tree, *attr_tree;
-  uint16_t offset, attr_type, attr_length;
+  unsigned offset;
+  uint16_t attr_type, attr_length;
 
   /* For request/response association */
   uint32_t transaction_id[3];
@@ -976,7 +978,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     offset = XMCP_HDR_LEN;
 
-    while (offset < (msg_length + XMCP_HDR_LEN)) {
+    while (offset < (unsigned)(msg_length + XMCP_HDR_LEN)) {
       /* Get type/length of next TLV */
       attr_type = tvb_get_ntohs(tvb, offset);
       attr_length = tvb_get_ntohs(tvb, offset+2);
@@ -998,7 +1000,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                                offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
-      if ((offset + attr_length) > (XMCP_HDR_LEN + msg_length)) {
+      if ((offset + attr_length) > (unsigned)(XMCP_HDR_LEN + msg_length)) {
         proto_item_append_text(ti, " (bogus, exceeds message length)");
         expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Attribute length exceeds message length");
         break;
