@@ -161787,3 +161787,107 @@ class TestDissectV120:
             '20\t0x83\tTrue\tFalse\tTrue\tTrue',
             '21\t0x80\tTrue\tFalse\tFalse\tFalse',
         ]
+
+
+class TestDissectV150fw:
+    def test_v150fw_frames(self, cmd_tshark, capture_file, test_env):
+        '''SIP/SDP offers "v150fw" as RTP payload type 97, so 109 of the
+        112 frames are V.150.1 state signalling events (the other three
+        are the INVITE, the 200 OK and a PCMU packet). None is malformed
+        or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v150fw_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ev150fw.ric',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert len(lines) == 112
+        assert len([line for line in lines if line[1] != '']) == 109
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('v150fw_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_v150fw_events(self, cmd_tshark, capture_file, test_env):
+        '''Event IDs (also the reserved and vendor ranges), force
+        response bit and reason ID codes, including the reserved (40-127)
+        and vendor (128-255) ranges.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v150fw_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 10, 11, 12, 52, 53, 54, 55, 56}',
+                '-Tfields', '-eframe.number', '-ev150fw.event',
+                '-ev150fw.frb', '-ev150fw.ric', '-ev150fw.ricinfo',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t0\tFalse\t0\t0x0000',
+            '10\t6\tFalse\t0\t0x0000',
+            '11\t7\tTrue\t0\t0x0000',
+            '12\t40\tTrue\t0\t0x0000',
+            '52\t3\tFalse\t39\t0x0000',
+            '53\t1\tFalse\t40\t0x1234',
+            '54\t1\tFalse\t127\t0x0000',
+            '55\t1\tFalse\t128\t0xbeef',
+            '56\t1\tFalse\t255\t0x0000',
+        ]
+
+    def test_v150fw_modulations(self, cmd_tshark, capture_file, test_env):
+        '''CM and JM carry the available modulations as bit fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v150fw_coverage.pcap.gz'),
+                '-Y', 'frame.number in {57, 72, 73, 74, 90}',
+                '-Tfields', '-eframe.number', '-ev150fw.ric',
+                '-ev150fw.rinfo.mod_avail',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '57\t1\t0x0001', '72\t1\t0x8000', '73\t1\t0xffff',
+            '74\t2\t0x0001', '90\t2\t0xffff',
+        ]
+
+    def test_v150fw_timeout_cleardown(self, cmd_tshark, capture_file, test_env):
+        '''The timeout type and the cleardown type are the high octet of
+        the two octet info field. Frame 96 (info 0x0205) showed
+        "Timeout type: Null" before "V150FW: Add timeout and
+        cleardown items with length 2" because the 16 bit fields were added with
+        length 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v150fw_coverage.pcap.gz'),
+                '-Y', 'frame.number in {91, 93, 96, 99, 103, 106}',
+                '-Tfields', '-eframe.number', '-ev150fw.ricinfo.timeout',
+                '-ev150fw.ricinfo.timeout_vendor', '-ev150fw.ricinfo.cleardown',
+                '-ev150fw.ricinfo.cleardown_reserved',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '91\t0x0000\t0x0000\t\t',
+            '93\t0x0002\t0x0020\t\t',
+            '96\t0x0002\t0x0005\t\t',
+            '99\t\t\t0x0002\t0x0002',
+            '103\t\t\t0x0006\t0x0006',
+            '106\t\t\t0x0004\t0x0000',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v150fw_coverage.pcap.gz'),
+                '-Y', 'frame.number == 96',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Timeout type: IP TLP timeout (0x02)' in stdout
+
+    def test_v150fw_extension(self, cmd_tshark, capture_file, test_env):
+        '''With the extension bit and at least six octets, the reserved
+        and length word follow, then the cleardown vendor tag and info,
+        or the remaining octets for other reasons.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('v150fw_coverage.pcap.gz'),
+                '-Y', 'v150fw.extb == 1',
+                '-Tfields', '-eframe.number', '-ev150fw.ric',
+                '-ev150fw.eflen', '-ev150fw.cleardown_vendor_tag',
+                '-ev150fw.cleardown_vendor_info', '-ev150fw.remainder',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '107\t20\t2\t0xa5\t0x5a\t',
+            '108\t16\t3\t\t\t010203',
+            '109\t1\t0\t\t\taaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            '110\t17\t\t\t\t',
+            '111\t17\t0\t\t\t<MISSING>',
+        ]
