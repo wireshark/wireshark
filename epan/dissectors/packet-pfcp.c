@@ -9401,7 +9401,7 @@ dissect_pfcp_thresholds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
     /* PLR */
     if ((flags & 0x2)) {
-        /* m to (m+1)   RTT  */
+        /* p   Packet Loss Rate  */
         proto_tree_add_item(tree, hf_pfcp_thresholds_plr, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
@@ -10496,24 +10496,24 @@ dissect_pfcp_reporting_thresholds(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     /* m to (m+1) DL Congestion information threshold */
     if ((reporting_thresholds_flags & 0x1)) {
-        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_dl_congestion_information_threshold, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_dl_congestion_information_threshold, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
     }
 
     /* p to (p+1) UL Congestion information threshold */
     if ((reporting_thresholds_flags & 0x2)) {
-        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_ul_congestion_information_threshold, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_ul_congestion_information_threshold, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
     }
 
     /* q to (q+4) DL Data Rate threshold */
     if ((reporting_thresholds_flags & 0x4)) {
-        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_dl_data_rate_threshold, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
+        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_dl_data_rate_threshold, tvb, offset, 5, ENC_BIG_ENDIAN);
+        offset += 5;
 
         /* r to (r+4) UL Data Rate threshold */
-        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_ul_data_rate_threshold, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
+        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_ul_data_rate_threshold, tvb, offset, 5, ENC_BIG_ENDIAN);
+        offset += 5;
     }
 
     if (offset < length) {
@@ -19384,12 +19384,12 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_reporting_thresholds_dl_data_rate_threshold,
         { "DL Data Rate threshold (kilobits)", "pfcp.reporting_thresholds.dl_data_rate",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT40, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_reporting_thresholds_ul_data_rate_threshold,
         { "UL Data Rate threshold (kilobits)", "pfcp.reporting_thresholds.ul_data_rate",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT40, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
