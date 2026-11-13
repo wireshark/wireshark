@@ -167456,3 +167456,94 @@ class TestDissectWtls:
                 '-ewtls.alert.level', '-ewtls.alert.description')
         assert stdout.splitlines() == [
             '1\t0', '2\t10', '3\t40', '1\t90', '3\t100', '2\t255', '1\t0']
+
+
+class TestDissectWtp:
+    '''WTP over UDP 9201 with connection-oriented WSP inside, from the
+    synthetic captures wtp_coverage.pcap.gz (all PDU types, TPIs,
+    reassembly, concatenation) and wtp_nested_concat.pcap.gz.'''
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_wtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 71 frames decode as WTP+WSP without malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                'wtp_coverage.pcap.gz', '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['WTP+WSP'] * 71
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env,
+                    'wtp_coverage.pcap.gz', *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_wtp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A segmented invoke (frames 41-46) and a segmented result (48-50)
+        are reassembled and handed to WSP; the fragments point to the last
+        frame (the first pass can only show this from the last frame on).'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                'wtp_coverage.pcap.gz', '-2',
+                '-Y', 'frame.number in {41, 42, 43, 45, 46, 48, 49, 50}',
+                '-Tfields', '-eframe.number', '-ewtp.reassembled.in',
+                '-ewtp.reassembled.length', '-e_ws.col.info')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[:3] for r in rows] == [
+            ['41', '45', ''], ['42', '45', ''], ['43', '45', ''],
+            ['45', '', '83'], ['46', '45', ''],
+            ['48', '50', ''], ['49', '50', ''], ['50', '', '66']]
+        assert rows[3][3].startswith('WSP Get (0x40) http://example.com/long/')
+        assert rows[7][3].startswith('WSP Reply (0x04): 200 OK (0x20)')
+        # one pass: the early fragments are shown unreassembled
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                'wtp_coverage.pcap.gz',
+                '-Y', 'frame.number == 41', '-Tfields', '-e_ws.col.info')
+        assert 'Unreassembled fragment 0' in stdout
+
+    def test_wtp_abort_and_tpi(self, cmd_tshark, capture_file, test_env):
+        '''Abort reasons (provider and user) and the transport protocol items.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                'wtp_coverage.pcap.gz', '-Y', 'frame.number in {12, 22, 23, 35}',
+                '-Tfields', '-eframe.number', '-ewtp.abort.reason.provider',
+                '-ewtp.abort.reason.user')
+        assert stdout.splitlines() == [
+            '12\t0x00\t', '22\t0x42\t', '23\t\t0xe0', '35\t\t0x10']
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                'wtp_coverage.pcap.gz', '-Y', 'wtp.tpi', '-Tfields',
+                '-eframe.number', '-ewtp.tpi.opt', '-ewtp.tpi.psn')
+        rows = stdout.splitlines()
+        assert len(rows) == 13
+        assert '54\t0x01\t' in rows
+        assert '55\t\t7' in rows
+
+    def test_wtp_concatenation(self, cmd_tshark, capture_file, test_env):
+        '''One level of concatenation (up to the limit) decodes every PDU.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                'wtp_coverage.pcap.gz', '-Y', 'wtp.sub_pdu_size',
+                '-Tfields', '-eframe.number', '-ewtp.sub_pdu_size')
+        assert stdout.splitlines() == [
+            '67\t3,16', '68\t3,3,4', '69\t166,3', '70\t27,5']
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                'wtp_coverage.pcap.gz', '-Y', 'frame.number == 68',
+                '-Tfields', '-e_ws.col.info')
+        assert stdout.strip() == 'WTP Ack, WTP Ack R, WTP Abort'
+
+    def test_wtp_nested_concatenation(self, cmd_tshark, capture_file, test_env):
+        '''A concatenated PDU inside a concatenated PDU gets an error expert
+        info and is not dissected further. Before "WTP: Refuse nested
+        concatenated PDUs" the nesting was only bounded by the packet
+        size.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                'wtp_nested_concat.pcap.gz', '-Y', 'wtp.nested_concat',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert stdout.splitlines() == [
+            '1\tConcatenated PDU nested in another concatenated PDU',
+            '2\tConcatenated PDU nested in another concatenated PDU']
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                'wtp_nested_concat.pcap.gz', '-2', '-Y', 'frame.number == 2',
+                '-Tfields', '-e_ws.col.info')
+        assert stdout.strip() == 'WTP Ack,'
