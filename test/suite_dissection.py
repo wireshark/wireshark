@@ -163894,3 +163894,86 @@ class TestDissectVsomeip:
                 '-Tfields', '-eframe.number', '-evsomeip.version', '-evsomeip.unparsed',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['59\t0\t010203', '60\t1\t0908']
+
+
+class TestDissectVssmonitoring:
+    '''VSS Monitoring Ethernet trailers (heuristic dissector on eth.trailer,
+    enabled by default) from the synthetic capture
+    vssmonitoring_coverage.pcap.gz: UDP over IPv4, IPv6 and 802.1Q frames
+    with trailers of 1 to 14 bytes.'''
+
+    OPT_PORT = ('-o', 'vssmonitoring.dissect_portstamping_only:TRUE')
+    OPT_TWO = ('-o', 'vssmonitoring.two_byte_portstamps:TRUE')
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, *opts):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('vssmonitoring_coverage.pcap.gz'),
+                '-Y', 'vssmonitoring',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        return [int(n) for n in stdout.split()]
+
+    def test_vssmonitoring_trailers(self, cmd_tshark, capture_file, test_env):
+        '''By default the 8 to 13 byte trailers with a valid timestamp are
+        dissected; seconds of zero, nanoseconds out of range, timestamps
+        more than 30 days from the capture time, trailers longer than 13
+        bytes or 3 modulo 4 bytes long and trailers without a timestamp
+        are not.'''
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env, *passes) == \
+                [1, 2, 3, 4, 5, 6, 7, 8, 20, 21, 22]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('vssmonitoring_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_vssmonitoring_preferences(self, cmd_tshark, capture_file, test_env):
+        '''Trailers with only a port stamp (frames 15 and 19) need
+        dissect_portstamping_only; two byte port stamps change which
+        trailer lengths are valid.'''
+        assert self.frames(cmd_tshark, capture_file, test_env, *self.OPT_PORT) == \
+            [1, 2, 3, 4, 5, 6, 7, 8, 15, 19, 20, 21, 22]
+        assert self.frames(cmd_tshark, capture_file, test_env, *self.OPT_TWO) == \
+            [1, 3, 7, 8, 13, 17, 21]
+        assert self.frames(cmd_tshark, capture_file, test_env, *self.OPT_PORT, *self.OPT_TWO) == \
+            [1, 3, 7, 8, 13, 16, 17, 21]
+
+    def test_vssmonitoring_fields(self, cmd_tshark, capture_file, test_env):
+        '''Clock source, port stamp and time stamp (in UTC).'''
+        env = dict(test_env, TZ='UTC')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vssmonitoring_coverage.pcap.gz'),
+                '-Y', 'vssmonitoring',
+                '-Tfields', '-eframe.number', '-evssmonitoring.clksrc',
+                '-evssmonitoring.srcport', '-evssmonitoring.time',
+            ), encoding='utf-8', env=env)
+        assert stdout.splitlines() == [
+            '1\t0\t\t1970-01-01T00:01:40.123456789+0000',
+            '2\t1\t7\t1970-01-01T01:00:00.999999999+0000',
+            '3\t2\t\t1970-01-01T00:03:20.000000001+0000',
+            '4\t3\t222\t1970-01-01T00:00:01.000000000+0000',
+            '5\t1\t16\t2023-11-15T22:13:24.000000500+0000',
+            '6\t2\t17\t2023-11-13T22:13:25.000000500+0000',
+            '7\t3\t\t2023-12-14T22:13:26.000000007+0000',
+            '8\t0\t\t2023-10-15T22:13:27.000000007+0000',
+            '20\t1\t33\t1970-01-01T00:05:00.000000042+0000',
+            '21\t2\t\t1970-01-01T00:06:40.000000043+0000',
+            '22\t3\t34\t1970-01-01T00:08:20.000000044+0000',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *self.OPT_PORT, *self.OPT_TWO,
+                '-r', capture_file('vssmonitoring_coverage.pcap.gz'),
+                '-Y', 'frame.number in {16, 17}',
+                '-Tfields', '-eframe.number', '-evssmonitoring.srcport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['16\t5', '17\t9']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vssmonitoring_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 20}',
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['eth:ethertype:ip:udp:data:vssmonitoring',
+                                  'eth:ethertype:ip:udp:data:vssmonitoring',
+                                  'eth:ethertype:ipv6:udp:data:vssmonitoring']
