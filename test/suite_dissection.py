@@ -161132,3 +161132,90 @@ class TestDissectUsbmsBot:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {211, 213}',
                             'frame.number', '_ws.col.protocol', '_ws.col.info')
         assert rows == ['211\tUASP\tSCSI Test Unit Ready LUN: 0x00 ', '213\tUASP\tUnknown IU [0x55]']
+
+
+class TestDissectUsbmsUasp:
+    '''USB Attached SCSI (packet-usbms-uasp.c) from the synthetic Linux usbmon
+    / USBPcap capture usbms_uasp_coverage.pcapng.gz. Frames 1-12 enumerate a
+    UAS disk (device 2, Bulk-Only alternate setting 0 and UAS alternate
+    setting 1 with pipe usage descriptors), 13-72 are SCSI commands with their
+    Ready, data and Sense IUs, 73-96 other LUNs and an additional CDB, 97-112
+    Task Management and Response IUs, 113-130 IUs without a command, 131-166
+    a device on USBPcap whose pipes are in another order (3), 167-186 a device
+    without pipe usage descriptors for the data pipes (4) and 187-206 a device
+    whose first configuration read stops before the UAS alternate setting (5).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('usbms_uasp_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_usbms_uasp_frames(self, cmd_tshark, capture_file, test_env):
+        '''70 UASP frames and 2 Bulk-Only frames out of 206; no malformed frames and no warnings or
+        errors in one and two passes; the same info column in both (the passes differ only in the
+        forward links such as "Tag completed in").'''
+        by_pass = []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol', '_ws.col.info', extra=passes)
+            assert len(rows) == 206
+            assert [r.split('\t')[0] for r in rows].count('UASP') == 70
+            assert [r.split('\t')[0] for r in rows].count('USBMS') == 2
+            by_pass.append(rows)
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+        assert by_pass[0] == by_pass[1]
+
+    def test_usbms_uasp_pipes(self, cmd_tshark, capture_file, test_env):
+        '''The pipe usage descriptors (pipe IDs 1-4) of the configurations, in two orders;
+        device 4 has an extra descriptor with the undefined pipe ID 9.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'uasp.pipe_usage.bPipeID', 'frame.number',
+                            'uasp.pipe_usage.bPipeID')
+        assert rows == ['8\t0x01,0x02,0x03,0x04', '141\t0x02,0x04,0x03,0x01', '174\t0x01,0x02,0x09', '200\t0x01,0x02,0x03,0x04']
+
+    def test_usbms_uasp_commands(self, cmd_tshark, capture_file, test_env):
+        '''Command IU fields (priority, task attribute, additional CDB length), the status IU
+        (status, qualifier and sense length), IU IDs and tags.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {13, 16, 33, 89, 104, 108, 111}',
+                            'frame.number', 'uasp.iu_id', 'uasp.tag', 'uasp.command.priority', 'uasp.command.task_attr',
+                            'uasp.command.add_cdb_length', 'uasp.sense.status', 'uasp.sense.status_qualifier',
+                            'uasp.sense.length', 'uasp.response.code')
+        assert rows == ['13\t0x01\t0x0001\t0\t0x00\t0\t\t\t\t', '16\t0x03\t0x0001\t\t\t\t2\t1\t18\t',
+                        '33\t0x01\t0x0004\t3\t0x02\t0\t\t\t\t', '89\t0x01\t0x000c\t0\t0x00\t16\t\t\t\t',
+                        '104\t0x04\t0x0040\t\t\t\t\t\t\t0x00', '108\t0x03\t0x000d\t\t\t\t6\t0\t0\t',
+                        '111\t0x77\t0x0055\t\t\t\t\t\t\t']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {13, 16, 33, 41, 73, 81, 89}',
+                            'frame.number', '_ws.col.info')
+        assert [r.rstrip() for r in rows] == [
+            '13\tSCSI Test Unit Ready LUN: 0x00',
+            '16\tSCSI Response LUN: 0x00 Test Unit Ready, 0 bytes (0 blocks) (Check Condition)  LUN:0x00',
+            '33\tSCSI Read(10) LUN: 0x00 0 bytes (1 blocks) at LBA: 0x00000000',
+            '41\tSCSI Write(10) LUN: 0x00 0 bytes (1 blocks) at LBA: 0x00000008',
+            '73\tSCSI Read(10) LUN: 0x01 0 bytes (1 blocks) at LBA: 0x00000000',
+            '81\tSCSI Read(10) LUN: 0x123 0 bytes (1 blocks) at LBA: 0x00000000',
+            '89\tSCSI Variable Length CDB LUN: 0x00']
+
+    def test_usbms_uasp_tag_links(self, cmd_tshark, capture_file, test_env):
+        '''Tag tracking: the Read Ready, data and Sense IUs of tag 2 (frames 17-24) link to
+        the command and to each other; the Task Management IU carries the managed tag; IUs of
+        tags with no command carry no links.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {22, 24, 100, 101, 114, 120}',
+                            'frame.number', 'uasp.tag_started_frame', 'uasp.tag_read_ready_frame',
+                            'uasp.tag_data_recv_frame', 'uasp.task_mgmt.function', 'uasp.task_mgmt.managed_tag')
+        assert rows == ['22\t17\t20\t\t\t', '24\t17\t20\t22\t\t', '100\t\t\t\t0x01\t0x000d', '101\t\t\t\t0x01\t0x000d',
+                        '114\t\t\t\t\t', '120\t\t\t\t\t']
+        # the same links in the second pass, where "Tag completed in" is also present on the command
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {17, 22}', 'frame.number',
+                            'uasp.tag_completed_frame', extra=('-2',))
+        assert rows == ['17\t24', '22\t24']
+
+    def test_usbms_uasp_bulk_only_first(self, cmd_tshark, capture_file, test_env):
+        '''Device 5: Bulk-Only traffic before the UAS descriptors were read: the conversation
+        belongs to Bulk-Only, UAS leaves its IUs alone (frames 203-206).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {195, 198, 203, 204, 205, 206}',
+                            'frame.number', '_ws.col.protocol')
+        assert rows == ['195\tUSBMS', '198\tUSBMS', '203\tUSB', '204\tUSB', '205\tUSB', '206\tUSB']
