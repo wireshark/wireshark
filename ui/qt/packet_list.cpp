@@ -3437,14 +3437,14 @@ QString PacketList::createSummaryForAligned(int frame_num, QList<int> align_part
 
 QString PacketList::createDefaultStyleForHtml()
 {
-    QString fontFamily = QString(prefs.gui_font_name).split(",")[0];
-    QString fontSize = QString(prefs.gui_font_name).split(",")[1];
+    const QFont font = FontManager::monospaceFont();
+    const qreal fontSize = font.pointSizeF();
 
     return QStringLiteral("<style>"
         "table{font-family:%1;font-size:%2pt;}"
         "th{background-color:#000000;color:#ffffff;text-align:left;}"
         "th,td{padding:%3pt}"
-        "</style>").arg(fontFamily, fontSize).arg(fontSize.toInt() / 2);
+        "</style>").arg(font.family()).arg(fontSize).arg(int(fontSize) / 2);
 }
 
 QString PacketList::createOpeningTagForHtml()
