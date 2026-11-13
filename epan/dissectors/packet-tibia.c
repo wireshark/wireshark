@@ -1322,7 +1322,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
     int offset = 2;
     int a32len = tvb_reported_length_remaining(tvb, offset + 4);
     uint32_t packet_cksum = tvb_get_letohl(tvb, offset);
-    uint32_t computed_cksum = GUINT32_TO_LE(adler32_bytes(tvb_get_ptr(tvb, offset + 4, a32len), a32len));
+    uint32_t computed_cksum = adler32_bytes(tvb_get_ptr(tvb, offset + 4, a32len), a32len);
     convo->has.adler32 = packet_cksum == computed_cksum;
     if (convo->has.adler32)
         offset += 4;
