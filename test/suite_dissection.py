@@ -168406,3 +168406,108 @@ class TestDissectX509sat:
             stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-Y', 'x509sat.nested_too_deep',
                     '-Tfields', '-eframe.number'), encoding='utf-8', env=env)
             assert (stdout.split() == ['1']) == expect, depth
+
+
+class TestDissectX75:
+    '''X.75 (async data over ISDN B channels) from the synthetic capture
+    x75_coverage.pcapng.gz: GSMTAP E1/T1 frames (UDP 4729, sub type
+    X.75) in both directions and with all four address octets, and
+    Exported PDU frames that name "x75" (no direction).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('x75_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_x75_frames(self, cmd_tshark, capture_file, test_env):
+        '''235 frames: 124 commands, 106 responses and 5 invalid X.75
+        frames; no malformed packets or error expert infos in one and two
+        passes.'''
+        protos = self.fields(cmd_tshark, capture_file, test_env, 'x75', '_ws.col.protocol')
+        assert len(protos) == 235
+        assert protos.count('X.75 CMD') == 124
+        assert protos.count('X.75 RSP') == 106
+        assert protos.count('X.75') == 5
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               'frame.number', passes=passes) == []
+
+    def test_x75_direction(self, cmd_tshark, capture_file, test_env):
+        '''The same frame is a response or a command and goes between
+        different stations depending on the GSMTAP direction and the
+        address octet: STE A/B on the single link, STE C/D on the
+        multilink; address 03/0F are responses when sent, 01/07 when
+        received.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {1, 27, 53, 79, 105, 131, 157, 183}',
+                            'frame.number', 'x75.address', '_ws.col.protocol',
+                            '_ws.col.def_src', '_ws.col.def_dst')
+        assert lines == [
+            '1\t0x03\tX.75 RSP\tSTE A\tSTE B',
+            '27\t0x01\tX.75 CMD\tSTE A\tSTE B',
+            '53\t0x0f\tX.75 RSP\tSTE C\tSTE D',
+            '79\t0x07\tX.75 CMD\tSTE C\tSTE D',
+            '105\t0x03\tX.75 CMD\tSTE B\tSTE A',
+            '131\t0x01\tX.75 RSP\tSTE B\tSTE A',
+            '157\t0x0f\tX.75 CMD\tSTE D\tSTE C',
+            '183\t0x07\tX.75 RSP\tSTE D\tSTE C',
+        ]
+
+    def test_x75_control(self, cmd_tshark, capture_file, test_env):
+        '''U, S and I frames: modifiers named differently as command and
+        response (DISC and RD, SIM and RIM), poll and final
+        flags, N(R) and N(S).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {2, 5, 14, 15, 16, 24, 26, 31, 40, 45}',
+                            'frame.number', '_ws.col.info')
+        by = {int(l.split('\t')[0]): l.split('\t')[1] for l in lines}
+        assert by[2] == 'U F, func=SABM'
+        assert by[5] == 'U, func=RD'            # DISC from the other side is a Request Disconnect
+        assert by[14] == 'U, func=RIM'
+        assert by[15] == 'S, func=RR, N(R)=3'
+        assert by[16] == 'S F, func=RR, N(R)=5'
+        assert by[24] == 'I P, N(R)=0, N(S)=1, CONNECT 9600'
+        assert by[26] == 'I P, N(R)=5, N(S)=1, xxxxxxxxxxxxxxxxxxxx'
+        assert by[31] == 'U, func=DISC'
+        assert by[40] == 'U, func=SIM'
+        assert by[45] == 'S, func=REJ, N(R)=3'
+
+    def test_x75_info_text_limited(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows at most the first 128 octets of the data
+        of an I frame (frame 209 has 190), an I frame without data shows
+        nothing, and a UI frame is an information frame too.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {25, 209, 210}',
+                            'frame.number', '_ws.col.info', 'data.len')
+        by = {int(l.split('\t')[0]): l.split('\t') for l in lines}
+        assert by[25][1] == 'U, func=UI, unnumbered information'
+        assert by[209][1].startswith('I, N(R)=0, N(S)=0,  !"#$%&')
+        assert by[209][1].endswith('>?@')
+        assert by[209][2] == '190'
+        assert by[210][1] == 'I, N(R)=0, N(S)=0, '
+
+    def test_x75_invalid_and_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Address octets other than 01, 03, 07 and 0F give "Invalid X.75
+        frame" (frames 211-214 and 235). Exported PDU frames 215-234 have
+        no direction, so every one is a command.'''
+        assert self.fields(cmd_tshark, capture_file, test_env,
+                           '_ws.col.info == "Invalid X.75 frame"', 'frame.number') == \
+            ['211', '212', '213', '214', '235']
+        protos = self.fields(cmd_tshark, capture_file, test_env,
+                             'exported_pdu && frame.number <= 234', '_ws.col.protocol')
+        assert protos == ['X.75 CMD'] * 20
+
+    def test_x75_payload_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''Decode As of the payload table x75.subdissector to Data gives
+        the same data frames as the default (the table has no other
+        entries).'''
+        default = self.fields(cmd_tshark, capture_file, test_env, 'data', 'frame.number')
+        decoded = self.fields(cmd_tshark, capture_file, test_env, 'data', 'frame.number',
+                              extra=('-d', 'x75.subdissector,data'))
+        assert len(default) == 37
+        assert decoded == default
