@@ -170137,3 +170137,147 @@ class TestDissectLiPsPduSamples:
         assert len(sphere) >= 1
         assert len(ellipsoid) >= 1
         assert sphere != ellipsoid
+
+
+class TestDissectMidiNetwork:
+    # midi_network_coverage.pcap.gz is synthetic: every packet was generated.
+    # The UDP heuristic is enabled by default, so no options are needed.
+
+    def test_midi_network_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is Network MIDI 2.0 and none is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('midi_network_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 52
+        assert protocols.count('NetMIDI2') == 52
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('midi_network_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_midi_network_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the invitation, reset, bye and UMP frames,
+        including a packet with several commands and unknown commands.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('midi_network_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(line.split('\t') for line in stdout.splitlines())
+        assert info['1'] == 'Invitation (Synth 1)'
+        assert info['4'] == 'Invitation with User Authentication'
+        assert info['5'] == 'Invitation Reply: Authentication Required (Synth 1)'
+        assert info['8'] == 'Invitation Reply: Pending (Synth 1)'
+        assert info['15'] == 'Retransmit Request'
+        assert info['19'] == 'Session Reset Reply'
+        assert info['37'] == 'Bye (Invitation Failed: too many sessions)'
+        assert info['38'] == 'Bye (reason=0x99)'
+        assert info['43'] == 'UMP Data (seq=4, count=5)'
+        assert info['50'] == 'Ping (id=11111111), UMP Data (seq=11, count=1), Session Reset'
+        assert info['51'] == 'Unknown 85, Unknown 86'
+
+    def test_midi_network_invitation_fields(self, cmd_tshark, capture_file, test_env):
+        '''Endpoint name, product instance id, user name, auth state and
+        nonce of the invitation commands.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('midi_network_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 8',
+                '-Tfields', '-eframe.number', '-enmp.invitation.endpoint_name',
+                '-enmp.invitation.product_instance_id', '-enmp.invitation.user_name',
+                '-enmp.invitation.auth_state', '-enmp.invitation.crypto_nonce',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tSynth 1\tPID-0001\t\t\t',
+            '2\tController\t\t\t\t',
+            '3\t\t\t\t\t',
+            '4\t\t\talice\t\t',
+            '5\tSynth 1\tPID-0001\t\t0x00\t0123456789abcdef',
+            '6\tSynth 1\t\t\t0x02\t0123456789abcdef',
+            '7\tSynth 1\tPID-0001\t\t\t',
+            '8\tSynth 1\t\t\t\t',
+        ]
+
+    @pytest.mark.parametrize('passes', [(), ('-2',)])
+    def test_midi_network_ping_matching(self, cmd_tshark, capture_file, test_env, passes):
+        '''A ping reply is matched to the request that precedes it, also
+        on later passes, when the same ping id is used again (it was
+        matched to the last request with that id before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('midi_network_coverage.pcap.gz'),
+                '-Y', 'nmp.ping.id',
+                '-Tfields', '-eframe.number', '-enmp.ping.response_to',
+                '-enmp.ping.latency',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:2] for l in lines] == [
+            ['9', ''], ['10', '9'], ['11', ''], ['12', '11'], ['13', ''], ['14', ''], ['50', ''],
+        ]
+        # The latency is a time in seconds (frames 10 and 12 are 2 and 3 seconds
+        # after their request); the digits do not depend on the locale
+        assert lines[1][2].startswith('2.0')
+        assert lines[3][2].startswith('3.0')
+
+    def test_midi_network_ping_reply_in(self, cmd_tshark, capture_file, test_env):
+        '''Requests link forward to their reply in the second pass.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('midi_network_coverage.pcap.gz'),
+                '-Y', 'nmp.ping.response_in',
+                '-Tfields', '-eframe.number', '-enmp.ping.response_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['9\t10', '11\t12']
+
+    def test_midi_network_nak_bye(self, cmd_tshark, capture_file, test_env):
+        '''NAK reasons and messages, and the bye message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('midi_network_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 20 && frame.number <= 37',
+                '-Tfields', '-eframe.number', '-enmp.nak.reason',
+                '-enmp.nak.message', '-enmp.bye.message',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '20\t0x00\tbad command\t'
+        assert lines[1] == '21\t0x01\t\t'
+        assert lines[4] == '24\t0x20\tbad command\t'
+        assert lines[15] == '35\t0x00\t\t'
+        assert lines[17] == '37\t\t\ttoo many sessions'
+
+    @pytest.mark.parametrize('passes', [(), ('-2',)])
+    def test_midi_network_short_commands(self, cmd_tshark, cmd_text2pcap, test_env, tmp_path, passes):
+        '''Commands whose payload length is shorter than their fixed fields
+        get an expert info and the next command is dissected; before the
+        fix the remaining length wrapped around and the packet was
+        malformed.'''
+        ping = '20 01 00 00 12 34 56 78'
+        datagrams = [
+            # Invitation: name length 2 words, payload 1 word
+            '4d 49 44 49 01 01 02 00 61 62 63 64 65 66 67 68 00 00 00 00 00 00 00 00',
+            # Invitation with User Authentication, payload 0 words, then a ping
+            '4d 49 44 49 03 00 00 00 ' + ping,
+            # Invitation Reply: Authentication Required, payload 1 word
+            '4d 49 44 49 12 01 01 00 ' + ' '.join(['22'] * 8),
+            # NAK, payload 0 words, then a ping
+            '4d 49 44 49 8f 00 01 00 ' + ping,
+            # Ping with payload length 0, then a ping
+            '4d 49 44 49 20 00 00 00 ' + ping,
+        ]
+        hexdump = tmp_path / 'midi_network_short.txt'
+        hexdump.write_text('\n\n'.join('000000 ' + d for d in datagrams) + '\n')
+        capture = tmp_path / 'midi_network_short.pcap'
+        subprocess.check_call((cmd_text2pcap, '-u', '5673,5673',
+                str(hexdump), str(capture)), env=test_env)
+        stdout = subprocess.check_output((cmd_tshark, *passes, '-r', str(capture),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-enmp.command_too_short', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert all('Malformed' not in l[3] for l in lines)
+        assert [l[2] != '' for l in lines] == [True] * 5
+        assert lines[0][1].startswith('Invitation')
+        assert lines[1][1] == 'Invitation with User Authentication, Ping (id=12345678)'
+        assert lines[3][1] == 'NAK, Ping (id=12345678)'
+        assert lines[4][1] == 'Ping, Ping (id=12345678)'
