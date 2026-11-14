@@ -106,7 +106,7 @@ typedef struct blf_fileheader {
     blf_date_t start_date;            /**< Date and time of the first recorded event. */
     blf_date_t end_date;              /**< Date and time of the last recorded event. */
     uint32_t   restore_point_offset;  /**< File offset to the restore point used for crash recovery. */
-    uint8_t    padding[];             /**< Padding bytes to align the header to the required boundary. */
+    uint8_t    padding[4];            /**< Padding bytes to align the header to the required boundary. */
 } blf_fileheader_t;
 
 
