@@ -2035,7 +2035,7 @@ compare_logcodes(const void *a, const void *b)
 static int
 qcdictionary_load(wmem_array_t *hf_array _U_, GPtrArray *ett_array _U_)
 {
-    bool dump_dict = getenv("WIRESHARK_DUMP_QC_DICT");
+    bool dump_dict = getenv("WIRESHARK_DUMP_QC_DICT") != NULL;
     GSList *all_logcodes = NULL;
     value_string end_value_string = { 0, NULL };
     GDir *dir;
