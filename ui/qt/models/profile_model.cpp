@@ -719,7 +719,7 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, ProfileItem::StatusTyp
     if (item->getStatus() == ProfileItem::StatusType::Copy && !item->isGlobal())
     {
         int row = findByNameAndVisibility(item->getReference(), false);
-        ProfileItem* copyItem = profile_items_[row];
+        ProfileItem* copyItem = (row >= 0) ? profile_items_[row] : Q_NULLPTR;
         if (copyItem && copyItem->getStatus() == ProfileItem::StatusType::New)
         {
             // We recurse here, but our depth is limited
