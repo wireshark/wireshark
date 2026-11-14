@@ -171789,3 +171789,69 @@ class TestDissectFileRtpdump:
                 f.write(struct.pack('>HHI', length, 4, 0) + b'\0' * 20)
             out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-Tfields', '-e_ws.malformed')
             assert out.startswith('[Malformed Packet: rtpdump]'), length
+
+
+class TestDissectTiff:
+    '''TIFF (file-tiff.c): tiff_coverage.tif.gz is a little endian file with
+    three IFDs, read through the MIME file reader and the "wtap_file"
+    heuristic; tiff_coverage.pcap.gz carries a big endian file, the
+    reproducer of the entry length fix and a file without media type in HTTP
+    responses (media type image/tiff).'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_tiff_file(self, cmd_tshark, capture_file, test_env):
+        '''Every tag the dissector knows, all entry types, an out of line
+        value for each kind; one and two passes agree and the file is not
+        malformed. The only notes are the unknown tags (14): a next IFD
+        offset of zero ends the chain without an error.'''
+        res = []
+        for passes in ((), ('-2',)):
+            res.append(self._tshark(cmd_tshark, capture_file, test_env,
+                    'tiff_coverage.tif.gz', *passes, '-Tfields',
+                    '-e_ws.col.protocol', '-e_ws.malformed',
+                    '-e_ws.expert.message'))
+        assert res[0] == res[1]
+        proto, malformed, expert = res[0][0].split('\t')
+        assert proto == 'MIME_FILE'
+        assert malformed == ''
+        assert expert.split(',') == ['Unknown tag'] * 14
+
+    def test_tiff_values(self, cmd_tshark, capture_file, test_env):
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'tiff_coverage.tif.gz', '-Tfields', '-etiff.endianness',
+                '-etiff.image_width', '-etiff.image_length',
+                '-etiff.bits_per_sample', '-etiff.compression',
+                '-etiff.x_res_numer', '-etiff.make', '-etiff.copyright',
+                '-etiff.strip_byte_count', '-etiff.lead_ifd')
+        assert lines == ['0x4949\t4,2,1\t2,2,1\t8,8,8\t5,1\t300\tMaker\t'
+                         '(c) nobody\t6,6\t0x00000008']
+
+    def test_tiff_http(self, cmd_tshark, capture_file, test_env):
+        '''Three TIFF responses are dissected, in one and two passes; the
+        big endian file decodes like the little endian one, the response
+        without a media type is not handed to the TIFF dissector.'''
+        res = []
+        for passes in ((), ('-2',)):
+            res.append(self._tshark(cmd_tshark, capture_file, test_env,
+                    'tiff_coverage.pcap.gz', *passes, '-Tfields',
+                    '-eframe.number', '-e_ws.malformed', '-etiff.endianness'))
+        assert res[0] == res[1]
+        assert res[0] == ['1\t\t0x4949', '2\t\t0x4d4d', '3\t\t0x4949', '4\t\t']
+
+    def test_tiff_entry_length_wrap(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of "TIFF: Do not overflow the entry data length":
+        entries whose count times the type length wraps 32 bits or exceeds
+        INT_MAX are rejected, they are no longer decoded with the wrapped
+        length (frame 3).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'tiff_coverage.pcap.gz', '-Y', 'frame.number == 3',
+                '-Tfields', '-e_ws.expert.message', '-etiff.unknown')
+        messages = lines[0].split('\t')[0].split(',')
+        assert messages.count('Could not determine length of entry') == 4
+        assert messages.count('Unknown tag') == 3
+        assert lines[0].split('\t')[1] == ''
