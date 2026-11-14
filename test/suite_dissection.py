@@ -170570,3 +170570,162 @@ class TestDissectFileDlt:
                 f.write(self.line(1, 2, b'ECU1', 1, b'abcdefgh') + self.line(2, 3, b'ECU1', 2, b'xxxx', length))
             out = self.tshark(cmd_tshark, test_env, path, '-Tfields', '-e_ws.malformed', '-efile-dlt.length')
             assert out.startswith('[Malformed Packet: File-DLT]'), name
+
+
+class TestDissectFileElf:
+    '''ELF files (file-elf.c) from the synthetic elf_coverage.elf.gz (64-bit
+    little endian), which tshark opens with the MIME Files Format reader
+    and the "wtap_file" heuristic, and from elf_coverage_http.pcap.gz with
+    32-bit and big endian variants and the reproducers of "ELF: Fix
+    assertions, an endless loop and quadratic memory use" as HTTP
+    responses (media types and the "http" heuristic). The files are
+    generated; nothing comes from a real binary.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args, env=None):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=env or test_env, timeout=120).splitlines()
+
+    def test_elf_file_clean(self, cmd_tshark, capture_file, test_env):
+        '''One frame, no malformed packet and no expert info (not even a
+        warning) in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'elf_coverage.elf.gz', *passes,
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-e_ws.malformed', '-e_ws.expert.message')
+            assert lines == ['MIME_FILE\t(ELF)\t\t']
+
+    def test_elf_header(self, cmd_tshark, capture_file, test_env):
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'elf_coverage.elf.gz', '-Tfields', '-eelf.file_class',
+                '-eelf.data_encoding', '-eelf.type', '-eelf.machine', '-eelf.os_abi',
+                '-eelf.phnum', '-eelf.shnum', '-eelf.shstrndx', '-eelf.entry64')
+        assert lines == ['0x02\t0x01\t0x0003\t0x003e\t0x03\t12\t32\t31\t0x0000000000401000']
+
+    def test_elf_program_headers(self, cmd_tshark, capture_file, test_env):
+        '''12 program headers: standard, OS specific (0x6474e550), processor
+        specific and unknown types.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'elf_coverage.elf.gz', '-Tfields', '-eelf.p_type')
+        assert lines[0].split(',') == ['0x00000006', '0x00000003', '0x00000001', '0x00000001',
+                '0x00000002', '0x00000004', '0x00000007', '0x6474e550', '0x6474e551',
+                '0x70000001', '0x00001234', '0x00000000']
+
+    def test_elf_sections(self, cmd_tshark, capture_file, test_env):
+        '''The section header entries are labelled with type and name; the
+        string tables, the symbol tables, the dynamic section and the
+        eh_frame and eh_frame_hdr sections are decoded.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'elf_coverage.elf.gz', '-V', '-O', 'elf')
+        start = [i for i, l in enumerate(lines) if l.strip().startswith('Section Header Table [')][0]
+        entries = [l.strip() for l in lines[start:] if l.strip().startswith('Entry #')
+                   and not l.startswith(' ' * 16)]
+        assert len(entries) == 32
+        assert entries[1] == 'Entry #1: SHT_PROGBITS: .interp'
+        assert entries[3] == 'Entry #3: Operating System Specific (0x6ffffff6): .gnu.hash'
+        assert entries[4] == 'Entry #4: SHT_DYNSYM: .dynsym'
+        assert entries[7] == 'Entry #7: SHT_PROGBITS: .text'
+        assert sum(': .eh_frame_hdr' in e for e in entries) == 10
+        assert 'Entry #27: Processor Specific (0x70000001): .sec.proc' in entries
+        assert 'Entry #28: User Specific (0x80000001): .sec.user' in entries
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'elf_coverage.elf.gz', '-Tfields', '-eelf.string')
+        names = lines[0].split(',')
+        assert names[1:3] == ['libc.so.6', 'libm.so.6']
+        assert names[-1] == '.shstrtab'
+        assert 'printf' in names and 'weak_fn' in names
+
+    def test_elf_dynamic_and_symbols(self, cmd_tshark, capture_file, test_env):
+        '''41 dynamic entries (known tags and tags past the table) and the
+        symbol tables with special section indexes (0xfff1, 0xfff2).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'elf_coverage.elf.gz', '-Tfields', '-eelf.dynamic.tag64',
+                '-eelf.symbol_table.shndx')
+        tags, shndx = [l.split(',') for l in lines[0].split('\t')]
+        assert len(tags) == 41
+        assert tags[0] == '0x0000000000000000'
+        assert tags[-1] == '0x000000007fffffff'
+        assert '0x000000006ffffef5' in tags
+        assert '0xfff1' in shndx and '0xfff2' in shndx
+        assert len(shndx) == 19
+
+    def test_elf_eh_frame(self, cmd_tshark, capture_file, test_env):
+        '''The eh_frame section has three CIEs (one with extended length)
+        and four FDEs; the ten eh_frame_hdr sections use every encoding of
+        the pointer, count and table.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'elf_coverage.elf.gz', '-Tfields', '-eelf.eh_frame.version',
+                '-eelf.eh_frame.fde.pc_begin', '-eelf.eh_frame_hdr.fde_count',
+                '-eelf.eh_frame.extended_length', '-eelf.eh_frame.fde.extended_length')
+        version, pc_begin, counts, cie_ext, fde_ext = lines[0].split('\t')
+        assert version == '1,3,1'
+        assert pc_begin == '0x00001000,0x00001040,0x00002000,0x00003000'
+        assert counts == '2,3,3,3,3,3,3,3,3,3'
+        assert cie_ext and fde_ext
+
+    def test_elf_blackholes_and_overlaps(self, cmd_tshark, capture_file, test_env):
+        '''The generated Infos report padding between sections and segments
+        that overlap sections, and the sizes add up.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'elf_coverage.elf.gz', '-Tfields', '-eelf.blackhole_size',
+                '-eelf.overlapping_size', '-eelf.file_size', '-eelf.blackholes_size')
+        blackholes, overlaps, file_size, total = lines[0].split('\t')
+        assert len(blackholes.split(',')) == 9
+        assert len(overlaps.split(',')) == 10
+        assert file_size == '5628'
+
+    def test_elf_variants_http(self, cmd_tshark, capture_file, test_env):
+        '''32-bit little and big endian, 64-bit big endian and a relocatable
+        file, each in an HTTP response (the four media types, and without
+        a Content-Type through the "http" heuristic): no malformed packet,
+        no error expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'elf_coverage_http.pcap.gz', *passes, '-Y', 'elf && frame.number <= 12',
+                    '-Tfields', '-eframe.number', '-eelf.file_class', '-eelf.data_encoding',
+                    '-eelf.type', '-eelf.machine', '-eelf.shnum', '-e_ws.malformed',
+                    '-e_ws.expert.message')
+            assert lines == [
+                '2\t0x01\t0x01\t0x0002\t0x0003\t23\t\t',
+                '4\t0x01\t0x02\t0x0003\t0x0014\t32\t\t',
+                '6\t0x02\t0x02\t0x0004\t0x0016\t32\t\t',
+                '8\t0x01\t0x01\t0x0001\t0x0028\t32\t\t',
+                '10\t0x01\t0x01\t0x0002\t0x0003\t23\t\t',
+                '12\t0x02\t0x01\t0x0003\t0x003e\t32\t\t']
+
+    def test_elf_name_cap(self, cmd_tshark, capture_file, test_env):
+        '''Many symbols name one 600 octet string: names are cut at 256
+        octets (frame 14). Before the fix every symbol copied the whole
+        string, which was quadratic in memory.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'elf_coverage_http.pcap.gz', '-Y', 'frame.number == 14', '-V')
+        import re
+        runs = [len(r) for l in lines for r in re.findall('A+', l)]
+        assert runs
+        assert 100 < max(runs) <= 256
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'elf_coverage_http.pcap.gz', '-Y', 'frame.number == 14',
+                '-Tfields', '-e_ws.malformed')
+        assert lines == ['']
+
+    def test_elf_eh_frame_hdr_omitted_table(self, cmd_tshark, capture_file, test_env):
+        '''An eh_frame_hdr whose table encoding is "omit" and whose count is
+        2^63 returns at once (it looped forever, frame 16).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'elf_coverage_http.pcap.gz', '-Y', 'frame.number == 16',
+                '-Tfields', '-eelf.eh_frame_hdr.fde_count', '-e_ws.malformed',
+                '-e_ws.expert.message')
+        assert lines == ['9223372036854775808\t\t']
+
+    def test_elf_offset_beyond_int_max(self, cmd_tshark, capture_file, test_env):
+        '''A 64-bit program header offset of 2^32 ends the dissection with
+        a malformed packet; it was a dissector bug (frame 18).'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        lines = self._tshark(cmd_tshark, capture_file, env,
+                'elf_coverage_http.pcap.gz', '-Y', 'frame.number == 18',
+                '-Tfields', '-eelf.phoff64', '-e_ws.malformed', '-e_ws.expert.message')
+        assert lines == ['4294967296\t[Malformed Packet: ELF],_ws.malformed\t'
+                         'Malformed Packet (Exception occurred)']
