@@ -171537,3 +171537,58 @@ class TestDissectPng:
                 '-epng.ihdr.colour_type', '-epng.bkgd.red', '-epng.bkgd.greyscale')
         assert lines[:6] == ['1\t3\t\t', '2\t2\t0x00ff\t', '3\t0\t\t0x0080', '4\t4\t\t0x0080',
                              '5\t6\t0x0001\t', '6\t2\t\t']
+
+
+class TestDissectRbm:
+    '''Ruby Marshal (file-rbm.c), read through the Ruby Marshal file reader
+    (the 04 08 header; no port or media type). rbm_coverage_nesting.rbm.gz
+    has every type, integers of every length form, 60 levels of nesting,
+    hash entries whose key or value is an inline dump with an unsupported
+    version and structs with names of 200 and 300 octets (see also
+    rbm_coverage.rbm.gz in TestDissectDrb). rbm_coverage_deep.rbm.gz is an
+    array nested 64 levels deep, one more than allowed.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_rbm_nesting_file(self, cmd_tshark, capture_file, test_env):
+        '''One frame, not malformed, in one and two passes; the two
+        warnings are the inline dumps with an unsupported version.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'rbm_coverage_nesting.rbm.gz', *passes, '-Tfields',
+                    '-e_ws.col.protocol', '-e_ws.malformed',
+                    '-e_ws.expert.message')
+            assert lines == ['Rbm\t\tVersion 5.5 is not supported (only 4.8),'
+                             'Version 3.0 is not supported (only 4.8)']
+
+    def test_rbm_null_strings(self, cmd_tshark, capture_file, test_env):
+        '''Fix "RBM: Bound object nesting and fix NULL strings and struct
+        names": hash entries with an undecodable key or value show
+        "Unknown", never "(null)".'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'rbm_coverage_nesting.rbm.gz', '-V', '-O', 'rbm')
+        entries = [l.strip() for l in lines if l.strip().startswith('Entry ')]
+        assert 'Entry Unknown => Unknown' in entries
+        assert 'Entry :k => Unknown' in entries
+        assert not [l for l in lines if '(null)' in l]
+
+    def test_rbm_struct_names(self, cmd_tshark, capture_file, test_env):
+        '''Structs: the name length is read with the length form of the
+        integer (a name of 200 and one of 300 octets).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'rbm_coverage_nesting.rbm.gz', '-Tfields', '-erbm.struct')
+        assert lines == ['Point,' + 'N' * 200 + ',' + 'M' * 300]
+
+    def test_rbm_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''Fix "RBM: Bound object nesting ...": the 64th level of nesting
+        gets the error "Objects nested too deeply" (rbm.too_deep) and the
+        dissection of the object stops; no assertion, same in two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'rbm_coverage_deep.rbm.gz', *passes, '-Tfields',
+                    '-e_ws.col.protocol', '-e_ws.malformed', '-e_ws.expert.message')
+            assert lines == ['Rbm\t_ws.malformed\tObjects nested too deeply']
