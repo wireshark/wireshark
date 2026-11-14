@@ -1700,6 +1700,7 @@ static bool erf_write_anchor_meta_update_phdr(wtap_dumper *wdh, erf_dump_t *dump
 static bool erf_write_meta_record(wtap_dumper *wdh, erf_dump_t *dump_priv, uint64_t timestamp, GPtrArray *sections, GArray *extra_ehdrs, int *err) {
   union wtap_pseudo_header other_header;
   struct erf_meta_tag gen_time_tag;
+  uint8_t gen_time_le[8];
   struct erf_meta_section *section_ptr;
   unsigned total_wlen = 0;
   unsigned total_rlen = 0;
@@ -1717,7 +1718,9 @@ static bool erf_write_meta_record(wtap_dumper *wdh, erf_dump_t *dump_priv, uint6
 
   gen_time_tag.type = ERF_META_TAG_gen_time;
   gen_time_tag.length = 8U;
-  gen_time_tag.value = (uint8_t*)&dump_priv->gen_time;
+  /* Timestamps in tags are in the (little-endian) ERF timestamp format */
+  phtoleu64(gen_time_le, dump_priv->gen_time);
+  gen_time_tag.value = gen_time_le;
   total_wlen += gen_time_tag.length + 4;
 
   total_rlen = total_wlen + 24; /* 24 is the header + extension header length */
@@ -2054,7 +2057,9 @@ static bool erf_dump(
 
   /*add the 4 byte CRC if necessary*/
   if(must_add_crc){
-    if(!wtap_dump_file_write(wdh, &crc32, 4, err)) return false;
+    uint8_t fcs[4];
+    phtoleu32(fcs, crc32);
+    if(!wtap_dump_file_write(wdh, fcs, 4, err)) return false;
   }
 
   /*XXX: In the case of ENCAP_ERF, this pads the record to its original length, which is fine in most
