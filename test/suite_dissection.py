@@ -170520,3 +170520,53 @@ class TestDissectFileBtsnoop:
             f.write(struct.pack('>III', 4, 4, 0))
         out = self.tshark(cmd_tshark, test_env, path, '-Tfields', '-Eaggregator=,', '-e_ws.expert.message')
         assert 'Malformed Frame' in out
+
+
+class TestDissectFileDlt:
+    '''AUTOSAR DLT log files (File-DLT): read with the MIME Files Format
+    reader, from the synthetic file file_dlt_coverage.dlt.gz.'''
+
+    @staticmethod
+    def tshark(cmd_tshark, test_env, capture, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture, '-Xread_format:MIME Files Format', *args),
+            encoding='utf-8', env=test_env, timeout=120)
+
+    @staticmethod
+    def line(sec, usec, ecu, counter, payload, length=None):
+        return (b'DLT\x01' + struct.pack('<II', sec, usec) + ecu + struct.pack(
+            '>BBH', 0x3d, counter, 4 + len(payload) if length is None else length) + payload)
+
+    def test_file_dlt_main(self, cmd_tshark, capture_file, test_env):
+        '''One frame with 14 log lines; no malformed packet or expert info
+        in one and two passes.'''
+        cap = capture_file('file_dlt_coverage.dlt.gz')
+        for passes in ((), ('-2',)):
+            out = self.tshark(cmd_tshark, test_env, cap, '-Tfields', '-Eaggregator=,', '-Eoccurrence=a',
+                              '-eframe.protocols', '-e_ws.malformed', '-e_ws.expert.message',
+                              '-efile-dlt.ecu_id', '-efile-dlt.msg_counter', '-efile-dlt.length', passes=passes)
+            fields = out.rstrip('\n').split('\t')
+            assert fields[:3] == ['mime_dlt:file-dlt', '', '']
+            assert fields[3] == 'ECU1,ECU2,GW,ECU1,ECU2,GW,ECU1,ECU2,GW,ECU1,ECU2,GW,ECU1,ECU1'
+            assert fields[4] == '0,1,2,3,4,5,6,7,8,9,10,11,99,100'
+            assert fields[5] == '4,13,16,19,22,25,28,31,34,37,41,44,4,772'
+        out = self.tshark(cmd_tshark, test_env, cap, '-V')
+        assert 'DLT Log Line   0 1700000000.000000 ECU:ECU1 Len:4' in out
+
+    def test_file_dlt_trailing_bytes(self, cmd_tshark, test_env, result_file):
+        '''Bytes after the last line, too few for another line, are ignored.'''
+        path = result_file('file_dlt_trailing.dlt')
+        with open(path, 'wb') as f:
+            f.write(self.line(1, 2, b'ECU1', 1, b'abcdefgh') + b'DLT\x01\0\0\0')
+        out = self.tshark(cmd_tshark, test_env, path, '-Tfields', '-e_ws.malformed', '-efile-dlt.length')
+        assert out == '\t12\n'
+
+    def test_file_dlt_malformed(self, cmd_tshark, test_env, result_file):
+        '''A length below 4 (it underflows the payload length) or past the
+        end of the file is a malformed packet.'''
+        for name, length in (('short', 0), ('long', 4000)):
+            path = result_file('file_dlt_%s.dlt' % name)
+            with open(path, 'wb') as f:
+                f.write(self.line(1, 2, b'ECU1', 1, b'abcdefgh') + self.line(2, 3, b'ECU1', 2, b'xxxx', length))
+            out = self.tshark(cmd_tshark, test_env, path, '-Tfields', '-e_ws.malformed', '-efile-dlt.length')
+            assert out.startswith('[Malformed Packet: File-DLT]'), name
