@@ -172964,3 +172964,155 @@ ATTRIBUTE Dict-Sub-String  247 string'''
         abbrevs = {l.split('\t')[2] for l in stdout if l.startswith('F\t')}
         for name in ('radius.Before_Attr', 'radius.Abs_Attr', 'radius.After_Attr', 'radius.Rel_Attr'):
             assert name in abbrevs, name
+
+
+class TestDissectA2aCoverage:
+    CAPTURE = 'a2a_coverage.pcap.gz'
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectA2aCoverage.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def rows(stdout):
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_a2a_coverage_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every A2A message type, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'a2a', '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+            assert self.rows(stdout) == [
+                ['3', 'A2A', 'SendMessageRequest (ROLE_USER)'],
+                ['6', 'A2A', 'SendMessageRequest (ROLE_USER)'],
+                ['10', 'A2A', 'SendMessageResponse (ROLE_AGENT)'],
+                ['14', 'A2A', 'SendMessageResponse (TASK_STATE_COMPLETED)'],
+                ['18', 'A2A', 'Task (TASK_STATE_WORKING)'],
+                ['22', 'A2A', 'ListTasksResponse (2 tasks)'],
+                ['26', 'A2A', 'ListTasksResponse (0 tasks)'],
+                ['30', 'A2A', 'StreamResponse (TASK_STATE_WORKING)'],
+                ['34', 'A2A', 'StreamResponse'],
+                ['38', 'A2A', 'StreamResponse (TASK_STATE_COMPLETED)'],
+                ['42', 'A2A', 'StreamResponse (TASK_STATE_COMPLETED)'],
+                ['45', 'A2A', 'TaskStatusUpdateEvent (TASK_STATE_INPUT_REQUIRED)'],
+                ['48', 'A2A', 'TaskArtifactUpdateEvent'],
+                ['52', 'A2A', 'Message (ROLE_AGENT)'],
+                ['55', 'A2A', 'Message (ROLE_USER)'],
+                ['59', 'A2A', 'AgentCard (Echo Agent)'],
+                ['63', 'A2A', 'AgentCard (N)'],
+                ['66', 'A2A', 'TaskPushNotificationConfig (https://hook.example/n)'],
+                ['69', 'A2A', 'TaskPushNotificationConfig (https://hook.example/2)'],
+                ['73', 'A2A', 'ListTaskPushNotificationConfigsResponse (3 configs)'],
+                ['77', 'A2A', 'ListTaskPushNotificationConfigsResponse (0 configs)'],
+                ['109', 'A2A', 'SendMessageResponse (TASK_STATE_WORKING)'],
+                ['113', 'A2A', 'SendMessageResponse (TASK_STATE_WORKING)'],
+                ['117', 'A2A', 'Task (TASK_STATE_COMPLETED)'],
+            ]
+
+    def test_a2a_coverage_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''Apart from the three structure warnings there are no malformed
+        packets or warnings, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', '-ea2a.invalid_structure')
+            assert [r[0] for r in self.rows(stdout)] == ['109', '113', '117']
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_a2a_coverage_structure_warnings(self, cmd_tshark, capture_file, test_env):
+        '''An unknown enum name or number and a timestamp that is not RFC 3339
+        are reported and the rest of the message is still decoded.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'a2a.invalid_structure', '-Tfields', '-E', 'aggregator=;',
+                '-eframe.number', '-e_ws.expert.message', '-ea2a.role')
+        assert self.rows(stdout) == [
+            ['109', '"role" is not a value of the enum: ROLE_FOREIGN;'
+                    '"timestamp" is not an RFC 3339 date-time: yesterday', 'ROLE_FOREIGN'],
+            ['113', '"role" is not a value of the enum: Unknown (77)', 'Unknown (77)'],
+            ['117', '"role" is not a value of the enum: x', 'x'],
+        ]
+
+    def test_a2a_coverage_not_a2a(self, cmd_tshark, capture_file, test_env):
+        '''JSON that lacks the required members of every message type is left
+        to the JSON dissector.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'json && !a2a', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['81', '85', '89', '93', '97', '101', '105']
+
+    def test_a2a_coverage_message(self, cmd_tshark, capture_file, test_env):
+        '''The part kinds, the extensions, the configuration and its push
+        notification config of frame 3; the numeric role of frame 6.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 3', '-Tfields', '-E', 'occurrence=a', '-E', 'aggregator=,',
+                '-ea2a.part.text', '-ea2a.part.raw', '-ea2a.part.url', '-ea2a.part.filename',
+                '-ea2a.part.media_type', '-ea2a.part.data', '-ea2a.extension',
+                '-ea2a.reference_task_id', '-ea2a.configuration.accepted_output_mode',
+                '-ea2a.configuration.return_immediately', '-ea2a.configuration.history_length',
+                '-ea2a.push_config.url', '-ea2a.push_config.auth.scheme', '-ea2a.tenant')
+        assert self.rows(stdout) == [[
+            'hello', 'aGVsbG8=', 'https://files.example/x.png', 'h.bin,x.png',
+            'text/plain,application/octet-stream', '{"k":[1,2]}', 'urn:ext:1,urn:ext:2',
+            't-0,t-00', 'text/plain,application/json', 'True', '5',
+            'https://hook.example/n', 'Bearer', 'acme,acme']]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {6, 10}', '-Tfields', '-eframe.number', '-ea2a.role',
+                '-ea2a.configuration.return_immediately', '-ea2a.configuration.history_length')
+        assert self.rows(stdout) == [['6', 'ROLE_USER', 'False', '10'], ['10', 'ROLE_AGENT', '', '']]
+
+    def test_a2a_coverage_task(self, cmd_tshark, capture_file, test_env):
+        '''Frame 14: the artifacts, the history and the status message of a
+        Task; the timestamp is decoded as a time.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 14', '-Tfields', '-E', 'occurrence=a', '-E', 'aggregator=,',
+                '-ea2a.artifact.id', '-ea2a.artifact.name', '-ea2a.artifact.description',
+                '-ea2a.task.timestamp', '-ea2a.role')
+        assert self.rows(stdout) == [['a-1,a-2', 'result', 'the result',
+                '2026-11-13T11:55:17.435289000Z', 'ROLE_AGENT,ROLE_USER,ROLE_AGENT']]
+
+    def test_a2a_coverage_stream(self, cmd_tshark, capture_file, test_env):
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {30, 34, 38, 42, 45, 48}', '-Tfields',
+                '-E', 'occurrence=a', '-E', 'aggregator=,',
+                '-eframe.number', '-ea2a.append', '-ea2a.last_chunk', '-ea2a.task.state')
+        assert self.rows(stdout) == [
+            ['30', '', '', 'TASK_STATE_WORKING'],
+            ['34', 'True', 'False', ''],
+            ['38', 'False', 'True', 'TASK_STATE_WORKING,TASK_STATE_COMPLETED'],
+            ['42', '', '', 'TASK_STATE_COMPLETED'],
+            ['45', '', '', 'TASK_STATE_INPUT_REQUIRED'],
+            ['48', 'False', 'True', ''],
+        ]
+
+    def test_a2a_coverage_agent_card(self, cmd_tshark, capture_file, test_env):
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 59', '-Tfields', '-E', 'occurrence=a', '-E', 'aggregator=,',
+                '-ea2a.agent.provider.organization', '-ea2a.agent.capabilities.streaming',
+                '-ea2a.agent.capabilities.push_notifications',
+                '-ea2a.agent.capabilities.extended_agent_card',
+                '-ea2a.agent.extension.uri', '-ea2a.agent.extension.required',
+                '-ea2a.skill.id', '-ea2a.skill.tag', '-ea2a.agent.signature',
+                '-ea2a.interface.protocol_binding')
+        assert self.rows(stdout) == [[
+            'Example Org', 'True', 'False', 'True', 'urn:ext:1,urn:ext:2', 'True,False',
+            'echo,s2', 'echo,test', 'c2ln,c2lnMg', 'HTTP+JSON,JSONRPC']]
+
+    def test_a2a_coverage_push_config_list(self, cmd_tshark, capture_file, test_env):
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {66, 69, 73}', '-Tfields', '-E', 'occurrence=a',
+                '-E', 'aggregator=,', '-eframe.number', '-ea2a.push_config.id',
+                '-ea2a.push_config.auth.scheme', '-ea2a.next_page_token')
+        assert self.rows(stdout) == [['66', 'p-1', 'Bearer', ''], ['69', '', 'Basic', ''],
+                                     ['73', 'p-1,p-2', 'Bearer', 'n']]
+
+    def test_a2a_coverage_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The second pass decodes the same fields as the first.'''
+        args = ('-Y', 'a2a', '-Tfields', '-E', 'occurrence=a', '-eframe.number',
+                '-ea2a.type', '-ea2a.role', '-ea2a.task.state', '-ea2a.message_id',
+                '-ea2a.task_id', '-e_ws.col.info')
+        assert (self.run(cmd_tshark, capture_file, test_env, *args) ==
+                self.run(cmd_tshark, capture_file, test_env, '-2', *args))
