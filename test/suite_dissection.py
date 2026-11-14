@@ -170844,3 +170844,83 @@ class TestDissectGif:
         assert lines == [
             'Unknown GIF data block type,Unknown GIF data block type,'
             'Unknown GIF data block type\t1\t1']
+
+
+class TestDissectJpeg:
+    '''JPEG (file-jpeg.c): jpeg_coverage.jpg.gz is read as a file (MIME file
+    reader, "wtap_file" heuristic); jpeg_coverage.pcap.gz carries more
+    JPEG files in HTTP responses (media types image/jpeg, image/jpg,
+    image/jfif and the "http" heuristic) and three bodies the heuristic
+    must not claim.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_jpeg_file(self, cmd_tshark, capture_file, test_env):
+        '''The file is one frame, no malformed packet or expert info, in one
+        and two passes; EXIF and GPS IFDs are decoded (the Interoperability IFD only when
+        IFD0 points at it, see the reproducer).'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                    'jpeg_coverage.jpg.gz', *passes, '-Tfields',
+                    '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-e_ws.malformed', '-e_ws.expert.message')
+            assert lines == ['MIME_FILE\t(JPEG JFIF image)\t\t']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'jpeg_coverage.jpg.gz', '-Tfields', '-eimage-jfif.endianness',
+                '-eimage-jfif.ifd.tag_gps', '-eimage-jfif.ifd.tag_interop',
+                '-eimage-jfif.ifd.value_slong', '-eimage-jfif.comment')
+        assert lines == ['0x4949\t0,1,2,5\t\t-7,5,-5\tsynthetic test image']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'jpeg_coverage.jpg.gz', '-Tfields', '-eimage-jfif.sof.lines',
+                '-eimage-jfif.sof.samples_per_line')
+        assert [v.split(',')[0] for v in lines[0].split('\t')] == ['16', '24']
+
+    def test_jpeg_http(self, cmd_tshark, capture_file, test_env):
+        '''Five JPEG responses (three media types, no type, Exif first) are
+        dissected, three bodies are not; one and two passes agree and there
+        is no malformed packet.'''
+        res = []
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                    'jpeg_coverage.pcap.gz', *passes, '-Tfields',
+                    '-eframe.number', '-e_ws.col.info', '-e_ws.malformed',
+                    '-e_ws.expert.message')
+            res.append(lines)
+        assert res[0] == res[1]
+        jpeg = [l for l in res[0] if '(JPEG JFIF image)' in l]
+        assert len(jpeg) == 5
+        assert not [l for l in res[0] if '\t_ws.malformed' in l]
+        assert res[0][5:] == [
+            '6\tHTTP/1.1 200 OK \t\t',
+            '7\tHTTP/1.1 200 OK \t\t',
+            '8\tHTTP/1.1 200 OK \t\t']
+
+    def test_jpeg_exif_pointers_once(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of "JPEG: Follow each EXIF extension IFD pointer type
+        only once": an IFD0 of six pointers that loop back to IFD0 follows
+        the Exif, GPS and Interoperability pointer once each and warns
+        about the three repeats (frame 3).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'jpeg_coverage.pcap.gz', '-Y', 'frame.number == 3',
+                '-Tfields', '-e_ws.expert.message', '-eimage-jfif.ifd.tag_exif',
+                '-eimage-jfif.ifd.tag_gps', '-eimage-jfif.ifd.tag_interop')
+        # the tag fields are the entries of IFD0 and of each followed IFD
+        assert lines == [
+            'duplicate extension IFD pointer ignored,'
+            'duplicate extension IFD pointer ignored,'
+            'duplicate extension IFD pointer ignored\t'
+            '34665,34665,34665,34665,34853,40965\t'
+            '34665,34665,34665,34665,34853,40965\t'
+            '34665,34665,34665,34665,34853,40965']
+
+    def test_jpeg_exif_first(self, cmd_tshark, capture_file, test_env):
+        '''An image that starts with an Exif APP1 is accepted but warned
+        about (frame 5).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'jpeg_coverage.pcap.gz', '-Y', 'frame.number == 5',
+                '-Tfields', '-e_ws.expert.message')
+        assert lines == ['Initial App0 segment with "JFIF" Identifier not found']
