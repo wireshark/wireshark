@@ -4272,6 +4272,8 @@ blf_finalize_file_header(wtap_dumper *wdh, int *err) {
     blf_write_date_to_blf_header(fileheader, true, writer_data->start_time);
     blf_write_date_to_blf_header(fileheader, false, writer_data->end_time);
 
+    /* Save the length before the header is converted to little-endian. */
+    uint32_t header_length = fileheader->header_length;
     fix_endianness_blf_fileheader(fileheader);
 
     /* seek to start of file */
@@ -4280,7 +4282,7 @@ blf_finalize_file_header(wtap_dumper *wdh, int *err) {
         return false;
     }
 
-    if (!wtap_dump_file_write(wdh, fileheader, fileheader->header_length, err)) {
+    if (!wtap_dump_file_write(wdh, fileheader, header_length, err)) {
         return false;
     }
 
@@ -4557,9 +4559,11 @@ static bool blf_dump_ethernet(wtap_dumper *wdh, const wtap_rec *rec, int *err, c
         return false;
     }
     ethheader.res = 0;
+    /* Save the length before the header is converted to little-endian. */
+    uint16_t payload_length = ethheader.payloadlength;
     fix_endianness_blf_ethernetframeheader(&ethheader);
 
-    if (!blf_dump_objheader(wdh, err, obj_timestamp, BLF_OBJTYPE_ETHERNET_FRAME, sizeof(blf_ethernetframeheader_t) + ethheader.payloadlength)) {
+    if (!blf_dump_objheader(wdh, err, obj_timestamp, BLF_OBJTYPE_ETHERNET_FRAME, sizeof(blf_ethernetframeheader_t) + payload_length)) {
         return false;
     }
 
@@ -4567,12 +4571,12 @@ static bool blf_dump_ethernet(wtap_dumper *wdh, const wtap_rec *rec, int *err, c
         return false;
     }
 
-    if (!wtap_dump_file_write(wdh, &(pd[offset]), ethheader.payloadlength, err)) {
+    if (!wtap_dump_file_write(wdh, &(pd[offset]), payload_length, err)) {
         return false;
     }
 
     /* Add strange padding to 4 bytes. */
-    uint8_t padding_needed = (sizeof(blf_ethernetframeheader_t) + ethheader.payloadlength) % 4;
+    uint8_t padding_needed = (sizeof(blf_ethernetframeheader_t) + payload_length) % 4;
     return blf_write_add_padding(wdh, err, padding_needed);
 }
 
