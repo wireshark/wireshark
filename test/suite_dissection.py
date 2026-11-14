@@ -171592,3 +171592,62 @@ class TestDissectRbm:
                     'rbm_coverage_deep.rbm.gz', *passes, '-Tfields',
                     '-e_ws.col.protocol', '-e_ws.malformed', '-e_ws.expert.message')
             assert lines == ['Rbm\t_ws.malformed\tObjects nested too deeply']
+
+
+class TestDissectRfc7468:
+    '''RFC 7468 (file-rfc7468.c): rfc7468_coverage.pem.gz is read as a file
+    (the RFC 7468 wiretap reader); rfc7468_coverage.pcap.gz carries PEM
+    files in HTTP responses (media type application/pem-certificate-chain)
+    with a CMS label (decoded by the CMS dissector), a label without
+    data, explanatory text before the boundary and the reproducer of the
+    base64 decode buffer fix.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_rfc7468_file(self, cmd_tshark, capture_file, test_env):
+        '''A PEM file with a made-up BER structure (three times, in 16
+        character lines): no malformed packet or expert info, in one and
+        two passes; the labels are decoded and the data goes to BER.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'rfc7468_coverage.pem.gz', *passes, '-Tfields',
+                    '-e_ws.col.protocol', '-e_ws.col.info', '-e_ws.malformed',
+                    '-e_ws.expert.message')
+            assert lines == ['BER\tUnknown BER\t\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'rfc7468_coverage.pem.gz', '-Tfields', '-erfc7468.preeb_label',
+                '-erfc7468.posteb_label', '-erfc7468.ber_data')
+        assert lines == ['TEST DATA\tTEST DATA\t1']
+
+    def test_rfc7468_http(self, cmd_tshark, capture_file, test_env):
+        '''Six responses over HTTP, one in ten segments: none is malformed
+        or has an expert info, in one and two passes. The response
+        without a media type is not claimed.'''
+        res = []
+        for passes in ((), ('-2',)):
+            res.append(self._tshark(cmd_tshark, capture_file, test_env,
+                    'rfc7468_coverage.pcap.gz', *passes, '-Tfields',
+                    '-eframe.number', '-e_ws.malformed', '-e_ws.expert.message',
+                    '-erfc7468.preeb_label'))
+        assert res[0] == res[1]
+        assert [l.split('\t')[0] for l in res[0] if l.split('\t')[3:] != ['']] == [
+            '1', '2', '3', '4', '15', '17']
+        assert [l.split('\t')[3] for l in res[0] if l.split('\t')[3:] != ['']] == [
+            'TEST DATA', 'CMS', 'TEST DATA', 'EMPTY', 'DATA', 'DATA']
+        assert not [l for l in res[0] if l.split('\t')[1] or l.split('\t')[2]]
+        assert '16\t\t\t' in res[0]
+
+    def test_rfc7468_many_lines(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of "RFC 7468: Allocate the base64 decode buffer
+        once": 3000 base64 lines of 4 characters (an OCTET STRING of 8996
+        octets, frame 15) decode completely with the buffer sized once
+        from the data left (no overflow, one BER item).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'rfc7468_coverage.pcap.gz', '-Y', 'frame.number == 15',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.malformed',
+                '-erfc7468.ber_data', '-eber.unknown.OCTETSTRING')
+        assert lines == ['BER\t\t1\t' + '00' * 8996]
