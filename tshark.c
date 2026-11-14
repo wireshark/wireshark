@@ -4031,12 +4031,6 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
                     status = PASS_WRITE_ERROR;
                     break;
                 }
-                /* Stop reading if we hit a stop condition */
-                if (max_write_packet_count > 0 && write_framenum >= max_write_packet_count) {
-                    ws_debug("tshark: max_write_packet_count (%d) reached", max_write_packet_count);
-                    *err = 0; /* This is not an error */
-                    break;
-                }
             }
             break;
 
@@ -4052,6 +4046,16 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
                silently quit; stop processing packets. */
             got_printing_error = true;
             status = PASS_PRINT_ERROR;
+            break;
+        }
+        /* Stop reading if we got an error writing the packet. */
+        if (status == PASS_WRITE_ERROR) {
+            break;
+        }
+        /* Stop reading if we hit a stop condition */
+        if (pdh != NULL && max_write_packet_count > 0 && write_framenum >= max_write_packet_count) {
+            ws_debug("tshark: max_write_packet_count (%d) reached", max_write_packet_count);
+            *err = 0; /* This is not an error */
             break;
         }
     }
@@ -4189,6 +4193,10 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
                the error, unless it was EPIPE, in which case we just
                silently quit; tell the capture child to stop. */
             got_printing_error = true;
+            break;
+        }
+        /* Stop reading if we got an error writing the packet. */
+        if (status == PASS_WRITE_ERROR) {
             break;
         }
         /* Stop reading if we hit a stop condition */
