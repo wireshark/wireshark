@@ -170924,3 +170924,68 @@ class TestDissectJpeg:
                 'jpeg_coverage.pcap.gz', '-Y', 'frame.number == 5',
                 '-Tfields', '-e_ws.expert.message')
         assert lines == ['Initial App0 segment with "JFIF" Identifier not found']
+
+
+class TestDissectMmodule:
+    '''M-Module (file-mmodule.c): mmodule_coverage.m.gz is read as a file
+    (the M-Module wiretap reader checks tag, length and checksum);
+    mmodule_coverage.pcap.gz carries M-Module files in HTTP responses (media
+    type application/vnd.wolfram.mathematica.package, which skips those
+    checks). The "wtap_file" heuristic is only called for MIME files, which
+    have no M-Module magic, so it is not reached.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_mmodule_file(self, cmd_tshark, capture_file, test_env):
+        '''A module with 24 entries (every tag of the dissector's table, all
+        three modes, an empty one and an ELF object code entry): no malformed
+        packet or expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'mmodule_coverage.m.gz', *passes, '-Tfields',
+                    '-e_ws.col.protocol', '-e_ws.col.info', '-e_ws.malformed',
+                    '-e_ws.expert.message')
+            assert lines == ['M_Module\t(ELF)\t\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'mmodule_coverage.m.gz', '-Tfields', '-em_module.ftag',
+                '-em_module.nentries', '-em_module.ood', '-em_module.tag',
+                '-em_module.mode', '-eelf.type')
+        assert lines == [
+            '2\t24\t48\t1,2,3,4,5,6,10,11,12,13,14,15,16,17,19,20,21,22,23,24,100,200,77,9\t'
+            '1,1,2,4,1,2,4,1,2,4,1,2,4,1,2,4,1,2,4,1,2,4,1,1\t0x0001']
+
+    def test_mmodule_http(self, cmd_tshark, capture_file, test_env):
+        '''Three files in HTTP responses (one over two segments): file tags
+        2, 8 and 4, the last without entries; one and two passes agree.'''
+        res = []
+        for passes in ((), ('-2',)):
+            res.append(self._tshark(cmd_tshark, capture_file, test_env,
+                    'mmodule_coverage.pcap.gz', *passes, '-Tfields',
+                    '-eframe.number', '-e_ws.malformed', '-em_module.ftag',
+                    '-em_module.nentries', '-em_module.fname'))
+        assert res[0] == res[1]
+        assert res[0][0] == '1\t\t\t\t'
+        assert res[0][2:] == ['3\t\t8\t1\ta.zip', '4\t\t4\t0\t']
+
+    def test_mmodule_entry_checks(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of "M-Module: Reject an entry size of zero and
+        oversized entry counts": mmodule_coverage_bad.pcap.gz has an entry
+        size of zero with 0xFFFFFFFF entries (the loop did not advance and
+        allocated a string per iteration), an entry size below 0x2d, and
+        counts above length / size. Each is reported once with the error
+        "Invalid entry count" and none is malformed.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'mmodule_coverage_bad.pcap.gz', *passes, '-Tfields',
+                    '-eframe.number', '-e_ws.expert.message', '-em_module.nentries',
+                    '-em_module.ood')
+            assert lines == [
+                '1\tInvalid entry count 4294967295 or entry size 0\t4294967295\t0',
+                '2\tInvalid entry count 1 or entry size 44\t1\t44',
+                '3\tInvalid entry count 3 or entry size 1\t3\t1',
+                '4\tInvalid entry count 1000 or entry size 48\t1000\t48',
+                '5\tInvalid entry count 4294967295 or entry size 48\t4294967295\t48']
