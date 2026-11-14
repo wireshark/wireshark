@@ -183,7 +183,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     unsigned offset = 0;
     /* values actually read out, for displaying */
     uint16_t sensortype =0;
-    char   scalefactor = 0;
+    int32_t scalefactor = 0;
     double c_val=0; /*curr val */
     uint32_t val_t=0; /*temp curr val*/
     uint32_t t_appspecific_num; /* temporary conversions */
@@ -271,8 +271,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         case PPI_SENSOR_SCALEFACTOR:
             if (length_remaining < 1)
                 break;
-            scalefactor = (char) tvb_get_uint8(tvb, offset);
-            proto_tree_add_int(ppi_sensor_tree, hf_ppi_sensor_scalefactor, tvb, offset, 1, scalefactor);
+            proto_tree_add_item_ret_int(ppi_sensor_tree, hf_ppi_sensor_scalefactor, tvb, offset, 1, ENC_NA, &scalefactor);
             offset+=1;
             length_remaining-=1;
             break;
