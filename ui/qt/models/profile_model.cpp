@@ -694,7 +694,9 @@ QModelIndex ProfileModel::addNewProfile(QString name, QString reference, bool is
     beginInsertRows(QModelIndex(), row, row);
 
 
-    ProfileItem* item = new ProfileItem(newName, reference, ProfileItem::StatusType::New, isGlobal, fromGlobal, isImport);
+    // Imported profiles already exist on disk, so they can be renamed and deleted like existing ones
+    ProfileItem* item = new ProfileItem(newName, reference, isImport ? ProfileItem::StatusType::Existing : ProfileItem::StatusType::New,
+                                        isGlobal, fromGlobal, isImport);
     profile_items_ << item;
 
     endInsertRows();
