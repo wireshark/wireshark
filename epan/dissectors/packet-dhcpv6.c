@@ -39,6 +39,7 @@
  * RFC8415 (Dynamic Host Configuration Protocol for IPv6 (DHCPv6))
  * RFC8520 (Manufacturer Usage Descriptions) replaces "draft-ietf-opsawg-mud-02"
  * RFC8947 (Link-Layer Address Assignment Mechanism for DHCPv6)
+ * RFC8948 (Structured Local Address Plan (SLAP) Quadrant Selection Option for DHCPv6)
  * RFC9463 (Discovery of Network-designated Resolvers - DoT, DoH, DoQ)
  * RFC9527 (DHCPv6 Options for the Homenet Naming Authority)
  * RFC9686 (Registering self-generated addresses)
@@ -161,6 +162,7 @@ static int hf_bcmcs_servers_a;
 static int hf_remoteid_enterprise_id;
 static int hf_subscriber_id;
 static int hf_client_fqdn;
+static int hf_slap_quad;
 static int hf_slap_quad_quadrant;
 static int hf_slap_quad_preference;
 static int hf_pana_agent;
@@ -780,7 +782,7 @@ static const value_string opttype_vals[] = {
     { OPTION_S46_BIND_IPV6_PREFIX,   "Softwire Source Binding Prefix Hint" },
     { OPTION_IA_LL,                  "Identity Association for Link-Layer Addresses" },
     { OPTION_LLADDR,                 "Link-Layer Address" },
-    { OPTION_SLAP_QUAD,              "QUAD" },
+    { OPTION_SLAP_QUAD,              "SLAP Quadrant" },
     { OPTION_V6_DOTS_RI,             "DOTS Reference Identifier" },
     { OPTION_V6_DOTS_ADDRESS,        "DOTS Address" },
     { OPTION_IPv6_ADDRESS_ANDSF,     "ANDSF IPv6 Address" },
@@ -1223,11 +1225,19 @@ static const value_string s46_opt_code_vals[] = {
     { 0, NULL },
 };
 
-static const value_string slap_quadrant_vals[] = {
-    { 0, "AAI" },
-    { 1, "ELI" },
-    { 2, "Reserved by IEEE" },
-    { 3, "SAI" },
+static const value_string slap_quadrant_short_id_vals[] = {
+    { 0,       "AAI" },
+    { 1,       "ELI" },
+    { 2,       "Reserved" },
+    { 3,       "SAI" },
+    { 0, NULL }
+};
+
+static const value_string slap_quadrant_id_vals[] = {
+    { 0,       "Administratively Assigned Identifier" },
+    { 1,       "Extended Local Identifier" },
+    { 2,       "Reserved by IEEE" },
+    { 3,       "Standard Assigned Identifier" },
     { 0, NULL }
 };
 
@@ -3377,15 +3387,19 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             }
         }
         break;
-    case OPTION_SLAP_QUAD: /* Structured Local Address Plan (RFC 8948) */
+    case OPTION_SLAP_QUAD:
         if (optlen == 0 || optlen % 2 != 0) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
                                    "SLAP QUAD: malformed option");
             break;
         }
         for (i = 0; i < optlen; i += 2) {
-            proto_tree_add_item(subtree, hf_slap_quad_quadrant,   tvb, off+i,   1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree, hf_slap_quad_preference, tvb, off+i+1, 1, ENC_BIG_ENDIAN);
+            unsigned q = tvb_get_uint8(tvb, off+i);
+            unsigned p = tvb_get_uint8(tvb, off+i+1);
+            proto_tree_add_subtree_format(subtree, tvb, off+i, 2, hf_slap_quad, &subtree_2, "SLAP Quadrant: %s, preference %u",
+                val_to_str_const(q, slap_quadrant_short_id_vals, "Unknown"), p);
+            proto_tree_add_uint(subtree_2, hf_slap_quad_quadrant, tvb, off+i, 1, q);
+            proto_tree_add_uint(subtree_2, hf_slap_quad_preference, tvb, off+i+1, 1, p);
         }
         break;
     case OPTION_V6_DNR: {
@@ -3840,8 +3854,10 @@ proto_register_dhcpv6(void)
           { "Remote-ID", "dhcpv6.remoteid_enterprise_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_subscriber_id,
           { "Subscriber-ID", "dhcpv6.subscriber_id", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_slap_quad,
+          { "SLAP Quadrant", "dhcpv6.slap_quad", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_slap_quad_quadrant,
-          { "Quadrant", "dhcpv6.slap_quad.quadrant", FT_UINT8, BASE_DEC, VALS(slap_quadrant_vals), 0, "SLAP Quadrant identifier (RFC 8948)", HFILL }},
+          { "Quadrant", "dhcpv6.slap_quad.quadrant", FT_UINT8, BASE_DEC, VALS(slap_quadrant_id_vals), 0, NULL, HFILL }},
         { &hf_slap_quad_preference,
           { "Preference", "dhcpv6.slap_quad.preference", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_client_fqdn,
