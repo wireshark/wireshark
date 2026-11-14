@@ -1379,7 +1379,7 @@ static unsigned
 dissect_zbee_nwk_link_pwr_delta(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     uint8_t	i, count;
-    int     delta;
+    int32_t delta;
     uint8_t type;
     uint16_t addr;
     proto_tree *subtree;
@@ -1396,8 +1396,7 @@ dissect_zbee_nwk_link_pwr_delta(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         subtree = proto_tree_add_subtree(tree, tvb, count, 3, ett_zbee_nwk_cmd_link_pwr_struct, NULL, "Power Delta Structure");
         proto_tree_add_item_ret_uint16(subtree, hf_zbee_nwk_cmd_link_pwr_device_address, tvb, offset, 2, ENC_LITTLE_ENDIAN, &addr);
         offset += 2;
-        delta = (char)tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(subtree, hf_zbee_nwk_cmd_link_pwr_power_delta, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item_ret_int(subtree, hf_zbee_nwk_cmd_link_pwr_power_delta, tvb, offset, 1, ENC_NA, &delta);
         offset++;
         proto_item_append_text(subtree, ": Device Address 0x%04X, Power Delta %d dBm", addr, delta);
     }
@@ -1864,8 +1863,6 @@ static void
 dissect_ieee802154_zigbee_txpower(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned *offset)
 {
     int32_t txpower;
-
-    txpower = (char)tvb_get_uint8(tvb, *offset); /* tx power is a signed byte */
 
     proto_tree_add_item_ret_int(tree, hf_ieee802154_zigbee_ie_tx_power, tvb, *offset, 1, ENC_NA, &txpower);
     proto_item_append_text(tree, ", TX Power %d dBm", txpower);
