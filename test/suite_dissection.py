@@ -171424,3 +171424,60 @@ class TestDissectFilePcapng:
         assert out.count('Invalid Option Length') == 10 + 1 + 7 - 1 or out.count('Invalid Option Length') >= 17
         assert 'Option Length goes past the end of the block' in out
         assert 'No Interface Description before block that requires it' in out
+
+
+class TestDissectFilePcapngDarwin:
+    '''Darwin process information blocks of pcapng files (local block
+    0x80000001, file-pcapng-darwin.c), read with the MIME Files Format
+    reader, from file_pcapng_darwin_coverage.pcapng.gz (two sections, one
+    per byte order).'''
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, capture, *fields, passes=()):
+        out = subprocess.check_output((cmd_tshark, *passes, '-r', capture,
+                '-Xread_format:MIME Files Format', '-Tfields', '-Eoccurrence=a', '-Eaggregator=,',
+                *[a for f in fields for a in ('-e', f)]), encoding='utf-8', env=test_env, timeout=120)
+        return out.rstrip('\n').split('\t')
+
+    def test_file_pcapng_darwin_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Names, UUIDs and process IDs (little endian in both sections), the
+        block name, and no malformed packet or expert info.'''
+        cap = capture_file('file_pcapng_darwin_coverage.pcapng.gz')
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, test_env, cap, 'pcapng.darwin.process_id',
+                              'pcapng.darwin.process_name', 'pcapng.darwin.process_uuid',
+                              '_ws.malformed', '_ws.expert.message', passes=passes)
+            assert out[0] == '501,1,7,501,1,7'
+            assert out[1] == 'mDNSResponder,launchd,mDNSResponder,launchd'
+            assert out[2].split(',')[:2] == ['00010203-0405-0607-0809-0a0b0c0d0e0f',
+                                              '10111213-1415-1617-1819-1a1b1c1d1e1f']
+            assert out[3:] == ['', '']
+        out = subprocess.check_output((cmd_tshark, '-r', cap, '-Xread_format:MIME Files Format', '-V'),
+                                      encoding='utf-8', env=test_env)
+        assert 'Darwin Process Info Block' in out
+        assert 'Darwin Process ID: 501' in out
+
+    def test_file_pcapng_darwin_packet_options(self, cmd_tshark, capture_file, test_env):
+        '''The Darwin options of the packets (read as little endian).'''
+        cap = capture_file('file_pcapng_darwin_coverage.pcapng.gz')
+        out = self.fields(cmd_tshark, test_env, cap,
+                          'pcapng.options.option.data.packet.darwin.dpib_id',
+                          'pcapng.options.option.data.packet.darwin.edpib_id',
+                          'pcapng.options.option.data.packet.darwin.svc_class',
+                          'pcapng.options.option.data.packet.darwin.flow_id')
+        assert out == ['0,1,0,1', '1,1,1,1', '300,300,300,300', '99,99,99,99']
+
+    def test_file_pcapng_darwin_short_uuid(self, cmd_tshark, test_env, result_file):
+        '''A UUID option of the wrong length gets an expert info.'''
+        def blk(t, body):
+            body += b'\0' * ((-len(body)) % 4)
+            return struct.pack('<II', t, 12 + len(body)) + body + struct.pack('<I', 12 + len(body))
+        data = blk(0x0A0D0D0A, struct.pack('<IHHq', 0x1A2B3C4D, 1, 0, -1))
+        data += blk(0x80000001, struct.pack('<I', 3) + struct.pack('<HH', 4, 5) + b'\1' * 5 + b'\0' * 3 +
+                    struct.pack('<HH', 0, 0))
+        path = result_file('file_pcapng_darwin_short_uuid.pcapng')
+        with open(path, 'wb') as f:
+            f.write(data)
+        out = subprocess.check_output((cmd_tshark, '-r', path, '-Xread_format:MIME Files Format', '-V'),
+                                      encoding='utf-8', env=test_env)
+        assert 'Trying to fetch a GUID with length 5' in out
