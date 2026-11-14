@@ -3080,8 +3080,6 @@ class TestDecompressSmb2:
         self.extract_compressed_payload(cmd_tshark, capture_file, test_env, 2)
 
     def test_smb311_read_lznt1(self, cmd_tshark, capture_file, test_env):
-        if sys.byteorder == 'big':
-            pytest.skip('this test is supported on little endian only')
         self.extract_compressed_payload(cmd_tshark, capture_file, test_env, 3)
 
     def extract_chained_compressed_payload(self, cmd_tshark, capture_file, test_env, frame_num):
@@ -3093,8 +3091,6 @@ class TestDecompressSmb2:
         assert b'\xaa'*256 == bytes.fromhex(stdout.strip())
 
     def test_smb311_chained_lznt1_patternv1(self, cmd_tshark, capture_file, test_env):
-        if sys.byteorder == 'big':
-            pytest.skip('this test is supported on little endian only')
         self.extract_chained_compressed_payload(cmd_tshark, capture_file, test_env, 1)
 
     def test_smb311_chained_none_patternv1(self, cmd_tshark, capture_file, test_env):
@@ -138983,9 +138979,7 @@ class TestDissectSmb2:
         '''LZ77, LZ77+Huffman (with and without matches) and LZNT1
         (compressed and stored chunks), plain, whole message and chained
         with Pattern_V1 payloads are decompressed to the data that was
-        compressed.  LZNT1 is not supported on big endian.'''
-        if sys.byteorder == 'big':
-            pytest.skip('LZNT1 is supported on little endian only')
+        compressed.'''
         data1 = bytes((i // 7) & 0xff for i in range(1500)) + b'a' * 600 + bytes(range(256)) * 2
         expected = {
             479: data1,                                                       # LZ77
