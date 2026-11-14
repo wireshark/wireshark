@@ -171162,3 +171162,87 @@ class TestDissectOgg:
         assert res[0] == (['%d\tOgg\t\t%s' % (n, pages) for n in range(1, 8)]
                           + ['8\tOgg\t\t0x00000001,0x00000001',
                              '9\tOgg\t\t0x00000001', '10\tHTTP\t\t'])
+
+
+class TestDissectFilePcap:
+    '''File-PCAP: the file dissector for pcap files read with the MIME Files
+    Format reader, from the synthetic file file_pcap_coverage.pcap.gz
+    (little endian, microsecond time stamps) and the other three
+    variants (big endian, nanosecond) written by the test.'''
+
+    @staticmethod
+    def tshark(cmd_tshark, test_env, capture, *args, passes=()):
+        env = dict(test_env, TZ='UTC')
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture, '-Xread_format:MIME Files Format', *args),
+            encoding='utf-8', env=env, timeout=120)
+
+    @staticmethod
+    def pcap(path, kind, records, snap=65535):
+        '''kind: (magic, byte order); records: (sec, frac, data, original length).'''
+        magic, e = kind
+        out = struct.pack(e + 'IHHiIII', magic, 2, 4, 0, 0, snap, 1)
+        for sec, frac, data, orig in records:
+            out += struct.pack(e + 'IIII', sec, frac, len(data), orig) + data
+        with open(path, 'wb') as f:
+            f.write(out)
+        return path
+
+    def test_file_pcap_main(self, cmd_tshark, capture_file, test_env):
+        '''One frame, no malformed packet or expert info, in one and two passes.'''
+        cap = capture_file('file_pcap_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            out = self.tshark(cmd_tshark, test_env, cap, '-Tfields', '-eframe.protocols',
+                              '-e_ws.malformed', '-e_ws.expert.message', passes=passes)
+            assert out == 'mime_dlt:file-pcap\t\t\n'
+        out = self.tshark(cmd_tshark, test_env, cap, '-Tfields', '-Eaggregator=,', '-Eoccurrence=a',
+                          '-epcap.header.link_type', '-epcap.packet.captured_length',
+                          '-epcap.packet.original_length')
+        assert out.rstrip('\n').split('\t') == [
+            '1', '53,53,53,53,53,54,30,0,54,54,54', '53,53,53,53,53,54,60,0,54,54,54']
+
+    def test_file_pcap_fraction_overflow(self, cmd_tshark, capture_file, test_env):
+        '''A fraction of a second of 1000000 or more is carried into the
+        seconds. It printed "16:28:15.-00001000" before "file-pcap: Fix
+        overflow of the packet timestamp fraction".'''
+        cap = capture_file('file_pcap_coverage.pcap.gz')
+        out = self.tshark(cmd_tshark, test_env, cap, '-V')
+        assert '.-' not in out
+        stamps = [l.split('Timestamp: ')[1] for l in out.splitlines() if l.strip().startswith('Timestamp: ')]
+        assert stamps[0].startswith('Nov 14, 2023 22:13:20.000007000')
+        assert stamps[8].startswith('Nov 14, 2023 22:13:34.500000000')
+
+    def test_file_pcap_variants(self, cmd_tshark, test_env, result_file):
+        '''The four magic numbers: byte order and time stamp resolution.'''
+        frame = bytes(range(20))
+        for name, kind, label, frac_ns in (
+                ('le', (0xa1b2c3d4, '<'), 'Little-endian)', 5000),
+                ('be', (0xa1b2c3d4, '>'), 'Big-endian)', 5000),
+                ('nsec', (0xa1b23c4d, '<'), 'Little-endian, nanosecond resolution)', 5),
+                ('nsec-be', (0xa1b23c4d, '>'), 'Big-endian, nanosecond resolution)', 5)):
+            path = self.pcap(result_file('file_pcap_%s.pcap' % name), kind, [(100, 5, frame, 20)])
+            out = self.tshark(cmd_tshark, test_env, path, '-V')
+            assert label in out, name
+            assert 'Jan  1, 1970 00:01:40.%09d' % frac_ns in out, name
+
+    def test_file_pcap_malformed(self, cmd_tshark, test_env, result_file):
+        '''A captured length above the snapshot length is a warning; above the
+        original length it is an error and ends the file (the third record
+        is not shown).'''
+        frame = bytes(range(40))
+        path = self.pcap(result_file('file_pcap_snap.pcap'), (0xa1b2c3d4, '<'),
+                         [(1, 2, frame, 40), (3, 4, frame, 20), (5, 6, frame, 40)], snap=30)
+        out = self.tshark(cmd_tshark, test_env, path, '-Tfields', '-e_ws.expert.message',
+                          '-Eaggregator=|', '-Eoccurrence=a')
+        assert out.count('captured length is larger than snapshot length') == 2
+        assert out.count('captured length is larger than original length') == 1
+
+    def test_file_pcap_next_layer(self, cmd_tshark, capture_file, test_env):
+        '''With "dissect next layer" the packets are dissected; data too short
+        for the link layer shows an exception.'''
+        cap = capture_file('file_pcap_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            out = self.tshark(cmd_tshark, test_env, cap, '-Tfields', '-eudp.dstport', '-eframe.protocols',
+                              '-ofile-pcap.dissect_next_layer:TRUE', passes=passes)
+            assert out.startswith('5000,5000,5000')
+            assert 'file-pcap:pcap_pktdata:eth:ethertype:ip:udp:data' in out
