@@ -171481,3 +171481,59 @@ class TestDissectFilePcapngDarwin:
         out = subprocess.check_output((cmd_tshark, '-r', path, '-Xread_format:MIME Files Format', '-V'),
                                       encoding='utf-8', env=test_env)
         assert 'Trying to fetch a GUID with length 5' in out
+
+
+class TestDissectPng:
+    '''PNG (file-png.c): png_coverage.png.gz is read as a file (MIME file
+    reader, "wtap_file" heuristic); png_coverage.pcap.gz carries PNG files
+    in HTTP responses (media type image/png, the "http" heuristic) and two
+    bodies the heuristic must not claim.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_png_file(self, cmd_tshark, capture_file, test_env):
+        '''One frame with 18 chunks, no malformed packet or expert info, in
+        one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'png_coverage.png.gz', *passes, '-Tfields',
+                    '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-e_ws.malformed', '-e_ws.expert.message')
+            assert lines == ['MIME_FILE\t (PNG)\t\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'png_coverage.png.gz', '-Tfields', '-epng.chunk.type')
+        assert lines == ['IHDR,gAMA,cHRM,sRGB,sBIT,iCCP,PLTE,tRNS,bKGD,pHYs,'
+                         'tIME,tEXt,tEXt,iTXt,zZZz,prVT,IDAT,IEND']
+
+    def test_png_chunks(self, cmd_tshark, capture_file, test_env):
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'png_coverage.png.gz', '-Tfields', '-epng.ihdr.width',
+                '-epng.ihdr.colour_type', '-epng.ihdr.interlace_method',
+                '-epng.text.keyword', '-epng.text.string', '-epng.time.year',
+                '-epng.time.month', '-epng.time.day', '-epng.phys.horiz',
+                '-epng.phys.unit', '-epng.srgb.intent', '-epng.bkgd.palette_index')
+        assert lines == ['1\t3\t1\tTitle,Comment\tsynthetic test image,\t2026\t11\t14'
+                         '\t2835\t1\t0\t1']
+
+    def test_png_http(self, cmd_tshark, capture_file, test_env):
+        '''Six PNG responses (every colour type and background size), two
+        bodies that are not claimed; one and two passes agree.'''
+        res = []
+        for passes in ((), ('-2',)):
+            res.append(self._tshark(cmd_tshark, capture_file, test_env,
+                    'png_coverage.pcap.gz', *passes, '-Tfields',
+                    '-eframe.number', '-e_ws.col.info', '-e_ws.malformed',
+                    '-e_ws.expert.message'))
+        assert res[0] == res[1]
+        assert [l for l in res[0] if l.endswith('(PNG)\t\t')] == [
+            '%d\tHTTP/1.1 200 OK  (PNG)\t\t' % n for n in range(1, 7)]
+        assert res[0][6:] == ['7\tHTTP/1.1 200 OK \t\t', '8\tHTTP/1.1 200 OK \t\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'png_coverage.pcap.gz', '-Tfields', '-eframe.number',
+                '-epng.ihdr.colour_type', '-epng.bkgd.red', '-epng.bkgd.greyscale')
+        assert lines[:6] == ['1\t3\t\t', '2\t2\t0x00ff\t', '3\t0\t\t0x0080', '4\t4\t\t0x0080',
+                             '5\t6\t0x0001\t', '6\t2\t\t']
