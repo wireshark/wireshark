@@ -172080,3 +172080,521 @@ class TestDissectFileZip:
         assert lines == [
             '10\tCompressed size (4294967235 bytes) exceeds the remaining data',
             '12\tCompressed size (100 bytes) exceeds the remaining data']
+
+
+class TestDissectJsonDictionary:
+    '''JSON+ dictionaries (json-dictionary.c and the JSON+ form of
+    packet-json.c). The dictionaries are written to a personal "json"
+    directory in the configuration directory of the test. The synthetic
+    capture json_dictionary_coverage.pcap.gz (HTTP/1.1 and HTTP/2 carrying
+    JSON, generated with Python struct) is dissected with the JSON+ form
+    (json.plus_form) on. Frames 4-100 are on the protocol of the
+    dictionary main.xml (tcp/9001), frames 101-102 are on tcp/9002 and
+    frames 103-..., see the checks below.'''
+
+    CAP = 'json_dictionary_coverage.pcap.gz'
+    OPTS = ('-o', 'json.plus_form:TRUE')
+
+    CONFIG_TXT = r'''# Personal JSON+ dictionaries for the coverage capture
+
+main.xml
+   paths.xml
+
+	bare.xml
+fieldsonly.xml
+'''
+    MAIN_XML = r'''<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+<base name="Dict Test" version="1.0">
+<typedefn type-name="String" base-type="string"/>
+<typedefn type-name="Integer" base-type="int64"/>
+<typedefn type-name="Integer" base-type="int64"/>
+<typedefn type-name="UInt" base-type="uint64"/>
+<typedefn type-name="Float" base-type="double"/>
+<typedefn type-name="Boolean" base-type="boolean"/>
+<typedefn type-name="Object" base-type="object"/>
+<typedefn type-name="Array" base-type="array"/>
+<typedefn type-name="IPv4" base-type="string" display="ipv4"/>
+<typedefn type-name="IPv6" base-type="string" display="ipv6"/>
+<typedefn type-name="Mac" base-type="string" display="ether"/>
+<typedefn type-name="Time" base-type="int64" display="absolute_time"/>
+<typedefn type-name="TimeU" base-type="uint64" display="absolute_time"/>
+<typedefn type-name="Dur" base-type="int64" display="relative_time"/>
+<typedefn type-name="DurU" base-type="uint64" display="relative_time"/>
+<typedefn type-name="Hex" base-type="string" display="hex2dec"/>
+<typedefn type-name="Plain" base-type="string" display="bogus"/>
+<typedefn base-type="string"/>
+<typedefn type-name="NoBase"/>
+<protocol name="Dict Test" displayName="DICTTEST" port="9001, 9002,x,0" transport="tcp">
+  <content-type>application/json</content-type>
+</protocol>
+
+<field name="Request Id" path="request_id" type="String" description="Request id" info="Request"/>
+<field name="User Name" path="userName" type="String" case="insensitive" info="User"/>
+<field name="Exact Name" path="exactName" type="String" case="sensitive"/>
+<field name="Plain Display" path="plain" type="Plain"/>
+<field name="Count" path="count" type="Integer" info="Count"/>
+<field name="Bytes" path="bytes" type="UInt" info="Bytes"/>
+<field name="Small" path="small" type="int32"/>
+<field name="Usmall" path="usmall" type="uint32"/>
+<field name="Ratio" path="ratio" type="Float" info="Ratio"/>
+<field name="Single" path="single" type="float"/>
+<field name="Ok" path="ok" type="Boolean" info="Ok"/>
+<field name="Unknown Type" path="unknown_type" type="NoSuchType"/>
+<field name="No Type" path="no_type"/>
+<field name="" path="empty_name"/>
+<field name="Dup" path="dup_field" type="Integer"/>
+<field name="Dup" path="dup_field" type="String"/>
+
+<field name="Status" path="status" type="Integer" info="Status">
+  <enum name="Success" code="0"/>
+  <enum name="Failed" code="1"/>
+  <enum name="Pending" code="2" description="Waiting"/>
+  <enum name="no code"/>
+  <enum code="9"/>
+</field>
+<field name="Priority" path="priority" type="UInt" info="Priority">
+  <enum name="Low" code="0"/>
+  <enum name="High" code="5"/>
+</field>
+<field name="Cell" path="cell" type="Hex" info="Cell">
+  <enum name="Primary" code="100"/>
+  <enum name="Secondary" code="200"/>
+</field>
+<field name="Cell Id" path="cellid" type="Hex" info="Cell Id"/>
+
+<field name="Addr4" path="addr4" type="IPv4" info="Addr"/>
+<field name="Addr6" path="addr6" type="IPv6"/>
+<field name="Mac" path="mac" type="Mac"/>
+<field name="Created" path="created" type="Time"/>
+<field name="Created U" path="created_u" type="TimeU"/>
+<field name="Elapsed" path="elapsed" type="Dur"/>
+<field name="Elapsed U" path="elapsed_u" type="DurU"/>
+
+<field name="Profile" path="profile" type="Object" df="prof" info="Profile">
+  <field name="Email" path="profile.email" type="String" df="prof.mail"/>
+  <field name="Age" path="profile.age" type="Integer"/>
+  <field name="Home" type="Object">
+    <field name="City" type="String"/>
+  </field>
+</field>
+<field name="Nested Obj" type="Object">
+  <field name="Leaf" type="String"/>
+  <field name="Num" type="Integer"/>
+</field>
+<field type="String"/>
+
+<field name="Tags" path="tags" type="Array">
+  <array-element type="String" info="Tag"/>
+</field>
+<field name="Numbers" path="numbers" type="Array">
+  <array-element type="Integer"/>
+</field>
+<field name="Items" path="items" type="Array">
+  <array-element type="Object">
+    <field name="Id" path="items[].id" type="Integer"/>
+    <field name="Price" path="items[].price" type="Float"/>
+    <field name="Label" path="items[].label" type="String" info="Item"/>
+    <field name="Sub" path="items[].sub" type="Array">
+      <array-element type="Object">
+        <field name="Sub Id" path="items[].sub[].id" type="Integer"/>
+      </array-element>
+    </field>
+  </array-element>
+</field>
+<field name="Rows" path="rows" type="Array">
+  <array-element type="Object">
+    <field name="Row Name"/>
+    <field name="Row Value" type="Integer"/>
+  </array-element>
+</field>
+<field name="Matrix" path="matrix" type="Array">
+  <array-element type="Array">
+    <array-element type="Integer"/>
+  </array-element>
+</field>
+<field name="Root Items" path="[]" type="Object">
+  <field name="Root Id" path="[].id" type="Integer"/>
+  <field name="Root Name" path="[].name" type="String"/>
+</field>
+
+<field name="Odata Type" path="@type" type="String"/>
+<field name="Ref" path="$ref" type="String"/>
+<field name="Colon" path="a:b" type="String"/>
+<field name="Spaced" path="two words" type="String"/>
+<field name="Dotted" path="x..y" type="String"/>
+<field name="Parsed" path="parsed" type="String" parser="parse.sh" parser-args="--flag 'a b'"/>
+<field name="Unbalanced Parser Args" path="parsed2" type="String" parser="parse2.sh" parser-args="'unterminated"/>
+
+<field name="Wc" path="wc" type="Object">
+  <wildcardfield name="Top Key" path="wckey" match=".*"/>
+</field>
+<field name="Dnn" path="dnn" type="Object">
+  <wildcardfield name="Apn" path="dnn.apn" displayvalue="name" match=".*\.com">
+    <field name="Session Type" path="dnn.apn.sessionType" type="String"/>
+    <field name="Qi" path="dnn.apn.qi" type="Integer"/>
+    <array-element type="Object">
+      <field name="Apn Item" path="dnn.apn[].item" type="String"/>
+    </array-element>
+    <wildcardfield name="Slice" path="dnn.apn.slice" displayvalue="id" match="[0-9]+">
+      <field name="Sst" path="dnn.apn.slice.sst" type="Integer"/>
+    </wildcardfield>
+  </wildcardfield>
+  <wildcardfield name="Other" path="dnn.other" match="^x-.*">
+    <field name="Other Value" path="dnn.other.value" type="String"/>
+  </wildcardfield>
+  <wildcardfield path="dnn.any" match=".*"/>
+</field>
+</base>
+</json-dictionary>
+'''
+    PATHS_XML = r'''<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+<base name="Path Test" version="1.0">
+<typedefn type-name="Integer" base-type="int64"/>
+<typedefn type-name="Boolean" base-type="boolean"/>
+<protocol name="Orders API" displayName="ORDERS" path="^/orders/v[0-9]+/"/>
+<protocol name="Tenant API" path="/TENANT/[0-9a-f]+" case="insensitive" displayName="TENANT"/>
+<protocol name="Strict API" port="9100" path="^/strict/" condition="and" displayName="STRICT"/>
+<protocol name="Loose API" port="9101" path="^/loose/" displayName="LOOSE"/>
+<protocol name="Loose Or API" port="9102" path="^/looseor/" condition="or" displayName="LOOSEOR"/>
+<protocol name="No Display" path="^/nodisplay"/>
+<protocol name="5GC Core" port="9103"/>
+<protocol name="---" port="9104"/>
+<field name="Order Id" path="order.id" type="Integer" info="Order"/>
+<field name="Order Name" path="order.name" type="String"/>
+<field name="Strict Flag" path="strict" type="Boolean"/>
+</base>
+</json-dictionary>
+'''
+    BARE_XML = r'''<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+<base name="Bare" version="1.0">
+<protocol port="9200" transport="udp"/>
+<protocol name="Bare Port" port="9201"/>
+</base>
+</json-dictionary>
+'''
+    FIELDSONLY_XML = r'''<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+<base name="Fields Only" version="1.0">
+<field name="Global Only" path="global_only" type="Integer" info="Global"/>
+<field name="Global Obj" path="global_obj" type="Object">
+  <field name="Global Leaf" path="global_obj.leaf" type="String"/>
+</field>
+</base>
+</json-dictionary>
+'''
+    NAMES_XML = r'''<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+<base name="x" version="1.0">
+<protocol name="N" port="8094"/>
+<protocol name="" port="8089"/>
+<field name="A" path="@type" type="string"/>
+<field name="B" path="$ref" type="string"/>
+<field name="C" path="a:b/c" type="string"/>
+<field name="D" path="x..y." type="string"/>
+<field name="E" path="....." type="string"/>
+<field name="F" path="f" type="string" df="bad name!"/>
+<field name="G" path="g" type="array" df="..lead..dots.."><array-element type="string"/></field>
+<field name="H" path="[]" type="array"><array-element type="string"/></field>
+<field name="I" path="Name With Spaces" type="object"/>
+<field name="M" path="m" type="string" df="..."/>
+<field name="J" path="j" type="object"><wildcardfield name="K" path="j.@k:l" displayvalue="a b" match=".*"/><wildcardfield name="L" path="j.[]" displayvalue="." match=".*"/></field>
+</base>
+</json-dictionary>
+'''
+    DUP_XML = r'''<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+<base name="x" version="1.0">
+<protocol name="D" port="8093"/>
+<typedefn type-name="Foo" base-type="string"/>
+<typedefn type-name="Foo" base-type="int64"/>
+<field name="A" path="a" type="Foo"/>
+<field name="B" path="b" type="Foo"/>
+<field name="Flag" path="flag" type="boolean"><enum name="one" code="1"/></field>
+</base>
+</json-dictionary>
+'''
+    WARN_XML = r'''<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+<base name="x" version="1.0">
+<protocol name="W" port="8096"/>
+<protocol name="Bad Re" path="[unterminated" port="8097"/>
+<protocol name="Bad Re2" path="(" case="insensitive"/>
+<typedefn type-name="IPv4" base-type="string" display="ipv4"/>
+<typedefn type-name="Hex" base-type="string" display="hex2dec"/>
+<field name="Weird Case" path="weird_case" case="weird"/>
+<field name="Bool Enum" path="bool_enum" type="boolean"><enum name="one" code="1"/></field>
+<field name="Str Enum" path="str_enum" type="string"><enum name="one" code="1"/></field>
+<field name="Dbl Enum" path="dbl_enum" type="double"><enum name="one" code="1"/></field>
+<field name="Ip Enum" path="ip_enum" type="IPv4"><enum name="one" code="1"/></field>
+<field name="Hex Enum" path="hex_enum" type="Hex"><enum name="one" code="1"/></field>
+<field name="Dnn" path="dnn" type="Object">
+  <wildcardfield name="No Match" path="dnn.nomatch"/>
+  <wildcardfield name="No Path" match=".*"/>
+  <wildcardfield name="Bad Regex" path="dnn.bad" match="[unterminated">
+    <field name="Never" path="dnn.bad.x" type="string"/>
+  </wildcardfield>
+  <wildcardfield name="At" path="dnn.@odata" match="a.*"/>
+</field>
+<field path="" name="Empty Path Name"/>
+<field path="" name=""/>
+</base>
+</json-dictionary>
+'''
+    NOBASE_XML = r'''<?xml version="1.0"?>
+<json-dictionary/>
+'''
+    OTHER_XML = r'''<?xml version="1.0"?>
+<json-dictionary><other/><!-- c --><base name="x"><other/><field name="O" path="o" type="string"/></base></json-dictionary>
+'''
+    GOOD_XML = r'''<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+<base name="x" version="1.0">
+<protocol name="G" port="8095"/>
+<field name="G" path="g" type="string"/>
+</base>
+</json-dictionary>
+'''
+    JSONMAIN_XML = r'''<?xml version="1.0" encoding="UTF-8"?>
+<json-dictionary>
+<base name="x" version="1.0">
+<protocol name="Jm Proto" port="8098"/>
+<field name="Jm" path="jm" type="string"/>
+</base>
+</json-dictionary>
+'''
+
+    @staticmethod
+    def write_dict(conf_path, files):
+        '''Write the files into the personal json directory.'''
+        d = os.path.join(conf_path, 'json')
+        os.makedirs(d, exist_ok=True)
+        for name, text in files.items():
+            with open(os.path.join(d, name), 'w', encoding='utf-8') as f:
+                f.write(text)
+
+    def main_dict(self, conf_path):
+        self.write_dict(conf_path, {
+            'config.txt': self.CONFIG_TXT, 'main.xml': self.MAIN_XML,
+            'paths.xml': self.PATHS_XML, 'bare.xml': self.BARE_XML,
+            'fieldsonly.xml': self.FIELDSONLY_XML})
+
+    @staticmethod
+    def run(cmd_tshark, test_env, *args):
+        '''Run tshark and return (standard output lines, standard error).'''
+        p = subprocess.run((cmd_tshark, *args), encoding='utf-8', env=test_env,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        return p.stdout.splitlines(), p.stderr
+
+    def fields(self, cmd_tshark, capture_file, test_env, *args):
+        lines, _ = self.run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                *self.OPTS, '-Tfields', *args)
+        return lines
+
+    def test_json_dictionary_clean(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''The main capture has no malformed frames, no error expert infos
+        and no dissector bug (the test environment aborts on one), and the
+        JSON frames give the same columns in one and two passes.'''
+        self.main_dict(conf_path)
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 8388608 || json.plus.invalid_json',
+                    '-eframe.number')
+            assert lines == []
+        args = ('-Y', 'json', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert one == two
+        assert len(one) == 114
+
+    def test_json_dictionary_protocols(self, cmd_tshark, capture_file, test_env,
+            conf_path):
+        '''The protocol column is the displayName of the protocol that was
+        selected by port, by the request URI (case sensitive or not), by both
+        (condition="and") or by either of them. Requests and responses are
+        counted.'''
+        self.main_dict(conf_path)
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'json && !http2',
+                '-e_ws.col.protocol')
+        counts = {p: lines.count(p) for p in set(lines)}
+        assert counts == {'DICTTEST': 54, 'ORDERS': 2, 'TENANT': 4, 'STRICT': 2,
+                'LOOSE': 6, 'LOOSEOR': 2, 'HTTP/JSON': 40}
+        # the protocol of the file orders.xml is set on its frames
+        flags = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'json.orders_api',
+                '-eframe.number')
+        assert flags[:2] == ['164', '166']
+        assert self.fields(cmd_tshark, capture_file, test_env, '-Y',
+                'json.strict_api && json.loose_api', '-eframe.number') == []
+
+    def test_json_dictionary_http2_path(self, cmd_tshark, capture_file, test_env,
+            features, conf_path):
+        '''The :path of an HTTP/2 request selects the protocol.'''
+        if not features.have_nghttp2:
+            pytest.skip('Requires nghttp2.')
+        self.main_dict(conf_path)
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'json && http2.type == 1 && http2.headers.method',
+                '-eframe.number', '-e_ws.col.protocol', '-ejson.order.id')
+        assert lines == ['273\tORDERS\t21', '284\tHTTP2/JSON\t']
+
+    def test_json_dictionary_info(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''The info attribute puts labels in the Info column; an enum name is
+        used for an enum value.'''
+        self.main_dict(conf_path)
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', ' || '.join('frame.number == %d' % n for n in (4, 10, 12, 16, 24, 36)), '-e_ws.col.info')
+        # the decimal separator of the number in the first label depends on the locale
+        lines[0] = lines[0].replace('19,50', '19.50')
+        assert [l.strip() for l in lines] == [
+            'Request: req-1 User: alice Count: 42 Bytes: 18446744073709551615 Ratio: 19.50 Ok: true (application/json)',
+            'Status: Success Request: ok-1 (application/json)',
+            'Status: Success Priority: High Cell: 64 Cell Id: ff (application/json)',
+            'Status: 7 Priority: 99 Cell: c8 Cell Id: 1F4 (application/json)',
+            'Addr: 192.0.2.55 (application/json)',
+            'Tag: a Tag: b Tag: c Item: first Item: second (application/json)',
+        ]
+
+    def test_json_dictionary_values(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''Typed fields: case insensitive names, enums, hex2dec, addresses,
+        times, objects, name only fields, arrays and the filter names of
+        keys that are not valid in a filter name.'''
+        self.main_dict(conf_path)
+        def f(frame, *names):
+            lines = self.fields(cmd_tshark, capture_file, test_env, '-Y',
+                    'frame.number == %d' % frame, *('-e' + n for n in names))
+            return lines[0].split('\t')
+        name, count, bytes_, ratio, ok = f(4, 'json.userName', 'json.count', 'json.bytes',
+                'json.ratio', 'json.ok')
+        assert (name, count, bytes_, ok) == ('alice', '42', '18446744073709551615', 'True')
+        assert ratio.replace(',', '.') == '19.5'    # locale decimal separator
+        # userName is case insensitive, request_id is not
+        assert f(8, 'json.userName', 'json.request_id') == ['bob', '']
+        assert f(12, 'json.status', 'json.priority', 'json.cell', 'json.cellid') == \
+            ['0', '5', '100', '255']
+        assert f(16, 'json.status', 'json.priority', 'json.cell', 'json.cellid') == \
+            ['7', '99', '200', '500']
+        a4, a6, mac, created, created_u, elapsed, elapsed_u = f(24, 'json.addr4',
+                'json.addr6', 'json.mac', 'json.created', 'json.created_u',
+                'json.elapsed', 'json.elapsed_u')
+        assert (a4, a6, mac) == ('192.0.2.55', '2001:db8::1', '00:11:22:33:44:55')
+        assert created.startswith('2023-11-14T22:13:20')
+        assert created_u.startswith('2023-11-14T22:13:21')
+        assert elapsed.startswith('90.0') and elapsed_u.startswith('3600.0')
+        # the same values given as strings
+        assert f(28, 'json.addr4', 'json.elapsed')[0] == '10.1.2.3'
+        assert f(32, 'json.prof.mail', 'json.profile.age') == ['a@example.com', '33']
+        assert f(36, 'json.tags', 'json.items.id', 'json.items.sub.id') == \
+            ['a,b,c', '1,2', '10,11']
+        assert f(40, 'json._type', 'json._ref', 'json.a_b', 'json.two_words') == \
+            ['t', '#/x', 'c', 'w']
+        assert f(44, 'json.dnn.apn.name', 'json.dnn.apn.sessionType') == \
+            ['web.operator.com,ims.example.com', 'IPV4']
+        # the last definition of a path wins: dup_field is a string
+        assert f(4, 'json.dup_field') == ['s']
+
+    def test_json_dictionary_type_mismatch(self, cmd_tshark, capture_file, test_env,
+            conf_path):
+        '''A value that does not fit the type of its field gets an expert
+        info, not a dissector bug (reproducers of the fix; the test
+        environment aborts on a dissector bug). Frames 111-146 are on the
+        shipped dictionary on tcp/8080, frames 79-100 on the personal one.'''
+        self.main_dict(conf_path)
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'json.plus.type_mismatch', '-eframe.number',
+                '-e_ws.expert.message')
+        frames = [int(l.split('\t')[0]) for l in lines]
+        assert frames == [20, 56, 60, 68, 98, 102, 106, 110, 117, 121, 125, 129, 133, 137, 141, 145, 149, 153]
+        for l in lines:
+            assert set(l.split('\t')[1].split(',')) == {'Field value does not match expected type'}
+
+    def test_json_dictionary_without_plus(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''The dictionaries are loaded at startup, but without json.plus_form
+        the JSON is shown as before.'''
+        self.main_dict(conf_path)
+        stdout, _ = self.run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 4', '-V', '-O', 'json')
+        assert 'JSON+ form' not in '\n'.join(stdout)
+        assert 'Member: count' in '\n'.join(stdout)
+        stdout, _ = self.run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                *self.OPTS, '-Y', 'frame.number == 4', '-V', '-O', 'json')
+        assert 'JSON+ form' in '\n'.join(stdout)
+
+    def test_json_dictionary_hostile_names(self, cmd_tshark, capture_file, test_env,
+            conf_path):
+        '''Keys that are not valid in a filter name (@, $, :, spaces, repeated
+        dots, an empty name) used to abort at startup; the names are
+        sanitized, and a duplicate typedefn no longer frees a hash key.'''
+        self.write_dict(conf_path, {'config.txt': 'names.xml\ndup.xml\n',
+                'names.xml': self.NAMES_XML, 'dup.xml': self.DUP_XML})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        abbrevs = {l.split('\t')[2] for l in stdout if l.startswith('F\t')}
+        for name in ('json._type', 'json._ref', 'json.a_b_c', 'json.x.y',
+                'json.bad_name_', 'json.field', 'json.Name_With_Spaces', 'json.j._k_l.a_b'):
+            assert name in abbrevs, name
+        assert 'json.dict_test' not in abbrevs
+        assert "Ignoring enum on non-integer field 'flag'" in stderr
+        # an enum on a boolean made tshark crash on a "true" value
+        lines, _ = self.run(cmd_tshark, test_env, '-r', capture_file(self.CAP), *self.OPTS,
+                '-Y', 'json.flag', '-Tfields', '-eframe.number', '-ejson.flag')
+        assert lines == ['291\tTrue', '293\tFalse']
+
+    def test_json_dictionary_warnings(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''Bad regular expressions, case attributes, enums on other than
+        integer fields and incomplete wildcard fields are reported with a
+        warning; the dictionary is loaded anyway.'''
+        self.write_dict(conf_path, {'config.txt': 'warn.xml\n', 'warn.xml': self.WARN_XML})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        for text in ("<wildcardfield> missing required 'path' or 'match' attribute",
+                "Invalid case attribute value 'weird' for field 'weird_case'",
+                "Ignoring enum on non-integer field 'str_enum'",
+                "Ignoring enum on non-integer field 'ip_enum'",
+                "wildcardfield match='[unterminated' regex compile failed",
+                'failed to compile path regex for protocol "Bad Re"',
+                'failed to compile path regex for protocol "Bad Re2"'):
+            assert text in stderr, text
+        abbrevs = {l.split('\t')[2] for l in stdout if l.startswith('F\t')}
+        assert 'json.bool_enum' in abbrevs
+        assert 'json.w' in abbrevs
+
+    def test_json_dictionary_bad_files(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''Files that are not XML, have the wrong root element, are empty or
+        missing are reported and skipped; the following ones are loaded.'''
+        self.write_dict(conf_path, {
+                'config.txt': '# c\nnotxml.xml\nwrongroot.xml\nempty.xml\ngone.xml\n\n'
+                              'nobase.xml\nother.xml\ngood.xml\n',
+                'notxml.xml': '<json-dictionary><base>\n',
+                'wrongroot.xml': '<?xml version="1.0"?>\n<other/>\n',
+                'empty.xml': '',
+                'nobase.xml': '<?xml version="1.0"?>\n<json-dictionary/>\n',
+                'other.xml': self.OTHER_XML, 'good.xml': self.GOOD_XML})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        for text in ('Failed to parse notxml.xml', 'Failed to parse wrongroot.xml',
+                'Failed to parse empty.xml', 'File not found: gone.xml'):
+            assert text in stderr, text
+        assert 'Failed to parse good.xml' not in stderr
+        abbrevs = {l.split('\t')[2] for l in stdout if l.startswith('F\t')}
+        assert 'json.g' in abbrevs
+        assert 'json.o' in abbrevs
+        assert 'json.g_proto' not in abbrevs
+        # a dictionary nested deeper than libxml2 accepts
+        self.write_dict(conf_path, {'config.txt': 'deep.xml\n', 'deep.xml':
+                self.GOOD_XML.replace('<field name="G" path="g" type="string"/>',
+                    '<field name="f" path="f">' * 300 + '</field>' * 300)})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        assert 'Failed to parse deep.xml' in stderr
+        assert 'using generic mode' in stderr
+
+    def test_json_dictionary_no_config(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''Without a config.txt the personal jsonmain.xml is loaded; an
+        empty directory gives the generic mode.'''
+        self.write_dict(conf_path, {'jsonmain.xml': self.JSONMAIN_XML})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        abbrevs = {l.split('\t')[2] for l in stdout if l.startswith('F\t')}
+        assert 'json.jm' in abbrevs
+        assert 'json.jm_proto' in abbrevs
+        os.remove(os.path.join(conf_path, 'json', 'jsonmain.xml'))
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        abbrevs = {l.split('\t')[2] for l in stdout if l.startswith('F\t')}
+        assert 'json.jm' not in abbrevs
+        assert 'No config.txt or jsonmain.xml in' in stderr
