@@ -85,10 +85,10 @@ void   *quic_stream_get_proto_data(struct _packet_info *pinfo, quic_stream_info 
 WS_DLL_PUBLIC uint32_t get_quic_connections_count(void);
 
 typedef struct gquic_info_data {
+    unsigned encoding;
+    uint16_t server_port;
     uint8_t version;
     bool version_valid;
-    bool encoding;
-    uint16_t server_port;
 } gquic_info_data_t;
 
 int
