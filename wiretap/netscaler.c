@@ -1162,6 +1162,7 @@ static bool nstrace_set_start_time(wtap *wth, int file_version, int *err,
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),type,ver);\
         TRACE_V##ver##_REC_LEN_OFF((rec),v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
+        (rec)->rec_header.packet_header.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
         /* Make sure the record is entirely contained in the page */\
         if ((nstrace_buflen - nstrace_buf_offset) < (rec)->rec_header.packet_header.caplen) {\
             *err = WTAP_ERR_BAD_FILE;\
@@ -2299,7 +2300,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
 /* Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 static bool nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    int *err, char **err_info _U_)
+    int *err, char **err_info)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
     const uint8_t *pd;
@@ -2436,7 +2437,11 @@ static bool nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
         break;
 
     default:
-        ws_assert_not_reached();
+        /* Not a NetScaler trace record, e.g. from a file format without
+         * the NetScaler pseudo-header. */
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+        *err_info = ws_strdup_printf("nstrace: unknown record version 0x%02x",
+            rec->rec_header.packet_header.pseudo_header.nstr.rec_type);
         return false;
     }
 
