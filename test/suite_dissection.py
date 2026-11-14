@@ -170050,3 +170050,90 @@ class TestDissectXyplex:
         assert rows[0] == '6\t33000 > 7001 Data'
         assert rows[1] == '7\t7001 > 33000 Data'
         assert len(rows) == 7
+
+
+class TestDissectLiPsPduSamples:
+    def lips(self, cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('li_ps_pdu_samples_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def frames(self, cmd_tshark, capture_file, test_env, display_filter, *args):
+        stdout = self.lips(cmd_tshark, capture_file, test_env, '-Y', display_filter,
+                           '-Tfields', '-eframe.number', *args)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_li_ps_pdu_samples_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is LI-PS-PDU (the IP packet of two IPCCs after it),
+        and none is malformed or has a warning, in one and two passes.'''
+        stdout = self.lips(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eli5g.pf', '-eframe.protocols')
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert len(lines) == 119
+        assert [line[0] for line in lines].count('1') == 72
+        assert [line[0] for line in lines].count('17') == 47
+        assert [i + 1 for i, line in enumerate(lines)
+                if line[1] == 'exported_pdu:li5g:li-ps-pdu:ip:udp:syslog'] == [2, 82]
+        assert all(line[1].startswith('exported_pdu:li5g:li-ps-pdu') for line in lines)
+        for passes in ((), ('-2',)):
+            stdout = self.lips(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_li_ps_pdu_samples_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The dissector keeps no state: the full output is the same in
+        the first and the second pass.'''
+        assert (self.lips(cmd_tshark, capture_file, test_env, '-V') ==
+                self.lips(cmd_tshark, capture_file, test_env, '-2', '-V'))
+
+    def test_li_ps_pdu_samples_headers(self, cmd_tshark, capture_file, test_env):
+        '''The PSHeader of the first 72 frames.'''
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                'li-ps-pdu.pSHeader_element', '-eli-ps-pdu.li_psDomainId')
+        assert len(lines) == 72
+        assert [line[0] for line in lines] == [str(n) for n in range(1, 73)]
+        assert all(line[1] == '0.4.0.2.2.5.1.43' for line in lines)
+
+    def test_li_ps_pdu_samples_payloads(self, cmd_tshark, capture_file, test_env):
+        '''Every alternative of the Payload (frames 73-80, mandatory
+        components only), and the ones of which Wireshark has no ASN.1
+        module (HI1 operations) shown as bytes with a note.'''
+        for name, frame in (('iRIPayloadSequence', '73'), ('cCPayloadSequence', '74'),
+                            ('tRIPayload', '75'), ('encryptionType', '77'),
+                            ('iLHIPayload', '79'), ('hI4Payload', '80')):
+            lines = self.frames(cmd_tshark, capture_file, test_env,
+                    'li-ps-pdu.%s && frame.number >= 73 && frame.number <= 80' % name)
+            assert [line[0] for line in lines] == [frame], name
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                'frame.number >= 73 && frame.number <= 80 && li-ps-pdu.not_decoded',
+                '-eli-ps-pdu.not_decoded', '-e_ws.expert.severity')
+        assert lines == [['76', '26', '4194304'], ['78', '34', '4194304']]
+
+    def test_li_ps_pdu_samples_contents(self, cmd_tshark, capture_file, test_env):
+        '''CC contents: the IP packet of an IPCC (frame 82), an e-mail CC
+        that Wireshark has no module for, shown as bytes without the
+        end-of-contents octets of its indefinite length (frame 119); the
+        TS 33.128 IRI and CC payloads decoded by the xIRI dissector.'''
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                'frame.number == 82', '-eip.src', '-eudp.dstport', '-esyslog.msg')
+        assert lines[0][:3] == ['82', '192.0.2.1', '514']
+        assert lines[0][3].startswith('ps-pdu: packet')
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                'frame.number == 119', '-eli-ps-pdu.not_decoded')
+        assert lines == [['119', '04046d61696c']]
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                'frame.number >= 73 && li-ps-pdu.threeGPP33128DefinedCC', '-eli-ps-pdu.threeGPP33128DefinedCC')
+        assert [line[0] for line in lines] == ['100']
+        assert lines[0][1] == '301681050413130303a20da20ba1068104678cb1d682011f'
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                'frame.number >= 73 && li-ps-pdu.threeGPP33128DefinedIRI')
+        assert [line[0] for line in lines] == ['117']
+
+    def test_li_ps_pdu_samples_geo(self, cmd_tshark, capture_file, test_env):
+        '''The ETSI TS 103 280 location shapes: a sphere and an ellipsoid.'''
+        sphere = self.frames(cmd_tshark, capture_file, test_env, 'li-ps-pdu.sphere_element')
+        ellipsoid = self.frames(cmd_tshark, capture_file, test_env, 'li-ps-pdu.xyEllipsoid_element')
+        assert len(sphere) >= 1
+        assert len(ellipsoid) >= 1
+        assert sphere != ellipsoid
