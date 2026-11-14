@@ -170774,3 +170774,73 @@ class TestDissectFileFile:
                                  capture_output=True, encoding='utf-8', env=test_env, timeout=120)
             assert out.returncode == 0, out.stderr
             assert out.stdout == 'exported_pdu:data\n'
+
+
+class TestDissectGif:
+    '''GIF (file-gif.c): gif_coverage.gif.gz is read as a file (MIME file
+    reader, "wtap_file" heuristic); gif_coverage.pcap.gz carries GIF files in
+    HTTP responses (media type image/gif, the "http" heuristic), a GIF with
+    unknown block types and bodies that are not claimed.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_gif_file(self, cmd_tshark, capture_file, test_env):
+        '''A GIF89a with a global color table, every extension kind and
+        three images (one interlaced, with local color tables) has no
+        malformed packet or expert info in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'gif_coverage.gif.gz', *passes, '-Tfields',
+                    '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-e_ws.malformed', '-e_ws.expert.message')
+            assert lines == ['MIME_FILE\t (GIF89a)\t\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'gif_coverage.gif.gz', '-Tfields', '-eimage-gif.version',
+                '-eimage-gif.screen.width', '-eimage-gif.extension.label',
+                '-eimage-gif.image.width', '-eimage-gif.image.code_size',
+                '-eimage-gif.end')
+        assert lines == ['GIF89a\t2\t0xf9,0xfe,0xff,0x01,0x77,0xf9\t2,1,1\t2,2,2\t1']
+
+    def test_gif_color_resolution(self, cmd_tshark, capture_file, test_env):
+        '''Fix "GIF: Fix color resolution mask and a stale item length": a
+        global color resolution of 8 bits (flags 0xf9, the three bits 0x70
+        are all set) is shown as 8 bits per color, not 4.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'gif_coverage.gif.gz', '-V', '-O', 'image-gif')
+        assert '    Global settings: (Global color table present) (8 bits per color) (2 bits per pixel)' in lines
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'gif_coverage.gif.gz', '-Tfields', '-eimage-gif.global.color_bpp')
+        assert lines == ['7']      # the field is the 3 bit value (8 bits - 1)
+
+    def test_gif_http(self, cmd_tshark, capture_file, test_env):
+        '''Four GIFs (GIF89a, GIF87a, no media type, unknown blocks) are
+        dissected, one and two passes agree; the GIF behind a media type
+        the dissector is not registered for and two short or wrong bodies
+        are not claimed.'''
+        res = []
+        for passes in ((), ('-2',)):
+            res.append(self._tshark(cmd_tshark, capture_file, test_env,
+                    'gif_coverage.pcap.gz', *passes, '-Tfields',
+                    '-eframe.number', '-e_ws.col.info', '-e_ws.malformed'))
+        assert res[0] == res[1]
+        assert res[0] == [
+            '1\tHTTP/1.1 200 OK  (GIF89a)\t', '2\tHTTP/1.1 200 OK  (GIF87a)\t',
+            '3\tHTTP/1.1 200 OK  (GIF89a)\t', '4\tHTTP/1.1 200 OK \t',
+            '5\tHTTP/1.1 200 OK  (GIF89a)\t', '6\tHTTP/1.1 200 OK \t',
+            '7\tHTTP/1.1 200 OK \t']
+
+    def test_gif_unknown_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Unknown block types (0x99, 0x98 before the image, 0x00 after it)
+        each give one warning and the dissection goes on to the image
+        and the trailer (frame 5); the item of an unknown block is one
+        octet long (the stale length fixed in the same commit).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'gif_coverage.pcap.gz', '-Y', 'frame.number == 5', '-Tfields',
+                '-e_ws.expert.message', '-eimage-gif.image.width', '-eimage-gif.end')
+        assert lines == [
+            'Unknown GIF data block type,Unknown GIF data block type,'
+            'Unknown GIF data block type\t1\t1']
