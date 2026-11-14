@@ -171855,3 +171855,91 @@ class TestDissectTiff:
         assert messages.count('Could not determine length of entry') == 4
         assert messages.count('Unknown tag') == 3
         assert lines[0].split('\t')[1] == ''
+
+
+class TestDissectFileTtl:
+    '''TTL files (TraceTronic logger traces, File-TTL): read with the MIME
+    Files Format reader, from the synthetic file file_ttl_coverage.ttl.gz;
+    other files are written by the test.'''
+
+    MIME = ('-Xread_format:MIME Files Format',)
+
+    @staticmethod
+    def tshark(cmd_tshark, test_env, capture, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes, '-r', capture, *args),
+                                       encoding='utf-8', env=test_env, timeout=120)
+
+    @staticmethod
+    def entry(etype=6, payload=b''):
+        return struct.pack('<HHHHQ', (etype << 12) | (16 + len(payload)), 0x123, 0x456, 0, 0) + payload
+
+    @staticmethod
+    def ttl(path, entries=b'', version=10, block_size=256, header_size=None):
+        info = b'\xee' * 4080
+        header_size = 16 + len(info) if header_size is None else header_size
+        data = b'TTL ' + struct.pack('<III', version, block_size, header_size) + info
+        data += b'\0' * (header_size - len(data))
+        with open(path, 'wb') as f:
+            f.write(data + entries)
+        return path
+
+    def test_file_ttl_main(self, cmd_tshark, capture_file, test_env):
+        '''Header, log file information, the XML configuration and four
+        blocks of entries; no malformed packet or expert info, in one and
+        two passes.'''
+        cap = capture_file('file_ttl_coverage.ttl.gz')
+        for passes in ((), ('-2',)):
+            out = self.tshark(cmd_tshark, test_env, cap, *self.MIME, '-Tfields', '-Eaggregator=,',
+                              '-Eoccurrence=a', '-e_ws.malformed', '-e_ws.expert.message',
+                              '-ettl.header.version', '-ettl.header.block_size',
+                              '-ettl.header.header_size', '-ettl.trace_data_block',
+                              '-ettl.header.logfile_info.logger_sn', passes=passes)
+            assert out.rstrip('\n').split('\t') == ['', '', '10', '256', '4177', '1,1,1,1', 'SN-0001']
+        out = self.tshark(cmd_tshark, test_env, cap, *self.MIME, '-Tfields', '-eframe.protocols')
+        assert out.startswith('mime_dlt:file-ttl:xml:ttl:')
+        assert out.count(':ttl') == 3 * 9 + 8
+
+    def test_file_ttl_versions(self, cmd_tshark, test_env, result_file):
+        '''A version 9 file has no 4080 octet log file information
+        requirement and no XML configuration.'''
+        path = self.ttl(result_file('file_ttl_v9.ttl'), self.entry() * 4, version=9, header_size=16 + 4080)
+        out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-Tfields', '-e_ws.malformed',
+                          '-e_ws.expert.message')
+        assert out == '\t\n'
+
+    def test_file_ttl_malformed(self, cmd_tshark, test_env, result_file):
+        '''A block size of 0, a header size below 16 or above INT32_MAX and a
+        header cut short are flagged.'''
+        for name, kwargs, message in (
+                ('block0', {'block_size': 0}, 'block size is too short'),
+                ('hdr_short', {'header_size': 8}, 'header size is too short'),
+                ('hdr_huge', {'header_size': 0x90000000}, 'header size is implausible')):
+            path = self.ttl(result_file('file_ttl_%s.ttl' % name), self.entry() * 4, **kwargs) \
+                if name != 'hdr_huge' else None
+            if path is None:
+                path = result_file('file_ttl_hdr_huge.ttl')
+                with open(path, 'wb') as f:
+                    f.write(b'TTL ' + struct.pack('<III', 10, 256, 0x90000000) + b'\0' * 100)
+            out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-Tfields', '-e_ws.expert.message')
+            assert message in out, name
+
+    def test_file_ttl_block_size_wrap(self, cmd_tshark, test_env, result_file):
+        '''A block size of 0xFFFFFFFF made the offset move back one octet per
+        block, so that the trace data was dissected again and again ("TTL:
+        Stop at a block size that wraps the offset"): the entries are shown
+        once and the file ends without a dissector bug.'''
+        path = self.ttl(result_file('file_ttl_wrap.ttl'), self.entry() * 8, block_size=0xFFFFFFFF)
+        for passes in ((), ('-2',)):
+            out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-Tfields', '-eframe.protocols',
+                              '-e_ws.expert.message', '-e_ws.malformed', passes=passes)
+            protocols, messages, malformed = out.rstrip('\n').split('\t')
+            assert protocols.count(':ttl') == 8
+            assert (messages, malformed) == ('', '')
+
+    def test_file_ttl_block_size_larger_than_file(self, cmd_tshark, test_env, result_file):
+        '''A block size above the remaining data is one block.'''
+        path = self.ttl(result_file('file_ttl_bigblock.ttl'), self.entry() * 300, block_size=0x10000)
+        out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-Tfields', '-e_ws.malformed',
+                          '-eframe.protocols')
+        assert out.startswith('\tmime_dlt:file-ttl')
+        assert out.count(':ttl') == 300
