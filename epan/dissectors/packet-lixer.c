@@ -617,9 +617,16 @@ get_lixer_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *d
 
   TRY {
     ber_offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
-    ber_offset = get_ber_length(tvb, ber_offset, &ber_len, NULL);
-    /* get_ber_length() clamps ber_len to INT32_MAX */
-    len = ber_offset - offset + ber_len;
+    if (tvb_get_uint8(tvb, ber_offset) == 0x80) {
+      /* An indefinite length can only be found by walking the whole value,
+       * again for every new segment, which is quadratic. IEF records use
+       * the definite form; dissect what there is. */
+      len = tvb_reported_length_remaining(tvb, offset);
+    } else {
+      ber_offset = get_ber_length(tvb, ber_offset, &ber_len, NULL);
+      /* get_ber_length() clamps ber_len to INT32_MAX */
+      len = ber_offset - offset + ber_len;
+    }
   }
   CATCH_BOUNDS_ERRORS {
     len = 0;
