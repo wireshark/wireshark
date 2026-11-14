@@ -2090,6 +2090,18 @@ static int erf_dump_can_write_encap(int encap)
   return 0;
 }
 
+static bool erf_add_idb(wtap_dumper *wdh _U_, wtap_block_t idb _U_, int *err _U_, char **err_info _U_)
+{
+  /*
+   * wtap_dump_add_idb() has already added the IDB to wdh->interface_data,
+   * which is all we need: the interface information is read from there
+   * when the metadata record is first built.
+   *
+   * XXX - IDBs added after that point are not reflected in the metadata.
+   */
+  return true;
+}
+
 static bool erf_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_)
 {
   erf_dump_t *dump_priv;
@@ -2100,6 +2112,7 @@ static bool erf_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_)
   dump_priv = erf_dump_priv_create();
 
   wdh->subtype_write = erf_dump;
+  wdh->subtype_add_idb = erf_add_idb;
   wdh->priv = dump_priv;
   wdh->subtype_finish = erf_dump_finish;
 
