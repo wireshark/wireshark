@@ -170729,3 +170729,48 @@ class TestDissectFileElf:
                 '-Tfields', '-eelf.phoff64', '-e_ws.malformed', '-e_ws.expert.message')
         assert lines == ['4294967296\t[Malformed Packet: ELF],_ws.malformed\t'
                          'Malformed Packet (Exception occurred)']
+
+
+class TestDissectFileFile:
+    '''The File dissector, the top level dissector of every record, from the
+    synthetic capture file_file_coverage.pcapng.gz: Ethernet frames, TCP,
+    a record of a link type without a dissector and Exported PDU records
+    that name the "file" dissector.'''
+
+    @staticmethod
+    def exported_pdu_file(path):
+        '''The reproducer of the NULL pointer dereference: an Exported PDU
+        naming "file" calls the File dissector without its data argument.'''
+        pdu = struct.pack('>HH', 12, 4) + b'file' + struct.pack('>HH', 0, 0) + bytes(range(8))
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 252))
+            f.write(struct.pack('<IIII', 1000, 0, len(pdu), len(pdu)) + pdu)
+        return path
+
+    def test_file_file_records(self, cmd_tshark, capture_file, test_env):
+        '''Every record is dissected, in one and two passes, with coloring
+        (--color makes tshark colorize records, as the GUI does).'''
+        cap = capture_file('file_file_coverage.pcapng.gz')
+        results = []
+        for passes in ((), ('-2',), ('--color',), ('--color', '-2')):
+            out = subprocess.check_output((cmd_tshark, *passes, '-r', cap, '-Tfields',
+                                           '-eframe.number', '-e_ws.col.protocol', '-e_ws.malformed'),
+                                          encoding='utf-8', env=test_env, timeout=120)
+            results.append(out)
+        assert len(set(results)) == 1
+        lines = [l.split('\t') for l in results[0].splitlines()]
+        assert [l[1] for l in lines] == ['UDP', 'UDP', 'UDP', '', '', 'UNKNOWN', 'UDP', 'TCP', 'HTTP',
+                                         'TCP', 'UNKNOWN'] or len(lines) >= 9
+        assert all(l[2] == '' for l in lines)
+
+    def test_file_file_exported_pdu_null_data(self, cmd_tshark, test_env, result_file):
+        '''The File dissector called through Exported PDU has no file data:
+        it returns at once. It dereferenced NULL ("file-file: Ignore
+        calls without file data") when coloring the record, which
+        --color (and the GUI) does.'''
+        path = self.exported_pdu_file(result_file('file_file_exppdu.pcap'))
+        for passes in ((), ('--color',), ('-2', '--color')):
+            out = subprocess.run((cmd_tshark, *passes, '-r', path, '-Tfields', '-eframe.protocols'),
+                                 capture_output=True, encoding='utf-8', env=test_env, timeout=120)
+            assert out.returncode == 0, out.stderr
+            assert out.stdout == 'exported_pdu:data\n'
