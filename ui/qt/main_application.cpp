@@ -190,25 +190,11 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
     /* First check if profile exists */
     if (!profile_exists(env_prefix, profile_name, false)) {
         if (profile_exists(env_prefix, profile_name, true)) {
-            char  *pf_dir_path, *pf_dir_path2, *pf_filename;
             /* Copy from global profile */
-            if (create_persconffile_profile(env_prefix, profile_name, &pf_dir_path) == -1) {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "Can't create directory\n\"%s\":\n%s.",
-                    pf_dir_path, g_strerror(errno));
-
-                g_free(pf_dir_path);
-            }
-
-            if (copy_persconffile_profile(env_prefix, profile_name, profile_name, true, &pf_filename,
-                    &pf_dir_path, &pf_dir_path2) == -1) {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
-                    pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
-
-                g_free(pf_filename);
-                g_free(pf_dir_path);
-                g_free(pf_dir_path2);
+            char *err = NULL;
+            if (!copy_global_profile(env_prefix, profile_name, &err)) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
+                g_free(err);
             }
         } else {
             /* No personal and no global profile exists */

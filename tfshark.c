@@ -381,36 +381,29 @@ main(int argc, char *argv[])
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'C':        /* Configuration Profile */
-                if (profile_exists (application_configuration_environment_prefix(), ws_optarg, false)) {
-                    set_profile_name (ws_optarg);
-                } else if (profile_exists (application_configuration_environment_prefix(), ws_optarg, true)) {
-                    char  *pf_dir_path, *pf_dir_path2, *pf_filename;
+            {
+                char *name = profile_canonical_name(ws_optarg);
+                if (name && profile_exists (application_configuration_environment_prefix(), name, false)) {
+                    set_profile_name (name);
+                } else if (name && profile_exists (application_configuration_environment_prefix(), name, true)) {
+                    char *copy_err = NULL;
                     /* Copy from global profile */
-                    if (create_persconffile_profile(application_configuration_environment_prefix(), ws_optarg, &pf_dir_path) == -1) {
-                        cmdarg_err("Can't create directory\n\"%s\":\n%s.",
-                            pf_dir_path, g_strerror(errno));
-
-                        g_free(pf_dir_path);
+                    if (!copy_global_profile(application_configuration_environment_prefix(), name, &copy_err)) {
+                        cmdarg_err("%s", copy_err);
+                        g_free(copy_err);
+                        g_free(name);
                         exit_status = WS_EXIT_INVALID_FILE;
                         goto clean_exit;
                     }
-                    if (copy_persconffile_profile(application_configuration_environment_prefix(), ws_optarg, ws_optarg, true, &pf_filename,
-                            &pf_dir_path, &pf_dir_path2) == -1) {
-                        cmdarg_err("Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
-                            pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
-
-                        g_free(pf_filename);
-                        g_free(pf_dir_path);
-                        g_free(pf_dir_path2);
-                        exit_status = WS_EXIT_INVALID_FILE;
-                        goto clean_exit;
-                    }
-                    set_profile_name (ws_optarg);
+                    set_profile_name (name);
                 } else {
                     cmdarg_err("Configuration Profile \"%s\" does not exist", ws_optarg);
+                    g_free(name);
                     return 1;
                 }
+                g_free(name);
                 break;
+            }
             case 'O':        /* Only output these protocols */
                 output_only = g_strdup(ws_optarg);
                 /* FALLTHROUGH */

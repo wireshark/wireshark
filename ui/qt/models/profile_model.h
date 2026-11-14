@@ -14,7 +14,7 @@
 
 #include <ui/profile.h>
 
-#include <QAbstractTableModel>
+#include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
 #include <QLoggingCategory>
 #include <QFileInfoList>
@@ -56,10 +56,27 @@ public:
     ProfileItem(QString name, QString reference, StatusType status, bool isGlobal, bool fromGlobal, bool isImport);
 
     /**
-     * @brief Returns the current display name of the profile.
-     * @return Const reference to the profile name string.
+     * @brief Returns the full name of the profile, including parent profiles separated by '/'.
+     * @return Profile name string.
      */
-    const QString &getName() const { return name_; }
+    QString getName() const;
+
+    /**
+     * @brief Returns the name of the profile without parent profiles.
+     * @return Const reference to the leaf name string.
+     */
+    const QString &getLeafName() const { return name_; }
+
+    /**
+     * @brief Returns the parent profile, or @c nullptr for a top-level profile.
+     */
+    ProfileItem *parent() const { return parent_; }
+
+    /**
+     * @brief Sets the parent profile.
+     * @param parent New parent profile, or @c nullptr for top level.
+     */
+    void setParent(ProfileItem *parent) { parent_ = parent; }
 
     /**
      * @brief Returns a localised string describing the profile type (e.g. "Personal", "Global").
@@ -77,7 +94,7 @@ public:
      * @brief Returns the current lifecycle status of this profile item.
      * @return Current StatusType value.
      */
-    StatusType getStatus() const { return status_; }
+    StatusType getStatus() const;
 
     /**
      * @brief Returns whether this is a read-only global (system-wide) profile.
@@ -126,6 +143,12 @@ public:
     const QString &getReference() const { return reference_; }
 
     /**
+     * @brief Sets the reference name, e.g. after the on-disk directory has been moved.
+     * @param value New reference name.
+     */
+    void setReference(QString value) { reference_ = value; }
+
+    /**
      * @brief Returns the filesystem path for a profile, possibly with a new name.
      * @param profileName Name to append to the base profile directory path.
      * @return Absolute path string for the profile directory.
@@ -139,7 +162,7 @@ public:
     QString getProfilePath() const;
 
     /**
-     * @brief Sets a new display name for the profile and marks it as changed if applicable.
+     * @brief Sets a new leaf name for the profile.
      * @param value New profile name.
      */
     void setName(QString value);
@@ -160,7 +183,8 @@ public:
     void setForDeletion() { setForDeletion_ = true; }
 
 private:
-    QString    name_;             /**< Current display name of the profile. */
+    QString    name_;             /**< Current leaf name of the profile. */
+    ProfileItem *parent_ = nullptr; /**< Parent profile, or @c nullptr for top level. */
     StatusType status_;           /**< Current lifecycle status. */
 
     QString autoSwitchFilter_;    /**< Display-filter expression that triggers an automatic switch to this profile. */
@@ -245,7 +269,7 @@ private:
  * @brief Table model that manages the full set of configuration profiles,
  *        supporting creation, duplication, deletion, import, and export.
  */
-class ProfileModel : public QAbstractTableModel
+class ProfileModel : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -295,6 +319,16 @@ public:
      * @return Number of ProfileItem entries in the model.
      */
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    virtual QModelIndex parent(const QModelIndex &index) const override;
+    using QObject::parent;
+
+    virtual Qt::DropActions supportedDropActions() const override;
+    virtual QStringList mimeTypes() const override;
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
+    virtual bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override;
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
     /**
      * @brief Returns the number of columns (always @c _LAST_ENTRY).
@@ -358,11 +392,11 @@ public:
     // ── Lookup ────────────────────────────────────────────────────────────
 
     /**
-     * @brief Returns the row index of the first profile whose name matches exactly.
+     * @brief Returns the index of the first profile whose name matches exactly.
      * @param name Profile name to search for.
-     * @return Row index, or @c -1 if not found.
+     * @return Model index, or an invalid index if not found.
      */
-    int findByName(const QString &name);
+    QModelIndex findByName(const QString &name);
 
     /**
      * @brief Adds a new empty personal profile with the given name.
@@ -375,9 +409,10 @@ public:
      * @brief Creates a duplicate of the profile at @p idx.
      * @param idx    Index of the profile to copy.
      * @param status StatusType to assign to the duplicate (default: Copy).
+     * @param name   Name of the duplicate, or empty to create a unique copy name.
      * @return Model index of the newly inserted duplicate row.
      */
-    QModelIndex duplicateEntry(QModelIndex idx, ProfileItem::StatusType status = ProfileItem::StatusType::Copy);
+    QModelIndex duplicateEntry(QModelIndex idx, ProfileItem::StatusType status = ProfileItem::StatusType::Copy, const QString &name = QString());
 
     /**
      * @brief Returns the model index of the currently active (in-use) profile row.
@@ -398,6 +433,13 @@ public:
      */
     bool isDataValid(QString &err);
 
+    /**
+     * @brief Returns the given profiles with all their sub-profiles.
+     * @param items List of model indices identifying the profiles.
+     * @return List of model indices for the profiles and their sub-profiles.
+     */
+    QModelIndexList withChildren(const QModelIndexList &items) const;
+
 #if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     /**
      * @brief Exports the profiles at the given indices to a ZIP archive.
@@ -409,12 +451,21 @@ public:
     bool exportProfiles(QString filename, QModelIndexList items, QString &err);
 
     /**
+     * @brief Returns whether the profile can be exported.
+     *
+     * Global, default, deleted and imported profiles, and profiles not yet
+     * stored on disk, cannot.
+     * @param idx Model index identifying the profile.
+     */
+    bool isExportable(const QModelIndex &idx) const;
+
+    /**
      * @brief Imports profiles from a ZIP archive into the model.
      * @param filename    Path to the source ZIP archive.
      * @param skippedCnt  Set to the number of profiles skipped due to conflicts.
      * @param importList  Populated with the names of successfully imported profiles.
      */
-    void importProfilesFromZip(QString filename, int &skippedCnt, QStringList &importList);
+    void importProfilesFromZip(QString filename, int &skippedCnt, QStringList &importList, const QString &targetParent = QString());
 #endif
 
     /**
@@ -424,7 +475,7 @@ public:
      * @param importList  Populated with the names of successfully imported profiles.
      * @param fromZip     @c true when the directory is a temporary ZIP extraction; affects name sanitisation.
      */
-    void importProfilesFromDir(QString filename, int &skippedCnt, QStringList &importList, bool fromZip = false);
+    void importProfilesFromDir(QString filename, int &skippedCnt, QStringList &importList, bool fromZip = false, const QString &targetParent = QString());
 
     /**
      * @brief Validates a candidate profile name for illegal characters and reserved names.
@@ -441,7 +492,7 @@ public:
      * @param searchReference If @c true, also match against the reference (original) name.
      * @return List of row indices for all matching profiles.
      */
-    QList<int> findAllByNameAndVisibility(const QString &name, bool isGlobal = false, bool searchReference = false) const;
+    QList<int> findAllByNameAndVisibility(const QString &name, bool isGlobal = false, bool searchReference = false, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
     /**
      * @brief Checks whether the profile at @p index has a name collision with another entry.
@@ -466,11 +517,11 @@ public:
     const ProfileItem *getCurrentProfile() const { return current_profile_; }
 
     /**
-     * @brief Returns the ProfileItem at the given flat list index.
-     * @param index Zero-based index into the internal profile list.
-     * @return Pointer to the corresponding ProfileItem.
+     * @brief Returns the ProfileItem at the given model index.
+     * @param index Model index of the profile.
+     * @return Pointer to the corresponding ProfileItem, or @c nullptr for an invalid index.
      */
-    const ProfileItem *getProfile(int index) const { return profile_items_[index]; }
+    const ProfileItem *getProfile(const QModelIndex &index) const { return itemAt(index); }
 
     /**
      * @brief Finds a personal (non-global) profile by name.
@@ -517,7 +568,15 @@ private:
      * @param searchReference If @c true, also match against the reference (original) name.
      * @return Row index of the first match, or @c -1 if not found.
      */
-    int findByNameAndVisibility(const QString &name, bool isGlobal = false, bool searchReference = false) const;
+    int findByNameAndVisibility(const QString &name, bool isGlobal = false, bool searchReference = false, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+
+    ProfileItem *itemAt(const QModelIndex &index) const;
+    QList<ProfileItem *> children(const ProfileItem *parent) const;
+    QModelIndex indexOf(const ProfileItem *item, int column = COL_NAME) const;
+    void linkParent(ProfileItem *item, const QString &name) const;
+    void removeItem(ProfileItem *item);
+    QList<ProfileItem *> draggedItems(const QMimeData *data) const;
+    bool canMove(const ProfileItem *item, const ProfileItem *target) const;
 
 #if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     /**
@@ -575,9 +634,11 @@ private:
     /**
      * @brief Builds the list of profile files to include in a ZIP export.
      * @param items List of model indices identifying the profiles to export.
-     * @return List of absolute file paths to add to the archive.
+     * @param err   Set if the profiles cannot be exported together.
+     * @return List of absolute file paths to add to the archive, and their
+     *         names in the archive, which do not include parents that are not exported.
      */
-    QStringList exportFileList(QModelIndexList items);
+    QList<QPair<QString, QString>> exportFileList(QModelIndexList items, QString &err);
 #endif
 
     /**
@@ -596,7 +657,7 @@ private:
      * @param fromZip @c true if the entries originate from a ZIP extraction.
      * @return Filtered list of QFileInfo entries representing valid profiles.
      */
-    QFileInfoList filterProfilePath(QString path, QFileInfoList ent, bool fromZip);
+    QFileInfoList filterProfilePath(QString path, QFileInfoList ent, bool fromZip, bool inProfile = false);
 
     /**
      * @brief Removes duplicate paths from a file info list.

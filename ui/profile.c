@@ -100,15 +100,16 @@ profile_name_is_valid(const char* name)
     return valid;
 }
 
-/* Get (sorted) list of profiles in a directory */
+/* Get list of profiles in a directory, including nested profiles */
 static GList*
-get_profiles(const char* directory)
+// NOLINTNEXTLINE(misc-no-recursion)
+get_profiles(GList *profiles, const char* directory, const char *prefix, unsigned depth)
 {
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
     const char    *name;
-    GList         *profiles = NULL;
     char          *filename;
+    char          *profile;
 
     if ((dir = ws_dir_open(directory, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
@@ -118,17 +119,25 @@ get_profiles(const char* directory)
 
             filename = ws_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S, name);
 
-            if (test_for_directory(filename) == EISDIR)
-                profiles = g_list_prepend(profiles, g_strdup(name));
+            if (test_for_directory(filename) == EISDIR) {
+                profile = prefix ? ws_strdup_printf("%s/%s", prefix, name) : g_strdup(name);
+                profiles = g_list_prepend(profiles, profile);
+                if (depth + 1 < PROFILE_MAX_DEPTH)
+                    profiles = get_profiles(profiles, filename, profile, depth + 1);
+            }
 
             g_free(filename);
         }
         ws_dir_close(dir);
     }
 
-    profiles = g_list_sort(profiles, (GCompareFunc)g_ascii_strcasecmp);
-
     return profiles;
+}
+
+GList*
+profile_get_names(const char* directory)
+{
+    return g_list_sort(get_profiles(NULL, directory, NULL, 0), (GCompareFunc)g_ascii_strcasecmp);
 }
 
 void
@@ -146,7 +155,7 @@ profile_init(const char* app_env_var_prefix)
 
     /* Local (user) profiles */
     profiles_dir = get_profiles_dir(app_env_var_prefix);
-    local_profiles = get_profiles(profiles_dir);
+    local_profiles = profile_get_names(profiles_dir);
     g_free(profiles_dir);
 
     for (iter = g_list_first(local_profiles); iter; iter = g_list_next(iter)) {
@@ -158,7 +167,7 @@ profile_init(const char* app_env_var_prefix)
 
     /* Global profiles */
     profiles_dir = get_global_profiles_dir(app_env_var_prefix);
-    global_profiles = get_profiles(profiles_dir);
+    global_profiles = profile_get_names(profiles_dir);
     g_free(profiles_dir);
 
     for (iter = g_list_first(global_profiles); iter; iter = g_list_next(iter)) {
@@ -178,12 +187,12 @@ void profile_sync(const char* app_env_var_prefix)
 
     /* Local (user) profiles */
     profiles_dir = get_profiles_dir(app_env_var_prefix);
-    local_profiles = get_profiles(profiles_dir);
+    local_profiles = profile_get_names(profiles_dir);
     g_free(profiles_dir);
 
     /* Global profiles */
     profiles_dir = get_global_profiles_dir(app_env_var_prefix);
-    global_profiles = get_profiles(profiles_dir);
+    global_profiles = profile_get_names(profiles_dir);
     g_free(profiles_dir);
 
     /*

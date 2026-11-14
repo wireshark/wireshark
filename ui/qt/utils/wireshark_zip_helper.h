@@ -27,7 +27,8 @@
 class WiresharkZipHelper
 {
 public:
-    static bool zip(QString zipFile, QStringList files, QString relativeTo = QString());
+    // Each entry is a source path and the name to use for it inside the archive
+    static bool zip(QString zipFile, const QList<QPair<QString, QString>> &files);
     static bool unzip(QString zipFile, QString directory, bool (*fileCheck)(QString fileName, uint64_t fileSize) = Q_NULLPTR, QString (*cleanName)(QString name) = Q_NULLPTR);
 
 protected:

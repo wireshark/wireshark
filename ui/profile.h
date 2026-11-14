@@ -72,6 +72,17 @@ GList* profile_get_list(void);
  */
 bool profile_name_is_valid(const char* name);
 
+/** Maximum number of levels of nested profiles */
+#define PROFILE_MAX_DEPTH 8
+
+/**
+ * @brief Get the sorted list of profile names in a profiles directory.
+ * Nested profiles are named by their relative path using '/'.
+ * @param directory The profiles directory
+ * @return List of g_malloc()'d names, free with g_list_free_full(list, g_free)
+ */
+GList* profile_get_names(const char* directory);
+
 /**
  * @brief Save the profile settings to disk
  * @param name Profile name
