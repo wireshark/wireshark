@@ -170444,3 +170444,79 @@ class TestDissectFileBlf:
         out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-Tfields', '-Eaggregator=,',
                           '-eblf.object.app_text.text', '-e_ws.expert.message')
         assert out.rstrip('\n').split('\t') == ['nested plain container,nested plain container', '']
+
+
+class TestDissectFileBtsnoop:
+    '''BTSNOOP file format (Symbian OS btsnoop, as written by Android and
+    BlueZ): the file dissector for btsnoop files read with the MIME Files
+    Format reader, from the synthetic file file_btsnoop_coverage.btsnoop.gz
+    (H4 UART data link) and files for the other data links written by
+    the test.'''
+
+    EPOCH = 0x00dcddb30f2f8000
+
+    @staticmethod
+    def tshark(cmd_tshark, test_env, capture, *args, passes=()):
+        env = dict(test_env, TZ='UTC')
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture, '-Xread_format:MIME Files Format', *args),
+            encoding='utf-8', env=env, timeout=120)
+
+    @staticmethod
+    def btsnoop(path, datalink, records, version=1):
+        epoch = 0x00dcddb30f2f8000
+        out = b'btsnoop\0' + struct.pack('>II', version, datalink)
+        for flags, data in records:
+            out += struct.pack('>IIIIQ', len(data), len(data), flags, 0, epoch + 1700000000 * 1000000) + data
+        with open(path, 'wb') as f:
+            f.write(out)
+        return path
+
+    def test_file_btsnoop_main(self, cmd_tshark, capture_file, test_env):
+        '''One frame; the header, the frames, flags, drop counters and time
+        stamps; no malformed packet or expert info in one and two passes.'''
+        cap = capture_file('file_btsnoop_coverage.btsnoop.gz')
+        for passes in ((), ('-2',)):
+            out = self.tshark(cmd_tshark, test_env, cap, '-Tfields', '-Eaggregator=,', '-Eoccurrence=a',
+                              '-eframe.protocols', '-e_ws.malformed', '-e_ws.expert.message',
+                              '-ebtsnoop.header.datalink', '-ebtsnoop.frame.included_length',
+                              '-ebtsnoop.frame.flags.h4.direction',
+                              '-ebtsnoop.frame.cumulative_dropped_packets', passes=passes)
+            assert out.rstrip('\n').split('\t') == [
+                'mime_dlt:btsnoop', '', '', '1002', '4,7,16,14,13,13,0', '1,0,1,0,1,0,0', '0,1,2,3,4,5,0']
+        out = self.tshark(cmd_tshark, test_env, cap, '-V')
+        assert 'Timestamp Microseconds: Nov 14, 2023 22:13:21.001000000 UTC' in out
+
+    def test_file_btsnoop_next_layer(self, cmd_tshark, capture_file, test_env):
+        '''With "dissect next layer" the payloads go to the HCI H4 dissector.'''
+        cap = capture_file('file_btsnoop_coverage.btsnoop.gz')
+        for passes in ((), ('-2',)):
+            out = self.tshark(cmd_tshark, test_env, cap, '-Tfields', '-eframe.protocols',
+                              '-obtsnoop.dissect_next_layer:TRUE', passes=passes)
+            assert out.startswith('mime_dlt:btsnoop:hci_h4')
+            assert out.count('hci_h4') == 7
+
+    def test_file_btsnoop_data_links(self, cmd_tshark, test_env, result_file):
+        '''Every data link type of the header: H1 and the Linux monitor
+        format go to the HCI dissectors, BCSP, H5 and the simulator are
+        flagged as not implemented, anything else as unknown.'''
+        payload = [(0, bytes.fromhex('01030c00')), (1, bytes.fromhex('0e0401030c00')), (2, b'xy')]
+        for datalink, message in ((1001, ''), (2001, ''), (1003, 'Not implemented yet'),
+                                  (1004, 'Not implemented yet'), (2002, 'Not implemented yet'),
+                                  (4242, 'Unknown data')):
+            path = self.btsnoop(result_file('file_btsnoop_%d.btsnoop' % datalink), datalink, payload)
+            for passes in ((), ('-2',)):
+                out = self.tshark(cmd_tshark, test_env, path, '-Tfields', '-Eaggregator=,',
+                                  '-Eoccurrence=a', '-e_ws.expert.message', '-e_ws.malformed',
+                                  '-obtsnoop.dissect_next_layer:TRUE', passes=passes)
+                messages, malformed = out.rstrip('\n').split('\t')
+                assert malformed == ''
+                assert messages == ','.join([message] * 3 if message else [])
+
+    def test_file_btsnoop_malformed(self, cmd_tshark, test_env, result_file):
+        '''A frame header cut short is flagged.'''
+        path = self.btsnoop(result_file('file_btsnoop_short.btsnoop'), 1002, [(0, b'\1\2\3\4')])
+        with open(path, 'ab') as f:
+            f.write(struct.pack('>III', 4, 4, 0))
+        out = self.tshark(cmd_tshark, test_env, path, '-Tfields', '-Eaggregator=,', '-e_ws.expert.message')
+        assert 'Malformed Frame' in out
