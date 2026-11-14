@@ -1880,7 +1880,78 @@ profile_exists(const char* app_env_var_prefix, const char *profilename, bool glo
     return exists;
 }
 
+char *
+profile_canonical_name(const char *profilename)
+{
+    if (!profilename)
+        return NULL;
+
+    /* Drop empty parts, e.g. from a trailing separator added by tab completion */
+    char **parts = g_strsplit_set(profilename, "/" G_DIR_SEPARATOR_S, -1);
+    GString *name = g_string_new(NULL);
+    bool valid = true;
+    for (char **part = parts; *part; part++) {
+        if (**part == '\0')
+            continue;
+        if (strcmp(*part, ".") == 0 || strcmp(*part, "..") == 0)
+            valid = false;
+        if (name->len > 0)
+            g_string_append_c(name, '/');
+        g_string_append(name, *part);
+    }
+    g_strfreev(parts);
+
+    if (!valid || name->len == 0) {
+        g_string_free(name, TRUE);
+        return NULL;
+    }
+    return g_string_free(name, FALSE);
+}
+
+bool
+copy_global_profile(const char* app_env_var_prefix, const char *profilename, char **err_info)
+{
+    char **parts = g_strsplit(profilename, "/", -1);
+    GString *name = g_string_new(NULL);
+    bool ok = true;
+
+    /* Copy the global parents without a personal profile as well, as their
+     * directories are created, and would hide the global parents */
+    for (char **part = parts; ok && *part; part++) {
+        if (name->len > 0)
+            g_string_append_c(name, '/');
+        g_string_append(name, *part);
+
+        if (profile_exists(app_env_var_prefix, name->str, false) ||
+            !profile_exists(app_env_var_prefix, name->str, true))
+            continue;
+
+        char *pf_dir_path, *pf_dir_path2, *pf_filename;
+        if (create_persconffile_profile(app_env_var_prefix, name->str, &pf_dir_path) == -1) {
+            *err_info = ws_strdup_printf("Can't create directory\n\"%s\":\n%s.",
+                    pf_dir_path, g_strerror(errno));
+            g_free(pf_dir_path);
+            ok = false;
+        } else if (copy_persconffile_profile(app_env_var_prefix, name->str, name->str, true,
+                    &pf_filename, &pf_dir_path, &pf_dir_path2) == -1) {
+            *err_info = ws_strdup_printf("Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
+                    pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
+            g_free(pf_filename);
+            g_free(pf_dir_path);
+            g_free(pf_dir_path2);
+            ok = false;
+        }
+    }
+
+    g_strfreev(parts);
+    g_string_free(name, TRUE);
+    return ok;
+}
+
+/* Delete a profile directory, including sub-profiles. Symbolic links are
+ * removed, not followed. */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 delete_directory (const char *directory, char **pf_dir_path_return)
 {
     WS_DIR *dir;
@@ -1892,14 +1963,15 @@ delete_directory (const char *directory, char **pf_dir_path_return)
         while ((file = ws_dir_read_name(dir)) != NULL) {
             filename = ws_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S,
                             ws_dir_get_name(file));
-            if (test_for_directory(filename) != EISDIR) {
+            if (g_file_test(filename, G_FILE_TEST_IS_SYMLINK) || test_for_directory(filename) != EISDIR) {
                 ret = ws_remove(filename);
-#if 0
             } else {
-                /* The user has manually created a directory in the profile directory */
-                /* I do not want to delete the directory recursively yet */
                 ret = delete_directory (filename, pf_dir_path_return);
-#endif
+                if (ret != 0) {
+                    /* The error path has already been returned */
+                    g_free (filename);
+                    break;
+                }
             }
             if (ret != 0) {
                 /* XXX - Should we always return the directory name? The message
@@ -2038,6 +2110,11 @@ rename_persconffile_profile(const char* app_env_var_prefix, const char *fromname
     char *to_dir = get_persconffile_dir(app_env_var_prefix, toname, NULL);
     int ret = 0;
 
+    /* Create the parent directory when moving a profile into a new parent */
+    char *to_parent = g_path_get_dirname(to_dir);
+    g_mkdir_with_parents(to_parent, 0755);
+    g_free(to_parent);
+
     ret = ws_rename (from_dir, to_dir);
     if (ret != 0) {
         *pf_from_dir_path_return = from_dir;
@@ -2135,7 +2212,7 @@ create_persconffile_profile(const char* app_env_var_prefix, const char *profilen
             }
         }
         g_free(pf_dir_path_copy);
-        ret = ws_mkdir(pf_dir_path, 0755);
+        ret = g_mkdir_with_parents(pf_dir_path, 0755);
 #else
         ret = g_mkdir_with_parents(pf_dir_path, 0755);
 #endif

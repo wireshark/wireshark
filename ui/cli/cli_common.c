@@ -21,26 +21,12 @@
 static void
 profiles_dump_dir(FILE* output, const char* profile_dir, const char* str_type)
 {
-    WS_DIR* dir;         /* scanned directory */
-    WS_DIRENT* file;     /* current file */
-    const char* name;
-    char* filename;
+    GList* profiles = profile_get_names(profile_dir);
 
-    if ((dir = ws_dir_open(profile_dir, 0, NULL)) != NULL) {
-        while ((file = ws_dir_read_name(dir)) != NULL) {
-            name = ws_dir_get_name(file);
-            if (!profile_name_is_valid(name))   //Skip directories that are not valid profile names
-                continue;
-
-            filename = ws_strdup_printf("%s%s%s", profile_dir, G_DIR_SEPARATOR_S, name);
-
-            if (test_for_directory(filename) == EISDIR)
-                fprintf(output, "%s\t%s\n", name, str_type);
-
-            g_free(filename);
-        }
-        ws_dir_close(dir);
+    for (GList* iter = profiles; iter; iter = g_list_next(iter)) {
+        fprintf(output, "%s\t%s\n", (const char*)iter->data, str_type);
     }
+    g_list_free_full(profiles, g_free);
 }
 
 bool

@@ -1721,6 +1721,11 @@ the Configuration Profiles dialog box as shown in
 part of the statusbar to popup a menu with available Configuration Profiles
 (<<ChUseWiresharkStatusbarProfile>>).
 
+Profiles can be organized in a hierarchy, where a profile can contain other
+profiles. Drag and drop a profile in the Configuration Profiles dialog to move
+it. Nested profiles are named by their path, for example “Customers/ACME”,
+which can also be used with the `-C` command line option.
+
 Configuration files stored in each profile include:
 
 * Preferences (preferences) (<<ChCustPreferencesSection>>)

@@ -14,6 +14,9 @@
 
 #include <QTreeView>
 #include <QItemDelegate>
+#include <QPersistentModelIndex>
+#include <QPixmap>
+#include <QPoint>
 
 /**
  * @brief Item delegate that provides inline editing for profile name cells
@@ -71,10 +74,10 @@ public:
     ~ProfileTreeView();
 
     /**
-     * @brief Selects the row at @p row in the view, scrolling it into view if necessary.
-     * @param row Zero-based row index to select.
+     * @brief Selects the row of @p idx in the view.
+     * @param idx Index of the row to select.
      */
-    void selectRow(int row);
+    void selectIndex(const QModelIndex &idx);
 
     /**
      * @brief Returns whether an inline edit is currently active in the view.
@@ -101,6 +104,22 @@ protected:
      */
     virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
+    /**
+     * @brief Starts dragging the selected profile names, with the same drag
+     *        image on all platforms.
+     */
+    virtual void startDrag(Qt::DropActions supportedActions) override;
+
+    /**
+     * @brief Highlights the profile where a dragged profile will be moved to,
+     *        and all its parents.
+     */
+    virtual void dragMoveEvent(QDragMoveEvent *event) override;
+    virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
+    virtual void dropEvent(QDropEvent *event) override;
+    virtual void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    virtual void paintEvent(QPaintEvent *event) override;
+
 protected slots:
     /**
      * @brief Responds to selection changes, updating UI state and emitting
@@ -112,6 +131,18 @@ protected slots:
 
 private:
     ProfileTreeEditDelegate *delegate_; /**< Delegate providing inline editing for profile name cells. */
+    QList<QPersistentModelIndex> drop_path_; /**< Drop target and its parents while dragging. */
+    QPixmap drag_pixmap_; /**< Image of the dragged profile names, if the platform shows none. */
+    QPoint drag_offset_; /**< Cursor position inside the drag image. */
+    QPoint drag_pos_ = QPoint(-1, -1); /**< Cursor position in the viewport while dragging. */
+    bool drop_top_level_ = false; /**< @c true while a drop would move the profile to the top level. */
+
+    /**
+     * @brief Sets the highlighted drop target and its parents.
+     * @param target The drop target, or an invalid index for the top level.
+     * @param topLevel @c true if the profile would be moved to the top level.
+     */
+    void setDropPath(const QModelIndex &target, bool topLevel = false);
 };
 
 #endif

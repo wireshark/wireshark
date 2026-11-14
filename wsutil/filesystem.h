@@ -350,6 +350,31 @@ WS_DLL_PUBLIC void profile_register_persconffile(const char *filename);
 WS_DLL_PUBLIC bool profile_exists(const char* app_env_var_prefix, const char *profilename, bool global);
 
 /**
+ * @brief Get the canonical name of a configuration profile given by the user.
+ *
+ * Nested profiles are named by their path using '/'. Empty path parts are
+ * removed, and on Windows the directory separator is accepted as well.
+ *
+ * @param profilename The profile name, e.g. from the command line.
+ * @return The g_malloc()'d canonical name, or NULL if the name is empty or
+ * has a "." or ".." part.
+ */
+WS_DLL_PUBLIC char *profile_canonical_name(const char *profilename);
+
+/**
+ * @brief Creates a personal profile from a global profile.
+ *
+ * Copies the global profile, and its global parents without a personal
+ * profile, to personal profiles.
+ *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
+ * @param profilename The canonical name of the global profile.
+ * @param err_info Pointer to receive a g_malloc()'d error message on failure.
+ * @return true on success, false on failure.
+ */
+WS_DLL_PUBLIC bool copy_global_profile(const char* app_env_var_prefix, const char *profilename, char **err_info);
+
+/**
  * @brief Creates a directory for the given configuration profile.
  *
  * Attempts to create a directory for the specified configuration profile.

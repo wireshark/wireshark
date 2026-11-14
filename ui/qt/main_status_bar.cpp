@@ -35,11 +35,14 @@
 #include <ui/recent.h>
 
 #include <QAction>
-#include <QActionGroup>
 #include <QHBoxLayout>
+#include <QMenu>
+#include <QScreen>
 #include <QSplitter>
 #include <QToolButton>
 #include <QLatin1Char>
+
+#include <functional>
 
 // To do:
 // - Use the CaptureFile class.
@@ -47,6 +50,34 @@
 // XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
 
 Q_DECLARE_METATYPE(ProfileDialog::ProfileAction)
+
+// The profile menu opens near the right edge of the screen. Without room on
+// the right, Qt opens a submenu on the left, but its submenus on the right
+// again, on top of the menus they were opened from. Once a submenu has been
+// opened on the left, keep opening its submenus on the left.
+class SubMenuPlacer : public QObject
+{
+public:
+    explicit SubMenuPlacer(QObject *parent) : QObject(parent) {}
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override
+    {
+        QMenu *menu = qobject_cast<QMenu *>(obj);
+        if (event->type() != QEvent::Show || !menu)
+            return false;
+
+        QMenu *parentMenu = qobject_cast<QMenu *>(menu->parentWidget());
+        QMenu *grandMenu = parentMenu ? qobject_cast<QMenu *>(parentMenu->parentWidget()) : Q_NULLPTR;
+        if (!grandMenu || parentMenu->x() >= grandMenu->x() || menu->x() < parentMenu->x())
+            return false;
+
+        QPoint pos(parentMenu->x() - menu->width(), menu->y());
+        if (menu->screen() && pos.x() >= menu->screen()->availableGeometry().left())
+            menu->move(pos);
+        return false;
+    }
+};
 
 // If we ever add support for multiple windows this will need to be replaced.
 // See also: main_window.cpp
@@ -602,69 +633,88 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         ctx_menu_->setAttribute(Qt::WA_DeleteOnClose);
         profile_menu = new QMenu(ctx_menu_);
     }
-    QActionGroup * global = new QActionGroup(profile_menu);
-    QActionGroup * user = new QActionGroup(profile_menu);
 
     const ProfileItem* currentProfile = model.getCurrentProfile();
 
-    //Use the raw profile information from the model
-    //(for performance and simpler looking code)
-    for (int i = 0; i < sortModel.rowCount(); ++i)
-    {
-        QAction * pa = Q_NULLPTR;
-
-        //Go through the proxy model to get the profile information in the right order
-        QModelIndex proxyIndex = sortModel.index(i, 0);
-        QModelIndex sourceIndex = sortModel.mapToSource(proxyIndex);
-        const ProfileItem* profile = model.getProfile(sourceIndex.row());
-        if (profile == Q_NULLPTR)
-            continue;   //Pacify the static analyzer, but this should never happen.
-
-        QString name = profile->getName();
-
-        // An ampersand in the menu item's text sets Alt+F as a shortcut for this menu.
-        // Use "&&" to get a real ampersand in the menu bar.
-        name.replace('&', "&&");
-
-        if (profile->isDefault())
+    // Add the profiles of one scope, using a submenu for profiles with children
+    std::function<void(QMenu *, const QModelIndex &, bool)> addProfiles;
+    // NOLINTNEXTLINE(misc-no-recursion)
+    addProfiles = [&](QMenu * menu, const QModelIndex &parent, bool global) {
+        for (int i = 0; i < sortModel.rowCount(parent); ++i)
         {
-            pa = profile_menu->addAction(name);
-        }
-        else if (profile->isGlobal())
-        {
+            //Go through the proxy model to get the profile information in the right order
+            QModelIndex proxyIndex = sortModel.index(i, 0, parent);
+            const ProfileItem* profile = model.getProfile(sortModel.mapToSource(proxyIndex));
+            if (profile == Q_NULLPTR || profile->isGlobal() != global)
+                continue;
+
             /* Check if this profile does not exist as user */
-            if (model.getPersonalProfile(profile->getName()) == Q_NULLPTR)
-                pa = global->addAction(name);
+            bool hidden = global && model.getPersonalProfile(profile->getName()) != Q_NULLPTR;
+            bool hasChildren = sortModel.rowCount(proxyIndex) > 0;
+            if (hidden && !hasChildren)
+                continue;
+
+            // An ampersand in the menu item's text sets Alt+F as a shortcut for this menu.
+            // Use "&&" to get a real ampersand in the menu bar.
+            QString name = profile->getLeafName();
+            name.replace('&', "&&");
+
+            QMenu * subMenu = hasChildren ? menu->addMenu(name) : menu;
+
+            if (hasChildren)
+            {
+                QFont subMenuFont = subMenu->menuAction()->font();
+                subMenuFont.setItalic(profile->isGlobal());
+                // Show the path to the current profile in bold, including the current profile itself
+                if ((currentProfile != Q_NULLPTR) &&
+                    (currentProfile->getName().compare(profile->getName()) == 0 ||
+                     currentProfile->getName().startsWith(profile->getName() + "/")) &&
+                    profile->isGlobal() == currentProfile->isGlobal())
+                    subMenuFont.setBold(true);
+                subMenu->menuAction()->setFont(subMenuFont);
+            }
+            if (!hidden)
+            {
+                QAction * pa = subMenu->addAction(name);
+                QFont profileFont;
+                pa->setCheckable(true);
+                if ((currentProfile != Q_NULLPTR) &&
+                    (profile->getName().compare(currentProfile->getName()) == 0) &&
+                    profile->isGlobal() == currentProfile->isGlobal())
+                {
+                    profileFont.setBold(true);
+                    pa->setChecked(true);
+                }
+
+                if (profile->isGlobal())
+                    profileFont.setItalic(true);
+
+                pa->setFont(profileFont);
+                pa->setProperty("profile_name", profile->getName());
+                pa->setProperty("profile_is_global", profile->isGlobal());
+
+                connect(pa, &QAction::triggered, this, &MainStatusBar::switchToProfile);
+            }
+
+            if (hasChildren)
+            {
+                subMenu->addSeparator();
+                addProfiles(subMenu, proxyIndex, global);
+
+                // Remove a submenu with only the separator, when the profile and all its children are hidden
+                if (subMenu->actions().count() <= 1)
+                    delete subMenu;
+            }
         }
-        else
-            pa = user->addAction(name);
+    };
 
-        if (! pa)
-            continue;
-
-        QFont profileFont;
-        pa->setCheckable(true);
-        if ((currentProfile != Q_NULLPTR) &&
-            (profile->getName().compare(currentProfile->getName()) == 0) &&
-            profile->isGlobal() == currentProfile->isGlobal())
-        {
-            profileFont.setBold(true);
-            pa->setChecked(true);
-        }
-
-        if (profile->isGlobal())
-            profileFont.setItalic(true);
-
-        pa->setFont(profileFont);
-        pa->setProperty("profile_name", profile->getName());
-        pa->setProperty("profile_is_global", profile->isGlobal());
-
-        connect(pa, &QAction::triggered, this, &MainStatusBar::switchToProfile);
-    }
-
-    profile_menu->addActions(user->actions());
+    addProfiles(profile_menu, QModelIndex(), false);
     profile_menu->addSeparator();
-    profile_menu->addActions(global->actions());
+    addProfiles(profile_menu, QModelIndex(), true);
+
+    SubMenuPlacer *placer = new SubMenuPlacer(profile_menu);
+    for (QMenu *subMenu : profile_menu->findChildren<QMenu *>())
+        subMenu->installEventFilter(placer);
 
     if (button == Qt::LeftButton) {
         profile_menu->popup(global_pos);
@@ -706,6 +756,13 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
                 action = exportMenu->addAction(tr("Selected Personal Profile…"), this, SLOT(manageProfile()));
                 action->setProperty("dialog_action_", (int)ProfileDialog::ExportSingleProfile);
                 action->setEnabled(enable_edit);
+
+                qsizetype count = model.withChildren({model.findByName(currentProfile->getName())}).count();
+                if (count > 1)
+                {
+                    action = exportMenu->addAction(tr("%Ln Personal Profile(s) (including sub-profiles)…", "", static_cast<int>(count)), this, SLOT(manageProfile()));
+                    action->setProperty("dialog_action_", (int)ProfileDialog::ExportSingleProfileWithChildren);
+                }
             }
             action = exportMenu->addAction(tr("All Personal Profiles…"), this, SLOT(manageProfile()));
             action->setProperty("dialog_action_", (int)ProfileDialog::ExportAllProfiles);

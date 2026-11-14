@@ -41,6 +41,7 @@ public:
         ImportZipProfile,     /**< Import a profile from a ZIP archive. */
         ImportDirProfile,     /**< Import a profile from a directory. */
         ExportSingleProfile,  /**< Export a single profile. */
+        ExportSingleProfileWithChildren, /**< Export a single profile with its sub-profiles. */
         ExportAllProfiles,    /**< Export all profiles. */
         EditCurrentProfile,   /**< Edit the current profile. */
         DeleteCurrentProfile  /**< Delete the current profile. */
@@ -94,9 +95,19 @@ private:
 #if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     QPushButton *export_button_; /**< The export button. */
     QAction *export_selected_entry_; /**< The action for exporting a selected entry. */
+    QAction *export_children_entry_; /**< The action for exporting a selected entry with sub-profiles. */
+
+    /**
+     * @brief Returns the personal profiles to export.
+     * @param items The selected profiles.
+     * @param withChildren True to include the sub-profiles.
+     * @return The profiles to export.
+     */
+    QModelIndexList exportItems(const QModelIndexList &items, bool withChildren) const;
 #endif
     ProfileModel *model_; /**< Pointer to the profile data model. */
     ProfileSortModel *sort_model_; /**< Pointer to the profile sorting model. */
+    QPersistentModelIndex moved_; /**< The profile being moved by drag and drop. */
 
     /**
      * @brief Finishes the import process.
@@ -111,23 +122,36 @@ private:
      */
     void clearFilter();
 
+    /**
+     * @brief Restores the selected deleted profiles and their sub-profiles.
+     * @return True if a profile was restored.
+     */
+    bool restoreSelected();
+
+    /**
+     * @brief Adds a new profile, selects it and starts editing its name.
+     * @param name The full name of the new profile.
+     */
+    void addProfile(const QString &name);
+
 private slots:
 #if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
     /**
      * @brief Exports profiles to an archive.
      * @param exportAllPersonalProfiles True to export all personal profiles, false otherwise.
+     * @param withChildren True to also export the sub-profiles of the selected profiles.
      */
-    void exportProfiles(bool exportAllPersonalProfiles = false);
+    void exportProfiles(bool exportAllPersonalProfiles = false, bool withChildren = false);
 
     /**
      * @brief Initiates import of profiles from a ZIP archive.
      */
-    void importFromZip();
+    void importFromZip(const QString &targetParent = QString());
 #endif
     /**
      * @brief Initiates import of profiles from a directory.
      */
-    void importFromDirectory();
+    void importFromDirectory(const QString &targetParent = QString());
 
     /**
      * @brief Handles clicks on the new tool button.
@@ -169,6 +193,12 @@ private slots:
      * @brief Handles changes to the selected profiles in the view.
      */
     void selectionChanged();
+
+    /**
+     * @brief Shows the context menu for the profile at a position in the list.
+     * @param pos The position in the profile list's viewport.
+     */
+    void profileContextMenu(const QPoint &pos);
 
     /**
      * @brief Retrieves a list of the currently selected profile indexes.

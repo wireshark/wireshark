@@ -1272,7 +1272,13 @@ main(int argc, char *argv[])
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'C':        /* Configuration Profile */
-                profile_name = g_strdup(ws_optarg);
+                g_free(profile_name);
+                profile_name = profile_canonical_name(ws_optarg);
+                if (profile_name == NULL) {
+                    cmdarg_err("Configuration Profile \"%s\" does not exist", ws_optarg);
+                    exit_status = WS_EXIT_INVALID_OPTION;
+                    goto clean_exit;
+                }
                 break;
             case LONGOPT_GLOBAL_PROFILE:
                 use_global_profile = true;

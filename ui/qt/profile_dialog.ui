@@ -16,7 +16,7 @@
      <item>
       <widget class="QLineEdit" name="lineProfileFilter">
        <property name="placeholderText">
-        <string>Search for profile …</string>
+        <string>Search profiles…</string>
        </property>
       </widget>
      </item>
@@ -30,14 +30,17 @@
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::InternalMove</enum>
+     </property>
      <property name="rootIsDecorated">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="uniformRowHeights">
       <bool>true</bool>
      </property>
      <property name="itemsExpandable">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="sortingEnabled">
       <bool>true</bool>
@@ -68,14 +71,14 @@
      <item>
       <widget class="QToolButton" name="deleteToolButton">
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QToolButton" name="copyToolButton">
        <property name="toolTip">
-        <string>Copy this profile.</string>
+        <string>Duplicate this profile.</string>
        </property>
        <property name="text">
         <string/>

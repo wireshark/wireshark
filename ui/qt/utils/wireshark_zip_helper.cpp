@@ -164,7 +164,9 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                 if (!fullPath.startsWith(canonicalDir)) {
                     continue;
                 }
-                QFileInfo fi(fullPath);
+                // A directory entry ends with a separator, and is an empty profile
+                bool isDir = fileInZip.endsWith("/");
+                QFileInfo fi(isDir ? fullPath + "/" : fullPath);
                 QString dirPath = fi.absolutePath();
 
                 /* clean up name from import. e.g. illegal characters in name */
@@ -174,7 +176,9 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                     {
                         QString tempPath = cleanName(dirPath);
                         int cnt = 1;
-                        while (QFile::exists(tempPath))
+                        // Only rename to avoid clashes with other cleaned names, as
+                        // parent directories may already exist for nested files
+                        while (tempPath != dirPath && QFile::exists(tempPath))
                         {
                             tempPath = QStringLiteral("%1%2").arg(cleanName(dirPath)).arg(cnt);
                             cnt++;
@@ -196,7 +200,7 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                 if (! tP.exists())
                     di.mkpath(fi.absolutePath());
 
-                if (fileInZip.contains("/"))
+                if (!isDir && fileInZip.contains("/"))
                 {
                     QString filePath = fi.absoluteFilePath();
                     QFile file(filePath);
@@ -309,9 +313,8 @@ void WiresharkZipHelper::addFileToZip(zipFile zf, QString filepath, QString file
     zipCloseFileInZip(zf);
 }
 
-bool WiresharkZipHelper::zip(QString fileName, QStringList files, QString relativeTo)
+bool WiresharkZipHelper::zip(QString fileName, const QList<QPair<QString, QString>> &files)
 {
-
     QFileInfo fi(fileName);
     if (fi.exists())
         QFile::remove(fileName);
@@ -320,21 +323,17 @@ bool WiresharkZipHelper::zip(QString fileName, QStringList files, QString relati
     if (zf == Q_NULLPTR)
         return false;
 
-    for (int cnt = 0; cnt < files.count(); cnt++)
+    for (const auto &file : files)
     {
-        QFileInfo sf(files.at(cnt));
-        QString fileInZip = sf.absoluteFilePath();
-        QFileInfo relat(relativeTo);
-        // XXX - Do some additional tests to verify that this actually rmeoves
-        // a path. It should work correctly now and there are only internal
-        // callers so warn if it fails.
-        fileInZip.replace(relat.absoluteFilePath(), "");
+        QFileInfo sf(file.first);
+        QString fileInZip = file.second;
         /* Windows cannot open zip files if the filenames starts with a separator */
         while (fileInZip.length() > 0 && fileInZip.startsWith("/"))
             fileInZip = fileInZip.right(fileInZip.length() - 1);
+        if (sf.isDir())
+            fileInZip += "/";
 
         WiresharkZipHelper::addFileToZip(zf, sf.absoluteFilePath(), fileInZip);
-
     }
 
     if (zipClose(zf, Q_NULLPTR))

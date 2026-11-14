@@ -17,6 +17,8 @@
 #include <QMenu>
 #include <QAction>
 
+#include <functional>
+
 CopyFromProfileButton::CopyFromProfileButton(QWidget * parent, QString fileName, QString toolTip) :
     QPushButton(parent),
     buttonMenu_(Q_NULLPTR)
@@ -45,79 +47,97 @@ void CopyFromProfileButton::setFilename(QString filename)
     sortModel.setSourceModel(&model);
     sortModel.sort(0, Qt::DescendingOrder);
 
-    QList<QAction *> global;
-    QList<QAction *> user;
-
-    QAction * pa = systemDefault(filename);
-    if (pa)
-        global << pa;
-
     if (! buttonMenu_)
         buttonMenu_ = new QMenu(this);
 
     if (buttonMenu_->actions().count() > 0)
+    {
+        qDeleteAll(buttonMenu_->findChildren<QMenu *>(Qt::FindDirectChildrenOnly));
         buttonMenu_->clear();
+    }
 
     const ProfileItem* currentProfile = model.getCurrentProfile();
 
-    //Use the raw profile information from the model
-    //(for performance and simpler looking code)
-    for (int i = 0; i < sortModel.rowCount(); ++i)
-    {
-        //Go through the proxy model to get the profile information in the right order
-        QModelIndex proxyIndex = sortModel.index(i, 0);
-        QModelIndex sourceIndex = sortModel.mapToSource(proxyIndex);
-        const ProfileItem* profile = model.getProfile(sourceIndex.row());
-        if (profile == NULL)
-            continue;   //Sanity check
-
-        QString profilePath = profile->getProfilePath();
-        if (profilePath.isEmpty())
-            continue;
-
-        //Ignore current profile
-        if ((currentProfile != NULL) &&
-            (profile->getName().compare(currentProfile->getName()) == 0) &&
-            profile->isGlobal() == currentProfile->isGlobal())
-            continue;
-
-        QDir profileDir(profilePath);
-        if (! profileDir.exists())
-            continue;
-
-        QFileInfo fi(profileDir.filePath(filename));
-        if (! fi.exists())
-            continue;
-
-        if (! config_file_exists_with_entries(fi.absoluteFilePath().toUtf8().constData(), '#'))
-            continue;
-
-        QFont profileFont;
-        QString name = profile->getName();
-        pa = new QAction(name, this);
-        if (profile->isDefault())
-            buttonMenu_->addAction(pa);
-        else if (profile->isGlobal())
+    // Add the profiles of one scope having the file, using a submenu for profiles with children
+    std::function<void(QMenu *, const QModelIndex &, bool)> addProfiles;
+    // NOLINTNEXTLINE(misc-no-recursion)
+    addProfiles = [&](QMenu * menu, const QModelIndex &parent, bool global) {
+        for (int i = 0; i < sortModel.rowCount(parent); ++i)
         {
-            global << pa;
-            profileFont.setItalic(true);
+            //Go through the proxy model to get the profile information in the right order
+            QModelIndex proxyIndex = sortModel.index(i, 0, parent);
+            const ProfileItem* profile = model.getProfile(sortModel.mapToSource(proxyIndex));
+            if (profile == NULL || profile->isGlobal() != global)
+                continue;   //Sanity check
+
+            QString name = profile->getLeafName();
+            QMenu * subMenu = menu;
+            if (sortModel.rowCount(proxyIndex) > 0)
+            {
+                subMenu = new QMenu(name, menu);
+                QFont subMenuFont = subMenu->menuAction()->font();
+                subMenuFont.setItalic(profile->isGlobal());
+                subMenu->menuAction()->setFont(subMenuFont);
+                addProfiles(subMenu, proxyIndex, global);
+            }
+
+            QFileInfo fi(QDir(profile->getProfilePath()).filePath(filename));
+            bool hasFile = true;
+
+            //Ignore current profile
+            if ((currentProfile != NULL) &&
+                (profile->getName().compare(currentProfile->getName()) == 0) &&
+                profile->isGlobal() == currentProfile->isGlobal())
+                hasFile = false;
+            else if (profile->getProfilePath().isEmpty() || ! fi.exists() ||
+                     ! config_file_exists_with_entries(fi.absoluteFilePath().toUtf8().constData(), '#'))
+                hasFile = false;
+
+            if (hasFile)
+            {
+                QAction * pa = new QAction(name, this);
+                QFont profileFont;
+                if (profile->isGlobal())
+                    profileFont.setItalic(true);
+
+                pa->setFont(profileFont);
+                pa->setProperty("profile_name", profile->getName());
+                pa->setProperty("profile_is_global", profile->isGlobal());
+                pa->setProperty("profile_filename", fi.absoluteFilePath());
+
+                // A profile with children is the first entry in its submenu
+                if (subMenu == menu || subMenu->isEmpty())
+                    subMenu->addAction(pa);
+                else
+                {
+                    subMenu->insertSeparator(subMenu->actions().first());
+                    subMenu->insertAction(subMenu->actions().first(), pa);
+                }
+            }
+
+            if (subMenu == menu)
+                continue;
+
+            if (subMenu->isEmpty())
+                delete subMenu;
+            else
+                menu->addMenu(subMenu);
         }
-        else
-            user << pa;
+    };
 
-        pa->setFont(profileFont);
-        pa->setProperty("profile_name", name);
-        pa->setProperty("profile_is_global", profile->isGlobal());
-        pa->setProperty("profile_filename", fi.absoluteFilePath());
-    }
+    addProfiles(buttonMenu_, QModelIndex(), false);
 
-    buttonMenu_->addActions(user);
-    if (global.count() > 0)
-    {
-        if (actions().count() > 0)
-            buttonMenu_->addSeparator();
-        buttonMenu_->addActions(global);
-    }
+    QAction * separator = buttonMenu_->actions().count() > 0 ? buttonMenu_->addSeparator() : Q_NULLPTR;
+    qsizetype count = buttonMenu_->actions().count();
+
+    QAction * pa = systemDefault(filename);
+    if (pa)
+        buttonMenu_->addAction(pa);
+    addProfiles(buttonMenu_, QModelIndex(), true);
+
+    if (separator && buttonMenu_->actions().count() == count)
+        delete separator;
+
     if (buttonMenu_->actions().count() <= 0)
         return;
 
