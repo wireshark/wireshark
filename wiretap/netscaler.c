@@ -2242,7 +2242,6 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
     if (nstrace->version == NSTRACE_1_0)
     {
         uint16_t val16;
-        uint32_t reltime;
         uint32_t abstime;
         nspr_abstime_v10_t abs10;
 
@@ -2252,8 +2251,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
         val16 = GUINT16_TO_LE(nspr_abstime_v10_s);
         memcpy(abs10.phd.ph_RecordSize, &val16, sizeof abs10.phd.ph_RecordSize);
 
-        memcpy(&reltime, ((const nspr_pktracefull_v10_t *)pd)->fp_RelTimeHr, sizeof reltime);
-        nsg_creltime = ns_hrtime2nsec(reltime);
+        nsg_creltime = ns_hrtime2nsec(pletohu32(((const nspr_pktracefull_v10_t *)pd)->fp_RelTimeHr));
 
         memset(abs10.abs_RelTime, 0, sizeof abs10.abs_RelTime);
         abstime = GUINT32_TO_LE((uint32_t)rec->ts.secs - (uint32_t)(nsg_creltime/1000000000));
@@ -2269,15 +2267,13 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
     } else if ((nstrace->version == NSTRACE_2_0) ||
         (nstrace->version == NSTRACE_3_0) ||
         (nstrace->version == NSTRACE_3_5))    {
-        uint32_t reltime;
         uint32_t abstime;
         nspr_abstime_v20_t abs20;
 
         abs20.abs_RecordType = NSPR_ABSTIME_V20;
         abs20.abs_RecordSize = nspr_abstime_v20_s;
 
-        memcpy(&reltime, ((const nspr_pktracefull_v20_t *)pd)->fp_RelTimeHr, sizeof reltime);
-        nsg_creltime = ns_hrtime2nsec(reltime);
+        nsg_creltime = ns_hrtime2nsec(pletohu32(((const nspr_pktracefull_v20_t *)pd)->fp_RelTimeHr));
 
         memset(abs20.abs_RelTime, 0, sizeof abs20.abs_RelTime);
         abstime = GUINT32_TO_LE((uint32_t)rec->ts.secs - (uint32_t)(nsg_creltime/1000000000));
