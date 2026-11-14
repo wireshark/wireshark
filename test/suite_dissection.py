@@ -171943,3 +171943,140 @@ class TestDissectFileTtl:
                           '-eframe.protocols')
         assert out.startswith('\tmime_dlt:file-ttl')
         assert out.count(':ttl') == 300
+
+
+class TestDissectFileZip:
+    '''ZIP files (file-zip.c) from the synthetic zip_coverage.zip.gz, which
+    tshark opens with the MIME Files Format reader and the "wtap_file"
+    heuristic, and from zip_coverage_http.pcap.gz, where HTTP responses
+    carry ZIP data (media types application/zip and java-archive and the
+    .zip suffix). The files are generated; nothing comes from a real
+    network or machine.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_zip_file_clean(self, cmd_tshark, capture_file, test_env):
+        '''The file is one frame, dissected as ZIP_FILE without a malformed
+        packet or error expert info, in one and two passes, and with
+        the same four warnings (three bad CRCs and the unsupported data
+        descriptor).'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'zip_coverage.zip.gz', *passes,
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.malformed',
+                    '-e_ws.expert.severity', '-e_ws.expert.message')
+            assert len(lines) == 1
+            proto, malformed, severity, message = lines[0].split('\t')
+            assert proto == 'ZIP_FILE'
+            assert malformed == ''
+            assert set(severity.split(',')) == {'6291456'}   # PI_WARN
+            assert sorted(message.split(',')) == sorted([
+                'Bad CRC32 [should be 0xdfe400a3]',
+                'Bad CRC32 [should be 0xa0976e8f]',
+                'Bad CRC32 [should be 0xe8a66a0b]',
+                'Data descriptors are not supported yet'])
+
+    def test_zip_records(self, cmd_tshark, capture_file, test_env):
+        '''30 local files, 30 central directory records, the Zip64 end
+        record and its locator and the end record, in order.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'zip_coverage.zip.gz', '-Tfields', '-ezipfile.signature')
+        sigs = lines[0].split(',')
+        assert sigs.count('0x04034b50') == 30
+        assert sigs.count('0x02014b50') == 30
+        assert sigs[-3:] == ['0x06064b50', '0x07064b50', '0x06054b50']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'zip_coverage.zip.gz', '-Tfields', '-ezipfile.directory.entries',
+                '-ezipfile.archive_comment', '-ezipfile.zip64.directory.end.extensible_data_sector')
+        assert lines == ['30,30\tsynthetic archive comment\taabbccddaabbccddaabbccdd']
+
+    def test_zip_file_data(self, cmd_tshark, capture_file, test_env):
+        '''Stored and deflated files are decoded; the CRC of a file is
+        verified (good, bad) or left unverified for methods that are not
+        decompressed; the Zip64 extra field gives the real sizes.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'zip_coverage.zip.gz', '-Tfields', '-ezipfile.file.crc32.status')
+        status = lines[0].split(',')
+        # 0 bad, 1 good, 2 unverified (also the UTF-8 comment extra field without a comment)
+        assert (status.count('0'), status.count('1'), status.count('2')) == (3, 27, 7)
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'zip_coverage.zip.gz', '-Y', 'zipfile.file.name == "hello.txt"',
+                '-Tfields', '-ezipfile.file.data')
+        assert lines[0].startswith('48656c6c6f2c2073796e746865746963205a495020776f726c642e20')
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'zip_coverage.zip.gz', '-Tfields', '-ezipfile.file.size',
+                '-ezipfile.file.size.uncompressed', '-Y', 'zipfile.extra.id == 1')
+        assert lines and '4294967295' in lines[0].split('\t')[0]
+        assert '112' in lines[0].split('\t')[0].split(',')
+
+    def test_zip_extra_fields(self, cmd_tshark, capture_file, test_env):
+        '''The extra fields of the local files and the central directory
+        records: Unix time, Unix types 2 and 3 (4 octet and 1 or 2 octet
+        ids), NTFS, UTF-8 path and comment.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'zip_coverage.zip.gz', '-Tfields', '-ezipfile.extra.id')
+        ids = lines[0].split(',')
+        for eid, n in (('0x0001', 3), ('0x000a', 2), ('0x5455', 4), ('0x6375', 4),
+                       ('0x7075', 6), ('0x7855', 2), ('0x7875', 2), ('0xcafe', 1), ('0x9999', 1)):
+            assert ids.count(eid) == n, (eid, ids.count(eid))
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'zip_coverage.zip.gz', '-Tfields', '-ezipfile.extra.unix.uid',
+                '-ezipfile.extra.unix.gid', '-ezipfile.extra.unix.uid_size')
+        uid, gid, size = lines[0].split('\t')
+        assert uid.split(',') == ['1000', '1000', '1000']
+        assert gid.split(',') == ['100', '100', '100']
+        assert size.split(',') == ['4', '2']
+
+    def test_zip_export_objects(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Export Objects lists the decompressed files with their base names.'''
+        tmp_path = tmp_path / 'eo'
+        tmp_path.mkdir()
+        subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zip_coverage.zip.gz'), '-q',
+                '--export-objects', f'zipfile,{tmp_path}',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        names = sorted(p.name for p in tmp_path.iterdir())
+        assert len(names) == 23, names
+        assert 'hello.txt' in names
+        assert 'badcrc.txt' in names
+        assert (tmp_path / 'hello.txt').read_bytes() == b'Hello, synthetic ZIP world. ' * 4
+
+    def test_zip_http(self, cmd_tshark, capture_file, test_env):
+        '''ZIP data in HTTP responses (media types and the .zip suffix) is
+        dissected: no malformed packet, the same in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'zip_coverage_http.pcap.gz', *passes, '-Y', 'zipfile',
+                    '-Tfields', '-eframe.number', '-e_ws.malformed',
+                    '-ezipfile.file.name', '-e_ws.expert.message')
+            frames = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+            assert sorted(frames, key=int) == ['2', '4', '6', '8', '10', '12', '14', '16', '18']
+            assert all(v[0] == '' for v in frames.values())
+            assert frames['6'][1] == 'c.txt'
+
+    def test_zip_utf8_comment_local(self, cmd_tshark, capture_file, test_env):
+        '''A local file header with a UTF-8 Comment extra field (version 1)
+        is dissected; "ZIP: Fix an endless loop and an assertion on
+        malformed files" removed an assertion on the missing comment.'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        lines = self._tshark(cmd_tshark, capture_file, env,
+                'zip_coverage_http.pcap.gz', '-Y', 'frame.number == 8',
+                '-Tfields', '-ezipfile.extra.id', '-ezipfile.extra.version',
+                '-e_ws.malformed')
+        assert lines == ['0x6375\t1\t']
+
+    def test_zip_size_beyond_data(self, cmd_tshark, capture_file, test_env):
+        '''A record whose compressed size is beyond the data (which made
+        tshark loop forever on a size that wrapped to a negative length)
+        stops the walk with the overflow expert info.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'zip_coverage_http.pcap.gz', '-Y', 'frame.number in {10, 12}',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert lines == [
+            '10\tCompressed size (4294967235 bytes) exceeds the remaining data',
+            '12\tCompressed size (100 bytes) exceeds the remaining data']
