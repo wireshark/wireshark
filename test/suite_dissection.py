@@ -173116,3 +173116,77 @@ class TestDissectA2aCoverage:
                 '-ea2a.task_id', '-e_ws.col.info')
         assert (self.run(cmd_tshark, capture_file, test_env, *args) ==
                 self.run(cmd_tshark, capture_file, test_env, '-2', *args))
+
+
+class TestDissectLixerMore:
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lixer_more_coverage.pcapng.gz'),
+                '-d', 'tcp.port==40001,lixer', *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_lixer_more_messages(self, cmd_tshark, capture_file, test_env):
+        '''The PEI alternatives, the split and the indefinite length messages,
+        in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'lixer && !_ws.malformed && !_ws.expert', '-Tfields',
+                    '-eframe.number', '-e_ws.col.info', '-elixer.iMEISV', '-elixer.eUI64',
+                    '-elixer.gPSIMSISDN')
+            assert [line.split('\t') for line in stdout.splitlines()] == [
+                ['1', 'associationRecord', '3512345678901234', '', ''],
+                ['2', 'associationRecord', '', '020000fffe000001', ''],
+                ['5', 'associationRecord', '3512345678901234', '', ''],
+                ['7', 'associationRecord', '', '020000fffe000001', ''],
+                ['10', 'associationRecord', '3512345678901234', '', '46701234567'],
+                ['13', 'associationRecord', '3512345678901234', '', '46701234567'],
+                ['14', 'associationRecord', '', '020000fffe000001', ''],
+                ['15', 'associationRecord', '3512345678901234', '', ''],
+            ]
+
+    def test_lixer_more_split_length(self, cmd_tshark, capture_file, test_env):
+        '''A message whose first segment ends inside the length octets is
+        reassembled: frame 6 holds the first segment, frame 7 the message.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {6, 7}', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol', '-etcp.segment', '-etcp.reassembled.length', '-elixer.eUI64')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['6', 'TCP', '', '', ''],
+            ['7', 'LI_XER', '6,7', '197', '020000fffe000001'],
+        ]
+
+    def test_lixer_more_empty_nci(self, cmd_tshark, capture_file, test_env):
+        '''An NCI that is an empty BIT STRING (frame 16) is malformed (the
+        NCI needs 36 bits) but is no dissector bug: the item for a field
+        that does not exist must not be added ("Unregistered hf" before the
+        fix). Frame 15 has a valid NCI.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {15, 16}', '-Tfields', '-eframe.number',
+                '-elixer.nCI', '-e_ws.malformed')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['15', '0x0000000123456789', ''],
+            ['16', '', '[Malformed Packet: LI_XER],_ws.malformed'],
+        ]
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-V')
+        assert 'Dissector bug' not in stdout
+        assert 'Unregistered hf' not in stdout
+
+    def test_lixer_more_indefinite_never_ends(self, cmd_tshark, capture_file, test_env):
+        '''An indefinite-length message without end-of-contents octets is
+        dissected with what each segment holds instead of being rescanned
+        for every new segment: every one of the eight segments (frames
+        19-26) is a LI_XER frame with errors.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 19 && lixer', '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in range(19, 27)]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'lixer && !_ws.malformed', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['1', '2', '5', '7', '10', '13', '14', '15']
+
+    def test_lixer_more_no_dissector_bug(self, cmd_tshark, capture_file, test_env):
+        '''Nothing in the capture is a dissector bug.'''
+        test_env = dict(test_env, WIRESHARK_ABORT_ON_DISSECTOR_BUG='1')
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes, '-V')
+            assert 'Dissector bug' not in stdout
