@@ -2722,6 +2722,10 @@
    "epan/dissectors/packet-ipfc.c",
    "epan/dissectors/packet-sna.c"
   ],
+  "TestDissectIpfs": [
+   "epan/dissectors/packet-ipfs.c",
+   "epan/dissectors/packet-text-media.c"
+  ],
   "TestDissectIpmi": [
    "epan/dissectors/packet-i2c.c",
    "epan/dissectors/packet-ipmi.c"
