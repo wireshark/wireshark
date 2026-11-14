@@ -84,26 +84,31 @@ PrivateKeyInfo
 #.FN_PARS SafeBag/bagId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR SafeBag/bagId
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
+  set_bag_oid(actx->pinfo, object_identifier_id);
 #.END
 
 #.FN_PARS CertBag/certId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR CertBag/certId
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
+  set_bag_oid(actx->pinfo, object_identifier_id);
 #.END
 
 #.FN_PARS CRLBag/crlId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR CRLBag/crlId
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
+  set_bag_oid(actx->pinfo, object_identifier_id);
 #.END
 
 #.FN_PARS SecretBag/secretTypeId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR SecretBag/secretTypeId
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
+  set_bag_oid(actx->pinfo, object_identifier_id);
 #.END
 
 #.FN_PARS PKCS12Attribute/attrId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR PKCS12Attribute/attrId
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
+  set_bag_oid(actx->pinfo, object_identifier_id);
 #.END
 
 #.FN_HDR SafeBag
@@ -156,20 +161,22 @@ PrivateKeyInfo
 #.FN_HDR EncryptedData
 	tvbuff_t *encrypted_tvb;
 	dissector_handle_t dissector_handle;
+	const char *bag_oid;
 
 #.END
 
 #.FN_FTR EncryptedData
 
+	bag_oid = get_bag_oid(actx->pinfo);
+	if (encrypted_tvb && bag_oid) {
+		dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
+		dissector_change_string("ber.oid", bag_oid, dissector_handle);
 
+		PBE_decrypt_data(bag_oid, encrypted_tvb, actx->pinfo, actx, actx->created_item);
 
-	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
-	dissector_change_string("ber.oid", object_identifier_id, dissector_handle);
-
-	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx->pinfo, actx, actx->created_item);
-
-	/* restore the original dissector */
-	dissector_reset_string("ber.oid", object_identifier_id);
+		/* restore the original dissector */
+		dissector_reset_string("ber.oid", bag_oid);
+	}
 
 #.END
 

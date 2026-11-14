@@ -87,6 +87,23 @@ mark_pbe_parameters(packet_info *pinfo)
 		p_add_proto_data(pinfo->pool, pinfo, proto_pkcs12, 0, wmem_new0(pinfo->pool, char));
 }
 
+/* object_identifier_id points into the packet pool and is not cleared between
+ * packets, so EncryptedData, which can also be reached from outside a bag or
+ * attribute, takes the OID of the enclosing bag from per-packet data. */
+#define PKCS12_BAG_OID_KEY 1
+
+static void
+set_bag_oid(packet_info *pinfo, const char *oid)
+{
+	p_set_proto_data(pinfo->pool, pinfo, proto_pkcs12, PKCS12_BAG_OID_KEY, (void *)oid);
+}
+
+static const char *
+get_bag_oid(packet_info *pinfo)
+{
+	return (const char *)p_get_proto_data(pinfo->pool, pinfo, proto_pkcs12, PKCS12_BAG_OID_KEY);
+}
+
 static int dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_PrivateKeyInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);

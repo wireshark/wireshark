@@ -92,6 +92,23 @@ mark_pbe_parameters(packet_info *pinfo)
 		p_add_proto_data(pinfo->pool, pinfo, proto_pkcs12, 0, wmem_new0(pinfo->pool, char));
 }
 
+/* object_identifier_id points into the packet pool and is not cleared between
+ * packets, so EncryptedData, which can also be reached from outside a bag or
+ * attribute, takes the OID of the enclosing bag from per-packet data. */
+#define PKCS12_BAG_OID_KEY 1
+
+static void
+set_bag_oid(packet_info *pinfo, const char *oid)
+{
+	p_set_proto_data(pinfo->pool, pinfo, proto_pkcs12, PKCS12_BAG_OID_KEY, (void *)oid);
+}
+
+static const char *
+get_bag_oid(packet_info *pinfo)
+{
+	return (const char *)p_get_proto_data(pinfo->pool, pinfo, proto_pkcs12, PKCS12_BAG_OID_KEY);
+}
+
 static int dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_PrivateKeyInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
@@ -618,6 +635,7 @@ dissect_pkcs12_T_bagId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
+  set_bag_oid(actx->pinfo, object_identifier_id);
   return offset;
 }
 
@@ -639,6 +657,7 @@ dissect_pkcs12_T_attrId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
+  set_bag_oid(actx->pinfo, object_identifier_id);
   return offset;
 }
 
@@ -797,20 +816,22 @@ static int
 dissect_pkcs12_EncryptedData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	tvbuff_t *encrypted_tvb;
 	dissector_handle_t dissector_handle;
+	const char *bag_oid;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &encrypted_tvb);
 
 
+	bag_oid = get_bag_oid(actx->pinfo);
+	if (encrypted_tvb && bag_oid) {
+		dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
+		dissector_change_string("ber.oid", bag_oid, dissector_handle);
 
+		PBE_decrypt_data(bag_oid, encrypted_tvb, actx->pinfo, actx, actx->created_item);
 
-	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
-	dissector_change_string("ber.oid", object_identifier_id, dissector_handle);
-
-	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx->pinfo, actx, actx->created_item);
-
-	/* restore the original dissector */
-	dissector_reset_string("ber.oid", object_identifier_id);
+		/* restore the original dissector */
+		dissector_reset_string("ber.oid", bag_oid);
+	}
 
   return offset;
 }
@@ -846,6 +867,7 @@ dissect_pkcs12_T_certId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
+  set_bag_oid(actx->pinfo, object_identifier_id);
   return offset;
 }
 
@@ -884,6 +906,7 @@ dissect_pkcs12_T_crlId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
+  set_bag_oid(actx->pinfo, object_identifier_id);
   return offset;
 }
 
@@ -922,6 +945,7 @@ dissect_pkcs12_T_secretTypeId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
+  set_bag_oid(actx->pinfo, object_identifier_id);
   return offset;
 }
 
