@@ -3998,8 +3998,10 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
          */
         if ((pad == 0) && (len == 1)) {
             /* empty */
-            item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_BIG_ENDIAN);
-            actx->created_item = item;
+            if (hf_id > 0) {
+                item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_BIG_ENDIAN);
+                actx->created_item = item;
+            }
             proto_tree_add_item(parent_tree, hf_ber_bitstring_empty, tvb, offset, 1, ENC_BIG_ENDIAN);
             if (out_tvb) {
                 *out_tvb = ber_tvb_new_subset_length(tvb, offset, len);
