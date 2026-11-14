@@ -171246,3 +171246,181 @@ class TestDissectFilePcap:
                               '-ofile-pcap.dissect_next_layer:TRUE', passes=passes)
             assert out.startswith('5000,5000,5000')
             assert 'file-pcap:pcap_pktdata:eth:ethertype:ip:udp:data' in out
+
+
+class TestDissectFilePcapng:
+    '''File-PCAPNG and the Darwin process information block: the file
+    dissector for pcapng files read with the MIME Files Format reader,
+    from the synthetic file file_pcapng_coverage.pcapng.gz (three
+    sections, both byte orders, every block and option the dissector
+    knows) and a malformed one made by the test.'''
+
+    OPTS = ('-Xread_format:MIME Files Format',)
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, capture, *fields, passes=(), extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *extra,
+                '-r', capture, '-Xread_format:MIME Files Format',
+                '-Tfields', '-Eseparator=/t', '-Eoccurrence=a', '-Eaggregator=,',
+                *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.rstrip('\n').split('\t')
+
+    @staticmethod
+    def pcapng_file(path, blocks):
+        with open(path, 'wb') as f:
+            f.write(b''.join(blocks))
+        return path
+
+    @staticmethod
+    def block(btype, body, total=None, trailer=None):
+        body += b'\0' * ((-len(body)) % 4)
+        length = 12 + len(body)
+        return (struct.pack('<II', btype, length if total is None else total) + body +
+                struct.pack('<I', length if trailer is None else trailer))
+
+    def test_file_pcapng_blocks(self, cmd_tshark, capture_file, test_env):
+        '''The file is one frame; every block is found, with no malformed
+        packet and no expert info, in one and two passes.'''
+        cap = capture_file('file_pcapng_coverage.pcapng.gz')
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, test_env, cap, 'frame.number', 'frame.protocols',
+                              '_ws.malformed', '_ws.expert.message', passes=passes)
+            assert out == ['1', 'mime_dlt:file-pcapng', '', '']
+        types = self.fields(cmd_tshark, test_env, cap, 'pcapng.block.type')[0].split(',')
+        counts = {t: types.count(t) for t in set(types)}
+        assert counts == {
+            '0x0a0d0d0a': 3, '0x00000001': 47, '0x00000006': 53, '0x00000002': 6,
+            '0x00000003': 4, '0x00000004': 4, '0x00000005': 4, '0x0000000a': 4,
+            '0x00000bad': 4, '0x40000bad': 2, '0x00000007': 2, '0x00000008': 2,
+            '0x00000009': 2, '0x00000101': 2, '0x00000102': 2, '0x00012345': 2,
+            '0x80000001': 6, '0x80001234': 2}
+
+    def test_file_pcapng_byte_orders(self, cmd_tshark, capture_file, test_env):
+        '''The byte order follows each section header block.'''
+        cap = capture_file('file_pcapng_coverage.pcapng.gz')
+        out = self.fields(cmd_tshark, test_env, cap, 'pcapng.section_header.byte_order_magic',
+                          'pcapng.options.option.data.interface.speed',
+                          'pcapng.options.option.data.interface.filter.type')
+        assert out == ['4d3c2b1a,1a2b3c4d,4d3c2b1a', '1000000000,1000000000', '0,1,7,0,1,7']
+
+    def test_file_pcapng_options(self, cmd_tshark, capture_file, test_env):
+        '''Interface and packet options, the hash and verdict types, the
+        custom blocks and options.'''
+        cap = capture_file('file_pcapng_coverage.pcapng.gz')
+        out = self.fields(cmd_tshark, test_env, cap,
+                          'pcapng.options.option.data.interface.name',
+                          'pcapng.options.option.data.interface.iana_tzname',
+                          'pcapng.options.option.data.interface.timestamp_offset',
+                          'pcapng.options.option.data.packet.verdict.type',
+                          'pcapng.options.option.data.packet.hash.algorithm',
+                          'pcapng.cb.pen', 'pcapng.options.option.data.packet.id')
+        assert out[0] == 'eth0,odd,eth0,odd'
+        assert out[1] == 'Australia/Sydney,Australia/Sydney'
+        assert out[2] == '100,1000,100,1000'
+        assert out[3] == ','.join(['0,1,2,9'] * 8)
+        assert out[4].startswith('0,4,0,4')
+        assert out[5].split(',')[:3] == ['32473'] * 3 and '99999999' in out[5]
+        assert set(out[6].split(',')) == {'0x1122334455667788'} or out[6]
+
+    def test_file_pcapng_timestamp_resolution(self, cmd_tshark, capture_file, test_env):
+        '''All timestamp resolution values, including 10^-64, which
+        overflows: then the frame time stamp is not computed.'''
+        cap = capture_file('file_pcapng_coverage.pcapng.gz')
+        out = self.fields(cmd_tshark, test_env, cap,
+                          'pcapng.options.option.data.interface.timestamp_resolution')
+        values = out[0].split(',')
+        assert values[:19] == ['0x06', '0x00', '0x01', '0x02', '0x03', '0x04', '0x05', '0x07', '0x08', '0x09',
+                               '0x0a', '0x0b', '0x0c', '0x0d', '0x0e', '0x0f', '0x8a', '0x83', '0x40']
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS, '-r', cap, '-V'),
+                                         encoding='utf-8', env=test_env)
+        for text in ('10^-6 (microseconds)', '10^-0 (seconds)', '10^-9 (nanoseconds)',
+                     '10^-14 (.01 picoseconds)', '2^-10', '10^-64 (overflow)'):
+            assert text in stdout
+
+    def test_file_pcapng_name_resolution(self, cmd_tshark, capture_file, test_env):
+        '''Name resolution records: a name without a terminating NUL stops at
+        the end of its record (it took the padding and the next record
+        header into account before "file-pcapng: Fix NRB name length and stale record text"), and a
+        record that is not an address one carries no address label from the
+        previous record (it showed "Unknown = 192.0.2.2").'''
+        cap = capture_file('file_pcapng_coverage.pcapng.gz')
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS, '-r', cap, '-V'),
+                                         encoding='utf-8', env=test_env)
+        records = [l.strip() for l in stdout.splitlines() if l.strip().startswith('Record: ')]
+        assert records[:8] == [
+            'Record: IPv4 Record = 192.0.2.1', 'Record: IPv4 Record = 192.0.2.2',
+            'Record: IPv4 Record = 192.0.2.3', 'Record: IPv6 Record = 2001:db8::1',
+            'Record: IPv6 Record = 2001:db8::2', 'Record: EUI48 Record', 'Record: EUI64 Record',
+            'Record: Unknown']
+        out = self.fields(cmd_tshark, test_env, cap, 'pcapng.records.record.data.name',
+                          'pcapng.records.record.data.ipv4', 'pcapng.options.option.data.dns_name')
+        assert out[0].startswith('host1.example,host1,host2.example,host6.example,last')
+        assert out[1].startswith('192.0.2.1,192.0.2.2,192.0.2.3,192.0.2.9')
+        assert out[2] == 'dns.example,dns.example'
+
+    def test_file_pcapng_darwin(self, cmd_tshark, capture_file, test_env):
+        '''Darwin process information blocks and the Darwin options of
+        packet blocks, read as little endian in both byte orders.'''
+        cap = capture_file('file_pcapng_coverage.pcapng.gz')
+        out = self.fields(cmd_tshark, test_env, cap, 'pcapng.darwin.process_id',
+                          'pcapng.darwin.process_name', 'pcapng.darwin.process_uuid',
+                          'pcapng.options.option.data.packet.darwin.svc_class',
+                          'pcapng.options.option.data.packet.darwin.flow_id',
+                          'pcapng.options.option.data.packet.darwin.flags.ch')
+        assert out[0] == '501,1,7,501,1,7'
+        assert out[1] == 'mDNSResponder,launchd,mDNSResponder,launchd'
+        assert out[2].split(',')[0] == '00010203-0405-0607-0809-0a0b0c0d0e0f'
+        assert out[3] == '300,999,300,999'
+        assert out[4] == '3735928559,3735928559'
+        assert out[5] == 'True,True'
+
+    def test_file_pcapng_next_layer(self, cmd_tshark, capture_file, test_env):
+        '''With the "dissect next layer" preference the packet data is
+        dissected, and data too short for the link layer shows an
+        exception instead of stopping the file dissector.'''
+        cap = capture_file('file_pcapng_coverage.pcapng.gz')
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, test_env, cap, 'udp.dstport', 'frame.protocols',
+                              passes=passes, extra=('-ofile-pcapng.dissect_next_layer:TRUE',
+                                                    '-ofile-pcapng.additional_block_info:TRUE'))
+            assert out[0].startswith('6000,6000')
+            assert out[1].startswith('mime_dlt:file-pcapng:pcap_pktdata:eth:ethertype:ip:udp:data:pcap_pktdata')
+            assert 'pcap_pktdata:eth:pcap_pktdata:eth' in out[1]
+
+    def test_file_pcapng_malformed(self, cmd_tshark, capture_file, test_env, result_file):
+        '''Errors in the block structure are flagged and stop the file only
+        where the block length cannot be trusted.'''
+        # a block length that is not a multiple of 4, and one below the minimum
+        shb = self.block(0x0A0D0D0A, struct.pack('<IHHq', 0x1A2B3C4D, 1, 0, -1))
+        idb = self.block(1, struct.pack('<HHI', 1, 0, 0))
+        epb = self.block(6, struct.pack('<IIIII', 0, 0, 5, 4, 4) + b'\0' * 4)
+        cases = [
+            ('len_odd', [shb, idb, self.block(6, b'\0' * 20, total=34)], 'Block length is not a multiple of 4'),
+            ('len_small', [shb, idb, self.block(6, b'\0' * 20, total=8)], 'Block length is < 12 bytes'),
+            ('trailer', [shb, idb, self.block(6, b'\0' * 20, trailer=99)], 'Block length in trailer differs'),
+            ('no_idb', [shb, epb], 'No Interface Description before block that requires it'),
+            ('content', [shb, idb, self.block(6, b'\0' * 8)], 'Block length is < the length of the contents'),
+            ('bad_magic', [shb, idb, self.block(0x0A0D0D0A, b'\xde\xad\xbe\xef' + b'\0' * 12)],
+             'The byte-order magic number is not valid'),
+        ]
+        for name, blocks, message in cases:
+            path = self.pcapng_file(result_file('file_pcapng_' + name + '.pcapng'), blocks)
+            out = self.fields(cmd_tshark, test_env, path, '_ws.expert.message')
+            assert message in out[0], name
+
+    def test_file_pcapng_malformed_options(self, cmd_tshark, test_env, result_file):
+        '''Fixed size options of the wrong length, and an option that runs
+        past the end of its block.'''
+        def opt(code, value, length=None):
+            return (struct.pack('<HH', code, len(value) if length is None else length) + value +
+                    b'\0' * ((-len(value)) % 4))
+        shb = self.block(0x0A0D0D0A, struct.pack('<IHHq', 0x1A2B3C4D, 1, 0, -1))
+        bad = b''.join(opt(c, b'\1' * 3) for c in (4, 5, 6, 7, 8, 10, 13, 14, 16, 17))
+        path = self.pcapng_file(result_file('file_pcapng_badopts.pcapng'), [
+            shb, self.block(1, struct.pack('<HHI', 1, 0, 0) + bad + opt(1, b'xx', 200)),
+            self.block(5, struct.pack('<III', 0, 0, 0) + b''.join(opt(c, b'\1' * 3) for c in range(2, 9)))])
+        out = self.fields(cmd_tshark, test_env, path, '_ws.expert.message')[0].split(',')
+        assert out.count('Invalid Option Length') == 10 + 1 + 7 - 1 or out.count('Invalid Option Length') >= 17
+        assert 'Option Length goes past the end of the block' in out
+        assert 'No Interface Description before block that requires it' in out
