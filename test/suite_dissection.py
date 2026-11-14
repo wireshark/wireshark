@@ -170989,3 +170989,123 @@ class TestDissectMmodule:
                 '3\tInvalid entry count 3 or entry size 1\t3\t1',
                 '4\tInvalid entry count 1000 or entry size 48\t1000\t48',
                 '5\tInvalid entry count 4294967295 or entry size 48\t4294967295\t48']
+
+
+class TestDissectFileMp4:
+    '''MP4 / ISOBMFF files (file-mp4.c) from the synthetic mp4_coverage.mp4.gz,
+    which tshark opens with wiretap's MP4 reader, and from
+    mp4_coverage_http.pcap.gz, where HTTP responses carry MP4 data
+    (media types video/mp4 and audio/mp4). The files are generated;
+    nothing comes from real media. No test depends on a decimal
+    separator: the double fields (rate, volume, width, height) are not
+    compared.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args, env=None):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=env or test_env, timeout=120).splitlines()
+
+    def test_mp4_file_clean(self, cmd_tshark, capture_file, test_env):
+        '''One frame, no malformed packet, and one chat expert info (the
+        movie header with an unknown next track ID), in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'mp4_coverage.mp4.gz', *passes,
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.malformed',
+                    '-e_ws.expert.message', '-e_ws.expert.severity')
+            assert lines == ['MP4\t\tNext track ID is unknown. Search for an unused '
+                             'track ID if you want to insert a new track.\t2097152']
+
+    def test_mp4_boxes(self, cmd_tshark, capture_file, test_env):
+        '''The box tree: containers, sample tables, fragments, segment
+        index and the boxes that are only listed.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'mp4_coverage.mp4.gz', '-Tfields', '-emp4.box.type_str')
+        types = lines[0].split(',')
+        assert len(types) == 73
+        for t, n in (('moov', 3), ('mvhd', 3), ('trak', 4), ('tkhd', 2), ('elst', 4), ('ctts', 2),
+                     ('stsz', 2), ('sidx', 2), ('url ', 2), ('udta', 4), ('free', 2), ('mdat', 1),
+                     ('moof', 1), ('styp', 1), ('stz2', 1)):
+            assert types.count(t) == n, (t, types.count(t))
+        assert types[:3] == ['ftyp', 'moov', 'mvhd']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'mp4_coverage.mp4.gz', '-Tfields', '-emp4.ftyp.brand', '-emp4.box.largesize',
+                '-emp4.mfhd.sequence_number', '-emp4.dref.entry_count')
+        assert lines == ['isom,msdh\t36\t7\t2']
+
+    def test_mp4_movie_and_track_headers(self, cmd_tshark, capture_file, test_env):
+        '''Movie headers of version 0 and 1 (and a zero timescale), track
+        headers of version 0 and 1, handlers.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'mp4_coverage.mp4.gz', '-Tfields', '-emp4.mvhd.timescale',
+                '-emp4.mvhd.duration', '-emp4.tkhd.track_id', '-emp4.tkhd.duration',
+                '-emp4.hdlr.type', '-emp4.hdlr.name')
+        assert lines == ['1000,90000,0\t5000,8589934592,100\t1,2\t5000,123456\t'
+                         'vide,soun,text\tVideoHandler,,T']
+
+    def test_mp4_sample_tables(self, cmd_tshark, capture_file, test_env):
+        '''stts, ctts of version 0 and the signed version 1 (the reproducer
+        of "MP4: Fix an assertion in ctts boxes of version 1"), stsz with
+        a fixed and with individual sizes, stsc, stco.'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        lines = self._tshark(cmd_tshark, capture_file, env,
+                'mp4_coverage.mp4.gz', '-Tfields', '-emp4.ctts.sample_offset',
+                '-emp4.ctts.sample_count', '-emp4.stts.sample_delta', '-emp4.stsz.sample_size',
+                '-emp4.stsz.entry_size', '-emp4.stsc.first_chunk', '-emp4.stco.chunk_offset')
+        assert lines == ['0,50,-5,7\t10,5,3,2\t100,200,1024\t1000,0\t100,200,300,400\t'
+                         '1,3,1\t1000,6000,11000,2000']
+
+    def test_mp4_edit_lists_and_sidx(self, cmd_tshark, capture_file, test_env):
+        '''Edit lists of version 0 and 1 and segment indexes of version 0
+        and 1.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'mp4_coverage.mp4.gz', '-Tfields', '-emp4.elst.segment_duration',
+                '-emp4.elst.media_time', '-emp4.sidx.reference_size', '-emp4.sidx.sap_type',
+                '-emp4.sidx.entry_count', '-emp4.sidx.earliest_presentation_time')
+        assert lines == ['5000,1000,5000,8589934592,90000,100\t'
+                         '0,4294967295,0,0,90000,0\t1000,2000,3000\t1,2,3\t2,1\t0,8589934592']
+
+    def test_mp4_http(self, cmd_tshark, capture_file, test_env):
+        '''The media types video/mp4 and audio/mp4: ten responses; the
+        first nine are MP4, the same in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'mp4_coverage_http.pcap.gz', *passes, '-Y', 'mp4',
+                    '-Tfields', '-eframe.number', '-e_ws.malformed', '-e_ws.expert.message')
+            assert [l.split('\t')[0] for l in lines] == ['2', '4', '6', '8', '10', '12', '14', '16', '18']
+            assert all(l.split('\t')[1] == '' for l in lines)
+
+    def test_mp4_ctts_version_1_http(self, cmd_tshark, capture_file, test_env):
+        '''A ctts box of version 1 over HTTP does not trigger a dissector
+        bug (frame 10).'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        lines = self._tshark(cmd_tshark, capture_file, env,
+                'mp4_coverage_http.pcap.gz', '-Y', 'frame.number == 10',
+                '-Tfields', '-emp4.ctts.sample_offset', '-e_ws.malformed')
+        assert lines == ['-5,7\t']
+
+    def test_mp4_timescale_per_file(self, cmd_tshark, capture_file, test_env):
+        '''The timescale of an edit list comes from the movie header of the
+        same file: frame 6 has one, frame 8 has none and says "no
+        timescale", also in the second pass.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'mp4_coverage_http.pcap.gz', *passes, '-Y', 'frame.number in {6, 8}',
+                    '-V', '-O', 'mp4')
+            seg = [l.strip() for l in lines if l.strip().startswith('Segment duration:')]
+            assert len(seg) == 2
+            assert 'no timescale' not in seg[0]
+            assert seg[1] == 'Segment duration: no timescale (100)'
+
+    def test_mp4_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Boxes nested more than 20 levels, and a box larger than INT_MAX,
+        get an expert info.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'mp4_coverage_http.pcap.gz', '-Y', 'frame.number in {12, 14}',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert lines == ['12\ttoo many recursion levels',
+                         '14\tbox size too large, dissection of this box is not supported']
