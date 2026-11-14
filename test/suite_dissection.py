@@ -170281,3 +170281,166 @@ class TestDissectMidiNetwork:
         assert lines[1][1] == 'Invitation with User Authentication, Ping (id=12345678)'
         assert lines[3][1] == 'NAK, Ping (id=12345678)'
         assert lines[4][1] == 'Ping, Ping (id=12345678)'
+
+
+class TestDissectFileBlf:
+    '''BLF files (Vector Binary Logging Format, File-BLF): read with the
+    MIME Files Format reader, which decodes the whole file with the
+    File-BLF dissector, and natively, from the synthetic file
+    file_blf_coverage.blf.gz; other files are written by the test.'''
+
+    MIME = ('-Xread_format:MIME Files Format',)
+
+    @staticmethod
+    def tshark(cmd_tshark, test_env, capture, *args, passes=(), timeout=120):
+        env = dict(test_env, TZ='UTC')
+        return subprocess.check_output((cmd_tshark, *passes, '-r', capture, *args),
+                                       encoding='utf-8', env=env, timeout=timeout)
+
+    @staticmethod
+    def file_header(month=11, wday=3):
+        date = struct.pack('<8H', 2023, month, wday, 15, 8, 13, 20, 123)
+        h = b'LOGG' + struct.pack('<IIBBBBQQII', 144, 0x03040100, 1, 0, 2, 3, 0, 0, 0, 3) + date + date
+        h += struct.pack('<I', 0)
+        return h + b'\0' * (144 - len(h))
+
+    @staticmethod
+    def container(inner, comp=0, obj_len=None, uncomp=None):
+        import zlib
+        body = zlib.compress(inner, 9) if comp == 2 else inner
+        pl = struct.pack('<HHIII', comp, 0, 0, len(inner) if uncomp is None else uncomp, 0) + body
+        d = b'LOBJ' + struct.pack('<HHII', 16, 1, 16 + len(pl) if obj_len is None else obj_len, 10) + pl
+        return d + b'\0' * ((-len(d)) % 4)
+
+    @staticmethod
+    def blf_file(path, data):
+        with open(path, 'wb') as f:
+            f.write(data)
+        return path
+
+    @staticmethod
+    def text_object(text):
+        pl = struct.pack('<IIII', 0, 0, len(text), 0) + text
+        d = b'LOBJ' + struct.pack('<HHII', 32, 1, 32 + len(pl), 65) + struct.pack('<IHHQ', 2, 0, 0, 1000) + pl
+        return d + b'\0' * ((-len(d)) % 4)
+
+    def test_file_blf_main(self, cmd_tshark, capture_file, test_env):
+        '''One frame; the file header, the containers (plain and zlib), the
+        application text, system variable, Ethernet, CAN XL and generic
+        objects; no malformed packet or expert info, in one and two
+        passes.'''
+        cap = capture_file('file_blf_coverage.blf.gz')
+        for passes in ((), ('-2',)):
+            out = self.tshark(cmd_tshark, test_env, cap, *self.MIME, '-Tfields', '-Eaggregator=,',
+                              '-Eoccurrence=a', '-eframe.protocols', '-e_ws.malformed',
+                              '-e_ws.expert.message', '-eblf.file_header.application_major', passes=passes)
+            assert out.rstrip('\n').split('\t') == ['mime_dlt:file-blf:xml', '', '', '2']
+        out = self.tshark(cmd_tshark, test_env, cap, *self.MIME, '-Tfields', '-Eaggregator=|',
+                          '-Eoccurrence=a', '-eblf.object.app_text.text', '-eblf.object.app_text.channelno')
+        texts, channels = out.rstrip('\n').split('\t')
+        assert texts.startswith('a comment from the measurement|C:\\\\db\\\\vehicle.dbc;Cluster1;|ethernet.arxml;')
+        assert texts.endswith('last container|object outside of a container')
+        assert channels == '3|2'
+
+    def test_file_blf_header_date(self, cmd_tshark, capture_file, test_env):
+        '''The header date: month 11 is November (SYSTEMTIME months are
+        1-12; "BLF: Bound log container handling" fixes mktime() getting
+        the month 1 too high), and the printed weekday is the one of the
+        file.'''
+        cap = capture_file('file_blf_coverage.blf.gz')
+        out = self.tshark(cmd_tshark, test_env, cap, *self.MIME, '-V')
+        assert 'Start Date: Wednesday 2023-11-15 08:13:20.123' in out or 'Wednesday 2023-11-15 08:13:20.123' in out
+        out = self.tshark(cmd_tshark, test_env, cap, *self.MIME, '-Tfields', '-eblf.file_header.start_date')
+        assert out.startswith('2023-11-15T08:13:20.123')
+
+    @staticmethod
+    def log_object(otype, payload, version=0):
+        d = (b'LOBJ' + struct.pack('<HHII', 32, 1, 32 + len(payload), otype) +
+             struct.pack('<IHHQ', 2, 0, version, 1000) + payload)
+        return d + b'\0' * ((-len(d)) % 4)
+
+    def test_file_blf_native(self, cmd_tshark, test_env, result_file):
+        '''Read natively, wiretap makes packets of the objects: Ethernet
+        frames, text objects and the Ethernet status and PHY state objects
+        (Exported PDUs for the blf-ethernetstatus-obj and
+        blf-ethernetphystate-obj dissectors, which show invalid fields as
+        such).'''
+        ip = (struct.pack('>BBHHHBBH4s4s', 0x45, 0, 36, 1, 0, 64, 17, 0, bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2])) +
+              struct.pack('>HHHH', 4000, 5000, 16, 0) + b'blf data')
+        eth = (bytes([2, 0, 0, 0, 0, 1]) + struct.pack('<H', 1) + bytes([2, 0, 0, 0, 0, 2]) +
+               struct.pack('<HHHHH', 1, 0x0800, 0, 0, len(ip)) + b'\0' * 8 + ip)
+        objects = self.text_object(b'a comment') + self.log_object(71, eth)
+        for version, flags in ((0, 0x3ff), (1, 0x3ff), (1, 0x0), (0, 0x0001)):
+            status = struct.pack('<HHBBBBBBBBI', 1, flags, 1, 2, 1, 0, 1, 1, 2, 4, 100000000)
+            if version >= 1:
+                status += struct.pack('<Q', 123456789)
+            objects += self.log_object(103, status, version)
+        for flags in (0x7, 0x0, 0x3):
+            objects += self.log_object(133, struct.pack('<HHBBBB', 1, flags, 2, 3, 4, 0))
+        path = self.blf_file(result_file('file_blf_native.blf'), self.file_header() + self.container(objects))
+        for passes in ((), ('-2',)):
+            out = self.tshark(cmd_tshark, test_env, path, '-Tfields', '-eframe.protocols', '-e_ws.malformed',
+                              passes=passes)
+            lines = out.splitlines()
+            assert [l.split('\t')[0] for l in lines] == (
+                ['exported_pdu:data-text-lines', 'eth:ethertype:ip:udp:data'] +
+                ['exported_pdu:blf-ethernet-status'] * 4 + ['exported_pdu:blf-ethernet-phystate'] * 3)
+            assert all(l.split('\t')[1] == '' for l in lines)
+        out = self.tshark(cmd_tshark, test_env, path, '-V', '-Y', 'frame.number >= 3')
+        assert ' - Invalid' in out
+
+    def test_file_blf_truncated_object(self, cmd_tshark, test_env, result_file):
+        '''An object that is longer than the data left is shown as truncated.'''
+        obj = b'LOBJ' + struct.pack('<HHII', 32, 1, 400, 1) + struct.pack('<IHHQ', 2, 0, 0, 1000) + b'\0' * 16
+        path = self.blf_file(result_file('file_blf_trunc.blf'), self.file_header() + self.container(obj))
+        out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-V')
+        assert 'TRUNCATED' in out
+
+    def test_file_blf_malformed(self, cmd_tshark, test_env, result_file):
+        '''A file header or object header that is too short, an object
+        length below its header, and a container shorter than its fields.'''
+        text = self.text_object(b'x')
+        cases = [
+            ('hdr', b'LOGG' + struct.pack('<I', 40) + b'\0' * 72 + text, 'file header length is too short'),
+            ('cont', self.file_header() + self.container(text, obj_len=24), 'object length is less than the object header length'),
+            ('objhdr', self.file_header() + b'LOBJ' + struct.pack('<HHII', 8, 1, 24, 1) + b'\0' * 40,
+             'object header length is too short'),
+        ]
+        for name, data, message in cases:
+            path = self.blf_file(result_file('file_blf_%s.blf' % name), data)
+            out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-Tfields', '-e_ws.expert.message')
+            assert message in out, name
+
+    def test_file_blf_container_overlap(self, cmd_tshark, test_env, result_file):
+        '''Containers whose object length (31) is one below the length of the
+        header and container fields: the payload length wrapped, the
+        sub-tvb ran to the end of the file and each chained container
+        doubled the work (26 of them needed gigabytes). Now the object
+        length is flagged, the dissection of the container stops, and it
+        takes well under a second.'''
+        data = self.file_header()
+        for i in range(26):
+            data += b'LOBJ' + struct.pack('<HHII', 16, 1, 31, 10) + struct.pack('<HHIII', 0, 0, 0, 0, 0)
+        path = self.blf_file(result_file('file_blf_overlap.blf'), data + b'\0' * 16)
+        out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-Tfields', '-Eaggregator=,',
+                          '-e_ws.expert.message', timeout=60)
+        assert out.count('object length is less than the object header length') == 26
+
+    def test_file_blf_nested_containers(self, cmd_tshark, test_env, result_file):
+        '''A zlib container inside a zlib container is not decompressed
+        again (a decompression bomb: 1 KiB inflating to 512 MiB); an
+        uncompressed container inside one is still decoded.'''
+        import zlib
+        inner = zlib.compress(b'\0' * (1 << 20), 9)
+        inner_obj = (b'LOBJ' + struct.pack('<HHII', 16, 1, 32 + len(inner), 10) +
+                     struct.pack('<HHIII', 2, 0, 0, 1 << 20, 0) + inner)
+        path = self.blf_file(result_file('file_blf_nested.blf'),
+                             self.file_header() + self.container(inner_obj, comp=2))
+        out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-Tfields', '-e_ws.expert.message', timeout=60)
+        assert 'compressed log container nested in a log container is not decompressed' in out
+        plain = self.container(self.text_object(b'nested plain container'))
+        path = self.blf_file(result_file('file_blf_nested_plain.blf'),
+                             self.file_header() + self.container(plain) + self.container(plain, comp=2))
+        out = self.tshark(cmd_tshark, test_env, path, *self.MIME, '-Tfields', '-Eaggregator=,',
+                          '-eblf.object.app_text.text', '-e_ws.expert.message')
+        assert out.rstrip('\n').split('\t') == ['nested plain container,nested plain container', '']
