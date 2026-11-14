@@ -171651,3 +171651,46 @@ class TestDissectRfc7468:
                 '-Tfields', '-e_ws.col.protocol', '-e_ws.malformed',
                 '-erfc7468.ber_data', '-eber.unknown.OCTETSTRING')
         assert lines == ['BER\t\t1\t' + '00' * 8996]
+
+
+class TestDissectRiff:
+    '''RIFF (file-riff.c): riff_coverage.wav.gz is read as a file (MIME file
+    reader, "wtap_file" heuristic); riff_coverage.pcap.gz carries a WAVE, an
+    AVI and a WebP file in HTTP responses with every media type registered
+    for them. No dissector is registered in the "riff.fourcc" table, so
+    every chunk is shown as chunk data.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_riff_file(self, cmd_tshark, capture_file, test_env):
+        '''A WAVE file: one frame, no malformed packet or expert info, in
+        one and two passes; the chunks and sizes are decoded.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'riff_coverage.wav.gz', *passes, '-Tfields',
+                    '-e_ws.col.protocol', '-e_ws.malformed', '-e_ws.expert.message')
+            assert lines == ['MIME_FILE\t\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'riff_coverage.wav.gz', '-Tfields', '-eriff.magic',
+                '-eriff.file.type', '-eriff.file.size', '-eriff.chunk.id',
+                '-eriff.chunk.size')
+        assert lines == ['RIFF\tWAVE\t104\tfmt ,LIST,fact,data,junk\t16,28,4,8,4']
+
+    def test_riff_http(self, cmd_tshark, capture_file, test_env):
+        '''The nine responses (four WAVE media types, four AVI, WebP) are
+        dissected without malformed packets in one and two passes.'''
+        res = []
+        for passes in ((), ('-2',)):
+            res.append(self._tshark(cmd_tshark, capture_file, test_env,
+                    'riff_coverage.pcap.gz', *passes, '-Tfields',
+                    '-eframe.number', '-e_ws.malformed', '-eriff.file.type',
+                    '-eriff.chunk.id'))
+        assert res[0] == res[1]
+        assert res[0] == (
+            ['%d\t\tWAVE\tfmt ,LIST,fact,data,junk' % n for n in range(1, 5)]
+            + ['%d\t\tAVI \tLIST,LIST,idx1' % n for n in range(5, 9)]
+            + ['9\t\tWEBP\tVP8L,EXIF'])
