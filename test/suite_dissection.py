@@ -172598,3 +172598,369 @@ fieldsonly.xml
         abbrevs = {l.split('\t')[2] for l in stdout if l.startswith('F\t')}
         assert 'json.jm' not in abbrevs
         assert 'No config.txt or jsonmain.xml in' in stderr
+
+
+class TestDissectRadiusDictionary:
+    '''Personal RADIUS dictionaries (radius_dict.l). The dictionary is
+    written to the "radius" directory of the configuration directory of the
+    test, after the shipped one. The synthetic capture
+    radius_dict_coverage.pcap.gz (8 RADIUS packets on UDP port 1812,
+    generated with Python struct) uses attributes the dictionary defines:
+    every value type, VALUE names, vendors with all header formats, nested
+    TLVs and Extended-Vendor-Specific attributes.'''
+
+    CAP = 'radius_dict_coverage.pcap.gz'
+
+    MAIN_DICT = r'''# Personal RADIUS dictionary for the coverage capture
+VENDOR Dict-Vendor      55555
+VENDOR Dict-Vendor-2-2  55556  format=2,2
+VENDOR Dict-Vendor-4-0  55557  format=4,0
+VENDOR Dict-Vendor-Flg  55558  format=1,1,c
+VENDOR Dict-Vendor-Hex  0xD9FE format=1,2
+VENDOR Dict-Vendor-Evs1 55561
+VENDOR Dict-Vendor-Evs2 55562
+VENDOR Dict-Vendor-Evs3 55563
+VENDOR Dict-Vendor-Evs4 55564
+VENDOR Dict-Vendor-Evs5 55565
+VENDOR Dict-Vendor-Evs6 55566
+VENDOR Dict-Vendor-First 55570
+VENDOR Dict-Vendor-Second 55570 format=1,1
+VENDOR b 55571
+VENDOR NoFormat 55572 format=
+$INCLUDE dictionary.part
+'''
+    PART_DICT = r'''# Included relative to the directory of the including file
+ATTRIBUTE Dict-Integer      103  integer
+VALUE     Dict-Integer      Low     1
+VALUE     Dict-Integer      Mid     2
+VALUE     Dict-Integer      High    0x10
+ATTRIBUTE Dict-Byte         104  byte
+ATTRIBUTE Dict-Short        105  short
+ATTRIBUTE Dict-Signed       106  signed
+VALUE     Dict-Signed       Minus-One 4294967295
+ATTRIBUTE Dict-String       107  string
+ATTRIBUTE Dict-Octets       108  octets[8]
+ATTRIBUTE Dict-Ipaddr       109  ipaddr
+ATTRIBUTE Dict-Ipv6addr     110  ipv6addr
+ATTRIBUTE Dict-Ipv6prefix   111  ipv6prefix
+ATTRIBUTE Dict-Ipxnet       112  ipxnet
+ATTRIBUTE Dict-Date         113  date
+ATTRIBUTE Dict-Abinary      114  abinary
+ATTRIBUTE Dict-Ether        115  ether
+ATTRIBUTE Dict-Ifid         116  ifid
+ATTRIBUTE Dict-Combo-Ip     117  combo-ip
+ATTRIBUTE Dict-Tlv          118  tlv
+ATTRIBUTE Dict-Tagged       119  integer has_tag
+ATTRIBUTE Dict-Enc-1        120  string encrypt=1
+ATTRIBUTE Dict-Enc-2        121  string encrypt=2,has_tag
+ATTRIBUTE Dict-Concat       122  octets concat
+ATTRIBUTE Dict-Vsa          103.1 vsa
+ATTRIBUTE Dict-Hex-Code     0xBF integer
+ATTRIBUTE Dict.Dot-Name     192  integer
+ATTRIBUTE Dict/Slash        193  integer
+ATTRIBUTE Dict-First-Name   194  integer
+ATTRIBUTE Dict-Second-Name  194  string
+ATTRIBUTE a                 195  integer
+VALUE     a                 one     1
+ATTRIBUTE b                 196  integer
+ATTRIBUTE Dict-Weird-Type   197  weirdtype
+ATTRIBUTE Dict-Param        198  integer foo=bar
+ATTRIBUTE Dict-Old-Vsa      1    integer Dict-Vendor
+
+BEGIN-TLV Dict-Tlv
+ATTRIBUTE Dict-Tlv-Integer  1  integer
+VALUE     Dict-Tlv-Integer  Seven 7
+ATTRIBUTE Dict-Tlv-String   2  string
+ATTRIBUTE Dict-Tlv-Ipaddr   3  ipaddr
+ATTRIBUTE Dict-Tlv-Sub      4  tlv
+BEGIN-TLV Dict-Tlv-Sub
+ATTRIBUTE Dict-Tlv-Sub-Int  1  integer
+ATTRIBUTE Dict-Tlv-Sub-Sub  2  tlv
+BEGIN-TLV Dict-Tlv-Sub-Sub
+ATTRIBUTE Dict-Tlv-Deep     1  string
+END-TLV Dict-Tlv-Sub-Sub
+END-TLV Dict-Tlv-Sub
+END-TLV Dict-Tlv
+
+BEGIN-VENDOR Dict-Vendor
+ATTRIBUTE Dv-Integer   1  integer
+VALUE     Dv-Integer   One   1
+VALUE     Dv-Integer   Two   2
+ATTRIBUTE Dv-String    2  string
+ATTRIBUTE Dv-Ipaddr    3  ipaddr
+ATTRIBUTE Dv-Tlv       4  tlv
+BEGIN-TLV Dv-Tlv
+ATTRIBUTE Dv-Tlv-Integer 1 integer
+ATTRIBUTE Dv-Tlv-String  2 string
+ATTRIBUTE Dv-Tlv-Inner   3 tlv
+BEGIN-TLV Dv-Tlv-Inner
+ATTRIBUTE Dv-Tlv-Inner-Int 1 integer
+END-TLV Dv-Tlv-Inner
+END-TLV Dv-Tlv
+ATTRIBUTE Dv-Octets    5  octets
+ATTRIBUTE Dv-Ipv6      6  ipv6addr
+END-VENDOR Dict-Vendor
+
+BEGIN-VENDOR Dict-Vendor-2-2
+ATTRIBUTE D22-Integer  1  integer
+ATTRIBUTE D22-String   2  string
+END-VENDOR Dict-Vendor-2-2
+
+BEGIN-VENDOR Dict-Vendor-4-0
+ATTRIBUTE D40-Integer  1  integer
+END-VENDOR Dict-Vendor-4-0
+
+BEGIN-VENDOR Dict-Vendor-Flg
+ATTRIBUTE Dfl-Octets   1  octets
+ATTRIBUTE Dfl-String   2  string
+END-VENDOR Dict-Vendor-Flg
+
+BEGIN-VENDOR Dict-Vendor-Hex
+ATTRIBUTE Dhx-Integer  0x10 integer
+END-VENDOR Dict-Vendor-Hex
+
+BEGIN-VENDOR Dict-Vendor-Evs1 format=Extended-Vendor-Specific-1
+ATTRIBUTE Dev1-Integer 1  integer
+ATTRIBUTE Dev1-String  2  string
+END-VENDOR Dict-Vendor-Evs1
+BEGIN-VENDOR Dict-Vendor-Evs2 format=Extended-Vendor-Specific-2
+ATTRIBUTE Dev2-Integer 1  integer
+END-VENDOR Dict-Vendor-Evs2
+BEGIN-VENDOR Dict-Vendor-Evs3 format=Extended-Vendor-Specific-3
+ATTRIBUTE Dev3-Integer 1  integer
+END-VENDOR Dict-Vendor-Evs3
+BEGIN-VENDOR Dict-Vendor-Evs4 format=Extended-Vendor-Specific-4
+ATTRIBUTE Dev4-Integer 1  integer
+END-VENDOR Dict-Vendor-Evs4
+BEGIN-VENDOR Dict-Vendor-Evs5 format=Extended-Vendor-Specific-5
+ATTRIBUTE Dev5-Integer 1  integer
+END-VENDOR Dict-Vendor-Evs5
+BEGIN-VENDOR Dict-Vendor-Evs6 format=Extended-Vendor-Specific-6
+ATTRIBUTE Dev6-Integer 1  integer
+END-VENDOR Dict-Vendor-Evs6
+
+BEGIN-VENDOR Dict-Vendor-Second
+ATTRIBUTE Dsc-Integer  1  integer
+END-VENDOR Dict-Vendor-Second
+BEGIN-VENDOR b
+ATTRIBUTE b-Integer    1  integer
+END-VENDOR b
+$INCLUDE sub/dictionary.sub
+'''
+    SUB_DICT = r'''# A second level include, then back to the including file (no trailing
+# newline on the last line: the definition is dropped)
+ATTRIBUTE Dict-Sub-Integer 199 integer
+VALUE     Dict-Sub-Integer Sub-One 1
+ATTRIBUTE Dict-Sub-String  247 string'''
+
+    @staticmethod
+    def write_dict(conf_path, files):
+        '''Write the files into the personal radius directory.'''
+        d = os.path.join(conf_path, 'radius')
+        os.makedirs(d, exist_ok=True)
+        for name, text in files.items():
+            path = os.path.join(d, name)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(text)
+
+    def main_dict(self, conf_path):
+        self.write_dict(conf_path, {
+            'dictionary': self.MAIN_DICT, 'dictionary.part': self.PART_DICT,
+            os.path.join('sub', 'dictionary.sub'): self.SUB_DICT})
+
+    @staticmethod
+    def run(cmd_tshark, test_env, *args):
+        p = subprocess.run((cmd_tshark, *args), encoding='utf-8', env=test_env,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        return p.stdout.splitlines(), p.stderr
+
+    def fields(self, cmd_tshark, capture_file, test_env, *args):
+        lines, stderr = self.run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                '-Tfields', *args)
+        assert stderr == ''
+        return lines
+
+    def values(self, cmd_tshark, capture_file, test_env, *names):
+        '''The values of the fields, in the order of the names, over all frames.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                *('-eradius.' + n for n in names))
+        cols = [[] for _ in names]
+        for line in lines:
+            for i, v in enumerate(line.split('\t')):
+                if v:
+                    cols[i].append(v)
+        return [','.join(c) for c in cols]
+
+    @staticmethod
+    def groups(fields):
+        return {name for name in fields}
+
+    def test_radius_dict_clean(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''All frames are RADIUS, without a dictionary error on standard
+        error, malformed packets or expert infos, in one and two passes.'''
+        self.main_dict(conf_path)
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-eradius.code', '-e_ws.col.protocol')
+        assert lines == ['1\tRADIUS', '4\tRADIUS', '2\tRADIUS', '4\tRADIUS',
+                '1\tRADIUS', '2\tRADIUS', '11\tRADIUS', '3\tRADIUS']
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-eframe.number', '-eradius.code')
+            assert lines == []
+
+    def test_radius_dict_value_types(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''Attributes of every dictionary type, including the integers of
+        other lengths, the names that need a changed filter name and the
+        include files.'''
+        self.main_dict(conf_path)
+        v = self.values(cmd_tshark, capture_file, test_env, 'Dict_Integer', 'Dict_Byte',
+                'Dict_Short', 'Dict_Signed', 'Dict_Ipaddr', 'Dict_Ipv6prefix',
+                'Dict_Tagged', 'Dict_Second_Name', 'a', 'b', 'Dict_Sub_Integer',
+                'Dict_Hex_Code', 'Dict_Dot_Name', 'Dict_Slash')
+        assert v == [
+            '2,16,99,1099511627776,66051,5,258,1,2', '7', '300', '-5,-1,-9,128,65534,16777213',
+            '192.0.2.7', '004020010db800000001', '1,16128', 'renamed attribute',
+            '1', '2', '1', '1', '2', '3']
+        # a last line without a newline at the end of an included file is
+        # not a complete definition and is dropped
+        stdout, _ = self.run(cmd_tshark, test_env, '-G', 'fields')
+        abbrevs = {l.split('\t')[2] for l in stdout if l.startswith('F\t')}
+        assert 'radius.Dict_Sub_Integer' in abbrevs
+        assert 'radius.Dict_Sub_String' not in abbrevs
+
+    def test_radius_dict_value_names(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''VALUE names (decimal and hexadecimal values) of attributes,
+        vendor attributes, TLVs and a one letter attribute name.'''
+        self.main_dict(conf_path)
+        lines, _ = self.run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                '-V', '-Y', 'radius.code', '-O', 'radius')
+        text = '\n'.join(lines)
+        for item in ('Dict-Integer: Mid(2)', 'Dict-Integer: High(16)',
+                'Dict-Integer: Unknown(99)', 'Dict-Signed: Minus-One(-1)',
+                'a: one(1)', 'Dv-Integer: Two(2)', 'TLV: t=Dict-Tlv-Integer(1) l=6 : Seven(7)',
+                'Dict-Integer: Low(1)'):
+            assert item in text, item
+
+    def test_radius_dict_vendors(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''Vendors with 1/1, 2/2 and 4/0 type and length octets, the
+        continuation flag (reassembled fragments), a hexadecimal vendor id,
+        a vendor that was defined twice, the old per attribute vendor
+        notation and Extended-Vendor-Specific attributes.'''
+        self.main_dict(conf_path)
+        v = self.values(cmd_tshark, capture_file, test_env, 'Dv_Integer', 'D22_Integer',
+                'D22_String', 'D40_Integer', 'Dfl_Octets', 'Dfl_String', 'Dhx_Integer',
+                'Dsc_Integer', 'b_Integer', 'Dev1_Integer', 'Dev1_String', 'Dev2_Integer',
+                'Dev3_Integer', 'Dev4_Integer')
+        assert v == ['1,2,77,1,5,9', '10,2', 'two two', '11',
+                '667261673166726167326c617374', 'flags only', '12', '13', '14',
+                '1', 'evs one string', '2', '3', '4']
+
+    def test_radius_dict_tlvs(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''Nested TLVs of an attribute and of a vendor attribute.'''
+        self.main_dict(conf_path)
+        v = self.values(cmd_tshark, capture_file, test_env, 'Dict_Tlv_Integer',
+                'Dict_Tlv_String', 'Dict_Tlv_Ipaddr', 'Dict_Tlv_Sub_Int', 'Dict_Tlv_Deep',
+                'Dv_Tlv_Integer', 'Dv_Tlv_String', 'Dv_Tlv_Inner_Int')
+        assert v == ['7,8', 'tlv string', '192.0.2.1', '5', 'deep', '1', 'vtlv', '3']
+        lines, _ = self.run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                '-V', '-Y', 'frame.number == 3', '-O', 'radius')
+        text = '\n'.join(lines)
+        assert 'Dict-Tlv: 6 TLV(s) inside' in text
+        assert 'TLV: t=Dict-Tlv-Deep(1) l=6 : deep' in text
+        assert 'TLV: t=Unknown-Attribute(9) l=13' in text
+        assert 'Dict-Tlv: 0 TLV(s) inside' in text
+
+    def test_radius_dict_wrong_lengths(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''Values of the wrong length are shown as such, without an expert
+        info.'''
+        self.main_dict(conf_path)
+        lines, _ = self.run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                '-V', '-Y', 'frame.number == 2', '-O', 'radius')
+        text = '\n'.join(lines)
+        for item in ('Dict-Ipaddr: [wrong length for IP address]',
+                'Dict-Ipv6prefix: [invalid reserved byte for IPv6 prefix]',
+                'Dict-Ipv6prefix: [invalid IPv6 prefix length]',
+                'Dict-Combo-Ip: [wrong length for both of IPv4 and IPv6 address]',
+                'Dict-Byte: [unhandled integer length(0)]'):
+            assert item in text, item
+
+    def test_radius_dict_errors(self, cmd_tshark, test_env, conf_path):
+        '''Errors of the personal dictionary are reported once on standard
+        error ("radius: ...") and the dictionary is used as far as it
+        went; tshark still starts.'''
+        cases = (
+            # (dictionary, text expected on standard error)
+            ('ATTRIBUTE Bad-Vendor 240 integer No-Such-Vendor trailing junk here\n'
+             'ATTRIBUTE After-Junk 241 integer\n', "Vendor: 'No-Such-Vendor', does not exist"),
+            ('BEGIN-TLV No-Such-Parent\nATTRIBUTE Orphan 1 integer\nEND-TLV No-Such-Parent\n',
+             "Attr: 'No-Such-Parent', does not exist"),
+            ('$INCLUDE does-not-exist\n', 'Could not open file'),
+            ('ATTRIBUTE Before-Attr 240 integer\nEND-TLV Nothing\nATTRIBUTE After-Attr 241 integer\n',
+             'END-TLV would go below stack level 0'),
+            ('ATTRIBUTE Loop-Attr 240 integer\n$INCLUDE dictionary\n',
+             '$INCLUDE files nested too deeply'),
+            ('ATTRIBUTE T0 103 tlv\n' + ''.join(
+                'BEGIN-TLV T%d\nATTRIBUTE T%d 1 tlv\n' % (i, i + 1) for i in range(12)),
+             'TLV T9 nested too deeply'),
+        )
+        for text, expected in cases:
+            self.write_dict(conf_path, {'dictionary': text})
+            stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+            assert 'radius: ' in stderr
+            assert expected in stderr, expected
+            assert any(l.startswith('F\tUser-Name\tradius.User_Name') for l in stdout)
+        # incomplete lines and a file that ends in the middle of a definition
+        self.write_dict(conf_path, {'dictionary': 'VENDOR NoId\nATTRIBUTE NoId-Attr\n'
+                'ATTRIBUTE NoType-Attr 241\nVALUE NoNum-Attr Foo\n$INCLUDE part2\n',
+                'part2': 'ATTRIBUTE Eof-Attr 242 string'})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        assert stderr == ''
+
+    def test_radius_dict_tlv_depth(self, cmd_tshark, test_env, conf_path):
+        '''TLVs nest at most 8 levels; a chain built by repeating a TLV name
+        overflowed the stack before the limit.'''
+        def tlvs(n):
+            return 'ATTRIBUTE T0 103 tlv\n' + ''.join(
+                'BEGIN-TLV T%d\nATTRIBUTE T%d 1 tlv\n' % (i, i + 1) for i in range(n)) + ''.join(
+                'END-TLV T%d\n' % i for i in range(n, 0, -1))
+        self.write_dict(conf_path, {'dictionary': tlvs(8)})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        assert stderr == ''
+        assert any('radius.T8\t' in l for l in stdout)
+        self.write_dict(conf_path, {'dictionary': tlvs(9)})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        assert "TLV 'T9' nested too deeply (more than 8 levels)" in stderr
+        assert not any('radius.T9\t' in l for l in stdout)
+        chain = ('ATTRIBUTE Chain 103 tlv\nBEGIN-TLV Chain\nATTRIBUTE Xy 1 tlv\nEND-TLV Chain\n' +
+                 'BEGIN-TLV Xy\nATTRIBUTE Xy 1 tlv\nEND-TLV Xy\n' * 30000)
+        self.write_dict(conf_path, {'dictionary': chain})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        assert "nested too deeply (more than 8 levels)" in stderr
+
+    def test_radius_dict_names(self, cmd_tshark, test_env, conf_path):
+        '''A dot in an attribute name, accepted by the dictionary parser,
+        became an invalid filter name and aborted at startup; it is now
+        an underscore. One letter names are not skipped.'''
+        self.write_dict(conf_path, {'dictionary':
+                'ATTRIBUTE Bad..Name 243 integer\nATTRIBUTE .Lead 244 integer\n'
+                'ATTRIBUTE Trail. 245 integer\nATTRIBUTE a.b/c-d 246 integer\n'
+                'ATTRIBUTE x 247 integer\nVENDOR y 55999\n'})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        assert stderr == ''
+        abbrevs = {l.split('\t')[2] for l in stdout if l.startswith('F\t')}
+        for name in ('radius.Bad__Name', 'radius._Lead', 'radius.Trail_', 'radius.a_b_c_d', 'radius.x'):
+            assert name in abbrevs, name
+
+    def test_radius_dict_absolute_include(self, cmd_tshark, test_env, conf_path):
+        '''An $INCLUDE with an absolute path; later relative includes use
+        the directory of the including file again.'''
+        self.write_dict(conf_path, {'inc/dictionary.abs': 'ATTRIBUTE Abs-Attr 240 integer\n',
+                'dictionary': 'ATTRIBUTE Before-Attr 241 integer\n$INCLUDE %s\n'
+                'ATTRIBUTE After-Attr 242 integer\n$INCLUDE rel\n' %
+                os.path.join(conf_path, 'radius', 'inc', 'dictionary.abs'),
+                'rel': 'ATTRIBUTE Rel-Attr 243 integer\n'})
+        stdout, stderr = self.run(cmd_tshark, test_env, '-G', 'fields')
+        assert stderr == ''
+        abbrevs = {l.split('\t')[2] for l in stdout if l.startswith('F\t')}
+        for name in ('radius.Before_Attr', 'radius.Abs_Attr', 'radius.After_Attr', 'radius.Rel_Attr'):
+            assert name in abbrevs, name
