@@ -171109,3 +171109,56 @@ class TestDissectFileMp4:
                 '-Tfields', '-eframe.number', '-e_ws.expert.message')
         assert lines == ['12\ttoo many recursion levels',
                          '14\tbox size too large, dissection of this box is not supported']
+
+
+class TestDissectOgg:
+    '''Ogg (file-ogg.c): ogg_coverage.ogg.gz is read as a file (MIME file
+    reader, "wtap_file" heuristic); ogg_coverage.pcap.gz carries Ogg data in
+    HTTP responses (every registered media type, the "http" heuristic, data
+    with garbage before and between pages). The "ogg_payload" heuristic list
+    has no dissector in this tree, so segments are shown as data.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_ogg_file(self, cmd_tshark, capture_file, test_env):
+        '''Eight pages of two logical streams (BOS, EOS, continued, an
+        empty page, empty and 255 octet segments): one frame, no malformed
+        packet or expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'ogg_coverage.ogg.gz', *passes, '-Tfields',
+                    '-e_ws.col.protocol', '-e_ws.malformed', '-e_ws.expert.message')
+            assert lines == ['Ogg\t\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'ogg_coverage.ogg.gz', '-Tfields', '-eogg.serial_no',
+                '-eogg.seq_no', '-eogg.segment_table.len',
+                '-eogg.type_flags.bos', '-eogg.type_flags.eos',
+                '-eogg.type_flags.cont')
+        assert lines == [
+            '0x00000001,0x00000002,0x00000001,0x00000002,0x00000002,'
+            '0x00000001,0x00000001,0x00000002\t0,0,1,1,2,2,3,3\t'
+            '1,2,3,1,1,0,1,1\t'
+            'True,True,False,False,False,False,False,False\t'
+            'False,False,False,False,False,False,True,True\t'
+            'False,False,False,False,True,False,False,True']
+
+    def test_ogg_http(self, cmd_tshark, capture_file, test_env):
+        '''Nine responses are Ogg (six media types, no media type, one with
+        garbage between pages, one with garbage before the first page);
+        the last carries no Ogg data. One and two passes agree.'''
+        res = []
+        for passes in ((), ('-2',)):
+            res.append(self._tshark(cmd_tshark, capture_file, test_env,
+                    'ogg_coverage.pcap.gz', *passes, '-Tfields',
+                    '-eframe.number', '-e_ws.col.protocol', '-e_ws.malformed',
+                    '-eogg.serial_no'))
+        assert res[0] == res[1]
+        pages = ('0x00000001,0x00000002,0x00000001,0x00000002,0x00000002,'
+                 '0x00000001,0x00000001,0x00000002')
+        assert res[0] == (['%d\tOgg\t\t%s' % (n, pages) for n in range(1, 8)]
+                          + ['8\tOgg\t\t0x00000001,0x00000001',
+                             '9\tOgg\t\t0x00000001', '10\tHTTP\t\t'])
