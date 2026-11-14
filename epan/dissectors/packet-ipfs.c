@@ -171,7 +171,8 @@ static dissector_handle_t ipfs_ws_handle;
 static bool pref_candidates = false;
 
 static unsigned pref_peer_port = 4001;
-static unsigned pref_api_port = 5001;
+/* Off by default: 5001 is also Paltalk's and other protocols' port. */
+static unsigned pref_api_port;
 
 static int http_uri_id = -1;
 static int http_status_id = -1;
@@ -1022,7 +1023,7 @@ proto_register_ipfs(void)
         ipfs_prefs,
         "api_port",
         "HTTP RPC TCP port",
-        "Additional port handed to Wireshark HTTP; 0 disables",
+        "Additional port handed to Wireshark HTTP for the RPC API (Kubo uses 5001); 0 disables",
         10,
         &pref_api_port);
 

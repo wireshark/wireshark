@@ -22,6 +22,7 @@ def test_ipfs_rpc_capture(cmd_tshark, test_env, capture_name, command, argument)
     result = subprocess.run(
         (
             cmd_tshark,
+            "-o", "ipfs.api_port:5001",
             "-r", str(capture),
             "-Y", "ipfs.rpc.command",
             "-T", "fields",
