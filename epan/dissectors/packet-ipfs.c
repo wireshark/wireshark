@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/charsets.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
@@ -253,7 +254,15 @@ dissect_ipfs_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool tc
     saved = (ipfs_snapshot *)p_get_proto_data(
         wmem_file_scope(), pinfo, proto_ipfs, key);
 
-    if (!saved) {
+    if (saved) {
+        local = *saved;
+    } else if (PINFO_FD_VISITED(pinfo)) {
+        /* No snapshot from the first pass (the layer number changed):
+         * start from the beginning rather than the final state. */
+        local.phase = IPFS_MULTISTREAM;
+        local.offered[0] = false;
+        local.offered[1] = false;
+    } else {
         saved = wmem_new(wmem_file_scope(), ipfs_snapshot);
 
         saved->phase = s->phase;
@@ -261,9 +270,8 @@ dissect_ipfs_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool tc
         saved->offered[1] = s->offered[1];
 
         p_add_proto_data(wmem_file_scope(), pinfo, proto_ipfs, key, saved);
+        local = *saved;
     }
-
-    local = *saved;
 
     offset = 0;
     captured = tvb_captured_length(tvb);
@@ -474,10 +482,16 @@ dissect_ipfs_heur_tcp(
         return false;
     }
 
-    conversation_set_dissector(
-        find_or_create_conversation(pinfo), ipfs_tcp_handle);
+    /* From this frame on; earlier frames of the conversation stay as they
+     * were on the first pass. */
+    if (!PINFO_FD_VISITED(pinfo)) {
+        conversation_set_dissector_from_frame_number(
+            find_or_create_conversation(pinfo), pinfo->num, ipfs_tcp_handle);
+    }
 
-    call_dissector(ipfs_tcp_handle, tvb, pinfo, tree);
+    /* Call directly: call_dissector() would lower pinfo->can_desegment
+     * once more and the stream could not ask for more data. */
+    dissect_ipfs_stream(tvb, pinfo, tree, true);
 
     return true;
 }
@@ -493,7 +507,9 @@ dissect_ipfs_heur_ws(
 
     s = ipfs_get_conversation(pinfo, false);
 
-    if (!ipfs_is_hello(tvb) && (!s || pinfo->num < s->first_frame)) {
+    /* In the frame that created the conversation only the hello is taken,
+     * on every pass, so that later passes claim the same messages. */
+    if (!ipfs_is_hello(tvb) && (!s || pinfo->num <= s->first_frame)) {
         return false;
     }
 
@@ -538,7 +554,8 @@ ipfs_decode_query(wmem_allocator_t *pool, const char *src, size_t n)
 
     out[j] = 0;
 
-    return out;
+    /* Escapes can produce any byte; labels must be valid UTF-8. */
+    return (char *)get_utf_8_string(pool, (const uint8_t *)out, j);
 }
 
 typedef struct
