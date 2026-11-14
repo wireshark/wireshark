@@ -96,7 +96,7 @@ typedef struct blf_fileheader {
     blf_date_t end_date;
 
     uint32_t restore_point_offset;
-    uint8_t padding[];
+    uint8_t padding[4];
 } blf_fileheader_t;
 
 /* BLF Block Header */
