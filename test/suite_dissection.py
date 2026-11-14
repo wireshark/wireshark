@@ -173190,3 +173190,166 @@ class TestDissectLixerMore:
         for passes in ((), ('-2',)):
             stdout = self.run(cmd_tshark, capture_file, test_env, *passes, '-V')
             assert 'Dissector bug' not in stdout
+
+
+class TestDissectIpfs:
+    '''IPFS / libp2p: WebSocket subprotocol libp2p, HTTP RPC on port 5001 (ipfs.api_port, off by default),
+    Exported PDU (ipfs_tcp, ipfs_ws) and, with the heuristics enabled, TCP
+    port 4001 and WebSocket without a subprotocol, from the synthetic
+    capture ipfs_coverage.pcapng.gz (frames 1-134). The heuristics are
+    disabled by default.'''
+
+    HEUR = ('--enable-heuristic', 'ipfs_tcp', '--enable-heuristic', 'ipfs_ws')
+    # Fields that must be the same in every pass
+    FIELDS = ('-Tfields', '-eframe.number', '-eipfs.multistream.token',
+              '-eipfs.noise.length', '-eipfs.noise.negotiation_complete',
+              '-eipfs.rpc.command', '-eipfs.rpc.argument', '-eipfs.rpc.status',
+              '-e_ws.expert.message')
+
+    @staticmethod
+    def rows(cmd_tshark, capture, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-o', 'ipfs.api_port:5001', *args, '-r', capture),
+                encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ipfs_default_protocols(self, cmd_tshark, capture_file, test_env):
+        '''By default the libp2p WebSocket subprotocol, the HTTP RPC and
+        Exported PDU decode; TCP port 4001 and the plain WebSocket do not.
+        No malformed packet or expert info above note, in one and two
+        passes.'''
+        cap = capture_file('ipfs_coverage.pcapng.gz')
+        for args in ((), ('-2',), self.HEUR, ('-2', *self.HEUR)):
+            stdout = subprocess.check_output((cmd_tshark, '-o', 'ipfs.api_port:5001', *args, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=300)
+            assert count_output(stdout) == 0
+        stream = self.rows(cmd_tshark, cap, test_env,
+                           '-Y', 'ipfs.multistream.token || ipfs.noise.length',
+                           '-Tfields', '-eframe.number')
+        frames = [int(r[0]) for r in stream]
+        assert frames == [6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 26, 27, 28,
+                          73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84]
+        stream = self.rows(cmd_tshark, cap, test_env, *self.HEUR,
+                           '-Y', 'ipfs.multistream.token || ipfs.noise.length',
+                           '-Tfields', '-eframe.number')
+        assert [int(r[0]) for r in stream] == [
+            6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 26, 27, 28, 73, 74, 75, 76,
+            77, 78, 79, 80, 81, 82, 83, 84, 88, 89, 90, 92, 93, 94, 95, 99,
+            100, 102, 104, 108, 110, 111, 113, 124, 125, 126, 127]
+
+    def test_ipfs_websocket_libp2p(self, cmd_tshark, capture_file, test_env):
+        '''Negotiation: both sides offer /noise (Noise phase from frame 8),
+        "na" and another protocol withdraw it, one visible direction
+        infers the transition from a complete record.'''
+        cap = capture_file('ipfs_coverage.pcapng.gz')
+        rows = {r[0]: r for r in self.rows(cmd_tshark, cap, test_env,
+                '-Y', 'ipfs.multistream.token || ipfs.noise.length', *self.FIELDS)}
+        assert rows['6'][1] == '/multistream/1.0.0,/noise'
+        assert rows['8'][1:4] == ['', '32', 'True']
+        assert rows['9'][2:4] == ['16,5', 'True,True']
+        assert rows['17'][1] == '/multistream/1.0.0,na,ls'
+        assert rows['18'][1] == '/yamux/1.0.0'
+        assert rows['20'][1] == '/noise'
+        # Only one direction: the transition is inferred, not confirmed
+        assert rows['27'][1:4] == ['', '20', 'False']
+        assert rows['28'][1:4] == ['', '8', 'False']
+
+    def test_ipfs_http_rpc(self, cmd_tshark, capture_file, test_env):
+        '''The /api/v0/ commands and URL decoded arguments, the response
+        status, pipelined requests and plain HTTP that is not IPFS.'''
+        cap = capture_file('ipfs_coverage.pcapng.gz')
+        rows = {r[0]: r for r in self.rows(cmd_tshark, cap, test_env,
+                '-Y', 'ipfs.rpc.command', *self.FIELDS)}
+        assert sorted(rows, key=int) == [
+            '32', '33', '37', '38', '42', '43', '47', '48', '52', '53',
+            '57', '58', '62', '67']
+        assert rows['32'][4:7] == ['cat', 'QmZLws5v55MQJmyTo2deZfp3Z1KuKa9MwyCaymTxqXXmkh', '']
+        assert rows['33'][4:7] == ['cat', 'QmZLws5v55MQJmyTo2deZfp3Z1KuKa9MwyCaymTxqXXmkh', '200']
+        assert rows['37'][4:6] == ['add', 'a b,c d,AJ']
+        assert rows['42'][4:6] == ['id', '']
+        # Broken escapes stay as they are; %00 is not decoded
+        assert rows['47'][4:6] == ['swarm/peers', '%zz,%4']
+        assert rows['52'][4:6] == ['files/ls', '%00x,y']
+        assert rows['58'][4:7] == ['nothere', '', '500']
+        assert rows['62'][4:6] == ['version,pin/ls,repo/gc', 'Qm1']
+        stdout = subprocess.check_output((cmd_tshark, '-o', 'ipfs.api_port:5001', '-r', cap,
+                '-Y', 'frame.number in {71, 72} && ipfs',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_ipfs_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''ipfs_tcp and ipfs_ws PDUs, with and without address tags.'''
+        cap = capture_file('ipfs_coverage.pcapng.gz')
+        rows = self.rows(cmd_tshark, cap, test_env,
+                '-Y', 'exported_pdu', '-Tfields', '-eframe.number',
+                '-eipfs.transport', '-eipfs.noise.length', '-eipfs.multistream.token')
+        assert [r[0] for r in rows] == [str(n) for n in range(73, 85)]
+        assert [set(r[1].split(',')) for r in rows] == [{'TCP'}] * 8 + [{'WebSocket'}] * 4
+        assert rows[2][2] == '24' and rows[3][2] == '16,3'
+        assert rows[0][3] == '/multistream/1.0.0,/noise'
+
+    def test_ipfs_tcp_heuristic_split_token(self, cmd_tshark, capture_file, test_env):
+        '''With the ipfs_tcp heuristic a token and Noise records split
+        across TCP segments are reassembled on the first pass and decode
+        the same with -2. The heuristic used to call the stream dissector
+        with desegmentation lowered, so frame 89 showed an incomplete
+        token and the later Noise records stayed "TCP segment data".'''
+        cap = capture_file('ipfs_coverage.pcapng.gz')
+        one = self.rows(cmd_tshark, cap, test_env, *self.HEUR,
+                '-Y', 'ipfs && frame.number in {88..113}', *self.FIELDS)
+        two = self.rows(cmd_tshark, cap, test_env, '-2', *self.HEUR,
+                '-Y', 'ipfs && frame.number in {88..113}', *self.FIELDS)
+        assert one == two
+        rows = {r[0]: r for r in one}
+        assert rows['88'][1] == '/multistream/1.0.0'
+        assert rows['89'][1] == '/noise'
+        assert '91' not in rows
+        assert rows['92'][2:4] == ['64', 'True']
+        assert rows['93'][2] == '64' and rows['95'][2] == '64'
+        # Inferred transition (frames 99-104), one direction only
+        assert rows['102'][2:4] == ['64', 'False']
+        assert rows['104'][2:4] == ['64', 'False']
+        # The hello, the token and the record header split over segments
+        assert rows['113'][2:4] == ['32', 'True']
+        for r in one:
+            assert not r[7]
+
+    def test_ipfs_websocket_heuristic_second_message(self, cmd_tshark, capture_file, test_env):
+        '''With the ipfs_ws heuristic only the hello is taken from the
+        frame that creates the conversation, in every pass. Frame 124 has
+        a message that is not libp2p followed by the hello; it used to be
+        decoded as a Noise record in the second pass.'''
+        cap = capture_file('ipfs_coverage.pcapng.gz')
+        one = self.rows(cmd_tshark, cap, test_env, *self.HEUR,
+                '-Y', 'ipfs && frame.number in {124..127}', *self.FIELDS)
+        two = self.rows(cmd_tshark, cap, test_env, '-2', *self.HEUR,
+                '-Y', 'ipfs && frame.number in {124..127}', *self.FIELDS)
+        assert one == two
+        assert [r[:4] for r in one] == [
+            ['124', '/multistream/1.0.0', '', ''],
+            ['125', '/multistream/1.0.0,/noise', '', ''],
+            ['126', '/noise', '32', 'True'],
+            ['127', '', '16', 'True'],
+        ]
+        assert all(not r[7] for r in one)
+        # Without the heuristic the plain WebSocket frames are not IPFS
+        stdout = subprocess.check_output((cmd_tshark, '-o', 'ipfs.api_port:5001', '-r', cap,
+                '-Y', 'frame.number in {124..127} && ipfs',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_ipfs_show_candidates(self, cmd_tshark, capture_file, test_env):
+        '''Unconfirmed traffic on the peer port is annotated only when the
+        preference is set, and only with payload.'''
+        cap = capture_file('ipfs_coverage.pcapng.gz')
+        rows = self.rows(cmd_tshark, cap, test_env,
+                '-Y', 'ipfs.candidate', '-Tfields', '-eframe.number')
+        assert rows == []
+        rows = self.rows(cmd_tshark, cap, test_env,
+                '-o', 'ipfs.show_candidates:TRUE',
+                '-Y', 'ipfs.candidate', '-Tfields', '-eframe.number')
+        assert (['117'] in rows) and (['118'] in rows)
+        assert ['87'] not in rows
