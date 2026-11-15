@@ -5148,6 +5148,19 @@ class TestDissectTns:
             ['OCI, wide (8-byte slots)', '8', '1', '', ''],
         ], rows
 
+    def test_tns_resend_flags(self, cmd_tshark, capture_file, test_env):
+        '''A listener's RESEND sets flag 0x08 in the header when the
+        server it hands a TLS connection to runs its own handshake.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_resend.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.packet_flags',
+            '-e', 'tns.packet_flags.tls_renegotiation',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['0x00', 'False'], ['0x08', 'True']], rows
+
     def test_tns_aq_11g(self, cmd_tshark, capture_file, test_env):
         '''Before 12.1 the strings of an Advanced Queuing call's data
         section have no length byte in front.'''

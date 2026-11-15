@@ -45,6 +45,9 @@ void proto_register_tns(void);
 #define TNS_TYPE_DD             15
 #define TNS_TYPE_MAX            19
 
+/* the flags byte of the packet header */
+#define TNS_PACKET_FLAG_TLS_RENEG 0x08
+
 /*
  * Oracle datatype codes as they appear on the wire and in tns_data_types[].
  * python-oracledb lists most of these as its ORA_TYPE_NUM_* constants.
@@ -210,7 +213,8 @@ static int hf_tns_length;
 static int hf_tns_packet_checksum;
 static int hf_tns_header_checksum;
 static int hf_tns_packet_type;
-static int hf_tns_reserved_byte;
+static int hf_tns_packet_flags;
+static int hf_tns_packet_flags_tls_reneg;
 static int hf_tns_version;
 static int hf_tns_compat_version;
 
@@ -592,6 +596,7 @@ static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
 
 static int ett_tns;
+static int ett_tns_packet_flags;
 static int ett_tns_connect;
 static int ett_tns_accept;
 static int ett_tns_refuse;
@@ -8457,8 +8462,15 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s (%u)",
 			val_to_str_const(type, tns_type_vals, "Unknown"), type);
 
-	proto_tree_add_item(tns_tree, hf_tns_reserved_byte, tvb,
-			offset, 1, ENC_NA);
+	/* A listener handing a TLS connection to a dedicated server sets
+	 * 0x08 in its RESEND: the server runs a TLS handshake of its own on
+	 * the connection, and the client sends the CONNECT again over it. */
+	static int * const packet_flags[] = {
+		&hf_tns_packet_flags_tls_reneg,
+		NULL
+	};
+	proto_tree_add_bitmask(tns_tree, tvb, offset, hf_tns_packet_flags,
+			ett_tns_packet_flags, packet_flags, ENC_NA);
 	offset += 1;
 
 	proto_tree_add_checksum(tns_tree, tvb, offset, hf_tns_header_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
@@ -9615,9 +9627,12 @@ void proto_register_tns(void)
 			"Row Size", "tns.data_descriptor.row_size", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 
-		{ &hf_tns_reserved_byte, {
-			"Reserved Byte", "tns.reserved_byte", FT_BYTES, BASE_NONE,
+		{ &hf_tns_packet_flags, {
+			"Packet Flags", "tns.packet_flags", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_packet_flags_tls_reneg, {
+			"TLS Renegotiation", "tns.packet_flags.tls_renegotiation", FT_BOOLEAN, 8,
+			NULL, TNS_PACKET_FLAG_TLS_RENEG, "The server runs a TLS handshake of its own before the client sends the CONNECT again", HFILL }},
 		{ &hf_tns_packet_type, {
 			"Packet Type", "tns.type", FT_UINT8, BASE_DEC,
 			VALS(tns_type_vals), 0x0, "Type of TNS packet", HFILL }}
@@ -9626,6 +9641,7 @@ void proto_register_tns(void)
 
 	static int *ett[] = {
 		&ett_tns,
+		&ett_tns_packet_flags,
 		&ett_tns_connect,
 		&ett_tns_accept,
 		&ett_tns_refuse,
