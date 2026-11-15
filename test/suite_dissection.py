@@ -4562,6 +4562,26 @@ class TestDissectTns:
         assert rows[3][6] == '1', rows[3]
         assert all(r[7] == '' for r in rows), rows
 
+    def test_tns_tpc_10g(self, cmd_tshark, capture_file, test_env):
+        '''A 10g transaction switch has no internal or external name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_tpc_10g.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_tpc.format_id',
+            '-T', 'fields',
+            '-e', 'tns.data_tpc.switch_op',
+            '-e', 'tns.data_tpc.change_op',
+            '-e', 'tns.data_tpc.gtrid',
+            '-e', 'tns.data_tpc.bqual',
+            '-e', 'tns.data_tpc.app_value',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['0x00000001', '', '67747269642d31', '627175616c2d31', '0', ''],
+            ['', '0x00000003', '67747269642d31', '627175616c2d31', '', ''],
+        ], rows
+
     def test_tns_session_release(self, cmd_tshark, capture_file, test_env):
         '''A DRCP session release carries a tag and a release mode.'''
         stdout = subprocess.check_output((cmd_tshark,

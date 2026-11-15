@@ -4474,12 +4474,17 @@ static int dissect_tns_tpc_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		offset += get_sb4_custom(tvb, offset, &v);
 		proto_tree_add_uint(tree, hf_tns_data_tpc_timeout, tvb, start, offset - start, v);
 		offset += 3; /* application value, return context and its length pointers */
-		int_ptr = tvb_get_uint8(tvb, offset);
-		offset += 1;
-		offset += get_sb4_custom(tvb, offset, &int_len);
-		ext_ptr = tvb_get_uint8(tvb, offset);
-		offset += 1;
-		offset += get_sb4_custom(tvb, offset, &ext_len);
+		/* the names came with 11g: a 10g switch has neither them nor
+		 * their pointers and lengths */
+		if ( tns_field_version(pinfo) == 0 || tns_field_version(pinfo) >= TNS_FV_11_2 )
+		{
+			int_ptr = tvb_get_uint8(tvb, offset);
+			offset += 1;
+			offset += get_sb4_custom(tvb, offset, &int_len);
+			ext_ptr = tvb_get_uint8(tvb, offset);
+			offset += 1;
+			offset += get_sb4_custom(tvb, offset, &ext_len);
+		}
 	}
 	else
 	{
