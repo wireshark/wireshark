@@ -352,6 +352,8 @@ private:
         QColor marker_end_bg;       /**< Offset end marker background. */
         int hover_start = -1;       /**< First byte of the hovered text cell, or -1. */
         int hover_length = 0;       /**< Number of bytes in the hovered text cell. */
+        QColor field_hover_bg;      /**< Background of the hovered field. */
+        QColor field_hover_fg;      /**< Text color of the hovered field. */
         QColor invalid_fg;          /**< Text color of bytes that are invalid in the encoding. */
     };
 

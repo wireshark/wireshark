@@ -504,6 +504,12 @@ void HexDataSourceView::paintEvent(QPaintEvent *)
         }
     }
     ctx.invalid_fg = ThemeManager::instance()->color(ThemeManager::AccentError);
+    // The same hover colors as the Packet Details (see
+    // ColorUtils::itemHoverStyleSheet()).
+    const ColorMath::TextOnFill field_hover = ColorMath::selectionHover(
+            palette().base().color(), palette().highlight().color(), palette().text().color());
+    ctx.field_hover_bg = field_hover.fill;
+    ctx.field_hover_fg = field_hover.text;
 
     // Data rows
     int widget_height = height();
@@ -927,7 +933,8 @@ HexDataSourceView::ByteStyle HexDataSourceView::byteStyle(int offset, const RowP
         style.fg = palette().highlightedText().color();
     }
     if (covers(field_hover_start_, field_hover_len_)) {
-        style.fg = palette().text().color();
+        style.bg = ctx.field_hover_bg;
+        style.fg = ctx.field_hover_fg;
     }
     if (ctx.has_selection && covers(ctx.sel_start, ctx.sel_length)) {
         style.bg = ctx.sel_overlay;
