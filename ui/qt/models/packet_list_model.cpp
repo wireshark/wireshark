@@ -541,19 +541,19 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
     case Qt::TextAlignmentRole:
         switch(recent_get_column_xalign(column)) {
         case COLUMN_XALIGN_RIGHT:
-            return Qt::AlignRight;
+            return QVariant::fromValue(Qt::AlignRight | Qt::AlignVCenter);
         case COLUMN_XALIGN_CENTER:
-            return Qt::AlignCenter;
+            return QVariant::fromValue(Qt::AlignCenter);
         case COLUMN_XALIGN_LEFT:
-            return Qt::AlignLeft;
+            return QVariant::fromValue(Qt::AlignLeft | Qt::AlignVCenter);
         case COLUMN_XALIGN_DEFAULT:
         default:
             if (right_justify_column(column, cap_file_)) {
-                return Qt::AlignRight;
+                return QVariant::fromValue(Qt::AlignRight | Qt::AlignVCenter);
             }
             break;
         }
-        return Qt::AlignLeft;
+        return QVariant::fromValue(Qt::AlignLeft | Qt::AlignVCenter);
 
     case Qt::BackgroundRole:
         if (fdata->ignored) {
