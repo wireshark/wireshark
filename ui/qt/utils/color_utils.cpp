@@ -11,6 +11,7 @@
 #include <ui/qt/utils/tango_colors.h>
 
 #include <QApplication>
+#include <QPainter>
 #include <QPalette>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
@@ -218,6 +219,15 @@ const QColor ColorUtils::hoverBackground()
 #else
     return ColorUtils::alphaBlend(hover_palette.window(), hover_palette.highlight(), 0.5);
 #endif
+}
+
+void ColorUtils::paintRowBackground(QPainter *painter, const QStyleOptionViewItem &option,
+                                    const QModelIndex &index)
+{
+    const QVariant bg = index.data(Qt::BackgroundRole);
+    if (bg.canConvert<QBrush>()) {
+        painter->fillRect(option.rect, qvariant_cast<QBrush>(bg));
+    }
 }
 
 const QColor ColorUtils::warningBackground()
