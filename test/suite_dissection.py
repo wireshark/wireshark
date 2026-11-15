@@ -5128,6 +5128,33 @@ class TestDissectTns:
             ['OCI, wide (8-byte slots)', '8', '1', '', ''],
         ], rows
 
+    def test_tns_oci_10g(self, cmd_tshark, capture_file, test_env):
+        '''An OCI 11.2 client's session with a 10g server runs at the
+        server's field version, 10.2, though the client's data-type
+        request says 11.2: the execute is 10.2's narrow form, and a REF
+        CURSOR comes back without the fields 11g adds to its describe.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_10g.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'frame.number >= 5',
+            '-T', 'fields',
+            '-e', 'tns.data.field_version',
+            '-e', 'tns.data_all8.oci_preamble',
+            '-e', 'tns.data_all8.oci_stmt_type',
+            '-e', 'tns.data_dcb.num_columns',
+            '-e', 'tns.data_col.name',
+            '-e', 'tns.data_oer.err_code',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['4', 'OCI, narrow (4-byte slots), 10.2', '1', '', '', '', ''],
+            ['4', 'OCI, narrow (4-byte slots), 10.2', '8', '', '', '', ''],
+            ['4', '', '', '1', '7', '0', ''],
+            ['4', 'OCI, narrow (4-byte slots), 10.2', '8', '', '', '', ''],
+            ['4', '', '', '0', '', '0', ''],
+        ], rows
+
     def test_tns_oci_binds(self, cmd_tshark, capture_file, test_env):
         '''An OCI client's execute carries a fixed-width descriptor per
         bind, 49 bytes from 12c and 41 before, and the row of values. A

@@ -872,6 +872,7 @@ static const value_string tns_command_types[] = {
 };
 
 static const value_string tns_field_versions[] = {
+	{TNS_FV_10_2,       "10.2"},
 	{TNS_FV_11_2,       "11.2"},
 	{TNS_FV_12_1,       "12.1"},
 	{TNS_FV_12_2,       "12.2"},
@@ -5716,15 +5717,19 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			}
 			/* The header opens with the length of the client's compile
 			 * capabilities, and capability 7 is the TTC field version.
-			 * The client has already lowered it to the server's, so it
-			 * is the one the connection uses. */
+			 * A thin client has already lowered it to the server's, but
+			 * an OCI 11.2 client sends its own, 11.2, to a 10g server as
+			 * well, and the connection then runs at the lower of the
+			 * two. */
 			if ( caps_len > TNS_CCAP_FIELD_VERSION )
 			{
+				tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
 				uint8_t fv = tvb_get_uint8(tvb, offset + 1 + TNS_CCAP_FIELD_VERSION);
 				proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_field_version, tvb,
 					offset + 1 + TNS_CCAP_FIELD_VERSION, 1, ENC_NA);
 				if ( !PINFO_FD_VISITED(pinfo) )
-					tns_get_conv_info(pinfo)->field_version = fv;
+					tns_info->field_version = tns_info->server_field_version != 0
+						? MIN(fv, tns_info->server_field_version) : fv;
 			}
 			offset += 1 + caps_len;
 
@@ -5733,15 +5738,17 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			proto_tree_add_item(data_tree, hf_tns_data_setdt_tblhdr, tvb, offset, 1 + caps_len, ENC_NA);
 			offset += 1 + caps_len;
 
-			if ( dty_flag == TNS_DTY_ENCODING_OCI )
+			if ( dty_flag & TNS_DTY_ENCODING_OCI )
 			{
 				/* An OCI client - sqlplus, thick python-oracledb - sends
 				 * no type table: the server keeps its own representations,
 				 * the fixed-width integers of the OCI dialect, which this
-				 * flag is the first sign of. In the table's place come the
-				 * session's time zone block, from 11.2 on a ub4 BE
-				 * timezone file version, and the national charset as a
-				 * little-endian ub2. */
+				 * flag is the first sign of. sqlplus sends it as 2, and an
+				 * OCI 11.2 program as 0x83, whose other bits are not
+				 * understood. In the table's place come the session's
+				 * time zone block, from 11.2 on a ub4 BE timezone file
+				 * version, and the national charset as a little-endian
+				 * ub2. */
 				if ( !PINFO_FD_VISITED(pinfo) )
 					tns_get_conv_info(pinfo)->oci_dialect = true;
 				offset = dissect_tns_dty_tz(tvb, pinfo, data_tree, offset);
