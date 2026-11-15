@@ -132,6 +132,15 @@ void ColorUtils::paintFlatCell(QPainter *painter, const QAbstractItemView *view,
     style->drawControl(QStyle::CE_ItemViewItem, &cell_option, painter, view);
 }
 
+void ColorUtils::paintRowBackground(QPainter *painter, const QStyleOptionViewItem &option,
+                                    const QModelIndex &index)
+{
+    const QVariant bg = index.data(Qt::BackgroundRole);
+    if (bg.canConvert<QBrush>()) {
+        painter->fillRect(option.rect, qvariant_cast<QBrush>(bg));
+    }
+}
+
 const QColor ColorUtils::warningBackground()
 {
     return ThemeManager::instance()->color(ThemeManager::FilterDeprecated);

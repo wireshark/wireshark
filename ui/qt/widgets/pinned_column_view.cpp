@@ -194,6 +194,7 @@ void PinnedColumnView::wheelEvent(QWheelEvent *event)
 
 void PinnedColumnView::drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    ColorUtils::paintRowBackground(painter, option, index);
     QTreeView::drawRow(painter, option, index);
 
     PacketList *packet_list = qobject_cast<PacketList *>(parentWidget());

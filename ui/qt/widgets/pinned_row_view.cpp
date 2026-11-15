@@ -248,6 +248,7 @@ void PinnedRowView::drawRow(QPainter *painter, const QStyleOptionViewItem &optio
         fdata = record->frameData();
     }
 
+    ColorUtils::paintRowBackground(painter, option, index);
     QTreeView::drawRow(painter, option, index);
 
     // The hover highlight is driven by hovered_frame_num_ rather than Qt's
