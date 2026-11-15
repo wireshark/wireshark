@@ -176214,3 +176214,36 @@ class TestDissectUsbdump:
         assert proc.returncode != 0
         assert proc.stdout.splitlines() == ['1', '2', '3']
         assert 'cut short' in proc.stderr
+
+
+class TestDissectDhcpOpt140:
+    def test_mos_fqdn(self, cmd_tshark, capture_file, test_env):
+        '''DHCPv4 option 140 (IPv4 FQDN-MoS) sub-option codes and FQDNs are decoded correctly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv4_opt140.pcap'),
+                '-Tfields',
+                '-e', 'dhcp.option.mos_fqdn.subopt_code',
+                '-e', 'dhcp.option.mos_fqdn',
+            ), encoding='utf-8', env=test_env)
+        assert '1' in stdout            # IS sub-option code
+        assert '3' in stdout            # ES sub-option code
+        assert 'is.example.com' in stdout
+        assert 'es.example.com' in stdout
+
+    def test_mos_fqdn_empty(self, cmd_tshark, capture_file, test_env):
+        '''DHCPv4 option 140 with zero-length data produces an expert item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv4_opt140_empty.pcap'),
+                '-Tfields',
+                '-e', '_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'IPv4 FQDN-MoS: option is empty' in stdout
+
+    def test_mos_fqdn_subopt_overflow(self, cmd_tshark, capture_file, test_env):
+        '''DHCPv4 option 140 with a sub-option length that exceeds the option produces an expert item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv4_opt140_overflow.pcap'),
+                '-Tfields',
+                '-e', '_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'IPv4 FQDN-MoS: sub-option length exceeds option' in stdout

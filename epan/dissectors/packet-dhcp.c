@@ -54,6 +54,7 @@
  * RFC 5192: DHCP Options for Protocol for Carrying Authentication for Network Access (PANA) Authentication Agent
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
  * RFC 5417: CAPWAP Access Controller DHCP Option
+ * RFC 5678: Dynamic Host Configuration Protocol (DHCPv4 and DHCPv6) Options for IEEE 802.21 Mobility Services (MoS)
  * RFC 5969: IPv6 Rapid Deployment on IPv4 Infrastructures (6rd)
  * RFC 6225: Dynamic Host Configuration Protocol Options for Coordinate-Based Location Configuration Information
  * RFC 6607: Virtual Subnet Selection Options for DHCPv4 and DHCPv6
@@ -627,6 +628,9 @@ static int hf_dhcp_option_subnet_selection_option;			/* 118 */
 static int hf_dhcp_option_pana_agent;				/* 136 */
 static int hf_dhcp_option_lost_server_domain_name;			/* 137 */
 static int hf_dhcp_option_capwap_access_controller;		/* 138 */
+static int hf_dhcp_option_mos_fqdn_subopt_code;			/* 140 */
+static int hf_dhcp_option_mos_fqdn_subopt_len;				/* 140 */
+static int hf_dhcp_option_mos_fqdn;					/* 140 */
 static int hf_dhcp_option_andsf_server;				/* 142 */
 static int hf_dhcp_option_forcerenew_nonce_algo;			/* 145 */
 static int hf_dhcp_option_rdnss_reserved;				/* 146 */
@@ -750,6 +754,7 @@ static expert_field ei_dhcp_option_sip_server_address_encoding;
 static expert_field ei_dhcp_option_classless_static_route;
 static expert_field ei_dhcp_option125_enterprise_malformed;
 static expert_field ei_dhcp_option109_bad_length;
+static expert_field ei_dhcp_option_mos_fqdn_bad_length;
 static expert_field ei_dhcp_option_6RD_malformed;
 static expert_field ei_dhcp_option82_vi_cl_tag_unknown;
 static expert_field ei_dhcp_option_parse_err;
@@ -989,6 +994,13 @@ static const value_string duidtype_vals[] =
 static const value_string forcerenew_nonce_algo_vals[] = {
 	{ 1, "HMAC-MD5" },
 	{ 0, NULL },
+};
+
+static const value_string mos_fqdn_subopt_vals[] = {
+	{ 1, "IS (Information Service)" },
+	{ 2, "CS (Command Service)" },
+	{ 3, "ES (Event Service)" },
+	{ 0, NULL }
 };
 
 static const value_string rdnss_pref_vals[] = {
@@ -1604,7 +1616,7 @@ static const struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 137 */ { "LoST Server Domain Name",			string, &hf_dhcp_option_lost_server_domain_name },
 /* 138 */ { "CAPWAP Access Controllers",		ipv4_list, &hf_dhcp_option_capwap_access_controller },
 /* 139 */ { "IPv4 Address-MoS",				opaque, NULL },
-/* 140 */ { "IPv4 FQDN-MoS",				opaque, NULL },
+/* 140 */ { "IPv4 FQDN-MoS",				special, NULL },
 /* 141 */ { "SIP UA Configuration Domains",		opaque, NULL },
 /* 142 */ { "IPv4 Address ANDSF",			ipv4_list, &hf_dhcp_option_andsf_server },
 /* 143 */ { "Zerotouch Redirect [TODO: draft-ietf-netconf-zerotouch]",	opaque, NULL },
@@ -3551,6 +3563,42 @@ dissect_dhcpopt_dhcp4o6_s46_saddr(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 	proto_tree_add_item(tree, hf_dhcp_option_dhcp4o6_s46_saddr, tvb, 0, 16, ENC_NA);
 	return 16;
+}
+
+static int
+dissect_dhcpopt_mos_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	unsigned    offset = 0;
+	unsigned    len = tvb_reported_length(tvb);
+	const char *dns_name;
+	int         dns_name_len;
+	char       *name_out;
+
+	if (len == 0) {
+		expert_add_info_format(pinfo, tree, &ei_dhcp_option_mos_fqdn_bad_length,
+			"IPv4 FQDN-MoS: option is empty");
+		return 0;
+	}
+
+	while (offset + 2 <= len) {
+		uint32_t subopt_len;
+		proto_tree_add_item(tree, hf_dhcp_option_mos_fqdn_subopt_code, tvb, offset,     1, ENC_BIG_ENDIAN);
+		proto_item *len_item = proto_tree_add_item_ret_uint(tree, hf_dhcp_option_mos_fqdn_subopt_len,  tvb, offset + 1, 1, ENC_NA, &subopt_len);
+		offset += 2;
+		unsigned end = offset + subopt_len;
+		if (end > len) {
+			expert_add_info_format(pinfo, len_item, &ei_dhcp_option_mos_fqdn_bad_length,
+				"IPv4 FQDN-MoS: sub-option length exceeds option");
+			break;
+		}
+		while (offset < end) {
+			int consumed = get_dns_name(pinfo->pool, tvb, offset, end, 0, &dns_name, &dns_name_len);
+			name_out = format_text(pinfo->pool, dns_name, dns_name_len);
+			proto_tree_add_string(tree, hf_dhcp_option_mos_fqdn, tvb, offset, consumed, name_out);
+			offset += consumed;
+		}
+	}
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -10251,6 +10299,21 @@ proto_register_dhcp(void)
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 138: CAPWAP Access Controllers", HFILL }},
 
+		{ &hf_dhcp_option_mos_fqdn_subopt_code,
+		  { "Sub-option Code", "dhcp.option.mos_fqdn.subopt_code",
+		    FT_UINT8, BASE_DEC, VALS(mos_fqdn_subopt_vals), 0x0,
+		    "Option 140: MoS FQDN sub-option code (RFC 5678)", HFILL }},
+
+		{ &hf_dhcp_option_mos_fqdn_subopt_len,
+		  { "Sub-option Length", "dhcp.option.mos_fqdn.subopt_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Option 140: MoS FQDN sub-option length (RFC 5678)", HFILL }},
+
+		{ &hf_dhcp_option_mos_fqdn,
+		  { "MoS FQDN", "dhcp.option.mos_fqdn",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Option 140: Mobility Services FQDN (RFC 5678)", HFILL }},
+
 		{ &hf_dhcp_option_andsf_server,
 		  { "ANDSF Server", "dhcp.option.andsf_server",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
@@ -10753,6 +10816,7 @@ proto_register_dhcp(void)
 		{ &ei_dhcp_option_classless_static_route, { "dhcp.option.classless_static.route", PI_PROTOCOL, PI_ERROR, "Mask width > 32", EXPFILL }},
 		{ &ei_dhcp_option125_enterprise_malformed, { "dhcp.option.enterprise.malformed", PI_PROTOCOL, PI_ERROR, "no room left in option for enterprise data", EXPFILL }},
 		{ &ei_dhcp_option109_bad_length, { "dhcp.option.dhcp4o6_s46_saddr.bad_length", PI_PROTOCOL, PI_WARN, "OPTION_DHCP4O6_S46_SADDR: length must be 16 bytes", EXPFILL }},
+		{ &ei_dhcp_option_mos_fqdn_bad_length, { "dhcp.option.mos_fqdn.bad_length", PI_PROTOCOL, PI_WARN, "IPv4 FQDN-MoS: malformed option", EXPFILL }},
 		{ &ei_dhcp_option_6RD_malformed, { "dhcp.option.6RD.malformed", PI_PROTOCOL, PI_ERROR, "6RD: malformed option", EXPFILL }},
 		{ &ei_dhcp_option82_vi_cl_tag_unknown, { "dhcp.option.option.vi.cl.tag_unknown", PI_PROTOCOL, PI_ERROR, "Unknown tag", EXPFILL }},
 		{ &ei_dhcp_option_parse_err, { "dhcp.option.parse_err", PI_PROTOCOL, PI_ERROR, "Parse error", EXPFILL }},
@@ -10916,6 +10980,7 @@ proto_reg_handoff_dhcp(void)
 	dissector_add_uint("dhcp.option", 123, create_dissector_handle( dissect_dhcpopt_coordinate_based_location, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 124, create_dissector_handle( dissect_dhcpopt_vi_vendor_class, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 125, create_dissector_handle( dissect_dhcpopt_vi_vendor_specific_info, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 140, create_dissector_handle( dissect_dhcpopt_mos_fqdn, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 145, create_dissector_handle( dissect_dhcpopt_forcerenew_nonce, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 146, create_dissector_handle( dissect_dhcpopt_rdnss, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 151, create_dissector_handle( dissect_dhcpopt_bulk_lease_status_code, proto_dhcp ));
