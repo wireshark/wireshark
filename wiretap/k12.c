@@ -1292,8 +1292,10 @@ static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
     memcpy(obj.record.frame,ws_buffer_start_ptr(&rec->data),rec->rec_header.packet_header.caplen);
     /* Zero the padding up to the rounded up record length */
-    memset(obj.record.frame + rec->rec_header.packet_header.caplen, 0,
-           len - K12_PACKET_FRAME - rec->rec_header.packet_header.caplen);
+    uint32_t pad_len = len - K12_PACKET_FRAME - rec->rec_header.packet_header.caplen;
+    if (pad_len > 0) {
+        memset(obj.record.frame + rec->rec_header.packet_header.caplen, 0, pad_len);
+    }
 
     return k12_dump_record(wdh,len,obj.buffer, err);
 }
