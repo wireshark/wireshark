@@ -39,6 +39,7 @@
 
 static QString base_style_name_;
 
+#ifdef Q_OS_WIN
 // True if the base style is windows11. Item views are painted for every
 // visible cell, so the style name is not compared on each paint.
 static bool windows11_base_ = false;
@@ -72,6 +73,8 @@ static bool takesWindows11Selection(const QStyleOptionViewItem *vopt)
 {
     return windows11_base_ && vopt && (vopt->state & QStyle::State_Selected);
 }
+
+#endif // Q_OS_WIN
 
 #ifdef Q_OS_MACOS
 // The toolbars that make up the unified title and toolbar area of a
@@ -150,13 +153,17 @@ static bool isZoomedPixelMetric(QStyle::PixelMetric metric)
 ThemeStyler::ThemeStyler(QStyle *style) : QProxyStyle(style)
 {
     base_style_name_ = baseStyle()->objectName();
+#ifdef Q_OS_WIN
     windows11_base_ = base_style_name_ == QLatin1String("windows11");
+#endif
 }
 
 ThemeStyler::ThemeStyler(const QString &key) : QProxyStyle(key)
 {
     base_style_name_ = baseStyle()->objectName();
+#ifdef Q_OS_WIN
     windows11_base_ = base_style_name_ == QLatin1String("windows11");
+#endif
 }
 
 QString ThemeStyler::baseStyleName()
@@ -315,6 +322,7 @@ void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *op
         return;
     }
 #endif
+#ifdef Q_OS_WIN
     if (windows11_base_ && option && painter) {
         const QStyleOptionViewItem *vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option);
         switch (element) {
@@ -341,7 +349,11 @@ void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *op
             // only marks it with its accent bar, and the item cells aren't
             // joined to it; leave that to the base style.
             if (takesWindows11Selection(vopt) && vopt->showDecorationSelected
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
                     && vopt->features.testFlag(QStyleOptionViewItem::IsDecorationForRootColumn)) {
+#else
+                    && vopt->features.testFlag(QStyleOptionViewItem::HasDecoration)) {
+#endif
                 drawWindows11DecorationSelection(vopt, painter, widget);
                 return;
             }
@@ -364,6 +376,7 @@ void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *op
             break;
         }
     }
+#endif // Q_OS_WIN
 
     QProxyStyle::drawPrimitive(element, option, painter, widget);
 
@@ -528,6 +541,7 @@ void ThemeStyler::drawControl(ControlElement element, const QStyleOption *option
         }
     }
 #endif
+#ifdef Q_OS_WIN
     // Hand a selected item to the windows11 style as an unselected item
     // whose background is the highlight and whose text is the highlighted
     // text, so it draws its rounded item shape in the palette's selection
@@ -547,10 +561,12 @@ void ThemeStyler::drawControl(ControlElement element, const QStyleOption *option
             return;
         }
     }
+#endif // Q_OS_WIN
 
     QProxyStyle::drawControl(element, option, painter, widget);
 }
 
+#ifdef Q_OS_WIN
 void ThemeStyler::drawWindows11DecorationSelection(const QStyleOptionViewItem *vopt,
     QPainter *painter, const QWidget *widget) const
 {
@@ -588,6 +604,7 @@ void ThemeStyler::drawWindows11DecorationSelection(const QStyleOptionViewItem *v
     }
     painter->restore();
 }
+#endif // Q_OS_WIN
 
 void ThemeStyler::polish(QWidget *widget)
 {

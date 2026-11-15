@@ -171,6 +171,7 @@ private:
     // only, so a plain counter is enough.
     mutable int metric_depth_ = 0;
 
+#ifdef Q_OS_WIN
     // While drawControl() has the windows11 base style draw a selected
     // item with the highlight as its background brush, the item's own
     // background brush, for the PE_PanelItemViewItem fill under it.
@@ -187,6 +188,7 @@ private:
      */
     void drawWindows11DecorationSelection(const QStyleOptionViewItem *vopt,
         QPainter *painter, const QWidget *widget) const;
+#endif
 
 #ifdef Q_OS_MACOS
     /**
