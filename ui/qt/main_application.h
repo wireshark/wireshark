@@ -248,8 +248,9 @@ public:
      * @brief Sets the active configuration profile.
      * @param profile_name The name of the profile.
      * @param write_recent_file True to save the choice to recent files.
+     * @param reload True to load the profile also when it has the current name.
      */
-    void setConfigurationProfile(const char *profile_name, bool write_recent_file = true);
+    void setConfigurationProfile(const char *profile_name, bool write_recent_file = true, bool reload = false);
 
     /**
      * @brief Triggers a delayed reload of Lua plugins.

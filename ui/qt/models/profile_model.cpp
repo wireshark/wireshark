@@ -390,7 +390,7 @@ QVariant ProfileModel::dataFontRole(const QModelIndex &index) const
 
     if (item->isGlobal())
         font.setItalic(true);
-    else if ((current_profile_ != Q_NULLPTR) && (current_profile_->getName().compare(item->getName()) == 0))
+    else if (item == current_profile_)
         font.setBold(true);
 
     if (item->isDeleted())
@@ -431,15 +431,16 @@ bool ProfileModel::isDataValid(QString& err)
             if (item == dup_item)
                 continue;
 
+            // Deleted profiles free their names before any new names are used
+            if (dup_item->isDeleted())
+                continue;
+
             // Ensure matching "scope"
             if (item->isGlobal() == dup_item->isGlobal())
             {
-                // Can't have multiple matching personal profile names or
-                // renaming a profile to an existing profile's name.
+                // Can't have multiple matching personal profile names
                 Qt::CaseSensitivity cs = nameCase(item, dup_item);
-                if ((item->getName().compare(dup_item->getName(), cs) == 0) ||
-                    (item->getStatus() == ProfileItem::StatusType::Changed && item->getReference().compare(dup_item->getName(), cs) == 0) ||
-                    (dup_item->getStatus() == ProfileItem::StatusType::Changed && item->getName().compare(dup_item->getReference(), cs) == 0))
+                if (item->getName().compare(dup_item->getName(), cs) == 0)
                 {
                     err = tr("Duplicate profile name (%1)").arg(item->getName());
                     return false;
@@ -459,15 +460,14 @@ bool ProfileModel::checkDuplicate(const QModelIndex &index, bool isOriginalToDup
 
     foreach (ProfileItem* dupItem, profile_items_)
     {
-        if (dupItem == item)
+        if (dupItem == item || dupItem->isDeleted())
             continue;
 
         // Ensure matching "scope"
         if (item->isGlobal() == dupItem->isGlobal())
         {
             Qt::CaseSensitivity cs = nameCase(item, dupItem);
-            if ((item->getName().compare(dupItem->getName(), cs) == 0) ||
-                (item->getStatus() == ProfileItem::StatusType::Changed && item->getReference().compare(dupItem->getName(), cs) == 0))
+            if (item->getName().compare(dupItem->getName(), cs) == 0)
             {
                 if (isOriginalToDuplicate)
                 {
@@ -478,10 +478,6 @@ bool ProfileModel::checkDuplicate(const QModelIndex &index, bool isOriginalToDup
                 {
                     return true;
                 }
-            }
-            else if (dupItem->getStatus() == ProfileItem::StatusType::Changed && item->getName().compare(dupItem->getReference(), cs) == 0)
-            {
-                return true;
             }
         }
     }
@@ -546,20 +542,9 @@ QVariant ProfileModel::dataPath(const QModelIndex &index, QString& profilePath) 
 
     ProfileItem* item = itemAt(index);
 
+    // Renamed and deleted profiles free their names, so only another profile can have it
     if (checkDuplicate(index))
-    {
-        // See if one is being renamed to an already existing name.
-        foreach (ProfileItem* dup_item, profile_items_)
-        {
-            if (dup_item == item)
-                continue;
-
-            if (dup_item->getReference().compare(item->getName()) == 0)
-                return tr("A profile change for this name is pending (See: %1)").arg(dup_item->getName());
-        }
-
         return tr("A profile already exists with this name");
-    }
 
     if (item->isDeleted())
     {
@@ -641,9 +626,16 @@ QVariant ProfileModel::dataPath(const QModelIndex &index, QString& profilePath) 
                 /* find a non-global, non-default profile which could be referenced by this one. Those are the only
                     * ones which could be renamed or deleted */
                 ProfileItem* refItem = Q_NULLPTR;
-                int row = findByNameAndVisibility(item->getReference(), false, true);
-                if (row >= 0)
-                    refItem = profile_items_[row];
+                // Prefer the copied profile over another one given its name
+                foreach (int row, findAllByNameAndVisibility(item->getReference(), false, true))
+                {
+                    ProfileItem* found = profile_items_[row];
+                    bool copied = onDisk(found) && found->getReference().compare(item->getReference()) == 0;
+                    if (!refItem || copied)
+                        refItem = found;
+                    if (copied)
+                        break;
+                }
 
                 /* The reference is itself a copy of the original, therefore it is not accepted */
                 if ((refItem->getStatus() == ProfileItem::StatusType::Copy || refItem->getStatus() == ProfileItem::StatusType::New) && refItem->getName().compare(item->getReference()) != 0)
@@ -929,46 +921,16 @@ void ProfileModel::deleteEntries(QModelIndexList idcs)
 
     foreach (ProfileItem* item, items)
     {
-        // May have been removed as a duplicate
-        if (!profile_items_.contains(item))
-            continue;
-
-        if (item->isDefault())
-        {
-            item->setForDeletion();
-        }
-        else if ((item->getStatus() == ProfileItem::StatusType::New || item->getStatus() == ProfileItem::StatusType::Copy) &&
-                 children(item).isEmpty())
+        if ((item->getStatus() == ProfileItem::StatusType::New || item->getStatus() == ProfileItem::StatusType::Copy) &&
+            children(item).isEmpty())
         {
             // If it was just created, remove it
             removeItem(item);
             continue;
         }
-        else
-        {
-            bool foundDuplicate = false;
 
-            // Check if there is a new duplicate of this profile, so that one can be removed instead of the original one
-            foreach (ProfileItem* dupItem, profile_items_)
-            {
-                if (dupItem == item)
-                    continue;
-
-                if ((dupItem->getName().compare(item->getName()) == 0) && (dupItem->isGlobal() == item->isGlobal()) &&
-                    (dupItem->getStatus() != ProfileItem::StatusType::Existing) && children(dupItem).isEmpty())
-                {
-                    foundDuplicate = true;
-                    // If there is a duplicate, remove it
-                    removeItem(dupItem);
-                    break;
-                }
-            }
-
-            // Mark it for deletion
-            if (!foundDuplicate)
-                item->setForDeletion();
-        }
-
+        // Mark it for deletion
+        item->setForDeletion();
         emit dataChanged(indexOf(item, COL_NAME), indexOf(item, columnCount() - 1));
     }
 }
@@ -1033,6 +995,10 @@ bool ProfileModel::setData(const QModelIndex &cur_index, const QVariant &value, 
     {
     case COL_NAME:
         if (value.toString().isEmpty())
+            return false;
+
+        // There is only one Default profile
+        if (!item->parent() && value.toString().compare(DEFAULT_PROFILE, Qt::CaseInsensitive) == 0)
             return false;
 
         if (!item->isDefault())
@@ -1116,8 +1082,10 @@ bool ProfileModel::canMove(const ProfileItem *item, const ProfileItem *target) c
     if ((target ? target->getName().count('/') + 1 : 0) + levels > PROFILE_MAX_DEPTH)
         return false;
 
+    // Deleted profiles free their names before any new names are used
     QString name = target ? QStringLiteral("%1/%2").arg(target->getName(), item->getLeafName()) : item->getLeafName();
-    return findByNameAndVisibility(name, false, false, Qt::CaseInsensitive) < 0;
+    int row = findByNameAndVisibility(name, false, false, Qt::CaseInsensitive);
+    return row < 0 || profile_items_[row]->isDeleted();
 }
 
 // Keep the hierarchy of the dragged profiles: a profile below another
@@ -1594,13 +1562,15 @@ void ProfileModel::applyChanges()
     QList<ProfileItem*> deletedProfiles;
 
     // Rename and move profiles first. A new name may still be in use by a
-    // profile that is moved later, so first move all of them to temporary
-    // names, children before parents, and then to the new names, parents
-    // before children.
+    // profile that is moved or deleted later, so first move all of them to
+    // temporary names, children before parents, and then the renamed ones to
+    // the new names, parents before children. The deleted ones are deleted
+    // from the temporary names at the end.
     QList<ProfileItem*> renamedProfiles;
     foreach(ProfileItem* profile, profile_items_)
     {
-        if (!profile->isDeleted() && profile->getStatus() == ProfileItem::StatusType::Changed)
+        if (profile->isDeleted() ? onDisk(profile) && !profile->isDefault() :
+                                   profile->getStatus() == ProfileItem::StatusType::Changed)
             renamedProfiles << profile;
     }
 
@@ -1646,7 +1616,10 @@ void ProfileModel::applyChanges()
         return a->getName().count('/') < b->getName().count('/');
     });
     foreach(ProfileItem* profile, movedProfiles)
-        renameProfile(profile->getReference(), profile->getName());
+    {
+        if (!profile->isDeleted())
+            renameProfile(profile->getReference(), profile->getName());
+    }
 
     foreach(ProfileItem* profile, profile_items_)
     {
@@ -1766,16 +1739,13 @@ void ProfileModel::applyChanges()
     // Now, handle any deletions
     foreach(ProfileItem* profile, deletedProfiles)
     {
-        QByteArray qN = profile->getName().toUtf8();
-        const char* profileName = qN.constData();
+        // A new name may be in use by another profile, so only delete
+        // profiles with a directory, which is at the reference
+        if (!onDisk(profile))
+            continue;
+
         QByteArray qR = profile->getReference().toUtf8();
-        const char* profileReference = qR.constData();
-
-        // If it has been renamed, remove the original name
-        if (profile->getStatus() == ProfileItem::StatusType::Changed)
-            profileName = profileReference;
-
-        if (delete_persconffile_profile(app_env_var_prefix, profileName, &pf_dir_path) == -1) {
+        if (delete_persconffile_profile(app_env_var_prefix, qR.constData(), &pf_dir_path) == -1) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't delete profile directory\n\"%s\":\n%s.",
                 pf_dir_path, g_strerror(errno));
 

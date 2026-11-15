@@ -180,7 +180,7 @@ void MainApplication::helpTopicAction(topic_action_e action)
     }
 }
 
-void MainApplication::setConfigurationProfile(const char *profile_name, bool write_recent_file)
+void MainApplication::setConfigurationProfile(const char *profile_name, bool write_recent_file, bool reload)
 {
     char  *rf_path;
     int    rf_open_errno;
@@ -203,7 +203,7 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
     }
 
     /* Then check if changing to another profile */
-    if (profile_name && strcmp (profile_name, get_profile_name()) == 0) {
+    if (!reload && profile_name && strcmp (profile_name, get_profile_name()) == 0) {
         return;
     }
 

@@ -117,6 +117,10 @@ get_profiles(GList *profiles, const char* directory, const char *prefix, unsigne
             if (!profile_name_is_valid(name))   //Skip directories that are not valid profile names
                 continue;
 
+            /* The Default profile is not stored in the profiles directory */
+            if (!prefix && strcmp(name, DEFAULT_PROFILE) == 0)
+                continue;
+
             filename = ws_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S, name);
 
             if (test_for_directory(filename) == EISDIR) {
