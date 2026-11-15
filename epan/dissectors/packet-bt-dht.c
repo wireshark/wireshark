@@ -122,20 +122,13 @@ static const char list_str[] = "List...";
 static inline bool
 bencoded_string_length(packet_info *pinfo _U_, tvbuff_t *tvb, unsigned *offset_ptr, unsigned *length)
 {
-  unsigned offset, start;
-  unsigned remaining = tvb_captured_length_remaining(tvb, *offset_ptr);
-  if (remaining == 0) {
-    *length = 0;
-    return false;
-  }
+  unsigned offset = *offset_ptr;
+  unsigned start = offset;
 
-  offset = *offset_ptr;
-  start = offset;
-
-  while (tvb_get_uint8(tvb, offset) != ':' && --remaining)
+  while (tvb_get_uint8(tvb, offset) != ':')
     ++offset;
 
-  if (remaining && tvb_get_string_uint(tvb, start, offset-start, ENC_STR_DEC, length, NULL)) {
+  if (tvb_get_string_uint(tvb, start, offset-start, ENC_STR_DEC, length, NULL)) {
     ++offset; /* skip the ':' */
     *offset_ptr = offset;
     return true;
@@ -160,10 +153,6 @@ dissect_bencoded_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
     return 0;
   }
 
-  const unsigned remaining = tvb_captured_length_remaining(tvb, offset);
-  if (remaining < string_len)
-    return 0;
-
   /* fill the return data */
   if (string_len == 0)
     *result = "";
@@ -185,22 +174,13 @@ static int
 dissect_bencoded_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char **result, const char *label)
 {
   unsigned start_offset;
-  unsigned remaining = tvb_captured_length_remaining(tvb, offset);
-
-  /* the shortest valid integer is i0e, so we need at least 3 bytes */
-  if (remaining < 3)
-    return 0;
 
   DISSECTOR_ASSERT(tvb_get_uint8(tvb, offset) == 'i');
   offset += 1;
-  remaining -= 1;
 
   start_offset = offset;
-  while (tvb_get_uint8(tvb, offset) != 'e' && --remaining)
+  while (tvb_get_uint8(tvb, offset) != 'e')
     offset += 1;
-
-  if (remaining == 0)
-    return 0;
 
   proto_tree_add_item(tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII);
 
@@ -222,12 +202,7 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 {
   proto_item *ti;
   proto_tree *sub_tree;
-  unsigned    one_byte;
   const char *result;
-
-  /* the shortest valid list is "le", so we need at least 2 bytes */
-  if (tvb_captured_length_remaining(tvb, offset) < 2)
-    return 0;
 
   ti = proto_tree_add_none_format(tree, hf_bencoded_list, tvb, offset, 0, "%s: list...", label);
   sub_tree = proto_item_add_subtree(ti, ett_bencoded_list);
@@ -235,14 +210,10 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
   DISSECTOR_ASSERT(tvb_get_uint8(tvb, offset) == 'l');
   offset += 1;
 
-  while (tvb_captured_length_remaining(tvb, offset) > 0)
+  while (tvb_get_uint8(tvb, offset) != 'e')
   {
-    one_byte = tvb_get_uint8(tvb, offset);
-    if (one_byte == 'e')
-      break;
-
     unsigned start_offset = offset;
-    switch (one_byte)
+    switch (tvb_get_uint8(tvb, offset))
     {
     /* a integer */
     case 'i':
@@ -271,9 +242,6 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
       return 0;
     }
   }
-
-  if (tvb_captured_length_remaining(tvb, offset) == 0)
-    return 0;
 
   proto_tree_add_item(sub_tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII);
   offset += 1;
@@ -595,9 +563,6 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return 0;
   }
 
-  if (tvb_captured_length_remaining(tvb, offset) == 0)
-    return 0;
-
   bool hide_dict_entry = false;
   /* If it is a dict, then just do recursion */
   switch (tvb_get_uint8(tvb, offset))
@@ -726,10 +691,6 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
   proto_tree *sub_tree;
   unsigned    orig_offset = offset;
 
-  /* the shortest valid dictionary is "de", so we need at least 2 bytes */
-  if (tvb_captured_length_remaining(tvb, offset) < 2)
-    return 0;
-
   if (offset == 0)
   {
     ti = proto_tree_add_item(tree, proto_bt_dht, tvb, 0, -1, ENC_NA);
@@ -746,10 +707,7 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
   const char * prev_key = NULL;
   unsigned prev_key_offset = 0;
-  while (tvb_captured_length_remaining(tvb, offset) > 0) {
-    if (tvb_get_uint8(tvb, offset) == 'e')
-      break;
-
+  while (tvb_get_uint8(tvb, offset) != 'e') {
     const char * key = NULL;
     const unsigned entry_start = offset;
     offset = dissect_bencoded_dict_entry(tvb, pinfo, sub_tree, offset, &key);
@@ -771,9 +729,7 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     prev_key_offset = entry_start;
   }
 
-  if (tvb_captured_length_remaining(tvb, offset) == 0)
-    return 0;
-
+  DISSECTOR_ASSERT(tvb_get_uint8(tvb, offset) == 'e');
   proto_tree_add_item(sub_tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII);
   offset += 1;
   proto_item_set_len(ti, offset - orig_offset);

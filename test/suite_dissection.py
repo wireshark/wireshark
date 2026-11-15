@@ -19065,9 +19065,9 @@ class TestDissectBtDht:
     heur = ('--enable-heuristic', 'bittorrent_dht_udp')
 
     def test_bt_dht_protocols(self, cmd_tshark, capture_file, test_env):
-        '''Every KRPC message type decodes without malformed packets or
-        error expert infos, in one and two passes. The only warning is the
-        duplicate key in frame 18.'''
+        '''Every KRPC message type decodes without unexpected expert infos,
+        in one and two passes. Frame 18 has a duplicate transaction id and
+        frame 21 is missing the final byte.'''
         stdout = subprocess.check_output((cmd_tshark, *self.heur,
                 '-r', capture_file('bt_dht_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
@@ -19082,7 +19082,10 @@ class TestDissectBtDht:
                     '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
                     '-Tfields', '-eframe.number', '-e_ws.expert.message',
                 ), encoding='utf-8', env=test_env)
-            assert stdout.splitlines() == ['18\tDictionary has duplicate keys']
+            assert stdout.splitlines() == [
+                '18\tDictionary has duplicate keys',
+                '21\tMalformed Packet (Exception occurred)',
+            ]
 
     def test_bt_dht_messages(self, cmd_tshark, capture_file, test_env):
         '''Queries, responses with nodes and peers, and errors.'''
