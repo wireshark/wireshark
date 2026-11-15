@@ -51,6 +51,7 @@ print_usage(FILE *output)
     fprintf(output, "\n");
     fprintf(output, "Options:\n");
     fprintf(output, "  -n                don't write to output file if the input file is ordered.\n");
+    fprintf(output, "  -q                suppress non-error status messages to stderr.\n");
     fprintf(output, "  -h, --help        display this help and exit.\n");
     fprintf(output, "  -v, --version     print version information and exit.\n");
 }
@@ -63,21 +64,6 @@ typedef struct FrameRecord_t {
     nstime_t     frame_time;
 } FrameRecord_t;
 
-
-/**************************************************/
-/* Debugging only                                 */
-
-/* Enable this symbol to see debug output */
-/* #define REORDER_DEBUG */
-
-#ifdef REORDER_DEBUG
-#define DEBUG_PRINT printf
-#else
-#define DEBUG_PRINT(...)
-#endif
-/**************************************************/
-
-
 static bool
 frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
             wtap_rec *rec, const char *infile, const char *outfile)
@@ -85,16 +71,14 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
     int    err;
     char   *err_info;
 
-    DEBUG_PRINT("\nDumping frame (offset=%" PRIu64 ")\n",
-                frame->offset);
+    ws_debug("Dumping frame (offset=%" PRIu64 ")", frame->offset);
 
 
     /* Re-read the frame from the stored location */
     if (!wtap_seek_read(wth, frame->offset, rec, &err, &err_info)) {
         if (err != 0) {
             /* Print a message noting that the read failed somewhere along the line. */
-            fprintf(stderr,
-                    "reordercap: An error occurred while re-reading \"%s\".\n",
+            cmdarg_err("An error occurred while re-reading \"%s\".",
                     infile);
             report_cfile_read_failure(infile, err, err_info);
             return false;
@@ -147,6 +131,7 @@ main(int argc, char *argv[])
     int64_t data_offset;
     unsigned wrong_order_count = 0;
     bool write_output_regardless = true;
+    bool quiet = false;
     unsigned i;
     wtap_dump_params params;
     int                          ret = EXIT_SUCCESS;
@@ -161,7 +146,7 @@ main(int argc, char *argv[])
         LONGOPT_WSLOG
         {0, 0, 0, 0 }
     };
-#define OPTSTRING "hnv"
+#define OPTSTRING "hnqv"
     static const char optstring[] = OPTSTRING;
     int file_count;
     char *infile;
@@ -193,8 +178,7 @@ main(int argc, char *argv[])
      */
     configuration_init_error = configuration_init(argv[0], "wireshark");
     if (configuration_init_error != NULL) {
-        fprintf(stderr,
-                "reordercap: Can't get pathname of directory containing the reordercap program: %s.\n",
+        cmdarg_err("Can't get pathname of directory containing the reordercap program: %s.",
                 configuration_init_error);
         g_free(configuration_init_error);
     }
@@ -217,6 +201,9 @@ main(int argc, char *argv[])
                 show_help_header("Reorder timestamps of input file frames into output file.");
                 print_usage(stdout);
                 goto clean_exit;
+            case 'q':
+                quiet = true;
+                break;
             case 'v':
                 show_version();
                 goto clean_exit;
@@ -253,7 +240,7 @@ main(int argc, char *argv[])
         ret = WS_EXIT_OPEN_ERROR;
         goto clean_exit;
     }
-    DEBUG_PRINT("file_type_subtype is %d\n", wtap_file_type_subtype(wth));
+    ws_debug("file_type_subtype is %d", wtap_file_type_subtype(wth));
 
     /* Allocate the array of frame pointers. */
     frames = g_ptr_array_new();
@@ -285,7 +272,8 @@ main(int argc, char *argv[])
       report_cfile_read_failure(infile, err, err_info);
     }
 
-    printf("%u frames, %u out of order\n", frames->len, wrong_order_count);
+    if (!quiet)
+        fprintf(stderr, "%u frames, %u out of order\n", frames->len, wrong_order_count);
 
     wtap_dump_params_init(&params, wth);
 
@@ -341,7 +329,8 @@ main(int argc, char *argv[])
             goto clean_exit;
         }
     } else {
-        printf("Not writing output file because input file is already in order.\n");
+        if (!quiet)
+            fprintf(stderr, "Not writing output file because input file is already in order.\n");
 
         /* Free frame memory */
         for (i = 0; i < frames->len; i++) {

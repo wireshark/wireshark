@@ -119,6 +119,10 @@ The following features are either new or have been significantly updated since v
   followed by the key. The keys are used without the Kerberos decrypt preference
   and without a keytab file.
 
+* `reordercap` prints its informative status messages to standard error, not
+  standard output (wsbuglink:21725[]), and those messages can be suppressed
+  entirely with a `-q` option, similar to the other CLI tools.
+
 === Removed Features and Support
 
 The AX.25 `ax25.extended` preference has been removed: the modulo is now

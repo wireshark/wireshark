@@ -14,6 +14,7 @@ reordercap - Reorder input file by timestamp into output file
 [manarg]
 *reordercap*
 [ *-n* ]
+[ *-q* ]
 <__infile__> <__outfile__>
 
 [manarg]
@@ -54,6 +55,12 @@ Print the version number and options and exit.
 -n::
 When the *-n* option is used, *reordercap* will not write out the output
 file if it finds that the input file is already in order.
+
+-q::
+Run in quiet mode: don't write to standard error the total number of frames
+and what number were out of order, or a message that the output file was
+not written because the input file was already in order and the *-n* option
+was active. Only true errors are displayed on the standard error.
 
 -v|--version::
 Print the full version information and exit.
