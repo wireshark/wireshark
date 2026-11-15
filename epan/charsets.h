@@ -26,6 +26,20 @@ extern const gunichar2 charset_table_cp1250[0x80];
 extern const gunichar2 charset_table_cp1251[0x80];
 /* Table for windows-1252 */
 extern const gunichar2 charset_table_cp1252[0x80];
+/* Table for windows-1253 */
+extern const gunichar2 charset_table_cp1253[0x80];
+/* Table for windows-1254 */
+extern const gunichar2 charset_table_cp1254[0x80];
+/* Table for windows-1255 */
+extern const gunichar2 charset_table_cp1255[0x80];
+/* Table for windows-1256 */
+extern const gunichar2 charset_table_cp1256[0x80];
+/* Table for windows-1257 */
+extern const gunichar2 charset_table_cp1257[0x80];
+/* Table for windows-1258 */
+extern const gunichar2 charset_table_cp1258[0x80];
+/* Table for windows-874 */
+extern const gunichar2 charset_table_cp874[0x80];
 
 /* Tables for ISO-8859-X */
 extern const gunichar2 charset_table_iso_8859_2[0x80];
