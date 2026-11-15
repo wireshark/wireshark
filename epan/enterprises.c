@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-11-06) */
+/* (last updated 2026-11-13) */
 
 #include "config.h"
 
@@ -33782,7 +33782,7 @@ static const char * const table[] =
     "Ministerstvo Finansov Chelyabinskoy oblasti",                                        // 33760
     "OptimSys, s.r.o.",                                                                   // 33761
     "Global Display Solutions SpA",                                                       // 33762
-    "AD Holdings plc",                                                                    // 33763
+    "NetVu Ltd",                                                                          // 33763
     "I-bridge B.V.",                                                                      // 33764
     "Sapienza Consulting Ltd",                                                            // 33765
     "panagenda GmbH",                                                                     // 33766
@@ -61107,7 +61107,7 @@ static const char * const table[] =
     "Terra Sound",                                                                        // 61085
     "Chengdu NorthLink Technology Co., Ltd.",                                             // 61086
     "shenzhen real linkShenzhen Real Link Technology Co.,Ltd",                            // 61087
-    "MTNSAT",                                                                             // 61088
+    "SDConnX",                                                                            // 61088
     "Lighthouse Credit Union",                                                            // 61089
     "PKITNEXT LABS",                                                                      // 61090
     "DMIM",                                                                               // 61091
@@ -64413,7 +64413,7 @@ static const char * const table[] =
     "ACMH",                                                                               // 64391
     "Naturskog AB",                                                                       // 64392
     "Naturskog Biofuel AB",                                                               // 64393
-    "Sellplus TECH LLC",                                                                  // 64394
+    NULL,                                                                                 // 64394
     "com.ksbarnt",                                                                        // 64395
     "SAVA Cybersecurity",                                                                 // 64396
     "Matthias Valvekens",                                                                 // 64397
@@ -67602,7 +67602,106 @@ static const char * const table[] =
     "Blindsight Technologies AG",                                                         // 67580
     "LYC INTELLIGENT SYSTEMS S.A.C.",                                                     // 67581
     "Neatolabs LLC",                                                                      // 67582
-    "Belleville Police Service"                                                           // 67583
+    "Belleville Police Service",                                                          // 67583
+    "Hlib Lukavetskyi",                                                                   // 67584
+    "KDDI CORPORATION",                                                                   // 67585
+    "Tiernan Messmer",                                                                    // 67586
+    "beijing ziweixin technology co ltd.",                                                // 67587
+    "Shaanxi TeraTalos Information Technology Co., Ltd.",                                 // 67588
+    "Pri Ltd (cmnSense)",                                                                 // 67589
+    "Baron Aerial Media LLC",                                                             // 67590
+    "José Ángel Alegre",                                                                  // 67591
+    "Fells Code LLC",                                                                     // 67592
+    "Beijing Zhimengxingchen Technology Co., Ltd.",                                       // 67593
+    "Astute Systems",                                                                     // 67594
+    "DotNet Talk AB",                                                                     // 67595
+    "Maciej Kuklewski IT Professional",                                                   // 67596
+    "DXC Technology",                                                                     // 67597
+    "Cortex Access",                                                                      // 67598
+    "Kernix JSC",                                                                         // 67599
+    "ACTAtek",                                                                            // 67600
+    "iBoostUp Pty Ltd",                                                                   // 67601
+    "roboa AG",                                                                           // 67602
+    "SKABE FLIS AB",                                                                      // 67603
+    "Cristie Data GmbH",                                                                  // 67604
+    "Tecnologias Plexus S.L. - Producto",                                                 // 67605
+    "PKIaaS.io",                                                                          // 67606
+    "Iya CyberSecurity Solutions, LLC",                                                   // 67607
+    "City of Gainesville",                                                                // 67608
+    "TEEMO TECHNOLOGY LTD",                                                               // 67609
+    "Clanto Services",                                                                    // 67610
+    "ForwardingPlane, LLC",                                                               // 67611
+    "Labor Becker",                                                                       // 67612
+    "Hoil Ryu",                                                                           // 67613
+    "Rhizomatics",                                                                        // 67614
+    "FairSSL A/S",                                                                        // 67615
+    "George Kent (Malaysia) Berhad",                                                      // 67616
+    "IP²HX (Intellectual and Industrial Property Holding & Exchange)",                    // 67617
+    "JuridicApp",                                                                         // 67618
+    "butterpigs",                                                                         // 67619
+    "1AN Inc.",                                                                           // 67620
+    "7G Fuse",                                                                            // 67621
+    "Apricot Heavy Industries Pty Ltd",                                                   // 67622
+    "Netlab AC CN",                                                                       // 67623
+    "Glatt GmbH",                                                                         // 67624
+    "Contra Sport GmbH",                                                                  // 67625
+    "Onno Media",                                                                         // 67626
+    "IDENTT sp. z o.o.",                                                                  // 67627
+    "Bröderna Carlström Trävaru AB",                                                      // 67628
+    "Jonathan Rubini",                                                                    // 67629
+    "Presight AI",                                                                        // 67630
+    "FROETEK-Kunststofftechnik GmbH",                                                     // 67631
+    "Azalio Technologies Pvt. Ltd.",                                                      // 67632
+    "Association Pharmacists Belgium",                                                    // 67633
+    "Steelborn LLC",                                                                      // 67634
+    "SkyPulse Communications",                                                            // 67635
+    "Justice AV Solutions Inc.",                                                          // 67636
+    "GIBIRNET İletişim Hizmetleri Sanayi ve Ticaret Anonim Şirketi",                      // 67637
+    "AB Computer Elektronik",                                                             // 67638
+    "Ortomatic Ltd",                                                                      // 67639
+    "Chad Marple",                                                                        // 67640
+    "WebRAY Tech Group Inc.",                                                             // 67641
+    "NUWAY RESPONSE PTY LTD",                                                             // 67642
+    "Government Technology Agency of Singapore",                                          // 67643
+    "devguard GmbH",                                                                      // 67644
+    "Società Servizi Informatici Sammarinese SPA",                                        // 67645
+    "Meridian Technology Center",                                                         // 67646
+    "SINTEK Srl",                                                                         // 67647
+    "PhalanxAI Security LLC",                                                             // 67648
+    "Pound of Cure, LLC",                                                                 // 67649
+    "ScaiLabs B.V.",                                                                      // 67650
+    "CINERI",                                                                             // 67651
+    "Celare Quantum Communications",                                                      // 67652
+    "Shineful",                                                                           // 67653
+    "Nelson Rocha Ramos",                                                                 // 67654
+    "Ergosana d.o.o.",                                                                    // 67655
+    "Subnetly, Inc",                                                                      // 67656
+    "Quantifind, Inc.",                                                                   // 67657
+    "idruide SAM",                                                                        // 67658
+    "WAN4YOU",                                                                            // 67659
+    "Kilantis",                                                                           // 67660
+    "D&AT Company Co., Ltd.",                                                             // 67661
+    "Asim Pervez",                                                                        // 67662
+    "SELPROM TECNOLOGIA LTDA",                                                            // 67663
+    "PEB (Portable Executable Bundle)",                                                   // 67664
+    "IRB (Interoperable Rights Bundle)",                                                  // 67665
+    "AIoTrust",                                                                           // 67666
+    "Otto Ursinyi",                                                                       // 67667
+    "ABSOFT ASIA",                                                                        // 67668
+    "Trojan Unicorn Ventures LLC",                                                        // 67669
+    "C319 IT Services GmbH",                                                              // 67670
+    "Medteris Corp.",                                                                     // 67671
+    "GMB Computers SRL",                                                                  // 67672
+    "Solarbridge Technology Inc.",                                                        // 67673
+    "Fox River Fursuit Events Inc.",                                                      // 67674
+    "GoCodeIT Inc",                                                                       // 67675
+    "Asylon Incorporated",                                                                // 67676
+    "Red Distribution",                                                                   // 67677
+    "Magne Haagen Grøtting",                                                              // 67678
+    "EDW TI Solucoes em Informatica",                                                     // 67679
+    "Swiss Timing Ltd.",                                                                  // 67680
+    "NibblePoker",                                                                        // 67681
+    "Kinective"                                                                           // 67682
 };
 
 const char* global_enterprises_lookup(uint32_t value)
