@@ -215,7 +215,6 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_file_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_file_properties_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_file.h
-	${CMAKE_SOURCE_DIR}/ui/qt/capture_filter_syntax_worker.h
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_options_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_preferences_frame.h
 	${CMAKE_SOURCE_DIR}/ui/qt/coloring_rules_dialog.h
@@ -583,7 +582,6 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_file_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_file_properties_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_file.cpp
-	${CMAKE_SOURCE_DIR}/ui/qt/capture_filter_syntax_worker.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_options_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_preferences_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/coloring_rules_dialog.cpp

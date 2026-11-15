@@ -219,7 +219,6 @@ set(WIRESHARK_QT_HEADERS
 	capture_file_dialog.h
 	capture_file_properties_dialog.h
 	capture_file.h
-	capture_filter_syntax_worker.h
 	capture_options_dialog.h
 	capture_preferences_frame.h
 	coloring_rules_dialog.h
@@ -612,7 +611,6 @@ set(WIRESHARK_QT_SRC
 	capture_file_dialog.cpp
 	capture_file_properties_dialog.cpp
 	capture_file.cpp
-	capture_filter_syntax_worker.cpp
 	capture_options_dialog.cpp
 	capture_preferences_frame.cpp
 	coloring_rules_dialog.cpp
