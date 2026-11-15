@@ -442,6 +442,8 @@ static const value_string vmware_hb_build_number[] = {
     { 25595025, "ESX 9.0.2.0100" },
     { 25595708, "ESXi 8.0 Update 3k" },
     { 25626445, "ESXi 8.0 Update 2f" },
+    { 25714478, "ESXi 9.1.1.0" },
+    { 25782009, "ESXi 9.1.1.0100" },
     {0, NULL}
 };
 static value_string_ext vmware_hb_build_number_ext = VALUE_STRING_EXT_INIT(vmware_hb_build_number);

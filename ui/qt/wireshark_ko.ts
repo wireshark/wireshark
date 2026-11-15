@@ -64,22 +64,6 @@
         <translation>라이선스</translation>
     </message>
     <message>
-        <source>The directory does not exist</source>
-        <translation type="vanished">디렉터리가 존재하지 않음</translation>
-    </message>
-    <message>
-        <source>Should the directory %1 be created?</source>
-        <translation type="vanished">%1 디렉터리를 생성하시겠습니까?</translation>
-    </message>
-    <message>
-        <source>The directory could not be created</source>
-        <translation type="vanished">디렉터리를 생성할 수 없음</translation>
-    </message>
-    <message>
-        <source>The directory %1 could not be created.</source>
-        <translation type="vanished">%1 디렉터리를 생성할 수 없습니다.</translation>
-    </message>
-    <message>
         <source>Show in Finder</source>
         <translation>Finder에 표시</translation>
     </message>
@@ -3106,15 +3090,122 @@ Relative to reference: n/a (outside reference range)</source>
 <context>
     <name>DistributionDialog</name>
     <message>
-        <source>Field Values Distribution</source>
+        <source>Dialog</source>
+        <translation type="unfinished">대화 상자</translation>
+    </message>
+    <message>
+        <source>Fields:</source>
+        <translation type="unfinished">필드:</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation type="unfinished">적용</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished">표시 필터:</translation>
+    </message>
+    <message>
+        <source>Resolve values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Field Value</source>
+        <source>Show chart</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Occurrences</source>
+        <source>Copy</source>
+        <translation type="unfinished">복사</translation>
+    </message>
+    <message>
+        <source>Copy the selected rows as text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save as…</source>
+        <translation type="unfinished">다른 이름으로 저장…</translation>
+    </message>
+    <message>
+        <source>Save the table in various formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in I/O Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open an I/O Graph with a graph for each selected row (at most %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 distinct values </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A packet can contain a field more than once, so the percentages (of packets) add up to more than 100 %.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An event can contain a field more than once, so the percentages (of events) add up to more than 100 %.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter one or more fields above and press Apply, for example ip.ttl, or ip.src, tcp.dstport for a joint distribution.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter one or more fields above and press Apply, for example evt.type, or evt.type, proc.name for a joint distribution.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count the field values in the packets matching the display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count the field values in the events matching the display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution of %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DistributionModel</name>
+    <message>
+        <source>&quot;%1&quot; cannot be counted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is a protocol and has no values to count. Enter one of its fields, for example %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is a protocol and has no values to count.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is a label without a value and cannot be counted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; has variants of different types and cannot be counted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3122,8 +3213,8 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Distribution:</source>
-        <translation type="unfinished"></translation>
+        <source>Value</source>
+        <translation type="unfinished">값</translation>
     </message>
 </context>
 <context>
@@ -3657,6 +3748,10 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>표시 필터:</translation>
     </message>
     <message>
+        <source>Level:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export PDUs</source>
         <translation>PDU 내보내기</translation>
     </message>
@@ -3757,8 +3852,32 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>필드 항목</translation>
     </message>
     <message>
+        <source>Enter up to %1 fields, separated by commas%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter fields, separated by commas%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter a field %1</source>
         <translation>필드 입력 %1</translation>
+    </message>
+    <message>
+        <source>Up to %1 fields can be combined (%2 entered).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field %1 is empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is neither a field nor a protocol name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is deprecated. Use &quot;%2&quot; instead.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid field: </source>
@@ -5736,12 +5855,16 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>10진수</translation>
     </message>
     <message>
+        <source>Direction indication</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;16진수 바이트 표기로 보이더라도 Hex+ASCII 줄 끝에 ASCII 표현의 시작점을 감지했을 때 추가 처리를 할지 여부입니다.&lt;/p&gt;&lt;p&gt;16진수 덤프가 ASCII를 포함하지 않는다면 사용하지 마십시오.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII identification:</source>
-        <translation>ASCII 식별:</translation>
+        <translation type="vanished">ASCII 식별:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -5796,6 +5919,14 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>파일에 패킷의 방향(수신 또는 발신)을 나타내는 정보가 포함되어 있는지 여부입니다.</translation>
     </message>
     <message>
+        <source>ASCII identification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Little-endian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Direction indication:</source>
         <translation>방향 지시:</translation>
     </message>
@@ -5841,7 +5972,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Little-endian:</source>
-        <translation>리틀 엔디언:</translation>
+        <translation type="vanished">리틀 엔디언:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8058,30 +8189,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Type: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8174,11 +8281,19 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Debugger is disabled while the Preferences dialog is open. Close it to re-enable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Debugger is disabled. Check to enable.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Disabled (live capture)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disabled (preferences)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10235,6 +10350,26 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the list of preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current preference page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Advanced</source>
         <translation type="unfinished">고급</translation>
     </message>
@@ -11725,28 +11860,20 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished">디렉터리가 존재하지 않음</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished">%1 디렉터리를 생성하시겠습니까?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished">디렉터리를 생성할 수 없음</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished">%1 디렉터리를 생성할 수 없습니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14512,6 +14639,25 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
 </context>
 <context>
+    <name>StatTableExporter</name>
+    <message>
+        <source>Save Statistics As…</source>
+        <translation type="unfinished">다른 이름으로 통계 저장…</translation>
+    </message>
+    <message>
+        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
+        <translation type="unfinished">일반 텍스트 파일 (*.txt);;쉼표로 구분된 값 (*.csv);;XML 문서 (*.xml);;YAML 문서 (*.yaml)</translation>
+    </message>
+    <message>
+        <source>Plain text file (*.txt)</source>
+        <translation type="unfinished">일반 텍스트 파일 (*.txt)</translation>
+    </message>
+    <message>
+        <source>Error saving file %1</source>
+        <translation type="unfinished">파일 저장 오류 %1</translation>
+    </message>
+</context>
+<context>
     <name>StatsTreeDialog</name>
     <message>
         <source>Configuration not found</source>
@@ -14531,6 +14677,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Display filter:</source>
         <translation>표시 필터:</translation>
+    </message>
+    <message>
+        <source>Encapsulation:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Strip Headers</source>
@@ -15504,19 +15654,19 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Save Statistics As…</source>
-        <translation>다른 이름으로 통계 저장…</translation>
+        <translation type="vanished">다른 이름으로 통계 저장…</translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation>일반 텍스트 파일 (*.txt);;쉼표로 구분된 값 (*.csv);;XML 문서 (*.xml);;YAML 문서 (*.yaml)</translation>
+        <translation type="vanished">일반 텍스트 파일 (*.txt);;쉼표로 구분된 값 (*.csv);;XML 문서 (*.xml);;YAML 문서 (*.yaml)</translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation>일반 텍스트 파일 (*.txt)</translation>
+        <translation type="vanished">일반 텍스트 파일 (*.txt)</translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation>파일 저장 오류 %1</translation>
+        <translation type="vanished">파일 저장 오류 %1</translation>
     </message>
 </context>
 <context>
@@ -16100,7 +16250,11 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The preview shows the theme&apos;s font.</source>
+        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The Packet List sample shows the theme&apos;s font, the Lua Code sample your preference.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Code</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16334,6 +16488,13 @@ Preferences → Protocols → TCP to use this table.</source>
     <name>ThemeImportErrorDialog</name>
     <message>
         <source>Nothing was copied to your personal themes. Imported files are limited in size and may only contain meta data, colors and fonts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ThemeLuaCodePreview</name>
+    <message>
+        <source>Save Image As…</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -16619,6 +16780,10 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>fixed code editor default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>palette.mid, kept readable on palette.base</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16814,10 +16979,6 @@ Preferences → Protocols → TCP to use this table.</source>
 <context>
     <name>ThemeWelcomePreview</name>
     <message>
-        <source>Development Build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Release Notes</source>
         <translation type="unfinished">릴리스 노트</translation>
     </message>
@@ -16846,7 +17007,7 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</source>
+        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16985,6 +17146,58 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Lua Debugger editor: background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: plain text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selection background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selected text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line number gutter and current line background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line the debugger is paused on; may be translucent.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: string literals.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: keywords (drawn bold).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: built-in names such as self.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: names of called functions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: comments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow Stream client background.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17073,8 +17286,12 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>그리고 나머지 모든 패킷의 시간을 외삽</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
@@ -19698,6 +19915,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>선택한 필드에서 참조하는 패킷으로 이동합니다.</translation>
     </message>
     <message>
+        <source>Appearance Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch between the System, Light and Dark appearance modes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TLS Keylog Launcher</source>
         <translation>TLS 키로그 실행기</translation>
     </message>
@@ -20069,6 +20294,18 @@ Preferences → Protocols → TCP to use this table.</source>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>저장하지 않고 끝내기(&amp;W)</translation>
+    </message>
+    <message>
+        <source>Appearance mode: Light. Click to switch to Dark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: Dark. Click to switch to System.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: System. Click to switch to Light.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>USB CDC Data</source>

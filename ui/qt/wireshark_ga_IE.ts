@@ -64,22 +64,6 @@
         <translation>Ceadúnas</translation>
     </message>
     <message>
-        <source>The directory does not exist</source>
-        <translation type="vanished">Níl an t-eolaire ann</translation>
-    </message>
-    <message>
-        <source>Should the directory %1 be created?</source>
-        <translation type="vanished">Ar cheart comhadlann %1 a chruthú?</translation>
-    </message>
-    <message>
-        <source>The directory could not be created</source>
-        <translation type="vanished">Níorbh fhéidir an t-eolaire a chruthú</translation>
-    </message>
-    <message>
-        <source>The directory %1 could not be created.</source>
-        <translation type="vanished">Níorbh fhéidir comhadlann %1 a chruthú.</translation>
-    </message>
-    <message>
         <source>Show in Finder</source>
         <translation>Taispeáin i Aimsitheoir</translation>
     </message>
@@ -3136,23 +3120,150 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <name>DistributionDialog</name>
     <message>
         <source>Field Values Distribution</source>
-        <translation>Dáileadh Luachanna Réimse</translation>
+        <translation type="vanished">Dáileadh Luachanna Réimse</translation>
     </message>
     <message>
         <source>Field Value</source>
-        <translation>Luach Réimse</translation>
+        <translation type="vanished">Luach Réimse</translation>
     </message>
     <message>
         <source>Occurrences</source>
-        <translation>Tarluithe</translation>
+        <translation type="vanished">Tarluithe</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation>Céatadán</translation>
+        <translation type="vanished">Céatadán</translation>
     </message>
     <message>
         <source>Distribution:</source>
-        <translation>Dáileadh:</translation>
+        <translation type="vanished">Dáileadh:</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialóg</translation>
+    </message>
+    <message>
+        <source>Fields:</source>
+        <translation type="unfinished">Réimsí:</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show chart</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy the selected rows as text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save as…</source>
+        <translation type="unfinished">Sábháil mar…</translation>
+    </message>
+    <message>
+        <source>Save the table in various formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in I/O Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution</source>
+        <translation type="unfinished">Dáileadh</translation>
+    </message>
+    <message>
+        <source>Open an I/O Graph with a graph for each selected row (at most %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation type="unfinished">Comhaireamh</translation>
+    </message>
+    <message>
+        <source>%1 distinct values </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A packet can contain a field more than once, so the percentages (of packets) add up to more than 100 %.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An event can contain a field more than once, so the percentages (of events) add up to more than 100 %.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter one or more fields above and press Apply, for example ip.ttl, or ip.src, tcp.dstport for a joint distribution.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter one or more fields above and press Apply, for example evt.type, or evt.type, proc.name for a joint distribution.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count the field values in the packets matching the display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count the field values in the events matching the display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution of %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DistributionModel</name>
+    <message>
+        <source>&quot;%1&quot; cannot be counted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is a protocol and has no values to count. Enter one of its fields, for example %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is a protocol and has no values to count.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is a label without a value and cannot be counted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; has variants of different types and cannot be counted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation type="unfinished">Comhaireamh</translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation type="unfinished">Céatadán</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">Luach</translation>
     </message>
 </context>
 <context>
@@ -3686,6 +3797,10 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>Scagaire taispeána:</translation>
     </message>
     <message>
+        <source>Level:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export PDUs</source>
         <translation>Easpórtáil PDUanna</translation>
     </message>
@@ -3786,8 +3901,32 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>Iontráil allamuigh</translation>
     </message>
     <message>
+        <source>Enter up to %1 fields, separated by commas%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter fields, separated by commas%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter a field %1</source>
         <translation>Iontráil réimse %1</translation>
+    </message>
+    <message>
+        <source>Up to %1 fields can be combined (%2 entered).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field %1 is empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is neither a field nor a protocol name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is deprecated. Use &quot;%2&quot; instead.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid field: </source>
@@ -4514,10 +4653,6 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Theme:</source>
         <translation>Téama:</translation>
-    </message>
-    <message>
-        <source>Theme by %1</source>
-        <translation type="vanished">Téama le %1</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -5814,12 +5949,16 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>Deachúlach</translation>
     </message>
     <message>
+        <source>Direction indication</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cibé an ndéanfaidh sé próiseáil bhreise ag brath ar thús ionadaíocht ASCII ag deireadh líne heicsidheachúlach + ASCII fiú má tá sé cosúil le bearta heicsidheachúlach.&lt;/p&gt;&lt;p&gt;Ná cumasaigh mura bhfuil ASCII sa dumpa heicsidheachúlach.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII identification:</source>
-        <translation>Sainaithint ASCII:</translation>
+        <translation type="vanished">Sainaithint ASCII:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -5874,6 +6013,14 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>Cibé an bhfuil nó nach bhfuil faisnéis sa chomhad a léiríonn treo (isteach nó amach) an phaicéad.</translation>
     </message>
     <message>
+        <source>ASCII identification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Little-endian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Direction indication:</source>
         <translation>Léiriú treo:</translation>
     </message>
@@ -5919,7 +6066,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Little-endian:</source>
-        <translation>Beag-endian:</translation>
+        <translation type="vanished">Beag-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8152,27 +8299,27 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message>
         <source>Settings</source>
-        <translation>Socruithe</translation>
+        <translation type="vanished">Socruithe</translation>
     </message>
     <message>
         <source>Auto (follow color scheme)</source>
-        <translation>Uathoibríoch (lean an scéim dathanna)</translation>
+        <translation type="vanished">Uathoibríoch (lean an scéim dathanna)</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation>Dorcha</translation>
+        <translation type="vanished">Dorcha</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation>Solas</translation>
+        <translation type="vanished">Solas</translation>
     </message>
     <message>
         <source>Color theme for the code editor</source>
-        <translation>Téama datha don eagarthóir cóid</translation>
+        <translation type="vanished">Téama datha don eagarthóir cóid</translation>
     </message>
     <message>
         <source>Code View Theme:</source>
-        <translation>Téama Radharc Cód:</translation>
+        <translation type="vanished">Téama Radharc Cód:</translation>
     </message>
     <message>
         <source>Type: %1</source>
@@ -8267,12 +8414,20 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <translation>Tá an dífhabhtóir díchumasaithe agus gabháil bheo ar siúl. Stop an gabháil chun é a athchumasú.</translation>
     </message>
     <message>
+        <source>Debugger is disabled while the Preferences dialog is open. Close it to re-enable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Debugger is disabled. Check to enable.</source>
         <translation>Tá an dífhabhtóir díchumasaithe. Seiceáil chun é a chumasú.</translation>
     </message>
     <message>
         <source>Disabled (live capture)</source>
         <translation>Díchumasaithe (gabháil bheo)</translation>
+    </message>
+    <message>
+        <source>Disabled (preferences)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Disabled</source>
@@ -10379,6 +10534,26 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the list of preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current preference page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Advanced</source>
         <translation type="unfinished">Ard</translation>
     </message>
@@ -11891,28 +12066,20 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
 %1: cuir leis nó bain ar an líne reatha san eagarthóir</translation>
     </message>
     <message>
-        <source>Count</source>
-        <translation type="unfinished">Comhaireamh</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="unfinished">Céatadán</translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished">Níl an t-eolaire ann</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished">Ar cheart comhadlann %1 a chruthú?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished">Níorbh fhéidir an t-eolaire a chruthú</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished">Níorbh fhéidir comhadlann %1 a chruthú.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14694,6 +14861,25 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
 </context>
 <context>
+    <name>StatTableExporter</name>
+    <message>
+        <source>Save Statistics As…</source>
+        <translation type="unfinished">Sábháil Staitisticí Mar…</translation>
+    </message>
+    <message>
+        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
+        <translation type="unfinished">Gnáthchomhad téacs (*.txt);; Luachanna scartha camóg (*.csv);; Doiciméad XML (*.xml);; Doiciméad YAML (*.yaml)</translation>
+    </message>
+    <message>
+        <source>Plain text file (*.txt)</source>
+        <translation type="unfinished">Gnáthchomhad téacs (*.txt)</translation>
+    </message>
+    <message>
+        <source>Error saving file %1</source>
+        <translation type="unfinished">Earráid agus comhad %1 á shábháil</translation>
+    </message>
+</context>
+<context>
     <name>StatsTreeDialog</name>
     <message>
         <source>Configuration not found</source>
@@ -14713,6 +14899,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     <message>
         <source>Display filter:</source>
         <translation>Scagaire taispeána:</translation>
+    </message>
+    <message>
+        <source>Encapsulation:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Strip Headers</source>
@@ -15726,19 +15916,19 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>Save Statistics As…</source>
-        <translation>Sábháil Staitisticí Mar…</translation>
+        <translation type="vanished">Sábháil Staitisticí Mar…</translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation>Gnáthchomhad téacs (*.txt);; Luachanna scartha camóg (*.csv);; Doiciméad XML (*.xml);; Doiciméad YAML (*.yaml)</translation>
+        <translation type="vanished">Gnáthchomhad téacs (*.txt);; Luachanna scartha camóg (*.csv);; Doiciméad XML (*.xml);; Doiciméad YAML (*.yaml)</translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation>Gnáthchomhad téacs (*.txt)</translation>
+        <translation type="vanished">Gnáthchomhad téacs (*.txt)</translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation>Earráid agus comhad %1 á shábháil</translation>
+        <translation type="vanished">Earráid agus comhad %1 á shábháil</translation>
     </message>
 </context>
 <context>
@@ -16323,7 +16513,11 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The preview shows the theme&apos;s font.</source>
+        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The Packet List sample shows the theme&apos;s font, the Lua Code sample your preference.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Code</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16561,6 +16755,13 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
 </context>
 <context>
+    <name>ThemeLuaCodePreview</name>
+    <message>
+        <source>Save Image As…</source>
+        <translation type="unfinished">Sábháil Íomhá Mar…</translation>
+    </message>
+</context>
+<context>
     <name>ThemeManager</name>
     <message>
         <source>Theme &quot;%1&quot; not found.</source>
@@ -16653,7 +16854,7 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
     <message>
         <source>Save Theme Preview</source>
-        <translation type="unfinished">Sábháil Réamhamharc Téama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
@@ -16661,7 +16862,7 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
     <message>
         <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="unfinished">Níorbh fhéidir an íomhá a scríobh chuig &quot;%1&quot;.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -16703,18 +16904,6 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation>Sábháil Íomhá Mar…</translation>
     </message>
     <message>
-        <source>Save Theme Preview</source>
-        <translation type="vanished">Sábháil Réamhamharc Téama</translation>
-    </message>
-    <message>
-        <source>PNG Image (*.png)</source>
-        <translation type="vanished">Íomhá PNG (*.png)</translation>
-    </message>
-    <message>
-        <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="vanished">Níorbh fhéidir an íomhá a scríobh chuig &quot;%1&quot;.</translation>
-    </message>
-    <message>
         <source>Info</source>
         <translation>Eolas</translation>
     </message>
@@ -16729,10 +16918,6 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     <message>
         <source>Packets: %1</source>
         <translation>Pacáistí: %1</translation>
-    </message>
-    <message>
-        <source>Displayed: %1 (100.0%)</source>
-        <translation type="vanished">Taispeánta: %1 (100.0%)</translation>
     </message>
 </context>
 <context>
@@ -16855,6 +17040,10 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
     <message>
         <source>palette.mid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>fixed code editor default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17053,10 +17242,6 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
 <context>
     <name>ThemeWelcomePreview</name>
     <message>
-        <source>Development Build</source>
-        <translation type="unfinished">Tógáil Forbartha</translation>
-    </message>
-    <message>
         <source>Release Notes</source>
         <translation type="unfinished">Nótaí Eisiúna</translation>
     </message>
@@ -17085,7 +17270,7 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</source>
+        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17224,6 +17409,58 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Lua Debugger editor: background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: plain text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selection background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selected text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line number gutter and current line background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line the debugger is paused on; may be translucent.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: string literals.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: keywords (drawn bold).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: built-in names such as self.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: names of called functions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: comments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow Stream client background.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17312,8 +17549,12 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation>agus an t-am a eachtarshuí do gach paicéad eile</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
@@ -19939,6 +20180,14 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation>Téigh go dtí an paicéad tagairt ag an réimse roghnaithe.</translation>
     </message>
     <message>
+        <source>Appearance Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch between the System, Light and Dark appearance modes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TLS Keylog Launcher</source>
         <translation>Tosaitheoir Keylog TLS</translation>
     </message>
@@ -20311,6 +20560,18 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>Scoir &amp;gan Sábháil</translation>
+    </message>
+    <message>
+        <source>Appearance mode: Light. Click to switch to Dark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: Dark. Click to switch to System.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: System. Click to switch to Light.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>USB CDC Data</source>
