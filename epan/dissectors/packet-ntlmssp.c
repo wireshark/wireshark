@@ -611,7 +611,7 @@ get_md4pass_list(wmem_allocator_t *pool, md4_pass** p_pass_list)
     return 0;
   }
   i = 0;
-  *p_pass_list = (md4_pass *)wmem_alloc0(pool, nb_pass*sizeof(md4_pass));
+  *p_pass_list = wmem_alloc0_array(pool, md4_pass, nb_pass);
   pass_list = *p_pass_list;
 
   /* Add UAT credentials */

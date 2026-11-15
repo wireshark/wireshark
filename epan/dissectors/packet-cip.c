@@ -8227,7 +8227,7 @@ int dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto
          mr_mult_req_info = wmem_new(wmem_file_scope(), mr_mult_req_info_t);
          mr_mult_req_info->service = SC_MULT_SERV_PACK;
          mr_mult_req_info->num_services = num_services;
-         mr_mult_req_info->requests = (cip_req_info_t *)wmem_alloc0(wmem_file_scope(), sizeof(cip_req_info_t)*num_services);
+         mr_mult_req_info->requests = wmem_alloc0_array(wmem_file_scope(), cip_req_info_t, num_services);
          cip_req_info->pMultReq = mr_mult_req_info;
       }
 

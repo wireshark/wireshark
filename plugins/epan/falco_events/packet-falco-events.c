@@ -510,23 +510,23 @@ create_source_hfids(bridge_info* bi)
     }
 
     if (bi->visible_fields) {
-        bi->hf = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(hf_register_info));
-        bi->hf_ids = (int*)wmem_alloc0(wmem_epan_scope(), bi->visible_fields * sizeof(int));
-        bi->field_ids = (int*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
-        bi->field_flags = (uint32_t*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(uint32_t));
+        bi->hf = wmem_alloc_array(wmem_epan_scope(), hf_register_info, bi->visible_fields);
+        bi->hf_ids = wmem_alloc0_array(wmem_epan_scope(), int, bi->visible_fields);
+        bi->field_ids = wmem_alloc_array(wmem_epan_scope(), int, bi->visible_fields);
+        bi->field_flags = wmem_alloc_array(wmem_epan_scope(), uint32_t, bi->visible_fields);
 
         if (bi->addr_fields) {
-            bi->hf_id_to_addr_id = (int *)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
-            bi->hf_v4 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->addr_fields * sizeof(hf_register_info));
-            bi->hf_v4_ids = (int*)wmem_alloc0(wmem_epan_scope(), bi->addr_fields * sizeof(int));
-            bi->hf_v6 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->addr_fields * sizeof(hf_register_info));
-            bi->hf_v6_ids = (int*)wmem_alloc0(wmem_epan_scope(), bi->addr_fields * sizeof(int));
+            bi->hf_id_to_addr_id = wmem_alloc_array(wmem_epan_scope(), int, bi->visible_fields);
+            bi->hf_v4 = wmem_alloc_array(wmem_epan_scope(), hf_register_info, bi->addr_fields);
+            bi->hf_v4_ids = wmem_alloc0_array(wmem_epan_scope(), int, bi->addr_fields);
+            bi->hf_v6 = wmem_alloc_array(wmem_epan_scope(), hf_register_info, bi->addr_fields);
+            bi->hf_v6_ids = wmem_alloc0_array(wmem_epan_scope(), int, bi->addr_fields);
             bi->hf_geoip = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->addr_fields * GEOIP_FIELD_COUNT * sizeof(hf_register_info));
             bi->hf_geoip_ids = (int*)wmem_alloc0(wmem_epan_scope(), bi->addr_fields * GEOIP_FIELD_COUNT * sizeof(int));
         }
 
         if (bi->num_conversation_filters) {
-            bi->conversation_filters = (conv_filter_info *)wmem_alloc(wmem_epan_scope(), bi->num_conversation_filters * sizeof (conv_filter_info));
+            bi->conversation_filters = wmem_alloc_array(wmem_epan_scope(), conv_filter_info, bi->num_conversation_filters);
         }
 
         uint32_t fld_cnt = 0;
@@ -1666,7 +1666,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
 
     const uint8_t* payload = tvb_get_ptr(tvb, 0, payload_len);
 
-    plugin_field_extract_t *sinsp_fields = (plugin_field_extract_t*) wmem_alloc(pinfo->pool, sizeof(plugin_field_extract_t) * bi->visible_fields);
+    plugin_field_extract_t *sinsp_fields = wmem_alloc_array(pinfo->pool, plugin_field_extract_t, bi->visible_fields);
     for (uint32_t fld_idx = 0; fld_idx < bi->visible_fields; fld_idx++) {
         header_field_info* hfinfo = &(bi->hf[fld_idx].hfinfo);
         plugin_field_extract_t *sfe = &sinsp_fields[fld_idx];

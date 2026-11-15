@@ -403,7 +403,7 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree_add_item(btsap_tree, hf_btsap_header_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    parameters = (uint8_t *) wmem_alloc(pinfo->pool, number_of_parameters * sizeof(uint8_t));
+    parameters = wmem_alloc_array(pinfo->pool, uint8_t, number_of_parameters);
     parameter_offsets = (int *) wmem_alloc0(pinfo->pool, number_of_parameters * sizeof(unsigned));
 
     for (i_parameter = 0; i_parameter < number_of_parameters; ++i_parameter) {

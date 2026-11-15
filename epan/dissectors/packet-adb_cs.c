@@ -158,7 +158,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             adb_service_data.direction = direction;
 
             adb_service_data.session_key_length = 3;
-            adb_service_data.session_key = (uint32_t *) wmem_alloc(pinfo->pool, adb_service_data.session_key_length * sizeof(uint32_t));
+            adb_service_data.session_key = wmem_alloc_array(pinfo->pool, uint32_t, adb_service_data.session_key_length);
             adb_service_data.session_key[0] = wireshark_interface_id;
             adb_service_data.session_key[1] = pinfo->destport;
             adb_service_data.session_key[2] = pinfo->srcport;
@@ -333,7 +333,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         adb_service_data.direction = direction;
 
         adb_service_data.session_key_length = 3;
-        adb_service_data.session_key = (uint32_t *) wmem_alloc(pinfo->pool, adb_service_data.session_key_length * sizeof(uint32_t));
+        adb_service_data.session_key = wmem_alloc_array(pinfo->pool, uint32_t, adb_service_data.session_key_length);
         adb_service_data.session_key[0] = wireshark_interface_id;
         adb_service_data.session_key[1] = pinfo->destport;
         adb_service_data.session_key[2] = pinfo->srcport;

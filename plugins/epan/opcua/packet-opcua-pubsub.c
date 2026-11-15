@@ -266,7 +266,7 @@ dissect_network_message_payload(tvbuff_t *tvb, packet_info *pinfo, int *pOffset,
             return tvb_captured_length(tvb);
         }
         /* uint32_t dataset_sizes[msg_count]; */
-        uint32_t *dataset_sizes = (uint32_t *)wmem_alloc(pinfo->pool, sizeof(uint32_t) * msg_count);
+        uint32_t *dataset_sizes = wmem_alloc_array(pinfo->pool, uint32_t, msg_count);
         if (payload_hdr_enabled && msg_count > 1) { /* no sizes if there's only 1 message */
             unsigned int i;
             for (i = 0; i < msg_count; i++)

@@ -799,7 +799,7 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
         startpt = tvb_get_uint8(tvb, offset);
         endpt = tvb_get_uint8(tvb, offset+1);
         num_objects = (endpt >= startpt) ? (endpt - startpt) + 1 : 0;
-        frame->requested_points = (uint8_t *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(uint8_t));
+        frame->requested_points = wmem_alloc_array(wmem_file_scope(), uint8_t, num_objects);
 
         /* We have a range of 'request' points */
         for (unsigned idx = 0; idx < num_objects; idx++) {
@@ -811,7 +811,7 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
     /* Get Details for all Requested Points */
     else {
         num_objects = frame->numberofcharacters;
-        frame->requested_points = (uint8_t *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(uint8_t));
+        frame->requested_points = wmem_alloc_array(wmem_file_scope(), uint8_t, num_objects);
         tvb_memcpy(tvb, frame->requested_points, offset, num_objects * sizeof(uint8_t));
         /* offset += num_objects * sizeof(uint8_t); */
     }

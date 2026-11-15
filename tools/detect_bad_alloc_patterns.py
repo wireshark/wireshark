@@ -6,7 +6,11 @@ Also detect and replace instances of
 g_malloc(sizeof(struct myobj) * foo)
 with:
 g_new(struct myobj, foo)
-to better prevent integer overflows
+to better prevent integer overflows.
+
+Also detect and replace instances of wmem_alloc()/wmem_alloc0()
+with sizeof(type) * count or count * sizeof(type) with the overflow-safe
+wmem_alloc_array()/wmem_alloc0_array() macros.
 
 SPDX-License-Identifier: MIT
 """
@@ -33,6 +37,18 @@ patterns = [
 # Replace (myobj *)wmem_alloc(wmem_file_scope(), sizeof(myobj)) with wmem_new(wmem_file_scope(), myobj)
 # Replace (struct myobj *)wmem_alloc(wmem_file_scope(), sizeof(struct myobj)) with wmem_new(wmem_file_scope(), struct myobj)
 (re.compile(r'\(\s*([struct]{0,6}\s*[^\s\*]+)\s*\*\s*\)\s*wmem_alloc(0?)\s*\(\s*([_a-z\(\)->]+),\s*sizeof\s*\(\s*\1\s*\)\s*\)'), r'wmem_new\2(\3, \1)'),
+
+# Replace (myobj *)wmem_alloc(scope, sizeof(myobj) * foo) with wmem_alloc_array(scope, myobj, foo)
+# Replace (struct myobj *)wmem_alloc(scope, sizeof(struct myobj) * foo) with wmem_alloc_array(scope, struct myobj, foo)
+# Replace (myobj *)wmem_alloc0(scope, sizeof(myobj) * foo) with wmem_alloc0_array(scope, myobj, foo)
+# Replace (struct myobj *)wmem_alloc0(scope, sizeof(struct myobj) * foo) with wmem_alloc0_array(scope, struct myobj, foo)
+(re.compile(r'\(\s*([struct]{0,6}\s*[^\s\*]+)\s*\*\s*\)\s*wmem_alloc(0?)\s*\(\s*([_a-z\(\)->]+),\s*sizeof\s*\(\s*\1\s*\)\s*\*\s*([^\s]+)\s*\)'), r'wmem_alloc\2_array(\3, \1, \4)'),
+
+# Replace (myobj *)wmem_alloc(scope, foo * sizeof(myobj)) with wmem_alloc_array(scope, myobj, foo)
+# Replace (struct myobj *)wmem_alloc(scope, foo * sizeof(struct myobj)) with wmem_alloc_array(scope, struct myobj, foo)
+# Replace (myobj *)wmem_alloc0(scope, foo * sizeof(myobj)) with wmem_alloc0_array(scope, myobj, foo)
+# Replace (struct myobj *)wmem_alloc0(scope, foo * sizeof(struct myobj)) with wmem_alloc0_array(scope, struct myobj, foo)
+(re.compile(r'\(\s*([struct]{0,6}\s*[^\s\*]+)\s*\*\s*\)\s*wmem_alloc(0?)\s*\(\s*([_a-z\(\)->]+),\s*([^\s]+)\s*\*\s*sizeof\s*\(\s*\1\s*\)\s*\)'), r'wmem_alloc\2_array(\3, \1, \4)'),
 ]
 
 def replace_file(fpath):
@@ -81,6 +97,12 @@ def test_replacements():
 (struct smtp_session_state *)wmem_alloc0(wmem_file_scope(), sizeof(struct smtp_session_state))
 (struct batman_packet_v5 *)wmem_alloc(pinfo->pool, sizeof(struct batman_packet_v5))
 (struct knx_keyring_mca_keys*) wmem_alloc( wmem_epan_scope(), sizeof( struct knx_keyring_mca_keys ) )
+(wmem_tree_key_t *)wmem_alloc(pool, sizeof(wmem_tree_key_t)*6)
+(md4_pass *)wmem_alloc0(pool, nb_pass*sizeof(md4_pass))
+(uint32_t *)wmem_alloc(pinfo->pool, fcount*sizeof(uint32_t))
+(ws_in6_addr *)wmem_alloc0(pinfo->pool, table_length * sizeof(ws_in6_addr))
+(uint8_t *)wmem_alloc(pinfo->pool, 512 * sizeof(uint8_t))
+(uint16_t *)wmem_alloc(pinfo->pool, 513 * sizeof(uint16_t))
 """
     expected_output = """\
 g_new0(if_info_t, 1)
@@ -97,6 +119,12 @@ wmem_new(wmem_file_scope(), dcerpc_matched_key);
 wmem_new0(wmem_file_scope(), struct smtp_session_state)
 wmem_new(pinfo->pool, struct batman_packet_v5)
 wmem_new(wmem_epan_scope(), struct knx_keyring_mca_keys)
+wmem_alloc_array(pool, wmem_tree_key_t, 6)
+wmem_alloc0_array(pool, md4_pass, nb_pass)
+wmem_alloc_array(pinfo->pool, uint32_t, fcount)
+wmem_alloc0_array(pinfo->pool, ws_in6_addr, table_length)
+wmem_alloc_array(pinfo->pool, uint8_t, 512)
+wmem_alloc_array(pinfo->pool, uint16_t, 513)
 """
     output = test_string
     for pattern, replacewith in patterns:

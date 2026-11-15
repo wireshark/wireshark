@@ -2123,7 +2123,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
         while (base_package_name_vals[i].strptr != NULL) {
             pkg_found = wmem_new0(wmem_epan_scope(), h248_package_t); /* create a h248 package structure */
             pkg_found->id = base_package_name_vals[i].value;
-            vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*2);
+            vst = wmem_alloc0_array(wmem_epan_scope(), value_string, 2);
             vst[0].strptr = base_package_name_vals[i].strptr;
             pkg_found->param_names = vst;
             pkg_found->hfid = &hf_h248_pkg_name;
@@ -2136,7 +2136,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
                     j++;
                 };
                 if (idx < j) {
-                    vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
+                    vst = wmem_alloc0_array(wmem_epan_scope(), value_string, (j-idx+1));
                     for (k=0;idx<j;k++) {
                         vst[k].strptr = base_event_name_vals[idx].strptr;
                         vst[k].value = (base_event_name_vals[idx].value & 0xffff);
@@ -2152,7 +2152,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
                     j++;
                 };
                 if (idx < j) {
-                    vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
+                    vst = wmem_alloc0_array(wmem_epan_scope(), value_string, (j-idx+1));
                     for (k=0;idx<j;k++) {
                         vst[k].strptr = base_signal_name_vals[idx].strptr;
                         vst[k].value = (base_signal_name_vals[idx].value &0xffff);

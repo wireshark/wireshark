@@ -5511,8 +5511,7 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		ct = get_create_converstation_data(pinfo);
 
-		request.acolumns = (struct CTableColumn*)wmem_alloc0(wmem_file_scope(),
-						   sizeof(struct CTableColumn) * num);
+		request.acolumns = wmem_alloc0_array(wmem_file_scope(), struct CTableColumn, num);
 		for (n=0; n<num; n++) {
 			offset = parse_padding(tvb, offset, 4, pad_tree, wmem_strdup_printf(pinfo->pool, "padding_aColumns[%u]", n));
 			offset = parse_CTableColumn(tvb, pinfo, offset, tree, pad_tree, &request.acolumns[n], wmem_strdup_printf(pinfo->pool, "aColumns[%u]", n));

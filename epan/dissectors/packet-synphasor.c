@@ -755,7 +755,7 @@ static config_frame * config_3_frame_fast(packet_info *pinfo, tvbuff_t *tvb)
 		{
 			/* The values are copied into the block.phasors array and
 			 * so this can be pinfo->pool scope. */
-			pi = (phasor_info *)wmem_alloc(pinfo->pool, sizeof(phasor_info)*num_ph);
+			pi = wmem_alloc_array(pinfo->pool, phasor_info, num_ph);
 
 			for (i = 0; i != num_ph; i++) {
 				/* copy the phasor name from the tvb, and add NULL byte */
@@ -775,7 +775,7 @@ static config_frame * config_3_frame_fast(packet_info *pinfo, tvbuff_t *tvb)
 		{
 			/* The values are copied into the block.analog array and
 			 * so these can be pinfo->pool scope. */
-			ai = (analog_info *)wmem_alloc(pinfo->pool, sizeof(analog_info)*num_an);
+			ai = wmem_alloc_array(pinfo->pool, analog_info, num_an);
 
 			for (i = 0; i != num_an; i++) {
 				/* copy the phasor name from the tvb, and add NULL byte */

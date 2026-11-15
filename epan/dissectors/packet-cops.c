@@ -1560,7 +1560,7 @@ static unsigned redecode_oid(wmem_allocator_t* scope, uint32_t* pprid_subids, un
 
     for (i=0; i<encoded_len; i++) { if (! (encoded_subids[i] & 0x80 )) n++; }
 
-    *subids_p = subids = (uint32_t *)wmem_alloc(scope, sizeof(uint32_t)*(n+pprid_subids_len));
+    *subids_p = subids = wmem_alloc_array(scope, uint32_t, (n+pprid_subids_len));
     subid_overflow = subids+n+pprid_subids_len;
     for (i=0;i<pprid_subids_len;i++) subids[i] = pprid_subids[i];
 

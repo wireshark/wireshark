@@ -3383,7 +3383,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                         int offset, mac_lte_info *p_mac_lte_info, mac_3gpp_tap_info *tap_info)
 {
     unsigned    number_of_rars         = 0; /* No of RAR bodies expected following headers */
-    uint8_t    *rapids                 = (uint8_t *)wmem_alloc(pinfo->pool, MAX_RAR_PDUS * sizeof(uint8_t));
+    uint8_t    *rapids                 = wmem_alloc_array(pinfo->pool, uint8_t, MAX_RAR_PDUS);
     uint32_t    temp_rapid;
     bool        backoff_indicator_seen = false;
     uint32_t    backoff_indicator      = 0;

@@ -16780,8 +16780,8 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo,
     if (rtps_max_batch_samples_dissected == 0) {
       sample_info_max = 1024;   /* Max size of sampleInfo shown */
     }
-    sample_info_flags = (uint16_t *)wmem_alloc(pinfo->pool, sizeof(uint16_t) *sample_info_max);
-    sample_info_length = (uint32_t *)wmem_alloc(pinfo->pool, sizeof(uint32_t) *sample_info_max);
+    sample_info_flags = wmem_alloc_array(pinfo->pool, uint16_t, sample_info_max);
+    sample_info_length = wmem_alloc_array(pinfo->pool, uint32_t, sample_info_max);
 
     /* Sample Info List: start decoding the sample info list until the offset
      * is greater or equal than 'sampleListOffset' */

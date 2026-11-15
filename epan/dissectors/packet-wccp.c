@@ -1483,8 +1483,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
       break;
     case 2:
       if (wccp_wccp_address_table->table_ipv6 == NULL)
-        wccp_wccp_address_table->table_ipv6 = (ws_in6_addr *)
-          wmem_alloc0(pinfo->pool, wccp_wccp_address_table->table_length * sizeof(ws_in6_addr));
+        wccp_wccp_address_table->table_ipv6 = wmem_alloc0_array(pinfo->pool, ws_in6_addr, wccp_wccp_address_table->table_length);
       break;
     };
   }

@@ -1006,7 +1006,7 @@ unsigned oid_encoded2subid_sub(wmem_allocator_t *scope, const uint8_t *oid_bytes
 
 	for (i=0; i<oid_len; i++) { if (! (oid_bytes[i] & 0x80 )) n++; }
 
-	*subids_p = subids = (uint32_t *)wmem_alloc(scope, sizeof(uint32_t)*n);
+	*subids_p = subids = wmem_alloc_array(scope, uint32_t, n);
 	subid_overflow = subids+n;
 
 	/* If n is 0 or 1 (depending on how it was initialized) then we found

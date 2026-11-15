@@ -338,7 +338,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
     proto_tree_add_expert_format_remaining(tree, pinfo, &ei_edcp_reassembly_info, tvb, 0, "want %u, got %u need %u",
                            fcount, fragments, rx_min);
-    got = (uint32_t *)wmem_alloc(pinfo->pool, fcount*sizeof(uint32_t));
+    got = wmem_alloc_array(pinfo->pool, uint32_t, fcount);
 
     /* make a list of the findex (offset) numbers of the fragments we have */
     fd_head = fragment_get(&dcp_reassembly_table, pinfo, seq, NULL);

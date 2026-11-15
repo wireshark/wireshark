@@ -13338,8 +13338,8 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
                     /* ToDo: Test for changed template ? If so: expert ?             */
                     break; /* Don't cache this template */
                 }
-                tmplt.fields_p[TF_SCOPES]  = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), option_scope_field_count *sizeof(v9_v10_tmplt_entry_t));
-                tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), option_field_count       *sizeof(v9_v10_tmplt_entry_t));
+                tmplt.fields_p[TF_SCOPES]  = wmem_alloc0_array(wmem_file_scope(), v9_v10_tmplt_entry_t, option_scope_field_count);
+                tmplt.fields_p[TF_ENTRIES] = wmem_alloc0_array(wmem_file_scope(), v9_v10_tmplt_entry_t, option_field_count);
                 break;
             } while (false);
         }
@@ -13451,7 +13451,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
                     /* ToDo: Test for changed template ? If so: expert ?             */
                     break; /* Don't cache this template */
                 }
-                tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), count * sizeof(v9_v10_tmplt_entry_t));
+                tmplt.fields_p[TF_ENTRIES] = wmem_alloc0_array(wmem_file_scope(), v9_v10_tmplt_entry_t, count);
                 break;
             } while (false);
         }

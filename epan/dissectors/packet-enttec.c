@@ -171,8 +171,8 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, prot
 		"%3u: %s"
 	};
 
-	uint8_t *dmx_data = (uint8_t *)wmem_alloc(pinfo->pool, 512 * sizeof(uint8_t));
-	uint16_t *dmx_data_offset = (uint16_t *)wmem_alloc(pinfo->pool, 513 * sizeof(uint16_t)); /* 1 extra for last offset */
+	uint8_t *dmx_data = wmem_alloc_array(pinfo->pool, uint8_t, 512);
+	uint16_t *dmx_data_offset = wmem_alloc_array(pinfo->pool, uint16_t, 513); /* 1 extra for last offset */
 	wmem_strbuf_t *dmx_epstr;
 
 	proto_tree *hi,*si;

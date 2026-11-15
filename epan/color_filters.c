@@ -797,7 +797,7 @@ read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_c
         return 0;
     }
 
-    tokens = (jsmntok_t *)g_malloc(num_tokens * sizeof(jsmntok_t));
+    tokens = g_new(jsmntok_t, num_tokens);
     if (json_parse(buf, tokens, num_tokens) <= 0 || tokens[0].type != JSMN_ARRAY) {
         report_warning("Error parsing coloring rules file\n\"%s\": invalid JSON.", path);
         g_free(tokens);

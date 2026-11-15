@@ -1108,7 +1108,7 @@ typedef struct _sctp_tsn_t {
 static wmem_tree_key_t*
 make_address_key(wmem_allocator_t *pool, uint32_t spt, uint32_t dpt, address *addr)
 {
-  wmem_tree_key_t *k = (wmem_tree_key_t *)wmem_alloc(pool, sizeof(wmem_tree_key_t)*6);
+  wmem_tree_key_t *k = wmem_alloc_array(pool, wmem_tree_key_t, 6);
 
   k[0].length = 1;    k[0].key = (uint32_t*)wmem_memdup(pool, &spt,sizeof(spt));
   k[1].length = 1;    k[1].key = (uint32_t*)wmem_memdup(pool, &dpt,sizeof(dpt));
@@ -1127,7 +1127,7 @@ make_address_key(wmem_allocator_t *pool, uint32_t spt, uint32_t dpt, address *ad
 static wmem_tree_key_t *
 make_dir_key(wmem_allocator_t *pool, uint32_t spt, uint32_t dpt, uint32_t vtag)
 {
-  wmem_tree_key_t *k =  (wmem_tree_key_t *)wmem_alloc(pool, sizeof(wmem_tree_key_t)*4);
+  wmem_tree_key_t *k =  wmem_alloc_array(pool, wmem_tree_key_t, 4);
 
   k[0].length = 1;    k[0].key = (uint32_t*)wmem_memdup(pool, &spt,sizeof(spt));
   k[1].length = 1;    k[1].key = (uint32_t*)wmem_memdup(pool, &dpt,sizeof(dpt));

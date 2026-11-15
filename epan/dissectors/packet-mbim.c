@@ -10011,7 +10011,7 @@ void mbim_register_uuid_ext(struct mbim_uuid_ext *uuid_ext)
         mbim_uuid_ext_hash = wmem_map_new(wmem_epan_scope(), mbim_uuid_hash, mbim_uuid_equal);
     }
 
-    uuid_key = (uint32_t *)wmem_alloc(wmem_epan_scope(), 4*sizeof(uint32_t));
+    uuid_key = wmem_alloc_array(wmem_epan_scope(), uint32_t, 4);
     memcpy(uuid_key, uuid_ext->uuid, 4*sizeof(uint32_t));
     wmem_map_insert(mbim_uuid_ext_hash, uuid_key, uuid_ext);
 }

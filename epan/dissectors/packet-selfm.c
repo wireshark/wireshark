@@ -914,7 +914,7 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
     /* Update offset pointer */
     offset += 6;
 
-    frame->analogs = (fm_analog_info *)wmem_alloc(wmem_file_scope(), frame->num_ai * sizeof(fm_analog_info));
+    frame->analogs = wmem_alloc_array(wmem_file_scope(), fm_analog_info, frame->num_ai);
 
     /* Get AI Channel Details and copy into ai_info */
     for (count = 0; count < frame->num_ai; count++) {

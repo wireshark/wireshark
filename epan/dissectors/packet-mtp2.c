@@ -556,7 +556,7 @@ new_byte(wmem_allocator_t* allocator, char full_byte, uint8_t **data, unsigned *
     /* if this buffer is used -> create a completely new one
      * note, that after the dissection of this packet
      * the old data will be freed automatically (because of the wmem_alloc) */
-    new_data = (uint8_t *)wmem_alloc(allocator, sizeof(uint8_t)*((*data_len)+1));
+    new_data = wmem_alloc_array(allocator, uint8_t, (*data_len)+1);
     /* copy the old one's content */
     for (i = 0;i<(*data_len);i++) {
       *(new_data+i) = *((*data)+i);

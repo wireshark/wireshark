@@ -1008,7 +1008,7 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
 #ifdef SS_MEMORY_STATISTICS
         alloc_sfe += sfe_slab_prealloc;
 #endif
-        sinsp_span->sfe_slab = (sinsp_field_extract_t *) wmem_alloc(wmem_file_scope(), sizeof(sinsp_field_extract_t) * sfe_slab_prealloc);
+        sinsp_span->sfe_slab = wmem_alloc_array(wmem_file_scope(), sinsp_field_extract_t, sfe_slab_prealloc);
     }
 
     sinsp_field_extract_t *sfe_block = &sinsp_span->sfe_slab[sinsp_span->sfe_slab_offset];
