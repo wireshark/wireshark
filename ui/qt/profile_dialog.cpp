@@ -273,7 +273,7 @@ void ProfileDialog::selectionChanged()
     pd_ui_->copyToolButton->setEnabled(enable_copy);
 
     // Walk the selected profiles to collect information to use for buttons and labels
-    bool enable_del = true;
+    bool enable_del = false;
     int user_profiles = 0;
     for (const QModelIndex& profile_index : profiles)
     {
@@ -285,9 +285,9 @@ void ProfileDialog::selectionChanged()
         if (!profile->isGlobal() && !profile->isDefault())
             user_profiles++;
 
-        // Can't delete Global profiles or deleted profiles
-        if (profile->isGlobal() || (profile->isDeleted()))
-            enable_del = false;
+        // Delete the selected personal profiles, ignoring global and deleted profiles
+        if (!profile->isGlobal() && !profile->isDeleted())
+            enable_del = true;
     }
     pd_ui_->deleteToolButton->setEnabled(enable_del);
 
@@ -535,12 +535,12 @@ void ProfileDialog::buttonBoxAccepted()
             newProfile = model_->getProfile(model_->index(0, ProfileModel::COL_NAME));
 
         if ((currentProfile == Q_NULLPTR) ||
-            (newProfile->getName() != currentProfile->getName()) ||
-            (newProfile->getName().compare(get_profile_name()) != 0) ||
-            (newProfile->isGlobal() != currentProfile->isGlobal()))
+            (newProfile != currentProfile) ||
+            (newProfile->getName().compare(get_profile_name()) != 0))
         {
-            // The new profile exists, change.
-            mainApp->setConfigurationProfile(newProfile->getName().toUtf8().constData(), false);
+            // The new profile exists, change. Another profile may have been
+            // given the name of the deleted or moved one, so reload it.
+            mainApp->setConfigurationProfile(newProfile->getName().toUtf8().constData(), false, currentDeleted || currentMoved);
         }
         else if (newProfile->isDefault() && currentProfile->isDefault())
         {
@@ -619,9 +619,10 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles, bool withChil
 
     if (! exportAllPersonalProfiles)
     {
+        // Skip global, default, deleted and imported profiles
         foreach (QModelIndex idx, selectedProfiles())
         {
-            if (! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool())
+            if (! exportItems({idx}, false).isEmpty())
                 items << idx;
             else
                 skipped++;
