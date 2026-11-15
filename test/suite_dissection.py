@@ -96472,14 +96472,31 @@ class TestDissectManolito:
             assert self.frames(cmd_tshark, capture_file, test_env,
                                '_ws.malformed || _ws.expert', passes=passes) == []
 
+    def test_manolito_checksum(self, cmd_tshark, capture_file, test_env):
+        '''Every checksum verifies. Frame 6 carries Windows-1250 (Polish)
+        text and frame 15 Windows-1255 (Hebrew) text, so their checksums
+        only reproduce under those code pages.'''
+        assert self.frames(cmd_tshark, capture_file, test_env, 'manolito',
+                           'manolito.checksum.status') == \
+            [[str(n), '1'] for n in range(1, 17)]
+        assert self.frames(cmd_tshark, capture_file, test_env,
+                           'frame.number in {1, 6, 15}',
+                           'manolito.checksum.codepages') == [
+            ['1', 'Windows-1252/Windows-1254/Windows-1258'],
+            ['6', 'Windows-1250'],
+            ['15', 'Windows-1255'],
+        ]
+
     def test_manolito_header(self, cmd_tshark, capture_file, test_env):
-        '''Header fields of a ping with options, and the forwarded source address.'''
+        '''Header fields of a ping with options, and the forwarded source address.
+        The checksum is the 16-bit CRC in the first two bytes; the last two
+        bytes of the field are padding.'''
         assert self.frames(cmd_tshark, capture_file, test_env, 'frame.number in {1, 2, 3}',
-                           'manolito.checksum', 'manolito.seqno', 'manolito.src', 'manolito.dest',
-                           'manolito.options') == [
-            ['1', '0x12345678', '0x00000001', '0.0.0.0', '192.0.2.2', '0x00000000'],
-            ['2', '0x12345678', '0x00000002', '0.0.0.0', '192.0.2.2', '0x010203'],
-            ['3', '0x12345678', '0x00000003', '192.0.2.9', '192.0.2.2', '0x00000000'],
+                           'manolito.checksum', 'manolito.checksum.padding', 'manolito.seqno',
+                           'manolito.src', 'manolito.dest', 'manolito.options') == [
+            ['1', '0xf058', '0x0000', '0x00000001', '0.0.0.0', '192.0.2.2', '0x00000000'],
+            ['2', '0xbe70', '0x0000', '0x00000002', '0.0.0.0', '192.0.2.2', '0x010203'],
+            ['3', '0xe134', '0x0000', '0x00000003', '192.0.2.9', '192.0.2.2', '0x00000000'],
         ]
 
     def test_manolito_fields(self, cmd_tshark, capture_file, test_env):

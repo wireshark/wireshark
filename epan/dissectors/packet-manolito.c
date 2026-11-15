@@ -15,6 +15,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/charsets.h>
 
 void proto_register_manolito(void);
 void proto_reg_handoff_manolito(void);
@@ -26,6 +27,9 @@ static dissector_handle_t manolito_handle;
 static int proto_manolito;
 
 static int hf_manolito_checksum;
+static int hf_manolito_checksum_status;
+static int hf_manolito_checksum_padding;
+static int hf_manolito_checksum_codepages;
 static int hf_manolito_seqno;
 static int hf_manolito_src;
 static int hf_manolito_dest;
@@ -37,6 +41,16 @@ static int hf_manolito_integer;
 static int ett_manolito;
 
 static expert_field ei_manolito_type;
+static expert_field ei_manolito_checksum_bad;
+
+/* The sender converts its ANSI message to Unicode (VB6 StrConv(s, vbUnicode))
+ * before checksumming, so every byte >= 0x80 hashes as the UTF-16LE code unit
+ * of its code-page character.  The conversion uses the *sender's* Windows ANSI
+ * code page: 20523 of 20528 corpus frames reproduce under Windows-1252; the
+ * exceptions were single frames from a CP1250 (Polish) and a CP1255 (Israeli)
+ * sender.  This dissector verifies with Windows-1252 and additionally tries
+ * every candidate code page, reporting in manolito.checksum.codepages which
+ * ones could have produced the stored checksum. */
 
 #define MANOLITO_STRING  1
 #define MANOLITO_INTEGER 0
@@ -66,6 +80,118 @@ static const value_string field_longname[] = {
 };
 static value_string_ext field_longname_ext = VALUE_STRING_EXT_INIT(field_longname);
 
+static const value_string manolito_checksum_status[] = {
+	{ PROTO_CHECKSUM_E_BAD,        "Bad" },
+	{ PROTO_CHECKSUM_E_GOOD,       "Good" },
+	{ PROTO_CHECKSUM_E_UNVERIFIED, "Unverified" },
+	{ PROTO_CHECKSUM_E_NOT_PRESENT, "Not present" },
+	{ 0, NULL }
+};
+
+/* --- manolito checksum core: begin --- */
+
+/* Show the candidate code pages inline with the checksum when at most this
+ * many match; a longer list belongs in manolito.checksum.codepages only. */
+#define MANOLITO_MAX_DISPLAY	4
+
+/* CRC-16/CCITT: poly 0x1021, MSB first, init 0, no final xor. */
+#define MANOLITO_CRC16_POLY	0x1021
+#define MANOLITO_CRC16_INIT	0x0000
+
+static uint16_t
+manolito_crc16_byte(uint16_t crc, uint8_t byte)
+{
+	unsigned bit;
+
+	crc ^= (uint16_t)byte << 8;
+	for (bit = 0; bit < 8; bit++) {
+		if (crc & 0x8000)
+			crc = (uint16_t)((crc << 1) ^ MANOLITO_CRC16_POLY);
+		else
+			crc = (uint16_t)(crc << 1);
+	}
+	return crc;
+}
+
+/*
+ * Candidate sender code pages: every Windows ANSI code page a VB6 program
+ * could have run on (the VB6 runtime converts the ANSI message to Unicode
+ * with the system code page before hashing).  The mappings are the shared
+ * tables from epan/charsets.c.  A byte a page leaves undefined (U+FFFD in
+ * those tables) hashes as itself, which is what the sender's conversion
+ * does for it.  The order defines the match-mask bits.
+ */
+struct manolito_codepage {
+	const char      *name;
+	const gunichar2 *high;	/* 0x80..0xff -> Unicode */
+};
+
+enum manolito_page {
+	MANOLITO_PAGE_CP1250,
+	MANOLITO_PAGE_CP1251,
+	MANOLITO_PAGE_CP1252,
+	MANOLITO_PAGE_CP1253,
+	MANOLITO_PAGE_CP1254,
+	MANOLITO_PAGE_CP1255,
+	MANOLITO_PAGE_CP1256,
+	MANOLITO_PAGE_CP1257,
+	MANOLITO_PAGE_CP1258,
+	MANOLITO_PAGE_CP874,
+	MANOLITO_PAGE_MAX
+};
+
+static const struct manolito_codepage manolito_codepages[MANOLITO_PAGE_MAX] = {
+	{ "Windows-1250", charset_table_cp1250 },
+	{ "Windows-1251", charset_table_cp1251 },
+	{ "Windows-1252", charset_table_cp1252 },
+	{ "Windows-1253", charset_table_cp1253 },
+	{ "Windows-1254", charset_table_cp1254 },
+	{ "Windows-1255", charset_table_cp1255 },
+	{ "Windows-1256", charset_table_cp1256 },
+	{ "Windows-1257", charset_table_cp1257 },
+	{ "Windows-1258", charset_table_cp1258 },
+	{ "Windows-874",  charset_table_cp874 }
+};
+
+/* Checksum of an ANSI message under one code page: the CRC runs over the
+ * UTF-16LE bytes of the decoded Unicode string, i.e. every input byte
+ * contributes two bytes. */
+static uint16_t
+manolito_checksum_page(const uint8_t *buf, unsigned len, unsigned page)
+{
+	const gunichar2 *high = manolito_codepages[page].high;
+	uint16_t crc = MANOLITO_CRC16_INIT;
+	unsigned i;
+
+	for (i = 0; i < len; i++) {
+		uint16_t u = buf[i];
+		if (u >= 0x80) {
+			uint16_t uni = high[u - 0x80];
+			if (uni != UNICODE_REPLACEMENT_CHARACTER)
+				u = uni;
+		}
+		crc = manolito_crc16_byte(crc, (uint8_t)(u & 0x00ff));
+		crc = manolito_crc16_byte(crc, (uint8_t)(u >> 8));
+	}
+	return crc;
+}
+
+/* Bit mask of every candidate code page whose checksum of the message
+ * equals want.  A single bit identifies the sender's code page. */
+static uint32_t
+manolito_checksum_match_mask(const uint8_t *buf, unsigned len, uint16_t want)
+{
+	uint32_t mask = 0;
+	unsigned page;
+
+	for (page = 0; page < MANOLITO_PAGE_MAX; page++) {
+		if (manolito_checksum_page(buf, len, page) == want)
+			mask |= ((uint32_t)1 << page);
+	}
+	return mask;
+}
+/* --- manolito checksum core: end --- */
+
 
 static int
 dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
@@ -82,8 +208,83 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 	manolito_tree = proto_item_add_subtree(ti, ett_manolito);
 
 	/* MANOLITO packet header (network byte order) */
-	proto_tree_add_checksum(manolito_tree, tvb, offset, hf_manolito_checksum,
-	    -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+	/* The 32-bit field only carries a 16-bit checksum (bytes 2..3 are always
+	 * zero).  It covers everything after it, but the sender hashed the
+	 * UTF-16 form of the message, not the raw bytes. */
+	{
+		unsigned   plen = tvb_reported_length(tvb);
+		uint16_t   stored = 0;
+		uint16_t   computed = 0;
+		uint32_t   mask = 0;
+		bool       ascii_only = true;
+		unsigned   i;
+		unsigned   matches = 0;
+		bool       have_high = false;
+		wmem_strbuf_t *pages;
+
+		if (plen > 4) {
+			uint8_t *msg = (uint8_t *)tvb_memdup(pinfo->pool, tvb, 4, plen - 4);
+
+			for (i = 0; i < plen - 4; i++) {
+				if (msg[i] >= 0x80) { have_high = true; break; }
+			}
+			computed = manolito_checksum_page(msg, plen - 4,
+			    MANOLITO_PAGE_CP1252);
+			mask = manolito_checksum_match_mask(msg, plen - 4,
+			    tvb_get_ntohs(tvb, offset));
+			for (i = 0; i < MANOLITO_PAGE_MAX; i++) {
+				if (mask & ((uint32_t)1 << i))
+					matches++;
+			}
+		}
+		ascii_only = !have_high;
+		stored = tvb_get_ntohs(tvb, offset);
+
+		/* The sender's code page is part of the input to the CRC, so the
+		 * checksum is good if any candidate page reproduces it. */
+		proto_tree_add_checksum(manolito_tree, tvb, offset, hf_manolito_checksum,
+		    hf_manolito_checksum_status, &ei_manolito_checksum_bad, pinfo,
+		    mask != 0 ? stored : computed, ENC_BIG_ENDIAN,
+		    PROTO_CHECKSUM_VERIFY);
+		proto_tree_add_item(manolito_tree, hf_manolito_checksum_padding,
+		    tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+
+		/* Which sender code page(s) could have produced this checksum?
+		 * List the candidates in manolito.checksum.codepages; show them
+		 * inline next to the checksum only when the set is small enough
+		 * to be informative (MANOLITO_MAX_DISPLAY or fewer). */
+		pages = wmem_strbuf_new(pinfo->pool, NULL);
+		if (plen <= 4) {
+			wmem_strbuf_append(pages, "n/a");
+		} else if (ascii_only) {
+			wmem_strbuf_append(pages,
+			    "any (ASCII message; all code pages hash identically)");
+		} else if (mask == 0) {
+			wmem_strbuf_append(pages,
+			    "none (no candidate code page reproduces it)");
+		} else {
+			for (i = 0; i < MANOLITO_PAGE_MAX; i++) {
+				if (mask & ((uint32_t)1 << i)) {
+					if (pages->len > 0)
+						wmem_strbuf_append(pages, "/");
+					wmem_strbuf_append(pages, manolito_codepages[i].name);
+				}
+			}
+		}
+		proto_tree_add_string(manolito_tree, hf_manolito_checksum_codepages,
+		    tvb, offset, 0, wmem_strbuf_get_str(pages));
+
+		if (plen > 4) {
+			if (stored == computed)
+				proto_item_append_text(ti, " (checksum valid)");
+			else if (matches >= 1 && matches <= MANOLITO_MAX_DISPLAY)
+				proto_item_append_text(ti,
+				    " (checksum valid, code page: %s)",
+				    wmem_strbuf_get_str(pages));
+			else
+				proto_item_append_text(ti, " (bad checksum)");
+		}
+	}
 	offset += 4;
 	proto_tree_add_item(manolito_tree,
 	    hf_manolito_seqno, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -222,8 +423,23 @@ proto_register_manolito(void)
 	static hf_register_info hf[] = {
 		{ &hf_manolito_checksum,
 		  { "Checksum", "manolito.checksum",
-		    FT_UINT32, BASE_HEX, NULL, 0,
-		    "Checksum used for verifying integrity", HFILL }
+		    FT_UINT16, BASE_HEX, NULL, 0,
+		    "Checksum over the rest of the packet", HFILL }
+		},
+		{ &hf_manolito_checksum_status,
+		  { "Checksum Status", "manolito.checksum.status",
+		    FT_UINT8, BASE_DEC, VALS(manolito_checksum_status), 0,
+		    NULL, HFILL }
+		},
+		{ &hf_manolito_checksum_padding,
+		  { "Checksum Padding", "manolito.checksum.padding",
+		    FT_UINT16, BASE_HEX, NULL, 0,
+		    "Always zero; the field is 32 bits wide but only 16 are used", HFILL }
+		},
+		{ &hf_manolito_checksum_codepages,
+		  { "Possible Sender Code Pages", "manolito.checksum.codepages",
+		    FT_STRING, BASE_NONE, NULL, 0,
+		    "Code pages whose checksum of this packet reproduces the stored value", HFILL }
 		},
 		{ &hf_manolito_seqno,
 		  { "Sequence Number", "manolito.seqno",
@@ -268,6 +484,7 @@ proto_register_manolito(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_manolito_type, { "manolito.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown type", EXPFILL }},
+		{ &ei_manolito_checksum_bad, { "manolito.checksum.bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
 	};
 
 	expert_module_t* expert_manolito;
