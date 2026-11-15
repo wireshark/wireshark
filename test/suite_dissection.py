@@ -5128,6 +5128,27 @@ class TestDissectTns:
             ['OCI, wide (8-byte slots)', '8', '1', '', ''],
         ], rows
 
+    def test_tns_aq_11g(self, cmd_tshark, capture_file, test_env):
+        '''Before 12.1 the strings of an Advanced Queuing call's data
+        section have no length byte in front.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_aq_11g.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_aq.queue',
+            '-T', 'fields',
+            '-e', 'tns.data_aq.queue',
+            '-e', 'tns.data_aq.consumer',
+            '-e', 'tns.data_aq.correlation',
+            '-e', 'tns.data_aq.condition',
+            '-e', 'tns.data_aq.payload',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['PYO_AQ_RAW', '', '', '', '6869', ''],
+            ['PYO_AQ_RAW', 'SUB1', 'corr-1', 'tab.priority = 5', '', ''],
+        ], rows
+
     def test_tns_oci_10g(self, cmd_tshark, capture_file, test_env):
         '''An OCI 11.2 client's session with a 10g server runs at the
         server's field version, 10.2, though the client's data-type

@@ -4159,6 +4159,27 @@ static int dissect_tns_aq_msg_props(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	return offset;
 }
 
+/* Add a string of an Advanced Queuing call's data section, whose length
+ * the header gave. From 12.1 the string has a length byte of its own in
+ * front; before 12.1 it stands alone. Returns the new offset. */
+static int dissect_tns_aq_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+		int len, int hf, const char **text)
+{
+	int start = offset;
+
+	*text = NULL;
+	if ( tns_field_version(pinfo) != 0 && tns_field_version(pinfo) < TNS_FV_12_1 )
+	{
+		*text = (const char *)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_UTF_8|ENC_NA);
+		offset += len;
+	}
+	else
+		offset += get_dalc_custom(tvb, pinfo, offset, text);
+	if ( *text )
+		proto_tree_add_string(tree, hf, tvb, start, offset - start, *text);
+	return offset;
+}
+
 /* Decode an Advanced Queuing enqueue (121) or dequeue (122) call. Each
  * opens with a header of pointers and lengths - the queue name, the
  * options, the payload type's OID and, for an enqueue, the message
@@ -4263,47 +4284,28 @@ static int dissect_tns_aq_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	/* the values the header's lengths describe */
 	if ( qname_len > 0 )
 	{
-		start = offset;
-		offset += get_dalc_custom(tvb, pinfo, offset, &text);
+		offset = dissect_tns_aq_text(tvb, pinfo, tree, offset, qname_len, hf_tns_data_aq_queue, &text);
 		if ( text )
-		{
-			proto_tree_add_string(tree, hf_tns_data_aq_queue, tvb, start, offset - start, text);
 			col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", text);
-		}
 	}
 	if ( func == TTI_AQ_ENQUEUE && num_recipients > 0 )
 		offset = dissect_tns_kv_pairs(tvb, pinfo, tree, offset, num_recipients);
 	if ( consumer_len > 0 )
-	{
-		start = offset;
-		offset += get_dalc_custom(tvb, pinfo, offset, &text);
-		if ( text )
-			proto_tree_add_string(tree, hf_tns_data_aq_consumer, tvb, start, offset - start, text);
-	}
+		offset = dissect_tns_aq_text(tvb, pinfo, tree, offset, consumer_len, hf_tns_data_aq_consumer, &text);
 	if ( msgid_ptr )
 	{
 		proto_tree_add_item(tree, hf_tns_data_aq_msgid, tvb, offset, TNS_AQ_MSGID_LEN, ENC_NA);
 		offset += TNS_AQ_MSGID_LEN;
 	}
 	if ( correlation_len > 0 )
-	{
-		start = offset;
-		offset += get_dalc_custom(tvb, pinfo, offset, &text);
-		if ( text )
-			proto_tree_add_string(tree, hf_tns_data_aq_correlation, tvb, start, offset - start, text);
-	}
+		offset = dissect_tns_aq_text(tvb, pinfo, tree, offset, correlation_len, hf_tns_data_aq_correlation, &text);
 	if ( toid_ptr && toid_len > 0 )
 	{
 		proto_tree_add_item(tree, hf_tns_data_aq_toid, tvb, offset, toid_len, ENC_NA);
 		offset += toid_len;
 	}
 	if ( condition_len > 0 )
-	{
-		start = offset;
-		offset += get_dalc_custom(tvb, pinfo, offset, &text);
-		if ( text )
-			proto_tree_add_string(tree, hf_tns_data_aq_condition, tvb, start, offset - start, text);
-	}
+		offset = dissect_tns_aq_text(tvb, pinfo, tree, offset, condition_len, hf_tns_data_aq_condition, &text);
 	if ( func == TTI_AQ_ENQUEUE )
 	{
 		/* the payload: raw bytes of the length the header gave, else an
