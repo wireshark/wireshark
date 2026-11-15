@@ -3134,130 +3134,130 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <name>DistributionDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Dialogruta</translation>
     </message>
     <message>
         <source>Fields:</source>
-        <translation type="unfinished">Fält:</translation>
+        <translation>Fält:</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Verkställ</translation>
+        <translation>Tillämpa</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished">Visningsfilter:</translation>
+        <translation>Visningsfilter:</translation>
     </message>
     <message>
         <source>Resolve values</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå upp värden</translation>
     </message>
     <message>
         <source>Show chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa diagram</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiera</translation>
+        <translation>Kopiera</translation>
     </message>
     <message>
         <source>Copy the selected rows as text</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera de markerade raderna som text</translation>
     </message>
     <message>
         <source>Save as…</source>
-        <translation type="unfinished">Spara som …</translation>
+        <translation>Spara som…</translation>
     </message>
     <message>
         <source>Save the table in various formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara tabellen i olika format</translation>
     </message>
     <message>
         <source>Show in I/O Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa i I/O-diagram</translation>
     </message>
     <message>
         <source>Distribution</source>
-        <translation type="unfinished">Fördelning</translation>
+        <translation>Fördelning</translation>
     </message>
     <message>
         <source>Open an I/O Graph with a graph for each selected row (at most %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna ett I/O-diagram med ett diagram för varje markerad rad (högst %1)</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished">Antal</translation>
+        <translation>Antal</translation>
     </message>
     <message>
         <source>%1 distinct values </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 olika värden </translation>
     </message>
     <message>
         <source>A packet can contain a field more than once, so the percentages (of packets) add up to more than 100 %.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ett paket kan innehålla ett fält fler än en gång, så procentandelarna (av paketen) blir tillsammans mer än 100 %.</translation>
     </message>
     <message>
         <source>An event can contain a field more than once, so the percentages (of events) add up to more than 100 %.</source>
-        <translation type="unfinished"></translation>
+        <translation>En händelse kan innehålla ett fält fler än en gång, så procentandelarna (av händelserna) blir tillsammans mer än 100 %.</translation>
     </message>
     <message>
         <source>Enter one or more fields above and press Apply, for example ip.ttl, or ip.src, tcp.dstport for a joint distribution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange ett eller flera fält ovan och klicka på Tillämpa, till exempel ip.ttl eller ip.src, tcp.dstport för en gemensam fördelning.</translation>
     </message>
     <message>
         <source>Enter one or more fields above and press Apply, for example evt.type, or evt.type, proc.name for a joint distribution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange ett eller flera fält ovan och klicka på Tillämpa, till exempel evt.type eller evt.type, proc.name för en gemensam fördelning.</translation>
     </message>
     <message>
         <source>Count the field values in the packets matching the display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Räkna fältvärdena i paketen som matchar visningsfiltret</translation>
     </message>
     <message>
         <source>Count the field values in the events matching the display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Räkna fältvärdena i händelserna som matchar visningsfiltret</translation>
     </message>
     <message>
         <source>Distribution of %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fördelning av %1</translation>
     </message>
     <message>
         <source>Copy as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera som filter</translation>
     </message>
 </context>
 <context>
     <name>DistributionModel</name>
     <message>
         <source>&quot;%1&quot; cannot be counted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kan inte räknas.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is a protocol and has no values to count. Enter one of its fields, for example %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; är ett protokoll och har inga värden att räkna. Ange ett av dess fält, till exempel %2.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is a protocol and has no values to count.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; är ett protokoll och har inga värden att räkna.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is a label without a value and cannot be counted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; är en etikett utan värde och kan inte räknas.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; has variants of different types and cannot be counted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; har varianter av olika typer och kan inte räknas.</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished">Antal</translation>
+        <translation>Antal</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished"></translation>
+        <translation>Procent</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Värde</translation>
+        <translation>Värde</translation>
     </message>
 </context>
 <context>
@@ -3339,7 +3339,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Group</source>
-        <translation type="unfinished">Grupp</translation>
+        <translation>Grupp</translation>
     </message>
     <message>
         <source>Description</source>
@@ -3796,7 +3796,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Level:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nivå:</translation>
     </message>
     <message>
         <source>Export PDUs</source>
@@ -3900,11 +3900,11 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Enter up to %1 fields, separated by commas%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange högst %1 fält, avgränsade med kommatecken%2</translation>
     </message>
     <message>
         <source>Enter fields, separated by commas%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange fält, avgränsade med kommatecken%1</translation>
     </message>
     <message>
         <source>Enter a field %1</source>
@@ -3912,19 +3912,19 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Up to %1 fields can be combined (%2 entered).</source>
-        <translation type="unfinished"></translation>
+        <translation>Högst %1 fält kan kombineras (%2 angivna).</translation>
     </message>
     <message>
         <source>Field %1 is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fältet %1 är tomt.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is neither a field nor a protocol name.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; är varken ett fält- eller ett protokollnamn.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is deprecated. Use &quot;%2&quot; instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; är föråldrat. Använd &quot;%2&quot; i stället.</translation>
     </message>
     <message>
         <source>Invalid field: </source>
@@ -4630,7 +4630,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Theme Designer…</source>
-        <translation type="unfinished"></translation>
+        <translation>Temadesigner…</translation>
     </message>
     <message>
         <source>Theme Author Information</source>
@@ -4682,7 +4682,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Author: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Upphovsperson: %1</translation>
     </message>
 </context>
 <context>
@@ -5956,15 +5956,11 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Direction indication</source>
-        <translation type="unfinished"></translation>
+        <translation>Riktningsangivelse</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Huruvida den extra bearbetningen skall göras för att upptäcka början på ASCII-representationen vid slutet av en hex+ASCII-rad även om det ser ut som hexbyte:ar.&lt;/p&gt;&lt;p&gt;Aktivera inte om hexdumpen inte innehåller ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">ASCII-identifikation:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -6020,11 +6016,11 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>ASCII identification</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII-identifiering</translation>
     </message>
     <message>
         <source>Little-endian</source>
-        <translation type="unfinished"></translation>
+        <translation>Little endian</translation>
     </message>
     <message>
         <source>Direction indication:</source>
@@ -6069,10 +6065,6 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Om flera bytegrupper ska behandlas som bytegrupper i little-endian-ordning, istället för standardordningen i nätverket (big-endian).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">Little-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -6625,7 +6617,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <name>JsoncDocument</name>
     <message>
         <source>A block comment is not closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>En blockkommentar är inte avslutad.</translation>
     </message>
 </context>
 <context>
@@ -8298,30 +8290,6 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <source>Clear output</source>
         <translation>Rensa utdata</translation>
     </message>
-    <message>
-        <source>Settings</source>
-        <translation type="vanished">Inställningar</translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="vanished">Automatiskt (följ färgschemat)</translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="vanished">Mörkt</translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="vanished">Ljust</translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="vanished">Färgtema för kodredigeraren</translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="vanished">Tema för kodvy:</translation>
-    </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
         <translation type="vanished">
@@ -8437,7 +8405,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Debugger is disabled while the Preferences dialog is open. Close it to re-enable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Felsökaren är inaktiverad medan dialogrutan Inställningar är öppen. Stäng den för att aktivera felsökaren igen.</translation>
     </message>
     <message>
         <source>Debugger is disabled. Check to enable.</source>
@@ -8449,7 +8417,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Disabled (preferences)</source>
-        <translation type="unfinished"></translation>
+        <translation>Inaktiverad (inställningar)</translation>
     </message>
     <message>
         <source>Disabled</source>
@@ -9176,59 +9144,59 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <name>MkaCaDialog</name>
     <message>
         <source>MKA Connectivity Associations</source>
-        <translation type="unfinished"></translation>
+        <translation>MKA-anslutningsassociationer</translation>
     </message>
     <message>
         <source>CA | Peer | Event</source>
-        <translation type="unfinished"></translation>
+        <translation>CA | Motpart | Händelse</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Detaljer</translation>
+        <translation>Detaljer</translation>
     </message>
     <message>
         <source>Install / Activate / Retire Timings | Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Installations-, aktiverings- och avvecklingstider | Ramar</translation>
     </message>
     <message>
         <source>Font…</source>
-        <translation type="unfinished"></translation>
+        <translation>Teckensnitt…</translation>
     </message>
     <message>
         <source>Choose the font and size for this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj teckensnitt och storlek för den här dialogrutan.</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished">Uppdatera</translation>
+        <translation>Uppdatera</translation>
     </message>
     <message>
         <source>Auto Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Uppdatera automatiskt</translation>
     </message>
     <message>
         <source>Re-run the analysis as new packets are captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kör analysen igen när nya paket fångas.</translation>
     </message>
     <message>
         <source>MKA Connectivity Associations Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Teckensnitt för MKA-anslutningsassociationer</translation>
     </message>
     <message>
         <source>&lt;CKN not in table&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;CKN saknas i tabellen&gt;</translation>
     </message>
     <message>
         <source>Peers (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Motparter (%1)</translation>
     </message>
     <message>
         <source>Key Server History (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nyckelserverhistorik (%1)</translation>
     </message>
     <message>
         <source>Peer Group Formations (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildningar av motpartsgrupper (%1)</translation>
     </message>
 </context>
 <context>
@@ -10618,23 +10586,23 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <name>PreferencesDialog</name>
     <message>
         <source>Preference pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Inställningssidor</translation>
     </message>
     <message>
         <source>Show the list of preference pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa listan över inställningssidor</translation>
     </message>
     <message>
         <source>Show preference pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa inställningssidor</translation>
     </message>
     <message>
         <source>Pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Sidor</translation>
     </message>
     <message>
         <source>Current preference page</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuell inställningssida</translation>
     </message>
     <message>
         <source>Advanced</source>
@@ -12156,107 +12124,107 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source> [Key Server]</source>
-        <translation type="unfinished"></translation>
+        <translation> [Nyckelserver]</translation>
     </message>
     <message>
         <source>SCI</source>
-        <translation type="unfinished"></translation>
+        <translation>SCI</translation>
     </message>
     <message>
         <source>Detected MIs (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Identifierade MI (%1)</translation>
     </message>
     <message>
         <source>no peers</source>
-        <translation type="unfinished"></translation>
+        <translation>inga motparter</translation>
     </message>
     <message>
         <source>no peers activated (0/%1 peers)</source>
-        <translation type="unfinished"></translation>
+        <translation>inga motparter aktiverade (0/%1 motparter)</translation>
     </message>
     <message>
         <source>Formation Time %1 ms (%2/%3 Peers)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildningstid %1 ms (%2/%3 motparter)</translation>
     </message>
     <message>
         <source>KN %1  AN %2  Frames %3 - %4</source>
-        <translation type="unfinished"></translation>
+        <translation>KN %1  AN %2  Ramar %3 - %4</translation>
     </message>
     <message>
         <source>Key Server SCI</source>
-        <translation type="unfinished"></translation>
+        <translation>Nyckelserver-SCI</translation>
     </message>
     <message>
         <source>Key Server MI</source>
-        <translation type="unfinished"></translation>
+        <translation>Nyckelserver-MI</translation>
     </message>
     <message>
         <source>Target SAK</source>
-        <translation type="unfinished"></translation>
+        <translation>Mål-SAK</translation>
     </message>
     <message>
         <source>&lt;Unable to unwrap SAK&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Kunde inte avkapsla SAK&gt;</translation>
     </message>
     <message>
         <source>Peers (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Motparter (%1)</translation>
     </message>
     <message>
         <source>not activated</source>
-        <translation type="unfinished"></translation>
+        <translation>inte aktiverad</translation>
     </message>
     <message>
         <source>not installed</source>
-        <translation type="unfinished"></translation>
+        <translation>inte installerad</translation>
     </message>
     <message>
         <source>immediate</source>
-        <translation type="unfinished"></translation>
+        <translation>omedelbar</translation>
     </message>
     <message>
         <source>not retired</source>
-        <translation type="unfinished"></translation>
+        <translation>inte avvecklad</translation>
     </message>
     <message>
         <source> [KS]</source>
-        <translation type="unfinished"></translation>
+        <translation> [NS]</translation>
     </message>
     <message>
         <source>%1 / %2 / %3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 / %2 / %3</translation>
     </message>
     <message>
         <source>MI</source>
-        <translation type="unfinished"></translation>
+        <translation>MI</translation>
     </message>
     <message>
         <source>Installation Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Installationstid</translation>
     </message>
     <message>
         <source>Formation Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildningstid</translation>
     </message>
     <message>
         <source>Retirement Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvecklingstid</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalogen finns inte</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ska katalogen %1 skapas?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte skapa katalogen</translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalogen %1 kunde inte skapas.</translation>
     </message>
 </context>
 <context>
@@ -15041,19 +15009,19 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara statistik som…</translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished"></translation>
+        <translation>Textfil (*.txt);;Kommaseparerade värden (*.csv);;XML-dokument (*.xml);;YAML-dokument (*.yaml)</translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Textfil (*.txt)</translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel när filen %1 sparades</translation>
     </message>
 </context>
 <context>
@@ -15079,7 +15047,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Encapsulation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Inkapsling:</translation>
     </message>
     <message>
         <source>Strip Headers</source>
@@ -16137,147 +16105,147 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <name>ThemeColorEditor</name>
     <message>
         <source>Filter colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Filterfärger</translation>
     </message>
     <message>
         <source>Changed only</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast ändrade</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Färg</translation>
+        <translation>Färg</translation>
     </message>
     <message>
         <source>Value (Light)</source>
-        <translation type="unfinished"></translation>
+        <translation>Värde (ljust)</translation>
     </message>
     <message>
         <source>State</source>
-        <translation type="unfinished">Tillstånd</translation>
+        <translation>Tillstånd</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished">Ljust</translation>
+        <translation>Ljust</translation>
     </message>
     <message>
         <source>Choose...</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj…</translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation type="unfinished">Mörkt</translation>
+        <translation>Mörkt</translation>
     </message>
     <message>
         <source>Use Auto</source>
-        <translation type="unfinished"></translation>
+        <translation>Använd automatiskt</translation>
     </message>
     <message>
         <source>Add Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till färg</translation>
     </message>
     <message>
         <source>Remove Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort färg</translation>
     </message>
     <message>
         <source>Graph color cycle. No backfill from the default theme.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagrammets färgcykel. Färger från standardtemat fylls inte på i efterhand.</translation>
     </message>
     <message>
         <source>Hairline dividers between cards and panes.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Tunna avdelare mellan kort och paneler.</translation>
     </message>
     <message>
         <source>color %1</source>
-        <translation type="unfinished"></translation>
+        <translation>färg %1</translation>
     </message>
     <message>
         <source>No graph colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga diagramfärger</translation>
     </message>
     <message>
         <source>Derived (read-only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Härledd (skrivskyddad)</translation>
     </message>
     <message>
         <source>Value (Dark)</source>
-        <translation type="unfinished"></translation>
+        <translation>Värde (mörkt)</translation>
     </message>
     <message>
         <source>edited</source>
-        <translation type="unfinished"></translation>
+        <translation>redigerad</translation>
     </message>
     <message>
         <source>changed</source>
-        <translation type="unfinished"></translation>
+        <translation>ändrad</translation>
     </message>
     <message>
         <source>required</source>
-        <translation type="unfinished"></translation>
+        <translation>krävs</translation>
     </message>
     <message>
         <source>Derived, read-only. Source: %1. Not stored in theme files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Härledd, skrivskyddad. Källa: %1. Lagras inte i temafiler.</translation>
     </message>
     <message>
         <source> Right-click the row to go to a source color.</source>
-        <translation type="unfinished"></translation>
+        <translation> Högerklicka på raden för att gå till en källfärg.</translation>
     </message>
     <message>
         <source>changed by another color</source>
-        <translation type="unfinished"></translation>
+        <translation>ändrad av en annan färg</translation>
     </message>
     <message>
         <source>Affects: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Påverkar: %1.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is not a color. Use #rrggbb.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; är ingen färg. Använd #rrggbb.</translation>
     </message>
     <message>
         <source>Revert to the saved value</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ det sparade värdet</translation>
     </message>
     <message>
         <source>Remove this color; the saved theme does not set it</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort den här färgen; det sparade temat ställer inte in den</translation>
     </message>
     <message>
         <source>No source color</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen källfärg</translation>
     </message>
     <message>
         <source>%1 (derived)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (härledd)</translation>
     </message>
     <message>
         <source>Go to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Gå till %1</translation>
     </message>
     <message>
         <source>Also uses %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Använder också %1</translation>
     </message>
     <message>
         <source>Revert Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ färg</translation>
     </message>
     <message>
         <source>auto %1</source>
-        <translation type="unfinished"></translation>
+        <translation>automatiskt %1</translation>
     </message>
     <message>
         <source>auto row background</source>
-        <translation type="unfinished"></translation>
+        <translation>automatisk radbakgrund</translation>
     </message>
     <message>
         <source>Choose %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj %1 (%2)</translation>
     </message>
 </context>
 <context>
@@ -16479,551 +16447,551 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <name>ThemeDesignerDialog</name>
     <message>
         <source>Theme Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Temaredigerare</translation>
     </message>
     <message>
         <source>Themes</source>
-        <translation type="unfinished"></translation>
+        <translation>Teman</translation>
     </message>
     <message>
         <source>Bundled themes cannot be modified. Changes are saved as a new personal theme.</source>
-        <translation type="unfinished"></translation>
+        <translation>Medföljande teman kan inte ändras. Ändringar sparas som ett nytt personligt tema.</translation>
     </message>
     <message>
         <source>New…</source>
-        <translation type="unfinished">Ny …</translation>
+        <translation>Nytt…</translation>
     </message>
     <message>
         <source>Copy…</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera…</translation>
     </message>
     <message>
         <source>Rename…</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt namn…</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <source>Import…</source>
-        <translation type="unfinished"></translation>
+        <translation>Importera…</translation>
     </message>
     <message>
         <source>Export…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportera…</translation>
     </message>
     <message>
         <source>Personal themes folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapp för personliga teman:</translation>
     </message>
     <message>
         <source>Open the folder in the file manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna mappen i filhanteraren</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Namn:</translation>
+        <translation>Namn:</translation>
     </message>
     <message>
         <source>Author:</source>
-        <translation type="unfinished">Upphovsperson:</translation>
+        <translation>Upphovsperson:</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation type="unfinished">Beskrivning:</translation>
+        <translation>Beskrivning:</translation>
     </message>
     <message>
         <source>Appearance:</source>
-        <translation type="unfinished"></translation>
+        <translation>Utseende:</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished">Ljust</translation>
+        <translation>Ljust</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation type="unfinished">Mörkt</translation>
+        <translation>Mörkt</translation>
     </message>
     <message>
         <source>side to edit and preview</source>
-        <translation type="unfinished"></translation>
+        <translation>sida att redigera och förhandsgranska</translation>
     </message>
     <message>
         <source>Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Färger</translation>
     </message>
     <message>
         <source>Fonts</source>
-        <translation type="unfinished">Teckensnitt</translation>
+        <translation>Teckensnitt</translation>
     </message>
     <message>
         <source>Default values use the platform fonts and are not written to the file, so the theme stays portable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardvärden använder plattformens teckensnitt och skrivs inte till filen, så temat kan användas på andra system.</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation type="unfinished"></translation>
+        <translation>Teckensnittsfamilj:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished">Storlek:</translation>
+        <translation>Storlek:</translation>
     </message>
     <message>
         <source>Sample:</source>
-        <translation type="unfinished"></translation>
+        <translation>Exempel:</translation>
     </message>
     <message>
         <source>Packets: 9 · Displayed: 9 (100.0%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket: 9 · Visade: 9 (100,0 %)</translation>
     </message>
     <message>
         <source>Example GIF query packets have jumbo window sizes 0123456789</source>
-        <translation type="unfinished"></translation>
+        <translation>Exempel på GIF-frågepaket har jättestora fönsterstorlekar 0123456789</translation>
     </message>
     <message>
         <source>Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Kod</translation>
     </message>
     <message>
         <source>Compare with:</source>
-        <translation type="unfinished"></translation>
+        <translation>Jämför med:</translation>
     </message>
     <message>
         <source>Previous Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Föregående ändring</translation>
     </message>
     <message>
         <source>Next Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Nästa ändring</translation>
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished">Kopiera till urklipp</translation>
+        <translation>Kopiera till urklipp</translation>
     </message>
     <message>
         <source>Welcome Page</source>
-        <translation type="unfinished">Välkomstsida</translation>
+        <translation>Välkomstsida</translation>
     </message>
     <message>
         <source>Packet List</source>
-        <translation type="unfinished">Paketlista</translation>
+        <translation>Paketslista</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ</translation>
     </message>
     <message>
         <source>Use Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Använd tema</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Spara</translation>
+        <translation>Spara</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Stäng</translation>
+        <translation>Stäng</translation>
     </message>
     <message>
         <source>%1 Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-kopia</translation>
     </message>
     <message>
         <source>Copy Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera tema</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiera</translation>
+        <translation>Kopiera</translation>
     </message>
     <message>
         <source>Save Theme As</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara tema som</translation>
     </message>
     <message>
         <source>New Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt tema</translation>
     </message>
     <message>
         <source>Create</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapa</translation>
     </message>
     <message>
         <source>Rename Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt namn på tema</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt namn</translation>
     </message>
     <message>
         <source>%1 (bundled)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (medföljer)</translation>
     </message>
     <message>
         <source>Import Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Importera tema</translation>
     </message>
     <message>
         <source>&quot;%1&quot; could not be imported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte importera &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The Packet List sample shows the theme&apos;s font, the Lua Code sample your preference.</source>
-        <translation type="unfinished"></translation>
+        <translation>Din inställning för teckensnitt med fast bredd på sidan Teckensnitt (%1) åsidosätter temats teckensnitt med fast bredd. Den här inställningen gäller därför bara när den inställningen inte är gjord. Exemplet Paketslista visar temats teckensnitt och Lua-kodsexemplet din inställning.</translation>
     </message>
     <message>
         <source>Lua Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua-kod</translation>
     </message>
     <message>
         <source>Save the theme (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara temat (%1)</translation>
     </message>
     <message>
         <source>Bundled</source>
-        <translation type="unfinished"></translation>
+        <translation>Medföljer</translation>
     </message>
     <message>
         <source>Personal</source>
-        <translation type="unfinished">Personlig</translation>
+        <translation>Personliga</translation>
     </message>
     <message>
         <source>No personal themes yet</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga personliga teman ännu</translation>
     </message>
     <message>
         <source>The theme &quot;%1&quot; could not be loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte läsa in temat &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Bundled with Wireshark, read-only</source>
-        <translation type="unfinished"></translation>
+        <translation>Medföljer Wireshark, skrivskyddat</translation>
     </message>
     <message>
         <source>Personal theme, %1.jsonc</source>
-        <translation type="unfinished"></translation>
+        <translation>Personligt tema, %1.jsonc</translation>
     </message>
     <message>
         <source>The theme &quot;%1&quot; has unsaved changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temat &quot;%1&quot; har osparade ändringar.</translation>
     </message>
     <message>
         <source>Platform default</source>
-        <translation type="unfinished"></translation>
+        <translation>Plattformens standard</translation>
     </message>
     <message>
         <source>%1 (not installed)</source>
-        <translation type="unfinished">%1 (inte installerat)</translation>
+        <translation>%1 (inte installerat)</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <source>%1 pt</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 pt</translation>
     </message>
     <message>
         <source>Revert Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ teckensnitt</translation>
     </message>
     <message>
         <source>Regular font</source>
-        <translation type="unfinished"></translation>
+        <translation>Proportionellt teckensnitt</translation>
     </message>
     <message>
         <source>Monospace font</source>
-        <translation type="unfinished">Fastbreddsteckensnitt</translation>
+        <translation>Teckensnitt med fast bredd</translation>
     </message>
     <message>
         <source>Saved file</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparad fil</translation>
     </message>
     <message>
         <source>%1 changed, %2 added, %3 removed</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ändrade, %2 tillagda, %3 borttagna</translation>
     </message>
     <message>
         <source>Not valid: %1 is not a color. The theme cannot be saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogiltigt: %1 är ingen färg. Temat kan inte sparas.</translation>
     </message>
     <message>
         <source>Not valid: %1 is required. The theme cannot be saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogiltigt: %1 krävs. Temat kan inte sparas.</translation>
     </message>
     <message>
         <source>Not valid: the file does not read back unchanged. The theme cannot be saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogiltigt: filen kan inte läsas in oförändrad. Temat kan inte sparas.</translation>
     </message>
     <message>
         <source>Valid. Parses with the theme parser and reads back unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Giltigt. Tolkas av temaparsaren och läses in oförändrat.</translation>
     </message>
     <message>
         <source>1 color is not valid. Fix it to save.</source>
-        <translation type="unfinished"></translation>
+        <translation>1 färg är ogiltig. Rätta den för att kunna spara.</translation>
     </message>
     <message>
         <source>%1 colors are not valid. Fix them to save.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 färger är ogiltiga. Rätta dem för att kunna spara.</translation>
     </message>
     <message>
         <source>%1 edited, %2 changed as a consequence. Not saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 redigerad, %2 ändrad som följd. Inte sparad.</translation>
     </message>
     <message>
         <source>Loaded with problems. Saving rewrites the file without the invalid entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lästes in med problem. Vid sparande skrivs filen om utan de ogiltiga posterna.</translation>
     </message>
     <message>
         <source>Bundled theme, no changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Medföljande tema, inga ändringar.</translation>
     </message>
     <message>
         <source>No unsaved changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga osparade ändringar.</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished">Spara som…</translation>
+        <translation>Spara som…</translation>
     </message>
     <message>
         <source>Save the theme first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara temat först.</translation>
     </message>
     <message>
         <source>Not a theme color.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inte en temafärg.</translation>
     </message>
     <message>
         <source>Links have no color of their own; they follow %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Länkar har ingen egen färg, utan följer %1.</translation>
     </message>
     <message>
         <source>Cleared the color filter to show %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensade färgfiltret för att visa %1.</translation>
     </message>
     <message>
         <source>Not a theme color</source>
-        <translation type="unfinished"></translation>
+        <translation>Inte en temafärg</translation>
     </message>
     <message>
         <source>%1  %2</source>
         <extracomment>Theme Designer sample context menu entry: the part a color paints (Text, Background, Border, Link text), then the color name.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1  %2</translation>
     </message>
     <message>
         <source>&lt;b&gt;%1&lt;/b&gt; (links follow it) · %2</source>
         <extracomment>Tooltip over a Theme Designer sample: color name, then the part it paints.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; (länkar använder den) · %2</translation>
     </message>
     <message>
         <source>&lt;b&gt;%1&lt;/b&gt; · %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; · %2</translation>
     </message>
     <message>
         <source>Click to select it in Colors. Right-click for all colors here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klicka för att välja den i Färger. Högerklicka för alla färger här.</translation>
     </message>
     <message>
         <source>The personal themes folder is not available, so the theme cannot be saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mappen för personliga teman är inte tillgänglig, så temat kan inte sparas.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is the name of a bundled theme, so the theme cannot be saved under it.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; är namnet på ett medföljande tema, så temat kan inte sparas med det namnet.</translation>
     </message>
     <message>
         <source>The theme does not read back unchanged, so it was not saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temat kan inte läsas tillbaka oförändrat, så det sparades inte.</translation>
     </message>
     <message>
         <source>The theme could not be saved to %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Temat kunde inte sparas till %1: %2</translation>
     </message>
     <message>
         <source>The saved file %1 does not load as a theme.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den sparade filen %1 läses inte in som ett tema.</translation>
     </message>
     <message>
         <source>The theme has changes that cannot be saved. Fix or revert them before renaming it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temat har ändringar som inte kan sparas. Rätta eller återställ dem innan du byter namn på det.</translation>
     </message>
     <message>
         <source>The theme was saved as %1, but the old file %2 could not be removed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temat sparades som %1, men den gamla filen %2 kunde inte tas bort.</translation>
     </message>
     <message>
         <source>Delete the theme &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort temat &quot;%1&quot;?</translation>
     </message>
     <message>
         <source>The file %1 is removed. This cannot be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen %1 tas bort. Detta kan inte ångras.</translation>
     </message>
     <message>
         <source>The file %1 could not be removed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen %1 kunde inte tas bort.</translation>
     </message>
     <message>
         <source>Theme files (*.jsonc *.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>Temafiler (*.jsonc *.json)</translation>
     </message>
     <message>
         <source>The file is larger than 1 MiB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen är större än 1 MiB.</translation>
     </message>
     <message>
         <source>The file could not be read: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen kunde inte läsas: %1</translation>
     </message>
     <message>
         <source>The file is not a theme.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen är inte ett tema.</translation>
     </message>
     <message>
         <source>Imported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importerades.</translation>
     </message>
     <message>
         <source>Imported with 1 note.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importerades med 1 anmärkning.</translation>
     </message>
     <message>
         <source>Imported with %1 notes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importerades med %1 anmärkningar.</translation>
     </message>
     <message>
         <source>Export Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportera tema</translation>
     </message>
     <message>
         <source>The theme could not be exported to %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Temat kunde inte exporteras till %1: %2</translation>
     </message>
 </context>
 <context>
     <name>ThemeImportErrorDialog</name>
     <message>
         <source>Nothing was copied to your personal themes. Imported files are limited in size and may only contain meta data, colors and fonts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inget kopierades till dina personliga teman. Importerade filer har en storleksgräns och får endast innehålla metadata, färger och typsnitt.</translation>
     </message>
 </context>
 <context>
     <name>ThemeLuaCodePreview</name>
     <message>
         <source>Save Image As…</source>
-        <translation type="unfinished">Spara bild som…</translation>
+        <translation>Spara bild som…</translation>
     </message>
 </context>
 <context>
     <name>ThemeManager</name>
     <message>
         <source>Theme &quot;%1&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temat &quot;%1&quot; hittades inte.</translation>
     </message>
 </context>
 <context>
     <name>ThemeNameDialog</name>
     <message>
         <source>Copy of:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopia av:</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Namn:</translation>
+        <translation>Namn:</translation>
     </message>
     <message>
         <source>File name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filnamn:</translation>
     </message>
     <message>
         <source>Folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapp:</translation>
     </message>
     <message>
         <source>The file name is made from the name. A name already used by a bundled or personal theme gets a number appended.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filnamnet skapas från namnet. Ett namn som redan används av ett medföljande eller personligt tema får ett nummer tillagt.</translation>
     </message>
 </context>
 <context>
     <name>ThemeParser</name>
     <message>
         <source>Could not open &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte öppna &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Line %1, column %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Rad %1, kolumn %2: %3</translation>
     </message>
     <message>
         <source>missing required section &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>obligatoriskt avsnitt &quot;%1&quot; saknas</translation>
     </message>
     <message>
         <source>unknown section &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>okänt avsnitt &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Line %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Rad %1: %2</translation>
     </message>
     <message>
         <source>%1.%2: &quot;%3&quot; is not a color.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1.%2: &quot;%3&quot; är inte en färg.</translation>
     </message>
     <message>
         <source>%1: only one side set, the other side uses the same value.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: endast en sida är angiven, den andra sidan använder samma värde.</translation>
     </message>
     <message>
         <source>%1.%2: not a color pair.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1.%2: inte ett färgpar.</translation>
     </message>
     <message>
         <source>%1.%2: unknown color, skipped.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1.%2: okänd färg, hoppades över.</translation>
     </message>
     <message>
         <source>%1: missing required color &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: obligatorisk färg &quot;%2&quot; saknas.</translation>
     </message>
 </context>
 <context>
     <name>ThemePreviewPick</name>
     <message>
         <source>Link text</source>
-        <translation type="unfinished"></translation>
+        <translation>Länktext</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Text</translation>
     </message>
     <message>
         <source>Border</source>
-        <translation type="unfinished"></translation>
+        <translation>Kantlinje</translation>
     </message>
     <message>
         <source>Background</source>
-        <translation type="unfinished">Bakgrund</translation>
+        <translation>Bakgrund</translation>
     </message>
     <message>
         <source>Save Theme Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara förhandsvisning av tema</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished">PNG-bild (*.png)</translation>
+        <translation>PNG-bild (*.png)</translation>
     </message>
     <message>
         <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte skriva bilden till &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -17085,601 +17053,617 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <name>ThemeTokenHandler</name>
     <message>
         <source>accent.info at 40% opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.info vid 40 % opacitet</translation>
     </message>
     <message>
         <source>accent.success at 40% opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success vid 40 % opacitet</translation>
     </message>
     <message>
         <source>accent.warning at 40% opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.warning vid 40 % opacitet</translation>
     </message>
     <message>
         <source>accent.error at 40% opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.error vid 40 % opacitet</translation>
     </message>
     <message>
         <source>black or white on expert.comment</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på expert.comment</translation>
     </message>
     <message>
         <source>palette.base 30% toward brand.primary</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 30 % mot brand.primary</translation>
     </message>
     <message>
         <source>palette.window 40% toward brand.primary</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.window 40 % mot brand.primary</translation>
     </message>
     <message>
         <source>brand.primary 65% darker</source>
-        <translation type="unfinished"></translation>
+        <translation>brand.primary 65 % mörkare</translation>
     </message>
     <message>
         <source>palette.base 50% toward palette.windowText</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 50 % mot palette.windowText</translation>
     </message>
     <message>
         <source>palette.base 40% toward palette.windowText</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 40 % mot palette.windowText</translation>
     </message>
     <message>
         <source>black or white on packets.selection, kept readable on it</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på packets.selection, hålls läsbart på den</translation>
     </message>
     <message>
         <source>black or white on packets.inactive, kept readable on it</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på packets.inactive, hålls läsbart på den</translation>
     </message>
     <message>
         <source>black or white on packets.marked, kept readable on it</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på packets.marked, hålls läsbart på den</translation>
     </message>
     <message>
         <source>palette.base 40% toward accent.error</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 40 % mot accent.error</translation>
     </message>
     <message>
         <source>palette.base 40% toward brand.primary</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 40 % mot brand.primary</translation>
     </message>
     <message>
         <source>accent.error 30% darker (light) / 50% lighter (dark)</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.error 30 % mörkare (ljus) / 50 % ljusare (mörk)</translation>
     </message>
     <message>
         <source>brand.primary 30% darker (light) / 50% lighter (dark)</source>
-        <translation type="unfinished"></translation>
+        <translation>brand.primary 30 % mörkare (ljus) / 50 % ljusare (mörk)</translation>
     </message>
     <message>
         <source>palette.base 33% toward accent.success</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 33 % mot accent.success</translation>
     </message>
     <message>
         <source>palette.base 33% toward accent.success, moved until black or white text is readable on it</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 33 % mot accent.success, flyttad tills svart eller vit text är läsbar på den</translation>
     </message>
     <message>
         <source>palette.base 33% toward accent.error</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 33 % mot accent.error</translation>
     </message>
     <message>
         <source>palette.base 33% toward accent.error, moved until black or white text is readable on it</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 33 % mot accent.error, flyttad tills svart eller vit text är läsbar på den</translation>
     </message>
     <message>
         <source>palette.base 33% toward accent.warning</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 33 % mot accent.warning</translation>
     </message>
     <message>
         <source>palette.base 33% toward accent.warning, moved until black or white text is readable on it</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 33 % mot accent.warning, flyttad tills svart eller vit text är läsbar på den</translation>
     </message>
     <message>
         <source>palette.base</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base</translation>
     </message>
     <message>
         <source>palette.text 50% toward palette.base, lifted to the large text ratio on filter.busy</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.text 50 % mot palette.base, höjd till kontrastkvoten för stor text på filter.busy</translation>
     </message>
     <message>
         <source>accent.info</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.info</translation>
     </message>
     <message>
         <source>accent.success</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success</translation>
     </message>
     <message>
         <source>accent.warning</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.warning</translation>
     </message>
     <message>
         <source>accent.error</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.error</translation>
     </message>
     <message>
         <source>palette.mid</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.mid</translation>
     </message>
     <message>
         <source>fixed code editor default</source>
-        <translation type="unfinished"></translation>
+        <translation>fast standardvärde för kodredigerare</translation>
     </message>
     <message>
         <source>palette.mid, kept readable on palette.base</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.mid, hålls läsbar på palette.base</translation>
     </message>
     <message>
         <source>accent.success 30% darker (light) / lighter (dark)</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success 30 % mörkare (ljus) / ljusare (mörk)</translation>
     </message>
     <message>
         <source>accent.info 30% darker (light) / lighter (dark)</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.info 30 % mörkare (ljus) / ljusare (mörk)</translation>
     </message>
     <message>
         <source>palette.highlight 40% darker, kept apart from palette.window and readable under HeaderText</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.highlight 40 % mörkare, hålls åtskild från palette.window och läsbar med HeaderText ovanpå</translation>
     </message>
     <message>
         <source>palette.highlightedText if readable on HeaderBackground, else black or white</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.highlightedText om den är läsbar på HeaderBackground, annars svart eller vit</translation>
     </message>
     <message>
         <source>HeaderText 25% toward HeaderBackground, kept at the large text ratio (readable text ratio in high contrast)</source>
-        <translation type="unfinished"></translation>
+        <translation>HeaderText 25 % mot HeaderBackground, hålls vid kvoten för stor text (läsbarhetskvot för text med hög kontrast)</translation>
     </message>
     <message>
         <source>brand.primary, kept readable on palette.base</source>
-        <translation type="unfinished"></translation>
+        <translation>brand.primary, hålls läsbar på palette.base</translation>
     </message>
     <message>
         <source>palette.mid, kept at the non-text ratio to palette.base</source>
+        <translation>palette.mid, hålls vid kvoten för icke-text mot palette.base</translation>
+    </message>
+    <message>
+        <source>ControlBorder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>palette.base 53% toward palette.mid, kept at the divider ratio to palette.base</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 53 % mot palette.mid, hålls vid avdelarkvoten mot palette.base</translation>
     </message>
     <message>
         <source>palette.text 40% toward palette.base, kept readable on palette.base</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.text 40 % mot palette.base, hålls läsbar på palette.base</translation>
     </message>
     <message>
         <source>palette.base 16% (light) / 22% (dark) toward accent.success</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 16 % (ljus) / 22 % (mörk) mot accent.success</translation>
     </message>
     <message>
         <source>palette.base 16% (light) / 30% (dark) toward accent.info</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 16 % (ljus) / 30 % (mörk) mot accent.info</translation>
     </message>
     <message>
         <source>palette.base 10% (light) / 22% (dark) toward accent.error</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 10 % (ljus) / 22 % (mörk) mot accent.error</translation>
     </message>
     <message>
         <source>palette.base 10% (light) / 22% (dark) toward accent.info</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 10 % (ljus) / 22 % (mörk) mot accent.info</translation>
     </message>
     <message>
         <source>palette.base 45% toward accent.info</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 45 % mot accent.info</translation>
     </message>
     <message>
         <source>palette.base 8% (light) / 22% (dark) toward accent.error</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 8 % (ljus) / 22 % (mörk) mot accent.error</translation>
     </message>
     <message>
         <source>palette.base 50% toward accent.error</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.base 50 % mot accent.error</translation>
     </message>
     <message>
         <source>palette.alternateBase when set, else palette.base; in dark mode kept at the dark card surface ratio to palette.base</source>
+        <translation>palette.alternateBase när den är angiven, annars palette.base; i mörkt läge hålls den vid kontrastkvoten för mörk kortyta mot palette.base</translation>
+    </message>
+    <message>
+        <source>border.separator, kept at the divider ratio to CardBackground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Separator, kept at the divider ratio to CardBackground</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Separator, hålls vid avdelarkvoten mot CardBackground</translation>
     </message>
     <message>
         <source>SectionHeader, kept readable on CardBackground</source>
-        <translation type="unfinished"></translation>
+        <translation>SectionHeader, hålls läsbar på CardBackground</translation>
     </message>
     <message>
         <source>SectionHeaderHover, kept readable on CardBackground</source>
-        <translation type="unfinished"></translation>
+        <translation>SectionHeaderHover, hålls läsbar på CardBackground</translation>
     </message>
     <message>
         <source>the palette link color, kept readable on CardBackground and on CardLinkHover</source>
-        <translation type="unfinished"></translation>
+        <translation>palettens länkfärg, hålls läsbar på CardBackground och CardLinkHover</translation>
     </message>
     <message>
         <source>hover fill of palette.highlight on CardBackground, moved until CardLink reads on it</source>
-        <translation type="unfinished"></translation>
+        <translation>hovringsfyllning för palette.highlight på CardBackground, flyttad tills CardLink är läsbar på den</translation>
     </message>
     <message>
         <source>palette.highlight, kept readable on CardBackground</source>
-        <translation type="unfinished"></translation>
+        <translation>palette.highlight, hålls läsbar på CardBackground</translation>
     </message>
     <message>
         <source>the lighter of palette.base and CardBackground</source>
-        <translation type="unfinished"></translation>
+        <translation>den ljusare av palette.base och CardBackground</translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to OverlayCardBackground</source>
+        <source>border.separator, kept at the divider ratio to OverlayCardBackground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>black or white on accent.success</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på accent.success</translation>
     </message>
     <message>
         <source>black or white on accent.warning</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på accent.warning</translation>
     </message>
     <message>
         <source>black or white on accent.error</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på accent.error</translation>
     </message>
     <message>
         <source>black or white on accent.info</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på accent.info</translation>
     </message>
     <message>
         <source>black or white on filter.valid</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på filter.valid</translation>
     </message>
     <message>
         <source>black or white on filter.invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på filter.invalid</translation>
     </message>
     <message>
         <source>black or white on filter.deprecated</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt på filter.deprecated</translation>
     </message>
     <message>
         <source>accent.success 60% darker</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success 60 % mörkare</translation>
     </message>
     <message>
         <source>accent.success at 20% opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success vid 20 % opacitet</translation>
     </message>
     <message>
         <source>accent.success 50% lighter</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success 50 % ljusare</translation>
     </message>
     <message>
         <source>accent.success 70% lighter</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success 70 % ljusare</translation>
     </message>
     <message>
         <source>accent.success 30% lighter</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success 30 % ljusare</translation>
     </message>
     <message>
         <source>accent.success 20% darker</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success 20 % mörkare</translation>
     </message>
     <message>
         <source>accent.success 8% darker</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success 8 % mörkare</translation>
     </message>
     <message>
         <source>accent.success 16% darker</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success 16 % mörkare</translation>
     </message>
     <message>
         <source>accent.success 40% darker</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success 40 % mörkare</translation>
     </message>
     <message>
         <source>black or white faded toward UpdateButtonDisabledBg</source>
-        <translation type="unfinished"></translation>
+        <translation>svart eller vitt tonat mot UpdateButtonDisabledBg</translation>
     </message>
     <message>
         <source>hover tint on the update bar</source>
-        <translation type="unfinished"></translation>
+        <translation>hovringsnyans på uppdateringsfältet</translation>
     </message>
     <message>
         <source>pressed tint on the update bar</source>
-        <translation type="unfinished"></translation>
+        <translation>trycknyans på uppdateringsfältet</translation>
     </message>
     <message>
         <source>accent.success, kept at the non-text ratio to UpdateBackground in high contrast</source>
-        <translation type="unfinished"></translation>
+        <translation>accent.success, hålls vid kvoten för icke-text mot UpdateBackground med hög kontrast</translation>
     </message>
     <message>
         <source>packets.selection when set, else brand.primary</source>
-        <translation type="unfinished"></translation>
+        <translation>packets.selection när den är angiven, annars brand.primary</translation>
     </message>
     <message>
         <source>packets.selectionText when palette.highlight is packets.selection, else black or white on palette.highlight, kept readable on it</source>
-        <translation type="unfinished"></translation>
+        <translation>packets.selectionText när palette.highlight är packets.selection, annars svart eller vitt på palette.highlight, hålls läsbart på den</translation>
     </message>
 </context>
 <context>
     <name>ThemeWelcomePreview</name>
     <message>
         <source>Release Notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionsinformation</translation>
     </message>
     <message>
         <source>Download Update</source>
-        <translation type="unfinished">Ladda ner uppdatering</translation>
+        <translation>Hämta uppdatering</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Öppna</translation>
+        <translation>Öppna</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Fånga</translation>
     </message>
     <message>
         <source>…using this filter:</source>
-        <translation type="unfinished">…med detta filter:</translation>
+        <translation>…med det här filtret:</translation>
     </message>
     <message>
         <source>tcp port 443</source>
-        <translation type="unfinished"></translation>
+        <translation>tcp-port 443</translation>
     </message>
     <message>
         <source>5 interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>5 gränssnitt</translation>
     </message>
     <message>
         <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Uppdatering tillgänglig: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Save Image As…</source>
-        <translation type="unfinished">Spara bild som…</translation>
+        <translation>Spara bild som…</translation>
     </message>
 </context>
 <context>
     <name>ThemeWriter</name>
     <message>
         <source>Main brand hue: section header hover, link fallback, last selection fallback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Huvudnyans för varumärket: hovring på avsnittsrubrik, reserv för länk och sista reserv för markering.</translation>
     </message>
     <message>
         <source>Update bar, valid filter tint fallback, capture bookmark glyph.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uppdateringsfält, reservnyans för giltigt filter och bokmärkessymbol för fångst.</translation>
     </message>
     <message>
         <source>Development Build badge, deprecated filter tint fallback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Märke för utvecklingsversion och reservnyans för föråldrat filter.</translation>
     </message>
     <message>
         <source>Invalid filter tint fallback, clear glyph, client stream text fallback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Reservnyans för ogiltigt filter, rensningssymbol och reservtext för klientström.</translation>
     </message>
     <message>
         <source>Bookmark and apply glyphs, expert chat and note fallback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bokmärkes- och verkställsymboler samt reserv för expertschatt och -anteckning.</translation>
     </message>
     <message>
         <source>Expert item background without severity.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för expertobjekt utan allvarlighetsgrad.</translation>
     </message>
     <message>
         <source>Expert comment background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för expertkommentar.</translation>
     </message>
     <message>
         <source>Expert chat background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för expertschatt.</translation>
     </message>
     <message>
         <source>Expert note background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för expertanteckning.</translation>
     </message>
     <message>
         <source>Expert warning background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för expertvarning.</translation>
     </message>
     <message>
         <source>Expert error background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för expertfel.</translation>
     </message>
     <message>
         <source>Text on expert backgrounds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Text på expertbakgrunder.</translation>
     </message>
     <message>
         <source>Selected packet row background; selection in other lists when palette.highlight is not set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för vald paketrad; markering i andra listor när palette.highlight inte är angiven.</translation>
     </message>
     <message>
         <source>Selected packet row text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Text för vald paketrad.</translation>
     </message>
     <message>
         <source>Selection background when the view has no focus.</source>
-        <translation type="unfinished"></translation>
+        <translation>Markeringsbakgrund när vyn saknar fokus.</translation>
     </message>
     <message>
         <source>Inactive selection text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Text för inaktiv markering.</translation>
     </message>
     <message>
         <source>Marked packet background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för markerat paket.</translation>
     </message>
     <message>
         <source>Marked packet text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Text för markerat paket.</translation>
     </message>
     <message>
         <source>Ignored packet background. Auto: the normal row background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för ignorerat paket. Automatiskt: den normala radbakgrunden.</translation>
     </message>
     <message>
         <source>Ignored packet text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Text för ignorerat paket.</translation>
     </message>
     <message>
         <source>Dimmed text for hidden items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nedtonad text för dolda objekt.</translation>
     </message>
     <message>
         <source>Display filter background, valid expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för visningsfilter, giltigt uttryck.</translation>
     </message>
     <message>
         <source>Display filter background, invalid expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för visningsfilter, ogiltigt uttryck.</translation>
     </message>
     <message>
         <source>Display filter background, deprecated syntax.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för visningsfilter, föråldrad syntax.</translation>
     </message>
     <message>
         <source>Capture filter background while compiling.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bakgrund för fångstfilter under kompilering.</translation>
     </message>
     <message>
         <source>Capture filter text while compiling.</source>
-        <translation type="unfinished"></translation>
+        <translation>Text för fångstfilter under kompilering.</translation>
     </message>
     <message>
         <source>Bookmark glyph in the display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bokmärkessymbol i visningsfiltret.</translation>
     </message>
     <message>
         <source>Bookmark glyph in the capture filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bokmärkessymbol i fångstfiltret.</translation>
     </message>
     <message>
         <source>Bookmark glyph when the filter matches a saved one.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bokmärkessymbol när filtret matchar ett sparat filter.</translation>
     </message>
     <message>
         <source>Clear glyph.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensningssymbol.</translation>
     </message>
     <message>
         <source>Apply glyph.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkställsymbol.</translation>
     </message>
     <message>
         <source>Recent filters arrow at rest.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pil för senaste filter i viloläge.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: bakgrund.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: plain text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: oformaterad text.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: selection background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: markeringsbakgrund.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: selected text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: markerad text.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: line number gutter and current line background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: marginal för radnummer och bakgrund för aktuell rad.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: line numbers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: radnummer.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: line the debugger is paused on; may be translucent.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: raden där felsökaren är pausad; kan vara genomskinlig.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: string literals.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: stränglitteraler.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: keywords (drawn bold).</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: nyckelord (visas med fetstil).</translation>
     </message>
     <message>
         <source>Lua Debugger editor: numbers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: tal.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: built-in names such as self.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: inbyggda namn som self.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: names of called functions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: namn på anropade funktioner.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigerare för Lua-felsökaren: kommentarer.</translation>
     </message>
     <message>
         <source>Follow Stream client background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klientbakgrund för Följ ström.</translation>
     </message>
     <message>
         <source>Follow Stream client text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klienttext för Följ ström.</translation>
     </message>
     <message>
         <source>Follow Stream server background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Serverbakgrund för Följ ström.</translation>
     </message>
     <message>
         <source>Follow Stream server text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Servertext för Följ ström.</translation>
     </message>
     <message>
         <source>Window background (QPalette::Window).</source>
-        <translation type="unfinished"></translation>
+        <translation>Fönsterbakgrund (QPalette::Window).</translation>
     </message>
     <message>
         <source>View background (lists, editors).</source>
-        <translation type="unfinished"></translation>
+        <translation>Vybakgrund (listor, redigerare).</translation>
     </message>
     <message>
         <source>View text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytext.</translation>
     </message>
     <message>
         <source>Window text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fönstertext.</translation>
     </message>
     <message>
         <source>Alternate rows in lists and tables.</source>
-        <translation type="unfinished"></translation>
+        <translation>Växlande rader i listor och tabeller.</translation>
     </message>
     <message>
         <source>Mid gray: borders, section headers, separators.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mellangrå: kantlinjer, avsnittsrubriker och avdelare.</translation>
     </message>
     <message>
         <source>Light bevel shade (QPalette::Midlight).</source>
-        <translation type="unfinished"></translation>
+        <translation>Ljus fasningsskugga (QPalette::Midlight).</translation>
     </message>
     <message>
         <source>Selection in all lists except the packet list; the welcome header and hover fills derive from it. Auto: packets.selection, else brand.primary.</source>
-        <translation type="unfinished"></translation>
+        <translation>Markering i alla listor utom paketlistan; välkomsthuvudet och hovringsfyllningar härleds från den. Automatiskt: packets.selection, annars brand.primary.</translation>
     </message>
     <message>
         <source>Text on highlight, kept readable on it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Text på markering, hålls läsbar på den.</translation>
     </message>
     <message>
         <source>QPalette::Accent (Qt 6.6 and later). Auto: brand.primary.</source>
+        <translation>QPalette::Accent (Qt 6.6 och senare). Automatiskt: brand.primary.</translation>
+    </message>
+    <message>
+        <source>Frame of text fields. Auto: palette.mid, kept visible on palette.base.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hairline dividers between cards and panes. Auto: palette.base mixed toward palette.mid.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Could not create &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte skapa &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -17711,11 +17695,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[ÅÅÅÅ-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
@@ -20259,11 +20239,11 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Theme D&amp;esigner…</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema&amp;redigerare…</translation>
     </message>
     <message>
         <source>Create, copy, edit, import and export personal themes</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapa, kopiera, redigera, importera och exportera personliga teman</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -20341,11 +20321,11 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Appearance Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Utseendeläge</translation>
     </message>
     <message>
         <source>Switch between the System, Light and Dark appearance modes</source>
-        <translation type="unfinished"></translation>
+        <translation>Växla mellan utseendelägena System, Ljust och Mörkt</translation>
     </message>
     <message>
         <source>TLS Keylog Launcher</source>
@@ -20357,11 +20337,11 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Personal Themes Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapp för personliga teman</translation>
     </message>
     <message>
         <source>Open the folder that holds your own theme files</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna mappen som innehåller dina egna temafiler</translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
@@ -20723,15 +20703,15 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Appearance mode: Light. Click to switch to Dark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utseendeläge: Ljust. Klicka för att växla till Mörkt.</translation>
     </message>
     <message>
         <source>Appearance mode: Dark. Click to switch to System.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utseendeläge: Mörkt. Klicka för att växla till System.</translation>
     </message>
     <message>
         <source>Appearance mode: System. Click to switch to Light.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utseendeläge: System. Klicka för att växla till Ljust.</translation>
     </message>
     <message>
         <source>USB CDC Data</source>

@@ -5903,10 +5903,6 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apakah melakukan pemrosesan ekstra yang mendeteksi awal representasi ASCII di akhir dari suatu baris heksa+ASCII bahkan bila itu tampak seperti byte heksa.&lt;/p&gt;&lt;p&gt;Jangan fungsikan bila curah heksa tidak mengandung ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">Identifikasi ASCII:</translation>
-    </message>
-    <message>
         <source>Regular Expression</source>
         <translation>Ekspresi Reguler</translation>
     </message>
@@ -6009,10 +6005,6 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apakah memperlakukan grup beberapa byte sebagai dalam urutan byte little-endian, bukan yang default, urutan jaringan (big-endian).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">Little-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8229,30 +8221,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Clear output</source>
         <translation>Bersihkan keluaran</translation>
-    </message>
-    <message>
-        <source>Settings</source>
-        <translation type="vanished">Pengaturan</translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="vanished">Otomatis (ikuti skema warna)</translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="vanished">Gelap</translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="vanished">Terang</translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="vanished">Tema warna untuk editor kode</translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="vanished">Tema Tampilan Kode:</translation>
     </message>
     <message>
         <source>Type: %1</source>
@@ -16035,10 +16003,6 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hairline dividers between cards and panes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>color %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17087,6 +17051,10 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>ControlBorder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>palette.base 53% toward palette.mid, kept at the divider ratio to palette.base</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17127,7 +17095,7 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to CardBackground</source>
+        <source>border.separator, kept at the divider ratio to CardBackground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17155,7 +17123,7 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to OverlayCardBackground</source>
+        <source>border.separator, kept at the divider ratio to OverlayCardBackground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17525,6 +17493,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Frame of text fields. Auto: palette.mid, kept visible on palette.base.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hairline dividers between cards and panes. Auto: palette.base mixed toward palette.mid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Could not create &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17559,10 +17535,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[TTTT-BB-HH] jj:mm:dd[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>

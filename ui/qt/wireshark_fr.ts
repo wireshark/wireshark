@@ -5916,10 +5916,6 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&apos;il faut effectuer un traitement supplémentaire en détectant le début de la représentation ASCII à la fin d&apos;une ligne hexadécimale + ASCII même si elle ressemble à des octets hexadécimaux.&lt;/p&gt;&lt;p&gt;Ne pas activer si le vidage hexadécimal ne contient pas d&apos;ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">Identification ASCII :</translation>
-    </message>
-    <message>
         <source>Regular Expression</source>
         <translation>Expression régulière</translation>
     </message>
@@ -16005,10 +16001,6 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hairline dividers between cards and panes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>color %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17057,6 +17049,10 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>ControlBorder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>palette.base 53% toward palette.mid, kept at the divider ratio to palette.base</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17097,7 +17093,7 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to CardBackground</source>
+        <source>border.separator, kept at the divider ratio to CardBackground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17125,7 +17121,7 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to OverlayCardBackground</source>
+        <source>border.separator, kept at the divider ratio to OverlayCardBackground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17495,6 +17491,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Frame of text fields. Auto: palette.mid, kept visible on palette.base.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hairline dividers between cards and panes. Auto: palette.base mixed toward palette.mid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Could not create &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17529,10 +17533,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>

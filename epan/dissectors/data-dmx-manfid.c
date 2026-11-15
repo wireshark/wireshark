@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-11-08
+ * ESTA codes download date: 2026-11-15
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -557,6 +557,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x071F, "Moss LED Inc" },
   { 0x0720, "Twoloox GmbH" },
   { 0x0724, "PHC Lighting & BMS Sp. z o.o." },
+  { 0x0729, "S.C. Electro Max SRL" },
   { 0x072B, "NEWSUBSTANCE Ltd." },
   { 0x072C, "SGM A/S" },
   { 0x072D, "Sting Alleman" },
@@ -1221,18 +1222,22 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x19E0, "Illusion Universe Co. Ltd." },
   { 0x19F8, "CEZOS Spolka z ograniczona odpowiedzialnoscia, sp.k." },
   { 0x1A00, "LIGEO GmbH" },
+  { 0x1A01, "Del Innovation Design Inc." },
   { 0x1A0D, "Cineo Lighting" },
   { 0x1A16, "WADAK GmbH" },
   { 0x1A1A, "ValDim Waterfountains Ltd." },
   { 0x1A3D, "Red Lighting s.r.l." },
   { 0x1A46, "StageMatter" },
+  { 0x1A55, "Hangzhou Shixu Digital Technology Co., Ltd." },
   { 0x1A58, "Wuxi Seastar Lighting Co.,Ltd." },
   { 0x1AAF, "Gigacolor technology Co., Ltd." },
   { 0x1AE2, "Jonas Rüter" },
   { 0x1AFA, "TMB" },
   { 0x1AFD, "Shenzhen ZMO Information Technology Co., Ltd." },
+  { 0x1B6F, "Guangzhou Bojiang Optoelectronics Co., Ltd." },
   { 0x1B7E, "Kaltech Lighting Systems" },
   { 0x1B9C, "Vossloh-Schwabe Deutschland GmbH" },
+  { 0x1BAB, "Guangzhou Weiyuan Electron Technology Co., Ltd." },
   { 0x1BB1, "PH Lightning AB" },
   { 0x1BBD, "Electroniques et Spectacle" },
   { 0x1BC0, "ALS Stanislaw Binkiewicz" },
@@ -1538,7 +1543,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x4C65, "Legargeant and Associates" },
   { 0x4C69, "LIGHTOLIER" },
   { 0x4C6C, "Lampo Lighting Designers" },
-  { 0x4C73, "LSC Lighting Systems (Aust) Pty. Ltd." },
+  { 0x4C73, "" },
   { 0x4CDC, "acdc LED Ltd." },
   { 0x4CE5, "LED Company s.r.o." },
   { 0x4D41, "MA Lighting Technology GmbH" },

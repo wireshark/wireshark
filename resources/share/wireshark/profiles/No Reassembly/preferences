@@ -78,6 +78,7 @@ lapdm.reassemble: FALSE
 laplink.desegment_laplink_over_tcp: FALSE
 ldap.desegment_ldap_messages: FALSE
 ldp.desegment_ldp_messages: FALSE
+lixer.desegment: FALSE
 ltp.reassemble_block: FALSE
 m3ua.desegment: FALSE
 memcache.desegment_headers: FALSE

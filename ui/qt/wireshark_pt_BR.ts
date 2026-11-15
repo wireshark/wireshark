@@ -5918,10 +5918,6 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Se deve ser feito um processamento extra para detectar o início da representação ASCII no final de uma linha hex+ASCII, mesmo que ela se pareça com bytes hexadecimais.&lt;/p&gt;&lt;p&gt;Não habilitar se o dump hexadecimal não contiver ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">Identificação ASCII:</translation>
-    </message>
-    <message>
         <source>Regular Expression</source>
         <translation>Expressão regular</translation>
     </message>
@@ -6024,10 +6020,6 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Se deve tratar vários grupos de bytes como estando na ordem de bytes little-endian, em vez da ordem padrão de rede (big-endian).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">Little-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -16018,10 +16010,6 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hairline dividers between cards and panes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>color %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17070,6 +17058,10 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>ControlBorder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>palette.base 53% toward palette.mid, kept at the divider ratio to palette.base</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17110,7 +17102,7 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to CardBackground</source>
+        <source>border.separator, kept at the divider ratio to CardBackground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17138,7 +17130,7 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to OverlayCardBackground</source>
+        <source>border.separator, kept at the divider ratio to OverlayCardBackground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17508,6 +17500,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Frame of text fields. Auto: palette.mid, kept visible on palette.base.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hairline dividers between cards and panes. Auto: palette.base mixed toward palette.mid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Could not create &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17542,10 +17542,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>

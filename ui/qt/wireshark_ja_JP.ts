@@ -5940,10 +5940,6 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;たとえ16進数バイト列のように見えても16進数+ASCII行の末尾にてASCII表現の開始を検出する追加処理をするかどうか。&lt;/p&gt;&lt;p&gt;16進数ダンプにASCIIを含まない場合には有効にしません。&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">ASCII 識別:</translation>
-    </message>
-    <message>
         <source>Regular Expression</source>
         <translation>正規表現</translation>
     </message>
@@ -6046,10 +6042,6 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;デフォルトのネットワークでの（ビックエンディアン）順のかわりに、リトルエンディアンのバイト順であるとして複数バイトグループを取り扱うかどうか&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">リトルエンディアン:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8268,30 +8260,6 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <message>
         <source>Clear output</source>
         <translation>出力をクリア</translation>
-    </message>
-    <message>
-        <source>Settings</source>
-        <translation type="vanished">設定</translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="vanished">自動 (配色に従う)</translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="vanished">ダーク</translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="vanished">ライト</translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="vanished">コードエディタのカラーテーマ</translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="vanished">コード表示テーマ:</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
@@ -16128,10 +16096,6 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hairline dividers between cards and panes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>color %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17182,6 +17146,10 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>ControlBorder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>palette.base 53% toward palette.mid, kept at the divider ratio to palette.base</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17222,7 +17190,7 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to CardBackground</source>
+        <source>border.separator, kept at the divider ratio to CardBackground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17250,7 +17218,7 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to OverlayCardBackground</source>
+        <source>border.separator, kept at the divider ratio to OverlayCardBackground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17620,6 +17588,14 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Frame of text fields. Auto: palette.mid, kept visible on palette.base.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hairline dividers between cards and panes. Auto: palette.base mixed toward palette.mid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Could not create &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17654,10 +17630,6 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>

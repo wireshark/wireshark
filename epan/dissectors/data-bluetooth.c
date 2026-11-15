@@ -901,6 +901,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C41,   "TPMS Signing Key" },
     { 0x2C42,   "Cookware Device ID" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC1E,   "Atomis Inc." },
     { 0xFC1F,   "Eight Sleep Inc." },
     { 0xFC20,   "PreStartGo Pty Ltd" },
     { 0xFC21,   "Plejd AB" },
@@ -5718,6 +5719,16 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x1140,   "WEGZWEI GmbH" },
     { 0x1141,   "AXsensor AB (publ)" },
     { 0x1142,   "Eight Sleep Inc." },
+    { 0x1143,   "Shenzhen HJT Electronics Co., Ltd." },
+    { 0x1144,   "GENXUNITED HOLDINGS INC." },
+    { 0x1145,   "Hon Hai Precision Ind. Co., Ltd." },
+    { 0x1146,   "Murray Blair Pty Ltd" },
+    { 0x1147,   "NESTLE PURINA PETCARE COMPANY" },
+    { 0x1148,   "Revelyst, Inc." },
+    { 0x1149,   "ITOKI CORPORATION" },
+    { 0x114A,   "ASIMUT SOFTWARE ApS" },
+    { 0x114B,   "Triciti Coverage LLC" },
+    { 0x114C,   "Acin Instrumenten B.V." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6498,6 +6509,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c41,   "Bluetooth GATT Attribute TPMS Signing Key (UUID 0x2c41)", "BT GATT TPMS Signing Key (UUID 0x2c41)", "btgatt.uuid0x2c41" },
     { 0x2c42,   "Bluetooth GATT Attribute Cookware Device ID (UUID 0x2c42)", "BT GATT Cookware Device ID (UUID 0x2c42)", "btgatt.uuid0x2c42" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc1e,   "Bluetooth GATT Attribute Atomis Inc. (UUID 0xfc1e)", "BT GATT Atomis Inc. (UUID 0xfc1e)", "btgatt.uuid0xfc1e" },
     { 0xfc1f,   "Bluetooth GATT Attribute Eight Sleep Inc. (UUID 0xfc1f)", "BT GATT Eight Sleep Inc. (UUID 0xfc1f)", "btgatt.uuid0xfc1f" },
     { 0xfc20,   "Bluetooth GATT Attribute PreStartGo Pty Ltd (UUID 0xfc20)", "BT GATT PreStartGo Pty Ltd (UUID 0xfc20)", "btgatt.uuid0xfc20" },
     { 0xfc21,   "Bluetooth GATT Attribute Plejd AB (UUID 0xfc21)", "BT GATT Plejd AB (UUID 0xfc21)", "btgatt.uuid0xfc21" },

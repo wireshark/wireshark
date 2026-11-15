@@ -1711,6 +1711,16 @@ BACnetVendorIdentifiers[] = {
     { 1698, "Lightnet sp. z o.o." },
     { 1699, "Weesion s.r.o." },
     { 1700, "Tinental S.r.l." },
+    { 1701, "Daikin Holdings Singapore Pte. Ltd." },
+    { 1702, "Cadis" },
+    { 1703, "Watchdog" },
+    { 1704, "ComfortClick, D.O.O." },
+    { 1705, "SIAC Solutions SPA" },
+    { 1706, "YNERLAB (SARL)" },
+    { 1707, "Aparian, Inc." },
+    { 1708, "Measured Air Performance" },
+    { 1709, "Studio Zand LLC" },
+    { 1710, "Acute Design LLC" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

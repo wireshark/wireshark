@@ -3339,7 +3339,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Group</source>
-        <translation type="unfinished">Gruppo</translation>
+        <translation>Gruppo</translation>
     </message>
     <message>
         <source>Description</source>
@@ -3796,7 +3796,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Level:</source>
-        <translation type="unfinished"></translation>
+        <translation>Livello:</translation>
     </message>
     <message>
         <source>Export PDUs</source>
@@ -5957,15 +5957,11 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Direction indication</source>
-        <translation type="unfinished"></translation>
+        <translation>Indicazione di direzione</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Decidi se eseguire un&apos;elaborazione aggiuntiva durante la rilevazione della rappresentazione ASCII alla fine di una riga hex+ASCII anche se sembrano byte esadecimali.&lt;/p&gt;&lt;p&gt;Non abilitarla se il dump esadecimale non contiene ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">Identificazione ASCII:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -6021,11 +6017,11 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>ASCII identification</source>
-        <translation type="unfinished"></translation>
+        <translation>Identificazione ASCII</translation>
     </message>
     <message>
         <source>Little-endian</source>
-        <translation type="unfinished"></translation>
+        <translation>Little-endian</translation>
     </message>
     <message>
         <source>Direction indication:</source>
@@ -6071,10 +6067,6 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Decidi se trattare più gruppi di byte come se fossero in ordine little-endian, anziché nell&apos;ordine di rete predefinito (big-endian).
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">Little-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8300,30 +8292,6 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
         <source>Clear output</source>
         <translation>Cancella il risultato</translation>
     </message>
-    <message>
-        <source>Settings</source>
-        <translation type="vanished">Impostazioni</translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="vanished">Automatico (segui lo schema di colori)</translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="vanished">Scuro</translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="vanished">Chiaro</translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="vanished">Tema di colori per l&apos;editor del codice</translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="vanished">Tema vista codice:</translation>
-    </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
         <translation type="vanished">
@@ -8439,7 +8407,7 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Debugger is disabled while the Preferences dialog is open. Close it to re-enable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il debugger è disabilitato mentre la finestra delle preferenze è aperta. Chiudila per riabilitarlo.</translation>
     </message>
     <message>
         <source>Debugger is disabled. Check to enable.</source>
@@ -8451,7 +8419,7 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Disabled (preferences)</source>
-        <translation type="unfinished"></translation>
+        <translation>Disabilitato (preferenze)</translation>
     </message>
     <message>
         <source>Disabled</source>
@@ -10621,23 +10589,23 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <name>PreferencesDialog</name>
     <message>
         <source>Preference pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pagine delle preferenze</translation>
     </message>
     <message>
         <source>Show the list of preference pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra l&apos;elenco delle pagine delle preferenze</translation>
     </message>
     <message>
         <source>Show preference pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra le pagine delle preferenze</translation>
     </message>
     <message>
         <source>Pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pagine</translation>
     </message>
     <message>
         <source>Current preference page</source>
-        <translation type="unfinished"></translation>
+        <translation>Pagina attuale delle preferenze</translation>
     </message>
     <message>
         <source>Advanced</source>
@@ -15082,7 +15050,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Encapsulation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Incapsulamento:</translation>
     </message>
     <message>
         <source>Strip Headers</source>
@@ -16192,7 +16160,7 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Hairline dividers between cards and panes.</source>
-        <translation>Linee sottili di separazione tra schede e pannelli.</translation>
+        <translation type="vanished">Linee sottili di separazione tra schede e pannelli.</translation>
     </message>
     <message>
         <source>color %1</source>
@@ -16677,16 +16645,12 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>&quot;%1&quot; non può essere importato. </translation>
     </message>
     <message>
-        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The preview shows the theme&apos;s font.</source>
-        <translation type="vanished">La preferenza per il carattere a larghezza fissa impostata nella pagina Caratteri (%1) ha la precedenza su quella del tema; pertanto, questa impostazione si applica solo laddove tale preferenza non sia stata definita. L&apos;anteprima mostra il carattere previsto dal tema.</translation>
-    </message>
-    <message>
         <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The Packet List sample shows the theme&apos;s font, the Lua Code sample your preference.</source>
-        <translation type="unfinished"></translation>
+        <translation>La preferenza per il carattere a larghezza fissa impostata nella pagina Caratteri (%1) ha la precedenza su quella del tema; pertanto, questa impostazione si applica solo laddove tale preferenza non sia stata definita. l&apos;esempio dell&apos;elenco dei pacchetti mostra il carattere del tema, l&apos;esempio del codice Lua la tua preferenza.</translation>
     </message>
     <message>
         <source>Lua Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Codice Lua</translation>
     </message>
     <message>
         <source>Save the theme (%1)</source>
@@ -16926,7 +16890,7 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     <name>ThemeLuaCodePreview</name>
     <message>
         <source>Save Image As…</source>
-        <translation type="unfinished">Salva immagine come...</translation>
+        <translation>Salva immagine come...</translation>
     </message>
 </context>
 <context>
@@ -17212,7 +17176,7 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>fixed code editor default</source>
-        <translation type="unfinished"></translation>
+        <translation>predefinito fisso dell&apos;editor di codice</translation>
     </message>
     <message>
         <source>palette.mid, kept readable on palette.base</source>
@@ -17245,6 +17209,10 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     <message>
         <source>palette.mid, kept at the non-text ratio to palette.base</source>
         <translation>palette.mid, mantenuto al rapporto di contrasto non testuale rispetto a palette.base</translation>
+    </message>
+    <message>
+        <source>ControlBorder</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>palette.base 53% toward palette.mid, kept at the divider ratio to palette.base</source>
@@ -17287,8 +17255,12 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>palette.alternateBase, se impostato; in caso contrario, palette.base; in modalità scura, viene mantenuto in un rapporto rispetto a palette.base pari a quello tra la superficie scura delle card e palette.base stesso</translation>
     </message>
     <message>
+        <source>border.separator, kept at the divider ratio to CardBackground</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Separator, kept at the divider ratio to CardBackground</source>
-        <translation>Separatore, mantenuto secondo il rapporto di suddivisione rispetto a CardBackground</translation>
+        <translation type="vanished">Separatore, mantenuto secondo il rapporto di suddivisione rispetto a CardBackground</translation>
     </message>
     <message>
         <source>SectionHeader, kept readable on CardBackground</source>
@@ -17315,8 +17287,8 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>il più chiaro tra palette.base e CardBackground</translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to OverlayCardBackground</source>
-        <translation>Separatore, mantenuto secondo il rapporto di suddivisione rispetto a OverlayCardBackground</translation>
+        <source>border.separator, kept at the divider ratio to OverlayCardBackground</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>black or white on accent.success</source>
@@ -17410,10 +17382,6 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
 <context>
     <name>ThemeWelcomePreview</name>
     <message>
-        <source>Development Build</source>
-        <translation type="vanished">Versione di sviluppo</translation>
-    </message>
-    <message>
         <source>Release Notes</source>
         <translation>Note di rilascio</translation>
     </message>
@@ -17442,12 +17410,8 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>5 interfacce</translation>
     </message>
     <message>
-        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</source>
-        <translation type="vanished">Aggiornamento disponibile: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiornamento disponibile: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Save Image As…</source>
@@ -17586,55 +17550,55 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger lua: sfondo.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: plain text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: testo semplice.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: selection background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger lua: sfondo della selezione.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: selected text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: testo selezionato.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: line number gutter and current line background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: margine dei numeri di riga e sfondo della riga attuale.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: line numbers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debug Lua: numeri di riga.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: line the debugger is paused on; may be translucent.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: riga su cui il debugger è in pausa; può essere trasparente.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: string literals.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: stringhe letterali.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: keywords (drawn bold).</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: parole chiave (in grassetto).</translation>
     </message>
     <message>
         <source>Lua Debugger editor: numbers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger lua: numeri.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: built-in names such as self.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger lua: nomi interni come self.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: names of called functions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: nomi delle funzioni invocate.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: commenti.</translation>
     </message>
     <message>
         <source>Follow Stream client background.</source>
@@ -17693,6 +17657,14 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>QPalette::Accent (Qt 6.6 e successive). Auto: brand.primary.</translation>
     </message>
     <message>
+        <source>Frame of text fields. Auto: palette.mid, kept visible on palette.base.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hairline dividers between cards and panes. Auto: palette.base mixed toward palette.mid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Could not create &quot;%1&quot;.</source>
         <translation>Impossibile creare &quot;%1&quot;.</translation>
     </message>
@@ -17726,11 +17698,7 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[AAAA-MM-GG] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
@@ -20356,11 +20324,11 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Appearance Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità aspetto</translation>
     </message>
     <message>
         <source>Switch between the System, Light and Dark appearance modes</source>
-        <translation type="unfinished"></translation>
+        <translation>Passa tra le modalità aspetto sistema, chiaro e scuro</translation>
     </message>
     <message>
         <source>TLS Keylog Launcher</source>
@@ -20738,15 +20706,15 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Appearance mode: Light. Click to switch to Dark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità aspetto: chiaro, fai clic per passare a scuro</translation>
     </message>
     <message>
         <source>Appearance mode: Dark. Click to switch to System.</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità aspetto: scuro. Fai clic per passare a sistema.</translation>
     </message>
     <message>
         <source>Appearance mode: System. Click to switch to Light.</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità aspetto: sistema. Fai clic per passare a chiaro.</translation>
     </message>
     <message>
         <source>USB CDC Data</source>
