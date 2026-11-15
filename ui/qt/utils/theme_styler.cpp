@@ -18,6 +18,7 @@
 #include <QEvent>
 #include <QList>
 #include <QMainWindow>
+#include <QMargins>
 #include <QOperatingSystemVersion>
 #include <QPainter>
 #include <QPen>
@@ -37,6 +38,43 @@
 #endif
 
 static QString base_style_name_;
+
+#ifdef Q_OS_WIN
+// True if the base style is windows11. Item views are painted for every
+// visible cell, so the style name is not compared on each paint.
+static bool windows11_base_ = false;
+
+// The windows11 style (Qt 6.7+) fills selected item view rows with a fixed,
+// nearly transparent gray (WinUI's "subtle" fill) and draws their text in the
+// normal text color. It ignores the palette's Highlight and HighlightedText,
+// unless the view has alternating row colors or Windows uses a contrast
+// theme, and looks the same whether the view has focus or not. To the user
+// a selected row looks like an inactive selection all the time, and the
+// theme's selection colors never show. The functions below hand selected
+// rows to the base style with the palette colors instead, so the selection
+// is drawn as on the other styles, in the windows11 shape.
+
+// Corner radius of the windows11 style's item view selection (its
+// secondLevelRoundingRadius, private in qwindows11style.cpp).
+static constexpr int windows11_item_radius_ = 4;
+
+// The palette group a view item is drawn with, as QCommonStyle picks it.
+// Item views clear State_Active when the view does not have focus.
+static QPalette::ColorGroup viewItemColorGroup(const QStyleOption *option)
+{
+    if (!(option->state & QStyle::State_Enabled))
+        return QPalette::Disabled;
+    return (option->state & QStyle::State_Active) ? QPalette::Active : QPalette::Inactive;
+}
+
+// True if the windows11 base style would paint this view item as selected
+// with its subtle fill.
+static bool takesWindows11Selection(const QStyleOptionViewItem *vopt)
+{
+    return windows11_base_ && vopt && (vopt->state & QStyle::State_Selected);
+}
+
+#endif // Q_OS_WIN
 
 #ifdef Q_OS_MACOS
 // The toolbars that make up the unified title and toolbar area of a
@@ -115,11 +153,17 @@ static bool isZoomedPixelMetric(QStyle::PixelMetric metric)
 ThemeStyler::ThemeStyler(QStyle *style) : QProxyStyle(style)
 {
     base_style_name_ = baseStyle()->objectName();
+#ifdef Q_OS_WIN
+    windows11_base_ = base_style_name_ == QLatin1String("windows11");
+#endif
 }
 
 ThemeStyler::ThemeStyler(const QString &key) : QProxyStyle(key)
 {
     base_style_name_ = baseStyle()->objectName();
+#ifdef Q_OS_WIN
+    windows11_base_ = base_style_name_ == QLatin1String("windows11");
+#endif
 }
 
 QString ThemeStyler::baseStyleName()
@@ -278,6 +322,62 @@ void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *op
         return;
     }
 #endif
+#ifdef Q_OS_WIN
+    if (windows11_base_ && option && painter) {
+        const QStyleOptionViewItem *vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option);
+        switch (element) {
+        case PE_PanelItemViewItem:
+            // The windows11 style's CE_ItemViewItem fills the cell with the
+            // option's background brush through this primitive, and then
+            // draws its rounded selection shape with the same brush. For a
+            // selected item drawControl() passes the highlight as that brush;
+            // fill the item's own background here, so the rounded highlight
+            // sits on it the way the windows11 subtle fill does.
+            if (vopt && selected_item_background_) {
+                if (selected_item_background_->style() != Qt::NoBrush) {
+                    painter->save();
+                    painter->setBrushOrigin(vopt->rect.topLeft());
+                    painter->fillRect(vopt->rect, *selected_item_background_);
+                    painter->restore();
+                }
+                return;
+            }
+            break;
+        case PE_PanelItemViewRow:
+            // A tree view draws the branch area of a selected row with this
+            // primitive. Without showDecorationSelected the windows11 style
+            // only marks it with its accent bar, and the item cells aren't
+            // joined to it; leave that to the base style.
+            if (takesWindows11Selection(vopt) && vopt->showDecorationSelected
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+                    && vopt->features.testFlag(QStyleOptionViewItem::IsDecorationForRootColumn)) {
+#else
+                    && vopt->features.testFlag(QStyleOptionViewItem::HasDecoration)) {
+#endif
+                drawWindows11DecorationSelection(vopt, painter, widget);
+                return;
+            }
+            break;
+        case PE_IndicatorBranch:
+            // The windows11 style draws the chevron of an expanded item in
+            // the Active WindowText color and that of a collapsed one in
+            // the Disabled WindowText color, which don't read on the
+            // highlight.
+            if (takesWindows11Selection(vopt) && vopt->showDecorationSelected) {
+                QStyleOptionViewItem opt(*vopt);
+                const QColor text = vopt->palette.color(viewItemColorGroup(vopt), QPalette::HighlightedText);
+                opt.palette.setColor(QPalette::Active, QPalette::WindowText, text);
+                opt.palette.setColor(QPalette::Disabled, QPalette::WindowText, text);
+                QProxyStyle::drawPrimitive(element, &opt, painter, widget);
+                return;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+#endif // Q_OS_WIN
+
     QProxyStyle::drawPrimitive(element, option, painter, widget);
 
     // Fusion outlines buttons, combo boxes and line edits with
@@ -441,8 +541,70 @@ void ThemeStyler::drawControl(ControlElement element, const QStyleOption *option
         }
     }
 #endif
+#ifdef Q_OS_WIN
+    // Hand a selected item to the windows11 style as an unselected item
+    // whose background is the highlight and whose text is the highlighted
+    // text, so it draws its rounded item shape in the palette's selection
+    // colors instead of its subtle fill. The highlight comes from the
+    // Inactive group when the view doesn't have focus, as on other styles.
+    if (element == CE_ItemViewItem && painter) {
+        const QStyleOptionViewItem *vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option);
+        if (takesWindows11Selection(vopt)) {
+            const QPalette::ColorGroup cg = viewItemColorGroup(vopt);
+            QStyleOptionViewItem opt(*vopt);
+            opt.backgroundBrush = vopt->palette.brush(cg, QPalette::Highlight);
+            opt.palette.setBrush(QPalette::Text, vopt->palette.brush(cg, QPalette::HighlightedText));
+            opt.state &= ~(State_Selected | State_MouseOver);
+            selected_item_background_ = &vopt->backgroundBrush;
+            QProxyStyle::drawControl(element, &opt, painter, widget);
+            selected_item_background_ = nullptr;
+            return;
+        }
+    }
+#endif // Q_OS_WIN
+
     QProxyStyle::drawControl(element, option, painter, widget);
 }
+
+#ifdef Q_OS_WIN
+void ThemeStyler::drawWindows11DecorationSelection(const QStyleOptionViewItem *vopt,
+    QPainter *painter, const QWidget *widget) const
+{
+    // The base style draws the unselected row background (alternate row
+    // colors), without its subtle fill and accent bar.
+    QStyleOptionViewItem opt(*vopt);
+    opt.state &= ~(State_Selected | State_MouseOver);
+    QProxyStyle::drawPrimitive(PE_PanelItemViewRow, &opt, painter, widget);
+
+    // The highlight in the windows11 shape and geometry: the branch area
+    // starts the row's selection, so it is rounded on the leading side, and
+    // the item cells continue it (qwindows11style.cpp, PE_PanelItemViewRow).
+    const QRect &rect = vopt->rect;
+    const bool onlyOne = vopt->viewItemPosition == QStyleOptionViewItem::OnlyOne
+            || vopt->viewItemPosition == QStyleOptionViewItem::Invalid;
+    bool isFirst = onlyOne || vopt->viewItemPosition == QStyleOptionViewItem::Beginning;
+    bool isLast = vopt->viewItemPosition == QStyleOptionViewItem::End;
+    if (vopt->direction == Qt::RightToLeft) {
+        isFirst = !isFirst;
+        isLast = !isLast;
+    }
+
+    constexpr int r = windows11_item_radius_;
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(vopt->palette.brush(viewItemColorGroup(vopt), QPalette::Highlight));
+    painter->setClipRect(rect);
+    if (isFirst) {
+        painter->drawRoundedRect(rect.marginsRemoved(QMargins(2, 2, -r, 2)), r, r);
+    } else if (isLast) {
+        painter->drawRoundedRect(rect.marginsRemoved(QMargins(-r, 2, 2, 2)), r, r);
+    } else {
+        painter->drawRect(rect.marginsRemoved(QMargins(0, 2, 0, 2)));
+    }
+    painter->restore();
+}
+#endif // Q_OS_WIN
 
 void ThemeStyler::polish(QWidget *widget)
 {

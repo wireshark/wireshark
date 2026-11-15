@@ -13,6 +13,7 @@
 #include <QProxyStyle>
 
 class QStyleOptionButton;
+class QStyleOptionViewItem;
 #ifdef Q_OS_MACOS
 namespace NativePushButton { struct BezelState; }
 #endif
@@ -87,6 +88,11 @@ public:
      * Window.darker(140), about 2:1, below the non-text contrast target.
      * Native styles (macOS, windows11, windowsvista) draw their frames
      * from their own colors and are left alone.
+     *
+     * With the windows11 base style, the branch area of a selected tree
+     * view row (PE_PanelItemViewRow) is filled with the palette's
+     * Highlight and its expand chevron (PE_IndicatorBranch) drawn in
+     * HighlightedText, to match the items drawn by drawControl().
      */
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
         QPainter *painter, const QWidget *widget = nullptr) const override;
@@ -95,7 +101,8 @@ public:
     using QProxyStyle::unpolish;
 
     /**
-     * Draw a control through the base style, with adjustments on macOS.
+     * Draw a control through the base style, with adjustments on macOS
+     * and for the windows11 style.
      *
      * The native style erases top toolbars in a main window's unified
      * title and toolbar area to transparent, so the system content
@@ -111,6 +118,14 @@ public:
      * bezel's accent state, and the keyboard focus ring (CE_FocusFrame)
      * is the native ring of that bezel. Buttons of the native bezel
      * height are left to the base style.
+     *
+     * The windows11 style fills a selected item view item
+     * (CE_ItemViewItem) with a nearly transparent gray and draws its text
+     * in the Text color, ignoring the palette's Highlight and
+     * HighlightedText, and draws it the same whether the view has focus or
+     * not. Selected items are drawn in the windows11 item shape with the
+     * Highlight and HighlightedText of the Active group, or of the
+     * Inactive group when the view doesn't have focus, as other styles do.
      */
     void drawControl(ControlElement element, const QStyleOption *option,
         QPainter *painter, const QWidget *widget = nullptr) const override;
@@ -155,6 +170,25 @@ private:
     // Nesting depth of pixelMetric() calls. Styles run on the GUI thread
     // only, so a plain counter is enough.
     mutable int metric_depth_ = 0;
+
+#ifdef Q_OS_WIN
+    // While drawControl() has the windows11 base style draw a selected
+    // item with the highlight as its background brush, the item's own
+    // background brush, for the PE_PanelItemViewItem fill under it.
+    mutable const QBrush *selected_item_background_ = nullptr;
+
+    /**
+     * Draw the branch area of a selected tree view row for the windows11
+     * base style: the unselected row background from the base style, then
+     * the palette's Highlight in the windows11 selection shape.
+     *
+     * @param vopt    The PE_PanelItemViewRow option of the branch area.
+     * @param painter The painter.
+     * @param widget  The tree view, may be null.
+     */
+    void drawWindows11DecorationSelection(const QStyleOptionViewItem *vopt,
+        QPainter *painter, const QWidget *widget) const;
+#endif
 
 #ifdef Q_OS_MACOS
     /**
