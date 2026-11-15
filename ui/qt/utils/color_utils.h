@@ -126,6 +126,25 @@ public:
                                const QColor &bg, const QColor &fg);
 
     /**
+     * @brief Fills a packet list row with its Qt::BackgroundRole brush
+     * (coloring rule, marked, ignored) before the row is drawn.
+     *
+     * Some styles (e.g. KDE Breeze) inset each item's background from
+     * its cell and round the row's ends, leaving a gap of the view's
+     * Base color between colored rows. Filling the whole row first
+     * covers that gap, so whether rows are visibly separated depends
+     * only on the gui_packet_list_separator preference, as with other
+     * styles.
+     *
+     * @param painter The painter drawRow() received.
+     * @param option The style option drawRow() received.
+     * @param index The row's index (any column; the background is the
+     * same for every column of a row).
+     */
+    static void paintRowBackground(QPainter *painter, const QStyleOptionViewItem &option,
+                                   const QModelIndex &index);
+
+    /**
      * @brief Returns the warning background color for the current theme.
      * Taken from the FilterDeprecated theme token, the same tint used for
      * deprecated display filter text.

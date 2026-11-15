@@ -654,6 +654,7 @@ QString PacketList::joinSummaryRow(QStringList col_parts, int row, SummaryCopyTy
 
 void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    ColorUtils::paintRowBackground(painter, option, index);
     QTreeView::drawRow(painter, option, index);
 
     // The hover highlight is driven by hovered_frame_num_ rather than Qt's
