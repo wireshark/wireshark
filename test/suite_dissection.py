@@ -5155,6 +5155,29 @@ class TestDissectTns:
             ['4', '', '', '0', '', '0', ''],
         ], rows
 
+    def test_tns_oci_describe(self, cmd_tshark, capture_file, test_env):
+        '''The describe of a query's columns, as an OCI client gets it,
+        from a 10g server without the uds flags 11g adds to each column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_describe.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_dcb.num_columns',
+            '-T', 'fields',
+            '-e', 'tns.data.field_version',
+            '-e', 'tns.data_dcb.num_columns',
+            '-e', 'tns.data_col.name',
+            '-e', 'tns.data_col.type',
+            '-e', 'tns.data_col.uds_flags',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['4', '1', '1', '2', '', ''],
+            ['4', '2', 'G,AVG(N)', '2,2', '', ''],
+            ['6', '4', 'N,S,D,Z', '2,96,12,1',
+             '0x00000000,0x00000001,0x00000002,0x00000003', ''],
+        ], rows
+
     def test_tns_oci_binds(self, cmd_tshark, capture_file, test_env):
         '''An OCI client's execute carries a fixed-width descriptor per
         bind, 49 bytes from 12c and 41 before, and the row of values. A

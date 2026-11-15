@@ -5428,6 +5428,27 @@ static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo
 			return offset;
 		}
 
+		case SQLNET_DESCRIBE_INFO:
+		{
+			/* The describe of a query's columns, as an OCI client gets
+			 * it: a cursor uuid and a time behind a ub4 LE length, a ub1
+			 * from a 10g server, then the describe a REF CURSOR's value
+			 * carries. The rows that follow are not decoded. */
+			unsigned fv = tns_field_version(pinfo);
+			bool band_12c = fv ? fv >= TNS_FV_12_1 : tns_is_oci_12c(pinfo);
+			bool fv_11_2 = !fv || fv >= TNS_FV_11_2;
+
+			if ( fv_11_2 )
+			{
+				if ( !tvb_bytes_exist(tvb, offset, 4) )
+					return offset;
+				offset += 4 + tvb_get_letohl(tvb, offset);
+			}
+			else
+				offset += 1 + tvb_get_uint8(tvb, offset);
+			return dissect_tns_oci_describe_body(tvb, pinfo, data_tree, offset, band_12c, fv_11_2);
+		}
+
 		case SQLNET_RETURN_STATUS:
 		{
 			/* The OCI status block: 136 bytes, or a compact 24 for a
