@@ -577,24 +577,24 @@ void ThemeManager::reapplyForSchemeChange()
     // refresh on platforms where the OS palette is trusted; on Linux and
     // Qt < 6.8 Windows the baseline is the built-in light/dark palette and
     // osBaseline_ is unused.
-#if defined(Q_OS_MACOS)
-    // QStyle::standardPalette() cannot be used here: QMacStyle returns a
+#if defined(Q_OS_MACOS) || (defined(Q_OS_WIN) && QT_VERSION >= QT_VERSION_CHECK(6, 8, 0))
+    // QStyle::standardPalette() cannot be used here.  QMacStyle returns a
     // default-constructed QPalette, which is a copy of the current
-    // application palette, i.e. the palette we applied last.  After a
+    // application palette, i.e. the palette we applied last: after a
     // Light -> Dark switch the baseline would stay light and the Inactive
-    // text roles and derived tokens would be built from light colors.
-    // Instead drop the application palette so Qt resolves it entirely from
-    // the platform theme, and read that back, which is what the constructor
-    // captures at startup.  This costs one extra ApplicationPaletteChange
-    // round, so it stays here and out of applyTheme(): theme, font and
-    // contrast reloads do not change the platform palette.
+    // text roles and derived tokens would be built from light colors.  The
+    // Windows styles (windows11, windowsvista, windows) don't reimplement
+    // it at all, so it returns QStyle's fixed Windows 2000 gray palette, and
+    // after Dark -> Light the light theme was built on that instead of the
+    // system palette.  Instead drop the application palette so Qt resolves
+    // it entirely from the platform theme (which on Windows rebuilt its
+    // palette for the scheme set above) and the style's palette polish, and
+    // read that back, which is what the constructor captures at startup.
+    // This costs one extra ApplicationPaletteChange round, so it stays here
+    // and out of applyTheme(): theme, font and contrast reloads do not
+    // change the platform palette.
     QApplication::setPalette(QPalette());
     osBaseline_ = QApplication::palette();
-#elif defined(Q_OS_WIN) && QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    // The Windows styles provide their own standard palette for the
-    // scheme set through QStyleHints.
-    if (QStyle *s = qApp->style())
-        osBaseline_ = s->standardPalette();
 #endif
 
     applyTheme();
