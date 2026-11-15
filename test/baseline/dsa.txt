@@ -1,0 +1,489 @@
+Frame 1: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits)
+    Encapsulation type: Marvell DSA-tagged Ethernet (232)
+    Arrival Time: Nov 14, 2023 22:13:20.000000000 UTC
+    UTC Arrival Time: Nov 14, 2023 22:13:20.000000000 UTC
+    Epoch Arrival Time: 1700000000.000000000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time since reference or first frame: 0.000000000 seconds]
+    Frame Number: 1
+    Frame Length: 38 bytes (304 bits)
+    Capture Length: 38 bytes (304 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: dsa:ethertype:ip]
+    Character encoding: ASCII (0)
+Marvell DSA-tagged Ethernet
+    Destination: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Source: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+    DSA tag
+        11.. .... = Command: FORWARD (3)
+        ..0. .... = Tagged: False
+        ...0 0000 = Device: 0
+        0001 0... = Port: 2
+        .... .0.. = Trunk: False
+        .... ..0. = Unused: 0x0
+        .... ...0 = CFI: False
+        000. .... = PCP: 0
+        ...0 .... = Unused: 0x0
+        .... 0000 0000 0000 = Ingress VID: 0
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 192.168.1.1, Dst: 192.168.1.2
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 20
+        [Expert Info (Note/Protocol): Empty data packet]
+            [Empty data packet]
+            [Severity level: Note]
+            [Group: Protocol]
+    Identification: 0x0000 (0)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x0000 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 192.168.1.1
+    Destination Address: 192.168.1.2
+    [Stream index: 0]
+
+Frame 2: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits)
+    Encapsulation type: Marvell DSA-tagged Ethernet (232)
+    Arrival Time: Nov 14, 2023 22:13:21.000000000 UTC
+    UTC Arrival Time: Nov 14, 2023 22:13:21.000000000 UTC
+    Epoch Arrival Time: 1700000001.000000000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 1 second]
+    [Time delta from previous displayed frame: 1 second]
+    [Time since reference or first frame: 1 second]
+    Frame Number: 2
+    Frame Length: 38 bytes (304 bits)
+    Capture Length: 38 bytes (304 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: dsa:ethertype:ip]
+    Character encoding: ASCII (0)
+Marvell DSA-tagged Ethernet
+    Destination: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Source: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+    DSA tag
+        11.. .... = Command: FORWARD (3)
+        ..0. .... = Tagged: False
+        ...0 0000 = Device: 0
+        0001 1... = Port: 3
+        .... .1.. = Trunk: True
+        .... ..0. = Unused: 0x0
+        .... ...0 = CFI: False
+        000. .... = PCP: 0
+        ...0 .... = Unused: 0x0
+        .... 0000 0000 0000 = Ingress VID: 0
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 192.168.1.1, Dst: 192.168.1.2
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 20
+        [Expert Info (Note/Protocol): Empty data packet]
+            [Empty data packet]
+            [Severity level: Note]
+            [Group: Protocol]
+    Identification: 0x0000 (0)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x0000 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 192.168.1.1
+    Destination Address: 192.168.1.2
+    [Stream index: 0]
+
+Frame 3: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits)
+    Encapsulation type: Marvell DSA-tagged Ethernet (232)
+    Arrival Time: Nov 14, 2023 22:13:22.000000000 UTC
+    UTC Arrival Time: Nov 14, 2023 22:13:22.000000000 UTC
+    Epoch Arrival Time: 1700000002.000000000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 1 second]
+    [Time delta from previous displayed frame: 1 second]
+    [Time since reference or first frame: 2 seconds]
+    Frame Number: 3
+    Frame Length: 38 bytes (304 bits)
+    Capture Length: 38 bytes (304 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: dsa:ethertype:ip]
+    Character encoding: ASCII (0)
+Marvell DSA-tagged Ethernet
+    Destination: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Source: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+    DSA tag
+        01.. .... = Command: FROM_CPU (1)
+        ..1. .... = Tagged: True
+        ...0 0000 = Device: 0
+        0000 1... = Port: 1
+        .... .00. = Unused: 0x0
+        .... ...1 = CFI: True
+        101. .... = PCP: 5
+        ...0 .... = Unused: 0x0
+        .... 0000 0110 0100 = VID: 100
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 192.168.1.1, Dst: 192.168.1.2
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 20
+        [Expert Info (Note/Protocol): Empty data packet]
+            [Empty data packet]
+            [Severity level: Note]
+            [Group: Protocol]
+    Identification: 0x0000 (0)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x0000 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 192.168.1.1
+    Destination Address: 192.168.1.2
+    [Stream index: 0]
+
+Frame 4: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits)
+    Encapsulation type: Marvell DSA-tagged Ethernet (232)
+    Arrival Time: Nov 14, 2023 22:13:23.000000000 UTC
+    UTC Arrival Time: Nov 14, 2023 22:13:23.000000000 UTC
+    Epoch Arrival Time: 1700000003.000000000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 1 second]
+    [Time delta from previous displayed frame: 1 second]
+    [Time since reference or first frame: 3 seconds]
+    Frame Number: 4
+    Frame Length: 38 bytes (304 bits)
+    Capture Length: 38 bytes (304 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: dsa:ethertype:ip]
+    Character encoding: ASCII (0)
+Marvell DSA-tagged Ethernet
+    Destination: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Source: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+    DSA tag
+        00.. .... = Command: TO_CPU (0)
+        ..0. .... = Tagged: False
+        ...0 0000 = Device: 0
+        0000 0... = Port: 0
+        .... .10. ...1 .... = Code: POLICY_MIRROR (5)
+        .... ...0 = CFI: False
+        000. .... = PCP: 0
+        .... 0000 0000 0000 = Ingress VID: 0
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 192.168.1.1, Dst: 192.168.1.2
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 20
+        [Expert Info (Note/Protocol): Empty data packet]
+            [Empty data packet]
+            [Severity level: Note]
+            [Group: Protocol]
+    Identification: 0x0000 (0)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x0000 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 192.168.1.1
+    Destination Address: 192.168.1.2
+    [Stream index: 0]
+
+Frame 5: Packet, 46 bytes on wire (368 bits), 46 bytes captured (368 bits)
+    Encapsulation type: Marvell DSA-tagged Ethernet (232)
+    Arrival Time: Nov 14, 2023 22:13:24.000000000 UTC
+    UTC Arrival Time: Nov 14, 2023 22:13:24.000000000 UTC
+    Epoch Arrival Time: 1700000004.000000000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 1 second]
+    [Time delta from previous displayed frame: 1 second]
+    [Time since reference or first frame: 4 seconds]
+    Frame Number: 5
+    Frame Length: 46 bytes (368 bits)
+    Capture Length: 46 bytes (368 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: dsa:ethertype:arp]
+    Character encoding: ASCII (0)
+Marvell DSA-tagged Ethernet
+    Destination: Broadcast (ff:ff:ff:ff:ff:ff)
+    Source: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+    DSA tag
+        10.. .... = Command: TO_SNIFFER (2)
+        ..0. .... = Tagged: False
+        ...0 0000 = Device: 0
+        0000 1... = Port: 1
+        .... .1.. = Rx Sniff: True
+        .... ..0. = Unused: 0x0
+        .... ...0 = CFI: False
+        000. .... = PCP: 0
+        ...0 .... = Unused: 0x0
+        .... 0000 0000 0000 = Ingress VID: 0
+    Type: ARP (0x0806)
+Address Resolution Protocol (request)
+    Hardware type: Ethernet (1)
+    Protocol type: IPv4 (0x0800)
+    Hardware size: 6
+    Protocol size: 4
+    Opcode: request (1)
+    Sender MAC address: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+    Sender IP address: 192.168.1.1
+    Target MAC address: 00:00:00_00:00:00 (00:00:00:00:00:00)
+    Target IP address: 192.168.1.2
+
+Frame 6: Packet, 27 bytes on wire (216 bits), 27 bytes captured (216 bits)
+    Encapsulation type: Marvell DSA-tagged Ethernet (232)
+    Arrival Time: Nov 14, 2023 22:13:25.000000000 UTC
+    UTC Arrival Time: Nov 14, 2023 22:13:25.000000000 UTC
+    Epoch Arrival Time: 1700000005.000000000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 1 second]
+    [Time delta from previous displayed frame: 1 second]
+    [Time since reference or first frame: 5 seconds]
+    Frame Number: 6
+    Frame Length: 27 bytes (216 bits)
+    Capture Length: 27 bytes (216 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: dsa:llc:data]
+    Character encoding: ASCII (0)
+Marvell DSA-tagged Ethernet
+    Destination: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Source: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+    DSA tag
+        11.. .... = Command: FORWARD (3)
+        ..0. .... = Tagged: False
+        ...0 0000 = Device: 0
+        0000 0... = Port: 0
+        .... .0.. = Trunk: False
+        .... ..0. = Unused: 0x0
+        .... ...0 = CFI: False
+        000. .... = PCP: 0
+        ...0 .... = Unused: 0x0
+        .... 0000 0000 0000 = Ingress VID: 0
+    Length: 9
+Logical-Link Control
+    DSAP: NULL LSAP (0x01)
+        0000 000. = SAP: NULL LSAP
+        .... ...1 = IG Bit: Group
+    SSAP: NULL LSAP (0x01)
+        0000 000. = SAP: NULL LSAP
+        .... ...1 = CR Bit: Response
+    Control field: U, func=UI (0x03)
+        000. 00.. = Response: Unnumbered Information (0x00)
+        .... ..11 = Frame type: Unnumbered frame (0x3)
+Data (6 bytes)
+
+0000  41 42 43 44 45 46                                 ABCDEF
+    Data: 414243444546
+    [Length: 6]
+
+Frame 7: Packet, 64 bytes on wire (512 bits), 64 bytes captured (512 bits)
+    Encapsulation type: Marvell DSA-tagged Ethernet (232)
+    Arrival Time: Nov 14, 2023 22:13:26.000000000 UTC
+    UTC Arrival Time: Nov 14, 2023 22:13:26.000000000 UTC
+    Epoch Arrival Time: 1700000006.000000000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 1 second]
+    [Time delta from previous displayed frame: 1 second]
+    [Time since reference or first frame: 6 seconds]
+    Frame Number: 7
+    Frame Length: 64 bytes (512 bits)
+    Capture Length: 64 bytes (512 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: dsa:llc:stp]
+    Character encoding: ASCII (0)
+Marvell DSA-tagged Ethernet
+    Destination: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Source: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+    DSA tag
+        00.. .... = Command: TO_CPU (0)
+        ..0. .... = Tagged: False
+        ...0 0000 = Device: 0
+        0000 0... = Port: 0
+        .... .00. ...0 .... = Code: MGMT_TRAP (0)
+        .... ...0 = CFI: False
+        111. .... = PCP: 7
+        .... 0000 0000 0000 = Ingress VID: 0
+    Length: 39
+    Padding: 00000000000000
+Logical-Link Control
+    DSAP: Spanning Tree BPDU (0x42)
+        0100 001. = SAP: Spanning Tree BPDU
+        .... ...0 = IG Bit: Individual
+    SSAP: Spanning Tree BPDU (0x42)
+        0100 001. = SAP: Spanning Tree BPDU
+        .... ...0 = CR Bit: Command
+    Control field: U, func=UI (0x03)
+        000. 00.. = Command: Unnumbered Information (0x00)
+        .... ..11 = Frame type: Unnumbered frame (0x3)
+Spanning Tree Protocol
+    Protocol Identifier: Spanning Tree Protocol (0x0000)
+    Protocol Version Identifier: Rapid Spanning Tree (2)
+    BPDU Type: Rapid/Multiple Spanning Tree (0x02)
+    BPDU flags: 0x7c, Agreement, Forwarding, Learning, Port Role: Designated
+        0... .... = Topology Change Acknowledgment: No
+        .1.. .... = Agreement: Yes
+        ..1. .... = Forwarding: Yes
+        ...1 .... = Learning: Yes
+        .... 11.. = Port Role: Designated (3)
+        .... ..0. = Proposal: No
+        .... ...0 = Topology Change: No
+    Root Identifier: 4096 / 0 / 6a:7b:8c:9d:0e:01
+        Root Bridge Priority: 4096
+        Root Bridge System ID Extension: 0
+        Root Bridge System ID: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Root Path Cost: 0
+    Bridge Identifier: 4096 / 0 / 6a:7b:8c:9d:0e:01
+        Bridge Priority: 4096
+        Bridge System ID Extension: 0
+        Bridge System ID: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Port identifier: 0x800a
+    Message Age: 0
+    Max Age: 20
+    Hello Time: 2
+    Forward Delay: 15
+    Version 1 Length: 0
+
+Frame 8: Packet, 15 bytes on wire (120 bits), 15 bytes captured (120 bits)
+    Encapsulation type: Marvell DSA-tagged Ethernet (232)
+    Arrival Time: Nov 14, 2023 22:13:27.000000000 UTC
+    UTC Arrival Time: Nov 14, 2023 22:13:27.000000000 UTC
+    Epoch Arrival Time: 1700000007.000000000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 1 second]
+    [Time delta from previous displayed frame: 1 second]
+    [Time since reference or first frame: 7 seconds]
+    Frame Number: 8
+    Frame Length: 15 bytes (120 bits)
+    Capture Length: 15 bytes (120 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: dsa]
+    Character encoding: ASCII (0)
+Marvell DSA-tagged Ethernet
+    [Expert Info (Warning/Malformed): DSA frame too short: expected 18 bytes, available 15 bytes]
+        [DSA frame too short: expected 18 bytes, available 15 bytes]
+        [Severity level: Warning]
+        [Group: Malformed]
+    Destination: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Source: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+
+Frame 9: Packet, 38 bytes on wire (304 bits), 16 bytes captured (128 bits)
+    Encapsulation type: Marvell DSA-tagged Ethernet (232)
+    Arrival Time: Nov 14, 2023 22:13:28.000000000 UTC
+    UTC Arrival Time: Nov 14, 2023 22:13:28.000000000 UTC
+    Epoch Arrival Time: 1700000008.000000000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 1 second]
+    [Time delta from previous displayed frame: 1 second]
+    [Time since reference or first frame: 8 seconds]
+    Frame Number: 9
+    Frame Length: 38 bytes (304 bits)
+    Capture Length: 16 bytes (128 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: dsa]
+    Character encoding: ASCII (0)
+Marvell DSA-tagged Ethernet
+    Destination: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Source: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+    DSA tag
+        11.. .... = Command: FORWARD (3)
+        ..0. .... = Tagged: False
+        ...0 0000 = Device: 0
+        0001 0... = Port: 2
+        .... .0.. = Trunk: False
+        .... ..0. = Unused: 0x0
+        .... ...0 = CFI: False
+        000. .... = PCP: 0
+        ...0 .... = Unused: 0x0
+        .... 0000 0000 0000 = Ingress VID: 0
+[Packet size limited during capture: DSA-tagged truncated]
+
+Frame 10: Packet, 64 bytes on wire (512 bits), 64 bytes captured (512 bits)
+    Encapsulation type: Marvell DSA-tagged Ethernet (232)
+    Arrival Time: Nov 14, 2023 22:13:29.000000000 UTC
+    UTC Arrival Time: Nov 14, 2023 22:13:29.000000000 UTC
+    Epoch Arrival Time: 1700000009.000000000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 1 second]
+    [Time delta from previous displayed frame: 1 second]
+    [Time since reference or first frame: 9 seconds]
+    Frame Number: 10
+    Frame Length: 64 bytes (512 bits)
+    Capture Length: 64 bytes (512 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: dsa:ethertype:ip]
+    Character encoding: ASCII (0)
+Marvell DSA-tagged Ethernet
+    Destination: 6a:7b:8c:9d:0e:01 (6a:7b:8c:9d:0e:01)
+    Source: 6a:7b:8c:9d:0e:02 (6a:7b:8c:9d:0e:02)
+    DSA tag
+        11.. .... = Command: FORWARD (3)
+        ..0. .... = Tagged: False
+        ...0 0000 = Device: 0
+        0001 0... = Port: 2
+        .... .0.. = Trunk: False
+        .... ..0. = Unused: 0x0
+        .... ...0 = CFI: False
+        000. .... = PCP: 0
+        ...0 .... = Unused: 0x0
+        .... 0000 0000 0000 = Ingress VID: 0
+    Type: IPv4 (0x0800)
+    Padding: 0000000000000000000000000000000000000000000000000000
+Internet Protocol Version 4, Src: 192.168.1.1, Dst: 192.168.1.2
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 20
+        [Expert Info (Note/Protocol): Empty data packet]
+            [Empty data packet]
+            [Severity level: Note]
+            [Group: Protocol]
+    Identification: 0x0000 (0)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x0000 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 192.168.1.1
+    Destination Address: 192.168.1.2
+    [Stream index: 0]
+

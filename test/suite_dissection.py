@@ -3375,6 +3375,35 @@ class TestDissectCommunityId:
 
         self.check_baseline(dirs, stdout, 'communityid-filtered.txt')
 
+class TestDissectDsa:
+    '''Baseline tests for the Marvell DSA (284) and EDSA (285) frame/tag
+    dissectors. The captures are synthesized based on real EDSA CPU port traffic,
+    covering every command, the tagged/untagged and trunk/rx-sniff bit
+    multiplexing, the TO_CPU code split across two bytes, the 802.3 length
+    and EtherType branches, truncated and capture-truncated frames.'''
+
+    @staticmethod
+    def check_baseline(dirs, output, baseline):
+        baseline_file = os.path.join(dirs.baseline_dir, baseline)
+        with open(baseline_file) as f:
+            baseline_data = f.read()
+
+        assert output == baseline_data
+
+    def test_dsa(self, cmd_tshark, dirs, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsa.pcap'),
+                '-V'), encoding='utf-8', env=test_env)
+
+        self.check_baseline(dirs, stdout, 'dsa.txt')
+
+    def test_edsa(self, cmd_tshark, dirs, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edsa.pcap'),
+                '-V'), encoding='utf-8', env=test_env)
+
+        self.check_baseline(dirs, stdout, 'edsa.txt')
+
 class TestDissectTns:
     '''TNS (Oracle wire protocol) dissector tests, exercising two captures
     that previously tripped buffer-overrun / wrong-state bugs in the OPI

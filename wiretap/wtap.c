@@ -1465,6 +1465,12 @@ static const struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_DEKTEC_SDI */
 	{ "dektec-sdi", "DekTec SDI frame" },
+
+	/* WTAP_ENCAP_DSA */
+	{ "dsa", "Marvell DSA-tagged Ethernet" },
+
+	/* WTAP_ENCAP_EDSA */
+	{ "edsa", "Marvell EDSA-tagged Ethernet" },
 };
 
 static int wtap_num_encap_types = array_length(encap_table_base);

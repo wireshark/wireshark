@@ -767,6 +767,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-drbd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-drda.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-drb.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsa.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtcp-ip.c

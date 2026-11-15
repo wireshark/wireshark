@@ -481,6 +481,12 @@ static const struct {
 	/* IEEE 802.15.4 TAP */
 	{ 283,		WTAP_ENCAP_IEEE802_15_4_TAP },
 
+	/* Marvell DSA-tagged Ethernet */
+	{ 284,		WTAP_ENCAP_DSA },
+
+	/* Marvell EDSA-tagged Ethernet */
+	{ 285,		WTAP_ENCAP_EDSA },
+
 	/* Z-Wave Serial API */
 	{ 287,		WTAP_ENCAP_ZWAVE_SERIAL },
 

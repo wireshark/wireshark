@@ -320,6 +320,8 @@ extern "C" {
 #define WTAP_ENCAP_DECT_NR_TAP                  229
 #define WTAP_ENCAP_GSMTAP_UM                    230
 #define WTAP_ENCAP_DEKTEC_SDI                   231
+#define WTAP_ENCAP_DSA                          232
+#define WTAP_ENCAP_EDSA                         233
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
