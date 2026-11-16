@@ -1362,7 +1362,7 @@ static unsigned dissect_wimaxmacphy_dl_subframe_descriptor(tvbuff_t *tvb, unsign
     proto_tree_add_item(tree, hf_wimaxmacphy_number_of_zone_descriptors,      tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_number_of_zone_descriptors,      tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_wimaxmacphy_zone_padding,                    tvb, offset, 3, ENC_NA);
     offset += 3;
 
     /* zone descriptors */
