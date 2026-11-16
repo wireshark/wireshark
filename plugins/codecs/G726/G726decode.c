@@ -92,7 +92,10 @@ codec_g726_decode(codec_context_t *ctx, const void *inputBytes,
          * bitsPerSample = bitRate / sampleRate (8kHz).
          * outputBytes = (inputBits / bitsPerSample) * sizeof(sample)
          */
-        return inputBytesSize * 8 / (state->bit_rate / 8000) * 2;
+        unsigned bits = state->bit_rate / 8000;
+        /* For 3 and 5 bits per sample, spandsp keeps leftover bits between
+         * calls, so one packet can decode up to bits-1 bits more. */
+        return (inputBytesSize * 8 + bits - 1) / bits * 2;
     }
 
     /* g726_decode returns the number of 16-bit samples. */
