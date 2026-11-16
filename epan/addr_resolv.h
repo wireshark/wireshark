@@ -115,25 +115,24 @@ WS_DLL_PUBLIC e_addr_resolve gbl_resolv_flags;
  * @brief Construct a new IPv4 object from a 32-bit address.
  *
  * Creates and returns a `hashipv4_t` instance initialized with the given
- * IPv4 address. The address should be provided in host byte order as a
- * 32-bit unsigned integer.
+ * IPv4 address. The address should be provided in network byte order, as
+ * returned by tvb_get_ipv4() or ws_inet_pton4() or stored in an `address`.
  *
- * @param addr  IPv4 address in host byte order.
+ * @param addr  IPv4 address in network byte order.
  * @return      Pointer to a newly allocated `hashipv4_t` object.
  */
 WS_DLL_PUBLIC hashipv4_t * new_ipv4(const unsigned addr);
 
 /**
- * @brief Populate a dummy IPv4 object with the specified address.
+ * @brief Fill in the name of an IPv4 object from the subnets file.
  *
- * Initializes the given `hashipv4_t` pointer with the provided IPv4 address,
- * marking it as a placeholder or synthetic entry. This is typically used for
- * testing, fallback logic, or internal bookkeeping where a non-real IP is
- * required.
+ * Sets the name and CIDR address of the given `hashipv4_t` from the
+ * longest matching entry in the subnets file, if any, and otherwise to
+ * the address itself, without resolving the address.
  *
- * @param addr IPv4 address in host byte order.
+ * @param addr IPv4 address in network byte order.
  * @param tp   Pointer to a `hashipv4_t` object to populate.
- * @return     `true` on success, `false` on failure.
+ * @return     `true` if the address is in a known subnet, `false` otherwise.
  */
 WS_DLL_PUBLIC bool fill_dummy_ip4(const unsigned addr, hashipv4_t* volatile tp);
 
@@ -354,7 +353,7 @@ WS_DLL_PUBLIC bool host_name_lookup_process(void);
  *       resolution is disabled. It may be deprecated in favor of `get_hostname_wmem()`
  *       for better memory management.
  *
- * @param addr IPv4 address in host byte order.
+ * @param addr IPv4 address in network byte order.
  * @return     Constant string containing the resolved host name or numeric address.
  */
 WS_DLL_PUBLIC const char *get_hostname(const unsigned addr);
@@ -371,7 +370,7 @@ WS_DLL_PUBLIC const char *get_hostname(const unsigned addr);
  * control, especially in environments with redissection or preference reloads.
  *
  * @param allocator Memory allocator used to allocate the returned string.
- * @param addr      IPv4 address in host byte order.
+ * @param addr      IPv4 address in network byte order.
  * @return          Allocated string containing the resolved host name or numeric address.
  */
 WS_DLL_PUBLIC char *get_hostname_wmem(wmem_allocator_t *allocator, const unsigned addr);
@@ -680,7 +679,7 @@ WS_DLL_PUBLIC char* get_hash_wka_resolved_name(hashwka_t* wka);
  *
  * Inserts a hostname for the given IPv4 address into the resolution table.
  *
- * @param addr IPv4 address in host byte order.
+ * @param addr IPv4 address in network byte order.
  * @param name Hostname to associate.
  * @param static_entry true if the entry is static.
  */
@@ -748,7 +747,7 @@ WS_DLL_PUBLIC addrinfo_lists_t *get_addrinfo_list(void);
  * Adds a mapping between the given IPv4 address and its corresponding Ethernet address.
  * Used for name resolution and display purposes.
  *
- * @param ip IPv4 address in host byte order.
+ * @param ip IPv4 address in network byte order.
  * @param eth Pointer to a 6-byte Ethernet address.
  */
 WS_DLL_PUBLIC void add_ether_byip(const unsigned ip, const uint8_t *eth);
@@ -987,20 +986,14 @@ WS_DLL_LOCAL
 gboolean ipv6_equal(const void *v1, const void *v2);
 
 /**
- * @brief Resolve an TAC to its area name.
+ * @brief Resolve a Tracking Area Code to its area name.
  *
- * Returns a string containing the host name associated with the given IPv4
- * address, or a numeric string in the format `"%d.%d.%d.%d"` if no name is found.
- * The returned string is managed internally and must not be freed by the caller.
- * It will be released when address hashtables are cleared (e.g., due to preference
- * changes or redissection).
+ * Looks up the name for a Tracking Area Code from the TACs file.
+ * The returned string is managed internally and must not be freed by the
+ * caller.
  *
- * @note This function may increase persistent memory usage even when host name
- *       resolution is disabled. It may be deprecated in favor of `get_hostname_wmem()`
- *       for better memory management.
- *
- * @param addr IPv4 address in host byte order.
- * @return     Constant string containing the resolved host name or numeric address.
+ * @param addr Tracking Area Code (a 24-bit value).
+ * @return     The area name, or NULL if there is none.
  */
 WS_DLL_PUBLIC const char *tac_name_lookup(const unsigned addr);
 
