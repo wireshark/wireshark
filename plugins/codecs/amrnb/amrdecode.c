@@ -242,7 +242,7 @@ codec_amr_decode_many(void *state, const void *input, size_t inputSizeBytes,
         void *output, size_t *outputSizeBytes, unsigned frames)
 {
     int mode;
-    unsigned packet_size = 1; /* CMR */
+    unsigned packet_size = 1 + frames; /* CMR + all TOCs */
 
     *outputSizeBytes = 160 * 2 * frames;
 
@@ -261,7 +261,7 @@ codec_amr_decode_many(void *state, const void *input, size_t inputSizeBytes,
 
     for (unsigned i = 0; i < frames; i++) {
         mode = (toc[i] >> 3) & 0x0F;
-        packet_size += block_size[mode] + 1; /* include the TOC */
+        packet_size += block_size[mode];
 
         /* If the size is screwed up, insert silence */
         if (packet_size > inputSizeBytes) {
