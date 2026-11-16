@@ -944,8 +944,9 @@ void parseCertificate(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *
     else if (iLen > 0)
     {
         asn1_ctx_t asn1_ctx;
+        tvbuff_t *cert_tvb = tvb_new_subset_length(tvb, iOffset, iLen);
         asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-        dissect_x509af_Certificate(false, tvb, iOffset, &asn1_ctx, tree, hfIndex);
+        dissect_x509af_Certificate(false, cert_tvb, 0, &asn1_ctx, tree, hfIndex);
         iOffset += iLen; /* eat the whole bytestring */
     }
     else
@@ -1084,13 +1085,15 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOff
             if (ArrayDimensions > MAX_ARRAY_LEN)
             {
                 proto_tree_add_expert_format(subtree_2, pinfo, &ei_array_length, tvb, iOffset, 4, "ArrayDimensions length %d too large to process", ArrayDimensions);
-                return;
+                iOffset += 4;
             }
-
-            iOffset += 4;
-            for (i=0; i<ArrayDimensions; i++)
+            else
             {
-                parseInt32(subtree_2, tvb, pinfo, &iOffset, hf_opcua_Int32);
+                iOffset += 4;
+                for (i=0; i<ArrayDimensions; i++)
+                {
+                    parseInt32(subtree_2, tvb, pinfo, &iOffset, hf_opcua_Int32);
+                }
             }
             proto_item_set_end(ti_2, tvb, iOffset);
         }
