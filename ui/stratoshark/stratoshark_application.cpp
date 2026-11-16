@@ -7,6 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "app/application_flavor.h"
 #include "stratoshark_application.h"
 
 StratosharkApplication *ssApp;
@@ -19,6 +20,9 @@ StratosharkApplication::StratosharkApplication(int &argc, char **argv) :
     Q_INIT_RESOURCE(ssicon);
 #endif
     setApplicationName("Stratoshark");
+#ifdef __linux__
+    setApplicationVersion(application_get_vcs_version_info_short());
+#endif
 }
 
 StratosharkApplication::~StratosharkApplication()
