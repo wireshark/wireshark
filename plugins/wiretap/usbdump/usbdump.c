@@ -113,8 +113,8 @@ usbdump_open(wtap *wth, int *err, char **err_info)
         /* We only support version 0.3 */
         *err = WTAP_ERR_UNSUPPORTED;
         *err_info = ws_strdup_printf("usbdump: version %u.%u unsupported",
-            version >> 8, version & 0xff);
-        return WTAP_OPEN_NOT_MINE;
+            GUINT16_FROM_BE(version) >> 8, GUINT16_FROM_BE(version) & 0xff);
+        return WTAP_OPEN_ERROR;
     }
 
     /* Read the reserved field of the header */
@@ -186,9 +186,12 @@ usbdump_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
          * Try to read the subsequent multiframe size field.
          * This will fail at end of file, but that is accepted.
          */
-        wtap_read_bytes_or_eof(wth->fh, &usbdump_info->multiframe_size,
-                               sizeof usbdump_info->multiframe_size,
-                               err, err_info);
+        if (!wtap_read_bytes_or_eof(wth->fh, &usbdump_info->multiframe_size,
+                                    sizeof usbdump_info->multiframe_size,
+                                    err, err_info)) {
+            if (*err != 0)
+                return false;
+        }
     }
 
     return true;
@@ -230,7 +233,11 @@ static bool
 usbdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                     int *err, char **err_info)
 {
-    usbdump_info_t *usbdump_info = (usbdump_info_t *)wth->priv;
+    usbdump_info_t *priv_info = (usbdump_info_t *)wth->priv;
+    /* Only the sequential read tracks the multiframe; a random access read
+     * works on a scratch copy so that it cannot corrupt that state. */
+    usbdump_info_t scratch_info = *priv_info;
+    usbdump_info_t *usbdump_info = (fh == wth->fh) ? priv_info : &scratch_info;
 
     uint8_t bpf_hdr[18];
     uint8_t bpf_hdr_len, alignment;
@@ -270,6 +277,13 @@ usbdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                    (uint32_t)bpf_hdr[9] << 8 | (uint32_t)bpf_hdr[8];
     rec->rec_header.packet_header.len = (uint32_t)bpf_hdr[15] << 24 | (uint32_t)bpf_hdr[14] << 16 |
                 (uint32_t)bpf_hdr[13] << 8 | (uint32_t)bpf_hdr[12];
+
+    if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_USBPCAP) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("usbdump: File has %u-byte packet, bigger than maximum of %u",
+            rec->rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_USBPCAP);
+        return false;
+    }
 
     /* Read the packet data */
     if (!wtap_read_bytes_buffer(fh, &rec->data, rec->rec_header.packet_header.caplen, err, err_info))
