@@ -1833,7 +1833,7 @@ resp_events(tvbuff_t *tvb, int offset, proto_tree *pt)
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     i = 1;
-    while (msglen != 0) {
+    while (msglen >= 20) {
         tree = proto_tree_add_subtree_format(pt, tvb, offset, 20, ett_gryphon_cmd_events_data, NULL, "Event %d:", i);
         proto_tree_add_item(tree, hf_gryphon_event_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gryphon_event_name, tvb, offset+1, 19, ENC_ASCII);
@@ -2375,7 +2375,8 @@ resp_ldf_get_node_names(tvbuff_t *tvb, int offset, proto_tree *pt)
     /* master node name */
     proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_master_node_name, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);
     offset += length;
-    us_num -= 1;
+    if (us_num > 0)
+        us_num -= 1;
     while(us_num > 0) {
         /* slave node names */
         proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_slave_node_name, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);
@@ -3187,6 +3188,10 @@ cmd_usdt_register_non_legacy(tvbuff_t *tvb, int offset, proto_tree *pt)
 
         if(ui_ids == 0) {
             proto_item_set_len(tree4, 20);
+            if (remain < 20)
+                break;
+            offset += 20;
+            remain -= 20;
         } else {
 
 
@@ -3563,7 +3568,7 @@ cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
             &hf_gryphon_bits_in_pushbutton,
             NULL
         };
-        proto_tree_add_bitmask(pt, tvb, 1, hf_gryphon_bit_in_digital_data, ett_gryphon_digital_data, digital_values, ENC_NA);
+        proto_tree_add_bitmask(pt, tvb, offset, hf_gryphon_bit_in_digital_data, ett_gryphon_digital_data, digital_values, ENC_NA);
     } else {
         proto_tree_add_uint_format(pt, hf_gryphon_bit_in_digital_data, tvb, offset, 1, value, "No digital values are set");
     }
@@ -3584,7 +3589,7 @@ cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
             &hf_gryphon_bits_out_output2,
             NULL
         };
-        proto_tree_add_bitmask(pt, tvb, 1, hf_gryphon_bit_out_digital_data, ett_gryphon_digital_data, digital_values, ENC_NA);
+        proto_tree_add_bitmask(pt, tvb, offset, hf_gryphon_bit_out_digital_data, ett_gryphon_digital_data, digital_values, ENC_NA);
     } else {
         proto_tree_add_uint_format(pt, hf_gryphon_bit_out_digital_data, tvb, offset, 1, value, "No digital values are set");
     }
@@ -4325,7 +4330,14 @@ get_gryphon_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *dat
 static int
 dissect_gryphon_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_gryphon_message(tvb, pinfo, tree, false);
+    /* An exception in the message skips the decrement calls; restore the
+     * depth so that it does not grow with each bad PDU of a frame. */
+    unsigned depth = pinfo->dissection_depth;
+    TRY {
+        dissect_gryphon_message(tvb, pinfo, tree, false);
+    } FINALLY {
+        pinfo->dissection_depth = depth;
+    } ENDTRY;
     return tvb_reported_length(tvb);
 }
 
@@ -4795,7 +4807,7 @@ proto_register_gryphon(void)
           { "Session id",        "gryphon.ldf.restore_session", FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_schedule_name,
-          { "Schedule name",          "gryphon.ldf.schedule_name", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Schedule name",          "gryphon.ldf.schedule_name", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_schedule_msg_dbytes,
           { "Data length (bytes)", "gryphon.ldf.schedule_msg_dbytes", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -4837,13 +4849,13 @@ proto_register_gryphon(void)
           { "Number of frames", "gryphon.ldf.num_frames", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_get_frame,
-          { "Frame",    "gryphon.ldf.get_frame", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Frame",    "gryphon.ldf.get_frame", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_get_frame_num,
           { "Number of data bytes in slave response", "gryphon.ldf.get_frame_num", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_get_frame_pub,
-          { "Publisher",    "gryphon.ldf.get_frame_pub", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Publisher",    "gryphon.ldf.get_frame_pub", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_get_frame_num_signals,
           { "Number of signals", "gryphon.ldf.get_frame_num_signals", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -4867,25 +4879,25 @@ proto_register_gryphon(void)
           { "Encoding max value", "gryphon.ldf.encoding_max", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_master_node_name,
-          { "Master node name",    "gryphon.ldf.master", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Master node name",    "gryphon.ldf.master", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_slave_node_name,
-          { "Slave node name",    "gryphon.ldf.slave", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Slave node name",    "gryphon.ldf.slave", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_node_name,
-          { "Node name",    "gryphon.ldf.node_name", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Node name",    "gryphon.ldf.node_name", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_signal_name,
-          { "Signal name",    "gryphon.ldf.signal_name", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Signal name",    "gryphon.ldf.signal_name", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_signal_encoding_name,
-          { "Signal encoding name",    "gryphon.ldf.signal_encoding_name", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Signal encoding name",    "gryphon.ldf.signal_encoding_name", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_signal_encoding_type,
           { "Signal encoding type",    "gryphon.ldf.signal_encoding_type", FT_STRINGZTRUNC, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_signal_encoding_logical,
-          { "Signal encoding string",    "gryphon.ldf.signal_encoding_logical", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Signal encoding string",    "gryphon.ldf.signal_encoding_logical", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_ldf_signal_offset,
           { "Offset (bits)", "gryphon.ldf.signal_offset", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -4901,10 +4913,10 @@ proto_register_gryphon(void)
           { "Int value", "gryphon.cnvt.valuei", FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_cnvt_values,
-          { "String value",    "gryphon.cnvt.values", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "String value",    "gryphon.cnvt.values", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_cnvt_units,
-          { "String units",    "gryphon.cnvt.units", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "String units",    "gryphon.cnvt.units", FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_cnvt_flags_getvalues,
           { "Flags", "gryphon.cnvt.flags.getvalues", FT_UINT8, BASE_DEC, VALS(lin_cnvt_getflags), 0x0,
