@@ -75704,9 +75704,9 @@ class TestDissectI2c:
         assert lines[5][1:3] == ['5', '0x00000020']
         assert lines[10] == ['11', '1', '0x00000020',
                 'The I2C controller is detached from an I2C bus']
-        assert lines[11][3] == 'The I2C controller is detached from an I2C bus: unable to drive data LO'
-        assert lines[16][3].endswith('physically disconnected from the bus')
-        assert lines[17][3].endswith('undiagnosed failure')
+        # The error bits belong to the offline event; a detached event
+        # carrying them is still just detached.
+        assert {l[3] for l in lines[10:18]} == {'The I2C controller is detached from an I2C bus'}
         assert lines[18][3] == '<unknown state event>'
         assert lines[19][3] == '<unknown state event>'
 
@@ -75729,10 +75729,10 @@ class TestDissectI2c:
             '27\tI2C Write, 2 bytes\t0x78\t0x00000010',
             '28\tI2C Read, 3 bytes\t0x21\t0x00002001',
             '29\tI2C Write, 2 bytes\t0x21\t0x00004000',
-            '30\tI2C, 9 bytes\t0x10\t',
-            '31\tI2C, 24 bytes\t0x40\t',
-            '32\tI2C, 13 bytes\t0x10\t',
-            '33\tI2C, 9 bytes\t0x00\t',
+            '30\tI2C Write, 9 bytes\t0x10\t',
+            '31\tI2C Read, 24 bytes\t0x40\t',
+            '32\tI2C Write, 13 bytes\t0x10\t',
+            '33\tI2C Write, 9 bytes\t0x00\t',
         ]
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('i2c_coverage.pcapng.gz'),
@@ -96562,20 +96562,26 @@ class TestDissectMctp:
 
     def test_mctp_protocols(self, cmd_tshark, capture_file, test_env):
         '''All 28 frames are MCTP over Linux cooked capture, some handed to
-        a sub-dissector, and none is malformed or has an expert info, in
-        one and two passes.'''
+        a sub-dissector, and none is malformed, in one and two passes.  The
+        frames with an expert info are the ones that break the assembly
+        and size rules (DSP0236 8.4.2, 8.7, Table 1).'''
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Tfields', '-e_ws.col.protocol')
         assert len(lines) == 28
-        assert lines.count('MCTP') == 20
+        assert lines.count('MCTP') == 19
         assert lines.count('MCTP Control') == 4
-        assert lines.count('PLDM') == 2
+        assert lines.count('PLDM') == 1
         assert lines.count('NCSI') == 1
+        assert lines.count('MCTP VDM') == 2
         assert lines.count('0x88b5') == 1      # Ethernet encapsulation
         for passes in ((), ('-2',)):
             lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
-                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+                    '-Y', '_ws.malformed.expert', '-Tfields', '-eframe.number')
             assert count_output('\n'.join(lines)) == 0
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.expert', '-Tfields', '-eframe.number')
+            assert lines == [str(n) for n in (12, 13, 15, 16, 19, 21, 22, 23,
+                                              24, 25, 26, 27)]
 
     def test_mctp_reassembly(self, cmd_tshark, capture_file, test_env):
         '''A message in three fragments, and two messages with the same tag
@@ -96593,7 +96599,7 @@ class TestDissectMctp:
         ]
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 12', '-Tfields', '-e_ws.col.Info')
-        assert lines == ['MCTP message frag 0']
+        assert lines == ['MCTP message fragment, seq 0']
 
     def test_mctp_bogus_packets(self, cmd_tshark, capture_file, test_env):
         '''Packets too short for a message type and with a version other
@@ -96602,10 +96608,10 @@ class TestDissectMctp:
                 '-Y', 'frame.number >= 24 && frame.number <= 27',
                 '-Tfields', '-eframe.number', '-emctp.version', '-e_ws.col.Info')
         assert lines == [
-            '24\t\tBogus length 4, minimum 5',
-            '25\t\tBogus length 3, minimum 5',
-            '26\t\tInvalid version 2',
-            '27\t\tInvalid version 0',
+            '24\t1\tBogus length 4, minimum 5',
+            '25\t1\tBogus length 3, minimum 4',
+            '26\t2\tInvalid version 2',
+            '27\t0\tInvalid version 0',
         ]
 
     def test_mctp_encapsulated_types(self, cmd_tshark, capture_file, test_env):
@@ -96631,21 +96637,22 @@ class TestDissectMctpControl:
             ), encoding='utf-8', env=test_env).splitlines()
 
     def test_mctp_control_protocols(self, cmd_tshark, capture_file, test_env):
-        '''All 52 frames are MCTP Control; none is malformed and none has
-        an error expert info, in one and two passes. The three version
-        entries with invalid BCD digits are the only warnings.'''
+        '''All 52 frames are MCTP Control.  The messages that are too short
+        or carry bytes the command does not define have an error expert
+        info, and frame 36, whose reported length ends inside a closed
+        layout, is the one that raises a reported-bounds exception.'''
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Tfields', '-e_ws.col.protocol')
         assert lines == ['MCTP Control'] * 52
         for passes in ((), ('-2',)):
             lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
-                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
-                    '-Tfields', '-eframe.number')
-            assert count_output('\n'.join(lines)) == 0
+                    '-Y', '_ws.malformed.expert', '-Tfields', '-eframe.number')
+            assert lines == ['36']
             lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
-                    '-Y', '_ws.expert', '-Tfields', '-eframe.number',
-                    '-e_ws.expert.severity')
-            assert lines == ['19\t6291456', '20\t6291456', '21\t6291456']
+                    '-Y', '_ws.expert.severity >= 0x00800000', '-Tfields',
+                    '-eframe.number')
+            assert lines == [str(n) for n in (31, 34, 36, 40, 43, 44, 46,
+                                              49, 50, 51, 52)]
 
     def test_mctp_control_bogus_length(self, cmd_tshark, capture_file, test_env):
         '''A control message shorter than 3 bytes, and a response of 3 bytes
@@ -96654,10 +96661,10 @@ class TestDissectMctpControl:
                 '-Y', 'frame.number >= 49', '-Tfields', '-eframe.number',
                 '-emctpc.command', '-e_ws.col.Info')
         assert lines == [
-            '49\t\tBogus length 1, minimum 3',
-            '50\t\tBogus length 2, minimum 3',
-            '51\t2\tBogus length 3 for response, minimum 4',
-            '52\t126\tBogus length 3 for response, minimum 4',
+            '49\t\tMCTP Control, incomplete header',
+            '50\t\tMCTP Control, incomplete header',
+            '51\t0x02\tMCTP Get Endpoint ID Response, missing completion code',
+            '52\t0x7e\tMCTP Reserved command 0x7e Response, missing completion code',
         ]
 
     def test_mctp_control_version_entries(self, cmd_tshark, capture_file, test_env):
@@ -96675,21 +96682,20 @@ class TestDissectMctpControl:
 
     def test_mctp_control_completion_codes(self, cmd_tshark, capture_file, test_env):
         '''The payload of a response with an error completion code is not
-        decoded (it is left as data); the same payload with Success is, and
-        bytes after a decoded payload are data.'''
+        decoded; the same payload with Success is.'''
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number >= 39 && frame.number <= 47',
                 '-Tfields', '-eframe.number', '-emctpc.cc',
                 '-emctpc.get_eid.eid', '-emctpc.data')
         assert lines == [
             '39\t0x01\t\t',
-            '40\t0x02\t\t01 02 03',
+            '40\t0x02\t\t',
             '41\t0x03\t\t',
             '42\t0x04\t\t',
-            '43\t0x05\t\t01 02 03',
-            '44\t0x80\t\t01 02 03',
+            '43\t0x05\t\t',
+            '44\t0x80\t\t',
             '45\t0x06\t\t',
-            '46\t0x00\t0x42\tde ad',
+            '46\t0x00\t0x42\t',
             '47\t0x03\t\t',
         ]
 
@@ -96703,38 +96709,44 @@ class TestDissectMctpSmbus:
 
     def test_mctp_smbus_heuristic(self, cmd_tshark, capture_file, test_env):
         '''Frames 1-10 are MCTP over SMBus (found by the i2c.message
-        heuristic); frames 11-18 fail one of its checks and stay I2C data
-        (read bit, command code, byte count below the minimum, shorter
-        than the byte count, IPMB source address, MCTP header version,
-        snaplen truncation, shorter than the minimum).'''
+        heuristic), and so is frame 13, whose snaplen cut it short; frames
+        11, 12 and 14-18 fail one of its checks and stay I2C data (read
+        bit, command code, byte count below the minimum, shorter than the
+        byte count, IPMB source address, MCTP header version, shorter than
+        the minimum).'''
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'mctp.smbus', '-Tfields', '-eframe.number')
-        assert lines == [str(n) for n in range(1, 11)]
+        assert lines == [str(n) for n in (*range(1, 11), 13)]
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Tfields', '-e_ws.col.protocol')
         assert len(lines) == 19
-        assert lines[10:] == ['I2C Write'] * 8 + ['I2C Event']
+        assert [n for n, p in enumerate(lines, 1) if p == 'I2C Write'] == [
+            11, 12, 14, 15, 16, 17, 18]
+        assert lines[18] == 'I2C Event'
 
     def test_mctp_smbus_no_errors(self, cmd_tshark, capture_file, test_env):
-        '''No malformed packets and no error expert infos in one and two
-        passes; the bad PEC and the trailing bytes are warnings.'''
+        '''No malformed packets in one and two passes; the only error is
+        frame 13, which has trailing bytes, a bad PEC and a snaplen cut.'''
         for passes in ((), ('-2',)):
             lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
-                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
-                    '-Tfields', '-eframe.number')
+                    '-Y', '_ws.malformed.expert', '-Tfields', '-eframe.number')
             assert count_output('\n'.join(lines)) == 0
             lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
-                    '-Y', '_ws.expert', '-Tfields', '-eframe.number',
-                    '-e_ws.expert.severity')
-            assert lines == ['3\t6291456', '4\t6291456']
+                    '-Y', '_ws.expert.severity >= 0x00800000', '-Tfields',
+                    '-eframe.number')
+            assert lines == ['13']
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.expert', '-Tfields', '-eframe.number')
+            assert lines == ['3', '4', '7', '8', '13']
 
     def test_mctp_smbus_pec(self, cmd_tshark, capture_file, test_env):
-        '''PEC status: none, good, bad (frame 3), good when two bytes follow
-        it (frame 4; the PEC is at byte count + 3, not at the end).'''
+        '''PEC status: unchecked (frame 1, no PEC), good, bad (frame 3), good
+        when two bytes follow it (frame 4; the PEC is at byte count + 3, not
+        at the end).'''
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number <= 4', '-Tfields', '-eframe.number',
                 '-emctp.smbus.pec.status', '-emctp.smbus.byte_count')
-        assert lines == ['1\t\t8', '2\t1\t8', '3\t0\t8', '4\t1\t8']
+        assert lines == ['1\t3\t8', '2\t1\t8', '3\t0\t8', '4\t1\t8']
 
     def test_mctp_smbus_inner_messages(self, cmd_tshark, capture_file, test_env):
         '''The largest byte count (255), a message split over two SMBus
@@ -96746,7 +96758,7 @@ class TestDissectMctpSmbus:
         assert lines == [
             '5\t9\t\t[0x40->0x20] PLDM Messaging Control and Discovery Request',
             '6\t255\t\t[0x40->0x20] MCTP message',
-            '7\t7\t\t[0x40->0x20] MCTP message frag 0',
+            '7\t7\t\t[0x40->0x20] MCTP message fragment, seq 0',
             '8\t6\t3\t[0x40->0x20] MCTP Get Endpoint ID Request',
             '9\t6\t\t[0x40->0x20] MCTP message',
             '10\t8\t\t[0x41->0x21] MCTP Get Endpoint ID Request',
@@ -138937,13 +138949,17 @@ class TestDissectSll:
 
     def test_sll_clean(self, cmd_tshark, capture_file, test_env):
         '''76 of the 78 frames have an SLL tree (the two netlink frames go
-        to the netlink dissector first), none is malformed and none has an expert
-        info, in one and two passes.'''
+        to the netlink dissector first) and none is malformed. Frames 47 and
+        48 carry a warning, in one and two passes: the MCTP header they hold
+        has version 0, where the header version shall be 0001b (DSP0236
+        1.3.3, MCTP packet fields).'''
         for passes in ((), ('-2',)):
             assert len(self._rows(cmd_tshark, capture_file(self.CAP), test_env, 'sll',
                     ['frame.number'], *passes)) == 76
             assert self._rows(cmd_tshark, capture_file(self.CAP), test_env,
-                    '_ws.malformed || _ws.expert', ['frame.number'], *passes) == []
+                    '_ws.malformed', ['frame.number'], *passes) == []
+            assert self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                    '_ws.expert', ['frame.number'], *passes) == ['47', '48']
 
     def test_sll_header(self, cmd_tshark, capture_file, test_env):
         '''Packet types 0-5 of SLL v1, and the link-layer address lengths 0,

@@ -8,12 +8,15 @@
 '''pytest configuration'''
 
 
+import json
 import os
 import re
 import shutil
 import subprocess
 import sys
 import types
+import xml.etree.ElementTree as ET
+from collections import Counter
 from contextlib import contextmanager
 
 import pytest
@@ -513,11 +516,14 @@ def tshark_fields(cmd_tshark, capture_file, test_env):
     This is the standard dissector-test invocation, so it lives here rather
     than being reimplemented per suite.  Pass two_pass=True for generated
     fields that only resolve on the second dissection pass (e.g. a link to a
-    later frame), and separator to override the default tab field separator.
+    later frame), separator to override the default tab field separator,
+    prefs for preference overrides and args for any other options.
     '''
     def run(filename, dfilter=None, fields=('frame.number',), two_pass=False,
-            separator=None):
-        cmd = [cmd_tshark, '-r', capture_file(filename)]
+            separator=None, prefs=None, args=()):
+        cmd = [cmd_tshark, '-r', capture_file(filename), *args]
+        for pref, value in (prefs or {}).items():
+            cmd += ['-o', f'{pref}:{value}']
         if two_pass:
             cmd.append('-2')
         if dfilter is not None:
@@ -552,14 +558,339 @@ def assert_frames_match(tshark_fields):
     the matching frame set is checked in one shot.
 
     A frame is reported only if its expr is true, so a missing frame in the
-    output means that case failed.  Pass two_pass=True when any expr uses a
+    output means that case failed; the exprs of cases that name the same
+    frame must all be true.  Pass two_pass=True when any expr uses a
     field that needs the second dissection pass.
     '''
     def check(filename, cases, two_pass=False):
-        terms = [f'(frame.number == {f} && ({e}))' for f, e in cases]
+        exprs = {}
+        for f, e in cases:
+            exprs.setdefault(f, []).append(f'({e})')
+        terms = [f'(frame.number == {f} && {" && ".join(es)})' for f, es in exprs.items()]
         stdout = tshark_fields(filename, ' || '.join(terms), two_pass=two_pass)
         got = sorted(int(x) for x in stdout.split())
-        expected = sorted({f for f, _ in cases})
+        expected = sorted(exprs)
         assert got == expected, \
             f'matched frames {got}, expected {expected}; cases={cases}'
+    return check
+
+
+class Pdml:
+    '''One capture's PDML, keyed by frame number. See dissect_pdml.
+
+    Every lookup takes either a frame number or an element already found
+    (a packet, or a subtree such as one list entry), so nested structures
+    can be searched the same way as whole frames.
+
+    With `registered` (field names, as `tshark -G fields` lists them), a
+    name that is neither registered nor in this PDML raises KeyError, so a
+    misspelled name cannot read as an absent field.
+    '''
+
+    def __init__(self, text, registered=None):
+        self.root = ET.fromstring(text)
+        self.packets = {
+            int(p.find(".//field[@name='frame.number']").get('show')): p
+            for p in self.root.iter('packet')}
+        # The shared registry is referenced, not copied: it is large and
+        # every cached Pdml has one.
+        self.registered = registered
+        self.names = {f.get('name') for f in self.root.iter('field')}
+
+    def __getitem__(self, frame):
+        return self.packets[frame]
+
+    def _node(self, where):
+        return self.packets[where] if isinstance(where, int) else where
+
+    def _check(self, name):
+        if (self.registered is not None and name not in self.registered
+                and name not in self.names):
+            raise KeyError(f'{name!r} is not a registered field')
+
+    def fields(self, where, name):
+        '''Every <field> named `name`, in tree order.'''
+        self._check(name)
+        return self._node(where).findall(f".//field[@name='{name}']")
+
+    def field(self, where, name):
+        '''The attributes of the first `name` field, or None.'''
+        self._check(name)
+        found = self._node(where).find(f".//field[@name='{name}']")
+        return None if found is None else found.attrib
+
+    def shows(self, where, name):
+        return [f.get('show') for f in self.fields(where, name)]
+
+    def values(self, where, name):
+        '''Integer values; a Boolean's True/False reads as 1/0.'''
+        return [int(s == 'True') if s in ('True', 'False') else int(s, 0)
+                for s in self.shows(where, name)]
+
+    def shownames(self, where, name):
+        return [f.get('showname') for f in self.fields(where, name)]
+
+    def label(self, where, name):
+        '''The first `name` field's showname, after its "Name: " prefix.'''
+        return self.field(where, name)['showname'].split(': ', 1)[1]
+
+    def sizes(self, where, name):
+        return [int(f.get('size')) for f in self.fields(where, name)]
+
+    def extents(self, where, name):
+        '''(pos, size) of every `name` field.'''
+        return [(int(f.get('pos')), int(f.get('size'))) for f in self.fields(where, name)]
+
+    def experts(self, where):
+        return self.shows(where, '_ws.expert.message')
+
+    def frames_with(self, name):
+        # Checked even when there are no packets to look in.
+        self._check(name)
+        return sorted(n for n in self.packets if self.fields(n, name))
+
+
+@pytest.fixture(scope='session')
+def dissect_pdml(cmd_tshark, capture_file, make_env, tmp_path_factory, field_registry):
+    '''Returns a Pdml for `tshark -r <capture> [-o ...] [-2] [-Y ...] -Tpdml`.
+
+    Spawning tshark is the dominant cost of a dissector suite, so each
+    (capture, prefs, two_pass) is dissected once per session and every test
+    that asserts on it reads the cached tree.  The whole capture is dissected,
+    as a -Y run would, so per-frame state is the same as in tshark_fields.
+    '''
+    env = make_env(home=str(tmp_path_factory.mktemp('dissect-pdml-home')))
+    env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
+    cache = {}
+
+    def run(filename, prefs=None, two_pass=False, dfilter=None):
+        key = (filename, tuple(sorted((prefs or {}).items())), two_pass, dfilter)
+        if key not in cache:
+            cmd = [cmd_tshark, '-r', capture_file(filename)]
+            for pref, value in (prefs or {}).items():
+                cmd += ['-o', f'{pref}:{value}']
+            if two_pass:
+                cmd.append('-2')
+            if dfilter is not None:
+                cmd += ['-Y', dfilter]
+            cmd.append('-Tpdml')
+            cache[key] = Pdml(subprocess.check_output(cmd, encoding='utf-8', env=env),
+                              field_registry.keys())
+        return cache[key]
+    return run
+
+
+@pytest.fixture(scope='session')
+def fields_table(dissect_pdml, field_registry, cmd_tshark, capture_file, make_env,
+                 tmp_path_factory):
+    '''Returns {frame: {field: value}} from `tshark -Tfields`.
+
+    Values are exactly what tshark_fields prints (repeated occurrences joined
+    with ','; '' when absent).  The first request on a (capture, prefs,
+    two_pass) runs -Tfields once for every field in its cached dissect_pdml
+    tree plus the Info and Protocol columns, so later requests on the capture
+    are lookups; fields outside that set take a run of their own.
+    '''
+    env = make_env(home=str(tmp_path_factory.mktemp('fields-table-home')))
+    env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
+    cache = {}
+
+    def tfields(filename, fields, prefs, two_pass):
+        head = [cmd_tshark, '-r', capture_file(filename)]
+        for pref, value in (prefs or {}).items():
+            head += ['-o', f'{pref}:{value}']
+        if two_pass:
+            head.append('-2')
+        # tshark prints a field given twice only once, so frame.number is not in fields.
+        head += ['-Tfields', '-e', 'frame.number']
+        # A capture with many distinct fields would overrun Windows' 32767-character
+        # command line, so the fields go in several runs whose rows are merged.
+        chunks, chunk = [], []
+        size = sum(len(a) + 1 for a in head)
+        for field in fields:
+            if chunk and size + len(field) + 4 > 30000:
+                chunks.append(chunk)
+                chunk, size = [], sum(len(a) + 1 for a in head)
+            chunk.append(field)
+            size += len(field) + 4
+        chunks.append(chunk)
+        table = {}
+        for chunk in chunks:
+            cmd = head + [a for field in chunk for a in ('-e', field)]
+            # Not splitlines(): string fields may hold \x1c-\x1e, which it splits on.
+            for line in subprocess.check_output(cmd, encoding='utf-8', env=env).split('\n')[:-1]:
+                number, *values = line.split('\t')
+                table.setdefault(int(number), {'frame.number': number}).update(zip(chunk, values))
+        return table
+
+    def lookup(key, fields):
+        filename, prefs, two_pass = key
+        if key not in cache:
+            pdml = dissect_pdml(filename, dict(prefs), two_pass)
+            names = {f.get('name') for f in pdml.root.iter('field')} & field_registry.keys()
+            names = sorted(names - {'frame.number'} | {'_ws.col.info', '_ws.col.protocol'})
+            cache[key] = tfields(filename, names, dict(prefs), two_pass)
+        table = cache[key]
+        missing = tuple(dict.fromkeys(
+            f for f in fields if f not in next(iter(table.values()), {})))
+        if missing:
+            for number, row in tfields(filename, missing, dict(prefs), two_pass).items():
+                table[number].update(row)
+        return table
+
+    def run(filename, fields, prefs=None, two_pass=False):
+        fields = tuple(fields)
+        table = lookup((filename, tuple(sorted((prefs or {}).items())), two_pass), fields)
+        return {number: {f: row[f] for f in fields} for number, row in table.items()}
+    return run
+
+
+@pytest.fixture(scope='session')
+def expert_tap_counts(cmd_tshark, capture_file, make_env, tmp_path_factory):
+    '''Returns {summary: count} from `tshark -q -z expert`, which builds no tree.
+
+    Compare it with the _ws.expert.message values of a tree dissection to
+    check that a dissector reports the same experts with and without a tree.
+    Rows are sliced by the tap's fixed format, printf("%12d %10s %18s  %s"),
+    because protocol names may contain spaces.
+    '''
+    env = make_env(home=str(tmp_path_factory.mktemp('expert-tap-home')))
+    env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
+
+    def run(filename, span=None):
+        tap = 'expert'
+        if span:
+            tap += f',frame.number >= {span[0]} && frame.number <= {span[1]}'
+        stdout = subprocess.check_output(
+            [cmd_tshark, '-r', capture_file(filename), '-q', '-z', tap],
+            encoding='utf-8', env=env)
+        counts = Counter()
+        for line in stdout.splitlines():
+            frequency = line[:12].strip()
+            if (len(line) > 44 and frequency.isascii() and frequency.isdigit()
+                    and line[12] == line[23] == ' ' and line[42:44] == '  '):
+                counts[line[44:].rstrip()] += int(frequency)
+        return counts
+    return run
+
+
+@pytest.fixture(scope='session')
+def field_registry(cmd_tshark, make_env, tmp_path_factory):
+    '''{abbrev: row} of `tshark -G fields` field rows, split on tabs.'''
+    env = make_env(home=str(tmp_path_factory.mktemp('field-registry-home')))
+    env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
+    output = subprocess.check_output([cmd_tshark, '-G', 'fields'], encoding='utf-8', env=env)
+    return {row[2]: row for row in (line.split('\t') for line in output.splitlines())
+            if len(row) >= 7 and row[0] == 'F'}
+
+
+@pytest.fixture(scope='session')
+def range_strings(cmd_tshark, make_env, tmp_path_factory):
+    '''{abbrev: [(low, high, label)]} of `tshark -G values` range rows.'''
+    env = make_env(home=str(tmp_path_factory.mktemp('range-strings-home')))
+    env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
+    output = subprocess.check_output([cmd_tshark, '-G', 'values'], encoding='utf-8', env=env)
+    ranges = {}
+    for row in (line.split('\t') for line in output.splitlines()):
+        if row[0] == 'R':
+            ranges.setdefault(row[1], []).append((int(row[2], 0), int(row[3], 0), row[4]))
+    return ranges
+
+
+@pytest.fixture(scope='class', autouse=True)
+def section_span(request):
+    '''Sets SPAN, a section's first and last frame, on a class that names its SECTION.
+
+    The class's capture is its CAPTURE or FILE, and SECTION is the pcapng
+    section number (frame.section_number) its builder wrote.
+    '''
+    cls = request.cls
+    if cls is None or not hasattr(cls, 'SECTION'):
+        return
+    capture = getattr(cls, 'CAPTURE', None) or cls.FILE
+    rows = request.getfixturevalue('fields_table')(capture, ('frame.section_number',))
+    frames = [n for n, row in rows.items() if row['frame.section_number'] == str(cls.SECTION)]
+    assert frames, (capture, cls.SECTION)
+    cls.SPAN = (frames[0], frames[-1])
+
+
+@pytest.fixture(scope='session')
+def sharkd_revisits(program, capture_file, make_env, tmp_path_factory):
+    '''Loads a capture in sharkd, then re-dissects each frame of `order` in turn.
+
+    This is what selecting frames in the GUI does after the first pass.
+    Returns each frame's tree as a list of tuples of the node `keys`, in tree
+    order, and checks that no tree has a dissector bug or malformed item.
+    '''
+    env = make_env(home=str(tmp_path_factory.mktemp('sharkd-home')))
+    env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
+
+    def run(capture, order, keys=('fn', 'l')):
+        reqs = [{'jsonrpc': '2.0', 'id': 1, 'method': 'load',
+                 'params': {'file': capture_file(capture)}}]
+        reqs += [{'jsonrpc': '2.0', 'id': i, 'method': 'frame',
+                  'params': {'frame': f, 'proto': True}}
+                 for i, f in enumerate(order, 2)]
+        proc = subprocess.run((program('sharkd'), '-'),
+                              input=''.join(json.dumps(r) + '\n' for r in reqs),
+                              capture_output=True, encoding='utf-8', env=env, check=True)
+        resp = [json.loads(line) for line in proc.stdout.splitlines() if line.strip()]
+        assert resp[0]['result']['status'] == 'OK'
+        assert [r['id'] for r in resp] == list(range(1, len(order) + 2))
+        trees = []
+        for r in resp[1:]:
+            names, items, pending = [], [], list(r['result']['tree'])
+            while pending:
+                node = pending.pop(0)
+                names.append(node.get('fn', ''))
+                items.append(tuple(node.get(k, '') for k in keys))
+                pending[0:0] = node.get('n', [])
+            assert not any(n == '_ws.dissector_bug' or n.startswith('_ws.malformed')
+                           for n in names), items
+            trees.append(items)
+        return trees
+    return run
+
+
+#: Fields that legitimately differ between tshark's first and second pass.
+PASS_DEPENDENT_FIELDS = frozenset({
+    # Links to a later frame, which only a second pass has seen.
+    'mctp.reassembled.in', 'mctpc.response_in', 'nvme-mi.response_in', 'nvme.cqe_pkt',
+    'nvme.fabrics.cqe_pkt', 'nvme.data.tr0', 'nvme.data_req',
+    'tcg-storage.response_in',
+    # TCP conversation analysis, completed at the end of the stream.
+    'tcp.completeness', 'tcp.completeness.data', 'tcp.completeness.str',
+    'tcp.stream.client.contiguity_count', 'tcp.stream.server.contiguity_count',
+    # An NVMe/TCP connection's queue is decided while its first command is
+    # dissected, so only a revisit shows it on that command.
+    'nvme-tcp.cmd.qid',
+})
+
+
+@pytest.fixture(scope='session')
+def assert_pass_parity(dissect_pdml, fields_table):
+    '''Asserts that a capture dissects the same on tshark's first pass and on
+    a second pass (-2): every field's value, label, extent and visibility,
+    except for PASS_DEPENDENT_FIELDS and any `allowed` extras, and the
+    Protocol and Info columns (which PDML does not carry).
+
+    The GUI re-dissects a frame whenever it is selected, so state that a
+    dissector keeps across frames has to produce the same tree on every
+    visit.
+    '''
+    def check(filename, allowed=()):
+        skip = PASS_DEPENDENT_FIELDS | set(allowed)
+
+        def items(pdml, frame):
+            return [(f.get('name'), f.get('showname'), f.get('show'), f.get('value'),
+                     f.get('size'), f.get('pos'), f.get('hide'))
+                    for f in pdml[frame].iter('field') if f.get('name') not in skip]
+        one, two = dissect_pdml(filename), dissect_pdml(filename, two_pass=True)
+        assert sorted(one.packets) == sorted(two.packets)
+        bad = [frame for frame in one.packets if items(one, frame) != items(two, frame)]
+        assert not bad, f'{filename}: frames {bad} differ between passes'
+        columns = ('_ws.col.protocol', '_ws.col.info')
+        one, two = fields_table(filename, columns), fields_table(filename, columns, two_pass=True)
+        bad = [frame for frame in one if one[frame] != two[frame]]
+        assert not bad, f'{filename}: frames {bad} have different columns between passes'
     return check
