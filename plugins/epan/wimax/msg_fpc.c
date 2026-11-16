@@ -63,7 +63,7 @@ static int dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U
 
 		number_stations = tvb_get_uint8(tvb, offset);
 		offset++;
-		for (i = 0; ((i < number_stations) && (offset >= tvb_len)); i++ ) {
+		for (i = 0; ((i < number_stations) && (offset < tvb_len)); i++ ) {
 			/* display the Basic CID*/
 			proto_tree_add_item(fpc_tree, hf_fpc_basic_cid, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
