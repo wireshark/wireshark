@@ -8126,7 +8126,10 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 switch (PINFO_DST(pinfo)->type) {
                     case AT_IPv4:
                         if (PINFO_DST(pinfo)->len == sizeof(uint32_t)) {
-                            add_ipv4_name(*(uint32_t *)PINFO_DST(pinfo)->data, server_name, false);
+                            /* The address may point to unaligned frame data. */
+                            uint32_t addr;
+                            memcpy(&addr, PINFO_DST(pinfo)->data, sizeof addr);
+                            add_ipv4_name(addr, server_name, false);
                         }
                         break;
                     case AT_IPv6:
