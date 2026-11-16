@@ -90,10 +90,14 @@ static const char * remote_capture_functions =
 "  local freq=$2\n"
 "  local ch_width=$3\n"
 "  local center_freq=$4\n"
-"  if [ $freq -eq $center_freq ]; then\n"
-"    sudo iw dev $1 set freq $freq $ch_width 2>&1\n"
+"  if [ $ch_width -le 16 ]; then\n"
+"    sudo iw dev $1 set freq_khz $freq $ch_width $center_freq 2>&1\n"
 "  else\n"
-"    sudo iw dev $1 set freq $freq $ch_width $center_freq 2>&1\n"
+"    if [ $freq -eq $center_freq ]; then\n"
+"      sudo iw dev $1 set freq $freq $ch_width 2>&1\n"
+"    else\n"
+"      sudo iw dev $1 set freq $freq $ch_width $center_freq 2>&1\n"
+"    fi\n"
 "  fi\n"
 "}\n"
 "\n"
@@ -115,7 +119,7 @@ static const char * remote_capture_functions =
 "  local center_freq=$4\n"
 "  local count=$5\n"
 "  local filter=\"${@:6}\"\n"
-"  if ! { iwconfig $iface | grep Monitor > /dev/null 2>&1; }; then\n"
+"  if ! { sudo iw dev $iface info | grep -q \"type monitor\" > /dev/null 2>&1; }; then\n"
 "    iface_down    $iface &&\n"
 "    iface_monitor $iface &&\n"
 "    iface_up      $iface\n"
@@ -163,7 +167,7 @@ static const char * remote_capture_functions =
 "}\n"
 "\n";
 
-static unsigned int wifi_freqs_2dot4_5ghz[] = {
+static uint32_t wifi_freqs_2dot4_5ghz[] = {
 	2412, 2417, 2422, 2427, 2432, 2437, 2442, 2447, 2452, 2457, 2462,
 	2467, 2472, 2484,
 	5180, 5200, 5220, 5240, 5260, 5280, 5300, 5320, 5500, 5520, 5540, 5560, 5580,
@@ -171,7 +175,7 @@ static unsigned int wifi_freqs_2dot4_5ghz[] = {
 	0
 };
 
-static unsigned int freq_to_channel(unsigned int freq_mhz) {
+static uint32_t freq_to_channel(uint32_t freq_mhz) {
 	if (freq_mhz == 2484)
 		return 14;
 	else if (freq_mhz >= 2412 && freq_mhz <= 2484)
@@ -180,11 +184,13 @@ static unsigned int freq_to_channel(unsigned int freq_mhz) {
 		return ((freq_mhz - 5180) / 5) + 36;
 	else if (freq_mhz >= 5955 && freq_mhz <= 7115)
 		return ((freq_mhz - 5955) / 5) + 1;
+	else if (freq_mhz >= 902500 && freq_mhz <= 927500)
+		return ((freq_mhz - 902000) * 2 / 1000);
 	else
 		return 0;
 }
 
-static const char *freq_to_band(unsigned int freq_mhz)
+static const char *freq_to_band(uint32_t freq_mhz)
 {
 	if (freq_mhz >= 2412 && freq_mhz <= 2484)
 		return "2.4 GHz";
@@ -192,72 +198,86 @@ static const char *freq_to_band(unsigned int freq_mhz)
 		return "5 GHz";
 	else if (freq_mhz >= 5955 && freq_mhz <= 7115)
 		return "6 GHz";
+	else if (freq_mhz >= 902500 && freq_mhz <= 927500)
+		return "S1G (US)";
 	else
 	 return NULL;
 }
 
-static unsigned int center_freq(unsigned int freq_mhz, unsigned int ch_width_mhz) {
+static uint32_t center_freq(uint32_t freq_mhz, uint32_t ch_width_mhz) {
 
-	unsigned int start_freq;
+	uint32_t start_freq;
 
 	if (ch_width_mhz == 20) {
 		return freq_mhz;
 	}
-  else if (ch_width_mhz == 40) {
-    if (freq_mhz >= 5180 && freq_mhz <= 5720) {
+  	else if (ch_width_mhz == 40) {
+    	if (freq_mhz >= 5180 && freq_mhz <= 5720) {
 			for (start_freq = 5180; start_freq <= 5700; start_freq += ch_width_mhz) {
-      	if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 20))
-        	return ((start_freq * 2) + 20) / 2;
+      			if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 20))
+        			return ((start_freq * 2) + 20) / 2;
 			}
 		}
-    else if (freq_mhz >= 5745 && freq_mhz <= 5765)
-      return 5755;
-    else if (freq_mhz >= 5785 && freq_mhz <= 5805)
-      return 5795;
-    else if (freq_mhz >= 5955 && freq_mhz <= 7095) {
+    	else if (freq_mhz >= 5745 && freq_mhz <= 5765)
+      		return 5755;
+    	else if (freq_mhz >= 5785 && freq_mhz <= 5805)
+      		return 5795;
+    	else if (freq_mhz >= 5955 && freq_mhz <= 7095) {
 			for (start_freq = 5955; start_freq <= 7075; start_freq += ch_width_mhz) {
-        if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 20))
-          return ((start_freq * 2) + 20) / 2;
+        		if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 20))
+          			return ((start_freq * 2) + 20) / 2;
 			}
 		}
 	}
-  else if (ch_width_mhz == 80) {
-    if (freq_mhz >= 5180 && freq_mhz <= 5660) {
+  	else if (ch_width_mhz == 80) {
+    	if (freq_mhz >= 5180 && freq_mhz <= 5660) {
 			for (start_freq = 5180; start_freq <= 5660; start_freq += ch_width_mhz) {
-      	if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 60))
-        	return ((start_freq * 2) + 60) / 2;
+      			if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 60))
+        			return ((start_freq * 2) + 60) / 2;
 			}
 		}
-    else if (freq_mhz >= 5745 && freq_mhz <= 5805)
-      return 5775;
-    else if (freq_mhz >= 5955 && freq_mhz <= 7055) {
+    	else if (freq_mhz >= 5745 && freq_mhz <= 5805)
+      		return 5775;
+    	else if (freq_mhz >= 5955 && freq_mhz <= 7055) {
 			for (start_freq = 5955; start_freq <= 6995; start_freq += ch_width_mhz) {
-        if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 60))
-        	return ((start_freq * 2) + 60) / 2;
+        		if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 60))
+        			return ((start_freq * 2) + 60) / 2;
 			}
 		}
 	}
-  else if (ch_width_mhz == 160) {
-    if (freq_mhz >= 5180 && freq_mhz <= 5640) {
+  	else if (ch_width_mhz == 160) {
+    	if (freq_mhz >= 5180 && freq_mhz <= 5640) {
 			for (start_freq = 5180; start_freq <= 5500; start_freq += ch_width_mhz) {
-        if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 140))
-          return ((start_freq * 2) + 140) / 2;
+        		if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 140))
+          			return ((start_freq * 2) + 140) / 2;
 			}
 		}
-    else if (freq_mhz >= 5955 && freq_mhz <= 7055) {
+    	else if (freq_mhz >= 5955 && freq_mhz <= 7055) {
 			for (start_freq = 5955; start_freq <= 6915; start_freq += ch_width_mhz) {
-      	if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 140))
-        	return ((start_freq * 2) + 140) / 2;
+      			if (freq_mhz >= start_freq && freq_mhz <= (start_freq + 140))
+        			return ((start_freq * 2) + 140) / 2;
 			}
 		}
+	}
+	else if (ch_width_mhz == 1) {
+		return freq_mhz;
+	}
+	else if (ch_width_mhz == 2) {
+		return freq_mhz + 500;
+	}
+	else if (ch_width_mhz == 4) {
+		return freq_mhz + 1500;
+	}
+	else if (ch_width_mhz == 8) {
+		return freq_mhz + 3500;
 	}
 
   return -1;
 }
 
 static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_functions,
-	const char* iface, const uint16_t channel_frequency, const uint16_t channel_width,
-	const uint16_t center_frequency, const char* cfilter, const uint32_t count)
+	const char* iface, const uint32_t channel_frequency, const uint32_t channel_width,
+	const uint32_t center_frequency, const char* cfilter, const uint32_t count)
 {
 	char* cmdline;
 	ssh_channel channel;
@@ -308,8 +328,8 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_functio
 }
 
 static int ssh_open_remote_connection(const ssh_params_t* params, const char* capture_functions,
-	const char* iface, const uint16_t channel_frequency, const uint16_t channel_width,
-	const uint16_t center_frequency, const char* cfilter, const uint32_t count, const char* fifo)
+	const char* iface, const uint32_t channel_frequency, const uint16_t channel_width,
+	const uint32_t center_frequency, const char* cfilter, const uint32_t count, const char* fifo)
 {
 	ssh_session sshs = NULL;
 	ssh_channel channel = NULL;
@@ -387,7 +407,33 @@ static int list_config(char *interface)
 	printf("arg {number=%u}{call=--remote-channel-frequency}{display=Remote channel}"
 		"{type=selector}{tooltip=The remote channel used to capture}{group=Capture}\n", inc);
 
-	unsigned int freq = 0;
+	uint8_t s1g_bw = 0;
+	uint32_t freq = 0;
+	for (freq = 902500; freq <= 927500; freq += 500) {
+		if (freq % 1000 == 500) {
+			s1g_bw = 1;
+			printf("value {arg=%u}{value=%u}{display=%s, Channel %u (%d MHz)}\n", inc, freq,
+				freq_to_band(freq), freq_to_channel(freq), s1g_bw);
+		}
+		else if ((freq_to_channel(freq) + 2) % 4 == 0) {
+			s1g_bw = 2;
+			printf("value {arg=%u}{value=%u}{display=%s, Channel %u (%d MHz)}\n", inc, freq - 500,
+				freq_to_band(freq), freq_to_channel(freq), s1g_bw);
+		}
+		else if (freq_to_channel(freq) % 8 == 0) {
+			s1g_bw = 4;
+			printf("value {arg=%u}{value=%u}{display=%s, Channel %u (%d MHz)}\n", inc, freq - 1500,
+				freq_to_band(freq), freq_to_channel(freq), s1g_bw);
+		}
+		else if ((freq_to_channel(freq) % 4) == 0) {
+			s1g_bw = 8;
+			printf("value {arg=%u}{value=%u}{display=%s, Channel %u (%d MHz)}\n", inc, freq - 3500,
+				freq_to_band(freq), freq_to_channel(freq), s1g_bw);
+		}
+		if (freq_to_channel(freq) == 16) // No one implements 16 MHz channels yet
+			continue;
+	}
+
 	for (i = 0; (freq = wifi_freqs_2dot4_5ghz[i]); i++) {
 		printf("value {arg=%u}{value=%u}{display=%s, Channel %u}\n", inc, freq, freq_to_band(freq), freq_to_channel(freq));
 	}
@@ -396,11 +442,16 @@ static int list_config(char *interface)
 		printf("value {arg=%u}{value=%u}{display=%s, Channel %u%s}\n", inc, freq,
 			freq_to_band(freq), freq_to_channel(freq), (psc % 4 == 0) ? " (PSC)" : "");
 	}
+
 	inc++;
 
 	printf("arg {number=%u}{call=--remote-channel-width}{display=Remote channel width}"
 		"{type=selector}{tooltip=The remote channel width used to capture}"
 		"{group=Capture}\n", inc);
+	printf("value {arg=%u}{value=1}{display=1 MHz}\n", inc);
+	printf("value {arg=%u}{value=2}{display=2 MHz}\n", inc);
+	printf("value {arg=%u}{value=4}{display=4 MHz}\n", inc);
+	printf("value {arg=%u}{value=8}{display=8 MHz}\n", inc);
 	printf("value {arg=%u}{value=20}{display=20 MHz}\n", inc);
 	printf("value {arg=%u}{value=40}{display=40 MHz}\n", inc);
 	printf("value {arg=%u}{value=80}{display=80 MHz}\n", inc);
@@ -439,9 +490,9 @@ int main(int argc, char *argv[])
 	int option_idx = 0;
 	ssh_params_t* ssh_params = ssh_params_new();
 	char* remote_interface = NULL;
-	uint16_t remote_channel_frequency = 0;
-	uint16_t remote_channel_width = 0;
-	uint16_t remote_center_frequency = 0;
+	uint32_t remote_channel_frequency = 0;
+	uint32_t remote_channel_width = 0;
+	uint32_t remote_center_frequency = 0;
 	char* remote_filter = NULL;
 	uint32_t count = 0;
 	int ret = EXIT_FAILURE;
@@ -590,14 +641,14 @@ int main(int argc, char *argv[])
 			break;
 
 		case OPT_REMOTE_CHANNEL_FREQUENCY:
-			if (!ws_strtou16(ws_optarg, NULL, &remote_channel_frequency)) {
+			if (!ws_strtou32(ws_optarg, NULL, &remote_channel_frequency)) {
 				ws_warning("Invalid channel frequency: %s", ws_optarg);
 				goto end;
 			}
 			break;
 
 		case OPT_REMOTE_CHANNEL_WIDTH:
-			if (!ws_strtou16(ws_optarg, NULL, &remote_channel_width)) {
+			if (!ws_strtou32(ws_optarg, NULL, &remote_channel_width)) {
 				ws_warning("Invalid channel width: %s", ws_optarg);
 				goto end;
 			}

@@ -62,10 +62,10 @@ wifidump - Provides an interface for capturing Wi-Fi frames from a remote host t
 *Wifidump* is an extcap tool that allows you to capture Wi-Fi traffic from a
 remote host over an SSH connection using *tcpdump*. The requirement to capture Wi-Fi
 frames is that the remote host must have the necessary binaries to manage and put
-the wanted interface into monitor mode. Such binaries include: *ip*, *iw*, and
-*iwconfig*. Also, because using monitor mode and managing the Wi-Fi interface requires
-root privileges, the system must be configured to allow the wanted user to run
-these binaries using sudo without entering a password.
+the wanted interface into monitor mode. Such binaries include: *ip* and *iw*. Also, 
+because using monitor mode and managing the Wi-Fi interface requires root 
+privileges, the system must be configured to allow the wanted user to run these
+binaries using sudo without entering a password.
 
 Typically wifidump is not invoked directly. Instead it can be configured through
 the Wireshark graphical user interface or its command line. The following will
