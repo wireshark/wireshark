@@ -91,6 +91,9 @@ static unsigned cid_vernier[MAX_CID];
 static size_t cid_adj_array_size;
 static unsigned *cid_adj_array;
 static uint8_t *frag_num_array;
+static uint8_t frag_number[MAX_CID];
+static unsigned cid_list[MAX_CID];
+static unsigned cid_base;
 
 static address save_src;
 static address save_dst;
@@ -569,6 +572,7 @@ static int hf_mac_header_generic_arq_fb_ie_seq2_length_6;
 static int hf_mac_header_generic_arq_fb_ie_rsv;
 static int hf_mac_header_payload_fragment;
 
+static expert_field ei_mac_too_many_cids;
 static expert_field ei_mac_crc_malformed;
 static expert_field ei_mac_crc_missing;
 static expert_field ei_mac_header_generic_crc;
@@ -603,8 +607,12 @@ static void wimax_defragment_init(void)
 		cid_vernier[i] = 0;
 	}
 	cid_adj_array_size = 0;
+	memset(frag_number, 0, sizeof(frag_number));
+	memset(cid_list, 0, sizeof(cid_list));
+	cid_base = 0;
+	first_gmh = true;
 	/* Initialize to make sure bs_address gets set in FCH decoder. */
-	bs_address.len = 0;
+	free_address(&bs_address);
 
 	/* Initialize the Scheduling Service Type flag */
 	seen_a_service_type = 0;
@@ -694,9 +702,6 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	unsigned payload_offset;
 	unsigned payload_length = 0;
 
-	static uint8_t frag_number[MAX_CID];
-	static unsigned cid_list[MAX_CID];
-	static unsigned cid_base;
 	static const char reassem_str[] = "Reassembled Data transport PDU (%u bytes)";
 	static const char data_str[] = "Data transport PDU (%u bytes)";
 	const char *str_ptr;
@@ -717,6 +722,9 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	tvbuff_t *data_pdu_tvb;
 	fragment_head *payload_frag;
 	bool first_arq_fb_payload = true;
+	/* A direct call (e.g. from Exported PDU) leaves first_gmh true. */
+	bool first_gmh_local = first_gmh;
+	first_gmh = true;
 
 	proto_mac_header_generic_decoder = proto_wimax;
 
@@ -1020,7 +1028,10 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			}
 			if (i == MAX_CID)
 			{
-				REPORT_DISSECTOR_BUG("WiMAX dissector only supports up to %u CIDs", MAX_CID);
+				expert_add_info(pinfo, parent_item, &ei_mac_too_many_cids);
+				proto_tree_add_item(tree, hf_mac_header_payload_fragment, tvb, offset, frag_len, ENC_NA);
+				payload_tvb = NULL;
+				goto next_frag;
 			}
 			cid_index = i;
 			while (pinfo->num >= cid_adj_array_size)
@@ -1030,8 +1041,9 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				frag_num_array = (uint8_t *)g_realloc(frag_num_array, sizeof(uint8_t) * cid_adj_array_size);
 				/* Clear the added memory */
 				memset(&cid_adj_array[cid_adj_array_size - 1024], 0, sizeof(unsigned) * 1024U);
+				memset(&frag_num_array[cid_adj_array_size - 1024], 0, 1024U);
 			}
-			if (first_gmh)
+			if (first_gmh_local)
 			{
 				/* New cid_adjust for each packet with fragment(s) */
 				cid_adjust[cid_index] += cid_vernier[cid_index];
@@ -1049,20 +1061,20 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				/* We apparently just clicked on the packet again. */
 				cid_adjust[cid_index] = cid_adj_array[pinfo->num];
 				/* Set the frag_number at start of packet. */
-				if (first_gmh)
+				if (first_gmh_local)
 				{
 					frag_number[cid_index] = frag_num_array[pinfo->num];
 				}
 			} else {
 				/* Save for next time we click on this packet. */
 				cid_adj_array[pinfo->num] = cid_adjust[cid_index];
-				if (first_gmh)
+				if (first_gmh_local)
 				{
 					frag_num_array[pinfo->num] = frag_number[cid_index];
 				}
 			}
 			/* Reset in case we stay in this while() loop to finish the packet. */
-			first_gmh = false;
+			first_gmh_local = false;
 			cid = cid_base + cid_adjust[cid_index] + cid_vernier[cid_index];
 			/* Save address pointers. */
 			copy_address_shallow(&save_src, &pinfo->src);
@@ -1202,6 +1214,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				payload_length -= new_payload_len;
 			}	/* end of while loop */
 		}	/* end of payload processing */
+next_frag:
 		length -= frag_len;
 		offset += frag_len;
 	} /* end of payload decoding */
@@ -2242,6 +2255,7 @@ void wimax_proto_register_mac_header_generic(void)
 		};
 
 	static ei_register_info ei[] = {
+		{ &ei_mac_too_many_cids, { "wmx.fragment.too_many_cids", PI_UNDECODED, PI_WARN, "Too many CIDs with fragmented payload, not reassembled", EXPFILL }},
 		{ &ei_mac_crc_malformed, { "wmx.genericCrc.missing_mal", PI_MALFORMED, PI_ERROR, "CRC missing - the frame is too short", EXPFILL }},
 		{ &ei_mac_crc_missing, { "wmx.genericCrc.missing", PI_PROTOCOL, PI_NOTE, "CRC is not included in this frame!", EXPFILL }},
 		{ &ei_mac_header_generic_crc, { "wmx.genericCrc.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},

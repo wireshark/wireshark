@@ -434,14 +434,14 @@ static int dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 					/* add subtree */
 					/* Use a local copy of tlv_offset */
 					this_offset = tlv_offset;
-					while(this_offset < tlv_len) {
+					while(this_offset < tlv_offset + tlv_len) {
 						/* Get the sub TLV data. */
 						init_tlv_info(&sub_tlv_info, tvb, this_offset);
 						/* get the sub TLV type */
 						sub_tlv_type = get_tlv_type(&sub_tlv_info);
 						/* get the TLV length */
 						sub_tlv_len = get_tlv_length(&sub_tlv_info);
-						if(tlv_type == -1 || sub_tlv_len > MAX_TLV_LEN || sub_tlv_len < 1)
+						if(sub_tlv_type == -1 || sub_tlv_len > MAX_TLV_LEN || sub_tlv_len < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RNG-RSP TLV error");
 							proto_tree_add_item(rng_rsp_tree, hf_rng_invalid_tlv, tvb, tlv_offset, (tvb_len - tlv_offset), ENC_NA);
@@ -489,7 +489,7 @@ static int dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 				case SHORT_HMAC_TUPLE_COR2:
 					if (include_cor2_changes) {
 						sub_tree = add_protocol_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, proto_mac_mgmt_msg_rng_rsp_decoder, tvb, offset, tlv_len, "Short HMAC Tuple");
-						wimax_short_hmac_tuple_decoder(sub_tree, tvb, tlv_offset, tvb_len - offset);
+						wimax_short_hmac_tuple_decoder(sub_tree, tvb, tlv_offset, tlv_len);
 					} else {
 						/* Unknown TLV type */
 						add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_tlv_type, tvb, offset, ENC_NA);

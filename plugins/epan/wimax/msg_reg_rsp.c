@@ -155,7 +155,7 @@ static int dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 					sub_tree = add_protocol_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tlv_len, "CID update encodings");
 					/* Use a local copy of tlv_offset */
 					this_offset = tlv_offset;
-					while(this_offset < tlv_len) {
+					while(this_offset < tlv_offset + tlv_len) {
 						/* Get the sub TLV data. */
 						init_tlv_info(&sub_tlv_info, tvb, this_offset);
 						/* get the sub TLV type */
@@ -214,13 +214,13 @@ static int dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 				case HMAC_TUPLE:	/* Table 348d */
 					/* decode and display the HMAC Tuple */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tlv_len, "HMAC Tuple");
-					wimax_hmac_tuple_decoder(tlv_tree, tvb, offset+2, tlv_len);
+					wimax_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
 					hmac_found = true;
 					break;
 				case CMAC_TUPLE:	/* Table 348b */
 					/* decode and display the CMAC Tuple */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tlv_len, "CMAC Tuple");
-					wimax_cmac_tuple_decoder(tlv_tree, tvb, offset+2, tlv_len);
+					wimax_cmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
 					break;
 				case SHORT_HMAC_TUPLE:
 				case SHORT_HMAC_TUPLE_COR2:
@@ -237,7 +237,7 @@ static int dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 				case VENDOR_SPECIFIC_INFO:
 				case VENDOR_ID_ENCODING:
 				case MAC_VERSION_ENCODING:
-					wimax_common_tlv_encoding_decoder(tvb_new_subset_length(tvb, offset, (tvb_len - offset)), pinfo, reg_rsp_tree);
+					wimax_common_tlv_encoding_decoder(tvb_new_subset_length(tvb, offset, tlv_len + (tlv_offset - offset)), pinfo, reg_rsp_tree);
 					break;
 				default:
 					add_tlv_subtree(&tlv_info, reg_rsp_tree, hf_tlv_type, tvb, offset, ENC_NA);
