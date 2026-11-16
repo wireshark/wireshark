@@ -42,7 +42,7 @@ lw_readme_dsym = 'Debugging symbols installation.html'
 # dSYMs are huge, so compress them with UDBZ despite what
 # https://developer.apple.com/forums/thread/128166
 # currently (Jan 2023) says.
-format = defines.get('format', 'UDBZ')
+format = defines.get('format', 'ULFO')
 
 # Compression level (if relevant)
 compression_level = 9
