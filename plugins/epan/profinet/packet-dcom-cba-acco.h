@@ -11,7 +11,11 @@
 #ifndef __PACKET_DCERPC_DCOM_CBA_ACCO_H
 #define __PACKET_DCERPC_DCOM_CBA_ACCO_H
 
+#define CBA_KIND_PDEV 0x50444556U
+#define CBA_KIND_LDEV 0x4c444556U
+
 typedef struct cba_pdev_s {
+    uint32_t        kind;
     GList           *ldevs;
     dcom_object_t   *object;
     int             first_packet;
@@ -20,6 +24,7 @@ typedef struct cba_pdev_s {
 } cba_pdev_t;
 
 typedef struct cba_ldev_s {
+    uint32_t        kind;
     GList           *provframes;
     GList           *consframes;
     GList           *provconns;
@@ -28,12 +33,18 @@ typedef struct cba_ldev_s {
     dcom_object_t   *acco_object;
     cba_pdev_t      *parent;
     int             first_packet;
+    unsigned        nprovconns;
+    unsigned        nconsconns;
 
     const char      *name;
 } cba_ldev_t;
 
 
 extern GList *cba_pdevs;
+
+/* Free all CBA device, frame and connection lists (file cleanup). */
+extern void
+cba_free_all(void);
 
 extern cba_pdev_t *
 cba_pdev_find(packet_info *pinfo, const address *addr, e_guid_t *ipid);
