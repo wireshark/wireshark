@@ -893,7 +893,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                    rval_to_str_const(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", %u options", block_length/2);
-        for( ; block_length != 0; block_length -= 2) {
+        for( ; block_length >= 2; block_length -= 2) {
             offset = dissect_PNDCP_Option(tvb, offset, pinfo, tree, NULL /*block_item*/, hf_pn_dcp_option,
                 false /* append_col */);
         }
@@ -1103,6 +1103,10 @@ dissect_PNDCP_Suboption_NME(tvbuff_t* tvb, int offset, packet_info* pinfo,
     switch (suboption) {
     case PNDCP_SUBOPTION_NME_DOMAIN_NAME:
 
+        if (block_length < 16) {
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_pn_dcp_block_parse_error, tvb, offset);
+            break;
+        }
         offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_nme_domain_uuid, &nme_domain_uuid);
         proto_tree_add_item_ret_display_string(tree, hf_pn_dcp_suboption_nme_domain_name, tvb, offset, (block_length-16), ENC_ASCII | ENC_NA, pinfo->pool, &domain_name);
 
@@ -1770,6 +1774,10 @@ dissect_PNDCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* we are not interested in this packet */
         return false;
     }
+
+    /* the DCP header (service, xid, delay, data length) must be present */
+    if (tvb_captured_length(tvb) < 10)
+        return false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-DCP");
     col_clear(pinfo->cinfo, COL_INFO);

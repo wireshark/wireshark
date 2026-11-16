@@ -19,6 +19,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
+#include <epan/proto_data.h>
 #include <epan/dissectors/packet-tcp.h>
 
 #include "packet-pn.h"
@@ -302,7 +303,6 @@ static const fragment_items pn_sxp_frag_items = {
 static void
 pn_sxp_reassemble_init(void)
 {
-    reassembly_table_register(&pn_sxp_reassembly_table, &addresses_reassembly_table_functions);
     /* Outer map: conversation_t* -> inner map(stream_key -> service_type). */
     pn_sxp_fragment_service_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
@@ -1486,18 +1486,31 @@ dissect_sxp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         bool have_service_type = false;
         uint16_t service_type = 0;
 
-        if (is_first && tvb_captured_length(payload_tvb) >= 2) {
-            service_type = tvb_get_uint16(payload_tvb, 0, ENC_BIG_ENDIAN);
-            have_service_type = true;
-            if (conv_service_map != NULL) {
-                wmem_map_insert(conv_service_map, GUINT_TO_POINTER(stream_key),
-                    GUINT_TO_POINTER((unsigned int)service_type));
-            }
-        } else if (!is_single && conv_service_map != NULL) {
-            void *cached = wmem_map_lookup(conv_service_map, GUINT_TO_POINTER(stream_key));
-            if (cached != NULL) {
-                service_type = (uint16_t)GPOINTER_TO_UINT(cached);
+        if (PINFO_FD_VISITED(pinfo)) {
+            /* later passes: use what the first pass resolved for this PDU */
+            void *saved = p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_sxp, (uint32_t)offset + 1);
+            if (saved != NULL) {
+                service_type = (uint16_t)(GPOINTER_TO_UINT(saved) & 0xffff);
                 have_service_type = true;
+            }
+        } else {
+            if (is_first && tvb_captured_length(payload_tvb) >= 2) {
+                service_type = tvb_get_uint16(payload_tvb, 0, ENC_BIG_ENDIAN);
+                have_service_type = true;
+                if (conv_service_map != NULL) {
+                    wmem_map_insert(conv_service_map, GUINT_TO_POINTER(stream_key),
+                        GUINT_TO_POINTER((unsigned int)service_type));
+                }
+            } else if (!is_single && conv_service_map != NULL) {
+                void *cached = wmem_map_lookup(conv_service_map, GUINT_TO_POINTER(stream_key));
+                if (cached != NULL) {
+                    service_type = (uint16_t)GPOINTER_TO_UINT(cached);
+                    have_service_type = true;
+                }
+            }
+            if (have_service_type) {
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_pn_sxp, (uint32_t)offset + 1,
+                    GUINT_TO_POINTER(0x10000U | service_type));
             }
         }
 
@@ -1528,7 +1541,7 @@ dissect_sxp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         if (reass_tvb) {
             dissect_sxp_reassembled_payload(reass_tvb, pinfo, sxp_tree);
         }
-        {
+        if (!PINFO_FD_VISITED(pinfo)) {
             wmem_map_t *conv_service_map = pn_sxp_get_conversation_service_map(pinfo, false);
             if (conv_service_map != NULL) {
                 wmem_map_remove(conv_service_map,
@@ -1541,7 +1554,7 @@ dissect_sxp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
                 tvb, 0, 0, fd_reass->reassembled_in);
             proto_item_set_generated(pi);
         }
-        if (is_last) {
+        if (is_last && !PINFO_FD_VISITED(pinfo)) {
             wmem_map_t *conv_service_map = pn_sxp_get_conversation_service_map(pinfo, false);
             if (conv_service_map != NULL) {
                 wmem_map_remove(conv_service_map,
@@ -2317,6 +2330,7 @@ proto_register_pn_sxp(void)
     expert_pn_sxp = expert_register_protocol(proto_pn_sxp);
     expert_register_field_array(expert_pn_sxp, ei, array_length(ei));
 
+    reassembly_table_register(&pn_sxp_reassembly_table, &addresses_reassembly_table_functions);
     register_init_routine(pn_sxp_reassemble_init);
 }
 

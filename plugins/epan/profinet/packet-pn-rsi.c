@@ -946,7 +946,7 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, unsigned offset,
         case(4):    /* ERR-RTA */
             col_append_str(pinfo->cinfo, COL_INFO, "ERR-RTA");
             offset = dissect_PNIO_status(tvb, offset, pinfo, rta_tree, drep);
-            if (tvb_captured_length(tvb) - offset - u8LengthSecurityChecksum - 4 > 0 ||
+            if ((int)tvb_captured_length_remaining(tvb, offset) - (int)u8LengthSecurityChecksum - 4 > 0 ||
                 tvb_get_int32(tvb, offset + u8LengthSecurityChecksum, ENC_NA) != 0)
             {
                 /* VendorDeviceErrorInfo */
@@ -954,7 +954,7 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, unsigned offset,
                     hf_pn_rsi_vendor_id, &u16VendorId);
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
                     hf_pn_rsi_device_id, &u16DeviceId);
-                offset = dissect_pn_user_data(tvb, offset, pinfo, rta_tree, tvb_captured_length(tvb) - offset - u8LengthSecurityChecksum, "Data");
+                offset = dissect_pn_user_data(tvb, offset, pinfo, rta_tree, tvb_captured_length_remaining(tvb, offset) - u8LengthSecurityChecksum, "Data");
             }
             break;
         case(5):    /* FREQ-RTA */
@@ -1474,5 +1474,6 @@ init_pn_rsi(int proto)
     expert_pn_rsi = expert_register_protocol(proto_pn_rsi);
     expert_register_field_array(expert_pn_rsi, ei, array_length(ei));
 
-    register_init_routine(pn_rsi_reassemble_init);
+    /* register the reassembly table once, not on every file open */
+    pn_rsi_reassemble_init();
 }
