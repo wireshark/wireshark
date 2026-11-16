@@ -3543,6 +3543,7 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
 
                     /* assign to temp variable */
                     g_string_assign(g_tmp,(const char*)tmp_unistim_info->key_buffer);
+                    g_free(tmp_unistim_info->key_buffer);
 
                     /* Manipulate the data */
                     if(pi->key_val == 10) {
