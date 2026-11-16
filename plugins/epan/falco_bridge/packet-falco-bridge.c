@@ -607,7 +607,9 @@ extract_syscall_conversation_fields (packet_info *pinfo, falco_conv_filter_field
     bool rc = get_extracted_syscall_source_fields(sinsp_span, pinfo->fd->num, &sinsp_fields, &sinsp_fields_count, &sinp_evt_info);
 
     if (!rc) {
-        REPORT_DISSECTOR_BUG("cannot extract falco conversation fields for event %" PRIu32, pinfo->fd->num);
+        // This runs outside of dissection (conversation filters, Follow), so
+        // there is no exception handler. Let the caller deal with it.
+        return false;
     }
 
     for (uint32_t hf_idx = 0, sf_idx = 0; hf_idx < bi->visible_fields && sf_idx < sinsp_fields_count; hf_idx++) {
@@ -728,7 +730,7 @@ static char* sysdig_thread_build_filter(packet_info *pinfo, void *user_data _U_)
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
     if (cff.container_id) {
-        return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRIu64, cff.container_id, cff.tid);
+        return ws_strdup_printf("container.id==\"%s\" && thread.tid==%" PRId64, cff.container_id, cff.tid);
     } else {
         return ws_strdup_printf("thread.tid==%" PRId64, cff.tid);
     }
@@ -827,6 +829,12 @@ get_bridge_info(uint32_t source_id)
 static int
 dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *epd_p)
 {
+    // Only syscall records have a syscall_header. A packet record (for
+    // example from Exported PDU) overlays other data on it.
+    if (pinfo->rec->rec_type != REC_TYPE_SYSCALL) {
+        return 0;
+    }
+
     int encoding = pinfo->rec->rec_header.syscall_header.byte_order == G_BIG_ENDIAN ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Falco Bridge");
@@ -960,7 +968,7 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
         if (!parent_trees[parent_category]) {
             int bytes_offset = 0;
             uint32_t bytes_length = 0;
-            if (parent_category == SSC_FD) {
+            if (parent_category == SSC_FD && event_param_data) {
                 bytes_offset = event_param_data->data_bytes_offset;
                 bytes_length = event_param_data->data_bytes_length;
             }
@@ -971,8 +979,10 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
         if (parent_category == SSC_PROCLINEAGE) {
             int32_t lnum = extract_lineage_number(hfinfo->abbrev);
-            if (lnum == -1) {
-                ws_error("Invalid lineage field name %s", hfinfo->abbrev);
+            if (lnum < 0 || lnum >= N_PROC_LINEAGE_ENTRIES) {
+                ws_warning("Invalid lineage field name %s", hfinfo->abbrev);
+                sf_idx++;
+                continue;
             }
 
             if (!lineage_trees[lnum]) {
@@ -1074,11 +1084,11 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                 break;
             case FT_BYTES:
             {
-                int addr_fld_idx = bi->hf_id_to_addr_id[hf_idx];
+                int addr_fld_idx = bi->hf_id_to_addr_id ? bi->hf_id_to_addr_id[hf_idx] : -1;
                 if (addr_fld_idx < 0) {
                     int bytes_offset = 0;
                     uint32_t bytes_length = 0;
-                    if (io_buffer) { // evt.buffer
+                    if (io_buffer && event_param_data) { // evt.buffer
                         bytes_offset = event_param_data->data_bytes_offset;
                         bytes_length = event_param_data->data_bytes_length;
                     }
