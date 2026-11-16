@@ -654,7 +654,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
     ws_in6_addr  ip;
     const char *addr_res;
 
-    if (tlv_info->hf_ipv4 > 0)
+    if (tlv_info->hf_ipv6 > 0)
     {
         hf_value = tlv_info->hf_ipv6;
     }
@@ -2220,10 +2220,9 @@ dissect_wimaxasncp(
     /* use the function type to find the message vals */
     for (i = 0; i < array_length(wimaxasncp_func_to_msg_vals_map); ++i)
     {
-        p = &wimaxasncp_func_to_msg_vals_map[i];
-
-        if (function_type == p->function_type)
+        if (function_type == wimaxasncp_func_to_msg_vals_map[i].function_type)
         {
+            p = &wimaxasncp_func_to_msg_vals_map[i];
             break;
         }
     }

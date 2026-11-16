@@ -2383,7 +2383,7 @@
 
     <tlv name="Service Class Name-229"
          type="229"
-         decoder="WIMAXASNCP_TLV_STRING">
+         decoder="WIMAXASNCP_TLV_ASCII_STRING">
     </tlv>
 
     <!-- ****************************************************************** -->
