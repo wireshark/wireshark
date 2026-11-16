@@ -896,7 +896,7 @@ dissect_PBAddressInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *sub_tree;
 
 
-    while (u32ArraySize != 0) {
+    while (u32ArraySize >= 2) {
     sub_item = proto_tree_add_item(tree, hf_cba_pbaddress, tvb, offset, 2, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_PBAddress);
 
@@ -1355,8 +1355,7 @@ static const dcerpc_sub_dissector ICBASystemProperties_dissectors[] = {
 
 
 static void cba_cleanup(void) {
-    g_list_free(cba_pdevs);
-    cba_pdevs = NULL;
+    cba_free_all();
 }
 
 
