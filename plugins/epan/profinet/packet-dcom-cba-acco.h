@@ -11,10 +11,14 @@
 #ifndef __PACKET_DCERPC_DCOM_CBA_ACCO_H
 #define __PACKET_DCERPC_DCOM_CBA_ACCO_H
 
+#define CBA_KIND_PDEV 0x50444556U
+#define CBA_KIND_LDEV 0x4c444556U
+
 /**
  * @brief Represents a Component Based Automation (CBA) physical device.
  */
 typedef struct cba_pdev_s {
+    uint32_t        kind;           /**< Type tag, always CBA_KIND_PDEV. */
     GList           *ldevs;         /**< List of associated logical devices. */
     dcom_object_t   *object;        /**< Pointer to the underlying DCOM object. */
     int             first_packet;   /**< The frame number of the first packet seen for this device. */
@@ -26,6 +30,7 @@ typedef struct cba_pdev_s {
  * @brief Represents a Component Based Automation (CBA) logical device.
  */
 typedef struct cba_ldev_s {
+    uint32_t        kind;           /**< Type tag, always CBA_KIND_LDEV. */
     GList           *provframes;    /**< List of provider frames. */
     GList           *consframes;    /**< List of consumer frames. */
     GList           *provconns;     /**< List of provider connections. */
@@ -34,11 +39,17 @@ typedef struct cba_ldev_s {
     dcom_object_t   *acco_object;   /**< Pointer to the ACCO (Active Control Connection) DCOM object. */
     cba_pdev_t      *parent;        /**< Pointer to the parent physical device. */
     int             first_packet;   /**< The frame number of the first packet seen for this logical device. */
+    unsigned        nprovconns;     /**< Number of entries in provconns. */
+    unsigned        nconsconns;     /**< Number of entries in consconns. */
 
     const char      *name;          /**< The name of the logical device. */
 } cba_ldev_t;
 
 extern GList *cba_pdevs;
+
+/** Free all CBA device, frame and connection lists (file cleanup). */
+extern void
+cba_free_all(void);
 
 /**
  * @brief Finds a CBA device based on address and IPID.
