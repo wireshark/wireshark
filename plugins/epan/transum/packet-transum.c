@@ -108,6 +108,59 @@ static wmem_map_t *dcerpc_context_zero;
 static wmem_list_t *rrpd_list;
 
 /*
+    Searching the whole rrpd_list for every packet is quadratic in the number
+    of RRPDs.  rrpd_streams indexes the RRPDs per (ip_proto, stream_no): the
+    value is a list holding that stream's RRPDs in the order they were added
+    to rrpd_list.  rrpd_dns indexes the DNS RRPDs by stream and ids so that a
+    lookup does not walk the stream's list at all.  Both are only changed
+    when an RRPD is appended, which happens only on the first pass.
+    A search walks at most MAX_RRPD_SEARCH entries of one stream's list.
+ */
+#define MAX_RRPD_SEARCH 4096
+
+typedef struct _rrpd_dns_key
+{
+    uint8_t  ip_proto;
+    uint32_t stream_no;
+    uint64_t session_id;
+    uint64_t msg_id;
+} rrpd_dns_key;
+
+static wmem_map_t *rrpd_streams;
+static wmem_map_t *rrpd_dns;
+
+static unsigned rrpd_dns_hash(const void *k)
+{
+    const rrpd_dns_key *key = (const rrpd_dns_key *)k;
+
+    return g_int64_hash(&key->session_id) ^ (g_int64_hash(&key->msg_id) * 31) ^
+           (key->stream_no * 17) ^ key->ip_proto;
+}
+
+static gboolean rrpd_dns_equal(const void *a, const void *b)
+{
+    const rrpd_dns_key *ka = (const rrpd_dns_key *)a;
+    const rrpd_dns_key *kb = (const rrpd_dns_key *)b;
+
+    return ka->ip_proto == kb->ip_proto && ka->stream_no == kb->stream_no &&
+           ka->session_id == kb->session_id && ka->msg_id == kb->msg_id;
+}
+
+static uint64_t rrpd_stream_key(const RRPD *r)
+{
+    return ((uint64_t)r->ip_proto << 32) | r->stream_no;
+}
+
+/* The last entry of the list of RRPDs of the stream of in_rrpd, or NULL */
+static wmem_list_frame_t *rrpd_stream_tail(const RRPD *in_rrpd)
+{
+    uint64_t key = rrpd_stream_key(in_rrpd);
+    wmem_list_t *l = (wmem_list_t *)wmem_map_lookup(rrpd_streams, &key);
+
+    return l ? wmem_list_tail(l) : NULL;
+}
+
+/*
     output_rrpd is a hash of pointers to RRPDs on the rrpd_list.  The index is the frame number.  This hash is
     used during Wireshark's second scan.  As each packet is processed, TRANSUM uses the packet's frame number to index into
     this hash to determine if we have RTE data for this particular packet, and if so the write_rte function is called.
@@ -233,6 +286,27 @@ static RRPD* append_to_rrpd_list(RRPD *in_rrpd)
 
     wmem_list_append(rrpd_list, next_rrpd);
 
+    uint64_t skey = rrpd_stream_key(next_rrpd);
+    wmem_list_t *stream_list = (wmem_list_t *)wmem_map_lookup(rrpd_streams, &skey);
+    if (stream_list == NULL)
+    {
+        uint64_t *kp = wmem_new(wmem_file_scope(), uint64_t);
+        *kp = skey;
+        stream_list = wmem_list_new(wmem_file_scope());
+        wmem_map_insert(rrpd_streams, kp, stream_list);
+    }
+    wmem_list_append(stream_list, next_rrpd);
+
+    if (next_rrpd->calculation == RTE_CALC_DNS)
+    {
+        rrpd_dns_key *dkey = wmem_new0(wmem_file_scope(), rrpd_dns_key);
+        dkey->ip_proto = next_rrpd->ip_proto;
+        dkey->stream_no = next_rrpd->stream_no;
+        dkey->session_id = next_rrpd->session_id;
+        dkey->msg_id = next_rrpd->msg_id;
+        wmem_map_insert(rrpd_dns, dkey, next_rrpd);
+    }
+
     return next_rrpd;
 }
 
@@ -240,8 +314,9 @@ static RRPD *find_latest_rrpd_dcerpc(RRPD *in_rrpd)
 {
     RRPD *rrpd;
     wmem_list_frame_t* i;
+    unsigned steps;
 
-    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
+    for (i = rrpd_stream_tail(in_rrpd), steps = 0; i != NULL && steps < MAX_RRPD_SEARCH; i = wmem_list_frame_prev(i), steps++)
     {
         rrpd = (RRPD*)wmem_list_frame_data(i);
 
@@ -314,43 +389,32 @@ static RRPD *find_latest_rrpd_dcerpc(RRPD *in_rrpd)
 
 static RRPD *find_latest_rrpd_dns(RRPD *in_rrpd)
 {
+    rrpd_dns_key key;
     RRPD *rrpd;
-    wmem_list_frame_t* i;
 
-    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
-    {
-        rrpd = (RRPD*)wmem_list_frame_data(i);
+    memset(&key, 0, sizeof(key));
+    key.ip_proto = in_rrpd->ip_proto;
+    key.stream_no = in_rrpd->stream_no;
+    key.session_id = in_rrpd->session_id;
+    key.msg_id = in_rrpd->msg_id;
 
-        if (rrpd->calculation != RTE_CALC_DNS)
-            continue;
+    rrpd = (RRPD *)wmem_map_lookup(rrpd_dns, &key);
+    if (rrpd == NULL)
+        return NULL;
 
-        /* if the input 5-tuple doesn't match the rrpd_list_entry 5-tuple -> go find the next list entry */
-        if (rrpd->ip_proto == in_rrpd->ip_proto && rrpd->stream_no == in_rrpd->stream_no)
-        {
-            if (rrpd->session_id == in_rrpd->session_id && rrpd->msg_id == in_rrpd->msg_id)
-            {
-                if (in_rrpd->c2s && rrpd->rsp_first_frame)
-                    return NULL;  /* this is new */
-                else
-                    return rrpd;
-            }
-        }  /* this is the end of the 5-tuple check */
+    if (in_rrpd->c2s && rrpd->rsp_first_frame)
+        return NULL;  /* this is new */
 
-        if (in_rrpd->c2s)
-            in_rrpd->req_search_total++;
-        else
-            in_rrpd->rsp_search_total++;
-    } /* this is the end of the for loop */
-
-    return NULL;
+    return rrpd;
 }
 
 static RRPD *find_latest_rrpd_gtcp(RRPD *in_rrpd)
 {
     RRPD *rrpd;
     wmem_list_frame_t* i;
+    unsigned steps;
 
-    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
+    for (i = rrpd_stream_tail(in_rrpd), steps = 0; i != NULL && steps < MAX_RRPD_SEARCH; i = wmem_list_frame_prev(i), steps++)
     {
         rrpd = (RRPD*)wmem_list_frame_data(i);
 
@@ -379,8 +443,9 @@ static RRPD *find_latest_rrpd_gudp(RRPD *in_rrpd)
 {
     RRPD *rrpd;
     wmem_list_frame_t* i;
+    unsigned steps;
 
-    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
+    for (i = rrpd_stream_tail(in_rrpd), steps = 0; i != NULL && steps < MAX_RRPD_SEARCH; i = wmem_list_frame_prev(i), steps++)
     {
         rrpd = (RRPD*)wmem_list_frame_data(i);
 
@@ -409,8 +474,9 @@ static RRPD *find_latest_rrpd_smb2(RRPD *in_rrpd)
 {
     RRPD *rrpd;
     wmem_list_frame_t* i;
+    unsigned steps;
 
-    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
+    for (i = rrpd_stream_tail(in_rrpd), steps = 0; i != NULL && steps < MAX_RRPD_SEARCH; i = wmem_list_frame_prev(i), steps++)
     {
         rrpd = (RRPD*)wmem_list_frame_data(i);
 
@@ -485,8 +551,9 @@ static RRPD *find_latest_rrpd_syn(RRPD *in_rrpd)
 {
     RRPD *rrpd;
     wmem_list_frame_t* i;
+    unsigned steps;
 
-    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
+    for (i = rrpd_stream_tail(in_rrpd), steps = 0; i != NULL && steps < MAX_RRPD_SEARCH; i = wmem_list_frame_prev(i), steps++)
     {
         rrpd = (RRPD*)wmem_list_frame_data(i);
 
@@ -758,6 +825,8 @@ static void init_globals(void)
     tcp_stream_exceptions = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     detected_tcp_svc = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     rrpd_list = wmem_list_new(wmem_file_scope());
+    rrpd_streams = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
+    rrpd_dns = wmem_map_new(wmem_file_scope(), rrpd_dns_hash, rrpd_dns_equal);
     temp_rsp_rrpd_list = wmem_list_new(wmem_file_scope());
 
     /* Indicate what fields we're interested in. */

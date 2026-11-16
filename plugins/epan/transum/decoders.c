@@ -166,7 +166,7 @@ int decode_smb(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info, PKT
             subpackets[i].rrpd.ip_proto = pkt_info->rrpd.ip_proto;
             subpackets[i].rrpd.stream_no = pkt_info->rrpd.stream_no;
 
-            subpackets[i].rrpd.session_id = ses_id[i];
+            subpackets[i].rrpd.session_id = (i < ses_id_count) ? ses_id[i] : 0;
             subpackets[i].rrpd.msg_id = msg_id[i];
 
             subpackets[i].rrpd.decode_based = true;
@@ -230,9 +230,9 @@ int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
      */
     if (!extract_instance_count(tree, hf_of_interest[HF_INTEREST_TCP_KEEP_ALIVE].hf, &field_value_count)) {
         if (field_value_count)
-            pkt_info->tcp_retran = true;
+            pkt_info->tcp_keep_alive = true;
         else
-            pkt_info->tcp_retran = false;
+            pkt_info->tcp_keep_alive = false;
     }
 
     /* we use the SSL Content Type to detect SSL Alerts */

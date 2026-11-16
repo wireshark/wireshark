@@ -38,6 +38,8 @@ int extract_uint(proto_tree *tree, int field_id, uint32_t *result_array, size_t 
     }
 
     *element_count = g_ptr_array_len(finfo_array);
+    if (*element_count > MAX_RETURNED_ELEMENTS)
+        *element_count = MAX_RETURNED_ELEMENTS;
 
     for (size_t i = 0; i < *element_count && i < MAX_RETURNED_ELEMENTS; i++)
     {
@@ -63,6 +65,8 @@ int extract_ui64(proto_tree *tree, int field_id, uint64_t *result_array, size_t 
     }
 
     *element_count = g_ptr_array_len(finfo_array);
+    if (*element_count > MAX_RETURNED_ELEMENTS)
+        *element_count = MAX_RETURNED_ELEMENTS;
 
     for (size_t i = 0; i < *element_count && i < MAX_RETURNED_ELEMENTS; i++)
     {
@@ -88,6 +92,8 @@ int extract_si64(proto_tree *tree, int field_id, uint64_t *result_array, size_t 
     }
 
     *element_count = g_ptr_array_len(finfo_array);
+    if (*element_count > MAX_RETURNED_ELEMENTS)
+        *element_count = MAX_RETURNED_ELEMENTS;
 
     for (size_t i = 0; i < *element_count && i < MAX_RETURNED_ELEMENTS; i++)
     {
@@ -113,6 +119,8 @@ int extract_bool(proto_tree *tree, int field_id, bool *result_array, size_t *ele
     }
 
     *element_count = g_ptr_array_len(finfo_array);
+    if (*element_count > MAX_RETURNED_ELEMENTS)
+        *element_count = MAX_RETURNED_ELEMENTS;
 
     for (size_t i = 0; i < *element_count && i < MAX_RETURNED_ELEMENTS; i++)
     {
