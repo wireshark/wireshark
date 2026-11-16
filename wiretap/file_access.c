@@ -99,6 +99,7 @@
 #include "busmaster.h"
 #include "cllog.h"
 #include "blf.h"
+#include "mdf.h"
 #include "eri_enb_log.h"
 #include "autosar_dlt.h"
 #include "rtpdump.h"
@@ -305,6 +306,7 @@ static const struct open_info open_info_base[] = {
 	/* Gammu DCT3 trace must come before MIME files as it's XML based*/
 	{ "Gammu DCT3 trace",                       OPEN_INFO_MAGIC,     dct3trace_open,           NULL,       NULL, NULL },
 	{ "Vector Informatik BLF logfile",          OPEN_INFO_MAGIC,     blf_open,                 NULL,     NULL, NULL },
+	{ "MDF Logfile",                            OPEN_INFO_MAGIC,     mdf_open,                 NULL,     NULL, NULL },
 	{ "AUTOSAR DLT Logfile",                    OPEN_INFO_MAGIC,     autosar_dlt_open,         NULL,     NULL, NULL },
 	{ "TTTech Computertechnik TTL logfile",     OPEN_INFO_MAGIC,     ttl_open,                 NULL,     NULL, NULL },
 	{ "RTPDump files",                          OPEN_INFO_MAGIC,     rtpdump_open,             NULL, NULL, NULL },

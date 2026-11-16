@@ -73,6 +73,8 @@ static const uint8_t pcap_nsec_magic[]           = { 0xA1, 0xB2, 0x3C, 0x4D };
 static const uint8_t pcap_nsec_swapped_magic[]   = { 0x4D, 0x3C, 0xB2, 0xA1 };
 static const uint8_t pcapng_premagic[]      = { 0x0A, 0x0D, 0x0D, 0x0A };
 static const uint8_t blf_magic[]                 = { 'L', 'O', 'G', 'G' };
+static const uint8_t mdf_magic_fin[]             = { 'M', 'D', 'F', ' ', ' ', ' ', ' ', ' ' };
+static const uint8_t mdf_magic_unf[]             = { 'U', 'n', 'F', 'i', 'n', 'M', 'F', ' ' };
 static const uint8_t autosar_dlt_magic[]         = { 'D', 'L', 'T', 0x01 };
 static const uint8_t ttl_magic[]		 = { 'T', 'T', 'L', ' ' };
 static const uint8_t zip_magic[]		 = { 'P', 'K', 0x03, 0x04 };
@@ -100,6 +102,8 @@ static const mime_files_t magic_files[] = {
 	{ pcap_nsec_swapped_magic, sizeof(pcap_nsec_swapped_magic) },
 	{ pcapng_premagic, sizeof(pcapng_premagic) },
 	{ blf_magic, sizeof(blf_magic) },
+	{ mdf_magic_fin, sizeof(mdf_magic_fin) },
+	{ mdf_magic_unf, sizeof(mdf_magic_unf) },
 	{ autosar_dlt_magic, sizeof(autosar_dlt_magic) },
 	{ ttl_magic, sizeof(ttl_magic) },
 	{ zip_magic, sizeof(zip_magic) },

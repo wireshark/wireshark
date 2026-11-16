@@ -100,6 +100,7 @@ void application_file_extensions(const struct file_extension_info** file_extensi
             { "Ixia IxVeriWave .vwr Raw 802.11 Capture", true, "vwr" },
             { "CAM Inspector file", true, "camins" },
             { "BLF file", true, "blf" },
+            { "MDF file", true, "mf4;mdf" },
             { "AUTOSAR DLT file", true, "dlt" },
             { "TTL file", true, "ttl" },
             { "MPEG files", false, "mpeg;mpg;mp3" },
