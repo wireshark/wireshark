@@ -2063,18 +2063,18 @@ void pn_init_append_aruuid_frame_setup_list(e_guid_t aruuid, uint32_t setup) {
 ARUUIDFrame* pn_find_aruuid_frame_setup(packet_info* pinfo) {
 
     wmem_list_frame_t* aruuid_frame;
-    ARUUIDFrame* current_aruuid_frame = NULL;
+    ARUUIDFrame* current_aruuid_frame;
 
     if (aruuid_frame_setup_list != NULL) {
         for (aruuid_frame = wmem_list_head(aruuid_frame_setup_list); aruuid_frame != NULL; aruuid_frame = wmem_list_frame_next(aruuid_frame)) {
             current_aruuid_frame = (ARUUIDFrame*)wmem_list_frame_data(aruuid_frame);
             if (current_aruuid_frame->setupframe == pinfo->num) {
-                break;
+                return current_aruuid_frame;
             }
         }
     }
 
-    return current_aruuid_frame;
+    return NULL;
 }
 
 void pn_find_dcp_station_info(stationInfo* station_info, conversation_t* conversation) {

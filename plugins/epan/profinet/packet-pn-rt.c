@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>
+#include <epan/proto_data.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
@@ -595,14 +596,20 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             fragment_head *pdu_frag;
 
             u32FragID = (u16FrameID & 0xf);
-            if (uFragNumber == 0)
-            { /* this is the first "new" fragment, so set up a new key Id */
-                uint32_t u32FrameKey;
-                u32FrameKey = (pinfo->num << 2) | u32FragID;
-                /* store it in the array */
-                start_frag_OR_ID[u32FragID] = u32FrameKey;
+            if (!PINFO_FD_VISITED(pinfo))
+            {
+                if (uFragNumber == 0)
+                { /* this is the first "new" fragment, so set up a new key Id */
+                    /* store it in the array; FragID uses 4 bits */
+                    start_frag_OR_ID[u32FragID] = (pinfo->num << 4) | u32FragID;
+                }
+                u32ReassembleID = start_frag_OR_ID[u32FragID];
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_pn_rt, 1, GUINT_TO_POINTER(u32ReassembleID));
             }
-            u32ReassembleID = start_frag_OR_ID[u32FragID];
+            else
+            {
+                u32ReassembleID = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_rt, 1));
+            }
             /* use frame data instead of "pnio fraglen" which sets 8 octet steps */
             pdu_frag = fragment_add_seq(&pdu_reassembly_table, tvb, offset,
                                         pinfo, u32ReassembleID, NULL, uFragNumber,
@@ -611,7 +618,8 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             if (pdu_frag && !bMoreFollows) /* PDU is complete! and last fragment */
             {   /* store this fragment as the completed fragment in hash table */
                 g_hash_table_insert(reassembled_frag_table, GUINT_TO_POINTER(pinfo->num), pdu_frag);
-                start_frag_OR_ID[u32FragID] = 0; /* reset the starting frame counter */
+                if (!PINFO_FD_VISITED(pinfo))
+                    start_frag_OR_ID[u32FragID] = 0; /* reset the starting frame counter */
             }
             if (!bMoreFollows) /* last fragment */
             {
@@ -621,6 +629,10 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                     uint16_t  type;
                     tvbuff_t *pdu_tvb;
 
+                    /* a reassembled frame may itself contain a FRAG PDU: do not recurse */
+                    if (p_get_proto_depth(pinfo, proto_pn_rt) > 0)
+                        return true;
+
                     /* create the new tvb for defragmented frame */
                     pdu_tvb = tvb_new_chain(tvb, pdu_frag->tvb_data);
                     /* add the defragmented data to the data source list */
@@ -628,8 +640,10 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                     /* PDU is complete: look for the Ethertype and give it to the appropriate dissection routine */
                     type = tvb_get_ntohs(pdu_tvb, 0);
                     pdu_tvb = tvb_new_subset_remaining(pdu_tvb, 2);
+                    p_set_proto_depth(pinfo, proto_pn_rt, 1);
                     if (!dissector_try_uint(ethertype_subdissector_table, type, pdu_tvb, pinfo, tree))
                         call_data_dissector(pdu_tvb, pinfo, tree);
+                    p_set_proto_depth(pinfo, proto_pn_rt, 0);
                 }
             }
             return true;
