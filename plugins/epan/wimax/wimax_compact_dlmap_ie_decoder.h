@@ -15,6 +15,8 @@
 #ifndef _WIMAX_COMPACT_DLMAP_IE_DECODER_H_
 #define _WIMAX_COMPACT_DLMAP_IE_DECODER_H_
 
+extern void wimax_reset_compact_map_state(void);
+
 extern unsigned wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned nibble_offset);
 
 #endif /* _WIMAX_COMPACT_DLMAP_IE_DECODER_H_ */

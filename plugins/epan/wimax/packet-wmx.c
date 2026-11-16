@@ -20,6 +20,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include "wimax-int.h"
 #include "wimax_tlv.h"
 #include "wimax_utils.h"
@@ -27,6 +28,16 @@
 
 void proto_register_wimax(void);
 void proto_reg_handoff_wimax(void);
+
+/*
+ * These handoff routines do not match the name of any registered
+ * protocol, so the generated plugin.c does not call them.  Call them
+ * from proto_reg_handoff_wimax().
+ */
+void proto_reg_handoff_mac_mgmt_msg_aas(void);
+void proto_reg_handoff_mac_mgmt_msg_arq(void);
+void proto_reg_handoff_mac_mgmt_msg_dreg(void);
+void proto_reg_handoff_mac_mgmt_msg_pmc(void);
 
 /*
  * Global variables
@@ -260,12 +271,21 @@ static int dissect_wimax(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree
 
 bool is_down_link(packet_info *pinfo)
 {
+	void *d;
+	bool dl;
+
 	if (pinfo->p2p_dir == P2P_DIR_RECV)
 		return true;
-	if (pinfo->p2p_dir == P2P_DIR_UNKNOWN)
-		if(bs_address.len && !cmp_address(&bs_address, &pinfo->src))
-			return true;
-	return false;
+	if (pinfo->p2p_dir != P2P_DIR_UNKNOWN)
+		return false;
+	/* Decide once per frame, so that later passes agree with the first. */
+	d = p_get_proto_data(wmem_file_scope(), pinfo, proto_wimax, 0);
+	if (d)
+		return GPOINTER_TO_UINT(d) == 2;
+	dl = bs_address.len && !cmp_address(&bs_address, &pinfo->src);
+	if (!PINFO_FD_VISITED(pinfo))
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_wimax, 0, GUINT_TO_POINTER(dl ? 2 : 1));
+	return dl;
 }
 
 
@@ -353,6 +373,10 @@ void proto_reg_handoff_wimax(void)
 {
 	wimax_proto_reg_handoff_wimax_pdu();
 	wimax_proto_reg_handoff_mac_header_generic();
+	proto_reg_handoff_mac_mgmt_msg_aas();
+	proto_reg_handoff_mac_mgmt_msg_arq();
+	proto_reg_handoff_mac_mgmt_msg_dreg();
+	proto_reg_handoff_mac_mgmt_msg_pmc();
 }
 
 /*
