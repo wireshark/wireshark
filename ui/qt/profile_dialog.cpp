@@ -534,6 +534,11 @@ void ProfileDialog::buttonBoxAccepted()
         if ((newProfile == Q_NULLPTR) || (newProfile->isDeleted() && currentDeleted))
             newProfile = model_->getProfile(model_->index(0, ProfileModel::COL_NAME));
 
+        // Switching profile reapplies the fonts, which lays out every widget,
+        // including this tree view, while the dialog is still open. The dialog
+        // is closing, so detach the view from the model first.
+        pd_ui_->profileTreeView->setModel(Q_NULLPTR);
+
         if ((currentProfile == Q_NULLPTR) ||
             (newProfile != currentProfile) ||
             (newProfile->getName().compare(get_profile_name()) != 0))
