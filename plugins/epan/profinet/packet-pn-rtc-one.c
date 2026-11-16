@@ -441,6 +441,42 @@ int hfindex, uint8_t bytelength, uint64_t *pdata)
 }
 
 
+/* Find the first object of a list with the given key, using an index that
+ * is extended with the objects added to the list since its last use. */
+wmem_list_frame_t *
+pn_obj_index_find(pnObjIndex *idx, wmem_list_t *list, bool is_iocs, bool by_slot, uint32_t key)
+{
+    wmem_list_frame_t *frame;
+
+    if (list == NULL) {
+        return NULL;
+    }
+    if (idx->map == NULL) {
+        idx->map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        idx->last = NULL;
+    }
+    frame = (idx->last != NULL) ? wmem_list_frame_next(idx->last) : wmem_list_head(list);
+    for (; frame != NULL; frame = wmem_list_frame_next(frame)) {
+        void *obj = wmem_list_frame_data(frame);
+        uint32_t k;
+        idx->last = frame;
+        if (obj == NULL) {
+            continue;
+        }
+        if (is_iocs) {
+            const iocsObject *o = (const iocsObject *)obj;
+            k = by_slot ? (((uint32_t)o->slotNr << 16) | o->subSlotNr) : o->frameOffset;
+        } else {
+            const ioDataObject *o = (const ioDataObject *)obj;
+            k = by_slot ? (((uint32_t)o->slotNr << 16) | o->subSlotNr) : o->frameOffset;
+        }
+        if (wmem_map_lookup(idx->map, GUINT_TO_POINTER(k)) == NULL) {
+            wmem_map_insert(idx->map, GUINT_TO_POINTER(k), frame);
+        }
+    }
+    return (wmem_list_frame_t *)wmem_map_lookup(idx->map, GUINT_TO_POINTER(key));
+}
+
 /* dissect a PN-IO RTC1 Cyclic Service Data Unit */
 unsigned
 dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
@@ -639,7 +675,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
         while (objectCounter--) {
             /* ---- Input IO Data Object Handling ---- */
             if (station_info != NULL) {
-                for (frame = wmem_list_head(station_info->ioobject_data_in); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                for (frame = pn_obj_index_find(&station_info->off_io_in, station_info->ioobject_data_in, false, false, frameOffset); frame != NULL; frame = NULL) {
                     io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
                     if (io_data_object->frameOffset == frameOffset) {
                         /* Found following object */
@@ -703,8 +739,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
                             offset = dissect_pn_io_ps_SB(tvb, offset, pinfo, IODataObject_tree, drep, hf_pn_io_ps_sb, ps_sb_fields);
                             offset = dissect_pn_user_data(tvb, offset, pinfo, IODataObject_tree, io_data_object->f_crc_len, "CRC");
 
-                            io_data_object->last_sb_cb = statusbyte;       /* save the value of current statusbyte */
-                            io_data_object->lastToggleBit = toggleBitSb;   /* save the value of current togglebit within statusbyte */
+                            if (!PINFO_FD_VISITED(pinfo)) {
+                                io_data_object->last_sb_cb = statusbyte;       /* save the value of current statusbyte */
+                                io_data_object->lastToggleBit = toggleBitSb;   /* save the value of current togglebit within statusbyte */
+                            }
                         }    /* END of PROFIsafe Module Handling */
 
                         else {
@@ -759,7 +797,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
                                 }
                             }
 
-                            io_data_object->moduleNameStr = wmem_strdup(wmem_file_scope(), wmem_strbuf_get_str(moduleName));
+                            if (!PINFO_FD_VISITED(pinfo) && (io_data_object->moduleNameStr == NULL ||
+                                strcmp(io_data_object->moduleNameStr, wmem_strbuf_get_str(moduleName)) != 0)) {
+                                io_data_object->moduleNameStr = wmem_strdup(wmem_file_scope(), wmem_strbuf_get_str(moduleName));
+                            }
                         }
 
                         proto_item_append_text(IODataObject_item, " ModuleName: \"%s\"", io_data_object->moduleNameStr);
@@ -781,7 +822,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
 
             /* ---- Input IOCS Object Handling ---- */
             if (station_info != NULL) {
-                for (frame = wmem_list_head(station_info->iocs_data_in); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                for (frame = pn_obj_index_find(&station_info->off_iocs_in, station_info->iocs_data_in, true, false, frameOffset); frame != NULL; frame = NULL) {
                     iocs_object = (iocsObject*)wmem_list_frame_data(frame);
                     if (iocs_object->frameOffset == frameOffset) {
                         offset = dissect_PNIO_IOCS(tvb, offset, pinfo, data_tree, drep, hf_pn_io_iocs, iocs_object->slotNr,
@@ -849,7 +890,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
         while (objectCounter--) {
             /* ---- Output IO Data Object Handling ---- */
             if (station_info != NULL) {
-                for (frame = wmem_list_head(station_info->ioobject_data_out); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                for (frame = pn_obj_index_find(&station_info->off_io_out, station_info->ioobject_data_out, false, false, frameOffset); frame != NULL; frame = NULL) {
                     io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
                     if (io_data_object != NULL && io_data_object->frameOffset == frameOffset) {
                         /* Found following object */
@@ -912,8 +953,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
                             offset = dissect_pn_io_ps_CB(tvb, offset, pinfo, IODataObject_tree, drep, hf_pn_io_ps_cb, ps_cb_fields);
                             offset = dissect_pn_user_data(tvb, offset, pinfo, IODataObject_tree, io_data_object->f_crc_len, "CRC");
 
-                            io_data_object->last_sb_cb = controlbyte;         /* save the value of current controlbyte */
-                            io_data_object->lastToggleBit = toggleBitCb;      /* save the value of current togglebit within controlbyte */
+                            if (!PINFO_FD_VISITED(pinfo)) {
+                                io_data_object->last_sb_cb = controlbyte;         /* save the value of current controlbyte */
+                                io_data_object->lastToggleBit = toggleBitCb;      /* save the value of current togglebit within controlbyte */
+                            }
                         }    /* End of PROFIsafe Module Handling */
                         else {
                             /* Module is not PROFIsafe supported */
@@ -967,7 +1010,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
                                 }
                             }
 
-                            io_data_object->moduleNameStr = wmem_strdup(wmem_file_scope(), wmem_strbuf_get_str(moduleName));
+                            if (!PINFO_FD_VISITED(pinfo) && (io_data_object->moduleNameStr == NULL ||
+                                strcmp(io_data_object->moduleNameStr, wmem_strbuf_get_str(moduleName)) != 0)) {
+                                io_data_object->moduleNameStr = wmem_strdup(wmem_file_scope(), wmem_strbuf_get_str(moduleName));
+                            }
                         }
 
                         proto_item_append_text(IODataObject_item, " ModuleName: \"%s\"", io_data_object->moduleNameStr);
@@ -988,7 +1034,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
 
             /* ---- Output IOCS Object Handling ---- */
             if (station_info != NULL) {
-                for (frame = wmem_list_head(station_info->iocs_data_out); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                for (frame = pn_obj_index_find(&station_info->off_iocs_out, station_info->iocs_data_out, true, false, frameOffset); frame != NULL; frame = NULL) {
                     iocs_object = (iocsObject*)wmem_list_frame_data(frame);
                     if (iocs_object->frameOffset == frameOffset) {
                         offset = dissect_PNIO_IOCS(tvb, offset, pinfo, data_tree, drep, hf_pn_io_iocs, iocs_object->slotNr,
