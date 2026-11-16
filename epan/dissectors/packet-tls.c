@@ -273,7 +273,7 @@ static const char *ssl_debug_file_name;
 static uint32_t tls_stream_count;
 
 /* Forward declaration we need below */
-void proto_reg_handoff_ssl(void);
+void proto_reg_handoff_tls(void);
 
 /* Desegmentation of TLS streams */
 /* table to hold defragmented TLS streams */
@@ -5150,7 +5150,7 @@ proto_register_tls(void)
     expert_register_field_array(expert_ssl, ei, array_length(ei));
 
     {
-        module_t *ssl_module = prefs_register_protocol(proto_tls, proto_reg_handoff_ssl);
+        module_t *ssl_module = prefs_register_protocol(proto_tls, proto_reg_handoff_tls);
 
 #ifdef HAVE_LIBGNUTLS
         static uat_field_t sslkeylist_uats_flds[] = {
@@ -5265,7 +5265,7 @@ static int dissect_tls_sct_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  * these routines and create the code that calls these routines.
  */
 void
-proto_reg_handoff_ssl(void)
+proto_reg_handoff_tls(void)
 {
     if (files_identical(ssl_debug_file_name, ssl_options.keylog_filename)) {
         report_failure("The TLS debug file (\"%s\") cannot point to the same "
