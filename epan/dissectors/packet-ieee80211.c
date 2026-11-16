@@ -29260,7 +29260,7 @@ dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
                            int *found_link_id)
 {
   proto_tree *subelt_tree = NULL, *sta_info_tree = NULL;
-  int offset = 0;
+  int offset = 0, sta_info_offset;
   int len = tvb_captured_length_remaining(tvb, offset);
   uint16_t sta_control = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
   uint8_t sta_info_len = 0;
@@ -29288,6 +29288,7 @@ dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
       return len;
     }
 
+    sta_info_offset = offset;
     sta_info_len = tvb_get_uint8(tvb, offset);
     sta_info_tree = proto_tree_add_subtree(subelt_tree, tvb, offset,
                                            sta_info_len,
@@ -29348,6 +29349,9 @@ dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
                       hf_ieee80211_eht_sta_profile_bss_params_change_count,
                       tvb, offset, 1, ENC_NA);
       offset += 1;
+    }
+    if (offset < sta_info_offset + sta_info_len) {
+      offset = sta_info_offset + sta_info_len;
     }
     break;
   case PROBE_MULTI_LINK:
@@ -29453,6 +29457,7 @@ dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
       return len;
     }
 
+    sta_info_offset = offset;
     sta_info_len = tvb_get_uint8(tvb, offset);
     sta_info_tree = proto_tree_add_subtree(subelt_tree, tvb, offset, sta_info_len,
                                            ett_eht_multi_link_per_sta_info,
@@ -29503,6 +29508,9 @@ dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
                           hf_ieee80211_eht_sta_profile_info_bitmap,
                           tvb, offset, bitmap_size, ENC_NA);
       offset += bitmap_size;
+    }
+    if (offset < sta_info_offset + sta_info_len) {
+      offset = sta_info_offset + sta_info_len;
     }
     break;
   case TDLS_MULTI_LINK:
@@ -29711,6 +29719,7 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   uint16_t present = multi_link_control >> 4;
   int elt = 0, hf_index;
   wmem_strbuf_t *link_id_list = wmem_strbuf_create(pinfo->pool);
+  int info_offset;
 
   control = proto_tree_add_item(tree, hf_ieee80211_eht_multi_link_control, tvb,
                                 offset, 2, ENC_LITTLE_ENDIAN);
@@ -29799,6 +29808,7 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     return;
   }
   offset += 2;
+  info_offset = offset;
 
   switch (multi_link_type) {
   case BASIC_MULTI_LINK:
@@ -29958,6 +29968,9 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     /* We should not reach here as we filtered out non-valid values above */
     DISSECTOR_ASSERT_NOT_REACHED();
   }
+  /* Detect unknown/reserved subfields to avoid malformed */
+  if (offset < info_offset + common_info_len)
+    offset = info_offset + common_info_len;
 
   /* Handle the link info. It is 0 or more subelements */
   while (tvb_reported_length_remaining(tvb, offset)) {
