@@ -948,7 +948,7 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset,
                     hf_pn_rsi_vendor_id, &u16VendorId);
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
                     hf_pn_rsi_device_id, &u16DeviceId);
-                offset = dissect_pn_user_data(tvb, offset, pinfo, rta_tree, tvb_captured_length(tvb) - offset - 16, "Data");
+                offset = dissect_pn_user_data(tvb, offset, pinfo, rta_tree, tvb_captured_length_remaining(tvb, offset) - u8LengthSecurityChecksum, "Data");
             }
             break;
         case(5):    /* FREQ-RTA */
@@ -1457,5 +1457,6 @@ init_pn_rsi(int proto)
     expert_pn_rsi = expert_register_protocol(proto_pn_rsi);
     expert_register_field_array(expert_pn_rsi, ei, array_length(ei));
 
-    register_init_routine(pn_rsi_reassemble_init);
+    /* register the reassembly table once, not on every file open */
+    pn_rsi_reassemble_init();
 }
