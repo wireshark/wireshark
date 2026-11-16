@@ -161,7 +161,7 @@ static lls_slt_value_t *
 get_lls_slt_val(packet_info *pinfo) {
     /* This routine is for ATSC3 ALC/LCT packets (ipv4 only protocol by design)
        so ipv6 is not supported by this test */
-    if (!(pinfo->net_src.type == AT_IPv4)) {
+    if (pinfo->net_src.type != AT_IPv4 || pinfo->net_dst.type != AT_IPv4) {
         return NULL;
     }
 
@@ -171,9 +171,10 @@ get_lls_slt_val(packet_info *pinfo) {
     }
 
     /* Prepare for lookup in LLS SLT table */
+    /* The address data may point into the packet, and so not be aligned. */
     lls_slt_key_t slt_key;
-    slt_key.src_ip = *(uint32_t *)pinfo->net_src.data;
-    slt_key.dst_ip = *(uint32_t *)pinfo->net_dst.data;
+    memcpy(&slt_key.src_ip, pinfo->net_src.data, sizeof slt_key.src_ip);
+    memcpy(&slt_key.dst_ip, pinfo->net_dst.data, sizeof slt_key.dst_ip);
     slt_key.dst_port = (uint16_t)pinfo->destport;
 
     /* Try to lookup by src_ip + dst_ip + dst_port */
