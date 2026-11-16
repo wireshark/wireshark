@@ -37,33 +37,16 @@ ws_uninstall_path_helper = 'Remove Wireshark from the system path.pkg'
 # Uncomment to override the output volume name
 # volume_name = 'Wireshark ' + ws_version
 
-# From the hdiutil man page:
+# Volume format. See `diskutil image create from --help` or the diskutil
+# man page or
+# https://eclecticlight.co/2025/04/05/a-brief-history-of-disk-images-on-the-mac/
 # UDZO - UDIF zlib-compressed image
-# UDBZ - UDIF bzip2-compressed image (Mac OS X 10.4+ only)
+# UDBZ – UDIF bzip2-compressed image (deprecated)
 # ULFO - UDIF lzfse-compressed image (OS X 10.11+ only)
 # ULMO - UDIF lzma-compressed image (macOS 10.15+ only)
-# Volume format (see hdiutil create -help)
 #
-# A test with the following bundles resulted in the following .dmg sizes,
-# measured with `du -sm`:
-# 182     Wireshark.app
-# 267     Wireshark.dSYM
-#
-# UDBZ
-# 51      Wireshark 3.7.0 Intel 64.dmg
-# 81      Wireshark dSYM 3.7.0 Intel 64.dmg
-#
-# ULFO
-# 51      Wireshark 3.7.0 Intel 64.dmg
-# 81      Wireshark dSYM 3.7.0 Intel 64.dmg
-#
-# ULMO
-# 40      Wireshark 3.7.0 Intel 64.dmg
-# 50      Wireshark dSYM 3.7.0 Intel 64.dmg
-
-# https://developer.apple.com/forums/thread/128166
-# currently (Jan 2023) says to use UDZO
-format = defines.get('format', 'UDZO')
+# diskutil uses ULFO by default.
+format = defines.get('format', 'ULFO')
 
 # Compression level (if relevant)
 compression_level = 9

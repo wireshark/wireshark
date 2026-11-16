@@ -32,17 +32,16 @@ ws_readme_dsym = 'Debugging symbols installation.html'
 # Uncomment to override the output volume name
 # volume_name = 'Wireshark ' + ws_version
 
-# From the hdiutil man page:
+# Volume format. See `diskutil image create from --help` or the diskutil
+# man page or
+# https://eclecticlight.co/2025/04/05/a-brief-history-of-disk-images-on-the-mac/
 # UDZO - UDIF zlib-compressed image
-# UDBZ - UDIF bzip2-compressed image (Mac OS X 10.4+ only)
+# UDBZ – UDIF bzip2-compressed image (deprecated)
 # ULFO - UDIF lzfse-compressed image (OS X 10.11+ only)
 # ULMO - UDIF lzma-compressed image (macOS 10.15+ only)
-# Volume format (see hdiutil create -help)
-
-# dSYMs are huge, so compress them with UDBZ despite what
-# https://developer.apple.com/forums/thread/128166
-# currently (Jan 2023) says.
-format = defines.get('format', 'UDBZ')
+#
+# diskutil uses ULFO by default, but ULMO creates smaller images.
+format = defines.get('format', 'ULMO')
 
 # Compression level (if relevant)
 compression_level = 9
