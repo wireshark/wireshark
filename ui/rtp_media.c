@@ -230,8 +230,9 @@ decode_iuup_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_has
     iuup_frame_nr = rp->payload_data[0] & 0x0f;
     iuup_fqc = rp->payload_data[1] >> 6;
     iuup_payload = rp->payload_data + iuup_hdr_len;
+    if (rp->info->info_payload_len - iuup_hdr_len > UINT8_MAX)
+        goto ret_err;
     iuup_payload_len = rp->info->info_payload_len - iuup_hdr_len;
-    ws_assert(rp->info->info_payload_len - iuup_hdr_len < sizeof(uint8_t));
 
     /* Figure out AMR FT from size: */
     amr_ft = amr_nb_bytes_to_ft(iuup_payload_len);
@@ -304,10 +305,9 @@ rtp_decoder_value_destroy(void *dec_arg)
 {
     rtp_decoder_t *dec = (rtp_decoder_t *)dec_arg;
 
-    if (dec->handle) {
+    if (dec->handle)
         codec_release(dec->handle, dec->context);
-        g_free(dec->context);
-    }
+    g_free(dec->context);
     g_free(dec_arg);
 }
 
