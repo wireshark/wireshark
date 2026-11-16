@@ -89,7 +89,7 @@ codec_l16_decode(codec_context_t *ctx _U_,
         dataOut[i] = (int16_t)(tmp / channels);
     }
 
-    *outputSamplesSize = inputBytesSize/channels;
+    *outputSamplesSize = i * 2;
     return *outputSamplesSize;
 }
 

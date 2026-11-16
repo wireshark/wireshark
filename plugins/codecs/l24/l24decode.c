@@ -92,7 +92,7 @@ codec_l24_decode(codec_context_t *ctx _U_,
         }
         dataOut[i] = (int16_t)(tmp / channels);
     }
-    *outputSamplesSize = inputBytesSize * 2 / 3 / channels;
+    *outputSamplesSize = i * 2;
     return *outputSamplesSize;
 }
 
