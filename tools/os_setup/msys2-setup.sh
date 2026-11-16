@@ -64,6 +64,7 @@ PACKAGE_PREFIX="${MINGW_PACKAGE_PREFIX:-mingw-w64-x86_64}"
 # (though we don't apply that patch yet.)
 #
 BASIC_LIST="base-devel \
+	flex \
 	git \
 	${PACKAGE_PREFIX}-bcg729 \
 	${PACKAGE_PREFIX}-brotli \
