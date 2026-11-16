@@ -16,6 +16,7 @@
 #define _WIMAX_COMPACT_DLMAP_IE_DECODER_H_
 
 extern unsigned harq_mode;
+extern void wimax_reset_compact_map_state(void);
 extern unsigned cid_type;
 extern unsigned band_amc_subchannel_type;
 extern unsigned num_of_broadcast_symbols;

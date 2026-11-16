@@ -1858,7 +1858,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(unsigned sfe_typ
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "ATM Classifier TLV error");
-							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), ENC_NA);
+							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, tlv_offset, (offset + tlv_len - tlv_offset), ENC_NA);
 							break;
 						}
 #ifdef DEBUG /* for debug only */
@@ -1925,7 +1925,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(unsigned sfe_typ
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Packet Classification Rule TLV error");
-							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), ENC_NA);
+							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, tlv_offset, (offset + tlv_len - tlv_offset), ENC_NA);
 							break;
 						}
 #ifdef DEBUG /* for debug only */
@@ -2081,7 +2081,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(unsigned sfe_typ
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PHS n Rule TLV error");
-							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), ENC_NA);
+							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, tlv_offset, (offset + tlv_len - tlv_offset), ENC_NA);
 							break;
 						}
 #ifdef DEBUG /* for debug only */
@@ -2509,7 +2509,7 @@ void wimax_short_hmac_tuple_decoder(proto_tree *tree, tvbuff_t *tvb, unsigned of
 	hmac_offset++;
 	proto_tree_add_item(hmac_tree, hf_packet_number_counter, tvb, hmac_offset, 4, ENC_BIG_ENDIAN);
 	hmac_offset += 4;
-	proto_tree_add_item(hmac_tree, hf_hmac_tuple_hmac_digest, tvb, hmac_offset, length - offset - 3, ENC_NA);
+	proto_tree_add_item(hmac_tree, hf_hmac_tuple_hmac_digest, tvb, hmac_offset, length - 5, ENC_NA);
 }
 
 /******************************************************************/
