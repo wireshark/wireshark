@@ -53,8 +53,9 @@ For Wireshark, Stratoshark, or any of their associated utilities, please open a 
   It is also helpful if any files that you provide have unique, descriptive names, such as *http-reassembly-overflow.pcap*.
   Note that we also use capture files attached to issues for fuzz testing; if your file contains confidential information please make this clear.
 
-Alternatively you can send an email to security[AT]wireshark.org.
-In that case the contents of the email will be pasted into a new confidential GitLab issue by a security team member.
+You may send an email to security[AT]wireshark.org, but it is strongly recommended that you open a confidential issue as described above.
+Email runs the risk of ending up in a spam folder.
+If you do send an email, the contents of your message will be pasted into a new confidential GitLab issue by a security team member.
 If you open the confidential issue yourself, then you, along with the core development team, will be able to view the issue while logged in to GitLab.
 If a security team member creates the issue, then you will not be able to view the issue and further participate in the process without your GitLab user being added to the issue, which adds some additional friction.
 
