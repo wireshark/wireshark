@@ -25,6 +25,7 @@
 #define ILBC_PAYLOAD_LEN_20MS 38
 #define ILBC_PAYLOAD_LEN_30MS 50
 #define SAMPLE_SIZE 2
+#define ILBC_MAX_FRAMES 3
 
 typedef struct {
 #ifdef LIBILBC_VERSION_MAJOR
@@ -82,6 +83,12 @@ codec_iLBC_decode(codec_context_t *ctx,
     int16_t *dataOut = (int16_t *)outputSamples;
     ilbc_ctx_t *dataCtx = (ilbc_ctx_t *)ctx->priv;
     size_t outputSamplesCount, outputFramesCount;
+    int ret;
+
+    /* The library decodes only one to three frames per call; anything
+     * else makes it return an error. */
+    if (inputBytesSize > ILBC_MAX_FRAMES * ILBC_PAYLOAD_LEN_30MS)
+        return 0;
 
     if (!outputSamples || !outputSamplesSize)
     {
@@ -111,16 +118,18 @@ codec_iLBC_decode(codec_context_t *ctx,
             WebRtcIlbcfix_DecoderInit(dataCtx->ilbc_ctx, ILBC_20MS);
             dataCtx->payload_len = ILBC_20MS;
         }
-        outputSamplesCount = WebRtcIlbcfix_Decode(dataCtx->ilbc_ctx, dataIn,
+        ret = WebRtcIlbcfix_Decode(dataCtx->ilbc_ctx, dataIn,
                                (int16_t)inputBytesSize, dataOut, &speechType);
+        outputSamplesCount = ret > 0 ? (size_t)ret : 0;
     } else if (0 == inputBytesSize%ILBC_PAYLOAD_LEN_30MS) {
         /* 30ms packet size */
         if (dataCtx->payload_len != ILBC_30MS) {
             WebRtcIlbcfix_DecoderInit(dataCtx->ilbc_ctx, ILBC_30MS);
             dataCtx->payload_len = ILBC_30MS;
         }
-        outputSamplesCount = WebRtcIlbcfix_Decode(dataCtx->ilbc_ctx, dataIn,
+        ret = WebRtcIlbcfix_Decode(dataCtx->ilbc_ctx, dataIn,
                                (int16_t)inputBytesSize, dataOut, &speechType);
+        outputSamplesCount = ret > 0 ? (size_t)ret : 0;
     } else {
         /* unknown packet size */
         outputSamplesCount = 0;
