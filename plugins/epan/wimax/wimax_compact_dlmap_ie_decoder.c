@@ -41,6 +41,22 @@ unsigned num_of_ul_band_amc_symbols;
 /* from switch HARQ mode extension IE */
 unsigned harq_mode;
 
+/*
+ * Reset the state shared by the compact DL-MAP and UL-MAP IE decoders to
+ * its defaults.  Called at the start of each map, so that the decoding
+ * of a map does not depend on the maps dissected before it.
+ */
+void wimax_reset_compact_map_state(void)
+{
+	cid_type = 0;
+	band_amc_subchannel_type = 0;
+	max_logical_bands = 12;
+	num_of_broadcast_symbols = 0;
+	num_of_dl_band_amc_symbols = 0;
+	num_of_ul_band_amc_symbols = 0;
+	harq_mode = 0;
+}
+
 /* forward reference */
 static unsigned wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned nibble_offset);
 static unsigned wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned nibble_offset);
