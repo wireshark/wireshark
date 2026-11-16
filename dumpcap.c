@@ -1149,6 +1149,18 @@ print_statistics_loop(bool machine_readable)
         }
 #endif
 
+        /* Opening a D-Bus "interface" (dbus-system, dbus-session or
+         * dbus://<address>) subscribes to all traffic on the bus. We never
+         * read packets here, so that traffic queues up in the bus daemon
+         * and its clients, which can stall the whole system bus. libpcap
+         * only counts the D-Bus messages it has read, so the statistics
+         * would be zero anyway. We avoid collecting stats on them.
+         */
+        if (!strncmp(if_info->name, "dbus", 4)) {
+            ws_debug("Skipping interface %s for stats", if_info->name);
+            continue;
+        }
+
 #ifdef HAVE_PCAP_OPEN
 	/*
 	 * If we're opening a remote device, use pcap_open(); that's currently
