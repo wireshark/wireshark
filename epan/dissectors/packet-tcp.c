@@ -4720,6 +4720,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
     proto_item *item;
     proto_tree *tree;
     proto_tree *flags_tree=NULL;
+    uint16_t    shown_flags;
 
     if (!tcpd) {
         return;
@@ -4772,7 +4773,16 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
         tcp_sequence_number_analysis_print_push_bytes_sent(pinfo, tvb, tree, ta);
     }
 
-    if(ta->flags) {
+    /* TCP_A_OLD_DATA is set by the reassembly code, not by sequence analysis,
+     * and has no analysis annotation of its own. On a capture-level duplicate
+     * (whose retransmission bits were cleared) it would otherwise leave an
+     * empty [TCP Analysis Flags] item that matches tcp.analysis.flags and so
+     * colors the duplicate as a bad TCP segment / retransmission. */
+    shown_flags = ta->flags;
+    if (tcp_detect_duplicate_packets && ta->dup_count > 1)
+        shown_flags &= ~TCP_A_OLD_DATA;
+
+    if(shown_flags) {
         item = proto_tree_add_item(tree, hf_tcp_analysis_flags, tvb, 0, 0, ENC_NA);
         proto_item_set_generated(item);
         flags_tree=proto_item_add_subtree(item, ett_tcp_analysis);
