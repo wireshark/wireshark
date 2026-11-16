@@ -31,6 +31,14 @@ extern int proto_pn_io_station_info;
 
 extern bool pnio_ps_selection;  /* given by pnio preferences */
 
+/* Lazily maintained hash index over one of the object lists of a station.
+ * The index is brought up to date from the list when it is used; the lists
+ * only ever grow. The first object in list order wins for a key. */
+typedef struct tagPnObjIndex {
+    wmem_map_t        *map;   /* Key to wmem_list_frame_t of the object, NULL until first use. */
+    wmem_list_frame_t *last;  /* Last list entry already indexed. */
+} pnObjIndex;
+
 /* Structure for general station information */
 typedef struct tagStationInfo {
     /* general information */
@@ -55,6 +63,17 @@ typedef struct tagStationInfo {
     wmem_list_t *ioobject_data_out;
     /* Different ModuleIdentnumber */
     wmem_list_t *diff_module;
+
+    /* Indexes of the lists above, by frame offset and by slot/subslot */
+    pnObjIndex off_io_in;
+    pnObjIndex off_io_out;
+    pnObjIndex off_iocs_in;
+    pnObjIndex off_iocs_out;
+    pnObjIndex slot_io_in;
+    pnObjIndex slot_io_out;
+    pnObjIndex slot_iocs_in;
+    pnObjIndex slot_iocs_out;
+
     /* Flag for the extraction of PNIO Objects without AR */
     bool filled_with_objects;
 } stationInfo;
@@ -123,6 +142,10 @@ extern void init_pn_rsi(int proto);
 extern void pn_rsi_reassemble_init(void);
 
 extern void init_pnio_rtc1_station(stationInfo *station_info);
+
+/* Find an object of a station list by frame offset or by slot/subslot in O(1). */
+extern wmem_list_frame_t *pn_obj_index_find(pnObjIndex *idx, wmem_list_t *list,
+    bool is_iocs, bool by_slot, uint32_t key);
 
 extern int dissect_pn_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo,
                   proto_tree *tree, int hfindex, uint8_t *pdata);
