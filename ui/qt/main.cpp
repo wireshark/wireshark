@@ -648,6 +648,12 @@ int main(int argc, char *qt_argv[])
      g_setenv("QT_QPA_PLATFORM", "windows:altgr", 0);
 #endif
 
+    /* Set the desktop file name before creating the application. On Linux and
+     * other desktops with an XDG desktop portal, the theme manager makes a
+     * portal request when initialized in the MainApplication base class, so
+     * setting the name in the WiresharkApplication constructor is too late. */
+    QGuiApplication::setDesktopFileName(QStringLiteral("org.wireshark.Wireshark"));
+
     /* Create The Wireshark app */
     WiresharkApplication ws_app(argc, qt_argv);
 
