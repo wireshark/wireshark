@@ -405,7 +405,7 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DL Burst Profile TLV error");
-							proto_tree_add_item(tlv_tree, hf_dcd_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), ENC_NA);
+							proto_tree_add_item(tlv_tree, hf_dcd_invalid_tlv, tvb, offset + tlv_offset, tlv_len - tlv_offset, ENC_NA);
 							break;
 						}
 
@@ -647,7 +647,7 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Trigger TLV error");
-							proto_tree_add_item(tlv_tree, hf_dcd_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), ENC_NA);
+							proto_tree_add_item(tlv_tree, hf_dcd_invalid_tlv, tvb, offset + tlv_offset, tlv_len - tlv_offset, ENC_NA);
 							break;
 						}
 						/* update the offset */

@@ -296,7 +296,7 @@ static int dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinf
 						(include_cor2_changes && (tlv_type == SHORT_HMAC_TUPLE_COR2))) {
 						/* decode and display the Short HMAC Tuple */
 						tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, offset, tlv_len, "Short HMAC Tuple");
-						wimax_short_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tvb_len - offset);
+						wimax_short_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
 					} else {
 						/* Unknown TLV Type */
 						add_tlv_subtree(&tlv_info, rng_req_tree, hf_tlv_type, tvb, offset, ENC_NA);
