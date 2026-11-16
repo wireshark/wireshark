@@ -45,7 +45,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'test'))
-import dissection_select  # noqa: E402
+import dissection_select
 
 SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CAPTURE_DIR = os.path.join(SRC_DIR, 'test', 'captures')
@@ -72,8 +72,8 @@ DECODE_AS_RE = re.compile(r'^[\w.-]+(?:==|:)[^,\s]+,([\w.-]+)$')
 PREF_RE = re.compile(r'^([\w.-]+)\.[\w.-]+:')
 FILTER_RE = re.compile(r'^[\s!()]*[\w.-]+(?:[\s()]*(?:&&|\|\||\band\b|\bor\b)[\s!()]*[\w.-]+)*[\s()]*$')
 REGISTER_RE = re.compile(
-    r'\bproto_register_protocol(?:_in_name_only)?\s*\(([^;]*?)\)\s*;', re.S)
-DEFINE_RE = re.compile(r'^\s*#\s*define\s+(\w+)\s+"([^"]*)"', re.M)
+    r'\bproto_register_protocol(?:_in_name_only)?\s*\(([^;]*?)\)\s*;', re.DOTALL)
+DEFINE_RE = re.compile(r'^\s*#\s*define\s+(\w+)\s+"([^"]*)"', re.MULTILINE)
 STRVAR_RE = re.compile(r'\b(\w+)\s*(?:\[\s*\])?\s*=\s*"([^"]*)"\s*;')
 
 
@@ -120,7 +120,7 @@ def leaf_protocols(tshark, capture, opts):
         proc = subprocess.run([tshark, '-n', '-r', path, *args, '-Tfields',
                                '-e', 'frame.protocols'],
                               capture_output=True, encoding='utf-8',
-                              errors='replace', env=env, timeout=600)
+                              errors='replace', env=env, timeout=600, check=False)
         if proc.returncode == 0 or proc.stdout:
             break
     leaves = set()

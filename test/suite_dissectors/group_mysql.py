@@ -969,7 +969,7 @@ class TestMySQL:
         print(summary)
 
         for pkt, summ in summary.items():
-            for mysqlpkt in summary[pkt]:
+            for mysqlpkt in summ:
                 assert (
                     summ[mysqlpkt]["showname"]
                     == expected[pkt][mysqlpkt]["showname"]
@@ -1330,7 +1330,7 @@ class TestMySQL:
         print(summary)
 
         for pkt, summ in summary.items():
-            for mysqlpkt in summary[pkt]:
+            for mysqlpkt in summ:
                 assert (
                     summ[mysqlpkt]["showname"]
                     == expected[pkt][mysqlpkt]["showname"]

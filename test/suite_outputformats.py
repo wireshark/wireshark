@@ -26,7 +26,8 @@ def check_outputformat(cmd_tshark, request, dirs, capture_file):
 
         # If a filename is given, load the expected values from those.
         if isinstance(expected, str):
-            testdata = open(os.path.join(dirs.baseline_dir, expected)).read()
+            with open(os.path.join(dirs.baseline_dir, expected)) as f:
+                testdata = f.read()
             if multiline:
                 expected = [json.loads(line) for line in testdata.splitlines()]
             else:

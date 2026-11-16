@@ -247,11 +247,11 @@ def retrieve_uuids():
                     was_upper = False
                     name = ""
                     for character in uuid["name"]:
-                        is_upper = True if character.isupper() else False
+                        is_upper = character.isupper()
                         if is_upper and not was_break and not was_upper:
                             name += " "
                         name += character
-                        was_break = True if character in break_chars else False
+                        was_break = character in break_chars
                         was_upper = is_upper
                     uuid["name"] = name
 

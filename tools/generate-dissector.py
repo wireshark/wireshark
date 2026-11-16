@@ -18,6 +18,11 @@
 
 import argparse
 import os
+
+
+class DissectorGenerationError(Exception):
+    pass
+
 from datetime import datetime
 
 parser = argparse.ArgumentParser(description='The Wireshark Dissector Generator')
@@ -85,7 +90,7 @@ def replace_fields(buffer, args):
 def write_dissector(buffer, args):
     ofile = output_file(args)
     if os.path.isfile(ofile) and not args.force:
-        raise Exception("The file " + ofile + " already exists. You're likely overwriting an existing dissector.")
+        raise DissectorGenerationError("The file " + ofile + " already exists. You're likely overwriting an existing dissector.")
     print("Writing output file: " + ofile)
     return open(ofile, "w").write(buffer)
 
@@ -103,18 +108,20 @@ def patch_makefile(args):
     output = ""
     in_group = False
     patched = False
-    for line in open(cmakefile):
-        line_strip = line.strip()
-        if in_group and line_strip == ")":
-            in_group = False
-        if in_group and not patched and line_strip > patchline:
-            output += patchline + "\n"
-            patched = True
-        if line_strip == groupstart:
-            in_group = True
-        if line_strip != patchline:
-            output += line
-    open(cmakefile, "w").write(output)
+    with open(cmakefile) as f:
+        for line in f:
+            line_strip = line.strip()
+            if in_group and line_strip == ")":
+                in_group = False
+            if in_group and not patched and line_strip > patchline:
+                output += patchline + "\n"
+                patched = True
+            if line_strip == groupstart:
+                in_group = True
+            if line_strip != patchline:
+                output += line
+    with open(cmakefile, "w") as f:
+        f.write(output)
 
 
 def write_plugin_makefile(args):

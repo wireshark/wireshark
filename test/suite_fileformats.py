@@ -17,7 +17,6 @@ import subprocess
 from pathlib import PurePath
 
 import pytest
-
 from subprocesstest import count_output
 
 # XXX Currently unused. It would be nice to be able to use this below.

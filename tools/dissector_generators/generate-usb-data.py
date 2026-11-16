@@ -174,19 +174,17 @@ h_header="""/* data-usb.h
  #include <wsutil/value_string.h>
 """
 
-f = open('epan/dissectors/data-usb.c', 'w')
-f.write(c_header)
-f.write("\n")
-f.write(vendors_str)
-f.write("\n\n")
-f.write(products_str)
-f.close()
+with open('epan/dissectors/data-usb.c', 'w') as f:
+    f.write(c_header)
+    f.write("\n")
+    f.write(vendors_str)
+    f.write("\n\n")
+    f.write(products_str)
 
-f = open('epan/dissectors/data-usb.h', 'w')
-f.write(h_header)
-f.write("\n")
-f.write("extern value_string_ext ext_usb_vendors_vals;\n")
-f.write("extern value_string_ext ext_usb_products_vals;\n")
-f.close()
+with open('epan/dissectors/data-usb.h', 'w') as f:
+    f.write(h_header)
+    f.write("\n")
+    f.write("extern value_string_ext ext_usb_vendors_vals;\n")
+    f.write("extern value_string_ext ext_usb_products_vals;\n")
 
 print("Success!")

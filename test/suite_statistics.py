@@ -8,7 +8,6 @@
 '''Statistics tap tests'''
 
 import subprocess
-import pytest
 
 
 class TestMkaConnectivityAssociations:
@@ -51,5 +50,5 @@ class TestMkaConnectivityAssociations:
                 '-r', capture_file('mka_ca.pcapng'),
                 '-q',
                 '-z', 'mka,ca,eapol',
-            ), capture_output=True, encoding='utf-8', env=test_env)
+            ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         assert completed.returncode == 0

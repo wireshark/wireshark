@@ -12,8 +12,7 @@ def check_system_perl_module(conf, module, version=None):
         module_check = module + ' ' + str(version)
 
     # Check for system perl module
-    if conf.check_perl_module(module_check) is None:
-        return False
+    return conf.check_perl_module(module_check) is not None
 
     return True
 

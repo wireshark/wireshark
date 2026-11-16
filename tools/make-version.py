@@ -36,6 +36,10 @@ import subprocess
 import sys
 from enum import Enum
 
+
+class MakeVersionError(Exception):
+    pass
+
 Flavor = Enum('Flavor', ['Wireshark', 'Stratoshark'])
 
 GIT_ABBREV_LENGTH = 12
@@ -275,11 +279,11 @@ def get_version(cmakelists_file_data, flavor):
     patch_match = re.search(PATCH_PATTERN, cmakelists_file_data, re.MULTILINE)
 
     if not major_match:
-        raise Exception(f"Couldn't get {flavor.name} major version")
+        raise MakeVersionError(f"Couldn't get {flavor.name} major version")
     if not minor_match:
-        raise Exception(f"Couldn't get {flavor.name} minor version")
+        raise MakeVersionError(f"Couldn't get {flavor.name} minor version")
     if not patch_match:
-        raise Exception(f"Couldn't get {flavor.name} patch version")
+        raise MakeVersionError(f"Couldn't get {flavor.name} patch version")
 
     major_version = major_match.groups()[0]
     minor_version = minor_match.groups()[0]
@@ -435,7 +439,7 @@ def read_repo_info(src_dir, tagged_version_extra, untagged_version_extra):
     elif os.path.exists(src_dir + os.sep + '.git') and not os.path.exists(os.path.join(src_dir, '.git', 'svn')):
         repo_data = read_git_repo(src_dir, tagged_version_extra, untagged_version_extra)
     else:
-        raise Exception(src_dir + " does not appear to be a git repo or git archive!")
+        raise MakeVersionError(src_dir + " does not appear to be a git repo or git archive!")
 
     return repo_data
 

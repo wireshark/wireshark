@@ -24,8 +24,8 @@ def main():
 
     dhcp_pcap = os.path.join(os.path.dirname(__file__), 'captures', 'dhcp.pcap')
 
-    dhcp_fd = open(dhcp_pcap, 'rb')
-    contents = dhcp_fd.read()
+    with open(dhcp_pcap, 'rb') as dhcp_fd:
+        contents = dhcp_fd.read()
     if args.dump_type != 'raw':
         os.write(1, contents)
     if args.dump_type == 'cat100':

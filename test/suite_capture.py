@@ -20,7 +20,6 @@ import time
 import uuid
 
 import pytest
-
 import subprocesstest
 from subprocesstest import (
     cat_cap_file_command,

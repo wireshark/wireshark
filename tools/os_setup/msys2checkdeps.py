@@ -158,10 +158,9 @@ if __name__ == '__main__':
             print(dep + " - " + location + " (" + ", ".join(dependents) + ")")
         elif args.mode == 'list-compact':
             print(dep)
-        elif args.mode in ['check', 'check-missing']:
-            if ((location is None) or (root not in os.path.abspath(location))):
-                warning("Missing dependency " + dep + " (" + ", ".join(dependents) + ")")
-                exit_code = 2
+        elif args.mode in ['check', 'check-missing'] and (location is None or root not in os.path.abspath(location)):
+            warning("Missing dependency " + dep + " (" + ", ".join(dependents) + ")")
+            exit_code = 2
 
     # check for unused libraries
     if args.mode in ['check', 'check-unused']:

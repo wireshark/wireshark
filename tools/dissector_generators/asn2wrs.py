@@ -45,7 +45,9 @@ import sys
 import time
 import warnings
 
-#import traceback
+
+class Asn2wrsError(Exception):
+    pass
 
 try:
     from ply import lex, yacc
@@ -480,7 +482,7 @@ class Ctx:
         if ident in self.assignments:
             raise DuplicateError("assignment", ident)
         if ident in self.defined_dict:
-            raise Exception(f"cross-module duplicates for {ident}")
+            raise Asn2wrsError(f"cross-module duplicates for {ident}")
         self.defined_dict [ident] = 1
         self.assignments[ident] = val
         self.dependencies [ident] = dependencies
@@ -912,7 +914,7 @@ class EthCtx:
     def dummy_import_type(self, ident):
         # dummy imported
         if ident in self.type:
-            raise Exception("Try to dummy import for existing type :%s" % ident)
+            raise Asn2wrsError("Try to dummy import for existing type :%s" % ident)
         ethtype = asn2c(ident)
         self.type[ident] = {'import'  : 'xxx', 'proto' : 'xxx',
                             'ethname' : ethtype }
@@ -1186,7 +1188,7 @@ class EthCtx:
                 # The contents of a constraint are only informative: ignore it.
                 tr.unresolved = True
                 continue
-            raise Exception("Type reference %s.%s: %s is not defined in %s or imported from it" % (tr.module, tr.ident, tr.ident, tr.module))
+            raise Asn2wrsError("Type reference %s.%s: %s is not defined in %s or imported from it" % (tr.module, tr.ident, tr.ident, tr.module))
 
     #--- eth_prepare ------------------------------------------------------------
     def eth_prepare(self):

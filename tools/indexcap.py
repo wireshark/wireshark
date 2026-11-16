@@ -60,9 +60,8 @@ def extract_protos_from_file(tshark, num_procs, max_files, cap_files, cap_hash, 
         pool.terminate()
         sys.exit(1)
 
-    index_file = open(index_file_name, "wb")
-    pickle.dump(cap_hash, index_file)
-    index_file.close()
+    with open(index_file_name, "wb") as index_file:
+        pickle.dump(cap_hash, index_file)
     sys.exit(0)
 
 def dissect_file_process(tshark, tmpdir, file):
@@ -215,10 +214,9 @@ def main():
     paths = args
     cap_hash = {}
     try:
-        index_file = open(index_file_name, "rb")
-        print(f"index file: {index_file_name} [OPENED]")
-        cap_hash = pickle.load(index_file)
-        index_file.close()
+        with open(index_file_name, "rb") as index_file:
+            print(f"index file: {index_file_name} [OPENED]")
+            cap_hash = pickle.load(index_file)
         print(f"{len(cap_hash)} files")
     except OSError:
         print(f"index file: {index_file_name} [NEW]")

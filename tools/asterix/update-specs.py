@@ -18,7 +18,11 @@ import generate_dissector
 # Path to default upstream repository
 upstream_repo = 'https://zoranbosnjak.github.io/asterix-specs'
 
-class BitOffset(object):
+
+class UpdateSpecsError(Exception):
+    pass
+
+class BitOffset:
     """Int with 'modulo 8' on addition."""
 
     def __init__(self, val):
@@ -49,9 +53,9 @@ def load_files(paths):
         for spec in json.loads(manifest):
             cat = spec['category']
             for edition in spec['cats']:
-                listing.append('/specs/cat{}/cats/cat{}/definition.json'.format(cat, edition))
+                listing.append(f'/specs/cat{cat}/cats/cat{edition}/definition.json')
             for edition in spec['refs']:
-                listing.append('/specs/cat{}/refs/ref{}/definition.json'.format(cat, edition))
+                listing.append(f'/specs/cat{cat}/refs/ref{edition}/definition.json')
         return [download_url(i).decode() for i in listing]
 
     # load from disk
@@ -68,7 +72,7 @@ def load_files(paths):
             elif os.path.isfile(path):
                 listing.append(path)
             else:
-                raise Exception('unexpected path type: {}'.path)
+                raise UpdateSpecsError('unexpected path type: {}'.path)
         return [read_file(f) for f in listing]
 
 def load_gitrev(paths):
@@ -77,7 +81,7 @@ def load_gitrev(paths):
     # load from url
     if paths == []:
         gitrev = download_url('/gitrev.txt').decode().strip()
-        return [upstream_repo, 'git revision: {}'.format(gitrev)]
+        return [upstream_repo, f'git revision: {gitrev}']
 
     # load from disk
     else:
@@ -138,7 +142,7 @@ def number_to_float(obj):
         case 'NumPow':
             return float(pow(int(cont.base), int(cont.exponent)))
         case _:
-            raise Exception(obj.tag)
+            raise UpdateSpecsError(obj.tag)
 
 def save_rule(what, f, obj):
     tag = str(obj.tag)
@@ -156,7 +160,7 @@ def save_rule(what, f, obj):
             ix = f(dv)
             return insert(ix)
         case _:
-            raise Exception(tag)
+            raise UpdateSpecsError(tag)
 
 def save_content(obj):
     tag = str(obj.tag)
@@ -169,7 +173,7 @@ def save_content(obj):
         case 'ContentTable':
             return insert(tuple([tuple(i) for i in cont.val]))
         case 'ContentString':
-            str_type = getattr(cont, 'tag')
+            str_type = cont.tag
             return insert(str(str_type))
         case 'ContentInteger':
             sig = str(cont.signedness.tag)
@@ -182,7 +186,7 @@ def save_content(obj):
         case 'ContentBds':
             return insert(())
         case _:
-            raise Exception(tag)
+            raise UpdateSpecsError(tag)
 
 def save_variation(obj):
     global bit_offset
@@ -218,7 +222,7 @@ def save_variation(obj):
                 case 'RepetitiveFx':
                     t = None
                 case _:
-                    raise Exception(cont.type)
+                    raise UpdateSpecsError(cont.type)
             var = save_variation(cont.variation)
             return insert((t, var))
         case 'Explicit':
@@ -238,7 +242,7 @@ def save_variation(obj):
                     lst.append(None)
             return insert(tuple(lst))
         case _:
-            raise Exception(tag)
+            raise UpdateSpecsError(tag)
 
 def save_item(obj):
     global bit_offset
@@ -255,7 +259,7 @@ def save_item(obj):
             bit_offset += n
             return insert(n)
         case _:
-            raise Exception(tag)
+            raise UpdateSpecsError(tag)
 
 def save_nonspare(obj):
     name = str(obj.name)
@@ -280,7 +284,7 @@ def save_uap(obj):
                 case 'UapItemRFS':
                     lst.append(None)
                 case _:
-                    raise Exception(i.tag)
+                    raise UpdateSpecsError(i.tag)
         return tuple(lst)
 
     match tag:
@@ -294,7 +298,7 @@ def save_uap(obj):
                 lsts.append((str(name), tuple(lst)))
             return insert(tuple(lsts))
         case _:
-            raise Exception(tag)
+            raise UpdateSpecsError(tag)
 
 def save_asterix(obj):
     global bit_offset
@@ -322,7 +326,7 @@ def save_asterix(obj):
                     lst.append(None)
             return insert((cat, ed, n, tuple(lst)))
         case _:
-            raise Exception(tag)
+            raise UpdateSpecsError(tag)
 
 def compare_asterix(obj):
     obj = obj.contents

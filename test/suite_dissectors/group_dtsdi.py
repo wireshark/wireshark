@@ -10,7 +10,6 @@
 
 import subprocess
 
-
 CAPTURE = 'dtsdi-vanc-op47.dtsdi.gz'
 ST352_CAPTURE = 'dtsdi-v2-16bit-st352.dtsdi.gz'
 

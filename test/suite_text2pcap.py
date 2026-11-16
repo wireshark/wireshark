@@ -13,7 +13,6 @@ import re
 import subprocess
 
 import pytest
-
 from subprocesstest import get_capture_info, grep_output
 
 testin_txt = 'testin.txt'

@@ -137,15 +137,13 @@ def test_file_is_built(filename):
     print('test_file_is_built(', filename, ')')
     temp_filename = filename + '.tmp'
 
-    f_read = open(filename, 'r')
-    write_filename = filename + '.new'
-    f_write = open(write_filename, 'w')
-    # Write the file with nonsense at start.
-    f_write.write('NO WAY THIS FILE BUILDS!!!!!')
-    # Copy remaining lines as-is.
-    f_write.writelines(f_read)
-    f_read.close()
-    f_write.close()
+    with open(filename, 'r') as f_read:
+        write_filename = filename + '.new'
+        with open(write_filename, 'w') as f_write:
+            # Write the file with nonsense at start.
+            f_write.write('NO WAY THIS FILE BUILDS!!!!!')
+            # Copy remaining lines as-is.
+            f_write.writelines(f_read)
     # Backup file, and do this build with the one we wrote.
     shutil.copy(filename, temp_filename)
     shutil.copy(write_filename, filename)
@@ -195,52 +193,46 @@ def test_file(filename):
         result = 0
 
         # Open read & write files
-        f_read = open(filename, 'r')
         write_filename = filename + '.new'
-        f_write = open(write_filename, 'w')
+        with open(filename, 'r') as f_read, open(write_filename, 'w') as f_write:
+            # Walk the file again looking for another place to comment out an include
+            this_line_number = 1
+            hash_if_level = 0
 
-        # Walk the file again looking for another place to comment out an include
-        this_line_number = 1
-        hash_if_level = 0
+            for line in f_read:
+                this_line_deleted = False
 
-        for line in f_read:
-            this_line_deleted = False
+                # Maintain view of how many #if or #ifdefs we are in.
+                # Don't want to remove any includes that may not be active in this build.
+                if line.startswith('#if'):
+                    hash_if_level = hash_if_level + 1
 
-            # Maintain view of how many #if or #ifdefs we are in.
-            # Don't want to remove any includes that may not be active in this build.
-            if line.startswith('#if'):
-                hash_if_level = hash_if_level + 1
+                if line.startswith('#endif') and hash_if_level > 1:
+                    hash_if_level = hash_if_level - 1
 
-            if line.startswith('#endif') and hash_if_level > 1:
-                hash_if_level = hash_if_level - 1
+                # Consider deleting this line have haven't already reached.
+                # Test line for starting with #include, and eligible for deletion.
+                if  (not have_deleted_line and (tested_line_number < this_line_number) and
+                        line.startswith('#include ') and hash_if_level == 0 and module_header not in line):
 
-            # Consider deleting this line have haven't already reached.
-            # Test line for starting with #include, and eligible for deletion.
-            if  (not have_deleted_line and (tested_line_number < this_line_number) and
-                 line.startswith('#include ') and hash_if_level == 0 and module_header not in line):
+                    # Check that this isn't a header file that known unsafe to uninclude.
+                    allowed_to_delete = True
+                    for entry in includes_to_keep:
+                        if line.find(entry) != -1:
+                            allowed_to_delete = False
+                            stats.includes_to_keep_kept += 1
+                            continue
 
-                # Check that this isn't a header file that known unsafe to uninclude.
-                allowed_to_delete = True
-                for entry in includes_to_keep:
-                    if line.find(entry) != -1:
-                        allowed_to_delete = False
-                        stats.includes_to_keep_kept += 1
-                        continue
+                    if allowed_to_delete:
+                        # OK, actually doing it.
+                        have_deleted_line = True
+                        this_line_deleted = True
+                        tested_line_number = this_line_number
 
-                if allowed_to_delete:
-                    # OK, actually doing it.
-                    have_deleted_line = True
-                    this_line_deleted = True
-                    tested_line_number = this_line_number
-
-            # Write line to output file, unless this very one was deleted.
-            if not this_line_deleted:
-                f_write.write(line)
-                this_line_number = this_line_number + 1
-
-        # Close both files.
-        f_read.close()
-        f_write.close()
+                # Write line to output file, unless this very one was deleted.
+                if not this_line_deleted:
+                    f_write.write(line)
+                    this_line_number = this_line_number + 1
 
         # If we commented out a line, try to build file without it.
         if (have_deleted_line):

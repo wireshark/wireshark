@@ -1134,7 +1134,6 @@ def main():
     args = parse_args()
     filename = args.filename
     d = ET.parse(filename)
-    o = sys.stdout if args.output == '-' else open(args.output, 'w')
     proto = args.proto
 
     version = (d.getroot().get('version'), d.getroot().get('subVersion'))
@@ -1149,14 +1148,25 @@ def main():
     ts = get_templates(st)
     ams = d.getroot().find('ApplicationMessages')
 
-    gen_header(proto, desc, o)
-    gen_field_handles(st, dt, proto, o)
-    n2enum = gen_enums(dt, ts, o)
-    gen_dissect_structs(o)
-    sh = gen_subtree_handles(st, proto, o)
-    gen_dissect_fn(st, dt, ts, sh, ams, proto, o)
-    gen_register_fn(st, dt, n2enum, proto, desc, o)
-    gen_handoff_fn(proto, o)
+    if args.output == '-':
+        gen_header(proto, desc, sys.stdout)
+        gen_field_handles(st, dt, proto, sys.stdout)
+        n2enum = gen_enums(dt, ts, sys.stdout)
+        gen_dissect_structs(sys.stdout)
+        sh = gen_subtree_handles(st, proto, sys.stdout)
+        gen_dissect_fn(st, dt, ts, sh, ams, proto, sys.stdout)
+        gen_register_fn(st, dt, n2enum, proto, desc, sys.stdout)
+        gen_handoff_fn(proto, sys.stdout)
+    else:
+        with open(args.output, 'w') as o:
+            gen_header(proto, desc, o)
+            gen_field_handles(st, dt, proto, o)
+            n2enum = gen_enums(dt, ts, o)
+            gen_dissect_structs(o)
+            sh = gen_subtree_handles(st, proto, o)
+            gen_dissect_fn(st, dt, ts, sh, ams, proto, o)
+            gen_register_fn(st, dt, n2enum, proto, desc, o)
+            gen_handoff_fn(proto, o)
 
 
 if __name__ == '__main__':

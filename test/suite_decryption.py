@@ -17,7 +17,6 @@ import sysconfig
 import types
 
 import pytest
-
 from subprocesstest import count_output, grep_output
 
 

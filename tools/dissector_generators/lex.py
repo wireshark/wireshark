@@ -11,12 +11,12 @@
 __version__    = '3.8'
 __tabversion__ = '3.8'
 
+import copy
+import inspect
+import os
 import re
 import sys
 import types
-import copy
-import os
-import inspect
 
 # This tuple contains known string types
 try:
@@ -38,7 +38,7 @@ class LexError(Exception):
 
 
 # Token class.  This class is used to represent the tokens produced.
-class LexToken(object):
+class LexToken:
     def __str__(self):
         return 'LexToken(%s,%r,%d,%d)' % (self.type, self.value, self.lineno, self.lexpos)
 
@@ -49,7 +49,7 @@ class LexToken(object):
 # This object is a stand-in for a logging object created by the
 # logging module.
 
-class PlyLogger(object):
+class PlyLogger:
     def __init__(self, f):
         self.f = f
 
@@ -67,7 +67,7 @@ class PlyLogger(object):
 
 
 # Null logger is used when no output is generated. Does nothing.
-class NullLogger(object):
+class NullLogger:
     def __getattribute__(self, name):
         return self
 
@@ -150,7 +150,7 @@ class Lexer:
     # ------------------------------------------------------------
     def writetab(self, lextab, outputdir=''):
         if isinstance(lextab, types.ModuleType):
-            raise IOError("Won't overwrite existing lextab module")
+            raise OSError("Won't overwrite existing lextab module")
         basetabmodule = lextab.split('.')[-1]
         filename = os.path.join(outputdir, basetabmodule) + '.py'
         with open(filename, 'w') as tf:
@@ -531,7 +531,7 @@ def _statetoken(s, names):
 # This class represents information needed to build a lexer as extracted from a
 # user's input file.
 # -----------------------------------------------------------------------------
-class LexerReflect(object):
+class LexerReflect:
     def __init__(self, ldict, log=None, reflags=0):
         self.ldict      = ldict
         self.error_func = None
@@ -1014,7 +1014,7 @@ def lex(module=None, object=None, debug=False, optimize=False, lextab='lextab',
             outputdir = os.path.dirname(srcfile)
         try:
             lexobj.writetab(lextab, outputdir)
-        except IOError as e:
+        except OSError as e:
             errorlog.warning("Couldn't write lextab module %r. %s" % (lextab, e))
 
     return lexobj
@@ -1029,9 +1029,8 @@ def runmain(lexer=None, data=None):
     if not data:
         try:
             filename = sys.argv[1]
-            f = open(filename)
-            data = f.read()
-            f.close()
+            with open(filename) as f:
+                data = f.read()
         except IndexError:
             sys.stdout.write('Reading from standard input (type EOF to end):\n')
             data = sys.stdin.read()

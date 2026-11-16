@@ -70,15 +70,13 @@ def main():
     if len(sys.argv) != 3:
         exit_err("%s: input_file output_file\n", __file__)
 
-    input = open(sys.argv[1], 'r')
-    output = open(sys.argv[2], 'w')
+    with open(sys.argv[1], 'r') as input, open(sys.argv[2], 'w') as output:
+        script_name = os.path.split(__file__)[-1]
 
-    script_name = os.path.split(__file__)[-1]
-
-    output.write('''\
+        output.write(f'''\
 /* DO NOT EDIT
  *
- * Created by %s.
+ * Created by {script_name}.
  *
  * ps.c
  * Definitions for generating PostScript(R) packet output.
@@ -94,35 +92,35 @@ def main():
 
 #include "ps.h"
 
-''' % script_name)
+''')
 
-    for line in input:
-        #line = line.rstrip()
-        if state == STATE_NULL:
-            if line.startswith("% ---- wireshark preamble start ---- %"):
-                state = STATE_PREAMBLE
-                start_code(output, "preamble")
-                continue
-            elif line.startswith("% ---- wireshark finale start ---- %"):
-                state = STATE_FINALE
-                start_code(output, "finale")
-                continue
-        elif state == STATE_PREAMBLE:
-            if line.startswith("% ---- wireshark preamble end ---- %"):
-                state = STATE_NULL
-                end_code(output, "preamble")
-                continue
+        for line in input:
+            #line = line.rstrip()
+            if state == STATE_NULL:
+                if line.startswith("% ---- wireshark preamble start ---- %"):
+                    state = STATE_PREAMBLE
+                    start_code(output, "preamble")
+                    continue
+                elif line.startswith("% ---- wireshark finale start ---- %"):
+                    state = STATE_FINALE
+                    start_code(output, "finale")
+                    continue
+            elif state == STATE_PREAMBLE:
+                if line.startswith("% ---- wireshark preamble end ---- %"):
+                    state = STATE_NULL
+                    end_code(output, "preamble")
+                    continue
+                else:
+                    write_code(output, line)
+            elif state == STATE_FINALE:
+                if line.startswith("% ---- wireshark finale end ---- %"):
+                    state = STATE_NULL
+                    end_code(output, "finale")
+                    continue
+                else:
+                    write_code(output, line)
             else:
-                write_code(output, line)
-        elif state == STATE_FINALE:
-            if line.startswith("% ---- wireshark finale end ---- %"):
-                state = STATE_NULL
-                end_code(output, "finale")
-                continue
-            else:
-                write_code(output, line)
-        else:
-            exit_err("NO MATCH:%s", line)
+                exit_err("NO MATCH:%s", line)
 
     sys.exit(0)
 

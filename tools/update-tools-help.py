@@ -41,42 +41,41 @@ def main():
         parser.print_usage()
         sys.exit(1)
 
-    null_fd = open(os.devnull, 'w')
+    with open(os.devnull, 'w') as null_fd:
+        for thf in tools_help_files:
+            thf_base = os.path.basename(thf)
+            m = tool_pat.match(thf_base)
+            thf_command = os.path.join(program_path, m.group(1))
+            thf_flag = m.group(2)
 
-    for thf in tools_help_files:
-        thf_base = os.path.basename(thf)
-        m = tool_pat.match(thf_base)
-        thf_command = os.path.join(program_path, m.group(1))
-        thf_flag = m.group(2)
+            if not os.path.isfile(thf_command):
+                print(f'{thf_command} not found. Skipping.')
+                continue
 
-        if not os.path.isfile(thf_command):
-            print(f'{thf_command} not found. Skipping.')
-            continue
+            with open(thf, 'r', encoding='UTF-8') as fd:
+                cur_help = fd.read()
 
-        with open(thf, 'r', encoding='UTF-8') as fd:
-            cur_help = fd.read()
+            try:
+                new_help_data = subprocess.check_output((thf_command, thf_flag), stderr=null_fd)
+            except subprocess.CalledProcessError:
+                if thf_flag == '-h':
+                    raise
 
-        try:
-            new_help_data = subprocess.check_output((thf_command, thf_flag), stderr=null_fd)
-        except subprocess.CalledProcessError as e:
-            if thf_flag == '-h':
-                raise e
+            new_help = new_help_data.decode('UTF-8', 'replace')
 
-        new_help = new_help_data.decode('UTF-8', 'replace')
+            cur_lines = cur_help.splitlines()
+            new_lines = new_help.splitlines()
+            # Assume we have an extended version. Strip it.
+            cur_lines[0] = re.split(r' \(v\d+\.\d+\.\d+', cur_lines[0])[0]
+            new_lines[0] = re.split(r' \(v\d+\.\d+\.\d+', new_lines[0])[0]
+            diff = list(difflib.unified_diff(cur_lines, new_lines))
 
-        cur_lines = cur_help.splitlines()
-        new_lines = new_help.splitlines()
-        # Assume we have an extended version. Strip it.
-        cur_lines[0] = re.split(r' \(v\d+\.\d+\.\d+', cur_lines[0])[0]
-        new_lines[0] = re.split(r' \(v\d+\.\d+\.\d+', new_lines[0])[0]
-        diff = list(difflib.unified_diff(cur_lines, new_lines))
-
-        if (len(diff) > 0):
-            print(f'Updating {thf_command} {thf_flag}')
-            with open(thf, 'w', encoding='UTF-8') as fd:
-                fd.write(new_help)
-        else:
-            print(f'{thf_command} {thf_flag} output unchanged.')
+            if (len(diff) > 0):
+                print(f'Updating {thf_command} {thf_flag}')
+                with open(thf, 'w', encoding='UTF-8') as fd:
+                    fd.write(new_help)
+            else:
+                print(f'{thf_command} {thf_flag} output unchanged.')
 
 if __name__ == '__main__':
     main()

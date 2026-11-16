@@ -18,8 +18,8 @@ def generate_header(git_rev):
 * See tools/asterix/README.md for details.
 *
 """
-    ret += """* Data source: {}
-""".format(git_rev)
+    ret += f"""* Data source: {git_rev}
+"""
     ret += """*
 * Generated definitions for ASTERIX dissector
 *
@@ -246,9 +246,9 @@ def add_bit_mask(variable_name, byte_start_bits_mask, bits, byte_end_bit_mask):
         ret += "  " + variable_name + " = " + variable_name + " >> " + str(byte_end_bit_mask) + ";\n"
     if byte_start_bits_mask > 0:
         bit_mask = "0b"
-        for i in range(0, byte_start_bits_mask):
+        for i in range(byte_start_bits_mask):
             bit_mask += "0"
-        for i in range(0, bits):
+        for i in range(bits):
             bit_mask += "1"
         ret += "  " + variable_name + " = " + variable_name + " & " + bit_mask + ";\n"
     return ret

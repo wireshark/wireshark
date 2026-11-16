@@ -21,7 +21,7 @@ Then configure your app's feed URL to:
 import argparse
 import html
 import textwrap
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from email.utils import format_datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -29,7 +29,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 def build_appcast(
     title: str, version: str, release_notes_url: str, download_url: str, os_tag: str
 ) -> str:
-    pub_date = format_datetime(datetime.now(timezone.utc))
+    pub_date = format_datetime(datetime.now(UTC))
     title_escaped = html.escape(title)
     version_escaped = html.escape(version)
     rn_escaped = html.escape(release_notes_url)

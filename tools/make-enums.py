@@ -77,12 +77,10 @@ static ws_enum_t const all_enums[] = {
         sys.exit(1)
 
     try:
-        fh = open(outfile, 'w')
+        with open(outfile, 'w') as fh:
+            fh.write(source)
     except OSError:
         sys.exit('Unable to write ' + outfile + '.\n')
-
-    fh.write(source)
-    fh.close()
 
 epan_files = [
     "epan/address.h",

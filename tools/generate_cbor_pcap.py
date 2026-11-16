@@ -64,24 +64,19 @@ def main():
 
         if args.intype == 'raw':
             if infile_name != '-':
-                infile = open(infile_name, 'rb')
+                with open(infile_name, 'rb') as infile:
+                    cbordata.append(infile.read())
             else:
-                infile = sys.stdin.buffer
-            cbordata.append(infile.read())
+                cbordata.append(sys.stdin.buffer.read())
         elif args.intype == 'cbordiag':
             if infile_name != '-':
-                infile = open(infile_name, 'r')
+                with open(infile_name, 'r') as infile:
+                    cbordata.append(cbor_diag.diag2cbor(infile.read(), seq=True))
             else:
-                infile = sys.stdin
-            cbordata.append(cbor_diag.diag2cbor(infile.read(), seq=True))
+                cbordata.append(cbor_diag.diag2cbor(sys.stdin.read(), seq=True))
 
     # Write the request directly into pcap
     outfile_name = args.outfile.strip()
-    if outfile_name != '-':
-        outfile = open(outfile_name, 'wb')
-    else:
-        outfile = sys.stdout.buffer
-
     cport = args.client_port or random.randint(49152, 65535)
 
     if args.transport == 'coap':
@@ -183,7 +178,11 @@ def main():
                 out_pkts.append(Ether()/IP()/TCP(**udpopts)/pyld)
                 seq[1] += len(bytes(pyld)) + seqadd
 
-    wrpcap(outfile, out_pkts)
+    if outfile_name != '-':
+        with open(outfile_name, 'wb') as outfile:
+            wrpcap(outfile, out_pkts)
+    else:
+        wrpcap(sys.stdout.buffer, out_pkts)
 
 
 if __name__ == '__main__':

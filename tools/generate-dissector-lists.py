@@ -110,9 +110,9 @@ def main():
     public_headers = [warning] + get_public_headers()
     asn1_sources = get_asn1_sources()
 
-    cmakelists_f = open(CMAKELISTS_TXT, 'r')
-    cm_lines = list(cmakelists_f)
-    cmakelists_f = open(CMAKELISTS_TXT, 'w+')
+    with open(CMAKELISTS_TXT, 'r') as cmakelists_f:
+        cm_lines = list(cmakelists_f)
+
     cm_out = ''
     state = State.Normal
 
@@ -130,8 +130,8 @@ def main():
             state = State.Normal
             cm_out += line
 
-    cmakelists_f.write(cm_out)
-    cmakelists_f.close()
+    with open(CMAKELISTS_TXT, 'w+') as cmakelists_f:
+        cmakelists_f.write(cm_out)
 
 #
 # On with the show

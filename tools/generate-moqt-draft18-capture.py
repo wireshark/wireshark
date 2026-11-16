@@ -83,7 +83,7 @@ class Exchange:
             is_client=False, alpn_protocols=['moqt-18'])
         key = ec.generate_private_key(ec.SECP256R1())
         name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'localhost')])
-        valid_from = datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc)
+        valid_from = datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC)
         server_config.certificate = (
             x509.CertificateBuilder()
             .subject_name(name).issuer_name(name).public_key(key.public_key())

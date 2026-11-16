@@ -862,7 +862,7 @@ class wireshark_gen_C:
 
     def dumpvars(self):
         """Print the variable declaration from the hash of list"""
-        for fn in self.fn_hash.keys():
+        for fn in self.fn_hash:
             print("FN = " + fn)
             for v in self.fn_hash[fn]:
                 print("-> " + v)

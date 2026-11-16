@@ -164,7 +164,7 @@ def extcap_config(interface, option):
 
     for (value, parent) in multi_values:
         sentence = "value {arg=%d}{value=%s}{display=%s}{default=%s}{enabled=%s}" % value
-        extra = "{parent=%s}" % parent if parent else ""
+        extra = f"{{parent={parent}}}" if parent else ""
         print(f"{sentence}{extra}")
 
 def extcap_config_option(interface, option_name, option_value):
@@ -436,8 +436,8 @@ def extcap_capture(interface, fifo, control_in, control_out, in_delay, in_verify
 def extcap_close_fifo(fifo):
     # This is apparently needed to workaround an issue on Windows/macOS
     # where the message cannot be read. (really?)
-    fh = open(fifo, 'wb', 0)
-    fh.close()
+    with open(fifo, 'wb', 0) as fh:
+        pass
 
 ####
 

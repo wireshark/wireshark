@@ -731,7 +731,7 @@ def _theme_token_names():
     body = re.search(r'enum\s+ThemeToken\s*\{(.*?)\};', text, re.DOTALL).group(1)
     body = re.sub(r'/\*.*?\*/', '', body, flags=re.DOTALL)
     body = re.sub(r'//[^\n]*', '', body)
-    body = re.sub(r'^\s*#.*$', '', body, flags=re.M)
+    body = re.sub(r'^\s*#.*$', '', body, flags=re.MULTILINE)
     return [m.group(1) for m in
             re.finditer(r'\b([A-Za-z_]\w*)\s*(?:=[^,]*)?(?:,|$)', body)]
 
@@ -1128,11 +1128,11 @@ class TestNoRedundantPins:
     value derived without it.'''
 
     # (section, key, derived_tokens() key)
-    CHECKS = [
+    CHECKS = (
         ('palette', 'highlight',       'highlight'),
         ('palette', 'highlightedText', 'highlightText'),
         ('filter',  'busyText',        'filterBusyText'),
-    ]
+    )
 
     @pytest.mark.parametrize('check', CHECKS, ids=lambda c: c[1])
     @pytest.mark.parametrize('theme_path', _bundled_themes(),
@@ -1193,8 +1193,8 @@ class TestReadmeLayout:
         and besides them only the my-custom-theme example.'''
         readme = THEME_README.read_text(encoding='utf-8')
         layout = re.search(r'^## Directory layout\n(.*?)^## ', readme,
-                           re.M | re.S).group(1)
-        listed = set(re.findall(r'^ {4}([\w-]+)/', layout, re.M))
+                           re.MULTILINE | re.DOTALL).group(1)
+        listed = set(re.findall(r'^ {4}([\w-]+)/', layout, re.MULTILINE))
         bundled = {p.parent.name for p in _bundled_themes()}
         assert listed - bundled == {'my-custom-theme'}
         assert bundled <= listed
@@ -1877,7 +1877,7 @@ def _settable_keys():
 def _manager_sections():
     '''Color sections of ThemeManager's sections_ table as {name: required}.'''
     text = MANAGER_SOURCE.read_text(encoding='utf-8')
-    block = re.search(r'\bsections_\s*=\s*\{(.*?)\n\s*\};', text, re.S).group(1)
+    block = re.search(r'\bsections_\s*=\s*\{(.*?)\n\s*\};', text, re.DOTALL).group(1)
     block = re.sub(r'//[^\n]*', '', block)
     return {name: flag == 'true'
             for name, flag in re.findall(r'\{\s*"(\w+)",\s*\{\s*(true|false)\b', block)}
@@ -1887,7 +1887,7 @@ def _format_root_keys():
     '''ThemeFormat::NonSectionRootKeys as file key names.'''
     text = FORMAT_HEADER.read_text(encoding='utf-8')
     consts = dict(re.findall(r'inline const QLatin1String (\w+)\("(\w+)"\);', text))
-    block = re.search(r'NonSectionRootKeys\[\]\s*=\s*\{(.*?)\};', text, re.S).group(1)
+    block = re.search(r'NonSectionRootKeys\[\]\s*=\s*\{(.*?)\};', text, re.DOTALL).group(1)
     return [consts[name] for name in re.findall(r'\b(\w+)\b', block)]
 
 
@@ -1896,9 +1896,9 @@ def _derive_all_assignments():
     text = HANDLER_SOURCE.read_text(encoding='utf-8')
     body = text[text.index('void ThemeTokenHandler::deriveAll('):]
     out = []
-    for token, args in re.findall(r'\bassign\(\s*ThemeManager::(\w+),(.*?)\);', body, re.S):
+    for token, args in re.findall(r'\bassign\(\s*ThemeManager::(\w+),(.*?)\);', body, re.DOTALL):
         m = re.search(r'QT_TRANSLATE_NOOP\(\s*"ThemeTokenHandler",\s*"((?:[^"\\]|\\.)+)"\s*\)\s*$',
-                      args.strip(), re.S)
+                      args.strip(), re.DOTALL)
         out.append((token, m.group(1) if m else None))
     return out
 

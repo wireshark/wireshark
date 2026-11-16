@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-
 CAPTURE_DIR = Path(__file__).parent.parent / "captures" / "ipfs"
 CASES = (
     ("ipfs-4kb.pcap", "cat", "QmZLws5v55MQJmyTo2deZfp3Z1KuKa9MwyCaymTxqXXmkh"),

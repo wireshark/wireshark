@@ -16,7 +16,6 @@ import sysconfig
 import types
 
 import pytest
-
 import subprocesstest
 from subprocesstest import ExitCodes, count_output, grep_output
 

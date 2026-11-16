@@ -11,7 +11,6 @@ import re
 from pathlib import Path
 
 import pytest
-
 import subprocesstest
 
 LEGACY_TCP = '@LegacyTCP@tcp@[65535,65535,65535][0,0,0]\n'

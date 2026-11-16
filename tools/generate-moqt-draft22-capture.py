@@ -124,7 +124,7 @@ class Session:
     def __init__(self):
         key = ec.generate_private_key(ec.SECP256R1())
         subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "moq.example")])
-        now = datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc)
+        now = datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC)
         cert = (x509.CertificateBuilder().subject_name(subject).issuer_name(subject)
                 .public_key(key.public_key()).serial_number(1)
                 .not_valid_before(now).not_valid_after(now + datetime.timedelta(days=3650))

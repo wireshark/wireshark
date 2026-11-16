@@ -83,18 +83,16 @@ patterns = [
 
 # Grep
 for filename in filenames:
-    file = open(filename)
-    # Read the whole file into memory
-    contents = file.read()
-    for action in patterns:
-        regex = action[1]
-        for match in regex.finditer(contents):
-            symbol = match.group("symbol")
-            sym_type = action[0]
-            regs[sym_type].add(symbol)
-    # We're done with the file contents
-    del contents
-    file.close()
+    with open(filename) as file:
+        # Read the whole file into memory
+        contents = file.read()
+        for action in patterns:
+            regex = action[1]
+            for match in regex.finditer(contents):
+                symbol = match.group("symbol")
+                sym_type = action[0]
+                regs[sym_type].add(symbol)
+        del contents
 
 # Make sure we actually processed something
 if (len(regs['proto_reg']) < 1 and

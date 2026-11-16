@@ -137,7 +137,7 @@ def _changed_lines(base):
     change of module-level code.'''
     lines = set()
     diff = _git('diff', '-U0', base, '--', SUITE_REL)
-    hunks = re.split(r'^(?=@@ )', diff, flags=re.M)[1:]
+    hunks = re.split(r'^(?=@@ )', diff, flags=re.MULTILINE)[1:]
     for hunk in hunks:
         m = re.match(r'@@ -\S+ \+(\d+)(?:,(\d+))? @@', hunk)
         start, count = int(m.group(1)), int(m.group(2) or 1)
@@ -158,7 +158,7 @@ def _changed_lines(base):
 def _includers(headers):
     '''Dissector sources that include one of the given headers.'''
     names = {os.path.basename(h) for h in headers}
-    pattern = re.compile(r'^\s*#\s*include\s+[<"](?:.*/)?([^/">]+)[">]', re.M)
+    pattern = re.compile(r'^\s*#\s*include\s+[<"](?:.*/)?([^/">]+)[">]', re.MULTILINE)
     found = set()
     for top in DISSECTOR_DIRS:
         for dirpath, _, filenames in os.walk(os.path.join(SRC_DIR, top)):

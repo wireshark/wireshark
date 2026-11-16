@@ -14,7 +14,6 @@ import signal
 import sys
 
 import aiohttp
-
 from check_common import getFilesFromCommits, getFilesFromOpen
 
 # This utility scans the dissector code for URLs, then attempts to
@@ -177,11 +176,7 @@ async def populate_cache(sem, session, url):
                     print('checking ', url, ': success', sep='')
 
         # N.B., no longer catching Exception to placate 'ruff check', but difficult to know if catching all possible exceptions..
-        except (asyncio.CancelledError, ValueError, ConnectionError, asyncio.TimeoutError,
-                aiohttp.client_exceptions.ClientConnectorDNSError,
-                aiohttp.client_exceptions.ClientConnectorError,
-                aiohttp.client_exceptions.ClientResponseError,
-                aiohttp.client_exceptions.ServerDisconnectedError):
+        except (TimeoutError, asyncio.CancelledError, ValueError, ConnectionError, aiohttp.client_exceptions.ClientConnectorDNSError, aiohttp.client_exceptions.ClientConnectorError, aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ServerDisconnectedError):
             cached_lookups[url] = FailedLookup()
             if args.verbose:
                 print('checking ', url, ': failed', sep='')

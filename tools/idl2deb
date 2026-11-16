@@ -24,9 +24,8 @@ def create_file(preserve, filename, content, mode = None):
     """Create a file with given content."""
     if preserve and os.path.isfile(filename):
         return
-    f = open(filename, 'w')
-    f.write(content)
-    f.close()
+    with open(filename, 'w') as f:
+        f.write(content)
     if mode:
         os.chmod(filename, mode)
 

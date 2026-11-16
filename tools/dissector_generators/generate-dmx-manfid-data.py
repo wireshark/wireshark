@@ -91,7 +91,6 @@ extern value_string_ext dmx_esta_manfid_vals_ext;
 
 def main():
     req_headers = { 'User-Agent': 'Wireshark make-dmx-manfid' }
-    urllib.request
     req = urllib.request.Request(BASE_URL, headers=req_headers)
     resp = urllib.request.urlopen(req)
     dat = resp.read().decode('UTF-8', 'replace')

@@ -13,7 +13,6 @@ import subprocess
 import sys
 
 import pytest
-
 from subprocesstest import cat_dhcp_command, check_packet_count
 
 testout_pcap = 'testout.pcap'
@@ -151,7 +150,7 @@ class TestZstandardOutput:
         output = result_file('invalid-level.pcapng.zst')
         result = subprocess.run([cmd_tshark, '-r', capture_file('dhcp.pcap'), '-w', output,
                                  '--compress', 'zstd', '-o', f'capture.zstd_compression_level:{level}'],
-                                env=test_env, capture_output=True)
+                                env=test_env, capture_output=True, check=False)
         assert result.returncode != 0
 
     def test_zstd_filename_extension(self, cmd_editcap, cmd_tshark, capture_file,
