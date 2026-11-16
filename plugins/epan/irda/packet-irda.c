@@ -681,8 +681,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     uint8_t             op;
     uint8_t             retcode;
     uint8_t             type;
-    uint16_t            attr_len;
-    char                buf[300];
+    unsigned            attr_len;
     uint8_t             src;
     address             srcaddr;
     address             destaddr;
@@ -751,7 +750,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                         break;
 
                     case IAS_OCT_SEQ:
-                        snprintf(buf, 300, ", %d Octets", tvb_get_ntohs(tvb, offset + 7));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, ", %d Octets", tvb_get_ntohs(tvb, offset + 7));
                         break;
 
                     case IAS_STRING:
@@ -868,9 +867,10 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
             case GET_VALUE_BY_CLASS:
                 if (retcode == 0)
                 {
+                    list_len = tvb_get_ntohs(tvb, offset);
                     offset += 2;
 
-                    while (offset < len)
+                    while ((offset < len) && (n < list_len))
                     {
                         offset += 2;
                         type = tvb_get_uint8(tvb, offset);
@@ -1218,6 +1218,15 @@ void add_lmp_conversation(packet_info* pinfo, uint8_t dlsap, bool ttp, dissector
     if (conv)
     {
         lmp_conv = (lmp_conversation_t*)conversation_get_proto_data(conv, proto_irlmp);
+        if (!lmp_conv)
+        {
+            lmp_conv = wmem_new0(wmem_file_scope(), lmp_conversation_t);
+            conversation_add_proto_data(conv, proto_irlmp, (void*)lmp_conv);
+            lmp_conv->iap_result_frame = pinfo->num;
+            lmp_conv->ttp              = ttp;
+            lmp_conv->dissector        = dissector;
+            return;
+        }
         while (lmp_conv)
         {
             /* Does entry already exist? */
@@ -1585,11 +1594,16 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
                 if (hint2 & 0x20)
                     (void) g_strlcat(service_hints, ", OBEX", 256);
 
-                (void) g_strlcat(service_hints, ")", 256);
-                service_hints[0] = ' ';
-                service_hints[1] = '(';
+                /* Only hint bits without a name (e.g. the extension
+                 * bits) may be set; then there is nothing to show. */
+                if (service_hints[0] != 0)
+                {
+                    (void) g_strlcat(service_hints, ")", 256);
+                    service_hints[0] = ' ';
+                    service_hints[1] = '(';
 
-                proto_item_append_text(ti, "%s", service_hints);
+                    proto_item_append_text(ti, "%s", service_hints);
+                }
             }
         }
         offset += hints_len;
@@ -1693,6 +1707,17 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 }
 
 
+/* The IrDA pseudo-header only exists for the IrDA encapsulation; when we are
+ * reached through another one (SLL, SIR over TCP, Exported PDU) the union
+ * holds something else, so treat such frames as incoming IrLAP frames. */
+static uint16_t irda_pkttype(packet_info* pinfo)
+{
+    if (pinfo->rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_IRDA)
+        return IRDA_INCOMING;
+    return pinfo->pseudo_header->irda.pkttype;
+}
+
+
 /*
  * Dissect Log Messages
  */
@@ -1702,7 +1727,7 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Log");
 
     /* missed messages? */
-    if (pinfo->pseudo_header->irda.pkttype == IRDA_MISSED_MSG)
+    if (irda_pkttype(pinfo) == IRDA_MISSED_MSG)
     {
         col_set_str(pinfo->cinfo, COL_INFO, "WARNING: Missed one or more messages while capturing!");
     }
@@ -1726,7 +1751,7 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         proto_item* ti   = proto_tree_add_item(root, proto_log, tvb, 0, -1, ENC_NA);
         proto_tree* tree = proto_item_add_subtree(ti, ett_log);
 
-        if (pinfo->pseudo_header->irda.pkttype == IRDA_MISSED_MSG)
+        if (irda_pkttype(pinfo) == IRDA_MISSED_MSG)
             proto_tree_add_item(tree, hf_log_missed, tvb, 0, 0, ENC_NA);
         else
             proto_tree_add_item(tree, hf_log_msg, tvb, 0, -1, ENC_ASCII);
@@ -1756,7 +1781,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* set direction column */
-    switch (pinfo->pseudo_header->irda.pkttype)
+    switch (irda_pkttype(pinfo))
     {
         case IRDA_OUTGOING:
             col_set_str(pinfo->cinfo, COL_IF_DIR, "Out");
@@ -1914,7 +1939,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 static int dissect_irda(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, void* data _U_)
 {
     /* check if log message */
-    if ((pinfo->pseudo_header->irda.pkttype & IRDA_CLASS_MASK) == IRDA_CLASS_LOG)
+    if ((irda_pkttype(pinfo) & IRDA_CLASS_MASK) == IRDA_CLASS_LOG)
     {
         dissect_log(tvb, pinfo, root);
         return tvb_captured_length(tvb);
