@@ -3373,6 +3373,14 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
     }
     fix_endianness_blf_apptext_header(&apptextheader);
 
+    if (apptextheader.textLength > object_length - (data_start - block_start) - (int)sizeof(apptextheader)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: APP_TEXT: text length %u is larger than the object",
+                                     apptextheader.textLength);
+        ws_debug("text length larger than the object");
+        return BLF_APPTEXT_FAILED;
+    }
+
     if (metadata_info->valid && apptextheader.source != BLF_APPTEXT_METADATA) {
         /* If we're in the middle of a sequence of metadata objects,
          * but we get an AppText object from another source,
