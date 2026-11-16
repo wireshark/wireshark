@@ -186,7 +186,14 @@ int parseService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffs
  */
 void store_encryption_info(packet_info *pinfo, enum ua_message_mode mode, uint8_t sig_len)
 {
-    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    conversation_t *conv;
+
+    /* The conversation holds the state after the latest message, only the
+     * first pass may change it. */
+    if (PINFO_FD_VISITED(pinfo)) {
+        return;
+    }
+    conv = find_conversation_pinfo(pinfo, 0);
     if (conv) {
         uintptr_t data = (uintptr_t)mode;
         data |= ((uintptr_t)sig_len << 8);

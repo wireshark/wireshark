@@ -16,6 +16,9 @@
 
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/prefs.h>
 #include <epan/range.h>
 #include <epan/reassemble.h>
@@ -77,6 +80,8 @@ int ett_opcua_nodeid;
 
 /** subtree types used locally */
 static int ett_opcua_transport;
+
+static expert_field ei_opcua_bad_footer;
 static int ett_opcua_fragment;
 static int ett_opcua_fragments;
 
@@ -366,12 +371,12 @@ static int opcua_get_footer_info(uint32_t channel_id, uint32_t token_id, uint8_t
         } else {
             *sig_len = keyset->client_sig_len;
         }
+    } else {
+        debugprintf("no keyset found for channel_id=%u and token_id=%u\n", channel_id, token_id);
+        /* we use sig_len set from OpenSecurehChannel Policy in this case.
+         * this requires to have the OPN in the capture file, otherwise we are out of luck.
+         */
     }
-
-    debugprintf("no keyset found for channel_id=%u and token_id=%u\n", channel_id, token_id);
-    /* we use sig_len set from OpenSecurehChannel Policy in this case.
-     * this requires to have the OPN in the capture file, otherwise we are out of luck.
-     */
 
     return 0;
 }
@@ -474,6 +479,11 @@ static int decrypt_opcua(
         return ret;
     }
 
+    if (plaintext_len < (unsigned)*sig_len + 1) {
+        debugprintf("message too short for the signature.\n");
+        return -1;
+    }
+
     ret = verify_padding(&plaintext[plaintext_len - *sig_len - 1]);
     if (ret < 0) {
         debugprintf("padding is invalid.\n");
@@ -487,12 +497,18 @@ static int decrypt_opcua(
     return 0;
 }
 
+/* Keys for p_add_proto_data(). Key 0 is the nesting counter of
+ * opcua_simpletypes.c. */
+#define OPCUA_PD_MSG_COUNT   1U             /* per frame pass: UA messages seen so far */
+#define OPCUA_PD_STATE_BASE  2U             /* per message: state at the start of the message */
+#define OPCUA_PD_STATE_VALID 0x10000U
+
 /** The OpcUa message dissector.
   * This method dissects full OpcUa messages.
   * It gets only called with reassembled data
   * from tcp_dissect_pdus.
   */
-static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static int dissect_opcua_message_inner(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     FctParse pfctParse = NULL;
     enum MessageType msgtype = MSG_INVALID;
@@ -517,7 +533,28 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     metadata.encrypted = false;
-    get_encryption_info(pinfo, &mode, &sig_len);
+    {
+        /* The conversation holds the state after the latest message of the
+         * connection, so it is only valid on the first pass. Keep the state
+         * this message started with per message, to get the same result
+         * when the frame is dissected again.
+         */
+        unsigned msg_idx = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_opcua, OPCUA_PD_MSG_COUNT));
+        uintptr_t saved;
+
+        p_add_proto_data(pinfo->pool, pinfo, proto_opcua, OPCUA_PD_MSG_COUNT, GUINT_TO_POINTER(msg_idx + 1));
+        saved = (uintptr_t)p_get_proto_data(wmem_file_scope(), pinfo, proto_opcua, OPCUA_PD_STATE_BASE + msg_idx);
+        if (!PINFO_FD_VISITED(pinfo) || saved == 0) {
+            get_encryption_info(pinfo, &mode, &sig_len);
+            if (!PINFO_FD_VISITED(pinfo)) {
+                saved = ((uintptr_t)mode | ((uintptr_t)sig_len << 8)) | OPCUA_PD_STATE_VALID;
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_opcua, OPCUA_PD_STATE_BASE + msg_idx, (void *)saved);
+            }
+        } else {
+            mode = (enum ua_message_mode)(saved & 0xff);
+            sig_len = (uint8_t)((saved >> 8) & 0xff);
+        }
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpcUa");
 
@@ -646,6 +683,11 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 unsigned char *plaintext = (unsigned char*)wmem_alloc(pinfo->pool, plaintext_len);
 
                 ret = decrypt_opcua(channel_id, token_id, cipher, cipher_len, plaintext, plaintext_len, &pad_len, &sig_len, from_server);
+                if (ret == 0 && (unsigned)pad_len + sig_len + 9 > plaintext_len) {
+                    /* padding and signature footer longer than the plaintext */
+                    expert_add_info(pinfo, ti, &ei_opcua_bad_footer);
+                    ret = -1;
+                }
                 if (ret == 0) {
                     /* decrypted */
                     /* to get the payload length we need to subtract the sequence header (8) byte,
@@ -673,7 +715,12 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 } else {
                     /* signed only messages have no padding, so the payload is the message size
                      * without 24 byte header and without signature */
-                    payload_len -= sig_len;
+                    if (sig_len > payload_len) {
+                        expert_add_info(pinfo, ti, &ei_opcua_bad_footer);
+                        sig_len = 0;
+                    } else {
+                        payload_len -= sig_len;
+                    }
                 }
                 /* store the current tvb as decrypted tvb, because we need this to parse the signature
                  * at the end, and tvb gets replaces with the reassembled UA message if the message was chunked.
@@ -839,6 +886,29 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     return tvb_reported_length(tvb);
 }
 
+/** Dissect one UA message. An exception thrown while parsing a message
+  * (tcp_dissect_pdus goes on with the next message in the frame) skips the
+  * decrements of the nesting counters, so start every message from zero
+  * and restore the state afterwards.
+  */
+static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    unsigned saved_depth = pinfo->dissection_depth;
+    volatile int ret = 0;
+
+    p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(0U));
+    TRY {
+        ret = dissect_opcua_message_inner(tvb, pinfo, tree);
+    }
+    FINALLY {
+        pinfo->dissection_depth = saved_depth;
+        p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(0U));
+    }
+    ENDTRY;
+
+    return ret;
+}
+
 /** The main OpcUa dissector functions.
   * It uses tcp_dissect_pdus from packet-tcp.h
   * to reassemble the TCP data.
@@ -868,10 +938,10 @@ void proto_cleanup_opcua(void)
 /** secrets callback called from Wireshark when loading a capture file with OPC UA Keylog File. */
 static void opcua_secrets_block_callback(const void *secrets, unsigned size)
 {
-    char *tmp = g_memdup2(secrets, size + 1);
-    if (tmp == NULL) return; /* OOM */
+    char *tmp = g_malloc0((size_t)size + 1);
+    memcpy(tmp, secrets, size);
 
-    debugprintf("Loading secrets block '%s'...\n", (const char*)secrets);
+    debugprintf("Loading secrets block '%s'...\n", tmp);
     debugprintf("size = %u\n", size);
     /* ensure data is zero terminated */
     tmp[size] = 0;
@@ -899,6 +969,12 @@ void proto_register_opcua(void)
             {&hf_opcua_reassembled_in,              {"Reassembled in",                                      "opcua.reassembled.in",             FT_FRAMENUM,    BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
             {&hf_opcua_reassembled_length,          {"Reassembled length",                                  "opcua.reassembled.length",         FT_UINT32,      BASE_DEC,   NULL,   0x00,   NULL, HFILL}}
         };
+
+    static ei_register_info ei[] =
+        {
+            { &ei_opcua_bad_footer, { "opcua.bad_footer", PI_MALFORMED, PI_ERROR, "Message too short for padding and signature", EXPFILL }}
+        };
+    expert_module_t *expert_opcua;
 
     /** Setup protocol subtree array */
     static int *ett[] =
@@ -937,6 +1013,8 @@ void proto_register_opcua(void)
 
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_opcua, hf, array_length(hf));
+    expert_opcua = expert_register_protocol(proto_opcua);
+    expert_register_field_array(expert_opcua, ei, array_length(ei));
 
     reassembly_table_register(&opcua_reassembly_table,
                           &addresses_reassembly_table_functions);
