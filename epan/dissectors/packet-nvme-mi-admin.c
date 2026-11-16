@@ -271,7 +271,7 @@ dissect_nvme_mi_admin_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * the shared helper, at the standard CQE status offset (DW3 + 2). */
             proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe_dw3,
                                 tvb, 12, 4, ENC_LITTLE_ENDIAN);
-            nvme_dissect_cqe_status(tvb, pinfo, 14, admin_tree);
+            nvme_dissect_cqe_status(tvb, pinfo, admin_tree, 14, false);
 
             if (len > 16) {
                 /* The response data payload is a slice of the command's logical
@@ -296,7 +296,15 @@ dissect_nvme_mi_admin_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                ett_nvme_mi_admin_data,
                                                &data_sub_it, "Data");
                     nvme_dissect_admin_data_resp(data_tvb, pinfo, data_tree,
-                                                 &req->cmd, off, data_len);
+                                                 &req->cmd, off, data_len,
+                                                 /* This dissector does not verify
+                                                  * the MIC, so nothing here is
+                                                  * vouched response data. */
+                                                 (struct nvme_data_origin){
+                                                     NVME_DATA_PROV_NONE,
+                                                     NVME_DATA_WINDOW_EXPLICIT,
+                                                     off, false },
+                                                 NVME_DATA_DIR_CONTROLLER_TO_HOST);
                     nvme_mi_admin_hide_raw_or_structured(data_it, data_sub_it,
                                                          data_tree);
                 }
@@ -441,7 +449,8 @@ dissect_nvme_mi_admin_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    ett_nvme_mi_admin_data,
                                    &data_sub_it, "Data");
         nvme_dissect_admin_data_resp(data_tvb, pinfo, data_tree, &req->cmd,
-                                     off, data_len);
+                                     off, data_len, NVME_DATA_ORIGIN_NONE,
+                                     NVME_DATA_DIR_HOST_TO_CONTROLLER);
         nvme_mi_admin_hide_raw_or_structured(data_it, data_sub_it, data_tree);
     }
 

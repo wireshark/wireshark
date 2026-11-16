@@ -391,7 +391,7 @@ bind_cmd_to_qctx(packet_info *pinfo, struct nvme_q_ctx *q_ctx,
     } else {
         /* Already visited this frame */
         ctx = (struct nvme_rdma_cmd_ctx*)
-                  nvme_lookup_cmd_in_done_list(pinfo, q_ctx, cmd_id);
+                  nvme_lookup_cmd_in_done_list(pinfo, q_ctx, cmd_id, false);
         /* if we have already visited frame but haven't found completion yet,
          * we won't find cmd in done q, so allocate a dummy ctx for doing
          * rest of the processing.
@@ -428,7 +428,13 @@ static void dissect_rdma_read_transfer(tvbuff_t *data_tvb, packet_info *pinfo, p
     if (rdma_cmd->n_cmd_ctx.fabric == true)
         dissect_nvmeof_cmd_data(data_tvb, pinfo, data_tree, 0, &q_ctx->n_q_ctx, &rdma_cmd->n_cmd_ctx, len);
     else
-        dissect_nvme_data_response(data_tvb, pinfo, data_tree, &q_ctx->n_q_ctx, &rdma_cmd->n_cmd_ctx, len, false);
+        /* An RDMA READ moves data from host memory to the controller, so
+         * these are the host's bytes for the command, not the controller's
+         * response data. */
+        dissect_nvme_data_response(data_tvb, pinfo, data_tree, &q_ctx->n_q_ctx,
+                                   &rdma_cmd->n_cmd_ctx, len, false,
+                                   NVME_DATA_DIR_HOST_TO_CONTROLLER,
+                                   NVME_DATA_ORIGIN_NONE);
 }
 
 static void
@@ -532,7 +538,7 @@ dissect_nvme_rdma_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo,
     } else {
         /* Already visited this frame */
         cmd_ctx = (struct nvme_rdma_cmd_ctx*)
-                        nvme_lookup_cmd_in_done_list(pinfo, &q_ctx->n_q_ctx, cmd_id);
+                        nvme_lookup_cmd_in_done_list(pinfo, &q_ctx->n_q_ctx, cmd_id, true);
         if (!cmd_ctx)
             goto not_found;
     }
@@ -644,7 +650,16 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
                 nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_write_to_host_prev , cmd->data_tr_pkt_num[idx-1], false);
             if ((idx + 1) < NVME_CMD_MAX_TRS)
                 nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_write_to_host_next , cmd->data_tr_pkt_num[idx+1], false);
-            dissect_nvme_data_response(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx, cmd, len, false);
+            /* An RDMA WRITE to the host carries the controller's response
+             * data for the command.  This path maintains the running transfer
+             * offset itself -- nvme_add_data_tr_off() just above, and the
+             * tr_bytes increment just below -- so the offset the shared
+             * decoder infers is the real one and no explicit origin is
+             * needed. */
+            dissect_nvme_data_response(nvme_tvb, pinfo, root_tree,
+                                       &q_ctx->n_q_ctx, cmd, len, false,
+                                       NVME_DATA_DIR_CONTROLLER_TO_HOST,
+                                       NVME_DATA_ORIGIN_TRACKED);
             if (!PINFO_FD_VISITED(pinfo))
                  cmd->tr_bytes += len;
         } else {

@@ -110954,8 +110954,16 @@ class TestDissectNvme:
 
     def test_nvme_no_errors(self, cmd_tshark, capture_file, test_env):
         '''Every frame is NVMe/TCP, 1217 of them carry an NVMe command,
-        completion or data. No frame is malformed or has a warning or
-        error expert info, in one pass and in two.'''
+        completion or data. No frame has an error expert info. The 19
+        frames that carry a warning, three of them flagged malformed
+        (365, 479, 689), are the ones that deliberately hold a value the
+        specifications do not allow (a reserved Identify CNS, a
+        descriptor whose length does not match its type, an EOM header
+        size of 0, Security Send with protocol 0 or a window past TL,
+        ...), in one pass and in two.'''
+        warned = ['203', '257', '365', '479', '689', '746', '749', '752',
+                  '1146', '1148', '1151', '1156', '1158', '1161', '1166',
+                  '1168', '1171', '1181', '1191']
         for passes in ((), ('-2',)):
             lines = self._fields(cmd_tshark, capture_file, test_env, 'nvme-tcp',
                                  'frame.number', opts=passes)
@@ -110964,9 +110972,16 @@ class TestDissectNvme:
                                  'frame.number', opts=passes)
             assert len(lines) == 1217
             lines = self._fields(cmd_tshark, capture_file, test_env,
-                                 '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                 '_ws.expert.severity >= 0x00800000',
                                  'frame.number', opts=passes)
             assert not lines
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 '_ws.malformed', 'frame.number', opts=passes)
+            assert lines == ['365', '479', '689']
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 '_ws.expert.severity >= 0x00600000',
+                                 'frame.number', opts=passes)
+            assert lines == warned
 
     def test_nvme_two_passes_same_summary(self, cmd_tshark, capture_file, test_env):
         '''The Info column is the same in one and in two passes.'''
@@ -110999,11 +111014,12 @@ class TestDissectNvme:
 
     def test_nvme_selftest_index(self, cmd_tshark, capture_file, test_env):
         '''The three results of a Self-test log page are numbered
-        latest 0, 1 and 2 (the index was never incremented).'''
+        1, 2 and 3 (the index was never incremented).'''
         out = self._tree(cmd_tshark, capture_file, test_env, 'tcp.port == 40007')
-        lines = [l.strip() for l in out.splitlines() if 'latest' in l]
-        assert lines == ['Latest Self-test Result Data Structure (latest %d)' % i
-                         for i in range(3)]
+        lines = [l.strip() for l in out.splitlines()
+                 if l.strip().startswith('Self-test Result Data Structure')]
+        assert lines == ['Self-test Result Data Structure %d (RDS%d)' % (i, i)
+                         for i in range(1, 4)]
 
     def test_nvme_ctrl_rab_mdts_overflow(self, cmd_tshark, capture_file, test_env):
         '''RAB and MDTS of 64 or more are shown as overflow instead of
@@ -111442,7 +111458,8 @@ class TestDissectNvmeTcp:
 
     def test_nvme_tcp_ready_to_transfer(self, cmd_tshark, capture_file, test_env):
         '''A Write is split in two R2T and H2CData PDUs; the R2T fields and the
-        H2CData link to the Write are shown.'''
+        H2CData link to the Write are shown. The second H2CData carries the
+        data the second R2T asked for, at offset 512.'''
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'nvme-tcp.r2t', '-Tfields', '-eframe.number',
                 '-envme-tcp.ttag', '-envme-tcp.r2t.offset', '-envme-tcp.r2t.length')
@@ -111451,7 +111468,7 @@ class TestDissectNvmeTcp:
                 '-Y', 'nvme-tcp.type == 6 && nvme-tcp.cmd_pkt == 88',
                 '-Tfields', '-eframe.number', '-e_ws.col.Info')
         assert lines == ['90\tNVMeOF Data for Write, offset 0',
-                         '92\tNVMeOF Data for Write, offset 0']
+                         '92\tNVMeOF Data for Write, offset 512']
 
 
 class TestDissectNwmtp:
@@ -147133,7 +147150,9 @@ class TestDissectTcgStorage:
 
     def test_tcg_storage_clean(self, cmd_tshark, capture_file, test_env):
         '''All 118 frames are NVMe-MI, 58 of them carry TCG Storage; no
-        malformed frame and no expert info in one and two passes.'''
+        malformed frame. Frame 111 carries a warning, in one and two passes:
+        its TPER_RESET has a Transfer Length of 0, which shall be non-zero
+        (Opal SSC 2.30, 3.2.3 TPER_RESET command).'''
         for passes in ((), ('-2',)):
             cap = capture_file(self.CAP)
             assert len(self._fields(cmd_tshark, cap, test_env, 'nvme-mi',
@@ -147141,7 +147160,9 @@ class TestDissectTcgStorage:
             assert len(self._fields(cmd_tshark, cap, test_env, 'tcg-storage',
                     ['frame.number'], *passes)) == 58
             assert self._fields(cmd_tshark, cap, test_env,
-                    '_ws.malformed || _ws.expert', ['frame.number'], *passes) == []
+                    '_ws.malformed', ['frame.number'], *passes) == []
+            assert self._fields(cmd_tshark, cap, test_env,
+                    '_ws.expert', ['frame.number'], *passes) == ['111']
 
     def test_tcg_storage_level0(self, cmd_tshark, capture_file, test_env):
         '''Feature descriptors of every kind (including a vendor specific

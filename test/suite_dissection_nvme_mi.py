@@ -1457,11 +1457,11 @@ class TestNvmeMiAdminResponse:
 
     def test_get_features_tt_dw0(self, assert_frame_matches):
         """F2: Get Features Temperature Threshold completion result (CQE DW0)
-        decodes via the shared per-FID decoder (TMPTH/TMPSEL/THPSEL)."""
+        decodes via the shared per-FID decoder (TMPTH; bits 31:16 are not
+        defined for a Get Features completion)."""
         assert_frame_matches(self.FILE, 2,
                              'nvme.cqe.dword0.get_features.tt.tmpth == 0x14b && '
-                             'nvme.cqe.dword0.get_features.tt.tmpsel == 2 && '
-                             'nvme.cqe.dword0.get_features.tt.thpsel == 1')
+                             'nvme.cqe.dword0.get_features.tt.undefined == 0x12')
 
     def test_set_features_nq_dw0(self, assert_frame_matches):
         """F4: Set Features Number of Queues success result decodes NSQA/NCQA."""
@@ -1470,10 +1470,11 @@ class TestNvmeMiAdminResponse:
                              'nvme.cqe.dword0.set_features.ncqa == 7')
 
     def test_set_features_error_dw0(self, assert_frame_matches):
-        """F6: a failed Set Features (status SC != 0) decodes CQE DW0 as the
-        Set-Features error-specific code rather than the success bitmask."""
+        """F6: a failed Set Features (status SC != 0) shows CQE DW0 as the
+        plain completion dword, not as the success bitmask."""
         assert_frame_matches(self.FILE, 6,
-                             'nvme.cqe.dword0.set_features.err == 0x0e')
+                             'nvme.cqe.dword0 == 0x0000000e && '
+                             '!nvme.cqe.dword0.set_features.nq.nsqa')
 
     def test_status_subfields_error(self, assert_frame_matches):
         """F6: the NVMe status word (SCT/SC/DNR) decodes from CQE DW3."""
@@ -1707,7 +1708,7 @@ class TestNvmeMiAdminLogpageWindowed:
             'nvme.cmd.get_logpage.sanitize.sstat.mvcncld == 1 && '
             'nvme.cmd.get_logpage.sanitize.sstat.nde == 1 && '
             'nvme.cmd.get_logpage.sanitize.sstat.gde == 0 && '
-            'nvme.cmd.get_logpage.sanitize.sstat.mrst == 2')
+            'nvme.cmd.get_logpage.sanitize.sstat.sos == 2')
 
     def test_sanitize_state_fields(self, assert_frame_matches):
         """F24: bytes 47:32 carry ETPVDS, the Sanitize State Information
@@ -2180,7 +2181,7 @@ class TestNvmeMiFeaturesWindowed:
         nor `len` as parameters before the fix (a fixed 8-byte read
         regardless of how much data actually arrived)."""
         assert_frame_matches(self.FILE, 4,
-            'nvme.set_features.tst == 0xa7a6a5a4a3a2a1a0')
+            'nvme.get_features.tst == 0xa7a6a5a4a3a2a1a0')
 
     def test_plmc_short_transfer_no_underflow(self, assert_frame_matches, tshark_fields):
         """F6: a 40-byte PLMC transfer (<56 bytes) still correctly decodes
@@ -2554,7 +2555,7 @@ class TestNvmeMiAdminIdentify:
         concurrency is *unavailable*, so the old label turned the bit into a
         confident statement of the opposite fact."""
         attrs = pdml_field_attrs(self.FILE, 2)
-        showname = attrs['nvme.cmd.identify.ctrl.dsto.mds']['showname']
+        showname = attrs['nvme.cmd.identify.ctrl.dsto.sdso']['showname']
         assert 'Single Device Self-test Operation (SDSO)' in showname
         assert 'Concurrent Self-Tests' not in showname
 
@@ -2871,15 +2872,15 @@ class TestNvmeMiAdminIdentify:
         runs actually shrank.
 
         Expected, in structure order:
-          rsvd0 103          1    rsvd6 109:108      2
-          rsvd1 239:144     96    rsvd2 359          1
-          rsvd7 367:362      6    rsvd8 511:396    116
-          rsvd4 577          1    rsvd9 767:588    180
+          rsvd6 109:108      2    rsvd1 239:144     96
+          rsvd2 359          1    rsvd7 367:363      5
+          rsvd8 511:424     88    rsvd4 577          1
+          rsvd9 767:588    180
           nvmeof.rsvd 2047:1808  240
         """
-        names = ('rsvd0', 'rsvd6', 'rsvd1', 'rsvd2', 'rsvd7',
+        names = ('rsvd6', 'rsvd1', 'rsvd2', 'rsvd7',
                  'rsvd8', 'rsvd4', 'rsvd9', 'nvmeof.rsvd')
-        expected = (1, 2, 96, 1, 6, 116, 1, 180, 240)
+        expected = (2, 96, 1, 5, 88, 1, 180, 240)
         stdout = tshark_fields(
             self.FILE, 'frame.number == 2', separator='|',
             fields=['nvme.cmd.identify.ctrl.' + n for n in names])
@@ -3051,7 +3052,7 @@ class TestNvmeMiAdminLogPage:
         setting and both high Event Type bits -- ATDE (bit 15, Deterministic
         Excursion) and ATVE (bit 14, typical or maximum value exceeded)."""
         assert_frame_matches(self.FILE, 22,
-                             'nvme.cmd.get_logpage.pred_lat.status.ws == 1 && '
+                             'nvme.cmd.get_logpage.pred_lat.status.plmw == 1 && '
                              'nvme.cmd.get_logpage.pred_lat.etype.atde == 1 && '
                              'nvme.cmd.get_logpage.pred_lat.etype.atve == 1')
 
@@ -3116,7 +3117,8 @@ class TestNvmeMiAdminLogPage:
         value-only check on the neighbouring fields would not."""
         stdout = tshark_fields(self.FILE, 'frame.number == 6',
                                fields=('nvme.cmd.get_logpage.errinf.rsvd1',))
-        rsvd = stdout.strip()
+        # The page holds two entries; the second is the 0xEE fill.
+        rsvd = stdout.strip().split(',')[0]
         assert rsvd == self.ERRINF_RSVD1
         assert len(rsvd) // 2 == 21
 
@@ -3211,7 +3213,8 @@ class TestNvmeMiAdminLogPage:
                                        'nvme.cmd.get_logpage.errinf.pel.bytee',
                                        'nvme.cmd.get_logpage.errinf.pel.bite',
                                        'nvme.cmd.get_logpage.errinf.pel.rsvd'))
-        assert stdout.strip() == '0x852a|42|5|16'
+        # The first entry is the fixture's; the second is the 0xEE fill after it.
+        assert stdout.strip() == '0x852a,0xeeee|42,238|5,6|16,29'
 
     def test_ana_state_attributes_container_has_no_mask(self, tshark_fields):
         """F16: the ANA Group Descriptor's ANASA byte (NVMe Base 2.3 Figure
@@ -3342,8 +3345,8 @@ class TestNvmeMiAdminLogPage:
         being wrong shows up as a different value, not a missing field."""
         stdout = tshark_fields(
             self.FILE, 'frame.number == 17', separator='|',
-            fields=['nvme.cmd.identify.get_logpage.dword14.uuid_index',
-                    'nvme.cmd.identify.get_logpage.dword14.rsvd',
+            fields=['nvme.cmd.get_logpage.dword14.uuid_index',
+                    'nvme.cmd.get_logpage.dword14.rsvd',
                     'nvme.cmd.get_logpage.dword14.ot',
                     'nvme.cmd.get_logpage.dword14.csi'])
         assert stdout.strip() == '0x00000045|0x00000000|True|0x00000002'
@@ -3446,8 +3449,7 @@ class TestNvmeMiAdminFeatures:
         reaches the shared per-FID CQE DW0 decoder over the MI path."""
         assert_frame_matches(self.FILE, 8,
                              'nvme.cqe.dword0.get_features.tt.tmpth == 0x14b && '
-                             'nvme.cqe.dword0.get_features.tt.tmpsel == 2 && '
-                             'nvme.cqe.dword0.get_features.tt.thpsel == 1')
+                             'nvme.cqe.dword0.get_features.tt.undefined == 0x12')
 
     def test_set_features_hctm_temperatures_are_masked_halves(
             self, tshark_fields):
@@ -3532,9 +3534,9 @@ class TestNvmeMiAdminFeatures:
         """
         expected = [
             (13, 'nvme.cmd.set_features.dword11.lbart.lbarn',
-             'Number of LBA Ranges (NUM): 0x05'),
+             'Number of LBA Ranges (NUM): 0x5 (6)'),
             (16, 'nvme.cqe.dword0.get_features.lbart.lbarn',
-             'Number of LBA Ranges (NUM): 0x07'),
+             'Number of LBA Ranges (NUM): 0x7 (8)'),
             (17, 'nvme.cmd.set_features.dword11.nswp.wps',
              'Write Protection State (WPS): Write Protect Until Power Cycle (0x2)'),
             (20, 'nvme.cqe.dword0.get_features.nswp.wps',
@@ -3598,9 +3600,11 @@ class TestNvmeMiAdminEom:
         NUMD 55 and both stop the descriptor walk early; they differ only in
         how much of the transfer the window holds (224 vs 144), so this pair
         isolates the NUMD comparison from the walk itself."""
-        assert tshark_fields(
-            self.FILE,
-            'nvme.cmd.get_logpage.eom.desc_truncated').split() == ['12']
+        # No expert is raised for the missing descriptor: the header declares
+        # three and the data carries two.
+        assert tshark_fields(self.FILE, 'frame.number == 12 && _ws.expert').strip() == ''
+        assert tshark_fields(self.FILE, 'frame.number == 12',
+                             fields=('nvme.cmd.get_logpage.eom.nd',)).strip() == '3'
         # The descriptors that are present still render.
         assert tshark_fields(self.FILE, 'frame.number == 12',
                              fields=('nvme.cmd.get_logpage.eom.desc.ln',)
@@ -3623,9 +3627,9 @@ class TestNvmeMiAdminEom:
         Scoped to this frame rather than the whole capture -- F12 is the
         deliberate positive and must keep firing."""
         assert tshark_fields(
-            self.FILE,
-            'frame.number == 10 && '
-            'nvme.cmd.get_logpage.eom.desc_truncated').strip() == ''
+            self.FILE, 'frame.number == 10 && _ws.expert').strip() == ''
+        assert tshark_fields(self.FILE, 'frame.number == 10',
+                             fields=('nvme.cmd.get_logpage.eom.nd',)).strip() == '2'
         # ...while the descriptor that does fit still renders.
         assert tshark_fields(self.FILE, 'frame.number == 10',
                              fields=('nvme.cmd.get_logpage.eom.desc.ln',)
@@ -3935,7 +3939,9 @@ class TestNvmeMiErrorPaths:
             [cmd_tshark, '-r', capture_file(self.FILE), '-Y',
              'frame.number == 13', '-V'],
             encoding='utf-8', env=test_env)
-        assert 'Data: 00 01 02 03' in out
+        # CNS 1Ch (I/O Command Set Combination) has a decoder now, so the
+        # window shows as a structure.
+        assert 'I/O Command Set Combination (IOCSC): 0x0706050403020100' in out
 
     def test_rendered_data_window_hides_the_raw_bytes(self, cmd_tshark,
                                                      capture_file, test_env):
