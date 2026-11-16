@@ -570,6 +570,10 @@ int main(int argc, char *qt_argv[])
     win32_reset_library_path();
 #endif
 
+    /* Set the desktop file name before creating the application; see
+     * ui/qt/main.cpp. */
+    QGuiApplication::setDesktopFileName(QStringLiteral("org.wireshark.Stratoshark"));
+
     /* Create The Stratoshark app */
     StratosharkApplication ss_app(argc, qt_argv);
 

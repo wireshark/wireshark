@@ -19,7 +19,6 @@ StratosharkApplication::StratosharkApplication(int &argc, char **argv) :
     Q_INIT_RESOURCE(ssicon);
 #endif
     setApplicationName("Stratoshark");
-    setDesktopFileName(QStringLiteral("org.wireshark.Stratoshark"));
 }
 
 StratosharkApplication::~StratosharkApplication()
