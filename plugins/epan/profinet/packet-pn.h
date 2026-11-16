@@ -32,6 +32,17 @@ extern int proto_pn_io_station_info;
 extern bool pnio_ps_selection;  /* given by pnio preferences */
 
 /**
+ * @brief Lazily maintained hash index over one of the object lists of a station.
+ *
+ * The index is brought up to date from the list when it is used; the lists
+ * only ever grow. The first object in list order wins for a key.
+ */
+typedef struct tagPnObjIndex {
+    wmem_map_t        *map;   /**< Key to wmem_list_frame_t of the object, NULL until first use. */
+    wmem_list_frame_t *last;  /**< Last list entry already indexed. */
+} pnObjIndex;
+
+/**
  * @brief Holds all dissection state for a single PROFINET IO station, spanning identity, frame layout, GSD metadata, and object lists.
  */
 typedef struct tagStationInfo {
@@ -62,6 +73,16 @@ typedef struct tagStationInfo {
 
     /* Different ModuleIdentnumber */
     wmem_list_t *diff_module;       /**< List of moduleDiffInfo entries for modules whose ident number differs from the expected value. */
+
+    /* Indexes of the lists above, by frame offset and by slot/subslot */
+    pnObjIndex off_io_in;           /**< Frame offset index of ioobject_data_in. */
+    pnObjIndex off_io_out;          /**< Frame offset index of ioobject_data_out. */
+    pnObjIndex off_iocs_in;         /**< Frame offset index of iocs_data_in. */
+    pnObjIndex off_iocs_out;        /**< Frame offset index of iocs_data_out. */
+    pnObjIndex slot_io_in;          /**< Slot/subslot index of ioobject_data_in. */
+    pnObjIndex slot_io_out;         /**< Slot/subslot index of ioobject_data_out. */
+    pnObjIndex slot_iocs_in;        /**< Slot/subslot index of iocs_data_in. */
+    pnObjIndex slot_iocs_out;       /**< Slot/subslot index of iocs_data_out. */
 
     /* Flag for the extraction of PNIO Objects without AR */
     bool filled_with_objects;       /**< True if this station's object lists have been populated from frames that arrived without an established AR. */
@@ -170,6 +191,19 @@ extern void pn_rsi_reassemble_init(void);
  * @param station_info Pointer to the stationInfo structure to be initialized.
  */
 extern void init_pnio_rtc1_station(stationInfo *station_info);
+
+/**
+ * @brief Find an object of a station list by frame offset or by slot/subslot in O(1).
+ *
+ * @param idx The index belonging to the list.
+ * @param list The list (of ioDataObject, or of iocsObject if is_iocs).
+ * @param is_iocs True if the list holds iocsObject entries.
+ * @param by_slot True to look up by slot and subslot (key is (slot << 16) | subslot), false by frame offset (key is the offset).
+ * @param key The key to look up.
+ * @return The list entry of the first object with that key, or NULL.
+ */
+extern wmem_list_frame_t *pn_obj_index_find(pnObjIndex *idx, wmem_list_t *list,
+    bool is_iocs, bool by_slot, uint32_t key);
 
 /**
  * @brief Dissects a 8-bit unsigned integer from the packet buffer.
