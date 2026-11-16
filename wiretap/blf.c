@@ -2494,6 +2494,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, char **err_info, in
 
     uint16_t payload_length;
     uint16_t payload_length_valid;
+    uint16_t headerCrc;
     uint8_t  tmpbuf[7];
     int      frheadersize = sizeof(frheader);
     unsigned caplen, len;
@@ -2534,12 +2535,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, char **err_info, in
     }
 
     /* Measurement Header */
-    /* TODO: It seems that this format support both channels at the same time!? */
-    if (frheader.channelMask == BLF_FLEXRAYRCVMSG_CHANNELMASK_A) {
-        tmpbuf[0] = BLF_FLEXRAYDATA_FRAME;
-    } else {
-        tmpbuf[0] = BLF_FLEXRAYDATA_FRAME | BLF_FLEXRAYDATA_CHANNEL_B;
-    }
+    tmpbuf[0] = BLF_FLEXRAYDATA_FRAME;
 
     /* Error Flags */
     tmpbuf[1] = 0;
@@ -2564,14 +2560,34 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, char **err_info, in
     }
 
     tmpbuf[3] = 0x00ff & frheader.frameId;
-    tmpbuf[4] = (0xfe & frheader.payloadLength) | ((frheader.headerCrc1 & 0x0400) >> 10);
-    tmpbuf[5] = (0x03fc & frheader.headerCrc1) >> 2;
-    tmpbuf[6] = ((0x0003 & frheader.headerCrc1) << 6) | (0x3f & frheader.cycle);
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf) + payload_length_valid);
-    ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
     caplen = sizeof(tmpbuf) + payload_length_valid;
     len = sizeof(tmpbuf) + payload_length;
+
+    /* XXX - The format supports both Channel A and B in a single entry, but
+     * we have no way to represent that in the FlexRay header, nor we can
+     * create two different packets from the same entry.
+     * Keep only channel A in that case.
+     */
+    if (frheader.channelMask & BLF_FLEXRAYRCVMSG_CHANNELMASK_A) {
+        headerCrc = frheader.headerCrc1;
+    }
+    else if (frheader.channelMask & BLF_FLEXRAYRCVMSG_CHANNELMASK_B) {
+        headerCrc = frheader.headerCrc2;
+
+        tmpbuf[0] |= BLF_FLEXRAYDATA_CHANNEL_B;
+    }
+    else {
+        ws_debug("FlexRay channel mask not recognized.");
+        return false;
+    }
+
+    tmpbuf[4] = (0xfe & frheader.payloadLength) | ((headerCrc & 0x0400) >> 10);
+    tmpbuf[5] = (0x03fc & headerCrc) >> 2;
+    tmpbuf[6] = ((0x0003 & headerCrc) << 6) | (0x3f & frheader.cycle);
+
+    ws_buffer_assure_space(&params->rec->data, caplen);
+    ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
     if (payload_length_valid > 0 && !blf_read_bytes(params, data_start + frheadersize, ws_buffer_end_ptr(&params->rec->data), payload_length_valid, err, err_info)) {
         ws_debug("copying flexray payload failed");
@@ -2579,7 +2595,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, char **err_info, in
     }
     ws_buffer_increase_length(&params->rec->data, payload_length_valid);
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channelMask, UINT16_MAX, caplen, len);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, frheader.dir);
 
     return true;
