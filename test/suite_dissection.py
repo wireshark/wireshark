@@ -1984,8 +1984,9 @@ class TestDissectMoqt:
                 b''.join(cls._vi64(len(field)) + field for field in fields))
 
     @classmethod
-    def _message(cls, message_type, payload):
-        return cls._vi64(message_type) + len(payload).to_bytes(2, 'big') + payload
+    def _message(cls, message_type, payload, draft=18):
+        length = cls._vi64(len(payload)) if draft >= 23 else len(payload).to_bytes(2, 'big')
+        return cls._vi64(message_type) + length + payload
 
     @classmethod
     def _parameters(cls, entries):
@@ -2024,7 +2025,8 @@ class TestDissectMoqt:
         capture_path = result_file(f'{name}.pcapng')
         with open(text_path, 'w') as text_file:
             text_file.write(cls._hexdump(packets))
-        dissector = dissector.replace('moqt', f'moqt-{draft}', 1)
+        if draft is not None:
+            dissector = dissector.replace('moqt', f'moqt-{draft}', 1)
         subprocess.check_call(
             (cmd_text2pcap, '-q', '-P', dissector, text_path, capture_path),
             env=base_env)
@@ -2061,6 +2063,121 @@ class TestDissectMoqt:
                                     for value in values))
             rows.append(row)
         return rows
+
+    @pytest.mark.parametrize('extra_args', ((), ('-2',)))
+    def test_moqt_draft23_control_messages(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env, extra_args):
+        '''Draft-23 framing, counted fill, new parameters and Error Details.'''
+        vi, params, kv = self._vi64, self._parameters, self._key_values
+        lp = lambda value: vi(len(value)) + value
+        message = lambda kind, body: self._message(kind, body, draft=23)
+        track = self._namespace((b'live',)) + lp(b'video')
+        fill = params(((0x20, b'\x09'), (0x21, vi(4) + vi(10) + vi(0) + vi(2) + vi(3))))
+        redirect = lp(b'moqt://relay.example') + track
+        packets = (
+            message(0x2f00, kv(((9, lp(vi(100000))),))),
+            message(3, vi(0) + track + params(((0x11, b'\x01'), (0x23, fill), (0x35, b'\x01')))),
+            message(0x1d, vi(1) + track + vi(7) + params(((0x11, b'\x00'), (0x36, vi(77))))),
+            message(8, self._namespace((b'demo',)) + params(())),
+            message(7, params(((8, vi(5)), (9, vi(12) + vi(3)))) + kv(((0x0e, vi(44)),))),
+            message(5, vi(0x34) + vi(0) + lp(b'') + kv(((1, lp(redirect)), (3, lp(b'x')), (3, lp(b'y'))))),
+            message(5, vi(0x33) + vi(0) + lp(b'') + kv(((2, vi(0x4000)), (2, vi(0x4001))))),
+            message(5, vi(0x0a) + vi(0) + lp(b'')),
+            message(0x0b, vi(7) + vi(0) + lp(b'')),
+            message(0x10, lp(b'moqt://' + b'a' * 200) + vi(10)),
+            # Each unknown Detail fits its KVP limit; the message exceeds 65535.
+            message(5, vi(1) + vi(0) + lp(b'') + kv(((3, lp(b'a' * 65000)), (5, lp(b'b' * 1000))))),
+        )
+        capture = self._make_capture(cmd_text2pcap, result_file, base_env,
+                                     'moqt-draft23-control', 'moqt', packets, draft=23)
+        fields = lambda display, columns: self._field_rows(
+            cmd_tshark, capture, test_env, display, columns, extra_args)
+        assert fields('frame.number == 1', ('moqt.setup.option.integer',)) == [['100000']]
+        assert fields('frame.number == 2', ('moqt.parameter.type', 'moqt.parameter.uint8',
+                                           'moqt.location_filter.type')) == [['17,35,32,33,53', '1,9,1', '4']]
+        assert fields('frame.number == 3', ('moqt.request_id',)) == [['1,77']]
+        assert fields('frame.number == 4', ('moqt.parameter.count',)) == [['0']]
+        assert fields('frame.number == 5', ('moqt.message.type', 'moqt.group_id',
+                                           'moqt.object_id', 'moqt.property.integer')) == [['7', '12', '3', '44']]
+        assert fields('frame.number == 6', ('moqt.error_detail.type', 'moqt.uri')) == [['1,3,3', 'moqt://relay.example']]
+        assert fields('frame.number == 7', ('moqt.error_detail.type', 'moqt.property.type')) == [['2,2', '16384,16385']]
+        assert int(fields('frame.number == 11', ('moqt.message.length',))[0][0]) > 65535
+        assert self._matching_frames(cmd_tshark, capture, test_env,
+                                     '_ws.expert.severity == 0x00800000 || _ws.malformed', extra_args) == []
+
+    @pytest.mark.parametrize('extra_args', ((), ('-2',)))
+    def test_moqt_draft23_fetch_indicators(
+            self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env, extra_args):
+        '''All range markers carry delta IDs; Group/Track markers carry no fields.'''
+        vi = self._vi64
+        first = vi(0x1f) + vi(10) + vi(2) + vi(5) + b'\x07' + vi(1) + b'a'
+        second = vi(0x05) + vi(0) + vi(1) + b'b'  # Object ID 5 + 0 + 2 = 7.
+        indicators = b''.join(vi(kind) + vi(0) + vi(1) for kind in (0x8c, 0x10c, 0x20c, 0x40c))
+        packets = (vi(5) + vi(4) + first + second + indicators + vi(0x80),
+                   vi(5) + vi(6) + first + vi(0x81))
+        capture = self._make_capture(cmd_text2pcap, result_file, base_env,
+                                     'moqt-draft23-fetch', 'moqt', packets, draft=23)
+        assert self._field_rows(cmd_tshark, capture, test_env, 'moqt',
+                               ('moqt.fetch.serialization_flags', 'moqt.group_id_delta',
+                                'moqt.object_id_delta', 'moqt.object.payload'), extra_args) == [
+            ['31,5,140,268,524,1036,128', '10,0,0,0,0', '5,0,1,1,1,1', '61,62'],
+            ['31,129', '10', '5', '61'],
+        ]
+        assert self._matching_frames(cmd_tshark, capture, test_env,
+                                     '_ws.expert.severity == 0x00800000 || _ws.malformed', extra_args) == []
+
+    @pytest.mark.parametrize('extra_args', ((), ('-2',)))
+    def test_moqt_draft23_invalid_layouts(
+            self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env, extra_args):
+        '''Removed types, missing Redirect Details, forbidden fill, and bad lengths.'''
+        vi, params = self._vi64, self._parameters
+        message = lambda kind, body: self._message(kind, body, draft=23)
+        track = vi(0) + vi(1) + b'a'
+        packets = (
+            message(0x18, b'\x00'),  # FETCH_OK no longer has a separate type.
+            message(3, vi(0) + track + params(((0x10, b'\x01'),))),
+            message(5, vi(0x34) + vi(0) + vi(0)),  # Missing required REDIRECT.
+            message(3, vi(0) + track + params(((0x23, params(((0x35, b'\x01'),))),))),
+            b'\x03\xff' + b'\xff' * 8,  # Length cannot fit in a tvbuff.
+            b'\x03\x80',  # Incomplete vi64 Length.
+            vi(5) + vi(0) + vi(0x40c) + vi(0),  # Missing range Object ID Delta.
+            message(3, vi(0) + track + params(((0x11, b'\x02'),))),
+            message(0x2f00, vi(9) + vi(1) + vi(0)),  # Invalid maximum message size.
+        )
+        capture = self._make_capture(cmd_text2pcap, result_file, base_env,
+                                     'moqt-draft23-invalid', 'moqt', packets, draft=23)
+        assert self._matching_frames(cmd_tshark, capture, test_env,
+                                     '_ws.expert.severity == 0x00800000', extra_args) == [
+            str(i) for i in range(1, len(packets) + 1)]
+
+    @pytest.mark.parametrize('extra_args', ((), ('-2',)))
+    def test_moqt_draft23_native_quic(self, cmd_tshark, capture_file, test_env, extra_args):
+        '''ALPN selection, fragmented headers/Objects, and native datagrams.'''
+        capture = capture_file('moqt-draft23.pcapng.gz')
+        args = ('-d', 'udp.port==4443,quic', *extra_args)
+        for display in ('moqt.draft == 23 && moqt.message.type == 3',
+                        'moqt.message.type == 7 && moqt.parameter.type == 9',
+                        'moqt.parameter.type == 0x36 && moqt.request_id == 10',
+                        'moqt.error_detail.type == 1 && moqt.uri',
+                        'moqt.fetch.serialization_flags == 0x40c',
+                        'moqt.fetch.serialization_flags == 0x80',
+                        'moqt.object.status == 3', 'moqt.datagram.type == 0',
+                        'moqt.status_code == 7'):
+            assert self._matching_frames(cmd_tshark, capture, test_env, display, args)
+        assert self._matching_frames(cmd_tshark, capture, test_env,
+                                     'moqt && (_ws.expert.severity == 0x00800000 || moqt.unparsed)', args) == []
+
+    @pytest.mark.parametrize('dissector', ('moqt', 'moqt.datagram'))
+    def test_moqt_latest_draft(self, cmd_text2pcap, cmd_tshark, result_file,
+                               base_env, test_env, dissector):
+        '''Unversioned exported-PDU aliases select draft 23.'''
+        packet = (self._message(7, b'\x00', draft=23) if dissector == 'moqt'
+                  else b'\x0c\x01\x02a')
+        capture = self._make_capture(cmd_text2pcap, result_file, base_env,
+                                     'moqt-latest', dissector, (packet,), draft=None)
+        assert self._field_rows(cmd_tshark, capture, test_env, 'moqt',
+                               ('moqt.draft', 'moqt.unparsed', 'moqt.type.invalid')) == [['23', '', '']]
 
     def test_moqt_draft18_control_messages(
             self, cmd_text2pcap, cmd_tshark, result_file,
@@ -99429,8 +99546,8 @@ class TestDissectMoqtCoverage:
     moqt-18, moqt-22, moqt or one of their ".datagram" variants (QUIC
     would need ciphertext). Frames 1-161 draft 18 (setup 1-5, control
     6-74, subgroup and fetch streams 75-131, datagrams 132-161), frames
-    162-326 draft 22, 327 an empty payload, 328-331 the "moqt" names
-    for the latest draft.'''
+    162-326 draft 22, 327 an empty payload, 328-329 draft 22 control
+    messages, 330-331 the "moqt" names for the latest draft.'''
 
     @staticmethod
     def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
@@ -99456,14 +99573,14 @@ class TestDissectMoqtCoverage:
 
     def test_moqt_drafts(self, cmd_tshark, capture_file, test_env):
         '''The draft comes from the Exported PDU name: moqt-18 and moqt-22
-        select their draft, moqt the latest one (22).'''
-        for draft, count in ((18, 161), (22, 169)):
+        select their draft, moqt the latest one (23).'''
+        for draft, count in ((18, 161), (22, 167), (23, 2)):
             rows = self.fields(cmd_tshark, capture_file, test_env,
                     f'moqt.draft == {draft}', 'frame.number')
             assert len(rows) == count
         rows = self.fields(cmd_tshark, capture_file, test_env,
-                'frame.number >= 328 && frame.number <= 330', 'moqt.draft')
-        assert rows == [['22']] * 3
+                'frame.number >= 330', 'moqt.draft')
+        assert rows == [['23']] * 2
 
     def test_moqt_goaway_request_id(self, cmd_tshark, capture_file, test_env):
         '''GOAWAY on the control stream carries a Request ID in draft 18

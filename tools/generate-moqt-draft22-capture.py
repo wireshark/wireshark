@@ -2,20 +2,21 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 """
-Generate test/captures/moqt-draft22.pcapng.gz: an MOQT draft-22 session over
-QUIC (ALPN "moqt-22") between an in-process aioquic client and server.  The
+Generate an MOQT draft-22 or draft-23 session over QUIC between an in-process
+aioquic client and server. The
 TLS secrets are embedded in a Decryption Secrets Block so that the capture
 decrypts without a keylog file.
 
 Requires: pip install aioquic
 Usage: generate-moqt-draft22-capture.py OUTPUT.pcapng.gz
+       generate-moqt-draft22-capture.py OUTPUT.pcapng.gz --draft 23
 """
 
+import argparse
 import datetime
 import gzip
 import io
 import struct
-import sys
 
 from aioquic.quic.configuration import QuicConfiguration
 from aioquic.quic.connection import QuicConnection
@@ -26,6 +27,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.x509.oid import NameOID
 
 ALPN = "moqt-22"
+DRAFT = 22
 CLIENT = ("192.0.2.1", 50000)
 SERVER = ("192.0.2.2", 4443)
 
@@ -73,7 +75,8 @@ def kvps(*items):
 
 
 def msg(mtype, body):
-    return vi(mtype) + struct.pack("!H", len(body)) + body
+    length = vi(len(body)) if DRAFT >= 23 else struct.pack("!H", len(body))
+    return vi(mtype) + length + body
 
 
 def location(group, obj):
@@ -206,30 +209,43 @@ def write_pcapng(path, packets, keylog):
 # --- The MOQT session ------------------------------------------------------
 
 def main():
+    global DRAFT, ALPN
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("output")
+    parser.add_argument("--draft", type=int, choices=(22, 23), default=22)
+    args = parser.parse_args()
+    DRAFT = args.draft
+    ALPN = f"moqt-{DRAFT}"
+    paused_type = 0x11 if DRAFT >= 23 else P_FORWARD
+    paused, resumed = (1, 0) if DRAFT >= 23 else (0, 1)
     s = Session()
     c, sv = s.client, s.server
     track_ns = ("live", "demo")
 
     # Control streams.
     c_ctl, s_ctl = c.get_next_available_stream_id(is_unidirectional=True), sv.get_next_available_stream_id(is_unidirectional=True)
-    s.send(c, c_ctl, msg(SETUP, kvps((0x01, b"/moq"), (0x05, b"moq.example"), (0x07, b"wireshark-test/1.0"), (0x08, 4))))
+    options = kvps((0x01, b"/moq"), (0x05, b"moq.example"), (0x07, b"wireshark-test/1.0"), (0x08, 4))
+    if DRAFT >= 23:
+        options += vi(1) + lp(vi(100000))  # Type 0x09, delta from 0x08.
+    s.send(c, c_ctl, msg(SETUP, options), split=3 if DRAFT >= 23 else None)
     s.send(sv, s_ctl, msg(SETUP, kvps((0x04, 4096), (0x06, 8), (0x07, b"wireshark-test-relay/1.0"))))
 
     # SUBSCRIBE with the new filter parameters, split over two STREAM frames.
     sub = c.get_next_available_stream_id()
+    fill = params((P_FILL_TIMEOUT, vi(500)), (P_LOC_FILTER, loc_filter(0x1, 2)))
     subscribe = msg(SUBSCRIBE, vi(0) + ns(*track_ns) + name("video") + params(
         (P_AUTH, lp(token_use_value(0x1, b"secret"))),
         (P_SUB_PRIO, u8(128)),
         (P_LOC_FILTER, loc_filter(0x4, 10, 0, 5, 3)),
         (P_GROUP_ORDER, u8(1)),
-        (P_FILL_PARAMS, lp(params((P_FILL_TIMEOUT, vi(500)), (P_LOC_FILTER, loc_filter(0x1, 2))))),
+        (P_FILL_PARAMS, fill if DRAFT >= 23 else lp(fill)),
         (P_SUBGROUP_FILTER, lp(u8(0) + ranges((0, 1)))),
         (P_OBJ_PROP_FILTER, lp(u8(1) + vi(0x0C) + ranges((3, 5), (10, None))))))
     s.send(c, sub, subscribe, split=len(subscribe) // 2)
     s.send(sv, sub, msg(SUBSCRIBE_OK, vi(1) + params((P_EXPIRES, vi(30000)), (P_LARGEST, location(11, 7)))
                         + kvps((0x0B, kvps((0x08, 90000))), (0x0E, 64))))
-    s.send(sv, sub, msg(PUBLISH_STATE_NOTIFY, params((P_LARGEST, location(12, 0)), (P_FORWARD, u8(0)))))
-    s.send(c, sub, msg(REQUEST_UPDATE, vi(2) + params((P_FORWARD, u8(1)))))
+    s.send(sv, sub, msg(PUBLISH_STATE_NOTIFY, params((P_LARGEST, location(12, 0)), (paused_type, u8(paused)))))
+    s.send(c, sub, msg(REQUEST_UPDATE, vi(2) + params((paused_type, u8(resumed)))))
     s.send(sv, sub, msg(REQUEST_OK, params()))
 
     # Subgroup stream; the second Object is split over two STREAM frames.
@@ -255,12 +271,16 @@ def main():
     fetch = c.get_next_available_stream_id()
     s.send(c, fetch, msg(FETCH, vi(4) + ns(*track_ns) + name("video") + params(
         (P_LOC_FILTER, loc_filter(0x4, 0, 0, 2, 5)), (P_GROUP_ORDER, u8(1)), (P_INCLUDE_PROPS, u8(0)))))
-    s.send(sv, fetch, msg(FETCH_OK, u8(0) + location(2, 5) + params()), end=True)
+    response = msg(REQUEST_OK, params((P_LARGEST, location(2, 5)))) if DRAFT >= 23 else msg(FETCH_OK, u8(0) + location(2, 5) + params())
+    s.send(sv, fetch, response, end=True)
     fs = sv.get_next_available_stream_id(is_unidirectional=True)
-    s.send(sv, fs, vi(0x05) + vi(4)
-           + vi(0x0F) + vi(0) + vi(0) + vi(0) + lp(b"obj0")
-           + vi(0x34) + vi(2) + u8(3) + lp(kvps((0x10, 1234))) + lp(b"obj2")
-           + vi(0x20C) + vi(1) + vi(3), end=True)
+    first = vi(0x1F if DRAFT >= 23 else 0x0F) + vi(0) + vi(0) + vi(0)
+    first += (u8(3) if DRAFT >= 23 else b"") + lp(b"obj0")
+    second = vi(0x34) + vi(0 if DRAFT >= 23 else 2) + u8(3) + lp(kvps((0x10, 1234))) + lp(b"obj2")
+    indicators = (vi(0x80) if DRAFT >= 23 else b"") + vi(0x20C) + vi(1) + vi(3)
+    if DRAFT >= 23:
+        indicators += vi(0x40C) + vi(0) + vi(1)
+    s.send(sv, fs, vi(0x05) + vi(4) + first + second + indicators, end=True)
 
     # Namespace discovery.
     pn = c.get_next_available_stream_id()
@@ -268,7 +288,7 @@ def main():
     s.send(sv, pn, msg(REQUEST_OK, params()))
     sn = c.get_next_available_stream_id()
     s.send(c, sn, msg(SUBSCRIBE_NAMESPACE, vi(8) + ns("live") + params()))
-    s.send(sv, sn, msg(REQUEST_OK, params()) + msg(NAMESPACE, ns("demo")))
+    s.send(sv, sn, msg(REQUEST_OK, params()) + msg(NAMESPACE, ns("demo") + (params() if DRAFT >= 23 else b"")))
     s.send(sv, sn, msg(NAMESPACE_DONE, ns("demo")))
     st = c.get_next_available_stream_id()
     s.send(c, st, msg(SUBSCRIBE_TRACKS, vi(10) + ns("live") + params(
@@ -279,19 +299,23 @@ def main():
     ts = c.get_next_available_stream_id()
     s.send(c, ts, msg(TRACK_STATUS, vi(12) + ns(*track_ns) + name("video") + params((P_INCLUDE_PROPS, u8(1)))))
     pub = sv.get_next_available_stream_id()
-    s.send(sv, pub, msg(PUBLISH, vi(1) + ns(*track_ns) + name("chat") + vi(2) + params((P_FORWARD, u8(1)))
+    publish_params = [(paused_type, u8(resumed))]
+    if DRAFT >= 23:
+        publish_params.append((0x36, vi(10)))
+    s.send(sv, pub, msg(PUBLISH, vi(1) + ns(*track_ns) + name("chat") + vi(2) + params(*publish_params)
                         + kvps((0x30, 1))))
     s.send(c, pub, msg(REQUEST_OK, params()))
-    sv.send_stream_data(ts, msg(REQUEST_ERROR, vi(0x34) + vi(0) + lp(b"moved") + lp(b"moqt://relay.example/moq")
-                                + ns(*track_ns) + name("video")), True)
-    sv.send_stream_data(pub, msg(PUBLISH_DONE, vi(0x2) + vi(0) + lp(b"")), True)
+    redirect = lp(b"moqt://relay.example/moq") + ns(*track_ns) + name("video")
+    details = kvps((0x01, redirect)) if DRAFT >= 23 else redirect
+    sv.send_stream_data(ts, msg(REQUEST_ERROR, vi(0x34) + vi(0) + lp(b"moved") + details), True)
+    sv.send_stream_data(pub, msg(PUBLISH_DONE, vi(0x7 if DRAFT >= 23 else 0x2) + vi(0) + lp(b"")), True)
     s.flush()
 
     s.send(sv, s_ctl, msg(GOAWAY, lp(b"moqt://other.example/moq") + vi(5000)))
     c.close(error_code=0)
     s.flush()
 
-    write_pcapng(sys.argv[1], s.packets, s.keylog.getvalue())
+    write_pcapng(args.output, s.packets, s.keylog.getvalue())
     print(f"{len(s.packets)} packets")
 
 

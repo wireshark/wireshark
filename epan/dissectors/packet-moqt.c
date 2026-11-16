@@ -1,6 +1,6 @@
 /* packet-moqt.c
  * Routines for Media over QUIC Transport (MOQT) dissection
- * draft-ietf-moq-transport-18 and draft-ietf-moq-transport-22
+ * draft-ietf-moq-transport-18, -22 and -23
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -30,6 +30,8 @@
  * the Range Filter parameters were added.  The data stream and datagram layouts
  * are the same apart from the End of Timed-Out Range FETCH marker, so draft 22
  * reuses the draft-18 stream and datagram parsers.
+ * Draft 23 uses vi64 message lengths, counted FILL_PARAMETERS, Error Details,
+ * and new FETCH indicators. Its descriptors override only changed layouts.
  */
 
 void proto_register_moqt(void);
@@ -37,6 +39,7 @@ void proto_reg_handoff_moqt(void);
 
 #define MOQT_ALPN_DRAFT_18 "moqt-18"
 #define MOQT_ALPN_DRAFT_22 "moqt-22"
+#define MOQT_ALPN_DRAFT_23 "moqt-23"
 
 #define MOQT_MSG_REQUEST_UPDATE       0x02
 #define MOQT_MSG_SUBSCRIBE            0x03
@@ -87,10 +90,15 @@ void proto_reg_handoff_moqt(void);
 #define MOQT_PARAM_OBJECT_PROPERTY_FILTER     0x28
 #define MOQT_PARAM_TRACK_PROPERTY_FILTER      0x29
 #define MOQT_PARAM_INCLUDE_PROPERTIES         0x35
+#define MOQT_PARAM_PAUSED                     0x11  /* draft 23 replaces FORWARD */
+#define MOQT_PARAM_SUBSCRIBE_TRACKS_ID        0x36
 
 #define MOQT_PROPERTY_IMMUTABLE               0x0b
 
 #define MOQT_SETUP_AUTHORIZATION_TOKEN        0x03
+#define MOQT_SETUP_MAX_CONTROL_MESSAGE_SIZE   0x09
+#define MOQT_ERROR_DETAIL_REDIRECT            0x01
+#define MOQT_ERROR_DETAIL_UNSUPPORTED_PROPERTY 0x02
 
 /* Draft 18 subgroup stream types (section 11.4.2). */
 #define MOQT_SUBGROUP_PROPERTIES              0x01
@@ -116,6 +124,9 @@ void proto_reg_handoff_moqt(void);
 #define MOQT_FETCH_END_NONEXISTENT_RANGE       0x8c
 #define MOQT_FETCH_END_UNKNOWN_RANGE          0x10c
 #define MOQT_FETCH_END_TIMED_OUT_RANGE        0x20c  /* draft 22 */
+#define MOQT_FETCH_END_GONE_RANGE             0x40c  /* draft 23 */
+#define MOQT_FETCH_END_GROUP                  0x80
+#define MOQT_FETCH_END_TRACK                  0x81
 
 /* Draft 18 OBJECT_DATAGRAM types (section 11.3.1). */
 #define MOQT_DATAGRAM_PROPERTIES              0x01
@@ -138,8 +149,8 @@ void proto_reg_handoff_moqt(void);
 
 static dissector_handle_t moqt_handle;              /* latest draft */
 static dissector_handle_t moqt_datagram_handle;
-static dissector_handle_t moqt_handles[2];          /* indexed as moqt_drafts */
-static dissector_handle_t moqt_datagram_handles[2];
+static dissector_handle_t moqt_handles[3];          /* indexed as moqt_drafts */
+static dissector_handle_t moqt_datagram_handles[3];
 
 static int proto_moqt;
 
@@ -171,6 +182,11 @@ static int hf_moqt_property_type;
 static int hf_moqt_property_length;
 static int hf_moqt_property_integer;
 static int hf_moqt_property_value;
+static int hf_moqt_error_detail_type_delta;
+static int hf_moqt_error_detail_type;
+static int hf_moqt_error_detail_length;
+static int hf_moqt_error_detail_integer;
+static int hf_moqt_error_detail_value;
 static int hf_moqt_properties_length;
 static int hf_moqt_group_id;
 static int hf_moqt_group_id_delta;
@@ -235,6 +251,8 @@ static int ett_moqt_setup_options;
 static int ett_moqt_setup_option;
 static int ett_moqt_properties;
 static int ett_moqt_property;
+static int ett_moqt_error_details;
+static int ett_moqt_error_detail;
 static int ett_moqt_stream_header;
 static int ett_moqt_object;
 static int ett_moqt_subgroup_type_flags;
@@ -291,6 +309,8 @@ static const val64_string moqt_draft22_setup_option_type_vals[] = {
     { 0x06, "MAX_FILTER_RANGES" },
     { 0x07, "MOQT_IMPLEMENTATION" },
     { 0x08, "MAX_REQUEST_UPDATES" },
+    /* Setup Option identifiers are shared across drafts. */
+    { MOQT_SETUP_MAX_CONTROL_MESSAGE_SIZE, "MAX_CONTROL_MESSAGE_SIZE" },
     { 0, NULL }
 };
 
@@ -360,6 +380,28 @@ static const val64_string moqt_draft22_request_error_vals[] = {
     { 0, NULL }
 };
 
+static const val64_string moqt_draft23_request_error_vals[] = {
+    { 0x00, "INTERNAL_ERROR" },
+    { 0x01, "UNAUTHORIZED" },
+    { 0x02, "TIMEOUT" },
+    { 0x03, "NOT_SUPPORTED" },
+    { 0x04, "MALFORMED_AUTH_TOKEN" },
+    { 0x05, "EXPIRED_AUTH_TOKEN" },
+    { 0x06, "GOING_AWAY" },
+    { 0x09, "EXCESSIVE_LOAD" },
+    { 0x0a, "UNAVAILABLE" },
+    { 0x10, "DOES_NOT_EXIST" },
+    { 0x11, "INVALID_RANGE" },
+    { 0x12, "MALFORMED_TRACK" },
+    { 0x20, "UNINTERESTED" },
+    { 0x31, "NAMESPACE_TOO_LARGE" },
+    { 0x33, "UNSUPPORTED_EXTENSION" },
+    { MOQT_REQUEST_ERROR_REDIRECT, "REDIRECT" },
+    { 0x35, "CONFLICTING_FILTERS" },
+    { 0x36, "INVALID_FILTER" },
+    { 0, NULL }
+};
+
 static const val64_string moqt_draft18_publish_done_vals[] = {
     { 0x00, "INTERNAL_ERROR" },
     { 0x01, "UNAUTHORIZED" },
@@ -387,6 +429,20 @@ static const val64_string moqt_draft22_publish_done_vals[] = {
     { 0, NULL }
 };
 
+static const val64_string moqt_draft23_publish_done_vals[] = {
+    { 0x00, "INTERNAL_ERROR" },
+    { 0x01, "UNAUTHORIZED" },
+    { 0x02, "TRACK_ENDED" },
+    { 0x04, "GOING_AWAY" },
+    { 0x05, "TOO_FAR_BEHIND" },
+    { 0x06, "EXPIRED" },
+    { 0x07, "EXPIRED_AUTH_TOKEN" },
+    { 0x08, "UPDATE_FAILED" },
+    { 0x09, "EXCESSIVE_LOAD" },
+    { 0x12, "MALFORMED_TRACK" },
+    { 0, NULL }
+};
+
 static const val64_string moqt_draft18_fetch_end_vals[] = {
     { MOQT_FETCH_END_NONEXISTENT_RANGE, "End of Non-Existent Range" },
     { MOQT_FETCH_END_UNKNOWN_RANGE,     "End of Unknown Range" },
@@ -397,6 +453,22 @@ static const val64_string moqt_draft22_fetch_end_vals[] = {
     { MOQT_FETCH_END_NONEXISTENT_RANGE, "End of Non-Existent Range" },
     { MOQT_FETCH_END_UNKNOWN_RANGE,     "End of Unknown Range" },
     { MOQT_FETCH_END_TIMED_OUT_RANGE,   "End of Timed-Out Range" },
+    { 0, NULL }
+};
+
+static const val64_string moqt_draft23_fetch_end_vals[] = {
+    { MOQT_FETCH_END_NONEXISTENT_RANGE, "End of Non-Existent Range" },
+    { MOQT_FETCH_END_UNKNOWN_RANGE,     "End of Unknown Range" },
+    { MOQT_FETCH_END_TIMED_OUT_RANGE,   "End of Timed-Out Range" },
+    { MOQT_FETCH_END_GONE_RANGE,        "End of Gone Range" },
+    { MOQT_FETCH_END_GROUP,             "End of Group" },
+    { MOQT_FETCH_END_TRACK,             "End of Track" },
+    { 0, NULL }
+};
+
+static const val64_string moqt_error_detail_type_vals[] = {
+    { MOQT_ERROR_DETAIL_REDIRECT, "REDIRECT" },
+    { MOQT_ERROR_DETAIL_UNSUPPORTED_PROPERTY, "UNSUPPORTED_PROPERTY" },
     { 0, NULL }
 };
 
@@ -552,6 +624,8 @@ typedef struct {
     bool failed;
     /* Set inside FILL_PARAMETERS, which cannot contain another one. */
     bool in_fill_parameters;
+    uint64_t error_code;             /* REQUEST_ERROR Error Details scope */
+    bool redirect_present;
 } moqt_cursor_t;
 
 typedef void (*moqt_parameter_decoder_t)(moqt_cursor_t *);
@@ -595,6 +669,7 @@ typedef struct {
  */
 struct moqt_draft {
     unsigned version;
+    const moqt_draft_t *base;        /* unchanged descriptors from this draft */
     const char *alpn;
     const moqt_message_descriptor_t *messages;
     unsigned message_count;
@@ -615,17 +690,20 @@ struct moqt_draft {
 
 static const moqt_draft_t moqt_draft18;
 static const moqt_draft_t moqt_draft22;
+static const moqt_draft_t moqt_draft23;
 
 /* Every supported draft, oldest first; the last one is the latest. */
 static const moqt_draft_t *const moqt_drafts[] = {
     &moqt_draft18,
     &moqt_draft22,
+    &moqt_draft23,
 };
 #define MOQT_LATEST_DRAFT (moqt_drafts[array_length(moqt_drafts) - 1])
 
 typedef enum {
     MOQT_KV_SETUP,
-    MOQT_KV_PROPERTY
+    MOQT_KV_PROPERTY,
+    MOQT_KV_ERROR_DETAIL
 } moqt_kv_kind_t;
 
 /* Section 1.4.1: a vi64 has one more byte than its leading one bits. */
@@ -1241,6 +1319,11 @@ moqt_dissect_fill_parameters(moqt_cursor_t *cursor)
                 cursor->offset, cursor->end - cursor->offset,
                 "FILL_PARAMETERS cannot contain FILL_PARAMETERS");
         }
+        /* An inline nested list cannot be skipped without knowing its layout. */
+        if (cursor->draft->version >= 23) {
+            cursor->failed = true;
+            cursor->offset = cursor->end;
+        }
         return; /* The value is shown as unparsed data. */
     }
     cursor->in_fill_parameters = true;
@@ -1322,12 +1405,27 @@ static const moqt_parameter_descriptor_t moqt_draft22_parameters[] = {
       MOQT_PARAMETER_UINT8, &hf_moqt_parameter_uint8, NULL },
 };
 
+/* Draft 23 section 9.19: all other parameter layouts remain those of draft 22. */
+static const moqt_parameter_descriptor_t moqt_draft23_parameters[] = {
+    { MOQT_PARAM_PAUSED, "PAUSED",
+      MOQT_PARAMETER_UINT8, &hf_moqt_parameter_uint8, NULL },
+    { MOQT_PARAM_FILL_PARAMETERS, "FILL_PARAMETERS",
+      MOQT_PARAMETER_INLINE, NULL, moqt_dissect_fill_parameters },
+    { MOQT_PARAM_SUBSCRIBE_TRACKS_ID, "SUBSCRIBE_TRACKS_ID",
+      MOQT_PARAMETER_INTEGER, &hf_moqt_request_id, NULL },
+};
+
 static const moqt_parameter_descriptor_t *
 moqt_find_parameter(const moqt_draft_t *draft, uint64_t type)
 {
-    for (unsigned i = 0; i < draft->parameter_count; i++) {
-        if (draft->parameters[i].type == type) {
-            return &draft->parameters[i];
+    if (draft->version >= 23 && type == MOQT_PARAM_FORWARD) {
+        return NULL; /* Replaced by PAUSED, with inverted semantics. */
+    }
+    for (; draft; draft = draft->base) {
+        for (unsigned i = 0; i < draft->parameter_count; i++) {
+            if (draft->parameters[i].type == type) {
+                return &draft->parameters[i];
+            }
         }
     }
     return NULL;
@@ -1343,9 +1441,18 @@ moqt_dissect_parameter_value(moqt_cursor_t *cursor,
         return;
     }
     switch (parameter->encoding) {
-    case MOQT_PARAMETER_UINT8:
-        moqt_cursor_uint8(cursor, *parameter->hf, NULL, parameter->name);
+    case MOQT_PARAMETER_UINT8: {
+        uint8_t decoded;
+        int start = cursor->offset;
+
+        if (moqt_cursor_uint8(cursor, *parameter->hf, &decoded, parameter->name) &&
+            parameter->type == MOQT_PARAM_PAUSED && decoded > 1) {
+            proto_tree_add_expert_format(
+                cursor->tree, cursor->pinfo, &ei_moqt_invalid_type,
+                cursor->tvb, start, 1, "PAUSED must be 0 or 1");
+        }
         break;
+    }
     case MOQT_PARAMETER_INTEGER:
         moqt_cursor_varint(cursor, *parameter->hf, NULL, parameter->name);
         break;
@@ -1404,7 +1511,22 @@ moqt_dissect_parameters(moqt_cursor_t *cursor)
                                    previous_type);
             proto_item_append_text(type_item, " (%s)",
                                    descriptor ? descriptor->name : "Unknown");
-            if (descriptor) {
+            if (descriptor && parameter.in_fill_parameters &&
+                cursor->draft->version >= 23 &&
+                previous_type != MOQT_PARAM_FILL_TIMEOUT &&
+                previous_type != MOQT_PARAM_SUBSCRIBER_PRIORITY &&
+                previous_type != MOQT_PARAM_LOCATION_FILTER &&
+                previous_type != MOQT_PARAM_GROUP_ORDER &&
+                (previous_type < MOQT_PARAM_SUBGROUP_FILTER ||
+                 previous_type > MOQT_PARAM_OBJECT_PROPERTY_FILTER)) {
+                proto_tree_add_expert_format(
+                    parameter.tree, cursor->pinfo, &ei_moqt_invalid_type,
+                    cursor->tvb, parameter_start,
+                    parameter.offset - parameter_start,
+                    "%s is not allowed in FILL_PARAMETERS", descriptor->name);
+                parameter.failed = true;
+                parameter.offset = parameter.end;
+            } else if (descriptor) {
                 moqt_dissect_parameter_value(&parameter, descriptor);
             } else {
                 proto_tree_add_expert_format(
@@ -1452,6 +1574,15 @@ static const moqt_kv_fields_t moqt_property_fields = {
     &hf_moqt_property_value, &ett_moqt_properties, &ett_moqt_property
 };
 
+static const moqt_kv_fields_t moqt_error_detail_fields = {
+    "Error Detail",
+    &hf_moqt_error_detail_type_delta, &hf_moqt_error_detail_type,
+    &hf_moqt_error_detail_length, &hf_moqt_error_detail_integer,
+    &hf_moqt_error_detail_value, &ett_moqt_error_details, &ett_moqt_error_detail
+};
+
+static void moqt_dissect_redirect(moqt_cursor_t *cursor);
+
 static void
 moqt_dissect_kv_value(moqt_cursor_t *cursor, const moqt_kv_fields_t *fields,
                       moqt_kv_kind_t kind, uint64_t type)
@@ -1461,7 +1592,12 @@ moqt_dissect_kv_value(moqt_cursor_t *cursor, const moqt_kv_fields_t *fields,
     int value_length;
 
     if ((type & 1) == 0) {
-        moqt_cursor_varint(cursor, *fields->hf_integer, NULL,
+        int hf = kind == MOQT_KV_ERROR_DETAIL &&
+                 type == MOQT_ERROR_DETAIL_UNSUPPORTED_PROPERTY &&
+                 cursor->error_code == 0x33
+                     ? hf_moqt_property_type : *fields->hf_integer;
+
+        moqt_cursor_varint(cursor, hf, NULL,
                            "key-value integer");
         return;
     }
@@ -1479,6 +1615,23 @@ moqt_dissect_kv_value(moqt_cursor_t *cursor, const moqt_kv_fields_t *fields,
     }
     if (kind == MOQT_KV_SETUP && type == MOQT_SETUP_AUTHORIZATION_TOKEN) {
         moqt_dissect_token(&value);
+    } else if (kind == MOQT_KV_SETUP &&
+               type == MOQT_SETUP_MAX_CONTROL_MESSAGE_SIZE &&
+               cursor->draft->version >= 23) {
+        uint64_t maximum;
+
+        /* Odd Setup Option types wrap their value in a length-prefixed block. */
+        if (moqt_cursor_varint(&value, hf_moqt_setup_option_integer, &maximum,
+                               "maximum control message size") && maximum < UINT16_MAX) {
+            proto_tree_add_expert_format(
+                value.tree, cursor->pinfo, &ei_moqt_invalid_type, cursor->tvb,
+                value.offset, 0, "MAX_CONTROL_MESSAGE_SIZE must be at least 65535");
+        }
+    } else if (kind == MOQT_KV_ERROR_DETAIL &&
+               type == MOQT_ERROR_DETAIL_REDIRECT &&
+               cursor->error_code == MOQT_REQUEST_ERROR_REDIRECT) {
+        cursor->redirect_present = true;
+        moqt_dissect_redirect(&value);
     }
     moqt_cursor_remainder(&value, *fields->hf_value);
     cursor->failed = value.failed;
@@ -1495,10 +1648,13 @@ moqt_dissect_kv_pairs(moqt_cursor_t *cursor, moqt_kv_kind_t kind,
                       const char *label)
 {
     const moqt_kv_fields_t *fields =
-        kind == MOQT_KV_SETUP ? &moqt_setup_fields : &moqt_property_fields;
+        kind == MOQT_KV_SETUP ? &moqt_setup_fields :
+        kind == MOQT_KV_ERROR_DETAIL ? &moqt_error_detail_fields :
+                                      &moqt_property_fields;
     const val64_string *names =
-        kind == MOQT_KV_SETUP ? cursor->draft->setup_options
-                             : cursor->draft->properties;
+        kind == MOQT_KV_SETUP ? cursor->draft->setup_options :
+        kind == MOQT_KV_ERROR_DETAIL ? moqt_error_detail_type_vals :
+                                      cursor->draft->properties;
     proto_item *container_item;
     moqt_cursor_t container, outer = { 0 };
     uint64_t previous_type = 0, outer_previous_type = 0;
@@ -1574,10 +1730,12 @@ moqt_dissect_kv_pairs(moqt_cursor_t *cursor, moqt_kv_kind_t kind,
         proto_item_set_len(item, pair.offset - pair_start);
         container.offset = pair.offset;
         container.failed = pair.failed;
+        container.redirect_present = pair.redirect_present;
     }
     proto_item_set_len(container_item, container.offset - start);
     cursor->offset = container.offset;
     cursor->failed = container.failed;
+    cursor->redirect_present = container.redirect_present;
 }
 
 static bool
@@ -1828,6 +1986,37 @@ moqt_draft22_decode_publish_state_notify(moqt_cursor_t *cursor,
     moqt_dissect_parameters(cursor);
 }
 
+/* Draft 23 section 9.4: Error Details replace the bare Redirect structure. */
+static void
+moqt_draft23_decode_request_error(moqt_cursor_t *cursor,
+                                  const moqt_stream_state_t *state _U_)
+{
+    if (!moqt_cursor_code(cursor, hf_moqt_status_code,
+                          cursor->draft->request_errors, &cursor->error_code,
+                          "request error code")) {
+        return;
+    }
+    moqt_cursor_varint(cursor, hf_moqt_retry_interval, NULL,
+                       "request retry interval");
+    moqt_dissect_reason_phrase(cursor);
+    moqt_dissect_kv_pairs(cursor, MOQT_KV_ERROR_DETAIL, "Error Details");
+    if (!cursor->failed && cursor->error_code == MOQT_REQUEST_ERROR_REDIRECT &&
+        !cursor->redirect_present) {
+        proto_tree_add_expert_format(
+            cursor->tree, cursor->pinfo, &ei_moqt_invalid_type, cursor->tvb,
+            cursor->offset, 0, "REDIRECT error is missing its REDIRECT Error Detail");
+    }
+}
+
+/* Draft 23 section 9.15: NAMESPACE now includes Parameters. */
+static void
+moqt_draft23_decode_namespace(moqt_cursor_t *cursor,
+                              const moqt_stream_state_t *state _U_)
+{
+    moqt_dissect_namespace(cursor, "Track Namespace Suffix");
+    moqt_dissect_parameters(cursor);
+}
+
 static const moqt_message_descriptor_t moqt_draft18_messages[] = {
     { MOQT_MSG_REQUEST_UPDATE, "REQUEST_UPDATE",
       moqt_draft18_decode_request_update },
@@ -1892,18 +2081,28 @@ static const moqt_message_descriptor_t moqt_draft22_messages[] = {
     { MOQT_MSG_SETUP, "SETUP", moqt_draft18_decode_setup },
 };
 
+static const moqt_message_descriptor_t moqt_draft23_messages[] = {
+    { MOQT_MSG_REQUEST_ERROR, "REQUEST_ERROR", moqt_draft23_decode_request_error },
+    { MOQT_MSG_NAMESPACE, "NAMESPACE", moqt_draft23_decode_namespace },
+};
+
 static const moqt_message_descriptor_t *
 moqt_find_message(const moqt_draft_t *draft, uint64_t type)
 {
-    for (unsigned i = 0; i < draft->message_count; i++) {
-        if (draft->messages[i].type == type) {
-            return &draft->messages[i];
+    if (draft->version >= 23 && type == MOQT_MSG_FETCH_OK) {
+        return NULL; /* FETCH_OK is now REQUEST_OK (0x07). */
+    }
+    for (; draft; draft = draft->base) {
+        for (unsigned i = 0; i < draft->message_count; i++) {
+            if (draft->messages[i].type == type) {
+                return &draft->messages[i];
+            }
         }
     }
     return NULL;
 }
 
-/* Section 10 framing: Type (vi64), Length (16), bounded message body. */
+/* Type (vi64), Length (16 before draft 23, vi64 thereafter), bounded body. */
 static void
 moqt_draft18_parse_message(moqt_cursor_t *cursor, moqt_stream_state_t *state)
 {
@@ -1912,7 +2111,8 @@ moqt_draft18_parse_message(moqt_cursor_t *cursor, moqt_stream_state_t *state)
     proto_item *item;
     moqt_cursor_t body;
     uint64_t type;
-    uint16_t body_length;
+    uint64_t body_length;
+    uint16_t legacy_length;
     int start = cursor->offset;
     int length_offset;
 
@@ -1920,12 +2120,22 @@ moqt_draft18_parse_message(moqt_cursor_t *cursor, moqt_stream_state_t *state)
         return;
     }
     length_offset = cursor->offset;
-    if (!moqt_cursor_uint16(cursor, -1, &body_length, "message length") ||
-        !moqt_cursor_require(cursor, body_length, "message body")) {
+    if (cursor->draft->version >= 23) {
+        if (!moqt_cursor_varint(cursor, -1, &body_length, "message length")) {
+            return;
+        }
+    } else {
+        if (!moqt_cursor_uint16(cursor, -1, &legacy_length, "message length")) {
+            return;
+        }
+        body_length = legacy_length;
+    }
+    int length_size = cursor->offset - length_offset;
+    if (!moqt_cursor_require(cursor, body_length, "message body")) {
         return;
     }
     body = *cursor;
-    body.end = body.offset + body_length;
+    body.end = body.offset + (int)body_length;
     cursor->offset = body.end;
     if (cursor->phase == MOQT_MEASURE) {
         return; /* No body decoder or state update is needed for framing. */
@@ -1935,12 +2145,12 @@ moqt_draft18_parse_message(moqt_cursor_t *cursor, moqt_stream_state_t *state)
     name = message ? message->name : "Unknown";
     body.tree = proto_tree_add_subtree_format(
         cursor->tree, cursor->tvb, start, body.end - start, ett_moqt_message,
-        &item, "%s, Length: %u", name, body_length);
+        &item, "%s, Length: %" PRIu64, name, body_length);
     proto_tree_add_uint64_format_value(body.tree, hf_moqt_message_type,
                                        cursor->tvb, start, length_offset - start,
                                        type, "%s (0x%" PRIx64 ")", name, type);
-    proto_tree_add_uint(body.tree, hf_moqt_message_length, cursor->tvb,
-                        length_offset, 2, body_length);
+    proto_tree_add_uint64(body.tree, hf_moqt_message_length, cursor->tvb,
+                          length_offset, length_size, body_length);
     col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ", name);
     if (message) {
         message->decode(&body, state);
@@ -2212,6 +2422,8 @@ moqt_add_fetch_flags(moqt_cursor_t *cursor, int offset,
  * These are wire deltas, not resolved FETCH locations. Resolving them requires
  * the associated FETCH's Group Order and prior-field state (section 11.4.4.1).
  * Keep that future state separate from the FETCH Request ID in the header.
+ * Draft 23 adds two to an explicit Object ID Delta within the same Group;
+ * End of Range indicators also use deltas, but with different increment rules.
  */
 static void
 moqt_draft18_parse_fetch_fields(moqt_cursor_t *cursor, uint64_t flags,
@@ -2225,8 +2437,20 @@ moqt_draft18_parse_fetch_fields(moqt_cursor_t *cursor, uint64_t flags,
         moqt_cursor_varint(cursor, hf_moqt_subgroup_id, NULL, "subgroup ID");
     }
     if ((flags & MOQT_FETCH_OBJECT_ID_DELTA) != 0) {
-        moqt_cursor_varint(cursor, hf_moqt_object_id_delta, NULL,
-                           "object ID delta");
+        int start = cursor->offset;
+        uint64_t delta;
+
+        if (moqt_cursor_varint(cursor, -1, &delta, "object ID delta") &&
+            cursor->phase == MOQT_DISSECT) {
+            proto_item *item = proto_tree_add_uint64(
+                cursor->tree, hf_moqt_object_id_delta, cursor->tvb,
+                start, cursor->offset - start, delta);
+
+            if (cursor->draft->version >= 23 &&
+                (flags & MOQT_FETCH_GROUP_ID_DELTA) == 0) {
+                proto_item_append_text(item, " (prior Object ID + delta + 2)");
+            }
+        }
     }
     if ((flags & MOQT_FETCH_PRIORITY) != 0) {
         moqt_cursor_uint8(cursor, hf_moqt_publisher_priority, NULL,
@@ -2269,7 +2493,15 @@ moqt_draft18_parse_fetch_object(moqt_cursor_t *cursor,
         moqt_add_fetch_flags(&object, start, flags_length, flags);
     }
     if (end_of_range) {
-        moqt_dissect_location(&object, "End of Range Location");
+        if (cursor->draft->version < 23) {
+            moqt_dissect_location(&object, "End of Range Location");
+        } else if (flags != MOQT_FETCH_END_GROUP && flags != MOQT_FETCH_END_TRACK) {
+            /* Section 11.4.2: delta IDs, no payload or Object metadata. */
+            moqt_cursor_varint(&object, hf_moqt_group_id_delta, NULL,
+                               "end of range group ID delta");
+            moqt_cursor_varint(&object, hf_moqt_object_id_delta, NULL,
+                               "end of range object ID delta");
+        }
         proto_item_set_text(item, "%s", end_of_range);
     } else if (flags > MOQT_FETCH_DEFINED_BITS) {
         if (cursor->phase == MOQT_DISSECT) {
@@ -2287,7 +2519,9 @@ moqt_draft18_parse_fetch_object(moqt_cursor_t *cursor,
     }
     if (!object.failed && cursor->phase == MOQT_DISSECT) {
         col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ",
-                           end_of_range ? "End of Range" : "Fetch Object");
+                           end_of_range ? (cursor->draft->version >= 23
+                                               ? end_of_range : "End of Range")
+                                        : "Fetch Object");
     }
 
 finished:
@@ -2798,6 +3032,27 @@ static const moqt_draft_t moqt_draft22 = {
     .parse_datagram = moqt_draft18_parse_datagram,
 };
 
+static const moqt_draft_t moqt_draft23 = {
+    .version = 23,
+    .base = &moqt_draft22,
+    .alpn = MOQT_ALPN_DRAFT_23,
+    .messages = moqt_draft23_messages,
+    .message_count = array_length(moqt_draft23_messages),
+    .parameters = moqt_draft23_parameters,
+    .parameter_count = array_length(moqt_draft23_parameters),
+    .setup_options = moqt_draft22_setup_option_type_vals,
+    .properties = moqt_draft22_property_type_vals,
+    .request_errors = moqt_draft23_request_error_vals,
+    .publish_done_codes = moqt_draft23_publish_done_vals,
+    .fetch_end_of_range = moqt_draft23_fetch_end_vals,
+    .dissector_name = MOQT_ALPN_DRAFT_23,
+    .datagram_dissector_name = MOQT_ALPN_DRAFT_23 ".datagram",
+    .streams = moqt_draft18_streams,
+    .classify_stream = moqt_draft18_classify_stream,
+    .read_integer = moqt_draft18_read_integer,
+    .parse_datagram = moqt_draft18_parse_datagram,
+};
+
 static int
 dissect_moqt_datagram(tvbuff_t *tvb, packet_info *pinfo,
                       proto_tree *tree, void *data _U_, void *cb_data)
@@ -2848,7 +3103,7 @@ proto_register_moqt(void)
         },
         { &hf_moqt_message_length,
           { "Message Length", "moqt.message.length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             "Length of the control message payload", HFILL }
         },
         { &hf_moqt_request_id,
@@ -2970,6 +3225,26 @@ proto_register_moqt(void)
           { "Property Value", "moqt.property.value",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_moqt_error_detail_type_delta,
+          { "Error Detail Type Delta", "moqt.error_detail.type_delta",
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_moqt_error_detail_type,
+          { "Error Detail Type", "moqt.error_detail.type",
+            FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_moqt_error_detail_length,
+          { "Error Detail Length", "moqt.error_detail.length",
+            FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_moqt_error_detail_integer,
+          { "Error Detail Integer Value", "moqt.error_detail.integer",
+            FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_moqt_error_detail_value,
+          { "Error Detail Value", "moqt.error_detail.value",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_moqt_properties_length,
           { "Properties Length", "moqt.properties.length",
@@ -3255,6 +3530,8 @@ proto_register_moqt(void)
         &ett_moqt_setup_option,
         &ett_moqt_properties,
         &ett_moqt_property,
+        &ett_moqt_error_details,
+        &ett_moqt_error_detail,
         &ett_moqt_stream_header,
         &ett_moqt_object,
         &ett_moqt_subgroup_type_flags,
