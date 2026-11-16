@@ -167,11 +167,15 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
    proto_tree *rudpm_tree=NULL;
 
    /* heuristic*/
+   if (tvb_captured_length(tvb) < 5)
+      return 0;
    switch(tvb_get_uint8(tvb,offset+4)) {/*rudp packet type 0,1,2 only */
       case 0x0:/*NAK*/
       case 0x1:/*ACK*/
          break;
       case 0x2:/*PAYLOAD*/
+         if (tvb_captured_length(tvb) < 6)
+            return 0;
          switch(tvb_get_uint8(tvb,offset+5)){/*payload type 0,1,2,3,ff only */
             case 0x0: /*NULL*/
             case 0x1: /*UNISTIM*/
@@ -269,15 +273,15 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, int offset, pack
    /*UNISTIM only so no term id but further payload work*/
          /* Collect info for tap */
          /* If no term id then packet sourced from NI */
-         copy_address(&(uinfo->ni_ip), &(pinfo->src));
-         copy_address(&(uinfo->it_ip), &(pinfo->dst));
+         copy_address_wmem(pinfo->pool, &(uinfo->ni_ip), &(pinfo->src));
+         copy_address_wmem(pinfo->pool, &(uinfo->it_ip), &(pinfo->dst));
          uinfo->it_port = pinfo->destport;
          break;
       case 0x02:
    /*UNISTIM with term id*/
          /* Termid packs are always sourced from the it, so collect relevant infos */
-         copy_address(&(uinfo->ni_ip),&(pinfo->dst));
-         copy_address(&(uinfo->it_ip),&(pinfo->src));
+         copy_address_wmem(pinfo->pool, &(uinfo->ni_ip), &(pinfo->dst));
+         copy_address_wmem(pinfo->pool, &(uinfo->it_ip), &(pinfo->src));
          uinfo->it_port = pinfo->srcport;
          uinfo->termid = tvb_get_ntohl(tvb,offset);
 
@@ -1579,7 +1583,7 @@ dissect_network_switch(proto_tree *msg_tree,
       case 0x0d:
    /*Query Network Configuration Element*/
          proto_tree_add_item(msg_tree,hf_net_server_config_element,
-                             tvb,offset-1,1,ENC_BIG_ENDIAN);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
       case 0x0e:
