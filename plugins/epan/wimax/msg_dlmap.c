@@ -863,7 +863,7 @@ static int DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, packet_info *pinfo
 			}
 		}
 		if ((ddci & 2) == 2) {
-			bit += Dedicated_DL_Control_IE(tree, BIT_TO_NIB(bit), length, tvb);
+			bit += Dedicated_DL_Control_IE(tree, BIT_TO_NIB(bit), length, tvb) * 4;
 		}
 	}
 
@@ -898,7 +898,7 @@ static int DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, packet_info *pinfo,
 
 	nsub += 1;
 	for (j = 0; j < nsub; j++) {
-		bit += RCID_IE(tree, bit, length, tvb, RCID_Type) / 4;
+		bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
 
 		XBIT_HF(10, hf_dlmap_harq_ir_cc_duration);
 		XBIT_HF_VALUE(sbdi, 1, hf_dlmap_harq_ir_cc_sub_burst_diuc_indicator);
@@ -927,7 +927,7 @@ static int DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, packet_info *pinfo,
 			}
 		}
 		if ((ddci & 2) == 2) {
-			bit += Dedicated_DL_Control_IE(tree, BIT_TO_NIB(bit), length, tvb);
+			bit += Dedicated_DL_Control_IE(tree, BIT_TO_NIB(bit), length, tvb) * 4;
 		}
 	}
 
@@ -1358,7 +1358,7 @@ static int HARQ_DL_MAP_IE(proto_tree *diuc_tree, packet_info *pinfo, int offset,
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286l, NULL, "HARQ_DL_MAP_IE");
 
 	XBIT_HF(4, hf_dlmap_harq_dl_map_extended_2_diuc);
-	VBIT(len, 2, hf_dlmap_ie_length);
+	VBIT(len, 8, hf_dlmap_ie_length);
 
 	XBIT_HF_VALUE(RCID_Type, 2, hf_dlmap_harq_dl_map_rcid_type);
 	XBIT_HF(2, hf_dlmap_reserved_uint);
@@ -2256,6 +2256,11 @@ static int dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	int tvb_len = tvb_reported_length(tvb);
 
 	INC_CID = 0;
+	/* Do not let state of an earlier message leak into this one. */
+	N_layer = 0;
+	RCID_Type = 0;
+	STC_Zone_Matrix = 0;
+	STC_Zone_Dedicated_Pilots = 0;
 
 	/* add protocol */
 	ti = proto_tree_add_protocol_format(base_tree, proto_mac_mgmt_msg_dlmap_decoder, tvb, offset, -1, "DL-MAP");
@@ -2313,12 +2318,18 @@ int wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree
 	unsigned mac_len, dl_ie_count;
 	unsigned tvb_len = tvb_reported_length(tvb);
 	unsigned nib = 0;
+	unsigned ie_end_nib;
 	uint32_t mac_crc, calculated_crc;
 
 	/* update the info column */
 	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compressed DL-MAP");
 
 	INC_CID = 0;
+	/* Do not let state of an earlier message leak into this one. */
+	N_layer = 0;
+	RCID_Type = 0;
+	STC_Zone_Matrix = 0;
+	STC_Zone_Dedicated_Pilots = 0;
 
 	length = tvb_get_ntohs(tvb, offset) & 0x07FF; /* compressed map length is 11 bits */
 	mac_len = length;
@@ -2352,14 +2363,22 @@ int wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree
 	nib = BYTE_TO_NIB(offset);
 
 	/* DL-MAP IEs */
-	length -= 15; /* remaining length in bytes (11 bytes above + CRC at end) */
+	/* remaining length in bytes (11 bytes above + CRC at end) */
+	length = (length > 15) ? length - 15 : 0;
+	/* the IEs end where the CRC starts */
+	ie_end_nib = (lennib > 8) ? lennib - 8 : 0;
 	if (dl_ie_count) {
 		ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_dlmap_ie, &ti_dlmap_ies, "DL-MAP IEs (%d bytes)", length);
 
 		/* length = BYTE_TO_NIB(mac_len - (int)sizeof(mac_crc) - 1); */ /* convert length to nibbles */
 
-		while (dl_ie_count--) {
+		while (dl_ie_count && nib < ie_end_nib) {
 			nib += dissect_dlmap_ie(ie_tree, pinfo, nib, tvb_len * 2, tvb);
+			dl_ie_count--;
+		}
+		if (dl_ie_count) {
+			expert_add_info_format(pinfo, ti_dlmap_ies, &ei_mac_header_invalid_length,
+				"DL-MAP IE count exceeds the map length (%u IEs left)", dl_ie_count);
 		}
 		pad = NIB_PADDING(nib);
 		if (pad) {
@@ -2502,6 +2521,10 @@ int wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	uint16_t calculated_crc;
 	int smcs,cidi,dcdi,phyi,cqci;
 
+	/* Do not let state of an earlier message leak into this one. */
+	N_layer = 0;
+	RCID_Type = 0;
+
 	length = tvb_len;
 
 	/* display MAC Reduced_AAS_Private_DL-MAP and create subtree */
@@ -2581,7 +2604,7 @@ int wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 		XBIT_HF(2, hf_dlmap_reduced_aas_repetition_coding_indication);
 		if (ulmap_appended) {
 			/* offset and length are in bits */
-			bit += wimax_decode_ulmap_reduced_aas(tree, offset, length*8, tvb);
+			bit += wimax_decode_ulmap_reduced_aas(tree, bit, length*8, tvb);
 		}
 		XBIT_HF(3, hf_dlmap_reserved_uint);
 	}
@@ -3077,7 +3100,7 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 			&hf_crc16,
 			{
 				"CRC-16", "wmx.dlmap.crc16",
-				FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{

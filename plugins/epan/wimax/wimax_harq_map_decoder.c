@@ -86,6 +86,8 @@ static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 	{	/* do nothing if tvb is not a HARQ MAP message */
 		return 0;
 	}
+	/* start each map with the default compact map state */
+	wimax_reset_compact_map_state();
 	/* update the info column */
 	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HARQ-MAP Message: ");
 	if (tree)

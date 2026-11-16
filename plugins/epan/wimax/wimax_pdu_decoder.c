@@ -59,13 +59,6 @@ static int dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	proto_item *pdu_item = NULL;
 	proto_tree *pdu_tree = NULL;
 
-#ifndef STATIC_DATA
-	/* generate the table of CRC32  remainders for all possible bytes */
-	wimax_mac_gen_crc32_table();
-	/* generate the table of CRC8 remainders for all possible bytes */
-	wimax_mac_gen_crc8_table();
-#endif
-
 	/* parsing the PDU burst */
 	for(offset = 0; offset < tvb_reported_length(tvb); )
 	{
@@ -110,11 +103,11 @@ static int dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 			{	/* decode compressed dl-map without mac header */
 				if ((first_byte & REDUCED_PRIVATE_MAP_MASK) == REDUCED_PRIVATE_MAP_MASK)
 				{
-					length = wimax_decode_dlmap_reduced_aas(tvb, pinfo, tree);
+					length = wimax_decode_dlmap_reduced_aas(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 				}
 				else
 				{
-					length = wimax_decode_dlmapc(tvb, pinfo, tree);
+					length = wimax_decode_dlmapc(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 				}
 				offset += length;
 				continue;
@@ -222,6 +215,16 @@ void wimax_proto_register_wimax_pdu(void)
 		{
 			&ett_wimax_pdu_decoder,
 		};
+
+#ifndef STATIC_DATA
+	/*
+	 * Generate the CRC tables once, here, rather than when a PDU burst
+	 * is dissected: the MAC header and HARQ-MAP dissectors can be
+	 * reached without going through the PDU burst dissector.
+	 */
+	wimax_mac_gen_crc32_table();
+	wimax_mac_gen_crc8_table();
+#endif
 
 	proto_wimax_pdu_decoder = proto_wimax;
 

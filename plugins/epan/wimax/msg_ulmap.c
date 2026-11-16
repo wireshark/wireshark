@@ -2044,6 +2044,10 @@ static int dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo 
 
     tvb_len = tvb_reported_length(tvb);
 
+    /* Do not let state of an earlier message leak into this one. */
+    N_layer = 0;
+    RCID_Type = 0;
+
     /* display MAC UL-MAP */
     ti = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_ulmap_decoder, tvb, offset, -1, "UL-MAP");
     ulmap_tree = proto_item_add_subtree(ti, ett_ulmap);

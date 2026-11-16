@@ -373,10 +373,10 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			}
 			/* expand the TLV detail */
 			if (hf) {
-				if (offset - tlv_offset == expected_len) {
+				if (expected_len == 0 || tlv_len == expected_len) {
 					proto_tree_add_tlv(&m2m_tlv_info, tvb, offset - tlv_offset, pinfo, tlv_tree, hf, encoding);
 				} else {
-					expert_add_info_format(pinfo, NULL, &ei_m2m_unexpected_length, "Expected length %d, got %d.", expected_len, offset - tlv_offset);
+					expert_add_info_format(pinfo, ti, &ei_m2m_unexpected_length, "Expected length %d, got %d.", expected_len, tlv_len);
 				}
 			}
 			offset += tlv_len;
