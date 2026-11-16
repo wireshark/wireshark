@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
@@ -414,6 +415,7 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
    uint16_t stateflags;
    uint32_t cmdId, cbdata = 0;
    uint32_t invokeId;
+   uint32_t ams_trans_key;
    conversation_t *conversation;
    ams_conv_info_t *ams_info;
    ams_transaction_t *ams_trans = NULL;
@@ -477,6 +479,9 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       conversation_add_proto_data(conversation, proto_ams, ams_info);
    }
 
+   /* A segment can hold several PDUs, so key on the invoke ID and direction */
+   ams_trans_key = (invokeId << 1) | ((stateflags & AMSCMDSF_RESPONSE) ? 1 : 0);
+
    if (!PINFO_FD_VISITED(pinfo)) {
       /* First pass - track the transaction */
       if ((stateflags & AMSCMDSF_RESPONSE) == 0) {
@@ -491,11 +496,16 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
          ams_trans = (ams_transaction_t *)wmem_map_lookup(ams_info->transactions, GUINT_TO_POINTER(invokeId));
          if (ams_trans && ams_trans->rep_frame == 0) {
             ams_trans->rep_frame = pinfo->num;
+         } else {
+            ams_trans = NULL;
          }
       }
+      if (ams_trans) {
+         p_add_proto_data(wmem_file_scope(), pinfo, proto_ams, ams_trans_key, ams_trans);
+      }
    } else {
-      /* Subsequent pass - retrieve the transaction */
-      ams_trans = (ams_transaction_t *)wmem_map_lookup(ams_info->transactions, GUINT_TO_POINTER(invokeId));
+      /* Subsequent pass - retrieve the transaction remembered for this PDU */
+      ams_trans = (ams_transaction_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ams, ams_trans_key);
    }
 
    if (!ams_trans) {

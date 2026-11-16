@@ -1559,7 +1559,7 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
          suboffset+=EcParserHDR_Len;
       }
 
-      if ( (ecHdr.cmd == 1 || ecHdr.cmd == 4) && ecHdr.anAddrUnion.a.ado == 0x900 && ecHdr.len >= 16 && cnt > 0 )
+      if ( (ecHdr.cmd == 1 || ecHdr.cmd == 4) && ecHdr.anAddrUnion.a.ado == 0x900 && len >= 16 && cnt > 0 )
       {
          uint32_t pDC[4];
          init_dc_measure(pDC, tvb, suboffset);
@@ -1659,7 +1659,8 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
          if( dataLength > 0 )
          {
             /* Allow sub dissectors to have a chance with this data */
-            if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree, &hdtbl_entry, NULL))
+            tvbuff_t *data_tvb = tvb_new_subset_length(tvb, startOfData, dataLength);
+            if(!dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, ecat_datagram_tree, &hdtbl_entry, NULL))
             {
                /* No sub dissector did recognize this data, dissect it as data only */
                proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, startOfData, dataLength, ENC_NA);

@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
@@ -224,19 +225,24 @@ static void modify_times(tvbuff_t *tvb, int offset, packet_info *pinfo)
     }
     else if ( !pinfo->fd->visited )
     {
-        uint64_t nsecs = tvb_get_letoh64(tvb, offset+8) - ref_time_frame.esl_ts;
-        uint64_t secs = nsecs/1000000000;
+        int64_t nsecs = (int64_t)(tvb_get_letoh64(tvb, offset+8) - ref_time_frame.esl_ts);
+        int64_t secs = nsecs/1000000000;
         nstime_t ts;
         nstime_t ts_delta;
 
+        /* nsecs may be negative if the ESL timestamp is before the reference */
         ts.nsecs = ref_time_frame.abs_ts.nsecs + (int)(nsecs-(secs*1000000000));
-        if ( ts.nsecs > 1000000000 )
+        ts.secs = ref_time_frame.abs_ts.secs + (time_t)secs;
+        if ( ts.nsecs >= 1000000000 )
         {
             ts.nsecs-=1000000000;
-            secs++;
+            ts.secs++;
         }
-
-        ts.secs = ref_time_frame.abs_ts.secs+(int)secs;
+        else if ( ts.nsecs < 0 )
+        {
+            ts.nsecs+=1000000000;
+            ts.secs--;
+        }
         nstime_delta(&ts_delta, &ts, &pinfo->abs_ts);
 
         pinfo->abs_ts = ts;
@@ -248,23 +254,24 @@ static void modify_times(tvbuff_t *tvb, int offset, packet_info *pinfo)
 static bool
 dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    static bool      in_heur    = false;
     bool             result;
     tvbuff_t        *next_tvb;
     unsigned         esl_length = tvb_captured_length(tvb);
 
-    if ( in_heur )
+    /* Avoid recursion through the Ethernet dissector. The depth is kept
+       per packet, so it is reset when the packet has been dissected, even
+       after an exception. */
+    if ( p_get_proto_depth(pinfo, proto_esl) != 0 )
         return false;
 
-    in_heur = true;
-    /*TRY */
+    /* Check that there's enough data */
+    if ( esl_length < SIZEOF_ESLHEADER )
+        return false;
+
+    p_set_proto_depth(pinfo, proto_esl, 1);
     {
         if ( ref_time_frame.fd != NULL && !pinfo->fd->visited && pinfo->num <= ref_time_frame.num )
             ref_time_frame.fd = NULL;
-
-        /* Check that there's enough data */
-        if ( esl_length < SIZEOF_ESLHEADER )
-            return false;
 
         /* check for Esl frame, this has a unique destination MAC from Beckhoff range
            First 6 bytes must be: 01 01 05 10 00 00 */
@@ -297,11 +304,7 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             result = false;
         }
     }
-    /*CATCH_ALL{
-      in_heur = false;
-      RETHROW;
-      }ENDTRY;*/
-    in_heur = false;
+    p_set_proto_depth(pinfo, proto_esl, 0);
     return result;
 }
 

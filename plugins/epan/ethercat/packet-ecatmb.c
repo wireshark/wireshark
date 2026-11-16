@@ -636,7 +636,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
             col_append_fstr(pinfo->cinfo, COL_INFO, "SDO Res: Scs %d", sdo.anSdoHeaderUnion.Ids.Scs);
             if( tree )
             {
-               proto_tree_add_uint_format_value(ecat_coe_tree, hf_ecat_mailbox_coe_sdores, tvb, offset, 1, sdo.anSdoHeaderUnion.Ids.Scs,
+               anItem = proto_tree_add_uint_format_value(ecat_coe_tree, hf_ecat_mailbox_coe_sdores, tvb, offset, 1, sdo.anSdoHeaderUnion.Ids.Scs,
                                             "Scs %d", sdo.anSdoHeaderUnion.Ids.Scs);
                ecat_sdo_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_sdo);
 
