@@ -162,7 +162,7 @@ mate_gog_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gog* gog
 
 					proto_tree_add_uint(gog_gop_tree, hf_mate_number_of_pdus, tvb,0,0, gog_gops->num_of_pdus);
 
-					if (gop->pdus && gop->cfg->pdu_tree_mode != GOP_NO_TREE) {
+					if (gog_gops->pdus && gog_gops->cfg->pdu_tree_mode != GOP_NO_TREE) {
 						proto_tree_add_uint(gog_gop_tree,gog->cfg->hfid_gog_gopstart,tvb,0,0,gog_gops->pdus->frame);
 
 						for (pdu = gog_gops->pdus->next ; pdu; pdu = pdu->next) {

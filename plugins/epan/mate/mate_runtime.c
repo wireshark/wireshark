@@ -462,8 +462,8 @@ static void analyze_pdu(mate_config* mc, mate_pdu* pdu) {
 
 			/* is the gop dead ? */
 			if ( ! gop->released &&
-				 ( ( gop->cfg->lifetime > 0.0 && gop->time_to_die >= rd->now) ||
-				   ( gop->cfg->idle_timeout > 0.0 && gop->time_to_timeout >= rd->now) ) ) {
+				 ( ( gop->cfg->lifetime > 0.0 && gop->time_to_die < rd->now) ||
+				   ( gop->cfg->idle_timeout > 0.0 && gop->time_to_timeout < rd->now) ) ) {
 				dbg_print (dbg_gop,4,dbg_facility,"analyze_pdu: expiring released gop");
 				gop->released = true;
 

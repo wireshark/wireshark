@@ -291,6 +291,15 @@ static void analyze_pdu_config(mate_config* mc, mate_cfg_pdu* cfg) {
 	arg.cfg = cfg;
 	g_hash_table_foreach(cfg->hfids_attr,analyze_pdu_hfids,&arg);
 
+	/* Add the hfids of payload protocols as wanted hfids */
+	if (cfg->payload_ranges) {
+		for (unsigned i = 0; i < cfg->payload_ranges->len; i++) {
+			int hfid = *((int*)g_ptr_array_index(cfg->payload_ranges,i));
+			mc->wanted_hfids = g_array_append_val(mc->wanted_hfids, hfid);
+			mc->num_fields_wanted++;
+		}
+	}
+
 	/* Add the hfids of transport protocols as wanted hfids */
 	for (unsigned i = 0; i < cfg->transport_ranges->len; i++) {
 		int hfid = *((int*)g_ptr_array_index(cfg->transport_ranges,i));
@@ -369,6 +378,9 @@ static void analyze_gop_config(void *k _U_, void *v, void *p) {
 		hfri.hfinfo.type = FT_UINT32;
 		g_array_append_val(mc->hfrs,hfri);
 	} else {
+		g_free((char *)hfri.hfinfo.name);
+		g_free((char *)hfri.hfinfo.abbrev);
+		g_free((char *)hfri.hfinfo.blurb);
 		cfg->pdu_tree_mode = GOP_NO_TREE;
 	}
 
@@ -417,7 +429,6 @@ static void analyze_gop_config(void *k _U_, void *v, void *p) {
 	ett = &cfg->ett_children;
 	g_array_append_val(mc->ett,ett);
 
-	g_hash_table_insert(mc->gops_by_pduname,cfg->name,cfg);
 }
 
 static void analyze_gog_config(void *k _U_, void *v, void *p) {

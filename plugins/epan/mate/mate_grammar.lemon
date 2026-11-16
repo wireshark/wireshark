@@ -332,7 +332,7 @@ gop_show_times_default ::= .
 gog_defaults ::= GOG_KW OPEN_BRACE gog_expiration_default gop_tree_mode_default gog_goptree_default gog_show_times_default CLOSE_BRACE SEMICOLON.
 gog_defaults ::= .
 
-gog_expiration_default ::= EXPIRATION_KW time_value(B) SEMICOLON. { mc->defaults.gop.expiration = B; }
+gog_expiration_default ::= EXPIRATION_KW time_value(B) SEMICOLON. { mc->defaults.gog.expiration = B; }
 gog_expiration_default ::= .
 
 gog_goptree_default ::= GOP_TREE_KW gop_tree_type(B) SEMICOLON. { mc->defaults.gog.gop_tree_mode = B; }
@@ -592,10 +592,10 @@ show_times_statement(A) ::= SHOW_TIMES_KW true_false(B) SEMICOLON. { A = B; }
 show_times_statement(A) ::= . { A = mc->defaults.gop.show_times; }
 
 gop_expiration_statement(A) ::= EXPIRATION_KW time_value(B) SEMICOLON. { A = B; }
-gop_expiration_statement(A) ::= . { A = mc->defaults.gop.lifetime; }
+gop_expiration_statement(A) ::= . { A = mc->defaults.gop.expiration; }
 
 idle_timeout_statement(A) ::= IDLE_TIMEOUT_KW time_value(B) SEMICOLON. { A = B; }
-idle_timeout_statement(A) ::= . { A = mc->defaults.gop.lifetime; }
+idle_timeout_statement(A) ::= . { A = mc->defaults.gop.idle_timeout; }
 
 lifetime_statement(A) ::= LIFETIME_KW time_value(B) SEMICOLON. { A = B; }
 lifetime_statement(A) ::= . { A = mc->defaults.gop.lifetime; }
@@ -745,5 +745,5 @@ value(A) ::= NAME(B). { A = B; }
 value(A) ::= FLOATING(B). { A = B; }
 value(A) ::= INTEGER(B). { A = B; }
 value(A) ::= DOTED_IP(B). { A = B; }
-value(A) ::= COLONIZED(B). { A = recolonize(mc,B); }
+value(A) ::= COLONIZED(B). { A = recolonize(mc,B); g_free(B); }
 

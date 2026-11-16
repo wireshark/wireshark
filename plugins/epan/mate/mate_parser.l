@@ -208,21 +208,19 @@ blk_cmnt_stop  "*/"
 
 <INCLUDING>{filename}			{
 	if ( yyextra->include_stack_ptr >= MAX_INCLUDE_DEPTH )
-		ws_error("dtd_preparse: include files nested too deeply");
+	{
+		g_string_append_printf(yyextra->mc->config_error, "Mate parser: include files nested too deeply");
+		THROW(MateConfigError);
+	}
 
-	yyextra->include_stack[yyextra->include_stack_ptr++] = YY_CURRENT_BUFFER;
-	yyin = ws_fopen( yytext, "r" );
+	FILE *incf = ws_fopen( yytext, "r" );
 
-	if (!yyin) {
-		Mate__delete_buffer(YY_CURRENT_BUFFER, yyscanner);
-
-		/* coverity[negative_sink] */
-		Mate__switch_to_buffer(yyextra->include_stack[--yyextra->include_stack_ptr], yyscanner);
-
-		if (errno)
-			g_string_append_printf(yyextra->mc->config_error, "Mate parser: Could not open file: '%s': %s", yytext, g_strerror(errno) );
-
+	if (!incf) {
+		g_string_append_printf(yyextra->mc->config_error, "Mate parser: Could not open file: '%s': %s", yytext, g_strerror(errno) );
+		THROW(MateConfigError);
 	} else {
+		yyextra->include_stack[yyextra->include_stack_ptr++] = YY_CURRENT_BUFFER;
+		yyin = incf;
 
 		yyextra->current_frame = g_new(mate_config_frame, 1);
 		yyextra->current_frame->filename = g_strdup(yytext);
@@ -241,11 +239,14 @@ blk_cmnt_stop  "*/"
 	if ( --yyextra->include_stack_ptr < 0 ) {
 		yyterminate();
 	} else {
+		FILE *incf = YY_CURRENT_BUFFER->yy_input_file;
 		Mate__delete_buffer(YY_CURRENT_BUFFER, yyscanner);
+		if (incf)
+			fclose(incf);
 		Mate__switch_to_buffer(yyextra->include_stack[yyextra->include_stack_ptr], yyscanner);
 
-		free_config_frame(yyextra->current_frame);
-		yyextra->current_frame = (mate_config_frame *)g_ptr_array_remove_index(yyextra->mc->config_stack,yyextra->mc->config_stack->len-1);
+		free_config_frame((mate_config_frame *)g_ptr_array_remove_index(yyextra->mc->config_stack,yyextra->mc->config_stack->len-1));
+		yyextra->current_frame = (mate_config_frame *)g_ptr_array_index(yyextra->mc->config_stack,yyextra->mc->config_stack->len-1);
 	}
 }
 
