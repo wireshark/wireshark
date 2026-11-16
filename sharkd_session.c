@@ -2268,6 +2268,7 @@ sharkd_session_process_tap_rtp_free_cb(void *tapdata)
     struct sharkd_analyse_rtp *rtp_req = (struct sharkd_analyse_rtp *) tapdata;
 
     g_slist_free_full(rtp_req->packets, g_free);
+    rtpstream_id_free(&rtp_req->id);
     g_free(rtp_req);
 }
 
@@ -5857,8 +5858,8 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
                     RTP_STREAM_DEBUG("Changed input rate from %u to %u Hz. Out is %u.", cur_in_rate, sample_rate, audio_out_rate_);
                 }
             }
-            in_len = (spx_uint32_t)rtp_packet->info->info_payload_len;
-            out_len = (spx_uint32_t)((audio_out_rate_ * (uint64_t)rtp_packet->info->info_payload_len / sample_rate) + (audio_out_rate_ % sample_rate != 0));
+            in_len = (spx_uint32_t)(decoded_bytes / sample_bytes_);
+            out_len = (spx_uint32_t)(((uint64_t)in_len * audio_out_rate_ / sample_rate) + (audio_out_rate_ % sample_rate != 0));
             if (out_len * sample_bytes_ > resample_buff_len)
             {
                 while ((out_len * sample_bytes_ > resample_buff_len))
@@ -5878,6 +5879,8 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
     }
 
     g_free(resample_buff);
+    if (audio_resampler_)
+        speex_resampler_destroy(audio_resampler_);
     g_hash_table_destroy(decoders_hash_);
 }
 
@@ -6084,11 +6087,13 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
                     "sharkd_session_process_download() rtp error %s", tap_error->str
                     );
             g_string_free(tap_error, TRUE);
+            rtpstream_id_free(&rtp_req.id);
             return;
         }
 
         sharkd_retap();
         remove_tap_listener(&rtp_req);
+        rtpstream_id_free(&rtp_req.id);
 
         if (rtp_req.packets)
         {
