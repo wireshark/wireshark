@@ -175354,3 +175354,72 @@ class TestDissectTransum:
         rows = self.rows(cmd_tshark, capture_file, test_env, *self.ENABLE,
                          '-Y', 'transum.calculation == "SMB2"', *self.FIELDS)
         assert [r[0] for r in rows] == ['110', '112', '114', '117', '122', '125']
+
+
+class TestDissectUnistim:
+    '''UNISTIM (the unistim plugin) from the synthetic capture
+    unistim_coverage.pcap.gz. UNISTIM has no port or heuristic, so UDP
+    port 5000 is decoded with Decode As (DECODE_AS). The capture holds the
+    commands of every manager (switch and phone direction), RUDP and
+    payload types, UFTP, and an Open Audio Stream that makes the RTP and
+    RTCP frames at the end decode through UNISTIM's conversations.'''
+
+    DECODE_AS = ('-d', 'udp.port==5000,unistim')
+
+    def test_unistim_protocols(self, cmd_tshark, capture_file, test_env):
+        '''100 UNISTIM, 3 RTP and 1 RTCP frames, and two frames that are
+        not UNISTIM (an unknown payload type and RUDP type); no malformed
+        packets or error expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('unistim_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 106
+        assert protocols.count('UNISTIM') == 100
+        assert protocols.count('RTP') == 3
+        assert protocols.count('RTCP') == 1
+        assert protocols.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS, *passes,
+                    '-r', capture_file('unistim_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_unistim_rudp_and_uftp(self, cmd_tshark, capture_file, test_env):
+        '''ACK, NAK, sequence numbers and the UFTP file name.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('unistim_coverage.pcap.gz'),
+                '-Y', 'frame.number in {62, 63, 65, 70}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eunistim.uftp.filename',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '62\tACK for seq -   0x10\t',
+            '63\tNAK for seq -   0x11\t',
+            '65\tPayload seq -   0xFFFFFFFF\t',
+            '70\tPayload seq -   0x15\tfirmware.bin',
+        ]
+
+    def test_unistim_rtp_conversation(self, cmd_tshark, capture_file, test_env):
+        '''The far end of an Open Audio Stream sets up RTP and RTCP
+        conversations: the frames at the end decode as RTP/RTCP without any
+        Decode As entry for their ports.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('unistim_coverage.pcap.gz'),
+                '-Y', 'rtp || rtcp',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['83\tRTP', '84\tRTP', '85\tRTP', '86\tRTCP']
+
+    def test_unistim_network_config_element(self, cmd_tshark, capture_file, test_env):
+        '''Query Network Configuration Element shows the element octet
+        (0-15), not the command octet before it ("UNISTIM: Fix an address
+        leak and two decoding errors").'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('unistim_coverage.pcap.gz'),
+                '-Y', 'frame.number == 106',
+                '-Tfields', '-eunistim.config.element',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split(',') == ['0x%02x' % i for i in range(16)]
