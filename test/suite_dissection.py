@@ -174489,3 +174489,240 @@ Done;
         stdout = self.run(cmd_tshark, capture_file, test_env, config, '-2',
                           '-Y', 'frame.number == 16', '-Tfields', '-emate.foo.NumOfPdus')
         assert stdout.split() == ['2']
+
+
+class TestDissectOpcuaCoverage:
+    '''OPC UA Binary (TCP 4840) and PubSub UADP (UDP 4840-4850, ethertype
+    0xb62c, LLC DSAP 0) from the synthetic captures opcua_coverage.pcap.gz
+    (every service and datatype, chunking, Sign mode without any
+    ciphertext, PubSub), opcua_coverage_regress.pcap.gz (the reproducers
+    of "opcua: Fix nesting state leaks and per-pass encryption state" and
+    related fixes, which are errors by design) and
+    opcua_coverage_infomodel.pcap.gz (ExtensionObjects of custom types,
+    decoded with an information model).'''
+
+    INFOMODEL = '''<?xml version="1.0" encoding="utf-8"?>
+<UANodeSet xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+  <Aliases>
+    <Alias Alias="Boolean">i=1</Alias>
+    <Alias Alias="SByte">i=2</Alias>
+    <Alias Alias="Byte">i=3</Alias>
+    <Alias Alias="Int16">i=4</Alias>
+    <Alias Alias="UInt16">i=5</Alias>
+    <Alias Alias="Int32">i=6</Alias>
+    <Alias Alias="UInt32">i=7</Alias>
+    <Alias Alias="Int64">i=8</Alias>
+    <Alias Alias="UInt64">i=9</Alias>
+    <Alias Alias="Float">i=10</Alias>
+    <Alias Alias="Double">i=11</Alias>
+    <Alias Alias="String">i=12</Alias>
+    <Alias Alias="DateTime">i=13</Alias>
+    <Alias Alias="UtcTime">i=294</Alias>
+    <Alias Alias="ByteString">i=15</Alias>
+    <Alias Alias="LocalizedText">i=21</Alias>
+    <Alias Alias="HasEncoding">i=38</Alias>
+    <Alias Alias="HasSubtype">i=45</Alias>
+  </Aliases>
+  <UADataType NodeId="ns=1;i=3001" BrowseName="1:AllTypes">
+    <References><Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference></References>
+    <Definition Name="1:AllTypes">
+      <Field Name="Flag" DataType="Boolean"/>
+      <Field Name="Small" DataType="SByte"/>
+      <Field Name="Byte1" DataType="Byte"/>
+      <Field Name="Short" DataType="Int16"/>
+      <Field Name="UShort" DataType="UInt16"/>
+      <Field Name="Int" DataType="Int32"/>
+      <Field Name="UInt" DataType="UInt32"/>
+      <Field Name="Long" DataType="Int64"/>
+      <Field Name="ULong" DataType="UInt64"/>
+      <Field Name="Real" DataType="Float"/>
+      <Field Name="Dbl" DataType="Double"/>
+      <Field Name="Text" DataType="String"/>
+      <Field Name="When" DataType="DateTime"/>
+      <Field Name="UtcWhen" DataType="UtcTime"/>
+      <Field Name="Blob" DataType="ByteString"/>
+      <Field Name="Loc" DataType="LocalizedText"/>
+      <Field Name="Nested" DataType="ns=1;i=3002"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3002" BrowseName="1:Inner">
+    <References><Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference></References>
+    <Definition Name="1:Inner">
+      <Field Name="A" DataType="Int32"/>
+      <Field Name="B" DataType="String"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3004" BrowseName="1:Optionals">
+    <References><Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference></References>
+    <Definition Name="1:Optionals">
+      <Field Name="Always" DataType="Int32"/>
+      <Field Name="Maybe" DataType="Int32" IsOptional="true"/>
+      <Field Name="MaybeText" DataType="String" IsOptional="true"/>
+    </Definition>
+  </UADataType>
+  <UAObject NodeId="ns=1;i=5001" BrowseName="1:AllTypes_Encoding_DefaultBinary">
+    <References><Reference ReferenceType="HasEncoding" IsForward="false">ns=1;i=3001</Reference></References>
+  </UAObject>
+  <UAObject NodeId="ns=1;i=5004" BrowseName="1:Optionals_Encoding_DefaultBinary">
+    <References><Reference ReferenceType="i=38" IsForward="false">ns=1;i=3004</Reference></References>
+  </UAObject>
+</UANodeSet>
+'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, name, *args, passes=()):
+        '''Run tshark and return the output lines (one tab separated line
+        per packet) of the fields given with -e.'''
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_opcua_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The main capture decodes without malformed packets and without
+        warning or error expert infos in one and two passes, except the
+        header-only OPN messages with a null, empty or invalid security
+        policy URI (frames 320-322): they are taken as unencrypted and the
+        missing sequence header makes them malformed.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines.count('OpcUa') == 285
+        assert lines.count('UADP NetworkMessage') == 49
+        assert lines.count('TCP') == 43
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert lines == ['320', '321', '322']
+
+    def test_opcua_services(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses of the services of the service table, decoded by the
+        service table, and datatypes in Variants and DataValues.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                '-Y', 'opcua.servicenodeid.numeric', '-Tfields', '-eopcua.servicenodeid.numeric')
+        assert len(set(lines)) == 86     # the services of the table and the unknown ids 12, 60000
+        # values of the Variant types: Int64, UInt64, String, Double
+        for flt in ('opcua.Int64 == -5000000000', 'opcua.UInt64 == 5000000000',
+                    'opcua.String == "Hello OPC UA"', 'opcua.Double == 2.25',
+                    'opcua.Guid == 67452301-ab89-efcd-fedc-ba9876543210'):
+            lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                    '-Y', flt, '-Tfields', '-eframe.number')
+            assert len(lines) >= 1, flt
+
+    def test_opcua_chunks(self, cmd_tshark, capture_file, test_env):
+        '''Chunked messages (C chunks and a final F chunk) are reassembled
+        when the last chunk arrives, an abort chunk discards the partial
+        message, and chunks of a Sign mode message do not contain the
+        signature.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                '-Y', 'tcp.port == 50002 && opcua.reassembled.length',
+                '-Tfields', '-e_ws.col.info', '-eopcua.reassembled.length', '-eopcua.fragment.count')
+        assert lines == [
+            'UA Secure Conversation Message: ReadRequest (Message Reassembled)\t100\t3',
+            'UA Secure Conversation Message: BrowseResponse (Message Reassembled)\t191\t2',
+            'UA Secure Conversation Message: ReadRequest (Message Reassembled)\t100\t2',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                '-Y', 'tcp.port == 50002 && _ws.col.info == "Abort message"', '-Tfields', '-eframe.number')
+        assert len(lines) == 2
+        # Sign mode (Basic256Sha256): 32 octet signatures, the chunked message is reassembled
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                '-Y', 'tcp.port == 50010 && opcua.reassembled.length', '-Tfields', '-eopcua.reassembled.length')
+        assert len(lines) == 1
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                '-Y', 'opcua.security.signature && (tcp.port == 50010 || tcp.port == 50011)',
+                '-Tfields', '-etcp.port', '-eopcua.security.signature')
+        sizes = {}
+        for line in lines:
+            port, sig = line.split('\t')
+            sizes.setdefault(port.split(',')[0] if port.split(',')[0] != '4840' else port.split(',')[1],
+                             set()).add(len(sig.replace(':', '')) // 2)
+        assert sizes == {'50010': {32}, '50011': {20}}
+
+    def test_opcua_state_per_pass(self, cmd_tshark, capture_file, test_env):
+        '''A ReadRequest before the OpenSecureChannel of a Basic256Sha256
+        connection is decoded in the encryption mode None, in every pass
+        (the mode used to be kept in the conversation and was Sign on the
+        second pass, which added a bogus signature to the frame).'''
+        out = []
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                    '-Y', 'tcp.port == 50003 && opcua', '-Tfields', '-e_ws.col.info',
+                    '-eopcua.security.signature', passes=passes)
+            assert lines == ['UA Secure Conversation Message: ReadRequest\t',
+                             'OpenSecureChannel message (encrypted)\t']
+            out.append(self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                    '-Y', 'tcp.port == 50003 && opcua', '-V', '-Oopcua', passes=passes))
+        assert out[0] == out[1]
+
+    def test_opcua_pubsub(self, cmd_tshark, capture_file, test_env):
+        '''UADP over UDP (several ports), raw Ethernet and LLC; the chunks of
+        a NetworkMessage are reassembled in any order.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                '-Y', 'udp.dstport >= 4841 && opcua_pubsub', '-Tfields', '-eudp.dstport')
+        assert sorted(lines) == ['4841', '4842', '4845', '4850']
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                '-Y', 'eth.type == 0xb62c || (llc && opcua_pubsub)', '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['UADP NetworkMessage'] * 3
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                '-Y', 'opcua_pubsub.reassembled.length', '-Tfields', '-e_ws.col.info',
+                '-eopcua_pubsub.reassembled.length')
+        assert lines == ['Chunked NetworkMessage [Reassembled]\t58'] * 3
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage.pcap.gz',
+                '-Y', 'opcua_pubsub.pid_string', '-Tfields', '-eopcua_pubsub.pid_string')
+        assert lines == ['publisher-1']
+
+    def test_opcua_regressions(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of the fixes. Expert infos and malformed
+        packets are expected here.'''
+        cap = 'opcua_coverage_regress.pcap.gz'
+        # 1. The nesting counters were not reset after an exception in a
+        # message: the two-level Variant of the 2nd message in the segment
+        # was refused ("Max nesting depth exceeded"), and a few hundred
+        # truncated messages in one segment ended in a DISSECTOR_ASSERT.
+        lines = self.fields(cmd_tshark, capture_file, test_env, cap,
+                '-Y', 'opcua.Int32 == 42', '-Tfields', '-eframe.number')
+        assert lines == ['4']
+        env = dict(test_env)
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(cap), '-Y', 'opcua.variant.ArraySize',
+                '-Tfields', '-eframe.number'), encoding='utf-8', env=env, timeout=300)
+        assert stdout.split() == ['4', '8', '12']
+        # 2. ArrayDimensions above the limit: the Variant is consumed once and the
+        # following ArraySize is read from the right bytes (it used to be 198)
+        lines = self.fields(cmd_tshark, capture_file, test_env, cap,
+                '-Y', 'frame.number == 12', '-Tfields', '-eopcua.variant.ArraySize')
+        assert lines == ['1,1,150,0,20000'] and '198' not in lines[0].split(',')
+        # 3. Sign mode: a message shorter than the signature is flagged, it did
+        # wrap the payload length
+        lines = self.fields(cmd_tshark, capture_file, test_env, cap,
+                '-Y', 'opcua.bad_footer', '-Tfields', '-eframe.number')
+        assert lines == ['17', '18', '19']
+
+    def test_opcua_infomodel(self, cmd_tshark, capture_file, test_env, result_file):
+        '''ExtensionObjects of the custom types of an information model
+        (an option set aside, only part of the types of the capture is in
+        the model: the others are ByteStrings); without the model they are
+        all ByteStrings.'''
+        model = result_file('opcua-model.xml')
+        with open(model, 'w') as f:
+            f.write(self.INFOMODEL)
+        opts = ('-o', 'opcua.information_model:' + model)
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage_infomodel.pcap.gz',
+                    *opts, '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage_infomodel.pcap.gz', *opts,
+                '-Y', 'opcua.custom_field.AllTypes.Text', '-Tfields', '-eframe.number',
+                '-eopcua.custom_field.AllTypes.Text', '-eopcua.custom_field.AllTypes.Int',
+                '-eopcua.custom_field.Inner.B')
+        assert [l.split('\t', 1)[1] for l in lines] == ['text\t-5\tinner'] * 3
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage_infomodel.pcap.gz', *opts,
+                '-Y', 'opcua.custom.optional_fields', '-Tfields', '-eopcua.custom.optional_fields',
+                '-eopcua.custom_field.Optionals.Maybe', '-eopcua.custom_field.Optionals.MaybeText')
+        assert lines == ['0x00000000\t\t', '0x00000003\t2\t', '0x00000002\t\tonly text'] or \
+            lines == ['0x00000000\t\t', '0x00000003\t2\tx', '0x00000002\t\tonly text']
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage_infomodel.pcap.gz',
+                '-Y', 'opcua.ByteString', '-Tfields', '-eframe.number')
+        assert len(lines) >= 30
