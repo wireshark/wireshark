@@ -174070,3 +174070,152 @@ class TestDissectGryphon:
         types = lines[0].split('\t')[1].split(',')
         assert types[0] == '5' and types.count('1') >= 1 and types.count('3') >= 1
         assert types.count('5') >= 2
+
+
+class TestDissectIrda:
+    '''IrDA (IrLAP, IrLMP, IAP, TTP, IrCOMM and SIR, plugin) from the
+    synthetic capture irda_coverage.pcapng.gz: Linux IrDA frames
+    (linktype 144), Linux cooked frames with protocol 0x0017, Exported
+    PDUs for irda, sir, ircomm_raw and ircomm_cooked, and SIR over TCP
+    port 6417.'''
+
+    @staticmethod
+    def _frames(cmd_tshark, test_env, capture, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture, '-Y', flt, '-Tfields']
+        args += ['-e' + f for f in fields]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                         timeout=120)
+        return stdout.splitlines()
+
+    def test_irda_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 163 frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        cap = capture_file('irda_coverage.pcapng.gz')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Tfields', '-e_ws.col.protocol'),
+            encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 163
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['IrLAP'] == 46
+        assert counts['IrLMP'] == 27
+        assert counts['IAP'] == 58
+        assert counts['IrCOMM'] == 18
+        assert counts['Log'] == 5
+        assert counts['TTP'] == 1
+        for passes in ((), ('-2',)):
+            assert self._frames(cmd_tshark, test_env, cap,
+                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                'frame.number', passes=passes) == []
+
+    def test_irda_iap_list_length_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''An IAP result whose list length is 0 but that carries an entry
+        creates no IrLMP conversation, in one pass and in two: the data
+        frame after it (137) is IrLMP data in both. Before "IrDA: Decode
+        IAP results the same with and without a tree" the first pass
+        without a tree of tshark -2 decoded the entry and frame 137 came
+        out as IrCOMM user data.'''
+        cap = capture_file('irda_coverage.pcapng.gz')
+        for passes in ((), ('-2',)):
+            lines = self._frames(cmd_tshark, test_env, cap,
+                                 'frame.number in {136, 137}', 'frame.number',
+                                 '_ws.col.protocol', passes=passes)
+            assert lines == ['136\tIAP', '137\tIrLMP']
+
+    def test_irda_iap_conversations(self, cmd_tshark, capture_file, test_env):
+        '''LsapSel results create LMP conversations: TinyTP LSAP 0x15
+        (IrCOMM cooked, TTP credit) and IrLPT LSAP 0x20 and 0x21 (IrCOMM
+        raw); the result is repeated for 0x20.'''
+        cap = capture_file('irda_coverage.pcapng.gz')
+        lines = self._frames(cmd_tshark, test_env, cap,
+                             'frame.number in {70, 71, 72, 73, 74, 79, 84, 87}',
+                             'frame.number', '_ws.col.protocol', '_ws.col.info')
+        assert lines == [
+            '70\tIAP\tResult: Success, Integer: 21',
+            '71\tIrCOMM\tClen=0',
+            '72\tTTP\t21 > 18, Connect Confirm, Credit=5',
+            '73\tIrCOMM\tClen=3, UserData: 9 bytes',
+            '74\tIrCOMM\tClen=0, UserData: 9 bytes',
+            '79\tIrCOMM\tUser Data: 5 bytes',
+            '84\tIrCOMM\tUser Data: 5 bytes',
+            '87\tIrCOMM\tUser Data: 18 bytes',
+        ]
+        lines = self._frames(cmd_tshark, test_env, cap, 'ttp', 'frame.number',
+                             'ttp.icredit')
+        assert [l.split('\t')[0] for l in lines] == ['71', '72', '73', '74', '75']
+        assert '72\t5' in lines
+
+    def test_irda_iap_results(self, cmd_tshark, capture_file, test_env):
+        '''IAP request and result summaries.'''
+        cap = capture_file('irda_coverage.pcapng.gz')
+        lines = self._frames(cmd_tshark, test_env, cap,
+                             'frame.number in {63, 64, 66, 68, 100, 104}',
+                             'frame.number', '_ws.col.info')
+        assert lines[:4] == [
+            '63\tGetValueByClass: "Device" "DeviceName"',
+            '64\tResult: Success, "Phone"',
+            '66\tResult: Success, 23 Octets',
+            '68\tResult: Success, Integer: 5',
+        ]
+        # the invalid values stay IAP results; invalid LSAPs are flagged in the tree
+        out = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', 'frame.number == 68',
+                                       '-V'), encoding='utf-8', env=test_env, timeout=120)
+        assert 'attribute must be octet sequence' in out
+
+    def test_irda_xid_discovery(self, cmd_tshark, capture_file, test_env):
+        '''The device nickname is decoded in the character sets IrDA names.'''
+        cap = capture_file('irda_coverage.pcapng.gz')
+        lines = self._frames(cmd_tshark, test_env, cap, 'irlmp.xid.name',
+                             'frame.number', 'irlmp.xid.charset', 'irlmp.xid.name')
+        names = {l.split('\t')[0]: l.split('\t')[2] for l in lines}
+        assert names['9'] == 'Phone ä'
+        assert names['14'] == 'Café'
+        assert names['15'] == 'Ħx'
+        assert names['22'] == 'Unicodé'
+        lines = self._frames(cmd_tshark, test_env, cap, 'irlmp.xid.name.no_encoding',
+                             'frame.number')
+        assert lines == ['8', '23']        # unknown character sets (0x20 and 0x42)
+
+    def test_irda_sir(self, cmd_tshark, capture_file, test_env):
+        '''SIR over TCP port 6417 and through Exported PDU: good checksums,
+        a preamble, escaped octets, and frames split over TCP segments.'''
+        cap = capture_file('irda_coverage.pcapng.gz')
+        for passes in ((), ('-2',)):
+            lines = self._frames(cmd_tshark, test_env, cap, 'sir', 'frame.number',
+                                 'sir.length', 'sir.fcs.status', 'sir.preamble',
+                                 passes=passes)
+            assert [l.split('\t')[0] for l in lines] == [
+                '147', '153', '154', '155', '156', '157', '159', '161', '163']
+            assert all(set(l.split('\t')[2].split(',')) == {'1'} for l in lines)
+            assert lines[2].split('\t')[3] == 'ffffff'
+        # the escaped octets are restored
+        lines = self._frames(cmd_tshark, test_env, cap, 'frame.number == 155',
+                             'data.data')
+        assert lines == ['c0c17d20']
+        # split frames: segments point to the segment that completes them
+        lines = self._frames(cmd_tshark, test_env, cap, 'tcp.reassembled_in',
+                             'frame.number', 'tcp.reassembled_in', passes=('-2',))
+        assert lines == ['158\t159', '160\t161', '162\t163']
+
+    def test_irda_other_encapsulations(self, cmd_tshark, capture_file, test_env):
+        '''IrLAP reached through Exported PDU (irda) and Linux cooked
+        capture decodes like the IrDA link type.'''
+        cap = capture_file('irda_coverage.pcapng.gz')
+        lines = self._frames(cmd_tshark, test_env, cap,
+                             'frame.number in {146, 147, 148, 149}',
+                             'frame.number', '_ws.col.protocol', '_ws.col.info')
+        assert lines == [
+            '146\tIrLMP\t49 > 48, Len=5',
+            '147\tIrLMP\t49 > 48, Len=5',
+            '148\tIrLMP\t49 > 48, Len=5',
+            '149\tIrLAP\tU P, func=XID, s=0, "sll"',
+        ]
+
+    def test_irda_log_messages(self, cmd_tshark, capture_file, test_env):
+        '''Log messages lose their trailing newline; a missed-message
+        record shows the warning.'''
+        cap = capture_file('irda_coverage.pcapng.gz')
+        lines = self._frames(cmd_tshark, test_env, cap, 'frame.number <= 5',
+                             'frame.number', '_ws.col.protocol', '_ws.col.info')
+        assert lines[0] == '1\tLog\tIrDA: irlap_connect_indication()'
+        assert lines[4] == '5\tLog\tWARNING: Missed one or more messages while capturing!'
