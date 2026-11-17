@@ -174921,3 +174921,198 @@ class TestDissectProfinet:
                            '_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number',
                            opts=('-o', 'pn_io.pnio_ps_networkpath:' + str(gsd)))
         assert rows == []
+
+
+class TestDissectProfinetCba:
+    '''PROFINET CBA over DCOM / DCE/RPC and the PN-RT heuristic, from the
+    synthetic captures profinet_cba_coverage.pcapng.gz (every interface
+    of the two CBA dissectors, the SRT frames and their data) and
+    profinet_cba_fixes.pcapng.gz (requests with sizes past the end of
+    the data, and more connections than the dissector tracks).
+
+    The main capture has two interfaces: Ethernet, and a link-layer-less
+    one (LINKTYPE_RAW) for the last frames, 330-338.'''
+
+    CAPTURE = 'profinet_cba_coverage.pcapng.gz'
+    FIXES = 'profinet_cba_fixes.pcapng.gz'
+    COUNTS = {
+        'DCERPC': 6, 'ICBAAccoCB': 14, 'ICBAAccoCB2': 6, 'ICBAAccoMgt': 34,
+        'ICBAAccoMgt2': 26, 'ICBAAccoServ': 36, 'ICBAAccoServ2': 16,
+        'ICBAAccoServSRT': 50, 'ICBAAccoSync': 10, 'ICBABrowse': 8,
+        'ICBABrowse2': 6, 'ICBAGErr': 8, 'ICBAGErrEvent': 4, 'ICBALDev': 20,
+        'ICBALDev2': 10, 'ICBAPDev': 24, 'ICBAPDev2': 6, 'ICBAPDevPC': 8,
+        'ICBAPDevPCEvent': 4, 'ICBAPersist': 2, 'ICBAPersist2': 4,
+        'ICBARTAuto': 4, 'ICBARTAuto2': 2, 'ICBAState': 14,
+        'ICBAStateEvent': 4, 'ICBATime': 4, 'PN-CBA': 8,
+    }
+
+    @staticmethod
+    def _tshark(cmd_tshark, test_env, capture, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes, '-r', capture, *args),
+                encoding='utf-8', env=test_env, timeout=180)
+
+    @staticmethod
+    def _expert(cmd_tshark, test_env, capture, level, passes=()):
+        '''Rows [frequency, group, protocol, summary] of the "-z expert,level"
+        summary.'''
+        out = subprocess.check_output((cmd_tshark, *passes, '-r', capture, '-q',
+                '-z', 'expert,' + level), encoding='utf-8', env=test_env, timeout=180)
+        return [line.split(None, 3) for line in out.splitlines()
+                if line[:1] == ' ' and line.split()[0].isdigit()]
+
+    def test_profinet_cba_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is decoded by one CBA protocol (DCE/RPC for the
+        binds). Nothing is malformed and no expert info is an error, in one
+        and two passes, and both passes give the same protocol and info
+        columns: the PN-CBA heuristic is only ahead of the PROFINET IO one
+        as long as no frame it rejects has been seen, so the capture holds
+        none.'''
+        cap = capture_file(self.CAPTURE)
+        cols = ('-Tfields', '-e_ws.col.protocol', '-e_ws.col.info')
+        one = self._tshark(cmd_tshark, test_env, cap, *cols).splitlines()
+        two = self._tshark(cmd_tshark, test_env, cap, *cols, passes=('-2',)).splitlines()
+        assert one == two
+        protocols = [line.split('\t')[0].strip() for line in one]
+        assert len(protocols) == 338
+        assert {p: protocols.count(p) for p in set(protocols)} == self.COUNTS
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, test_env, cap, '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == 0
+            assert self._expert(cmd_tshark, test_env, cap, 'error', passes) == []
+
+    def test_profinet_cba_srt_frames(self, cmd_tshark, capture_file, test_env):
+        '''ConnectCR (frame 273) and Connect (275) set up an SRT frame with
+        three connections. The cyclic frames 291-293 and 296 are decoded
+        with the item records at the offsets Connect announced, and name the
+        connection (provider item, consumer ID) and the consumer. Frame 294
+        (a frame ID without ConnectCR) and 295 (another consumer MAC) are
+        decoded without them; 293 has a hole in front of its second item.'''
+        stdout = self._tshark(cmd_tshark, test_env, capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {291..296}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ecba.acco.cb_count',
+                '-ecba.acco.cb_item_length', '-ecba.acco.qc', '-ecba.acco.conn_provider_item',
+                '-ecba.acco.conn_cons_id', '-ecba.acco.conn_consumer', '-ecba.connectcr_in',
+                '-ecba.acco.cb_item_hole')
+        assert stdout.splitlines() == [
+            '291\tPN-CBA\t3\t8,12,8\t0x80,0x80,0x80\tSRT.Item1,SRT.Item2,SRT.Item2'
+            '\t0x00000300,0x00000301,0x00000302\tCONS2\t273\t',
+            '292\tPN-CBA\t3\t8,12,8\t0x84,0x80,0x1c\tSRT.Item1,SRT.Item2,SRT.Item2'
+            '\t0x00000300,0x00000301,0x00000302\tCONS2\t273\t',
+            '293\tPN-CBA\t2\t8,12\t0x80,0x33\tSRT.Item1\t0x00000300\tCONS2\t273\t1',
+            '294\tPN-CBA\t1\t5\t0x80\t\t\t\t\t',
+            '295\tPN-CBA\t1\t5\t0x80\t\t\t\t\t',
+            '296\tPN-CBA\t1\t8\t0x80\tSRT.Item1\t0x00000300\tCONS2\t273\t',
+        ]
+
+    def test_profinet_cba_dcom_data(self, cmd_tshark, capture_file, test_env):
+        '''OnDataChanged (frames 231-241, sent by the provider to the
+        consumer) is matched to the consumer by the IPID of the consumer
+        interface that Connect sent, and each item to its connection by the
+        consumer ID. A buffer for an unknown consumer (243) is decoded
+        without them.'''
+        stdout = self._tshark(cmd_tshark, test_env, capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {231, 233, 235, 237, 243}',
+                '-Tfields', '-eframe.number', '-ecba.acco.cb_version', '-ecba.acco.cb_count',
+                '-ecba.acco.conn_consumer', '-ecba.acco.qc', '-ecba.acco.conn_cons_id',
+                '-ecba.acco.conn_provider_item')
+        assert stdout.splitlines() == [
+            '231\t0x01\t3\tCONS\t0x80,0x1c,0x40\t0x00000100,0x00000100,0x00000101,0x00000101,'
+            '0x00000102,0x00000102\tProv.Item1,Prov.Item2,Prov.Item2',
+            '233\t0x01\t2\tCONS\t0x00,0xc0\t0x00000100,0x00000100,0x00007777\tProv.Item1',
+            '235\t0x10\t2\tCONS\t0x84,0x80\t0x00000100,0x00000100,0x00000101,0x00000101'
+            '\tProv.Item1,Prov.Item2',
+            '237\t0x11\t1\tCONS\t0x80\t\t',
+            '243\t0x01\t3\t\t0x80,0x1c,0x40\t0x00000100,0x00000101,0x00000102\t',
+        ]
+
+    def test_profinet_cba_ldev_lookup(self, cmd_tshark, capture_file, test_env):
+        '''A DCOM interface made from an OBJREF with OID 0 has no parent
+        object, and the physical device interface that get_LogicalDevice
+        creates is not a logical device: get_ACCO on their IPIDs (frames
+        87 and 91) only reports an unknown logical device. It used to
+        dereference NULL and to write past the physical device.'''
+        cap = capture_file(self.CAPTURE)
+        stdout = self._tshark(cmd_tshark, test_env, cap, '-Y', 'frame.number in {85..92}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [line.split('\t')[0] for line in stdout.splitlines()] == [
+            '85', '86', '87', '88', '89', '90', '91', '92']
+        notes = self._expert(cmd_tshark, test_env, cap, 'note')
+        assert [r for r in notes if r[3].startswith('Unknown LDev')] == [
+            ['2', 'Undecoded', 'ICBALDev', 'Unknown LDev of 192.0.2.2']]
+
+    def test_profinet_cba_connectcr(self, cmd_tshark, capture_file, test_env):
+        '''ICBAAccoServerSRT::ConnectCR was never dissected past its flags
+        (it asserted on a field index of 0). It creates the SRT frames
+        that the cyclic frames and later calls refer to; DisconnectCR
+        finds them by the provider CRID (frames 313-316).'''
+        stdout = self._tshark(cmd_tshark, test_env, capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {273, 274, 313, 314, 315, 316}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '273\tConnectCR request: Reco ConsCRID=0xc002 Len=24 QoS=1',
+            '274\tConnectCR response: FirstCR PCRID=0x6 -> S_OK',
+            '313\tDisconnectCR request: PCRID=0x6',
+            '314\tDisconnectCR response -> S_OK',
+            '315\tDisconnectCR request: PCRID=0x5',
+            '316\tDisconnectCR response -> S_OK',
+        ]
+
+    def test_profinet_cba_pipelined_disconnect(self, cmd_tshark, capture_file, test_env):
+        '''Two Disconnect calls in flight for one connection (frames
+        259-262), and two DisconnectCR calls for one frame (309-312), report
+        the second disconnect as a sequence issue.'''
+        rows = self._expert(cmd_tshark, test_env, capture_file(self.CAPTURE), 'note')
+        sequence = sorted(r[3] for r in rows if r[1] == 'Sequence')
+        assert sequence == [
+            'cba_frame_disconnect#312: frame already disconnected in #311',
+            'connection_disconnect#261: already disconnected',
+        ]
+
+    def test_profinet_cba_no_link_layer(self, cmd_tshark, capture_file, test_env):
+        '''PN-RT over UDP in a capture without link layer has no
+        destination MAC address for the CBA heuristic to look the frame up
+        by (it used to read it through a NULL pointer). The frame is still
+        decoded as CBA data, after the ConnectCR of frame 336.'''
+        stdout = self._tshark(cmd_tshark, test_env, capture_file(self.CAPTURE),
+                '-Y', 'frame.interface_id == 1 && frame.number >= 336',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ecba.acco.cb_version',
+                '-ecba.acco.qc')
+        assert stdout.splitlines() == [
+            '336\tICBAAccoServSRT\t\t',
+            '337\tICBAAccoServSRT\t\t',
+            '338\tPN-CBA\t0x11\t0x80',
+        ]
+
+    def test_profinet_cba_sizes_past_the_end(self, cmd_tshark, capture_file, test_env):
+        '''Array sizes taken from the packet are limited to the data that
+        is there before anything is allocated (4G entries asked for ~34 GB
+        and aborted), and a request for more connections than the cap of
+        5000 per list reports it instead of taking quadratic time.'''
+        cap = capture_file(self.FIXES)
+        for passes in ((), ('-2',)):
+            errors = self._expert(cmd_tshark, test_env, cap, 'error', passes)
+            assert sorted(r[3] for r in errors for _ in range(int(r[0]))) == [
+                'Array size 4294967040 exceeds the remaining data, using 1',
+                'Array size 4294967280 exceeds the remaining data, using 0',
+                'Array size 4294967280 exceeds the remaining data, using 0',
+                'Array size 4294967280 exceeds the remaining data, using 1',
+                'Array size 4294967280 exceeds the remaining data, using 1',
+                'Array size 4294967295 exceeds the remaining data, using 2',
+            ]
+            warns = self._expert(cmd_tshark, test_env, cap, 'warn', passes)
+            many = [r for r in warns if r[3].startswith('Too many connections')]
+            assert len(many) == 1 and int(many[0][0]) >= 100
+
+    def test_profinet_cba_diagconsconnections_no_tree(self, cmd_tshark, capture_file, test_env):
+        '''A DiagConsConnections response with entries (the last frames of
+        the fixes capture, 43-44) set the text of a protocol item that was
+        never made when the first pass has no tree: tshark -2 crashed.'''
+        cap = capture_file(self.FIXES)
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, test_env, cap, '-Y', 'frame.number >= 43',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info', passes=passes)
+            assert stdout.splitlines() == [
+                '43\tDiagConsConnections request',
+                '44\tDiagConsConnections response -> S_OK',
+            ]
