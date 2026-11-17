@@ -93,6 +93,9 @@ void proto_reg_handoff_stun(void);
  *  NONCE &  | 0x0014             | 0x0015 (*2)        | 0x0015             |                    |
  *  REALM    | 0x0015             | 0x0014             | 0x0014             |                    |
  * -----------------------------------------------------------------------------------------------
+ *  0x0012   | REMOTE-ADDRESS     | N/A                | XOR-PEER-ADDRESS   |                    |
+ *           | (not XOR'ed)       |                    | (RFC 5766, XOR'ed) |                    |
+ * -----------------------------------------------------------------------------------------------
  *  TURN     | RFC 5766/8656 or   | N/A                | RFC 5766:          | RFC 8656:          |
  *  Channels | Multiplexed TURN   |                    | 0x4000-0x7FFF used | 0x4000-0x4FFF used |
  *           | Channels (0xFF10)  |                    | 0x8000-0xFFFF res. | 0x5000-0xFFFF res. |
@@ -339,7 +342,7 @@ typedef struct _stun_conv_info_t {
 #define BANDWIDTH               0x0010 /* MS-TURN */
 /* 0x0011 reserved collision */
 #define DESTINATION_ADDRESS     0x0011 /* MS-TURN */
-#define XOR_PEER_ADDRESS        0x0012 /* RFC8656, MS-TURN */
+#define XOR_PEER_ADDRESS        0x0012 /* RFC8656; REMOTE-ADDRESS (not XOR'ed) in MS-TURN */
 #define DATA                    0x0013 /* RFC8656, MS-TURN */
 /* Note: REALM and NONCE have swapped attribute numbers in MS-TURN */
 #define REALM                   0x0014 /* RFC8489, MS-TURN uses 0x0015 */
@@ -924,6 +927,50 @@ stun_dissect_data_payload(tvbuff_t *next_tvb, packet_info *pinfo, proto_tree *tr
 }
 
 /*
+ * Dissect an address attribute in the MAPPED-ADDRESS format, i.e. with the
+ * port and address in the clear (not XOR'ed).
+ */
+static void
+dissect_stun_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *att_tree,
+                     unsigned offset, uint16_t att_length, const char *attribute_name_str)
+{
+    const char *addr_str = NULL;
+    uint16_t    att_port;
+
+    if (att_length < 1)
+        return;
+    proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 1, ENC_NA);
+    if (att_length < 2)
+        return;
+    proto_tree_add_item(att_tree, hf_stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+    if (att_length < 4)
+        return;
+    proto_tree_add_item_ret_uint16(att_tree, hf_stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN, &att_port);
+
+    switch (tvb_get_uint8(tvb, offset+1)) {
+    case 1:
+        if (att_length < 8)
+            break;
+        addr_str = tvb_ip_to_str(pinfo->pool, tvb, offset + 4);
+        proto_tree_add_item(att_tree, hf_stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        break;
+
+    case 2:
+        if (att_length < 20)
+            break;
+        addr_str = tvb_ip6_to_str(pinfo->pool, tvb, offset + 4);
+        proto_tree_add_item(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
+        break;
+    }
+
+    if (addr_str != NULL) {
+        proto_item_append_text(att_tree, ": %s:%d", addr_str, att_port);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %s: %s:%d",
+                        attribute_name_str, addr_str, att_port);
+    }
+}
+
+/*
  * XXX: why is this done in this file by the STUN dissector? Why don't we
  * re-use the packet-turnchannel.c's dissect_turnchannel_message() function?
  */
@@ -1350,6 +1397,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
                 att_type_display ^= 1;
             }
             attribute_name_str = try_val_to_str_ext(att_type_display, &attributes_ext);
+            /* [MS-TURN] 2.2.2.11: 0x0012 is REMOTE-ADDRESS, not XOR-PEER-ADDRESS */
+            if ((network_version == NET_VER_MS_TURN) && (att_type == XOR_PEER_ADDRESS)) {
+                attribute_name_str = "REMOTE-ADDRESS";
+            }
             if (attribute_name_str){
                 ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr,
                                                 tvb, offset, ATTR_HDR_LEN+att_length_pad,
@@ -1432,44 +1483,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
             case OTHER_ADDRESS:
             case MS_ALT_MAPPED_ADDRESS:
             case MS_ALTERNATE_SERVER:
-            {
-                const char        *addr_str = NULL;
-                uint16_t           att_port;
-
-                if (att_length < 1)
-                    break;
-                proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 1, ENC_NA);
-                if (att_length < 2)
-                    break;
-                proto_tree_add_item(att_tree, hf_stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                if (att_length < 4)
-                    break;
-                proto_tree_add_item_ret_uint16(att_tree, hf_stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN, &att_port);
-
-                switch (tvb_get_uint8(tvb, offset+1)) {
-                case 1:
-                    if (att_length < 8)
-                        break;
-                    addr_str = tvb_ip_to_str(pinfo->pool, tvb, offset + 4);
-                    proto_tree_add_item(att_tree, hf_stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                    break;
-
-                case 2:
-                    if (att_length < 20)
-                        break;
-                    addr_str = tvb_ip6_to_str(pinfo->pool, tvb, offset + 4);
-                    proto_tree_add_item(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
-                    break;
-                }
-
-                if (addr_str != NULL) {
-                    proto_item_append_text(att_tree, ": %s:%d", addr_str, att_port);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " %s: %s:%d",
-                                    attribute_name_str, addr_str, att_port);
-                }
-
+                dissect_stun_address(tvb, pinfo, att_tree, offset, att_length, attribute_name_str);
                 break;
-            }
             case CHANGE_REQUEST:
             {
                 bool change_ip, change_port;
@@ -1604,6 +1619,14 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
                 break;
             }
             case XOR_PEER_ADDRESS:
+                if (network_version == NET_VER_MS_TURN) {
+                    /* [MS-TURN] 2.2.2.11: REMOTE-ADDRESS has the same format
+                     * as MAPPED-ADDRESS, the peer address is not XOR'ed. */
+                    found_turn_attributes = true;
+                    dissect_stun_address(tvb, pinfo, att_tree, offset, att_length, attribute_name_str);
+                    break;
+                }
+                /* Fallthrough */
             case XOR_RELAYED_ADDRESS:
                 found_turn_attributes = true;
                 /* Fallthrough */
