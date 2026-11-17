@@ -601,6 +601,7 @@ static bool erf_read(wtap *wth, wtap_rec *rec,
      * seek_read would go to the proper location instead of having to skip
      * the pad block each time. */
     wtap_block_unref(rec->block);
+    rec->block = NULL;
     /* Skip the pad record bytes. It's a short file error if they're absent. */
     if (!wtap_read_bytes(wth->fh, NULL, packet_size, err, err_info)) {
       g_ptr_array_free(anchor_mappings_to_update, true);
@@ -657,6 +658,7 @@ static bool erf_seek_read(wtap *wth, int64_t seek_off,
      * ws_critical log warning? */
     /* Free the block created for the PAD record. */
     wtap_block_unref(rec->block);
+    rec->block = NULL;
     /* Skip the pad record bytes. It's a short file error if they're absent. */
     if (!wtap_read_bytes(wth->fh, NULL, packet_size, err, err_info)) {
       g_ptr_array_free(anchor_mappings_to_update, true);
