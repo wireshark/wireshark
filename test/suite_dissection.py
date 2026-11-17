@@ -174219,3 +174219,273 @@ class TestDissectIrda:
                              'frame.number', '_ws.col.protocol', '_ws.col.info')
         assert lines[0] == '1\tLog\tIrDA: irlap_connect_indication()'
         assert lines[4] == '5\tLog\tWARNING: Missed one or more messages while capturing!'
+
+
+class TestDissectMate:
+    '''MATE (plugins/epan/mate), the Meta Analysis Tracing Engine, from the
+    synthetic capture mate_coverage.pcap.gz.  The test writes the
+    configuration files into a temporary directory (the main file includes
+    the second one with #include, which includes the third) and names the
+    main file with -o mate.config.'''
+
+    MAIN = r'''// MATE configuration of the synthetic capture
+Default {
+    Pdu {
+        DropUnassigned false;
+        DiscardPduData false;
+    };
+    Gop {
+        Expiration 5.0;
+        IdleTimeout 4;
+        Lifetime 100;
+        DropUnassigned false;
+        ShowTree PduTree;
+        ShowTimes true;
+    };
+    Gog {
+        Expiration 5.0;
+        ShowTree FrameTree;
+        GopTree BasicTree;
+        ShowTimes true;
+    };
+};
+
+#include @INC@
+
+Pdu tcp_pdu Proto tcp Transport ip {
+    Extract addr From ip.addr;
+    Extract client From ip.src;
+    Extract port From tcp.port;
+    Extract tcp_start From tcp.flags.syn;
+    Extract tcp_flags_reset From tcp.flags.reset;
+    Extract tcp_flags_fin From tcp.flags.fin;
+    Transform add_tcp_stop;
+    DropUnassigned false;
+};
+
+Pdu dns_pdu Proto dns Transport udp/ip {
+    Extract addr From ip.addr;
+    Extract client From ip.src;
+    Extract dns_id From dns.id;
+    Extract dns_resp From dns.flags.response;
+    Extract dns_rcode From dns.flags.rcode;
+    Extract host From dns.qry.name;
+    Criteria Reject Strict (dns_id="0x029a");
+    LastPdu false;
+};
+
+Pdu nbns_pdu Proto nbns Transport udp/ip {
+    Extract addr From ip.addr;
+    Extract client From ip.src;
+    Extract nbid From nbns.id;
+    Criteria Accept Every (nbid);
+    DropUnassigned true;
+    DiscardPduData true;
+};
+
+Pdu http_pdu Proto http Transport tcp/ip {
+    Payload data;
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Extract client From ip.src;
+    Extract http_rq From http.request.method;
+    Extract http_rs From http.response.code;
+    Extract http_host From http.host;
+    Extract http_ctype From http.content_type;
+    Extract data_len From data.len;
+    Criteria Accept Loose (http_rq, http_rs);
+};
+
+Gop tcp_ses On tcp_pdu Match (addr, addr, port, port) {
+    Start (tcp_start="True");
+    Stop (tcp_stop="True");
+    Extra (client, tcp_open);
+    Expiration 2.5;
+    IdleTimeout 3.0;
+    Lifetime 60;
+    DropUnassigned true;
+    ShowTree FrameTree;
+    ShowTimes true;
+};
+
+Gop http_tx On http_pdu Match (addr, addr, port, port) {
+    Start (http_rq);
+    Stop (http_rs);
+    Extra (http_host, http_ctype, client);
+    IdleTimeout 0.3;
+    Lifetime 0.5;
+    ShowTree NoTree;
+    ShowTimes false;
+};
+
+// A second Gop on the same PDU is an error: this one uses the same PDU type
+// as nothing else so it is a Gop of a PDU without Gop (see http_nodrop)
+Pdu http_other Proto http Transport tcp/ip {
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Extract client From ip.src;
+    Extract http_rq From http.request.method;
+    DropUnassigned true;
+    DiscardPduData false;
+    LastPdu true;
+};
+
+Gop http_nodrop On http_other Match (addr, addr, port, port) {
+    Start (http_rq);
+    Extra (client);
+    DropUnassigned true;
+    ShowTree PduTree;
+};
+
+#include @INC2@
+
+Done;
+'''
+
+    INC1 = r'''// included file: transforms and the Gog
+Transform add_tcp_stop {
+    Match (tcp_flags_reset="True") Insert (tcp_stop="True");
+    Match Strict (tcp_flags_fin="True") Insert (tcp_stop="True");
+    Match Loose (tcp_nothing, tcp_start="True") Insert (tcp_open=1.5);
+    Match Every (addr) Insert (seen_addr="yes");
+    Insert (tcp_always=10.0.0.1);
+    Match (tcp_start="True") Replace (tcp_start="True", tcp_mac=01:AB:3);
+    Match (tcp_never) ;
+    ;
+};
+
+Transform dns_names {
+    Match (dns_resp="True", client) Replace (dns_resp="True");
+    Match (host^"www") Insert (dns_www);
+    Match (host$".test") Insert (dns_test);
+    Match (host~"xample") Insert (dns_xample);
+    Match (dns_rcode>0) Insert (dns_failed);
+    Match (dns_rcode<1) Insert (dns_ok);
+    Match (dns_rcode!0) Insert (dns_err);
+    Match (dns_id{"0x0001"|"0x0002"|"0x0003"}) Insert (dns_low);
+};
+
+'''
+
+    INC2 = r'''// second included file: Gops of DNS and NetBIOS, includes the Gogs
+Gop dns_req On dns_pdu Match (addr, addr, dns_id) {
+    Start (dns_resp="False");
+    Stop (dns_resp="True");
+    Extra (host, client, dns_rcode);
+    Transform dns_names;
+    ShowTree BasicTree;
+    ShowTimes true;
+};
+
+Gop nbns_tx On nbns_pdu Match (addr, addr, nbid) {
+    Extra (nbid, client);
+};
+
+#include @INC3@
+'''
+
+    INC3 = r'''// third file (included from the second one): the Gogs
+/* a block comment
+   over two lines */
+Gog client_ses {
+    Member tcp_ses (client);
+    Member dns_req (client);
+    Member nbns_tx (client);
+    Extra (host, client, nbid);
+    Expiration 3.0;
+    GopTree BasicTree;
+    ShowTimes true;
+};
+
+Gog web_ses {
+    Member http_tx (client);
+    Member http_nodrop (client);
+    Extra (client);
+    Expiration 1;
+    GopTree BasicTree;
+    ShowTimes false;
+};
+'''
+
+    # A Pdu and a Gop with the same name: the Gop name must not be used as
+    # the key of the Pdu lookup (a Pdu called foo would then feed the Gop foo)
+    SAME_NAME = r'''Pdu foo Proto dns Transport udp/ip { Extract id From dns.id; Extract resp From dns.flags.response; };
+Pdu bar Proto dns Transport udp/ip { Extract id From dns.id; Extract resp From dns.flags.response; };
+Gop foo On bar Match (id) {
+    Start (resp="False");
+    Stop (resp="True");
+};
+Done;
+'''
+
+    @staticmethod
+    def write_config(tmp_path, main, with_includes=True):
+        files = {'main.mate': main}
+        if with_includes:
+            # Relative names: the #include file name cannot hold a drive
+            # letter, and tshark runs in tmp_path (see run()).
+            inc = ['inc%d.mate' % n for n in (1, 2, 3)]
+            files['main.mate'] = main.replace('@INC@', inc[0]).replace('@INC2@', inc[1])
+            files['inc1.mate'] = TestDissectMate.INC1
+            files['inc2.mate'] = TestDissectMate.INC2.replace('@INC3@', inc[2])
+            files['inc3.mate'] = TestDissectMate.INC3
+        for name, text in files.items():
+            (tmp_path / name).write_text(text)
+        return str(tmp_path / 'main.mate')
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, config, *args):
+        return subprocess.check_output((cmd_tshark, *args, '-o', 'mate.config:' + config,
+                '-r', capture_file('mate_coverage.pcap.gz')),
+            encoding='utf-8', env=test_env, cwd=os.path.dirname(config), timeout=120)
+
+    def test_mate_frames_and_errors(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''The configuration loads (including the nested #include files),
+        51 frames get MATE items, in one and two passes, and no frame is
+        malformed or has an error expert info.'''
+        config = self.write_config(tmp_path, self.MAIN)
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, config, *passes,
+                              '-Y', 'mate', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 51
+            stdout = self.run(cmd_tshark, capture_file, test_env, config, *passes,
+                              '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                              '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_mate_gops_and_gogs(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Gop and Gog numbers on selected frames (second pass): a TCP
+        connection of 8 frames (Gop tcp_ses 1, Start SYN, Stop FIN), the
+        Gog client_ses it belongs to, the DNS query/response Gop dns_req,
+        and a NetBIOS Gop that only exists through the Gog key (no Start).
+        The HTTP Payload attribute of the Pdu (data_len) is extracted.'''
+        config = self.write_config(tmp_path, self.MAIN)
+        stdout = self.run(cmd_tshark, capture_file, test_env, config, '-2',
+                          '-Y', 'frame.number in {5,16,24,27,55}', '-Tfields', '-eframe.number',
+                          '-emate.tcp_ses.NumOfPdus', '-emate.client_ses', '-emate.http_pdu.data_len',
+                          '-emate.dns_req.NumOfPdus', '-emate.nbns_tx.NumOfPdus')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['5', '8', '1', '2', '', ''],
+            ['16', '', '1', '', '2', ''],
+            ['24', '', '1', '', '', '2'],
+            ['27', '', '1', '', '', '1'],
+            ['55', '', '5', '', '2', ''],
+        ]
+
+    def test_mate_gop_lifetime(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''The http_tx Gop has Lifetime 0.5 s and IdleTimeout 0.3 s: the
+        transactions of the client with growing gaps (frames 28-45) end up
+        in several Gops.  The expiry test was inverted: nothing expired.'''
+        config = self.write_config(tmp_path, self.MAIN)
+        stdout = self.run(cmd_tshark, capture_file, test_env, config, '-2',
+                          '-Y', 'mate.http_tx', '-Tfields', '-emate.http_tx')
+        ids = {int(i) for line in stdout.splitlines() for i in line.split(',')}
+        assert ids == set(range(1, 10))
+
+    def test_mate_gop_named_like_pdu(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''A Gop called foo on Pdu bar does not take the Pdu foo: the Gop of
+        the first DNS query holds the two Pdus of the query and its response.'''
+        config = self.write_config(tmp_path, self.SAME_NAME, with_includes=False)
+        stdout = self.run(cmd_tshark, capture_file, test_env, config, '-2',
+                          '-Y', 'frame.number == 16', '-Tfields', '-emate.foo.NumOfPdus')
+        assert stdout.split() == ['2']
