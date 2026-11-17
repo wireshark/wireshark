@@ -174726,3 +174726,198 @@ class TestDissectOpcuaCoverage:
         lines = self.fields(cmd_tshark, capture_file, test_env, 'opcua_coverage_infomodel.pcap.gz',
                 '-Y', 'opcua.ByteString', '-Tfields', '-eframe.number')
         assert len(lines) >= 30
+
+
+class TestDissectProfinet:
+    '''PROFINET (the profinet plugin, without the CBA dissectors): DCP, PTCP,
+    MRP, MRRT, PN-RT with DFP and fragmentation, RTC1, RSI, SXP and PN-IO
+    (alarms and DCE/RPC), from the synthetic captures
+    profinet_coverage.pcapng.gz (main) and profinet_coverage_gsd.pcap.gz
+    (needs the GSD preferences).'''
+
+    MAIN = 'profinet_coverage.pcapng.gz'
+    GSD = 'profinet_coverage_gsd.pcap.gz'
+    PROTOCOLS = (('PNIO-AL', 1526), ('PNIO-CM', 596), ('PN-DCP', 293), ('PNIO-RSI', 84), ('PN-SXP', 78),
+                 ('PN-MRP', 49), ('PNIO_PS', 59), ('PN-PTCP', 36), ('PN-RT', 30), ('PN-RTC3', 7),
+                 ('PN-MRRT', 3), ('PNIOsec', 3), ('PNIO-RSIsec', 6), ('PNIO-ALsec', 6), ('EAP', 2))
+
+    # A GSD document for the device 0x002a/0x0001 of the DCP frames of the GSD capture
+    GSD_XML = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<ISO15745Profile xmlns="http://www.profibus.com/GSDML/2003/11/DeviceProfile">\n'
+        '  <ProfileBody>\n'
+        '    <DeviceIdentity VendorID="0x002a" DeviceID="0x0001"><InfoText TextId="T_DEV"/></DeviceIdentity>\n'
+        '    <ApplicationProcess>\n'
+        '      <DeviceAccessPointList>\n'
+        '        <DeviceAccessPointItem ID="DAP 1" ModuleIdentNumber="0x00000001" FixedInSlots="0">\n'
+        '          <ModuleInfo><Name TextId="T_DAP"/></ModuleInfo>\n'
+        '          <UseableModules><ModuleItemRef ModuleItemTarget="Mod DI" FixedInSlots="1"/></UseableModules>\n'
+        '        </DeviceAccessPointItem>\n'
+        '      </DeviceAccessPointList>\n'
+        '      <ModuleList>\n'
+        '        <ModuleItem ID="Mod DI" ModuleIdentNumber="0x00000020">\n'
+        '          <ModuleInfo><Name TextId="T_DI"/></ModuleInfo>\n'
+        '          <VirtualSubmoduleList>\n'
+        '            <VirtualSubmoduleItem ID="v di" SubmoduleIdentNumber="0x00000301" PROFIsafeSupported="true"'
+        ' FixedInSubslots="1">\n'
+        '              <IOData><Input><DataItem DataType="OctetString" Length="2"/></Input></IOData>\n'
+        '              <RecordDataList><F_ParameterRecordDataItem Index="0x1000" Length="12"/></RecordDataList>\n'
+        '            </VirtualSubmoduleItem>\n'
+        '          </VirtualSubmoduleList>\n'
+        '        </ModuleItem>\n'
+        '      </ModuleList>\n'
+        '      <ExternalTextList>\n'
+        '        <PrimaryLanguage><Text TextId="T_DAP" Value="Head station"/>'
+        '<Text TextId="T_DI" Value="Safe digital input"/></PrimaryLanguage>\n'
+        '      </ExternalTextList>\n'
+        '    </ApplicationProcess>\n'
+        '  </ProfileBody>\n'
+        '</ISO15745Profile>\n')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, name, dfilter, *fields, opts=(), passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts, '-r', capture_file(name),
+                '-Y', dfilter, '-Tfields', *[a for f in fields for a in ('-e', f)]),
+            encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_profinet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frames are dissected as the PROFINET protocols of the plugin,
+        none is malformed or has an error expert info, in one and in two
+        passes. Two frames come over a raw IP interface: they are the
+        reproducers of "PROFINET: Fix crashes, CPU blow-ups and per-pass
+        state in PN-IO" (NULL link-layer address in the Read/Write headers).'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.MAIN),
+                '-Tfields', '-e_ws.col.Protocol'), encoding='utf-8', env=test_env, timeout=300)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert len(protocols) == 2801
+        for name, count in self.PROTOCOLS:
+            assert counts[name] == count, name
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number', passes=passes)
+            assert rows == []
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'frame.interface_id == 1', 'frame.number')
+        assert len(rows) == 2
+
+    def test_profinet_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The Info column and the data objects of the cyclic frames are the
+        same in the second pass, in particular the middle fragment of the
+        SXP stream that is followed by its first fragment ("PROFINET: Fix
+        recursion and several bounds problems in PN-RT/SXP/MRP/DCP").'''
+        one = self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'pn_sxp || pn_io || pn_dcp',
+                          'frame.number', '_ws.col.Info', 'pn_io.io_data_object.module_nr')
+        two = self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'pn_sxp || pn_io || pn_dcp',
+                          'frame.number', '_ws.col.Info', 'pn_io.io_data_object.module_nr', passes=('-2',))
+        assert len(one) > 1800
+        assert one == two
+        assert any('middle fragment' in r[1] for r in one)
+
+    def test_profinet_dcp(self, cmd_tshark, capture_file, test_env):
+        '''DCP requests, responses and hellos: names, addresses, the IP
+        conflict flag and the control block responses.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN,
+                           'pn_dcp.suboption_device_nameofstation == "dev-1.plant"', 'frame.number', '_ws.col.Info')
+        assert len(rows) == 8
+        assert rows[0][1] == 'Ident Ok , Xid:0x1008, NameOfStation:"dev-1.plant"'
+        assert [r[1].split(',')[0] for r in rows[:5]] == ['Ident Ok ', 'Hello Req', 'Get Ok ', 'Set Req', 'Ident Req']
+        assert len(self.fields(cmd_tshark, capture_file, test_env, self.MAIN,
+                               'pn_dcp.suboption_ip_ip == 192.168.0.5', 'frame.number')) == 23
+        assert len(self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'pn_dcp.ip_conflict', 'frame.number')) == 3
+        assert len(self.fields(cmd_tshark, capture_file, test_env, self.MAIN,
+                               'pn_dcp.block_error.unknown', 'frame.number')) == 5
+
+    def test_profinet_ptcp_mrp(self, cmd_tshark, capture_file, test_env):
+        '''PTCP announce, follow-up, delay and sync PDUs, MRP test, topology
+        change, link and interconnection PDUs, MRRT.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'pn_ptcp', '_ws.col.Info')
+        assert len(rows) == 36
+        infos = [r[0] for r in rows]
+        for name in ('Announce', 'FollowUp', 'DelayReq', 'DelayRes', 'RTSync'):
+            assert any(i.startswith(name) for i in infos), name
+        assert len(self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'pn_mrp', 'frame.number')) == 49
+        assert len(self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'pn_mrrt', 'frame.number')) == 3
+
+    def test_profinet_connect_and_cyclic(self, cmd_tshark, capture_file, test_env):
+        '''The Connect, Control and Release sequence of an AR creates the
+        station information that the RTC1 frames use: data objects of the
+        input and output frames with module and submodule ident numbers.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN,
+                           'pn_io.ar_uuid == 11111111-2222-3333-4444-555555555501 && pn_io.artype_req && frame.number < 400',
+                           'frame.number', '_ws.col.Info')
+        assert len(rows) == 1
+        assert rows[0][1].startswith('Connect request, ARBlockReq, IOCRBlockReq, IOCRBlockReq, AlarmCRBlockReq')
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'pn_io.io_data_object.module_nr && frame.number > 362 && frame.number < 400',
+                           'frame.number', 'pn_io.io_data_object.module_nr', 'pn_io.io_data_object.submodule_nr')
+        assert len(rows) == 10
+        assert rows[0][1:] == ['0x00000001,0x00000001,0x00000020,0x00000022',
+                               '0x00000101,0x00000201,0x00000301,0x00000303']
+        assert rows[1][1:] == ['0x00000021,0x00000022', '0x00000302,0x00000303']
+
+    def test_profinet_fragmentation(self, cmd_tshark, capture_file, test_env):
+        '''PN-RT fragments are reassembled with the right first fragment: the
+        reassembly key was (frame number << 2) | fragment ID, so that
+        fragment 0 of ID 0xff8c and of ID 0xff80 collided. The DCP request
+        that is reassembled from three fragments decodes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN,
+                           'pn_rt.frag && data.data', 'pn_rt.frame_id', 'data.data')
+        data = {r[0]: r[1] for r in rows}
+        assert '65408' in data
+        assert 'bbbbbbbbbbbbbbbb' in data['65408'] and 'cccccccccccccccc' in data['65408']
+        assert 'aaaaaaaa' not in data['65408']
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN,
+                           'pn_dcp.suboption_device_nameofstation == "fragment-device-name"', 'frame.number')
+        assert len(rows) == 4
+
+    def test_profinet_rsi_sxp(self, cmd_tshark, capture_file, test_env):
+        '''RSI fragments are reassembled into the PN-IO blocks of the
+        operation, SXP services in single and fragmented packets over
+        RTAv3 and TCP.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'pn_rsi', '_ws.col.Info')
+        infos = [r[0] for r in rows]
+        assert sum('[Last PN IO RSI Segment]' in i for i in infos) >= 20
+        assert any('IODReadResHeader' in i and 'Read response' in i for i in infos)
+        assert any('IODWriteReqHeader' in i or 'IODWriteResHeader' in i for i in infos)
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'pn_sxp', '_ws.col.Info', 'tcp.dstport')
+        infos = [r[0] for r in rows]
+        assert any('Connect REQ' in i for i in infos)
+        assert any('SAM Connect REQ' in i for i in infos)
+        assert any(r[1] in ('34962', '34964') for r in rows)
+
+    def test_profinet_bug_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of the fixes of the branch decode cleanly: RS_TimeStatus
+        with a time stamp, PROFIenergy measurement values of 64 bits and the
+        AR whose frame IDs change in the Connect response.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN, 'pn_io.rs_time_stamp',
+                           'frame.number', 'pn_io.rs_time_stamp.value')
+        assert len(rows) == 10
+        assert any(r[1].count(',') == 1 for r in rows)
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.MAIN,
+                           'pn_io.profienergy.measurement.value_float64', 'frame.number')
+        assert len(rows) == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', capture_file(self.MAIN), '-V',
+                    '-Y', 'pn_io.ar_uuid == 11111111-2222-3333-4444-6666666666aa'),
+                encoding='utf-8', env=test_env, timeout=300)
+            assert 'IOCRBlockRes: input frameID changed' in stdout
+
+    def test_profinet_gsd(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''With the GSD directory preference the module names of the GSD are
+        used for the data objects of the GSD capture.'''
+        gsd = tmp_path / 'gsd'
+        gsd.mkdir()
+        (gsd / 'device.xml').write_text(self.GSD_XML)
+        for opts, expected in (((), ('GSD-file networkpath failure',)),
+                               (('-o', 'pn_io.pnio_ps_networkpath:' + str(gsd)),
+                                ('[GSD-file found: ', 'ModuleName: "Safe digital input"'))):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *passes, *opts, '-r', capture_file(self.GSD), '-V',
+                        '-Y', '_ws.col.protocol == "PNIO_PS"'),
+                    encoding='utf-8', env=test_env, timeout=300)
+                for text in expected:
+                    assert text in stdout, (opts, passes, text, stdout.count('GSD-file'))
+        rows = self.fields(cmd_tshark, capture_file, test_env, self.GSD,
+                           '_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number',
+                           opts=('-o', 'pn_io.pnio_ps_networkpath:' + str(gsd)))
+        assert rows == []
