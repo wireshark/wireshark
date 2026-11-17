@@ -175255,3 +175255,102 @@ class TestDissectStatsTree:
             encoding='utf-8', env=test_env, timeout=120)
         assert 'Packet Lengths' in stdout
         assert ' 57 ' in stdout
+
+
+class TestDissectTransum:
+    '''TRANSUM (plugins/epan/transum), the response time postdissector, from
+    the synthetic capture transum_coverage.pcap.gz.  TRANSUM is disabled by
+    default and shows its data on the second pass only, so the tests enable
+    it with --enable-protocol and use -2.'''
+
+    ENABLE = ('--enable-protocol', 'transum')
+    FIELDS = ('-Tfields', '-eframe.number', '-etransum.calculation', '-etransum.status',
+              '-etransum.firstreq', '-etransum.lastreq', '-etransum.firstrsp', '-etransum.lastrsp')
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-2', *args,
+                '-r', capture_file('transum_coverage.pcap.gz')),
+            encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_transum_counts(self, cmd_tshark, capture_file, test_env):
+        '''Number of RTE records by calculation and status.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, *self.ENABLE, '-Y', 'transum',
+                         '-Tfields', '-etransum.calculation', '-etransum.status')
+        counts = {}
+        for r in rows:
+            counts[tuple(r)] = counts.get(tuple(r), 0) + 1
+        assert counts == {
+            ('DCE-RPC', 'OK'): 9,
+            ('DNS', 'OK'): 106,
+            ('DNS', 'Response missing'): 203,
+            ('Generic TCP', 'OK'): 52,
+            ('Generic TCP', 'Response missing'): 1,
+            ('Generic UDP', 'OK'): 2,
+            ('Generic UDP', 'Response missing'): 2,
+            ('SMB2', 'OK'): 6,
+            ('SYN and SYN/ACK', 'OK'): 10,
+            ('SYN and SYN/ACK', 'Response missing'): 2,
+        }
+
+    def test_transum_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos, in one and two
+        passes, with TRANSUM enabled.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.ENABLE,
+                    '-r', capture_file('transum_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number'),
+                encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_transum_one_pass_and_disabled(self, cmd_tshark, capture_file, test_env):
+        '''The RTE data shows only on the second pass and only when the
+        protocol is enabled (it is disabled by default).'''
+        for args in ((*self.ENABLE,), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *args,
+                    '-r', capture_file('transum_coverage.pcap.gz'),
+                    '-Y', 'transum', '-Tfields', '-eframe.number'),
+                encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_transum_segments(self, cmd_tshark, capture_file, test_env):
+        '''Frames of the first and last request and response segment of
+        multi-segment HTTP, DCE/RPC and SMB2 messages and of DNS and generic
+        UDP pairs: frame, calculation, status, first/last request, first/last
+        response.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, *self.ENABLE,
+                         '-Y', 'transum && frame.number in {4,10,84,117,134,148,154,175,177,179}',
+                         *self.FIELDS)
+        assert rows == [
+            ['4', 'Generic TCP', 'OK', '4', '4', '5', '7'],      # response in three segments
+            ['10', 'Generic TCP', 'OK', '9', '10', '11', '11'],  # request in two segments
+            ['84', 'DCE-RPC', 'OK', '83', '84', '85', '87'],     # fragmented request
+            ['117', 'SMB2', 'OK', '116', '117', '118', '120'],   # PDUs split over segments
+            ['134', 'Generic UDP', 'Response missing', '132', '134', '', ''],
+            ['148', 'DNS', 'OK', '147', '148', '149', '150'],    # IPv6, retransmitted query
+            ['154', 'DNS', 'OK', '154', '154', '157', '157'],    # response arrives after others
+            ['175', 'Generic TCP', 'OK', '175', '175', '176', '176'],
+            ['177', 'Generic TCP', 'Response missing', '177', '177', '', ''],
+            ['179', 'DNS', 'OK', '179', '179', '180', '180'],
+        ]
+
+    def test_transum_rte_on_response(self, cmd_tshark, capture_file, test_env):
+        '''RTE data is added to the last request segment by default, and to
+        the last response segment when selected.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, *self.ENABLE,
+                         '-o', 'transum.rte_on_last_req:FALSE', '-o', 'transum.rte_on_last_rsp:TRUE',
+                         '-Y', 'transum && frame.number <= 8', *self.FIELDS)
+        assert rows == [
+            ['2', 'SYN and SYN/ACK', 'OK', '1', '1', '2', '2'],
+            ['7', 'Generic TCP', 'OK', '4', '4', '5', '7'],
+        ]
+
+    def test_transum_smb2_compound(self, cmd_tshark, capture_file, test_env):
+        '''Compound SMB2 request with 20 commands (more than TRANSUM keeps
+        per frame, clamped to 16): decodes without errors and records the
+        pair.  Frames 107-131 hold the SMB2 stream.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, *self.ENABLE,
+                         '-Y', 'transum.calculation == "SMB2"', *self.FIELDS)
+        assert [r[0] for r in rows] == ['110', '112', '114', '117', '122', '125']
