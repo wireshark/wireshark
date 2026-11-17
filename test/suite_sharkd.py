@@ -1821,3 +1821,144 @@ class TestSharkd:
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             MatchAny(),
         ))
+
+
+class TestSharkdRtpCodecs:
+    '''sharkd "download" of rtp:<stream> tokens with the codecs that are
+    always built (G.711, L16, L24, Opus when built), the resampler and the
+    IuUP path of ui/rtp_media.c.  Goes into test/suite_sharkd.py.'''
+
+    CAPTURE = 'rtp_codecs_coverage.pcap.gz'
+    # rtp:<src>_<sport>_<dst>_<dport>_<ssrc>; each call has its own ports
+    TOKENS = {
+        'g711': 'rtp:192.0.2.2_40002_192.0.2.1_40000_11220000',
+        'l16': 'rtp:192.0.2.2_40012_192.0.2.1_40010_11220001',
+        'l24': 'rtp:192.0.2.2_40022_192.0.2.1_40020_11220002',
+        'opus': 'rtp:192.0.2.2_40032_192.0.2.1_40030_11220003',
+        'resample': 'rtp:192.0.2.2_40042_192.0.2.1_40040_11220004',
+        'upsample': 'rtp:192.0.2.2_40052_192.0.2.1_40050_11220005',
+        'iuup': 'rtp:192.0.2.2_40062_192.0.2.1_40060_11220006',
+        'nocodec': 'rtp:192.0.2.2_40072_192.0.2.1_40070_11220007',
+    }
+
+    @staticmethod
+    def download(run_sharkd_session, capture, name):
+        '''Returns the decoded WAV bytes (b'' if the stream has no audio).'''
+        import base64
+        out = run_sharkd_session((
+            json.dumps({"jsonrpc": "2.0", "id": 1, "method": "load",
+                        "params": {"file": capture}}),
+            json.dumps({"jsonrpc": "2.0", "id": 2, "method": "download",
+                        "params": {"token": TestSharkdRtpCodecs.TOKENS[name]}}),
+        ))
+        assert out[0] == {"jsonrpc": "2.0", "id": 1, "result": {"status": "OK"}}
+        result = out[1]['result']
+        assert result['file'] == TestSharkdRtpCodecs.TOKENS[name]
+        assert result['mime'] == 'audio/x-wav'
+        return base64.b64decode(result['data'])
+
+    @staticmethod
+    def wav_header(wav):
+        '''(channels, sample rate, bits) of the 44 byte header sharkd writes.'''
+        import struct
+        assert wav[:4] == b'RIFF' and wav[8:16] == b'WAVEfmt ' and wav[36:40] == b'data'
+        channels, rate = struct.unpack('<HI', wav[22:28])
+        return channels, rate, struct.unpack('<H', wav[34:36])[0]
+
+    @staticmethod
+    def samples(wav):
+        import struct
+        data = wav[44:]
+        return struct.unpack('<%dh' % (len(data) // 2), data)
+
+    def test_rtp_codecs_dissection(self, cmd_tshark, capture_file, test_env):
+        '''Eight SIP calls with RTP streams dissect without malformed
+        packets or expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == []
+
+    def test_download_g711(self, run_sharkd_session, capture_file):
+        '''PCMU and PCMA in one stream: 2 bytes per payload byte; the empty
+        packet adds nothing; the PCMU/PCMA tables give the known values.'''
+        wav = self.download(run_sharkd_session, capture_file(self.CAPTURE), 'g711')
+        assert self.wav_header(wav) == (1, 8000, 16)
+        s = self.samples(wav)
+        assert len(s) == 256 + 160 + 256 + 160 + 40
+        assert s[0] == -32124 and s[255] == 0     # ulaw 0x00 and 0xff
+        assert s[256:256 + 3] == (0, 0, 0)        # 0xff again
+        assert s[416] == -5504 and s[416 + 255] == 848    # alaw 0x00 and 0xff
+
+    def test_download_l16(self, run_sharkd_session, capture_file):
+        '''L16 mono (PT 11), stereo (PT 10, downmixed) at 44.1 kHz.  The
+        3 byte and 6 byte payloads give a whole number of samples and
+        nothing uninitialised.'''
+        wav = self.download(run_sharkd_session, capture_file(self.CAPTURE), 'l16')
+        assert self.wav_header(wav) == (1, 44100, 16)
+        s = self.samples(wav)
+        assert len(s) == 80 + 1 + 40 + 1 + 40
+        assert s[80] == 0x1010
+        assert s[1:3] == (300, 600)
+
+    def test_download_l24(self, run_sharkd_session, capture_file):
+        '''L24 from the SDP (mono and stereo): the top 16 bits of each
+        sample, whole samples only.'''
+        wav = self.download(run_sharkd_session, capture_file(self.CAPTURE), 'l24')
+        assert self.wav_header(wav) == (1, 8000, 16)
+        s = self.samples(wav)
+        assert len(s) == 20 + 1 + 10 + 1 + 10
+        assert s[0] == 0x0001 and s[1] == 0x0304
+        assert s[20] == 0x1010
+
+    def test_download_opus(self, cmd_tshark, run_sharkd_session, capture_file, test_env):
+        '''Opus is decoded to 48 kHz mono, 960 samples per 20 ms frame; the
+        invalid packets are dropped.'''
+        plugins = subprocess.check_output((cmd_tshark, '-G', 'plugins'),
+                                          encoding='utf-8', env=test_env)
+        if 'opus_dec' not in plugins:
+            pytest.skip('Opus codec is not built')
+        wav = self.download(run_sharkd_session, capture_file(self.CAPTURE), 'opus')
+        assert self.wav_header(wav) == (1, 48000, 16)
+        assert len(self.samples(wav)) == 3 * 960
+
+    def test_download_resample(self, run_sharkd_session, capture_file):
+        '''The rate changes inside the stream (8 kHz, 44.1 kHz, 16 kHz, 8 kHz,
+        44.1 kHz) and everything is resampled to the first rate.  The number
+        of output samples follows the decoded sample count, not the payload
+        byte count (that was a heap over-read in sharkd).'''
+        wav = self.download(run_sharkd_session, capture_file(self.CAPTURE), 'resample')
+        assert self.wav_header(wav) == (1, 8000, 16)
+        # 160 + 127 + 127 + 160 + 160 + 160 + 127 samples would be exact;
+        # the resampler's start-up delay takes some of them
+        n = len(self.samples(wav))
+        assert 600 < n <= 1021
+
+    def test_download_upsample(self, cmd_tshark, run_sharkd_session, capture_file, test_env):
+        '''8 kHz audio after 48 kHz opus is upsampled into a buffer that
+        has to grow (more than 4096 bytes).'''
+        plugins = subprocess.check_output((cmd_tshark, '-G', 'plugins'),
+                                          encoding='utf-8', env=test_env)
+        if 'opus_dec' not in plugins:
+            pytest.skip('Opus codec is not built')
+        wav = self.download(run_sharkd_session, capture_file(self.CAPTURE), 'upsample')
+        assert self.wav_header(wav) == (1, 48000, 16)
+        n = len(self.samples(wav))
+        assert 960 + 2000 < n <= 960 + 2400 + 960
+
+    def test_download_iuup(self, run_sharkd_session, capture_file):
+        '''IuUP packets (valid with and without CRC, no data, an unknown PDU
+        type, 294 bytes of payload that no longer asserts, AMR sizes that
+        match no frame type) are skipped or decoded as AMR, and the download
+        succeeds.  Without AMR in the build nothing is decoded.'''
+        wav = self.download(run_sharkd_session, capture_file(self.CAPTURE), 'iuup')
+        assert wav == b'' or self.wav_header(wav)[1] == 8000
+
+    def test_download_without_codec(self, run_sharkd_session, capture_file):
+        '''GSM, G.729 (not built in every package) and a dynamic payload
+        type without rtpmap produce no audio but no error.'''
+        wav = self.download(run_sharkd_session, capture_file(self.CAPTURE), 'nocodec')
+        assert wav == b'' or self.wav_header(wav)[0] == 1
