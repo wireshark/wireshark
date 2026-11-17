@@ -175423,3 +175423,86 @@ class TestDissectUnistim:
                 '-Tfields', '-eunistim.config.element',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip().split(',') == ['0x%02x' % i for i in range(16)]
+
+
+class TestDissectWimax:
+    '''Synthetic WiMax capture generated with Python struct
+    (plugins/epan/wimax, mkwimax.py): M2M frames on ethertype 0x08F0 with
+    FCH, PDU bursts, MAC headers and management messages, and Exported PDU
+    frames for the entry points the M2M encapsulation cannot reach.'''
+
+    # Everything needed is a class attribute (nothing at module level).
+    CAPTURE = 'wimax_coverage.pcapng.gz'
+    M2M_FRAMES = 522
+    EPDU_FRAMES = 25
+    MGMT_TYPES = (0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 25, 26, 27, 28, 29,
+                  30, 33, 34, 35, 36, 37, 38, 44, 45, 46, 47, 48, 49, 63, 64, 65)
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        '''tshark -T fields output of the capture as a list of lines.'''
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file('wimax_coverage.pcapng.gz'), *args),
+            encoding='utf-8', env=test_env).splitlines()
+
+    def test_wimax_frames(self, cmd_tshark, capture_file, test_env):
+        '''The capture holds the expected number of M2M and Exported PDU
+        frames and every frame has the WiMax plugin protocols.'''
+        t = self.fields
+        assert len(t(cmd_tshark, capture_file, test_env, '-Y', 'm2m', '-Tfields', '-eframe.number')) == self.M2M_FRAMES
+        assert len(t(cmd_tshark, capture_file, test_env, '-Y', 'exported_pdu', '-Tfields', '-eframe.number')) == self.EPDU_FRAMES
+
+    def test_wimax_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no warning or error expert infos in one
+        pass and in two passes.'''
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert out == []
+
+    def test_wimax_two_passes_identical(self, cmd_tshark, capture_file, test_env):
+        '''The tree of every frame is the same in the second pass (map
+        decoding state, BS address, HARQ mode, CRC tables, fragments).'''
+        one = self.fields(cmd_tshark, capture_file, test_env, '-V')
+        two = self.fields(cmd_tshark, capture_file, test_env, '-2', '-V')
+        assert one == two
+
+    def test_wimax_management_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every management message type with a decoder in the plugin
+        appears.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-ewmx.macmgtmsgtype')
+        seen = set()
+        for line in out:
+            seen.update(int(v) for v in line.split(',') if v)
+        assert seen.issuperset(self.MGMT_TYPES)
+
+    def test_wimax_m2m_tlv_lengths(self, cmd_tshark, capture_file, test_env):
+        '''A well-formed one byte Protocol Version TLV gets its value
+        decoded and no "Expected length" expert info ("WiMAX: Compare the
+        TLV length with its value length").'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'm2m.protocol_vers_tlv_value && m2m.burst_power_tlv_value',
+                '-Tfields', '-em2m.protocol_vers_tlv_value', '-em2m.burst_power_tlv_value')
+        assert out and out[0] == '1\t16'
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.expert.message contains "Expected length"', '-Tfields', '-eframe.number')
+        assert out == []
+
+    def test_wimax_crc_tables_ready_for_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''A HARQ-MAP handed to the HARQ-MAP dissector before any PDU burst
+        has a correct CRC in both passes: the CRC tables are built when
+        the plugin is registered.'''
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'exported_pdu && wmx.harq_map.msg_crc',
+                    '-Tfields', '-ewmx.harq_map.msg_crc.status')
+            assert out and set(out) == {'1'}
+
+    def test_wimax_reduced_aas_crc16(self, cmd_tshark, capture_file, test_env):
+        '''The CRC-16 of the Reduced AAS private DL-MAP frames is a 16 bit
+        field and is correct ("WiMAX: Make map decoding independent of
+        earlier frames and fix a loop").'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'wmx.dlmap.crc16', '-Tfields', '-ewmx.dlmap.crc16.status')
+        assert out and set(out) == {'1'}
