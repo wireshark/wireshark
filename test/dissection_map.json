@@ -1640,6 +1640,12 @@
    "epan/dissectors/packet-spp.c",
    "epan/dissectors/packet-tte-pcf.c"
   ],
+  "TestDissectEthercat": [
+   "epan/dissectors/packet-arp.c",
+   "plugins/epan/ethercat/packet-ams.c",
+   "plugins/epan/ethercat/packet-ioraw.c",
+   "plugins/epan/ethercat/packet-nv.c"
+  ],
   "TestDissectEtherip": [
    "epan/dissectors/packet-arp.c",
    "epan/dissectors/packet-etherip.c"
@@ -2083,6 +2089,9 @@
    "epan/dissectors/packet-grpc.c",
    "epan/dissectors/packet-json.c",
    "epan/dissectors/packet-text-media.c"
+  ],
+  "TestDissectGryphon": [
+   "plugins/epan/gryphon/packet-gryphon.c"
   ],
   "TestDissectGsmABssmap": [
    "epan/dissectors/packet-gsm_a_bssmap.c",
@@ -2839,6 +2848,10 @@
   "TestDissectIrc": [
    "epan/dissectors/packet-irc.c"
   ],
+  "TestDissectIrda": [
+   "plugins/epan/irda/packet-ircomm.c",
+   "plugins/epan/irda/packet-irda.c"
+  ],
   "TestDissectIrdma": [
    "epan/dissectors/packet-irdma.c"
   ],
@@ -3330,6 +3343,12 @@
   ],
   "TestDissectMarker": [
    "epan/dissectors/packet-marker.c"
+  ],
+  "TestDissectMate": [
+   "epan/dissectors/packet-dns.c",
+   "epan/dissectors/packet-http.c",
+   "epan/dissectors/packet-nbt.c",
+   "plugins/epan/mate/packet-mate.c"
   ],
   "TestDissectMatter": [
    "epan/dissectors/packet-matter.c"
@@ -4010,6 +4029,11 @@
    "epan/dissectors/packet-arp.c",
    "epan/dissectors/packet-opa-snc.c"
   ],
+  "TestDissectOpcuaCoverage": [
+   "epan/dissectors/packet-x509ce.c",
+   "plugins/epan/opcua/opcua.c",
+   "plugins/epan/opcua/packet-opcua-pubsub.c"
+  ],
   "TestDissectOpenflow": [
    "epan/dissectors/packet-openflow.c"
   ],
@@ -4322,6 +4346,17 @@
   "TestDissectPrism": [
    "epan/dissectors/packet-ieee80211-prism.c",
    "epan/dissectors/packet-ieee80211.c"
+  ],
+  "TestDissectProfinet": [
+   "epan/dissectors/packet-dcerpc.c",
+   "epan/dissectors/packet-eap.c",
+   "plugins/epan/profinet/packet-dcerpc-pn-io.c",
+   "plugins/epan/profinet/packet-pn-dcp.c",
+   "plugins/epan/profinet/packet-pn-mrp.c",
+   "plugins/epan/profinet/packet-pn-mrrt.c",
+   "plugins/epan/profinet/packet-pn-ptcp.c",
+   "plugins/epan/profinet/packet-pn-rsi.c",
+   "plugins/epan/profinet/packet-pn-sxp.c"
   ],
   "TestDissectProtobufCoverage": [
    "epan/dissectors/packet-protobuf.c",
@@ -5367,6 +5402,11 @@
   "TestDissectStatNotify": [
    "epan/dissectors/packet-stat-notify.c"
   ],
+  "TestDissectStatsTree": [
+   "epan/dissectors/packet-dns.c",
+   "epan/dissectors/packet-ntp.c",
+   "epan/dissectors/packet-ssh.c"
+  ],
   "TestDissectStcsig": [
    "epan/dissectors/packet-arp.c",
    "epan/dissectors/packet-stcsig.c"
@@ -5610,6 +5650,18 @@
    "epan/dissectors/packet-tr.c",
    "epan/dissectors/packet-trmac.c"
   ],
+  "TestDissectTransum": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-dcerpc.c",
+   "epan/dissectors/packet-dns.c",
+   "epan/dissectors/packet-nbt.c",
+   "epan/dissectors/packet-smb.c",
+   "epan/dissectors/packet-smb2.c",
+   "epan/dissectors/packet-smtp.c",
+   "epan/dissectors/packet-text-media.c",
+   "epan/dissectors/packet-tls.c",
+   "plugins/epan/transum/packet-transum.c"
+  ],
   "TestDissectTrel": [
    "epan/dissectors/packet-trel.c"
   ],
@@ -5768,6 +5820,11 @@
   ],
   "TestDissectUmtsRlc": [
    "epan/dissectors/packet-umts_rlc.c"
+  ],
+  "TestDissectUnistim": [
+   "epan/dissectors/packet-rtcp.c",
+   "epan/dissectors/packet-rtp.c",
+   "plugins/epan/unistim/packet-unistim.c"
   ],
   "TestDissectUsb": [
    "epan/dissectors/packet-bthci_evt.c",
@@ -5989,6 +6046,13 @@
   "TestDissectWifiP2p": [
    "epan/dissectors/packet-wifi-display.c",
    "epan/dissectors/packet-wifi-p2p.c"
+  ],
+  "TestDissectWimaxasncp": [
+   "epan/dissectors/packet-tls.c",
+   "plugins/epan/wimaxasncp/packet-wimaxasncp.c"
+  ],
+  "TestDissectWimaxmacphy": [
+   "plugins/epan/wimaxmacphy/packet-wimaxmacphy.c"
   ],
   "TestDissectWinsrepl": [
    "epan/dissectors/packet-winsrepl.c"
