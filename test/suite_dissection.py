@@ -175116,3 +175116,142 @@ class TestDissectProfinetCba:
                 '43\tDiagConsConnections request',
                 '44\tDiagConsConnections response -> S_OK',
             ]
+
+
+class TestDissectStatsTree:
+    '''The statistics trees of the stats_tree plugin (pinfo_stats_tree.c:
+    ip_hosts, ip_srcdst, ptype, dests, ip_ttl, ipv6_*, plen) from the
+    synthetic capture stats_tree_coverage.pcap.gz.  Only the topic and
+    count columns are compared (the other columns hold decimal numbers).'''
+
+    @staticmethod
+    def tree(cmd_tshark, capture_file, test_env, name, *args):
+        '''Return {path of topics: count} of a statistics tree.'''
+        stdout = subprocess.check_output((cmd_tshark, '-q', *args,
+                '-r', capture_file('stats_tree_coverage.pcap.gz'),
+                '-z', name + ',tree'),
+            encoding='utf-8', env=test_env, timeout=120)
+        import re
+        result = {}
+        stack = []
+        for line in stdout.splitlines():
+            m = re.match(r'^( *)(\S.*?)\s{2,}(\d+)\s', line)
+            if not m:
+                continue
+            depth = len(m.group(1))
+            stack[depth:] = [m.group(2)]
+            result['/'.join(stack)] = int(m.group(3))
+        return result
+
+    def test_stats_tree_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed frames or error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('stats_tree_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number'),
+                encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_stats_tree_ip_hosts(self, cmd_tshark, capture_file, test_env):
+        '''IPv4 and IPv6 address trees: every packet counts its source and
+        destination (the ICMP errors carry an inner IP header, so there are
+        more IP layers than frames).'''
+        t = self.tree(cmd_tshark, capture_file, test_env, 'ip_hosts')
+        assert t['IPv4 Statistics/All Addresses'] == 86
+        assert t['IPv4 Statistics/All Addresses/198.51.100.25'] == 26
+        assert t['IPv4 Statistics/All Addresses/192.0.2.10'] == 25
+        assert t['IPv4 Statistics/All Addresses/198.51.100.1'] == 1
+        assert len(t) == 15
+        t = self.tree(cmd_tshark, capture_file, test_env, 'ipv6_hosts')
+        assert t['IPv6 Statistics/All Addresses'] == 57
+        assert t['IPv6 Statistics/All Addresses/2001:db8:1::1'] == 2
+        assert len(t) == 12
+
+    def test_stats_tree_srcdst(self, cmd_tshark, capture_file, test_env):
+        '''Source and destination branches are separate top-level nodes.'''
+        t = self.tree(cmd_tshark, capture_file, test_env, 'ip_srcdst')
+        assert t['Source IPv4 Addresses'] == 86
+        assert t['Destination IPv4 Addresses'] == 86
+        assert t['Source IPv4 Addresses/192.0.2.13'] == 26
+        assert t['Destination IPv4 Addresses/198.51.100.25'] == 26
+        assert t['Destination IPv4 Addresses/198.51.100.20'] == 12
+        t = self.tree(cmd_tshark, capture_file, test_env, 'ipv6_srcdst')
+        assert t['Source IPv6 Addresses'] == 57
+        assert t['Destination IPv6 Addresses'] == 57
+
+    def test_stats_tree_ptype(self, cmd_tshark, capture_file, test_env):
+        '''Pivot nodes by port type.'''
+        t = self.tree(cmd_tshark, capture_file, test_env, 'ptype')
+        assert t == {
+            'IPv4 Statistics/IP Protocol Types': 86,
+            'IPv4 Statistics/IP Protocol Types/TCP': 45,
+            'IPv4 Statistics/IP Protocol Types/UDP': 32,
+            'IPv4 Statistics/IP Protocol Types/NONE': 7,
+            'IPv4 Statistics/IP Protocol Types/SCTP': 1,
+            'IPv4 Statistics/IP Protocol Types/DCCP': 1,
+        }
+        t = self.tree(cmd_tshark, capture_file, test_env, 'ipv6_ptype')
+        assert t == {
+            'IPv6 Statistics/IP Protocol Types': 57,
+            'IPv6 Statistics/IP Protocol Types/TCP': 45,
+            'IPv6 Statistics/IP Protocol Types/UDP': 7,
+            'IPv6 Statistics/IP Protocol Types/NONE': 4,
+            'IPv6 Statistics/IP Protocol Types/SCTP': 1,
+        }
+
+    def test_stats_tree_dests(self, cmd_tshark, capture_file, test_env):
+        '''Destination, protocol and port, three levels.'''
+        t = self.tree(cmd_tshark, capture_file, test_env, 'dests')
+        top = 'IPv4 Statistics/Destinations and Ports'
+        assert t[top] == 86
+        assert t[top + '/198.51.100.20'] == 12
+        assert t[top + '/198.51.100.24/TCP/8080'] == 6
+        assert t[top + '/198.51.100.30/UDP/53'] == 2
+        t = self.tree(cmd_tshark, capture_file, test_env, 'ipv6_dests')
+        top = 'IPv6 Statistics/Destinations and Ports'
+        assert t[top] == 57
+        assert t[top + '/2001:db8:1::20'] == 10
+        assert t[top + '/2001:db8:1::20/TCP/80'] == 6
+        assert t[top + '/2001:db8:1::20/NONE/0'] == 2
+
+    def test_stats_tree_ttl(self, cmd_tshark, capture_file, test_env):
+        '''Source, TTL (hop limit) and destination.'''
+        t = self.tree(cmd_tshark, capture_file, test_env, 'ip_ttl')
+        top = 'IPv4 Statistics/Source TTLs'
+        assert t[top] == 86
+        assert t[top + '/192.0.2.13/61'] == 26
+        assert t[top + '/192.0.2.13/61/198.51.100.25'] == 26
+        assert t[top + '/198.51.100.1/250/192.0.2.10'] == 1
+        t = self.tree(cmd_tshark, capture_file, test_env, 'ipv6_hop')
+        top = 'IPv6 Statistics/Source Hop Limits'
+        assert t[top] == 57
+        assert t[top + '/2001:db8::10/12/2001:db8:1::20'] == 1
+        assert t[top + '/2001:db8:1::1/250/2001:db8::10'] == 1
+
+    def test_stats_tree_plen(self, cmd_tshark, capture_file, test_env):
+        '''Packet length ranges at the default settings.'''
+        t = self.tree(cmd_tshark, capture_file, test_env, 'plen')
+        top = 'Packet Lengths'
+        assert t == {
+            top: 150,
+            top + '/0-19': 2,
+            top + '/20-39': 3,
+            top + '/40-79': 81,
+            top + '/80-159': 30,
+            top + '/160-319': 15,
+            top + '/320-639': 6,
+            top + '/640-1279': 4,
+            top + '/1280-2559': 3,
+            top + '/2560-5119': 3,
+            top + '/5120 and greater': 3,
+        }
+
+    def test_stats_tree_filter(self, cmd_tshark, capture_file, test_env):
+        '''A display filter on the tree.'''
+        stdout = subprocess.check_output((cmd_tshark, '-q',
+                '-r', capture_file('stats_tree_coverage.pcap.gz'),
+                '-z', 'plen,tree,ipv6'),
+            encoding='utf-8', env=test_env, timeout=120)
+        assert 'Packet Lengths' in stdout
+        assert ' 57 ' in stdout
