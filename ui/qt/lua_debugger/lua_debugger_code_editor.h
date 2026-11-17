@@ -112,6 +112,20 @@ class LuaDebuggerCodeView : public QPlainTextEdit
     void setFilename(const QString &f) { filename = f; }
 
     /**
+     * @brief Replace the whole text from disk without treating it as a user
+     *        edit, so breakpoints are not shifted by the line count change.
+     */
+    void reloadContents(const QString &text);
+
+    /**
+     * @brief Mark that the file was saved after the last Lua plugin reload,
+     *        i.e. the running script no longer matches the file.
+     */
+    void setScriptStale(bool stale) { scriptStale_ = stale; }
+    /** @brief True if the file was saved but the plugins were not reloaded since. */
+    bool isScriptStale() const { return scriptStale_; }
+
+    /**
      * @brief Get the file path associated with this editor.
      * @return The file path.
      */
@@ -175,6 +189,21 @@ class LuaDebuggerCodeView : public QPlainTextEdit
     void breakpointMoveRequested(const QString &filename, qint32 fromLine, qint32 toLine);
 
     /**
+     * @brief Notify that an edit added or removed lines, so breakpoints can
+     *        follow the code they were set on.
+     * @param filename The file being edited.
+     * @param changeLineNumber 1-based line containing the start of the edit.
+     * @param deltaLines Net change in line count (positive = lines added,
+     *        negative = lines removed).
+     * @param atLineStart True if the edit started at column 0 of
+     *        @a changeLineNumber.
+     */
+    void editorLinesChanged(const QString &filename, qint32 changeLineNumber, qint32 deltaLines, bool atLineStart);
+
+    /** @brief The user tried to edit while the editor is read-only. */
+    void readOnlyEditAttempted();
+
+    /**
      * @brief Request an Edit / Disable (Enable) / Remove popup for the
      *        breakpoint at @a filename:@a line, anchored at
      *        @a globalPos.
@@ -199,6 +228,8 @@ class LuaDebuggerCodeView : public QPlainTextEdit
     void resizeEvent(QResizeEvent *event) override;
     /** @brief Forward Esc to LuaDebuggerDialog (keys go to viewport, not the dialog). */
     bool eventFilter(QObject *watched, QEvent *event) override;
+    /** @brief Report edit attempts while the editor is read-only. */
+    void keyPressEvent(QKeyEvent *event) override;
 
   private slots:
     /** @brief Update margins to accommodate new block digits. */
@@ -207,6 +238,8 @@ class LuaDebuggerCodeView : public QPlainTextEdit
     void rebuildLineHighlights();
     /** @brief Repaint the gutter when Qt issues update requests. */
     void updateLineNumberArea(const QRect &rect, int dy);
+    /** @brief Detect line insertions/deletions and notify the breakpoints controller. */
+    void onContentsChange(int position);
 
   private:
   /** @brief The widget displaying line numbers. */
@@ -215,6 +248,13 @@ class LuaDebuggerCodeView : public QPlainTextEdit
     QSyntaxHighlighter *syntaxHighlighter;
     /** 1-based line where the debugger is paused, or -1 if none. */
     qint32 pausedExecutionLine_ = -1;
+
+    /** Block count after the previous edit, to derive the line delta. */
+    qint32 previousBlockCount_ = 0;
+    /** True while reloadContents() replaces the text. */
+    bool reloadingContents_ = false;
+    /** File saved since the last Lua plugin reload. */
+    bool scriptStale_ = false;
 
     /** @brief Friend class allowing access to private members. */
     friend class LineNumberArea;
@@ -540,6 +580,15 @@ class LuaDebuggerCodeTabsController : public QObject
      *  @return True if saved successfully, false otherwise.
      */
     bool saveCodeView(LuaDebuggerCodeView *view);
+
+    /**
+     * @brief Make the editors of files in the paused call stack read-only
+     *        and all others editable. Editors opened later follow the same rule.
+     */
+    void updateReadOnly();
+
+    /** @brief Clear the "saved but not reloaded" marker on all tabs. */
+    void clearAllScriptStale();
 
     /** @brief Save every tab that has unsaved edits.
      *  @return @c false on the first failed write.

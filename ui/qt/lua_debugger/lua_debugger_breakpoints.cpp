@@ -15,6 +15,8 @@
 
 #include "lua_debugger_breakpoints.h"
 
+#include <algorithm>
+
 #include <QAbstractItemDelegate>
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
@@ -2353,6 +2355,114 @@ void LuaDebuggerBreakpointsController::moveAtLine(const QString &file, qint32 fr
     wslua_debugger_remove_breakpoint(fileUtf8.constData(), fromLine);
     refreshFromEngine();
     refreshAllOpenTabMarkers();
+}
+
+void LuaDebuggerBreakpointsController::onEditorLinesChanged(const QString &file, qint32 changeLineNumber,
+                                                             qint32 deltaLines, bool atLineStart)
+{
+    if (file.isEmpty() || deltaLines == 0 || changeLineNumber < 1)
+    {
+        return;
+    }
+
+    /* Snapshot this file's breakpoint lines before touching the engine. */
+    QList<qint32> lines;
+    const unsigned count = wslua_debugger_get_breakpoint_count();
+    for (unsigned i = 0; i < count; ++i)
+    {
+        const char *file_path = nullptr;
+        int64_t line = 0;
+        bool active = false;
+
+        if (wslua_debugger_get_breakpoint(i, &file_path, &line, &active) &&
+            host_->normalizedFilePath(QString::fromUtf8(file_path)) == file)
+        {
+            lines.append(static_cast<qint32>(line));
+        }
+    }
+    if (lines.isEmpty())
+    {
+        return;
+    }
+    std::sort(lines.begin(), lines.end());
+
+    const QByteArray fileUtf8 = file.toUtf8();
+    bool changed = false;
+
+    if (deltaLines > 0)
+    {
+        /* Text at and after the edit point is pushed down.  With the edit in
+         * the middle of a line, the head stays and keeps its breakpoint. */
+        const qint32 first = atLineStart ? changeLineNumber : changeLineNumber + 1;
+
+        /* Descending, so a target line is never still occupied. */
+        for (auto it = lines.crbegin(); it != lines.crend(); ++it)
+        {
+            if (*it >= first)
+            {
+                moveAtLine(file, *it, *it + deltaLines);
+                changed = true;
+            }
+        }
+    }
+    else
+    {
+        const qint32 removed = -deltaLines;
+        /* Lines changeLineNumber+1 .. changeLineNumber+removed were joined
+         * into changeLineNumber; the last of them supplies the tail. */
+        const qint32 tailLine = changeLineNumber + removed;
+        /* At column 0 the change line's own text is gone as well. */
+        const qint32 firstGone = atLineStart ? changeLineNumber : changeLineNumber + 1;
+
+        bool headKept = false;
+        bool hadTail = false;
+        for (qint32 line : lines)
+        {
+            if (line >= firstGone && line < tailLine)
+            {
+                wslua_debugger_remove_breakpoint(fileUtf8.constData(), line);
+                changed = true;
+            }
+            else if (line == changeLineNumber)
+            {
+                headKept = true;
+            }
+            else if (line == tailLine)
+            {
+                hadTail = true;
+            }
+        }
+
+        if (hadTail)
+        {
+            if (headKept)
+            {
+                /* Both lines survive as one; the upper breakpoint wins. */
+                wslua_debugger_remove_breakpoint(fileUtf8.constData(), tailLine);
+            }
+            else
+            {
+                moveAtLine(file, tailLine, changeLineNumber);
+            }
+            changed = true;
+        }
+
+        /* Ascending, into the lines freed above. */
+        for (qint32 line : lines)
+        {
+            if (line > tailLine)
+            {
+                moveAtLine(file, line, line - removed);
+                changed = true;
+            }
+        }
+    }
+
+    if (changed)
+    {
+        refreshFromEngine();
+        refreshAllOpenTabMarkers();
+    }
 }
 
 void LuaDebuggerBreakpointsController::refreshAllOpenTabMarkers() const

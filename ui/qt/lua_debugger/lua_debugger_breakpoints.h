@@ -487,6 +487,23 @@ class LuaDebuggerBreakpointsController : public QObject
      */
     void moveAtLine(const QString &file, qint32 fromLine, qint32 toLine);
 
+    /**
+     * @brief Keep breakpoints attached to their code when an edit adds or
+     *        removes lines.
+     * @param file The file being edited.
+     * @param changeLineNumber 1-based line containing the start of the edit.
+     * @param deltaLines Net line count change (positive = added, negative = removed).
+     * @param atLineStart True if the edit started at column 0 of @a changeLineNumber.
+     *
+     * - Added lines at column 0: breakpoints on and below the line move down.
+     * - Added lines elsewhere: only breakpoints below the line move down.
+     * - Removed lines: breakpoints on fully removed lines are dropped, the one
+     *   on the line whose tail survives joins the change line, and those below
+     *   move up.  When both joined lines had a breakpoint the upper one wins
+     *   unless its line was removed entirely.
+     */
+    void onEditorLinesChanged(const QString &file, qint32 changeLineNumber, qint32 deltaLines, bool atLineStart);
+
     /** @brief Activate-all / deactivate-all toggle (header). */
     void toggleAllActive();
 

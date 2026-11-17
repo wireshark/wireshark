@@ -568,6 +568,7 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
     ui->luaDebuggerFindFrame->hide();
     ui->luaDebuggerGoToLineFrame->hide();
     ui->luaDebuggerErrorFrame->hide();
+    ui->luaDebuggerWarningFrame->hide();
 
     variablesController_.configureColumns();
     watchController_.configureColumns();
@@ -690,6 +691,27 @@ void LuaDebuggerDialog::handlePause(const char *file_path, int64_t line)
     }
 
     debuggerPaused = true;
+    /* Edits would shift lines away from the ones the paused script runs, so
+     * lock the files that have a frame in the call stack. */
+    pausedStackFiles_.clear();
+    int32_t frameCount = 0;
+    wslua_stack_frame_t *stack = wslua_debugger_get_stack(&frameCount);
+    for (int32_t i = 0; stack && i < frameCount; ++i)
+    {
+        const char *source = stack[i].source;
+        if (source && source[0] == '@')
+        {
+            const QString path = QString::fromUtf8(source + 1);
+            const QString resolved = normalizedFilePath(path);
+            pausedStackFiles_.insert(resolved.isEmpty() ? path : resolved);
+        }
+    }
+    if (stack)
+    {
+        wslua_debugger_free_stack(stack, frameCount);
+    }
+    codeTabsController_.updateReadOnly();
+    updateEditorWarning();
     /* Record the pause location so the breakpoints-tree refresh below can
      * apply the same change-highlight visuals (bold + accent + one-shot
      * background flash) the Watch / Variables trees use. The pair is
@@ -1197,6 +1219,62 @@ void LuaDebuggerDialog::updatePausedErrorFrame()
     ui->luaDebuggerErrorFrame->show();
 }
 
+void LuaDebuggerDialog::showEditorWarning(const QString &message)
+{
+    if (message.isEmpty())
+    {
+        ui->luaDebuggerWarningFrame->clearErrorContent();
+        ui->luaDebuggerWarningFrame->hide();
+        return;
+    }
+    if (QPlainTextEdit *ed = codeTabsController_.currentCodeView())
+    {
+        ui->luaDebuggerWarningFrame->setEditorStyleFont(ed->font());
+    }
+    ui->luaDebuggerWarningFrame->setWarningMessage(message);
+    ui->luaDebuggerWarningFrame->show();
+}
+
+QString LuaDebuggerDialog::editorNotice() const
+{
+    const LuaDebuggerCodeView *view = codeTabsController_.currentCodeView();
+    if (!view)
+    {
+        return QString();
+    }
+    const QString name = QFileInfo(view->getFilename()).fileName();
+    if (debuggerPaused && isInPausedStack(view->getFilename()) && view->document()->isModified())
+    {
+        return tr("%1 has unsaved changes, so the paused script may not match the editor. Save the file "
+                  "and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.")
+            .arg(name);
+    }
+    if (view->isScriptStale())
+    {
+        return tr("%1 was saved after the Lua plugins were last loaded, so the running script is "
+                  "out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.")
+            .arg(name);
+    }
+    return QString();
+}
+
+void LuaDebuggerDialog::updateEditorWarning()
+{
+    showEditorWarning(editorNotice());
+}
+
+void LuaDebuggerDialog::showReadOnlyWarning()
+{
+    /* Keep the unsaved / not-reloaded notice and add the reason typing failed. */
+    QString message = editorNotice();
+    if (!message.isEmpty())
+    {
+        message += QStringLiteral("\n\n");
+    }
+    message += tr("Editing is disabled while the debugger is paused in this file. Resume to edit.");
+    showEditorWarning(message);
+}
+
 void LuaDebuggerDialog::cancelErrorFrameHide()
 {
     ++errorFrameHideEpoch_;
@@ -1442,6 +1520,9 @@ void LuaDebuggerDialog::clearPausedStateUi()
     }
     clearStackPanel();
     codeTabsController_.clearAllCodeHighlights();
+    pausedStackFiles_.clear();
+    codeTabsController_.updateReadOnly();
+    updateEditorWarning();
     /* Drop the pause location and refresh the breakpoints tree so the
      * row that was highlighted while paused returns to its normal
      * appearance. Doing it here (rather than at every individual resume
@@ -1967,6 +2048,7 @@ void LuaDebuggerLuaReloadCoordinator::handlePostReload()
         return;
     }
     exitReloadUiState();
+    host_->codeTabsController().clearAllScriptStale();
     host_->filesController().refreshAvailableScripts();
     host_->breakpointsController().refreshFromEngine();
 }
@@ -2002,7 +2084,7 @@ void LuaDebuggerLuaReloadCoordinator::reloadAllScriptFilesFromDisk()
                     QTextStream in(&file);
                     QString content = in.readAll();
                     file.close();
-                    view->setPlainText(content);
+                    view->reloadContents(content);
                 }
             }
         }

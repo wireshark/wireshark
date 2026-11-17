@@ -13,7 +13,6 @@
  */
 
 #include "lua_debugger_error_frame.h"
-#include "lua_debugger_utils.h"
 #include <ui_lua_debugger_error_frame.h>
 
 #include <QApplication>
@@ -27,27 +26,30 @@
 #include <QTimer>
 
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 
 #include <cmath>
 
 namespace
 {
 
-void applyWatchErrorPalette(QTextEdit *textEdit)
+/* Paint the text box with a theme background token and a contrasting text colour. */
+void applyFramePalette(QTextEdit *textEdit, ThemeManager::ThemeToken bgToken)
 {
     if (!textEdit)
     {
         return;
     }
 
-    const LuaDebuggerPath::LuaDbgInvalidFilterColors colors =
-        LuaDebuggerPath::invalidFilterColors();
+    const QColor bg = ThemeManager::instance()->color(bgToken);
+    const QColor fg = ColorMath::contrastingText(bg);
 
     QPalette pal = textEdit->palette();
-    pal.setColor(QPalette::Base, colors.bg);
-    pal.setColor(QPalette::Text, colors.fg);
-    pal.setColor(QPalette::Window, colors.bg);
-    pal.setColor(QPalette::WindowText, colors.fg);
+    pal.setColor(QPalette::Base, bg);
+    pal.setColor(QPalette::Text, fg);
+    pal.setColor(QPalette::Window, bg);
+    pal.setColor(QPalette::WindowText, fg);
     textEdit->setPalette(pal);
 }
 
@@ -74,7 +76,7 @@ LuaDebuggerErrorFrame::LuaDebuggerErrorFrame(QWidget *parent)
     ui_->errorTextEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui_->errorTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     ui_->errorTextEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-    applyWatchErrorPalette(ui_->errorTextEdit);
+    applyFramePalette(ui_->errorTextEdit, ThemeManager::FilterInvalid);
 
     clearErrorContent();
 }
@@ -84,9 +86,16 @@ LuaDebuggerErrorFrame::~LuaDebuggerErrorFrame()
     delete ui_;
 }
 
+void LuaDebuggerErrorFrame::setWarningMessage(const QString &message)
+{
+    applyFramePalette(ui_->errorTextEdit, ThemeManager::FilterDeprecated);
+    ui_->errorTextEdit->setPlainText(message);
+    updateCompactHeight();
+}
+
 void LuaDebuggerErrorFrame::setErrorMessage(const QString &message)
 {
-    applyWatchErrorPalette(ui_->errorTextEdit);
+    applyFramePalette(ui_->errorTextEdit, ThemeManager::FilterInvalid);
     ui_->errorTextEdit->setPlainText(message);
     updateCompactHeight();
 }
