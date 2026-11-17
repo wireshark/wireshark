@@ -1479,32 +1479,12 @@ static void qname_host_and_domain(char* name, int name_len, char* host, char* do
   }
 }
 
-/* This function counts how many '.' are in the string, plus 1, in order to count the number
- * of labels
- */
-static unsigned
-qname_labels_count(const char* name, int name_len)
-{
-    unsigned labels = 0;
-    int i;
-
-    if (name_len > 0) {
-        /* it was not a Zero-length name */
-        for (i = 0; i < name_len; i++) {
-            if (name[i] == '.')
-                labels++;
-        }
-        labels++;
-    }
-    return labels;
-}
-
 /* This function returns the number of bytes consumed and the expanded string
  * in *name.
  */
 static int
 expand_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
-    const char **name, int* name_len)
+    const char **name, int* name_len, unsigned* labels_count)
 {
   int     start_offset    = offset;
   char   *np;
@@ -1523,6 +1503,9 @@ expand_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len,
   np=(char *)wmem_alloc(scope, maxname);
   *name=np;
   (*name_len) = 0;
+  if (labels_count) {
+    (*labels_count) = 0;
+  }
 
   for (;;) {
     if (max_len && offset - start_offset > max_len - 1) {
@@ -1537,6 +1520,9 @@ expand_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len,
 
       case 0x00:
         /* Label */
+        if (labels_count) {
+          (*labels_count)++;
+        }
         if (np != *name) {
           /* Not the first component - put in a '.'. */
           if (maxname > 0) {
@@ -1564,6 +1550,9 @@ expand_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len,
 
       case 0x40:
         /* Extended label (RFC 2673) */
+        if (labels_count) {
+          (*labels_count)++;
+        }
         switch (component_len & 0x3f) {
 
           case 0x01:
@@ -1700,11 +1689,11 @@ expand_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len,
    can contain null bytes, is written in name and its length in name_len. */
 static int
 get_dns_name_root(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
-    const char **name, int* name_len, bool *is_root)
+    const char **name, int* name_len, unsigned* labels_count, bool *is_root)
 {
   int len;
 
-  len = expand_dns_name(scope, tvb, offset, max_len, dns_data_offset, name, name_len);
+  len = expand_dns_name(scope, tvb, offset, max_len, dns_data_offset, name, name_len, labels_count);
 
   /* Zero-length name means "root server" */
   if (**name == '\0' && len <= MIN_DNAME_LEN) {
@@ -1730,18 +1719,18 @@ int
 get_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
     const char **name, int* name_len)
 {
-  return get_dns_name_root(scope, tvb, offset, max_len, dns_data_offset, name, name_len, NULL);
+  return get_dns_name_root(scope, tvb, offset, max_len, dns_data_offset, name, name_len, NULL, NULL);
 }
 
 /* *is_root (if not NULL) is set if the name is the root; *name is then
  * "<Root>" for display, but the name itself has no labels and length 0. */
 static int
 get_dns_name_type_class(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int dns_data_offset,
-    const char **name, int *name_len, uint16_t *type, uint16_t *dns_class, bool *is_root)
+    const char **name, int *name_len, unsigned* labels_count, uint16_t *type, uint16_t *dns_class, bool *is_root)
 {
   int start_offset = offset;
 
-  offset += get_dns_name_root(scope, tvb, offset, 0, dns_data_offset, name, name_len, is_root);
+  offset += get_dns_name_root(scope, tvb, offset, 0, dns_data_offset, name, name_len, labels_count, is_root);
 
   *type = tvb_get_ntohs(tvb, offset);
   offset += 2;
@@ -1841,6 +1830,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   const char   *name;
   char         *name_out;
   int           name_len;
+  unsigned      labels_count;
   uint16_t      type;
   uint16_t      dns_class;
   int           qu;
@@ -1854,7 +1844,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   data_start = offset;
 
-  used_bytes = get_dns_name_type_class(pinfo->pool, tvb, offset, dns_data_offset, &name, &name_len,
+  used_bytes = get_dns_name_type_class(pinfo->pool, tvb, offset, dns_data_offset, &name, &name_len, &labels_count,
     &type, &dns_class, &is_root);
 
   if (is_mdns) {
@@ -1894,7 +1884,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, used_bytes - 4, is_root ? 0 : name_len);
     proto_item_set_generated(tq);
 
-    labels = is_root ? 0 : qname_labels_count(name, name_len);
+    labels = is_root ? 0 : labels_count;
     tq = proto_tree_add_uint(q_tree, hf_dns_count_labels, tvb, offset, used_bytes - 4, labels);
     proto_item_set_generated(tq);
 
@@ -2611,7 +2601,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   data_start = data_offset = offsetx;
   cur_offset = offsetx;
 
-  used_bytes = get_dns_name_type_class(pinfo->pool, tvb, offsetx, dns_data_offset, &name, &name_len,
+  used_bytes = get_dns_name_type_class(pinfo->pool, tvb, offsetx, dns_data_offset, &name, &name_len, NULL,
                                 &dns_type, &dns_class, NULL);
 
   /* The offset if the total used bytes minus 2 bytes for qtype and 2 bytes for qclass */
@@ -4997,6 +4987,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   bool               retransmission = false;
   const char        *name;
   int                name_len;
+  unsigned           labels_count;
   nstime_t           delta = NSTIME_INIT_ZERO;
   bool               qname_is_root = false;
   bool               is_multiple_responds = false;
@@ -5433,7 +5424,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dns_stats->packet_qr = flags >> 15;
     dns_stats->flags = flags;
     if (quest > 0) {
-      get_dns_name_type_class(pinfo->pool, tvb, offset + DNS_HDRLEN, dns_data_offset, &name, &name_len, &qtype, &qclass, &qname_is_root);
+      get_dns_name_type_class(pinfo->pool, tvb, offset + DNS_HDRLEN, dns_data_offset, &name, &name_len, &labels_count, &qtype, &qclass, &qname_is_root);
       dns_stats->packet_qtype = qtype;
       dns_stats->packet_qclass = qclass;
     }
@@ -5445,7 +5436,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (quest > 0) {
       /* The root name has no labels; name is only the "<Root>" placeholder */
       dns_stats->qname_len = qname_is_root ? 0 : name_len;
-      dns_stats->qname_labels = qname_is_root ? 0 : qname_labels_count(name, name_len);
+      dns_stats->qname_labels = qname_is_root ? 0 : labels_count;
       dns_stats->qname = format_text(pinfo->pool, name, name_len);
       // split into host and domain
       qname_host_and_domain(dns_stats->qname, name_len, dns_stats->qhost, dns_stats->qdomain);
