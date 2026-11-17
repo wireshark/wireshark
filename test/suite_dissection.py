@@ -175588,3 +175588,59 @@ class TestDissectWimaxasncp:
             'RR_Req - MSID:02:00:00:00:00:09, TID:D+0x0123',
             'RR_Req - MSID:02:00:00:00:00:09, TID:0x0123',
         ]
+
+
+class TestDissectWimaxmacphy:
+    '''WiMAX MAC-PHY (the wimaxmacphy plugin) from the synthetic capture
+    wimaxmacphy_coverage.pcap.gz. The dissector has no port, so UDP port
+    5000 is decoded with Decode As (DECODE_AS): every PHY primitive, with
+    downlink and uplink descriptors of all zone, burst and sub-burst types.'''
+
+    DECODE_AS = ('-d', 'udp.port==5000,wimaxmacphy')
+
+    def test_wimaxmacphy_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 29 frames decode, without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('wimaxmacphy_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['wimaxmacphy'] * 29
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS, *passes,
+                    '-r', capture_file('wimaxmacphy_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wimaxmacphy_primitives(self, cmd_tshark, capture_file, test_env):
+        '''The message types of the primitives, and the unknown ones.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('wimaxmacphy_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert info[:6] == ['PHY_TXSTART.request'] * 3 + ['PHY_RXSTART.request'] * 3
+        assert info[6:14] == ['PHY_TXSTART.confirmation', 'PHY_TXSTART.indication',
+                              'PHY_TXSDU.request', 'PHY_TXSDU.request', 'PHY_TXSDU.confirmation',
+                              'PHY_TXEND.indication', 'PHY_RXSTART.confirmation',
+                              'PHY_RXSTART.indication']
+        assert info[14:19] == ['PHY_RXSDU.indication'] * 5
+        assert info[19:21] == ['PHY_RXEND.indication'] * 2
+        assert info[21] == 'PHY_RXCDMA.indication'
+        # types 0, 12, 13, 14, 16 and 255, then an RXEND for entity 15
+        assert sorted(info[22:28]) == ['Reserved', 'Reserved (OFDM)', 'Reserved (OFDM)', 'Reserved (OFDM)',
+                                       'Reserved (OFDMA SS)', 'Unknown']
+        assert info[28] == 'PHY_RXEND.indication'
+
+    def test_wimaxmacphy_dl_subframe_padding(self, cmd_tshark, capture_file, test_env):
+        '''The three padding octets of the downlink subframe descriptor are
+        padding, not a second "Number of Zone Descriptors" ("WiMAX MAC PHY:
+        Add the DL subframe padding as padding").'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('wimaxmacphy_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 3',
+                '-Tfields', '-eframe.number', '-ewimaxmacphy.number_of_zone_descriptors',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t3', '2\t0', '3\t3']
