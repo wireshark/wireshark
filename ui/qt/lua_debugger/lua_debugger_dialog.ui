@@ -110,6 +110,9 @@
         </widget>
        </item>
       <item>
+       <widget class="LuaDebuggerErrorFrame" name="luaDebuggerWarningFrame" native="true"/>
+      </item>
+      <item>
        <widget class="LuaDebuggerErrorFrame" name="luaDebuggerErrorFrame" native="true"/>
       </item>
       </layout>

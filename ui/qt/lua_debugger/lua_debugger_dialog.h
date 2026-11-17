@@ -406,6 +406,34 @@ class LuaDebuggerDialog : public GeometryStateDialog
      */
     void updatePausedErrorFrame();
 
+    /** @brief True if @p file has a frame in the paused call stack. */
+    bool isInPausedStack(const QString &file) const { return pausedStackFiles_.contains(file); }
+
+    /**
+     * @brief Show @p message in the warning frame below the editor, or hide
+     *        the frame if it is empty.
+     */
+    void showEditorWarning(const QString &message);
+
+    /**
+     * @brief Show the notice for the current tab (unsaved changes while
+     *        paused, or saved but not reloaded), or hide the warning frame if
+     *        there is none.
+     */
+    void updateEditorWarning();
+
+    /**
+     * @brief Warn that editing is disabled while paused, in addition to any
+     *        notice shown by @ref updateEditorWarning.
+     */
+    void showReadOnlyWarning();
+
+    /** @brief Files with a frame in the paused call stack; empty when running. */
+    QSet<QString> pausedStackFiles_;
+
+    /** @brief Unsaved / not-reloaded notice for the current tab, or empty. */
+    QString editorNotice() const;
+
     /**
      * @brief Schedule a delayed hide to avoid hide/show flicker on rapid re-pauses.
      * @param delayMs Delay in milliseconds before hiding.

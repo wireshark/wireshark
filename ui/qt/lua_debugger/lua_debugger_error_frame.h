@@ -50,6 +50,13 @@ public:
     void setErrorMessage(const QString &message);
 
     /**
+     * @brief Displays @p message as a warning, using the theme's warning
+     *        colours instead of the error colours.
+     * @param message Warning text.
+     */
+    void setWarningMessage(const QString &message);
+
+    /**
      * @brief Synchronises the error text box font with the Lua editor.
      * @param font Font currently in use by the Lua editor widget.
      */

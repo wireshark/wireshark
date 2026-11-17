@@ -95,6 +95,12 @@ LuaDebuggerCodeView::LuaDebuggerCodeView(QWidget *parent)
     connect(this, &LuaDebuggerCodeView::updateRequest, this, &LuaDebuggerCodeView::updateLineNumberArea);
     connect(this, &LuaDebuggerCodeView::cursorPositionChanged, this, &LuaDebuggerCodeView::rebuildLineHighlights);
 
+    /* Track line insertions/deletions for automatic breakpoint adjustment.
+     * contentsChange() reports the exact edit position, so typing, paste,
+     * cut, drag-and-drop, undo and redo are all handled the same way. */
+    previousBlockCount_ = static_cast<qint32>(document()->blockCount());
+    connect(document(), &QTextDocument::contentsChange, this, &LuaDebuggerCodeView::onContentsChange);
+
     /* QAbstractScrollArea delivers key events to the viewport; Esc never
      * reaches QDialog::keyPressEvent. Forward to LuaDebuggerDialog::handleEscapeKey(). */
     viewport()->installEventFilter(this);
@@ -216,6 +222,30 @@ bool LuaDebuggerCodeView::eventFilter(QObject *watched, QEvent *event)
     return QPlainTextEdit::eventFilter(watched, event);
 }
 
+void LuaDebuggerCodeView::keyPressEvent(QKeyEvent *event)
+{
+    if (isReadOnly())
+    {
+        const int key = event->key();
+        const bool editKey = key == Qt::Key_Backspace || key == Qt::Key_Delete || key == Qt::Key_Return ||
+                             key == Qt::Key_Enter || key == Qt::Key_Tab ||
+                             (!event->text().isEmpty() && event->text().at(0).isPrint() &&
+                              !(event->modifiers() & (Qt::ControlModifier | Qt::MetaModifier)));
+        if (editKey)
+        {
+            emit readOnlyEditAttempted();
+        }
+    }
+    QPlainTextEdit::keyPressEvent(event);
+}
+
+void LuaDebuggerCodeView::reloadContents(const QString &text)
+{
+    reloadingContents_ = true;
+    setPlainText(text);
+    reloadingContents_ = false;
+}
+
 void LuaDebuggerCodeView::rebuildLineHighlights()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
@@ -262,6 +292,32 @@ void LuaDebuggerCodeView::rebuildLineHighlights()
     }
 
     setExtraSelections(extraSelections);
+}
+
+void LuaDebuggerCodeView::onContentsChange(int position)
+{
+    /* Compare against the block count before this edit.  Edits that do not
+     * add or remove a line (the common case: typing) exit here. */
+    const qint32 newBlockCount = static_cast<qint32>(document()->blockCount());
+    const qint32 blockDelta = newBlockCount - previousBlockCount_;
+    previousBlockCount_ = newBlockCount;
+
+    if (blockDelta == 0 || filename.isEmpty() || reloadingContents_)
+    {
+        return;
+    }
+
+    /* The edit starts at @a position, which is valid in the new document. */
+    const QTextBlock block = document()->findBlock(position);
+    if (!block.isValid())
+    {
+        return;
+    }
+
+    const qint32 changeLineNumber = static_cast<qint32>(block.blockNumber() + 1);
+    const bool atLineStart = (position == block.position());
+
+    emit editorLinesChanged(filename, changeLineNumber, blockDelta, atLineStart);
 }
 
 void LuaDebuggerCodeView::setCurrentLine(qint32 line)
@@ -1027,6 +1083,9 @@ LuaDebuggerCodeView *LuaDebuggerCodeTabsController::loadFile(const QString &file
     LuaDebuggerCodeView *codeView = new LuaDebuggerCodeView(tabs_);
     codeView->setEditorFont(host_->fontPolicy().monospaceFont(true));
     codeView->setFilename(normalizedPath);
+    /* A tab opened while paused (e.g. by selecting a stack frame) must not
+     * be editable either. */
+    codeView->setReadOnly(host_->isInPausedStack(normalizedPath));
 
     QFile file(normalizedPath);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -1061,6 +1120,10 @@ LuaDebuggerCodeView *LuaDebuggerCodeTabsController::loadFile(const QString &file
         connect(codeView, &LuaDebuggerCodeView::breakpointMoveRequested, &host_->breakpointsController(),
             &LuaDebuggerBreakpointsController::moveAtLine, Qt::QueuedConnection);
 
+    connect(codeView, &LuaDebuggerCodeView::readOnlyEditAttempted, host_, &LuaDebuggerDialog::showReadOnlyWarning);
+    connect(codeView, &LuaDebuggerCodeView::editorLinesChanged, &host_->breakpointsController(),
+            &LuaDebuggerBreakpointsController::onEditorLinesChanged);
+
     connect(codeView->document(), &QTextDocument::modificationChanged, this,
             [this, codeView]()
             {
@@ -1069,6 +1132,7 @@ LuaDebuggerCodeView *LuaDebuggerCodeTabsController::loadFile(const QString &file
                 if (tabs_ && tabs_->currentWidget() == codeView)
                 {
                     updateSaveActionState();
+                    host_->updateEditorWarning();
                 }
             });
     connect(codeView, &QPlainTextEdit::cursorPositionChanged, &host_->breakpointsController(),
@@ -1181,7 +1245,41 @@ bool LuaDebuggerCodeTabsController::saveCodeView(LuaDebuggerCodeView *view)
     out << view->toPlainText();
     file.close();
     view->document()->setModified(false);
+    /* The file now differs from the script Lua is running. */
+    view->setScriptStale(true);
+    host_->updateEditorWarning();
     return true;
+}
+
+void LuaDebuggerCodeTabsController::updateReadOnly()
+{
+    if (!tabs_)
+    {
+        return;
+    }
+    for (int i = 0; i < tabs_->count(); ++i)
+    {
+        if (auto *view = qobject_cast<LuaDebuggerCodeView *>(tabs_->widget(i)))
+        {
+            view->setReadOnly(host_->isInPausedStack(view->getFilename()));
+        }
+    }
+}
+
+void LuaDebuggerCodeTabsController::clearAllScriptStale()
+{
+    if (!tabs_)
+    {
+        return;
+    }
+    for (int i = 0; i < tabs_->count(); ++i)
+    {
+        if (auto *view = qobject_cast<LuaDebuggerCodeView *>(tabs_->widget(i)))
+        {
+            view->setScriptStale(false);
+        }
+    }
+    host_->updateEditorWarning();
 }
 
 bool LuaDebuggerCodeTabsController::saveAllModified()
@@ -1305,6 +1403,7 @@ void LuaDebuggerCodeTabsController::onCurrentTabChanged(int index)
     }
     updateSaveActionState();
     host_->updateLuaEditorAuxFrames();
+    host_->updateEditorWarning();
     host_->breakpointsController().updateHeaderButtonState();
     host_->updateContinueActionState();
 }
