@@ -52,7 +52,7 @@ void CopyFromProfileButton::setFilename(QString filename)
 
     if (buttonMenu_->actions().count() > 0)
     {
-        qDeleteAll(buttonMenu_->findChildren<QMenu *>(Qt::FindDirectChildrenOnly));
+        qDeleteAll(buttonMenu_->findChildren<QMenu *>(QString(), Qt::FindDirectChildrenOnly));
         buttonMenu_->clear();
     }
 

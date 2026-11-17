@@ -45,7 +45,7 @@ static QString base_style_name_;
 static QList<QToolBar *> dockedTopToolBars(const QMainWindow *mainWindow)
 {
     QList<QToolBar *> result;
-    const QList<QToolBar *> toolBars = mainWindow->findChildren<QToolBar *>(Qt::FindDirectChildrenOnly);
+    const QList<QToolBar *> toolBars = mainWindow->findChildren<QToolBar *>(QString(), Qt::FindDirectChildrenOnly);
     for (QToolBar *toolBar : toolBars) {
         if (toolBar->isVisible() && !toolBar->isFloating()
                 && mainWindow->toolBarArea(toolBar) == Qt::TopToolBarArea)
