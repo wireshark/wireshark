@@ -609,11 +609,15 @@ void HexDataSourceView::mousePressEvent (QMouseEvent *event) {
     //   selection and selects the corresponding (or no) item.
 
     const int byte_offset = byteOffsetAtPixel(event->pos(), true);
+    setFocus(Qt::MouseFocusReason);
     if (byte_offset < 0) {
+        // Clear the selection (unless extending it), but don't start a
+        // drag from outside the bytes.
+        updateSelection(byte_offset, event->modifiers() & Qt::ShiftModifier, true);
+        viewport()->update();
         return;
     }
 
-    setFocus(Qt::MouseFocusReason);
     selecting_ = true;
     setUpdatesEnabled(false);
     updateSelection(byte_offset, event->modifiers() & Qt::ShiftModifier, true);
@@ -654,9 +658,12 @@ void HexDataSourceView::mouseMoveEvent(QMouseEvent *event)
 void HexDataSourceView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event && event->button() == Qt::LeftButton) {
+        // Only extend a selection that the press started; a press
+        // outside the bytes doesn't start one.
+        const bool was_selecting = selecting_;
         selecting_ = false;
         int byte_offset = byteOffsetAtPixel(event->pos(), true);
-        if (byte_offset >= 0) {
+        if (was_selecting && byte_offset >= 0) {
             updateSelection(byte_offset, true, false);
             viewport()->update();
         }
@@ -1166,6 +1173,20 @@ int HexDataSourceView::annotationIndexIntersecting(int start, int length) const
 void HexDataSourceView::updateSelection(int byte_offset, bool extend, bool emit_signal)
 {
     if (byte_offset < 0 || byte_offset >= data_.size()) {
+        if (extend) {
+            // Dragging or shift-clicking outside the bytes; leave the
+            // selection as it is.
+            return;
+        }
+        // Clicking outside the bytes clears the selection, and selects
+        // no field.
+        selection_anchor_ = -1;
+        selection_start_ = -1;
+        selection_end_ = -1;
+        cursor_byte_ = -1;
+        if (emit_signal) {
+            emit byteSelected(-1);
+        }
         return;
     }
 

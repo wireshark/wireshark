@@ -551,6 +551,10 @@ private:
     /**
      * @brief Update the byte selection and optionally notify the packet tree.
      *
+     * If @p byte_offset is outside the data, the selection is cleared
+     * (and @c byteSelected() is emitted with -1, selecting no field),
+     * unless @p extend is true, in which case nothing changes.
+     *
      * @param byte_offset The target byte offset.
      * @param extend      true to extend from the existing anchor.
      * @param emit_signal true to emit @c byteSelected().
