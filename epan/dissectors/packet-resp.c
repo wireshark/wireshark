@@ -81,6 +81,17 @@ static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return string_lenth + CRLF_LENGTH;
 }
 
+/* Clamp a declared string length so that adding CRLF_LENGTH cannot overflow */
+static int resp_clamp_length(int64_t length) {
+    if (length > INT_MAX - 2 * CRLF_LENGTH) {
+        return INT_MAX - 2 * CRLF_LENGTH;
+    }
+    if (length < INT_MIN) {
+        return INT_MIN;
+    }
+    return (int)length;
+}
+
 static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bulk_string_string_length, int array_depth) {
     uint8_t *bulk_string_length_as_str;
     int bulk_string_length;
@@ -91,7 +102,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     bulk_string_length_as_str = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                    bulk_string_string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
-    bulk_string_length = (int)g_ascii_strtoll(bulk_string_length_as_str, NULL, 10);
+    bulk_string_length = resp_clamp_length(g_ascii_strtoll(bulk_string_length_as_str, NULL, 10));
     /* Negative string lengths */
     if (bulk_string_length < 0) {
         /* NULL string */
