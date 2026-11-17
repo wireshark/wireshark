@@ -173914,3 +173914,159 @@ class TestDissectEthercat:
                           'ecat_mailbox.eoe.type == 0 && ecat_mailbox.eoe.fragno == 0 && eth.type',
                           ('eth.type',))
         assert sorted(l.split(',')[-1] for l in out) == ['0x0800', '0x0800', '0x0806', '0x0806', '0x88b5']
+
+
+class TestDissectGryphon:
+    '''Gryphon (DG Gryphon Protocol, TCP port 7000, plugin) from the
+    synthetic capture gryphon_coverage.pcap.gz: every command and
+    response decoder, the I/O and LIN ioctls, data, event, misc and text
+    frames and TCP reassembly.'''
+
+    @staticmethod
+    def _protocols(cmd_tshark, test_env, capture, *opts):
+        stdout = subprocess.check_output((cmd_tshark, *opts, '-r', capture,
+                '-Tfields', '-e_ws.col.protocol'),
+            encoding='utf-8', env=test_env, timeout=120)
+        return [p.strip() for p in stdout.splitlines()]
+
+    @staticmethod
+    def _frames(cmd_tshark, test_env, capture, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture, '-Y', flt, '-Tfields']
+        args += ['-e' + f for f in fields]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                         timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def _tcp_pcap(path, payload, pdus=1):
+        '''A one segment Ethernet/IPv4/TCP capture of PDUs to port 7000.'''
+        import socket
+        import struct
+
+        def csum(b):
+            if len(b) % 2:
+                b += b'\0'
+            s = sum(struct.unpack('!%dH' % (len(b) // 2), b))
+            s = (s >> 16) + (s & 0xffff)
+            s += s >> 16
+            return (~s) & 0xffff
+        src, dst = socket.inet_aton('192.0.2.1'), socket.inet_aton('192.0.2.2')
+        tcp = struct.pack('!HHIIBBHHH', 40000, 7000, 1, 1, 5 << 4, 0x18, 65535,
+                          0, 0) + payload * pdus
+        ph = src + dst + struct.pack('!BBH', 0, 6, len(tcp))
+        tcp = tcp[:16] + struct.pack('!H', csum(ph + tcp)) + tcp[18:]
+        ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(tcp), 1, 0, 64, 6, 0,
+                         src, dst)
+        ip = ip[:10] + struct.pack('!H', csum(ip)) + ip[12:]
+        frame = b'\x02\0\0\0\0\x02\x02\0\0\0\0\x01\x08\x00' + ip + tcp
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 1))
+            f.write(struct.pack('<IIII', 1000, 0, len(frame), len(frame)))
+            f.write(frame)
+
+    def test_gryphon_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame after the handshake decodes as Gryphon without
+        malformed packets or error expert infos, in one and two passes.
+        Frame 247 is the CMD_USDT_REGISTER_NON_LEGACY reproducer
+        (a block with no IDs): tshark looped forever on it without a
+        tree before "Gryphon: Fix an endless loop and a dissection depth
+        leak", hence the timeout.'''
+        cap = capture_file('gryphon_coverage.pcap.gz')
+        protocols = self._protocols(cmd_tshark, test_env, cap)
+        assert len(protocols) == 383
+        assert protocols.count('TCP') == 8
+        assert protocols.count('Gryphon') == 375
+        for passes in ((), ('-2',)):
+            assert self._protocols(cmd_tshark, test_env, cap, *passes) == protocols
+            assert self._frames(cmd_tshark, test_env, cap,
+                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                'frame.number', passes=passes) == []
+
+    def test_gryphon_usdt_register_empty_block(self, cmd_tshark, capture_file, test_env):
+        '''A non-legacy USDT registration whose last block has no IDs
+        (frame 383) ends the block loop instead of spinning, with and
+        without a tree. The first reproducer in the capture (frame 247)
+        mixes empty and populated blocks.'''
+        cap = capture_file('gryphon_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            lines = self._frames(cmd_tshark, test_env, cap, 'gryphon.nids == 0',
+                                 'frame.number', 'gryphon.nids', passes=passes)
+            assert [l.split('\t')[0] for l in lines] == ['247', '383']
+        assert lines[1].split('\t')[1] == '0x00000000'
+
+    def test_gryphon_depth_leak(self, cmd_tshark, test_env, tmp_path):
+        '''300 PDUs in one segment, each too short for its decoder: each
+        one throws, and the dissection depth must not leak from PDU to
+        PDU (it reached the tree depth limit, a dissector bug, after
+        about 250 PDUs).'''
+        import struct
+        body = bytes([0x0b, 1, 0, 0]) + b'\0' * 4          # CMD_SET_TIME, 4 bytes
+        pdu = bytes([3, 5, 1, 1]) + struct.pack('!H', len(body)) + bytes([1, 0]) + body
+        pcap = str(tmp_path / 'depth.pcap')
+        self._tcp_pcap(pcap, pdu, 300)
+        proc = subprocess.run((cmd_tshark, '-r', pcap, '-V'),
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              encoding='utf-8', env=test_env, timeout=120)
+        assert proc.returncode == 0
+        assert 'Dissector bug' not in proc.stdout + proc.stderr
+        assert proc.stdout.count('Malformed Packet') > 0
+
+    def test_gryphon_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Responses are matched to their requests (command and
+        conversation), with the context byte of the request shown for
+        an ioctl response.'''
+        cap = capture_file('gryphon_coverage.pcap.gz')
+        lines = self._frames(cmd_tshark, test_env, cap, 'frame.number in {4, 5, 6, 7}',
+                             'frame.number', 'gryphon.response_in',
+                             'gryphon.response_to', 'gryphon.command',
+                             passes=('-2',))
+        assert lines == ['4\t5\t\t0x00000001', '5\t\t4\t0x00000001',
+                         '6\t7\t\t0x00000001', '7\t\t6\t0x00000001']
+        # an ioctl response carries the ioctl of its request (frame 303 is
+        # the LIN ioctl "add schedule" request, its response follows)
+        lines = self._frames(cmd_tshark, test_env, cap, 'gryphon.cmd.ioctl_response',
+                             'frame.number', 'gryphon.cmd.ioctl_response',
+                             passes=('-2',))
+        assert '304\t%d' % 0x11c00018 in lines
+
+    def test_gryphon_error_status(self, cmd_tshark, capture_file, test_env):
+        '''A response with a non-zero status keeps its status code.'''
+        cap = capture_file('gryphon_coverage.pcap.gz')
+        assert self._frames(cmd_tshark, test_env, cap, 'gryphon.status == 3',
+                            'frame.number', 'gryphon.status') == ['35\t0x00000003']
+
+    def test_gryphon_ioctl_lin_schedule(self, cmd_tshark, capture_file, test_env):
+        '''The GLINGETSCHED ioctl shows the schedule name and the number of
+        data bytes of its message.'''
+        cap = capture_file('gryphon_coverage.pcap.gz')
+        lines = self._frames(cmd_tshark, test_env, cap, 'gryphon.ioctl == 0x11c00019',
+                             'frame.number', 'gryphon.ldf.schedule_name')
+        assert lines == ['295\tsched1']
+
+    def test_gryphon_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''PDUs split inside the header, inside the body and over three
+        segments are reassembled; the last segment holds the decoded
+        PDU, the earlier ones point to it.'''
+        cap = capture_file('gryphon_coverage.pcap.gz')
+        lines = self._frames(cmd_tshark, test_env, cap, 'tcp.reassembled_in',
+                             'frame.number', 'tcp.reassembled_in', passes=('-2',))
+        assert len(lines) == 5
+        # the three segment PDU (frames 378-380): both earlier segments name the last one
+        assert [l.split('\t')[0] for l in lines[-2:]] == ['378', '379']
+        last = lines[-1].split('\t')[1]
+        assert lines[-2].split('\t')[1] == last
+        segs = self._frames(cmd_tshark, test_env, cap, 'frame.number == ' + last,
+                            'gryphon.nids || gryphon.command', 'gryphon.type',
+                            passes=('-2',))
+        assert segs and segs[0].split('\t')[-1] == '1'
+
+    def test_gryphon_nested_messages(self, cmd_tshark, capture_file, test_env):
+        '''A MISC frame carries whole messages, including another MISC
+        frame; message responses carry data and command messages.'''
+        cap = capture_file('gryphon_coverage.pcap.gz')
+        lines = self._frames(cmd_tshark, test_env, cap, 'gryphon.type == 5',
+                             'frame.number', 'gryphon.type')
+        assert len(lines) == 1
+        types = lines[0].split('\t')[1].split(',')
+        assert types[0] == '5' and types.count('1') >= 1 and types.count('3') >= 1
+        assert types.count('5') >= 2
