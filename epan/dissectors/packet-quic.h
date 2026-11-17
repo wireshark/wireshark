@@ -75,7 +75,7 @@ WS_DLL_PUBLIC uint32_t get_quic_connections_count(void);
 typedef struct gquic_info_data {
     uint8_t version;
     bool version_valid;
-    bool encoding;
+    bool encoding; // true for ENC_LITTLE_ENDIAN; false for ENC_BIG_ENDIAN
     uint16_t server_port;
 } gquic_info_data_t;
 
