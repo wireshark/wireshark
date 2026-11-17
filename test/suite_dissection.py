@@ -173737,3 +173737,180 @@ class TestDissectIpfs:
                 '-Y', 'ipfs.candidate', '-Tfields', '-eframe.number')
         assert (['117'] in rows) and (['118'] in rows)
         assert ['87'] not in rows
+
+
+class TestDissectEthercat:
+    '''EtherCAT plugin (ECATF, ECAT datagrams, mailbox with CoE, EoE, FoE,
+    SoE, VoE and AoE, AMS/ADS and AMS/TCP, IO-RAW, TC-NV and the ESL
+    heuristic) from the synthetic capture ethercat_coverage.pcap.gz.
+    Frames 1-430 and 460-461 decode at default preferences; the ESL
+    frames 431-459 need the heuristic, which is disabled by default.'''
+
+    ESL = ('--enable-heuristic', 'esl_eth')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields,
+               opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('ethercat_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                         timeout=120)
+        return [l for l in stdout.splitlines()]
+
+    def test_ethercat_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packet and no error expert info in one and two
+        passes, with and without the ESL heuristic, and the protocol
+        column counts.'''
+        bad = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+        for opts, flt in (((), '(' + bad + ') && frame.number <= 430'),
+                          (self.ESL, bad)):
+            for passes in ((), ('-2',)):
+                out = self.fields(cmd_tshark, capture_file, test_env, flt,
+                                  ('frame.number',), (*opts, *passes))
+                assert count_output('\n'.join(out)) == 0
+        out = self.fields(cmd_tshark, capture_file, test_env, None,
+                          ('_ws.col.protocol',), self.ESL)
+        counts = {p: out.count(p) for p in set(out)}
+        assert len(out) == 461
+        assert counts['ECAT'] == 257
+        assert counts['AMS'] == 163
+        assert counts['EoE-ECAT'] == 15
+        assert counts['TC-NV'] == 4
+        assert counts['IO-RAW'] == 3
+        assert counts['ECATF'] == 2
+        assert counts['EoE-UDP'] == 2
+        assert counts['EoE-ARP'] == 2
+
+    def test_ethercat_mailbox_types(self, cmd_tshark, capture_file, test_env):
+        '''Mailbox messages of every type carried in datagrams or in ECATF
+        type 5 frames.'''
+        for mtype, count in ((1, 19), (2, 20), (3, 48), (4, 25), (5, 23), (15, 5)):
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                              'ecat_mailbox.type == %d' % mtype,
+                              ('frame.number',))
+            assert len(out) == count, mtype
+
+    def test_ethercat_datagram_info(self, cmd_tshark, capture_file, test_env):
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {1, 25, 118, 200}',
+                          ('frame.number', '_ws.col.info'))
+        assert [' '.join(l.split()) for l in out] == [
+            "1 'NOP': Len: 2, Adp 0x1000, Ado 0x130, Wc 0",
+            "25 4 Cmds, 'APRD': len 2, 'FPRD': len 2, 'BRD': len 2, 'FPRD': len 2",
+            "118 'FPWR': Len: 16, Adp 0x3e9, Ado 0x1000, Wc 1 Mbx(CoE )",
+            "200 'FPRD': Len: 36, Adp 0x3e9, Ado 0x1400, Wc 1 Mbx(FoE DATA (21) : 24 Bytes)",
+        ]
+
+    def test_ethercat_dc_length(self, cmd_tshark, capture_file, test_env):
+        '''The DC receive time differences are built only from datagrams
+        of at least 16 octets. Frame 117 reads 4 octets at 0x900 and a
+        datagram follows ("more follows" is part of the raw length
+        field); the next datagram's header was read as DC values before
+        "EtherCAT: Fix AMS tracking, ESL heuristic state and a few
+        decoding bugs".'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {116, 117}',
+                          ('frame.number', 'ecat.dc.dif.da', 'ecat.dc.dif.ba',
+                           'ecat.reg.dc.recv0'))
+        assert out == ['116\t30\t10\t0x0000000a', '117\t\t\t0x11111111']
+
+    def test_ethercat_ams_tracking(self, cmd_tshark, capture_file, test_env):
+        '''Frames 368-378: two request/response pairs with the same invoke
+        ID, a response without a request, a second response, an
+        unanswered request and a pair in the other direction. The
+        links are the same in the second pass (before the fix, a later
+        request with the same ID was linked).'''
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                              'frame.number >= 368 && frame.number <= 378',
+                              ('frame.number', 'ams.response_to', 'ams.response_time'),
+                              passes)
+            assert out == [
+                '368\t\t', '369\t368\t1.000000000',
+                '370\t\t', '371\t370\t1.000000000',
+                '372\t\t',
+                '373\t\t', '374\t373\t0.001000000',
+                '375\t\t', '376\t\t',
+                '377\t\t', '378\t377\t0.001000000',
+            ]
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number >= 368 && frame.number <= 378 && ams.response_in',
+                          ('frame.number', 'ams.response_in'), ('-2',))
+        assert out == ['368\t369', '370\t371', '373\t374', '377\t378']
+
+    def test_ethercat_ams_tcp(self, cmd_tshark, capture_file, test_env):
+        '''AMS/TCP on port 48898: PDUs that share a segment, a PDU in
+        three segments (frames 401-403) and one cut in its header
+        (frames 405-406).'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number >= 399 && frame.number <= 410',
+                          ('frame.number', 'ams.invokeid', '_ws.col.info'))
+        assert [' '.join(l.split()) for l in out] == [
+            '399 0x00000258,0x00000259 ADS Read Request',
+            '400 0x00000258,0x00000259 ADS Read Response',
+            '401 40000 → 48898 [PSH, ACK] Seq=581 Ack=489 Win=65535 Len=10',
+            '402 40000 → 48898 [PSH, ACK] Seq=591 Ack=489 Win=65535 Len=40',
+            '403 0x0000025a ADS Write Request',
+            '404 0x0000025a ADS Write Response',
+            '405 40000 → 48898 [PSH, ACK] Seq=671 Ack=531 Win=65535 Len=3',
+            '406 0x0000025b ADS Read Request',
+            '407 0x0000025b ADS Read Response',
+            '408 0x0000025d ADS Read Request',
+            '409 0x0000025c ADS Read Request',
+            '410 0x0000025c,0x0000025d ADS Read Response',
+        ]
+
+    def test_ethercat_esl_disabled(self, cmd_tshark, capture_file, test_env):
+        '''The ESL heuristic is off by default.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'esl',
+                          ('frame.number',))
+        assert out == []
+
+    def test_ethercat_esl_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''ESL header frames (ports 0-11), the trailer variant and the
+        flags. Frame 431 is an Ethernet frame shorter than the ESL header
+        before the first ESL frame; the heuristic used to stay off after
+        such a frame.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'esl',
+                          ('frame.number', 'esl.port', 'esl.crcerror',
+                           'esl.alignerror', '_ws.col.protocol'), self.ESL)
+        assert len(out) == 28
+        assert out[0] == '432\t0\tFalse\tFalse\tECAT'
+        assert [l.split('\t')[1] for l in out[:13]] == \
+            ['0', '1', '2', '3', '4', '5', '6', '7', '11', '10', '9', '8', '65535']
+        assert [l.split('\t')[0] for l in out if l.split('\t')[2] == 'True'] == \
+            ['447', '449', '459']
+        assert [l.split('\t')[0] for l in out if l.split('\t')[3] == 'True'] == \
+            ['446', '449']
+        # Trailer variant: frames 457-459
+        assert out[-3:] == ['457\t0\tFalse\tFalse\tECAT',
+                            '458\t3\tFalse\tFalse\tECAT',
+                            '459\t65535\tTrue\tFalse\tECAT']
+
+    def test_ethercat_esl_times(self, cmd_tshark, capture_file, test_env):
+        '''In the second pass the frames carry the ESL times relative to
+        the first ESL frame, also for ESL times before it (frames 450,
+        455) and across a second boundary (frames 452-453). An ESL time
+        before the reference wrapped to the year 2040 before the fix.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {432, 433, 450, 452, 453, 455}',
+                          ('frame.number', 'frame.time_epoch'),
+                          (*self.ESL, '-2'))
+        t = {l.split('\t')[0]: l.split('\t')[1] for l in out}
+        assert t['432'] == '1700000004.558170000'
+        assert t['433'] == '1700000006.058170000'
+        assert t['450'] == '1700000004.457470000'
+        assert t['452'] == '1700000004.557470500'
+        assert t['453'] == '1700000004.557469999'
+        assert t['455'] == '1700000003.558171000'
+
+    def test_ethercat_eoe_inner_frames(self, cmd_tshark, capture_file, test_env):
+        '''EoE fragments 0 hold an Ethernet frame (ARP, IPv4/UDP, other).'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'ecat_mailbox.eoe.type == 0 && ecat_mailbox.eoe.fragno == 0 && eth.type',
+                          ('eth.type',))
+        assert sorted(l.split(',')[-1] for l in out) == ['0x0800', '0x0800', '0x0806', '0x0806', '0x88b5']
