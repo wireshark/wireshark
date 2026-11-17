@@ -88,6 +88,31 @@ void proto_reg_handoff_bmp(void);
 #define BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT     0x10    /* Number of routes in per-AFI/SAFI pre-policy Adj-RIB-Out */
 #define BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT    0x11    /* Number of routes in per-AFI/SAFI post-policy Adj RIB-Out */
 
+#define BMP_STAT_ROUTES_PRE_POLICY_ADJ_RIB_IN   0x12    /* Number of routes in pre-policy Adj-RIB-In */
+#define BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_IN      0x13    /* Number of routes in per-AFI/SAFI pre-policy Adj-RIB-In */
+#define BMP_STAT_ROUTES_POST_POLICY_ADJ_RIB_IN  0x14    /* Number of routes in post-policy Adj-RIB-In */
+#define BMP_STAT_ROUTES_POST_PER_ADJ_RIB_IN     0x15    /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-In */
+#define BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_IN_REJ  0x16    /* Number of routes in per-AFI/SAFI pre-policy Adj-RIB-In rejected by an inbound policy */
+#define BMP_STAT_ROUTES_POST_PER_ADJ_RIB_IN_ACC 0x17    /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-In accepted by an inbound policy */
+#define BMP_STAT_ROUTES_DAMPED                  0x1A    /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB suppressed by a configured route-damping policy */
+#define BMP_STAT_ROUTES_STALE_GR                0x1B    /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB marked as stale by GR events */
+#define BMP_STAT_ROUTES_STALE_LLGR              0x1C    /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB marked as stale by LLGR */
+#define BMP_STAT_ROUTES_RECV_THRESHOLD          0x1D    /* Number of routes in post-policy Adj-RIB-In left before exceeding the received-route threshold */
+#define BMP_STAT_ROUTES_PER_RECV_THRESHOLD      0x1E    /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-In left before exceeding the received-route threshold */
+#define BMP_STAT_ROUTES_LICENSE_THRESHOLD       0x1F    /* Number of routes in post-policy Adj-RIB-In or Loc-RIB left before exceeding a license-customized route threshold */
+#define BMP_STAT_ROUTES_PER_LICENSE_THRESHOLD   0x20    /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB left before exceeding a license-customized route threshold */
+#define BMP_STAT_ROUTES_REJ_MAX_ASPATH          0x21    /* Number of routes in pre-policy Adj-RIB-In rejected due to exceeding the locally configured maximum AS_PATH length */
+#define BMP_STAT_ROUTES_PER_REJ_MAX_ASPATH      0x22    /* Number of routes in per-AFI/SAFI pre-policy Adj-RIB-In rejected due to exceeding the locally configured maximum AS_PATH length */
+#define BMP_STAT_ROUTES_PER_RPKI_INVALIDATED    0x23    /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-In invalidated after checking the RPKI ROA of the route origin ASN and prefix length */
+#define BMP_STAT_ROUTES_PER_RPKI_VALIDATED      0x24    /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-In validated after checking the RPKI ROA of the route origin ASN */
+#define BMP_STAT_ROUTES_PER_RPKI_NOT_FOUND      0x25    /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-In whose RPKI route origin validation state is NotFound */
+#define BMP_STAT_ROUTES_PER_ADJ_RIB_OUT_REJ     0x26    /* Number of routes in per-AFI/SAFI pre-policy Adj-RIB-Out rejected by an outbound policy */
+#define BMP_STAT_ROUTES_ASPATH_FILTERED         0x27    /* Number of routes in pre-policy Adj-RIB-Out filtered due to AS_PATH length exceeding the locally configured maximum */
+#define BMP_STAT_ROUTES_PER_ASPATH_FILTERED     0x28    /* Number of routes in per-AFI/SAFI pre-policy Adj-RIB-Out filtered due to AS_PATH length exceeding the locally configured maximum */
+#define BMP_STAT_ROUTES_PER_RPKI_OUT_INVALIDATED 0x29   /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-Out invalidated after checking the RPKI ROA of the route origin ASN and prefix length */
+#define BMP_STAT_ROUTES_PER_RPKI_OUT_VALIDATED   0x2A   /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-Out validated after checking the RPKI ROA of the route origin ASN */
+#define BMP_STAT_ROUTES_PER_RPKI_OUT_NOT_FOUND   0x2B   /* Number of routes in per-AFI/SAFI post-policy Adj-RIB-Out whose RPKI route origin validation state is NotFound */
+
 /* BMP Peer Down Reason Codes */
 #define BMP_PEER_DOWN_LOCAL_NOTIFY          0x1     /* Local system closed the session, NOTIFICATION PDU follows */
 #define BMP_PEER_DOWN_LOCAL_NO_NOTIFY       0x2     /* Local system closed the session, FSM Event follows */
@@ -212,6 +237,30 @@ static const value_string stat_typevals[] = {
     { BMP_STAT_ROUTES_POST_ADJ_RIB_OUT,     "Routes in post-policy Adj-RIB-Out" },
     { BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT,  "Routes in per-AFI/SAFI pre-policy Adj-RIB-Out" },
     { BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT, "Routes in per-AFI/SAFI post-policy Adj RIB-Out" },
+    { BMP_STAT_ROUTES_PRE_POLICY_ADJ_RIB_IN,    "Routes in pre-policy Adj-RIB-In" },
+    { BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_IN,       "Routes in per-AFI/SAFI pre-policy Adj-RIB-In" },
+    { BMP_STAT_ROUTES_POST_POLICY_ADJ_RIB_IN,   "Routes in post-policy Adj-RIB-In" },
+    { BMP_STAT_ROUTES_POST_PER_ADJ_RIB_IN,      "Routes in per-AFI/SAFI post-policy Adj-RIB-In" },
+    { BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_IN_REJ,   "Routes in per-AFI/SAFI pre-policy Adj-RIB-In rejected by inbound policy" },
+    { BMP_STAT_ROUTES_POST_PER_ADJ_RIB_IN_ACC,  "Routes in per-AFI/SAFI post-policy Adj-RIB-In accepted by inbound policy" },
+    { BMP_STAT_ROUTES_DAMPED,                   "Routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB suppressed by route-damping policy" },
+    { BMP_STAT_ROUTES_STALE_GR,                 "Routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB marked stale by GR events" },
+    { BMP_STAT_ROUTES_STALE_LLGR,               "Routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB marked stale by LLGR" },
+    { BMP_STAT_ROUTES_RECV_THRESHOLD,           "Routes in post-policy Adj-RIB-In left before exceeding received-route threshold" },
+    { BMP_STAT_ROUTES_PER_RECV_THRESHOLD,       "Routes in per-AFI/SAFI post-policy Adj-RIB-In left before exceeding received-route threshold" },
+    { BMP_STAT_ROUTES_LICENSE_THRESHOLD,        "Routes in post-policy Adj-RIB-In or Loc-RIB left before exceeding license-customized route threshold" },
+    { BMP_STAT_ROUTES_PER_LICENSE_THRESHOLD,    "Routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB left before exceeding license-customized route threshold" },
+    { BMP_STAT_ROUTES_REJ_MAX_ASPATH,           "Routes in pre-policy Adj-RIB-In rejected due to exceeding maximum AS_PATH length" },
+    { BMP_STAT_ROUTES_PER_REJ_MAX_ASPATH,       "Routes in per-AFI/SAFI pre-policy Adj-RIB-In rejected due to exceeding maximum AS_PATH length" },
+    { BMP_STAT_ROUTES_PER_RPKI_INVALIDATED,     "Routes in per-AFI/SAFI post-policy Adj-RIB-In invalidated by RPKI ROA verification" },
+    { BMP_STAT_ROUTES_PER_RPKI_VALIDATED,       "Routes in per-AFI/SAFI post-policy Adj-RIB-In validated by RPKI ROA verification" },
+    { BMP_STAT_ROUTES_PER_RPKI_NOT_FOUND,       "Routes in per-AFI/SAFI post-policy Adj-RIB-In with RPKI ROV state NotFound" },
+    { BMP_STAT_ROUTES_PER_ADJ_RIB_OUT_REJ,      "Routes in per-AFI/SAFI pre-policy Adj-RIB-Out rejected by outbound policy" },
+    { BMP_STAT_ROUTES_ASPATH_FILTERED,          "Routes in pre-policy Adj-RIB-Out filtered due to exceeding maximum AS_PATH length" },
+    { BMP_STAT_ROUTES_PER_ASPATH_FILTERED,      "Routes in per-AFI/SAFI pre-policy Adj-RIB-Out filtered due to exceeding maximum AS_PATH length" },
+    { BMP_STAT_ROUTES_PER_RPKI_OUT_INVALIDATED, "Routes in per-AFI/SAFI post-policy Adj-RIB-Out invalidated by RPKI ROA verification" },
+    { BMP_STAT_ROUTES_PER_RPKI_OUT_VALIDATED,   "Routes in per-AFI/SAFI post-policy Adj-RIB-Out validated by RPKI ROA verification" },
+    { BMP_STAT_ROUTES_PER_RPKI_OUT_NOT_FOUND,   "Routes in per-AFI/SAFI post-policy Adj-RIB-Out with RPKI ROV state NotFound" },
     { 0, NULL }
 };
 
@@ -413,6 +462,33 @@ static int hf_stat_data_routes_pre_per_adj_rib_out;
 static int hf_stat_data_routes_post_per_adj_rib_out_afi;
 static int hf_stat_data_routes_post_per_adj_rib_out_safi;
 static int hf_stat_data_routes_post_per_adj_rib_out;
+
+static int hf_stat_data_afi;
+static int hf_stat_data_safi;
+static int hf_stat_data_routes_pre_policy_adj_rib_in;
+static int hf_stat_data_routes_pre_per_adj_rib_in;
+static int hf_stat_data_routes_post_policy_adj_rib_in;
+static int hf_stat_data_routes_post_per_adj_rib_in;
+static int hf_stat_data_routes_pre_per_adj_rib_in_rej;
+static int hf_stat_data_routes_post_per_adj_rib_in_acc;
+static int hf_stat_data_routes_damped;
+static int hf_stat_data_routes_stale_gr;
+static int hf_stat_data_routes_stale_llgr;
+static int hf_stat_data_routes_recv_threshold;
+static int hf_stat_data_routes_per_recv_threshold;
+static int hf_stat_data_routes_license_threshold;
+static int hf_stat_data_routes_per_license_threshold;
+static int hf_stat_data_routes_rej_max_aspath;
+static int hf_stat_data_routes_per_rej_max_aspath;
+static int hf_stat_data_routes_per_rpki_invalidated;
+static int hf_stat_data_routes_per_rpki_validated;
+static int hf_stat_data_routes_per_rpki_not_found;
+static int hf_stat_data_routes_per_adj_rib_out_rej;
+static int hf_stat_data_routes_aspath_filtered;
+static int hf_stat_data_routes_per_aspath_filtered;
+static int hf_stat_data_routes_per_rpki_out_invalidated;
+static int hf_stat_data_routes_per_rpki_out_validated;
+static int hf_stat_data_routes_per_rpki_out_not_found;
 
 /* BMP Termination field */
 static int hf_term_types;
@@ -977,6 +1053,150 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
                 proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
                 proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PRE_POLICY_ADJ_RIB_IN:
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_policy_adj_rib_in, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_IN:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_in, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_POST_POLICY_ADJ_RIB_IN:
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_policy_adj_rib_in, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_POST_PER_ADJ_RIB_IN:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_in, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_IN_REJ:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_in_rej, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_POST_PER_ADJ_RIB_IN_ACC:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_in_acc, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_DAMPED:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_damped, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_STALE_GR:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_stale_gr, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_STALE_LLGR:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_stale_llgr, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_RECV_THRESHOLD:
+                proto_tree_add_item(subtree, hf_stat_data_routes_recv_threshold, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_RECV_THRESHOLD:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_recv_threshold, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_LICENSE_THRESHOLD:
+                proto_tree_add_item(subtree, hf_stat_data_routes_license_threshold, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_LICENSE_THRESHOLD:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_license_threshold, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_REJ_MAX_ASPATH:
+                proto_tree_add_item(subtree, hf_stat_data_routes_rej_max_aspath, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_REJ_MAX_ASPATH:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_rej_max_aspath, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_RPKI_INVALIDATED:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_rpki_invalidated, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_RPKI_VALIDATED:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_rpki_validated, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_RPKI_NOT_FOUND:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_rpki_not_found, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_ADJ_RIB_OUT_REJ:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_adj_rib_out_rej, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_ASPATH_FILTERED:
+                proto_tree_add_item(subtree, hf_stat_data_routes_aspath_filtered, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_ASPATH_FILTERED:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_aspath_filtered, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_RPKI_OUT_INVALIDATED:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_rpki_out_invalidated, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_RPKI_OUT_VALIDATED:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_rpki_out_validated, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+            case BMP_STAT_ROUTES_PER_RPKI_OUT_NOT_FOUND:
+                proto_tree_add_item(subtree, hf_stat_data_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_stat_data_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(subtree, hf_stat_data_routes_per_rpki_out_not_found, tvb, offset, 8, ENC_BIG_ENDIAN);
             break;
             default:
                 expert_add_info(pinfo, ti, &ei_stat_data_unknown);
@@ -1839,6 +2059,84 @@ proto_register_bmp(void)
                 NULL, 0x0, NULL, HFILL }},
         { &hf_stat_data_routes_post_per_adj_rib_out,
             { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-Out", "bmp.stats.data.routes_post_per_adj_rib_out", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_afi,
+            { "AFI", "bmp.stats.data.afi", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_safi,
+            { "SAFI", "bmp.stats.data.safi", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_policy_adj_rib_in,
+            { "Number of routes in pre-policy Adj-RIB-In", "bmp.stats.data.routes_pre_policy_adj_rib_in", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_per_adj_rib_in,
+            { "Number of routes in per-AFI/SAFI pre-policy Adj-RIB-In", "bmp.stats.data.routes_pre_per_adj_rib_in", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_policy_adj_rib_in,
+            { "Number of routes in post-policy Adj-RIB-In", "bmp.stats.data.routes_post_policy_adj_rib_in", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_per_adj_rib_in,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-In", "bmp.stats.data.routes_post_per_adj_rib_in", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_pre_per_adj_rib_in_rej,
+            { "Number of routes in per-AFI/SAFI pre-policy Adj-RIB-In rejected by inbound policy", "bmp.stats.data.routes_pre_per_adj_rib_in_rej", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_post_per_adj_rib_in_acc,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-In accepted by inbound policy", "bmp.stats.data.routes_post_per_adj_rib_in_acc", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_damped,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB suppressed by route-damping policy", "bmp.stats.data.routes_damped", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_stale_gr,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB marked stale by GR events", "bmp.stats.data.routes_stale_gr", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_stale_llgr,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB marked stale by LLGR", "bmp.stats.data.routes_stale_llgr", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_recv_threshold,
+            { "Number of routes in post-policy Adj-RIB-In left before exceeding received-route threshold", "bmp.stats.data.routes_recv_threshold", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_recv_threshold,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-In left before exceeding received-route threshold", "bmp.stats.data.routes_per_recv_threshold", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_license_threshold,
+            { "Number of routes in post-policy Adj-RIB-In or Loc-RIB left before exceeding license-customized route threshold", "bmp.stats.data.routes_license_threshold", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_license_threshold,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-In or Loc-RIB left before exceeding license-customized route threshold", "bmp.stats.data.routes_per_license_threshold", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_rej_max_aspath,
+            { "Number of routes in pre-policy Adj-RIB-In rejected due to exceeding maximum AS_PATH length", "bmp.stats.data.routes_rej_max_aspath", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_rej_max_aspath,
+            { "Number of routes in per-AFI/SAFI pre-policy Adj-RIB-In rejected due to exceeding maximum AS_PATH length", "bmp.stats.data.routes_per_rej_max_aspath", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_rpki_invalidated,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-In invalidated by RPKI ROA verification", "bmp.stats.data.routes_per_rpki_invalidated", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_rpki_validated,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-In validated by RPKI ROA verification", "bmp.stats.data.routes_per_rpki_validated", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_rpki_not_found,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-In with RPKI ROV state NotFound", "bmp.stats.data.routes_per_rpki_not_found", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_adj_rib_out_rej,
+            { "Number of routes in per-AFI/SAFI pre-policy Adj-RIB-Out rejected by outbound policy", "bmp.stats.data.routes_per_adj_rib_out_rej", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_aspath_filtered,
+            { "Number of routes in pre-policy Adj-RIB-Out filtered due to exceeding maximum AS_PATH length", "bmp.stats.data.routes_aspath_filtered", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_aspath_filtered,
+            { "Number of routes in per-AFI/SAFI pre-policy Adj-RIB-Out filtered due to exceeding maximum AS_PATH length", "bmp.stats.data.routes_per_aspath_filtered", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_rpki_out_invalidated,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-Out invalidated by RPKI ROA verification", "bmp.stats.data.routes_per_rpki_out_invalidated", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_rpki_out_validated,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-Out validated by RPKI ROA verification", "bmp.stats.data.routes_per_rpki_out_validated", FT_UINT64, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_stat_data_routes_per_rpki_out_not_found,
+            { "Number of routes in per-AFI/SAFI post-policy Adj-RIB-Out with RPKI ROV state NotFound", "bmp.stats.data.routes_per_rpki_out_not_found", FT_UINT64, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
         /* Termination Message */
         { &hf_term_types,
