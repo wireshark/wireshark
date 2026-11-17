@@ -394,7 +394,7 @@ dissect_sll_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int enca
 		break;
 
 	case WTAP_ENCAP_SLL2:
-		pkttype = tvb_get_ntohs(tvb, 10);
+		pkttype = tvb_get_uint8(tvb, 10);
 		header_size = SLL2_HEADER_SIZE;
 		version = 2;
 		break;
