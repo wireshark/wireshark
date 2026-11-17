@@ -7,6 +7,7 @@
 
 <component type="desktop">
     <id>org.wireshark.Stratoshark</id>
+    <launchable type="desktop-id">org.wireshark.Stratoshark.desktop</launchable>
     <name>Stratoshark</name>
     <summary>Stratoshark is a feature-filled log analyzer</summary>
     <developer id="org.wireshark">
@@ -26,8 +27,6 @@
     </p>
     </description>
     <url type="homepage">https://www.wireshark.org</url>
-    <screenshots>
-    </screenshots>
     <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
     </releases>
