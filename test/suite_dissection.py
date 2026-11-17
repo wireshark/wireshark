@@ -175506,3 +175506,85 @@ class TestDissectWimax:
         out = self.fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'wmx.dlmap.crc16', '-Tfields', '-ewmx.dlmap.crc16.status')
         assert out and set(out) == {'1'}
+
+
+class TestDissectWimaxasncp:
+    '''WiMAX ASN CP (UDP 2231, the wimaxasncp plugin) from the synthetic
+    capture wimaxasncp_coverage.pcap.gz: every known function and
+    message type, every TLV type of the dictionary (simple, compound,
+    EAP, vendor specific), TLVs with unexpected lengths and the header
+    variants.'''
+
+    def test_wimaxasncp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''125 frames decode as WiMAX ASN CP; frame 105 has version 2 and
+        is left to UDP. No malformed packets and no error expert infos, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wimaxasncp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 126
+        assert protocols.count('WiMAX') == 125
+        assert protocols[104] == 'UDP'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('wimaxasncp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wimaxasncp_unknown_function_type(self, cmd_tshark, capture_file, test_env):
+        '''Messages of an unknown function type (18, 0) are "Unknown"; they
+        were shown with the names of the last table entry (Hot_lining_Req
+        and Hot_lining_Rsp) before "WiMAX ASNCP: Fix the message names of
+        unknown function types".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wimaxasncp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {98, 99, 102}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ewimaxasncp.function_type.unknown',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 3
+        for line in lines:
+            assert '\tUnknown - MSID:02:00:00:00:00:09, TID:0x0001\t' in line
+            assert 'Hot_lining' not in line
+            assert line.split('\t')[2]    # the unknown function type expert info
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wimaxasncp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {97, 103}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        # the Accounting function type 11, message 2, and its message 3 (unknown)
+        assert stdout.splitlines() == [
+            'Hot_lining_Rsp - MSID:02:00:00:00:00:09, TID:0x8060',
+            'Unknown - MSID:02:00:00:00:00:09, TID:0x0001']
+
+    def test_wimaxasncp_service_class_name(self, cmd_tshark, capture_file, test_env):
+        '''The dictionary entry "Service Class Name-229" is an ASCII string
+        (it named the nonexistent decoder WIMAXASNCP_TLV_STRING and was
+        shown as hex).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wimaxasncp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 126',
+                '-Tfields', '-ewimaxasncp.tlv.Service_Class_Name_229.value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'gold-class'
+
+    def test_wimaxasncp_header(self, cmd_tshark, capture_file, test_env):
+        '''The transaction ID is shown with the D bit separated when the
+        preference is set; message names and EAP details in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wimaxasncp_coverage.pcap.gz'),
+                '-o', 'wimaxasncp.show_transaction_id_d_bit:TRUE',
+                '-Y', 'frame.number in {1, 118, 121, 122}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'RR_Req - MSID:02:00:00:00:00:09, TID:D+0x0000',
+            'AR_EAP_Start [Request, TLS EAP (EAP-TLS)] - MSID:02:00:00:00:00:09, TID:0x0001',
+            'RR_Req - MSID:02:00:00:00:00:09, TID:D+0x0123',
+            'RR_Req - MSID:02:00:00:00:00:09, TID:0x0123',
+        ]
