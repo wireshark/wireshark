@@ -175644,3 +175644,69 @@ class TestDissectWimaxmacphy:
                 '-Tfields', '-eframe.number', '-ewimaxmacphy.number_of_zone_descriptors',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['1\t3', '2\t0', '3\t3']
+
+
+class TestDissectUsbdump:
+    '''FreeBSD usbdump files (plugins/wiretap/usbdump).'''
+
+    @staticmethod
+    def run_tshark(cmd_tshark, test_env, capture, *args):
+        return subprocess.run((cmd_tshark, '-r', capture, *args),
+                              capture_output=True, encoding='utf-8', env=test_env)
+
+    def test_usbdump_frames(self, cmd_tshark, capture_file, test_env):
+        '''Two multiframes with record headers of 18 and 28 bytes and
+        alignments of 1, 4 and 8: six URBs, the same in one and two passes
+        (two passes read the records again by random access).'''
+        for passes in ((), ('-2',)):
+            proc = self.run_tshark(cmd_tshark, test_env,
+                    capture_file('usbdump_coverage.usbdump.gz'), *passes,
+                    '-Tfields', '-eframe.number', '-eframe.len', '-eframe.time_epoch',
+                    '-e_ws.col.info', '-e_ws.malformed', '-e_ws.expert')
+            assert proc.returncode == 0, proc.stderr
+            lines = [line.split('\t') for line in proc.stdout.splitlines()]
+            assert [line[:2] for line in lines] == [
+                ['1', '144'], ['2', '164'], ['3', '148'],
+                ['4', '152'], ['5', '136'], ['6', '140']]
+            assert [line[2][:11] for line in lines] == \
+                ['1700000001.', '1700000002.', '1700000003.', '1700000004.',
+                 '1700000005.', '1700000006.']
+            assert [line[3] for line in lines] == [
+                'GET DESCRIPTOR Request DEVICE', 'GET DESCRIPTOR Response DEVICE',
+                'URB_BULK out', 'URB_BULK in', 'URB_INTERRUPT in', 'URB_INTERRUPT in']
+            assert all(line[4:] == ['', ''] or len(line) == 4 for line in lines)
+
+    def test_usbdump_caplen_too_big(self, cmd_tshark, capture_file, test_env):
+        '''A record claiming 4 GB of data is rejected with a message, after
+        the first (good) record has been read.'''
+        proc = self.run_tshark(cmd_tshark, test_env,
+                capture_file('usbdump_hugecaplen.usbdump'), '-Tfields', '-eframe.number')
+        assert proc.returncode != 0
+        assert proc.stdout.splitlines() == ['1']
+        assert 'File has 4294967280-byte packet, bigger than maximum of' in proc.stderr
+
+    def test_usbdump_bad_version(self, cmd_tshark, capture_file, test_env):
+        '''Only version 0.3 is supported; the message shows the version
+        that is in the file.'''
+        proc = self.run_tshark(cmd_tshark, test_env,
+                capture_file('usbdump-bad-version.usbdump'))
+        assert proc.returncode != 0
+        assert 'usbdump: version 0.4 unsupported' in proc.stderr
+
+    def test_usbdump_multiframe_overrun(self, cmd_tshark, capture_file, test_env):
+        '''A record that does not fit in the size given for its multiframe.'''
+        proc = self.run_tshark(cmd_tshark, test_env,
+                capture_file('usbdump-bad-overrun.usbdump'))
+        assert proc.returncode != 0
+        assert 'Multiframe overrun' in proc.stderr
+
+    def test_usbdump_trailing_bytes(self, cmd_tshark, capture_file, test_env):
+        '''Two stray bytes where the next multiframe size should be: the
+        read of the last record of the multiframe fails and the failure is
+        reported (it used to be ignored and the frame was returned).'''
+        proc = self.run_tshark(cmd_tshark, test_env,
+                capture_file('usbdump-bad-trailing.usbdump'),
+                '-Tfields', '-eframe.number')
+        assert proc.returncode != 0
+        assert proc.stdout.splitlines() == ['1', '2', '3']
+        assert 'cut short' in proc.stderr
