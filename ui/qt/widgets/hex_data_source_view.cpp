@@ -608,7 +608,10 @@ void HexDataSourceView::mousePressEvent (QMouseEvent *event) {
     // - Triggers selectedFieldChanged in ProtoTree, which clears the
     //   selection and selects the corresponding (or no) item.
 
-    const int byte_offset = byteOffsetAtPixel(event->pos(), true);
+    // Snap a press between or just outside the byte columns to the
+    // nearest byte, but treat one in the offset column or past the right
+    // of the bytes as outside them.
+    const int byte_offset = pixelOutsideBytePanels(event->pos()) ? -1 : byteOffsetAtPixel(event->pos(), true);
     setFocus(Qt::MouseFocusReason);
     if (byte_offset < 0) {
         // Clear the selection (unless extending it), but don't start a
@@ -1092,11 +1095,14 @@ int HexDataSourceView::hexColumnAtX(int x, bool allow_fuzzy)
     const int byte_units = hexCharsPerByte() + 1;
     const int group_units = separator_interval_ * byte_units + 1;
     int unit = rel / em_width_;
-    int col = (unit / group_units) * separator_interval_ + qMin((unit % group_units) / byte_units, separator_interval_ - 1);
-    if (col >= row_width_) {
-        return allow_fuzzy ? row_width_ - 1 : -1;
+    // The last byte's region ends half a space past its digits, like the
+    // others; the space after it isn't a separator.
+    const int last_col = row_width_ - 1;
+    const int end_unit = (last_col / separator_interval_) * group_units + (last_col % separator_interval_ + 1) * byte_units;
+    if (unit >= end_unit) {
+        return allow_fuzzy ? last_col : -1;
     }
-    return col;
+    return (unit / group_units) * separator_interval_ + qMin((unit % group_units) / byte_units, separator_interval_ - 1);
 }
 
 int HexDataSourceView::textPanelX()
@@ -1363,6 +1369,37 @@ int HexDataSourceView::byteOffsetAtPixel(QPoint pos, bool allow_fuzzy)
         return -1;
     }
     return byte;
+}
+
+bool HexDataSourceView::pixelOutsideBytePanels(QPoint pos)
+{
+    if (em_width_ <= 0) {
+        return false;
+    }
+
+    int x = (horizontalScrollBar()->value() * em_width_) + pos.x();
+
+    if (x < offsetPixels()) {
+        return true;
+    }
+
+    // The hit regions of the last byte column extend half a space past
+    // its last digit in the hex panel (see hexColumnAtX()), and to the
+    // end of its character in the text panel (see textColumnAtX()).
+    // hexChars() includes the pad space after the last digit.
+    const int hex_right = hexPanelX() + (DataPrinter::hexChars() - 1) * em_width_ + em_width_ / 2;
+    if (show_ascii_) {
+        // The gutter between the hex and text panels.
+        if (show_hex_ && x >= hex_right && x < textPanelX()) {
+            return true;
+        }
+        int ascii_chars = row_width_ + ((row_width_ - 1) / separator_interval_);
+        return x >= textPanelX() + ascii_chars * em_width_;
+    }
+    if (show_hex_) {
+        return x >= hex_right;
+    }
+    return true;
 }
 
 void HexDataSourceView::setHexDisplayFormat(QAction *action)
