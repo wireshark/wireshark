@@ -3012,6 +3012,9 @@
    "epan/dissectors/packet-kerberos.c",
    "epan/dissectors/packet-kerberos4.c"
   ],
+  "TestDissectKerberosCoverage": [
+   "epan/dissectors/packet-kerberos.c"
+  ],
   "TestDissectKingfisher": [
    "epan/dissectors/packet-kingfisher.c"
   ],
@@ -3726,8 +3729,7 @@
    "epan/dissectors/packet-ncp.c"
   ],
   "TestDissectNcp2222": [
-   "epan/dissectors/packet-ncp.c",
-   "epan/dissectors/packet-ncp2222.c"
+   "epan/dissectors/packet-ncp.c"
   ],
   "TestDissectNcpNmas": [
    "epan/dissectors/packet-json.c",
@@ -5188,6 +5190,7 @@
    "epan/dissectors/packet-arp.c",
    "epan/dissectors/packet-ieee80211.c",
    "epan/dissectors/packet-ipx.c",
+   "epan/dissectors/packet-mctp.c",
    "epan/dissectors/packet-netlink.c",
    "epan/dissectors/packet-sll.c",
    "epan/dissectors/packet-socketcan.c",
@@ -5505,7 +5508,6 @@
    "epan/dissectors/packet-tcg-cp-oids.c"
   ],
   "TestDissectTcgStorage": [
-   "epan/dissectors/packet-nvme-mi.c",
    "epan/dissectors/packet-tcg-storage.c"
   ],
   "TestDissectTcpCoverage": [
