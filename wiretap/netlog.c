@@ -701,26 +701,24 @@ static bool parse_json_events(char* filebuf, const NetLogEventConstants netlog_e
 
 /**
  * Parses the entire NetLog JSON file from `fh` and stores the packets in json_packets_ht.
- * Returns true on success, false on failure.
+ * Returns WTAP_OPEN_MINE on success, WTAP_OPEN_NOT_MINE if it isn't a NetLog
+ * file, and WTAP_OPEN_ERROR on a read error.
  */
-static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_info, GHashTable *json_packets_ht)
+static wtap_open_return_val netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_info, GHashTable *json_packets_ht)
 {
     int64_t file_size;
 
     if ((file_size = wtap_file_size(wth, err)) == -1)
-        return false;
+        return WTAP_OPEN_ERROR;
 
     if (file_size > MAX_FILE_SIZE) {
         /* Avoid allocating space for an immensely-large file. */
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("%s: File has %" PRId64 "-byte packet, bigger than maximum of %u",
-                wtap_encap_name(wth->file_encap), file_size, MAX_FILE_SIZE);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     uint8_t* filebuf = (uint8_t*)g_malloc(file_size);
     if (!filebuf)
-        return false;
+        return WTAP_OPEN_NOT_MINE;
 
     /* Read the entire file into memory */
     int bytes_read = file_read(filebuf, (unsigned int) file_size, fh);
@@ -729,12 +727,12 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
         /* Read error. */
         *err = file_error(fh, err_info);
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_ERROR;
     }
     if (bytes_read == 0) {
         /* empty file, not *anybody's* */
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     /* A NetLog file is a single JSON object, with members with names
@@ -747,7 +745,7 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
     jsmntok_t* json_tokens = g_new0(jsmntok_t, num_tokens);
     if (!json_tokens) {
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     if (json_parse_len((const char*)filebuf, bytes_read, json_tokens, num_tokens) != JSMN_ERROR_NOMEM) {
@@ -755,13 +753,13 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
          * insufficient token error, this isn't our file. */
         g_free(json_tokens);
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     if (json_tokens[0].type != JSMN_OBJECT || json_tokens[1].type != JSMN_STRING) {
         g_free(json_tokens);
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
     ptrdiff_t len = json_tokens[1].end - json_tokens[1].start;
     uint8_t *tok_start = &filebuf[json_tokens[1].start];
@@ -770,24 +768,24 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
     case 6: // strlen("events")
         if (memcmp(tok_start, "events", len) != 0) {
             g_free(filebuf);
-            return false;
+            return WTAP_OPEN_NOT_MINE;
         }
         break;
     case 9: // strlen("constants")
         if (memcmp(tok_start, "constants", len) != 0) {
             g_free(filebuf);
-            return false;
+            return WTAP_OPEN_NOT_MINE;
         }
         break;
     case 12: // strlen("polledEvents")
         if (memcmp(tok_start, "polledEvents", len) != 0) {
             g_free(filebuf);
-            return false;
+            return WTAP_OPEN_NOT_MINE;
         }
         break;
     default:
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     num_tokens = json_parse_len((const char*)filebuf, bytes_read, NULL, 0);
@@ -796,7 +794,7 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
          * until the first NUL. Reject that too. (That shouldn't happen, since
          * we read 2 tokens above.) */
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     json_tokens = g_new0(jsmntok_t, num_tokens);
@@ -804,7 +802,7 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
     if (json_parse_len((const char*)filebuf, bytes_read, json_tokens, num_tokens) < 0){
         g_free(json_tokens);
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     /*
@@ -818,7 +816,7 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
         ws_debug("Failed to parse one or more netlog event constants.");
         g_free(json_tokens);
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     /* At this point, we have all of the constants needed within 'json_logevent_constants'
@@ -830,25 +828,25 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
         ws_debug("NetLog file lacks 'events' array");
         g_free(json_tokens);
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     if (!parse_json_events((char*)filebuf, netlog_event_constants, json_events, json_packets_ht)){
         g_free(json_tokens);
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     if (g_hash_table_size(json_packets_ht) == 0){
         /* Might be a NetLog capture without any data. Skip it so it can be parsed by the JSON parser. */
         g_free(json_tokens);
         g_free(filebuf);
-        return false;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     g_free(json_tokens);
     g_free(filebuf);
-    return true;
+    return WTAP_OPEN_MINE;
 }
 
 /* Read the next packet */
@@ -906,10 +904,11 @@ wtap_open_return_val netlog_open(wtap* wth, int* err, char** err_info)
     /* Mapping of 'offset' (index) to json data */
     netlog_state->json_packets_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
     /* Parse and store the packets for future use: */
-    if (!netlog_parse_entirety(wth, wth->fh, err, err_info, netlog_state->json_packets_ht)) {
+    wtap_open_return_val ret = netlog_parse_entirety(wth, wth->fh, err, err_info, netlog_state->json_packets_ht);
+    if (ret != WTAP_OPEN_MINE) {
         g_hash_table_destroy(netlog_state->json_packets_ht);
         g_free(netlog_state);
-        return WTAP_OPEN_NOT_MINE;
+        return ret;
     }
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
