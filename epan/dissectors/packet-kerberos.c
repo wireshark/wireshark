@@ -768,6 +768,7 @@ static expert_field ei_kerberos_missing_keytype;
 static expert_field ei_kerberos_decrypted_keytype;
 static expert_field ei_kerberos_learnt_keytype;
 static expert_field ei_kerberos_address;
+static expert_field ei_kerberos_address_len;
 static expert_field ei_krb_gssapi_bndlen;
 static expert_field ei_kerberos_pac_buffer;
 static expert_field ei_kerberos_nesting;
@@ -1317,6 +1318,10 @@ key_to_hexstr_maxfour(const uint8_t *keyvalue, unsigned keylength)
 	char *keystr_end;
 	bool truncated = false;
 	unsigned len = keylength;
+	if (len == 0) {
+		/* a missing key */
+		return "no key";
+	}
 	if (len > 4U) {
 		len = 4U;
 		truncated = true;
@@ -3392,7 +3397,8 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		key.keyblock.keyvalue.data=ek->keyvalue;
 		ret = krb5_crypto_init(keytab_krb5_ctx, &(key.keyblock), (krb5_enctype)ENCTYPE_NULL, &crypto);
 		if(ret){
-			return NULL;
+			/* this key is not usable, try the next one */
+			continue;
 		}
 
 		/* pre-0.6.1 versions of Heimdal would sometimes change
@@ -3408,6 +3414,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 								NULL);
 		if((ret == 0) && (length>0)){
 			uint8_t *user_data;
+			size_t user_data_len = data.length;
 
 			used_encryption_key(tree, pinfo, zero_private,
 					    ek, usage, cryptotvb,
@@ -3415,11 +3422,15 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 
 			krb5_crypto_destroy(keytab_krb5_ctx, crypto);
 			/* return a private wmem_alloced blob to the caller */
-			user_data = wmem_memdup(pinfo->pool, data.data, (unsigned)data.length);
+			user_data = wmem_memdup(pinfo->pool, data.data, (unsigned)user_data_len);
+			krb5_data_free(&data);
 			if (datalen) {
-				*datalen = (int)data.length;
+				*datalen = (int)user_data_len;
 			}
 			return user_data;
+		}
+		if (ret == 0) {
+			krb5_data_free(&data);
 		}
 		krb5_crypto_destroy(keytab_krb5_ctx, crypto);
 	}
@@ -5504,6 +5515,11 @@ static const ber_sequence_t EncryptedTicketData_sequence[] = {
 
 static unsigned
 dissect_kerberos_EncryptedTicketData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedTicketData_sequence, hf_index, ett_kerberos_EncryptedTicketData);
 
@@ -5648,6 +5664,10 @@ static const ber_sequence_t Checksum_sequence[] = {
 
 static unsigned
 dissect_kerberos_Checksum(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  private_data->checksum_type = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Checksum_sequence, hf_index, ett_kerberos_Checksum);
 
@@ -5884,6 +5904,10 @@ static const ber_sequence_t AuthorizationData_item_sequence[] = {
 
 static unsigned
 dissect_kerberos_AuthorizationData_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  private_data->ad_type = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AuthorizationData_item_sequence, hf_index, ett_kerberos_AuthorizationData_item);
 
@@ -6054,6 +6078,11 @@ dissect_kerberos_T_address(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
 
   switch(private_data->addr_type){
   case KERBEROS_ADDR_TYPE_IPV4:
+    if (len != 4) {
+      proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address_len, tvb, offset, len);
+      address_str = NULL;
+      break;
+    }
     it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     address_str = tvb_ip_to_str(actx->pinfo->pool, tvb, offset);
     break;
@@ -6063,12 +6092,22 @@ dissect_kerberos_T_address(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
     int netbios_name_type;
     int netbios_name_len = (NETBIOS_NAME_LEN - 1)*4 + 1;
 
+    if (len != 16) {
+      proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address_len, tvb, offset, len);
+      address_str = NULL;
+      break;
+    }
     netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name, netbios_name_len);
     address_str = wmem_strdup_printf(actx->pinfo->pool, "%s<%02x>", netbios_name, netbios_name_type);
     it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
     }
     break;
   case KERBEROS_ADDR_TYPE_IPV6:
+    if (len != INET6_ADDRLEN) {
+      proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address_len, tvb, offset, len);
+      address_str = NULL;
+      break;
+    }
     it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
     address_str = tvb_ip6_to_str(actx->pinfo->pool, tvb, offset);
     break;
@@ -6100,6 +6139,10 @@ static const ber_sequence_t HostAddress_sequence[] = {
 
 static unsigned
 dissect_kerberos_HostAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  private_data->addr_type = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    HostAddress_sequence, hf_index, ett_kerberos_HostAddress);
 
@@ -6414,6 +6457,10 @@ static const ber_sequence_t PA_DATA_sequence[] = {
 
 static unsigned
 dissect_kerberos_PA_DATA(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  private_data->padata_type = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PA_DATA_sequence, hf_index, ett_kerberos_PA_DATA);
 
@@ -6545,6 +6592,11 @@ static const ber_sequence_t EncryptedAuthorizationData_sequence[] = {
 
 static unsigned
 dissect_kerberos_EncryptedAuthorizationData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedAuthorizationData_sequence, hf_index, ett_kerberos_EncryptedAuthorizationData);
 
@@ -6660,6 +6712,11 @@ static const ber_sequence_t EncryptedKDCREPData_sequence[] = {
 
 static unsigned
 dissect_kerberos_EncryptedKDCREPData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedKDCREPData_sequence, hf_index, ett_kerberos_EncryptedKDCREPData);
 
@@ -6759,6 +6816,11 @@ static const ber_sequence_t EncryptedAuthenticator_sequence[] = {
 
 static unsigned
 dissect_kerberos_EncryptedAuthenticator(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedAuthenticator_sequence, hf_index, ett_kerberos_EncryptedAuthenticator);
 
@@ -6819,6 +6881,11 @@ static const ber_sequence_t EncryptedAPREPData_sequence[] = {
 
 static unsigned
 dissect_kerberos_EncryptedAPREPData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedAPREPData_sequence, hf_index, ett_kerberos_EncryptedAPREPData);
 
@@ -6938,6 +7005,11 @@ static const ber_sequence_t EncryptedKrbPrivData_sequence[] = {
 
 static unsigned
 dissect_kerberos_EncryptedKrbPrivData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedKrbPrivData_sequence, hf_index, ett_kerberos_EncryptedKrbPrivData);
 
@@ -6996,6 +7068,11 @@ static const ber_sequence_t EncryptedKrbCredData_sequence[] = {
 
 static unsigned
 dissect_kerberos_EncryptedKrbCredData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedKrbCredData_sequence, hf_index, ett_kerberos_EncryptedKrbCredData);
 
@@ -7599,6 +7676,11 @@ static const ber_sequence_t PA_ENC_TIMESTAMP_sequence[] = {
 
 static unsigned
 dissect_kerberos_PA_ENC_TIMESTAMP(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PA_ENC_TIMESTAMP_sequence, hf_index, ett_kerberos_PA_ENC_TIMESTAMP);
 
@@ -8178,6 +8260,10 @@ static const ber_sequence_t PA_AUTHENTICATION_SET_ELEM_sequence[] = {
 
 static unsigned
 dissect_kerberos_PA_AUTHENTICATION_SET_ELEM(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  private_data->padata_type = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PA_AUTHENTICATION_SET_ELEM_sequence, hf_index, ett_kerberos_PA_AUTHENTICATION_SET_ELEM);
 
@@ -8265,6 +8351,11 @@ static const ber_sequence_t EncryptedKrbFastReq_sequence[] = {
 
 static unsigned
 dissect_kerberos_EncryptedKrbFastReq(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedKrbFastReq_sequence, hf_index, ett_kerberos_EncryptedKrbFastReq);
 
@@ -8328,6 +8419,11 @@ static const ber_sequence_t EncryptedKrbFastResponse_sequence[] = {
 
 static unsigned
 dissect_kerberos_EncryptedKrbFastResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedKrbFastResponse_sequence, hf_index, ett_kerberos_EncryptedKrbFastResponse);
 
@@ -8389,6 +8485,11 @@ static const ber_sequence_t EncryptedChallenge_sequence[] = {
 
 static unsigned
 dissect_kerberos_EncryptedChallenge(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedChallenge_sequence, hf_index, ett_kerberos_EncryptedChallenge);
 
@@ -11062,6 +11163,7 @@ void proto_register_kerberos(void) {
 		{ &ei_kerberos_key_limit, { "kerberos.key_limit", PI_DECRYPTION, PI_WARN, "Too many learnt keys, not remembering this key", EXPFILL }},
 		{ &ei_kerberos_nesting, { "kerberos.nesting_too_deep", PI_MALFORMED, PI_ERROR, "Kerberos messages nested too deeply", EXPFILL }},
 		{ &ei_kerberos_pac_buffer, { "kerberos.pac_buffer.invalid", PI_MALFORMED, PI_ERROR, "Invalid PAC_INFO_BUFFER", EXPFILL }},
+		{ &ei_kerberos_address_len, { "kerberos.address.length_mismatch", PI_MALFORMED, PI_ERROR, "KRB Address: length does not match the address type", EXPFILL }},
 		{ &ei_krb_gssapi_bndlen, { "kerberos.gssapi.bndlen.error", PI_MALFORMED, PI_ERROR, "Bnd length exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_extlen, { "kerberos.gssapi.extension.length.error", PI_MALFORMED, PI_ERROR, "Invalid GSSAPI extension length", EXPFILL }},

@@ -129,6 +129,97 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 #.FN_FTR AD-IF-RELEVANT
   kerberos_nesting_leave(actx);
 
+#.FN_HDR EncryptedTicketData
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR EncryptedAuthorizationData
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR EncryptedKDCREPData
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR EncryptedAuthenticator
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR EncryptedAPREPData
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR EncryptedKrbPrivData
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR EncryptedKrbCredData
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR PA-ENC-TIMESTAMP
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR EncryptedKrbFastReq
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR EncryptedKrbFastResponse
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR EncryptedChallenge
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  /* Don't reuse the etype of a previous message */
+  private_data->etype = 0;
+
+
+#.FN_HDR Checksum
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  private_data->checksum_type = 0;
+
+
+#.FN_HDR PA-DATA
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  private_data->padata_type = 0;
+
+
+#.FN_HDR PA-AUTHENTICATION-SET-ELEM
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  private_data->padata_type = 0;
+
+
+#.FN_HDR AuthorizationData/_item
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  private_data->ad_type = 0;
+
+
+#.FN_HDR HostAddress
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  private_data->addr_type = 0;
+
+
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   uint32_t msgtype;
@@ -330,6 +421,11 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
   switch(private_data->addr_type){
   case KERBEROS_ADDR_TYPE_IPV4:
+    if (len != 4) {
+      proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address_len, tvb, offset, len);
+      address_str = NULL;
+      break;
+    }
     it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     address_str = tvb_ip_to_str(actx->pinfo->pool, tvb, offset);
     break;
@@ -339,12 +435,22 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
     int netbios_name_type;
     int netbios_name_len = (NETBIOS_NAME_LEN - 1)*4 + 1;
 
+    if (len != 16) {
+      proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address_len, tvb, offset, len);
+      address_str = NULL;
+      break;
+    }
     netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name, netbios_name_len);
     address_str = wmem_strdup_printf(actx->pinfo->pool, "%s<%02x>", netbios_name, netbios_name_type);
     it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
     }
     break;
   case KERBEROS_ADDR_TYPE_IPV6:
+    if (len != INET6_ADDRLEN) {
+      proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address_len, tvb, offset, len);
+      address_str = NULL;
+      break;
+    }
     it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
     address_str = tvb_ip6_to_str(actx->pinfo->pool, tvb, offset);
     break;

@@ -412,6 +412,7 @@ static expert_field ei_kerberos_missing_keytype;
 static expert_field ei_kerberos_decrypted_keytype;
 static expert_field ei_kerberos_learnt_keytype;
 static expert_field ei_kerberos_address;
+static expert_field ei_kerberos_address_len;
 static expert_field ei_krb_gssapi_bndlen;
 static expert_field ei_kerberos_pac_buffer;
 static expert_field ei_kerberos_nesting;
@@ -844,6 +845,10 @@ key_to_hexstr_maxfour(const uint8_t *keyvalue, unsigned keylength)
 	char *keystr_end;
 	bool truncated = false;
 	unsigned len = keylength;
+	if (len == 0) {
+		/* a missing key */
+		return "no key";
+	}
 	if (len > 4U) {
 		len = 4U;
 		truncated = true;
@@ -2919,7 +2924,8 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		key.keyblock.keyvalue.data=ek->keyvalue;
 		ret = krb5_crypto_init(keytab_krb5_ctx, &(key.keyblock), (krb5_enctype)ENCTYPE_NULL, &crypto);
 		if(ret){
-			return NULL;
+			/* this key is not usable, try the next one */
+			continue;
 		}
 
 		/* pre-0.6.1 versions of Heimdal would sometimes change
@@ -2935,6 +2941,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 								NULL);
 		if((ret == 0) && (length>0)){
 			uint8_t *user_data;
+			size_t user_data_len = data.length;
 
 			used_encryption_key(tree, pinfo, zero_private,
 					    ek, usage, cryptotvb,
@@ -2942,11 +2949,15 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 
 			krb5_crypto_destroy(keytab_krb5_ctx, crypto);
 			/* return a private wmem_alloced blob to the caller */
-			user_data = wmem_memdup(pinfo->pool, data.data, (unsigned)data.length);
+			user_data = wmem_memdup(pinfo->pool, data.data, (unsigned)user_data_len);
+			krb5_data_free(&data);
 			if (datalen) {
-				*datalen = (int)data.length;
+				*datalen = (int)user_data_len;
 			}
 			return user_data;
+		}
+		if (ret == 0) {
+			krb5_data_free(&data);
 		}
 		krb5_crypto_destroy(keytab_krb5_ctx, crypto);
 	}
@@ -6177,6 +6188,7 @@ void proto_register_kerberos(void) {
 		{ &ei_kerberos_key_limit, { "kerberos.key_limit", PI_DECRYPTION, PI_WARN, "Too many learnt keys, not remembering this key", EXPFILL }},
 		{ &ei_kerberos_nesting, { "kerberos.nesting_too_deep", PI_MALFORMED, PI_ERROR, "Kerberos messages nested too deeply", EXPFILL }},
 		{ &ei_kerberos_pac_buffer, { "kerberos.pac_buffer.invalid", PI_MALFORMED, PI_ERROR, "Invalid PAC_INFO_BUFFER", EXPFILL }},
+		{ &ei_kerberos_address_len, { "kerberos.address.length_mismatch", PI_MALFORMED, PI_ERROR, "KRB Address: length does not match the address type", EXPFILL }},
 		{ &ei_krb_gssapi_bndlen, { "kerberos.gssapi.bndlen.error", PI_MALFORMED, PI_ERROR, "Bnd length exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_extlen, { "kerberos.gssapi.extension.length.error", PI_MALFORMED, PI_ERROR, "Invalid GSSAPI extension length", EXPFILL }},
