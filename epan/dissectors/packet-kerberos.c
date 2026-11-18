@@ -2754,6 +2754,18 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 		return;
 	}
 
+	if (tep->authorization_data == NULL) {
+		missing_signing_key(tree, actx->pinfo, private_data,
+				    pactvb, state->ticket_checksum_type,
+				    state->kdc_ek->keytype,
+				    "No authorization data in the ticket",
+				    "kdc_checksum_key",
+				    1,
+				    0);
+		krb5_free_enc_tkt_part(keytab_krb5_ctx, tep);
+		return;
+	}
+
 	for (l0idx = 0; tep->authorization_data[l0idx]; l0idx++) {
 		krb5_authdata *adl0 = tep->authorization_data[l0idx];
 		krb5_authdata **decoded_container = NULL;
@@ -2794,6 +2806,19 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 		if (ad_pac == NULL) {
 			krb5_free_authdata(keytab_krb5_ctx, decoded_container);
 			continue;
+		}
+
+		if (ad_pac->length == 0 || ad_pac->contents == NULL) {
+			missing_signing_key(tree, actx->pinfo, private_data,
+					    pactvb, state->ticket_checksum_type,
+					    state->kdc_ek->keytype,
+					    "Empty PAC in the ticket",
+					    "kdc_checksum_key",
+					    1,
+					    0);
+			krb5_free_authdata(keytab_krb5_ctx, decoded_container);
+			krb5_free_enc_tkt_part(keytab_krb5_ctx, tep);
+			return;
 		}
 
 		ad_pac->length = 1;
