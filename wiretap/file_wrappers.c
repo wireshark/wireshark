@@ -48,8 +48,19 @@ wtap_get_compression_type(wtap *wth)
 	return file_get_compression_type((wth->fh == NULL) ? wth->random_fh : wth->fh);
 }
 
-/* #define GZBUFSIZE 8192 */
-#define GZBUFSIZE 4096
+/*
+ * The minimum size of the input buffer (the output buffer is twice as
+ * big). Besides being the unit of I/O, this determines how far back
+ * we're guaranteed to be able to seek on a pipe (or other stream we
+ * can't seek on): the first GZBUFSIZE bytes of uncompressed data (or
+ * of decompressed data, as the first decompression fills the output
+ * buffer) stay in the buffer until something reads past them. The open
+ * routines tried while determining a file's type each start by seeking
+ * back to the beginning, and some (e.g., JSON) read a fair amount of
+ * the file before deciding, so make it large enough for them; it's
+ * larger anyway in builds with zstd or LZ4 support.
+ */
+#define GZBUFSIZE 65536
 #define LZ4BUFSIZE 4194304 // 4MiB, maximum block size
 
 /* values for wtap_reader compression */
@@ -1488,26 +1499,19 @@ FILE_T
 file_fdopen(int fd)
 {
     /*
-     * XXX - we now check whether we have st_blksize in struct stat;
-     * it's not available on all platforms.
-     *
-     * I'm not sure why we're testing _STATBUF_ST_BLKSIZE; it's not
-     * set on all platforms that have st_blksize in struct stat.
-     * (Not all platforms have st_blksize in struct stat.)
-     *
-     * Is there some reason *not* to make the buffer size the maximum
-     * of GBUFSIZE and st_blksize?  On most UN*Xes, the standard I/O
-     * library does I/O with st_blksize as the buffer size; on others,
-     * and on Windows, it's a 4K buffer size.  If st_blksize is bigger
-     * than GBUFSIZE (which is currently 4KB), that's probably a
+     * We make the buffer size the maximum of GZBUFSIZE and st_blksize.
+     * On most UN*Xes, the standard I/O library does I/O with st_blksize
+     * as the buffer size; on others, and on Windows, it's a 4K buffer
+     * size.  If st_blksize is bigger than GZBUFSIZE, that's probably a
      * hint that reading in st_blksize chunks is considered a good
-     * idea (e.g., an 8K/1K Berkeley fast file system with st_blksize
-     * being 8K, or APFS, where st_blksize is big on at least some
-     * versions of macOS).
+     * idea (e.g., APFS, where st_blksize is big on at least some
+     * versions of macOS). It can also be smaller (e.g., for a pipe), but
+     * we never use less than GZBUFSIZE (see above). (Not all platforms
+     * have st_blksize in struct stat.)
      */
-#ifdef _STATBUF_ST_BLKSIZE
+#ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
     ws_statb64 st;
-#endif /* _STATBUF_ST_BLKSIZE */
+#endif /* HAVE_STRUCT_STAT_ST_BLKSIZE */
 #ifdef HAVE_ZSTD
     size_t zstd_buf_size;
 #endif /* HAVE_ZSTD */
@@ -1543,7 +1547,7 @@ file_fdopen(int fd)
     /* initialize stream */
     gz_reset(state);
 
-#ifdef _STATBUF_ST_BLKSIZE
+#ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
     /*
      * See what I/O size the file system recommends using, and if
      * it's bigger than what we're using and isn't too big, use
@@ -1575,13 +1579,13 @@ file_fdopen(int fd)
          * so casting it to long won't turn it into a negative number.
          * (We only support 32-bit and 64-bit 2's-complement platforms.)
          */
-        if (st.st_blksize <= (long)MAX_READ_BUF_SIZE)
-            want = (unsigned)st.st_blksize;
-        else
+        if (st.st_blksize > (long)MAX_READ_BUF_SIZE)
             want = MAX_READ_BUF_SIZE;
+        else if (st.st_blksize > (long)want)
+            want = (unsigned)st.st_blksize;
         /* XXX, verify result? */
     }
-#endif /* _STATBUF_ST_BLKSIZE */
+#endif /* HAVE_STRUCT_STAT_ST_BLKSIZE */
 #ifdef HAVE_ZSTD
     /* we should have separate input and output buf sizes */
     zstd_buf_size = ZSTD_DStreamInSize();
