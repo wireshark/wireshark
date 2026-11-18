@@ -713,6 +713,52 @@ cba_acco_add(packet_info *pinfo, const char *acco)
 }
 
 
+static void
+cba_acco_cleanup(void)
+{
+    GList *pdevs;
+    GList *ldevs;
+    GList *frames;
+
+    for (pdevs = cba_pdevs; pdevs != NULL; pdevs = g_list_next(pdevs)) {
+        cba_pdev_t *pdev = (cba_pdev_t *)pdevs->data;
+
+        for (ldevs = pdev->ldevs; ldevs != NULL; ldevs = g_list_next(ldevs)) {
+            cba_ldev_t *ldev = (cba_ldev_t *)ldevs->data;
+
+            for (frames = ldev->consframes; frames != NULL; frames = g_list_next(frames)) {
+                cba_frame_t *frame = (cba_frame_t *)frames->data;
+
+                g_list_free(frame->conns);
+                frame->conns = NULL;
+            }
+            for (frames = ldev->provframes; frames != NULL; frames = g_list_next(frames)) {
+                cba_frame_t *frame = (cba_frame_t *)frames->data;
+
+                g_list_free(frame->conns);
+                frame->conns = NULL;
+            }
+
+            g_list_free(ldev->consframes);
+            g_list_free(ldev->provframes);
+            g_list_free(ldev->consconns);
+            g_list_free(ldev->provconns);
+
+            ldev->consframes = NULL;
+            ldev->provframes = NULL;
+            ldev->consconns  = NULL;
+            ldev->provconns  = NULL;
+        }
+
+        g_list_free(pdev->ldevs);
+        pdev->ldevs = NULL;
+    }
+
+    g_list_free(cba_pdevs);
+    cba_pdevs = NULL;
+}
+
+
 static bool
 cba_packet_in_range(packet_info *pinfo, unsigned packet_connect, unsigned packet_disconnect, unsigned packet_disconnectme)
 {
@@ -5247,6 +5293,7 @@ proto_reg_handoff_dcom_cba_acco (void)
     dcerpc_init_uuid(proto_ICBAAccoSync, ett_ICBAAccoSync,
         &uuid_ICBAAccoSync, ver_ICBAAccoSync, ICBAAccoSync_dissectors, hf_cba_acco_opnum);
 
+    register_cleanup_routine(cba_acco_cleanup);
 
     heur_dissector_add("pn_rt", dissect_CBA_Connection_Data_heur, "PROFINET CBA IO", "pn_cba_pn_rt", proto_ICBAAccoServer, HEURISTIC_ENABLE);
 }
