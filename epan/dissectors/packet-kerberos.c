@@ -1543,7 +1543,11 @@ save_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
 		    int hf_index _U_)
 {
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-	const char *parent = proto_registrar_get_name(parent_hf_index);
+	/*
+	 * A bare EncASRepPart or EncTGSRepPart (not inside a decrypted
+	 * AS-REP or TGS-REP) has no parent field.
+	 */
+	const char *parent = parent_hf_index > 0 ? proto_registrar_get_name(parent_hf_index) : "unknown";
 	const char *element = proto_registrar_get_name(hf_index);
 	char *origin = wmem_strdup_printf(actx->pinfo->pool, "%s_%s", parent, element);
 
