@@ -298,7 +298,7 @@ packet_info *pinfo, proto_tree *tree, uint8_t *pLength)
     uint16_t u16MrpEd1ManufacturerData;
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_ed1_manufacturer_data,
         &u16MrpEd1ManufacturerData);
-    *pLength -= 2;
+    *pLength = (*pLength >= 2) ? (uint8_t)(*pLength - 2) : 0;
     return offset;
 }
 
@@ -377,14 +377,14 @@ dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
 
     /* OUI (organizational unique id) */
     offset = dissect_pn_oid(tvb, offset, pinfo,tree, hf_pn_mrp_oui, &oui);
-    length -= 3;
+    length = (length >= 3) ? (uint8_t)(length - 3) : 0;
 
     switch (oui)
     {
     case OUI_SIEMENS:
         proto_item_append_text(item, "(SIEMENS)");
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_mrp_ed1type, &u8MrpEd1Type);
-        length -= 1;
+        length = (length >= 1) ? (uint8_t)(length - 1) : 0;
         switch (u8MrpEd1Type)
         {
         case 0x00:
@@ -442,7 +442,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
     new_tvb = tvb_new_subset_remaining(tvb, offset);
     offset = 0;
 
-    for(i=0; tvb_reported_length_remaining(tvb, offset) > 0; i++) {
+    for(i=0; tvb_reported_length_remaining(new_tvb, offset) > 0; i++) {
 
         sub_item = proto_tree_add_item(tree, hf_pn_mrp_type, new_tvb, offset, 1, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_mrp_type);
@@ -484,7 +484,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             offset = dissect_PNMRP_Option(new_tvb, offset, pinfo, sub_tree, sub_item, length);
             break;
         default:
-            offset = dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, length);
+            offset = dissect_pn_undecoded(new_tvb, offset, pinfo, sub_tree, length);
 
         }
     }

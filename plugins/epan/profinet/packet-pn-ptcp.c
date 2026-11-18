@@ -547,7 +547,7 @@ dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
         dissect_PNPTCP_Option(tvb, offset, pinfo, sub_tree, sub_item, length);
         break;
     default:
-        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
+        dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, length);
     }
     offset += length;
 

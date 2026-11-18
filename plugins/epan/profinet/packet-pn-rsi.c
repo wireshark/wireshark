@@ -1083,5 +1083,6 @@ init_pn_rsi(int proto)
     expert_pn_rsi = expert_register_protocol(proto_pn_rsi);
     expert_register_field_array(expert_pn_rsi, ei, array_length(ei));
 
-    register_init_routine(pn_rsi_reassemble_init);
+    /* register the reassembly table once, not on every file open */
+    pn_rsi_reassemble_init();
 }
