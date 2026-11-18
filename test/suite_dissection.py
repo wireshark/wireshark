@@ -89073,6 +89073,152 @@ class TestDissectKerberosCoverage:
             assert lines == ['4\t1,2,10,12,13,17,18,30,31,6,7,16,19', '6\t1,10,12,13,17,18,30,31,6,7,16,19']
 
 
+class TestDissectKerberosRegress:
+    '''Regressions of the Kerberos robustness fixes. kerberos_regress.pcapng.gz
+    is synthetic (built with struct; the only cryptography is libkrb5,
+    for the ticket of frame 11 and the PAC signature of its second PAC).
+    Its secrets block holds the AES256 key of the tickets of frames 11 and 12.
+    Frames: 1-2 a checksum that is not an OCTET STRING, 3 a key value that is
+    not, 4 a Bnd length of 0xfffffffc, 5 PAC_INFO_BUFFERs (a repeated type,
+    an overlap, one outside the PAC, one with a high dword in its offset,
+    then a good one), 6-10 nesting of 20 levels (PA-TGS-REQ, PA-FX-ERROR,
+    FAST armor, GSSAPI checksum delegation, AD-IF-RELEVANT), 11 an empty PAC
+    before the real one, 12-13 a ticket and, one frame later, its key,
+    14-15 a bare EncASRepPart and EncTGSRepPart, 16 HostAddresses whose
+    length does not match the type.'''
+
+    CAPTURE = 'kerberos_regress.pcapng.gz'
+
+    @staticmethod
+    def regress_run(cmd_tshark, test_env, capture, display_filter, *fields, passes=()):
+        '''(stdout lines, stderr), the exit status must be 0.'''
+        proc = subprocess.run((cmd_tshark, *passes, '-r', capture, '-Y', display_filter,
+                '-Tfields', *['-e' + f for f in fields]),
+                capture_output=True, encoding='utf-8', env=test_env)
+        assert proc.returncode == 0, proc.returncode
+        return proc.stdout.splitlines(), proc.stderr
+
+    @staticmethod
+    def regress_experts(cmd_tshark, test_env, capture, frame, passes=()):
+        lines, _ = TestDissectKerberosRegress.regress_run(cmd_tshark, test_env, capture,
+                'frame.number == %d' % frame, '_ws.expert.message', passes=passes)
+        return lines[0].split(',') if lines else []
+
+    @staticmethod
+    def regress_count(experts, text):
+        return len([e for e in experts if text in e])
+
+    def test_regress_no_assertion(self, cmd_tshark, capture_file, test_env):
+        '''Every frame dissects, tshark exits normally and nothing reports
+        a dissector bug, in one and two passes.'''
+        cap = capture_file(self.CAPTURE)
+        for passes in ((), ('-2',)):
+            lines, err = self.regress_run(cmd_tshark, test_env, cap, 'frame', 'frame.number',
+                    '_ws.col.info', passes=passes)
+            assert len(lines) == 16
+            assert 'Dissector bug' not in err
+            assert not any('Dissector bug' in l for l in lines)
+
+    def test_regress_null_tvb(self, cmd_tshark, capture_file, test_env):
+        '''A checksum or a key value that is not an OCTET STRING (frames 1-3)
+        and a Bnd length that runs off the data (frame 4).'''
+        cap = capture_file(self.CAPTURE)
+        for passes in ((), ('-2',)):
+            lines, _ = self.regress_run(cmd_tshark, test_env, cap, 'frame.number <= 4', 'frame.number',
+                    '_ws.col.protocol', passes=passes)
+            assert lines == ['1\tKRB5', '2\tKRB5', '3\tKRB5', '4\tKRB5']
+            lines, _ = self.regress_run(cmd_tshark, test_env, cap, 'kerberos.gssapi.bndlen.error',
+                    'frame.number', passes=passes)
+            assert lines == ['4']
+
+    def test_regress_pac_buffers(self, cmd_tshark, capture_file, test_env):
+        '''A repeated type, an overlap and two buffers outside the PAC are
+        skipped with an expert info each, the other buffers are dissected
+        once and the buffer after the bad ones still is.'''
+        cap = capture_file(self.CAPTURE)
+        for passes in ((), ('-2',)):
+            experts = self.regress_experts(cmd_tshark, test_env, cap, 5, passes)
+            assert self.regress_count(experts, 'Repeated PAC_INFO_BUFFER of type 12') == 1
+            assert self.regress_count(experts, 'overlaps another buffer') == 1
+            assert self.regress_count(experts, 'is outside of the PAC') == 2
+            lines, _ = self.regress_run(cmd_tshark, test_env, cap,
+                    'frame.number == 5 && kerberos.pac_buffer.invalid', 'frame.number', passes=passes)
+            assert lines == ['5']
+            lines, _ = self.regress_run(cmd_tshark, test_env, cap, 'frame.number == 5',
+                    'kerberos.pac.type', 'kerberos.pac.upn.upn_name', passes=passes)
+            assert lines == ['12,12,10,1,18,17\talice@regress.test']
+            lines, _ = self.regress_run(cmd_tshark, test_env, cap, 'kerberos.pac_attributes_info',
+                    'frame.number', passes=passes)
+            assert lines == ['5']
+
+    def test_regress_nesting(self, cmd_tshark, capture_file, test_env):
+        '''20 levels of each self-embedding construct stop at the limit
+        with one expert info per frame.'''
+        cap = capture_file(self.CAPTURE)
+        for passes in ((), ('-2',)):
+            lines, _ = self.regress_run(cmd_tshark, test_env, cap, 'kerberos.nesting_too_deep',
+                    'frame.number', passes=passes)
+            assert lines == ['6', '7', '8', '9', '10']
+            for frame in range(6, 11):
+                experts = self.regress_experts(cmd_tshark, test_env, cap, frame, passes)
+                assert self.regress_count(experts, 'nested too deeply') == 1, frame
+
+    def test_regress_bare_enc_kdc_rep_part(self, cmd_tshark, capture_file, test_env):
+        '''A bare EncASRepPart and EncTGSRepPart no longer look up an unregistered
+        field name; the nonce is dissected.'''
+        cap = capture_file(self.CAPTURE)
+        for passes in ((), ('-2',)):
+            lines, err = self.regress_run(cmd_tshark, test_env, cap,
+                    'frame.number == 14 || frame.number == 15', 'frame.number', 'kerberos.nonce',
+                    '_ws.expert.message', passes=passes)
+            assert 'Dissector bug' not in err
+            assert [l.split('\t')[:2] for l in lines] == [['14', '1'], ['15', '1']]
+            assert not any('Dissector bug' in l for l in lines)
+
+    def test_regress_address_length(self, cmd_tshark, capture_file, test_env):
+        '''Three HostAddresses whose length does not fit the type warn and are
+        not decoded; the good address after them is.'''
+        cap = capture_file(self.CAPTURE)
+        for passes in ((), ('-2',)):
+            experts = self.regress_experts(cmd_tshark, test_env, cap, 16, passes)
+            assert self.regress_count(experts, 'length does not match the address type') == 3
+            lines, _ = self.regress_run(cmd_tshark, test_env, cap, 'frame.number == 16',
+                    'kerberos.addr_ip', 'kerberos.addr_ipv6', 'kerberos.addr_nb', passes=passes)
+            assert lines == ['192.0.2.1\t\t']
+
+    def test_regress_empty_pac_ticket_checksum(self, cmd_tshark, capture_file, features, test_env):
+        '''Frame 11: an empty PAC before the real one made the ticket checksum
+        check write to address 0. It now reports a missing key. (The status
+        is checked by regress_run.)'''
+        cap = capture_file(self.CAPTURE)
+        for passes in ((), ('-2',)):
+            experts = self.regress_experts(cmd_tshark, test_env, cap, 11, passes)
+            if not features.have_kerberos:
+                assert self.regress_count(experts, 'Decrypted') == 0
+                continue
+            assert self.regress_count(experts, 'Decrypted keytype 18 usage 2 ') == 1
+            if not (features.have_mit_kerberos and sys.platform.startswith('linux')):
+                # the ticket checksum check needs MIT's decode_krb5_enc_tkt_part
+                continue
+            assert self.regress_count(experts, 'Empty PAC in the ticket checksum') == 1
+            assert self.regress_count(experts, 'Verified Server checksum 16') == 1
+
+    def test_regress_key_of_a_later_frame(self, cmd_tshark, capture_file, features, test_env):
+        '''Frame 12 is a ticket under a key that frame 13 carries in the clear.
+        It is not decrypted in the first pass and not in the second one either,
+        and the missing key is shown as "no key".'''
+        if not features.have_kerberos:
+            pytest.skip('Requires kerberos.')
+        cap = capture_file(self.CAPTURE)
+        for passes in ((), ('-2',)):
+            experts = self.regress_experts(cmd_tshark, test_env, cap, 12, passes)
+            assert self.regress_count(experts, 'Decrypted') == 0, passes
+            assert self.regress_count(experts, 'Missing keytype 18 usage 2 ') >= 1, passes
+            assert self.regress_count(experts, '(no key)') == 1, passes
+            experts = self.regress_experts(cmd_tshark, test_env, cap, 13, passes)
+            assert self.regress_count(experts, 'Learnt encTicketPart_key') >= 1, passes
+
+
 class TestDissectKerberos4:
     @staticmethod
     def _fields(cmd_tshark, capture_file, test_env, *args):
