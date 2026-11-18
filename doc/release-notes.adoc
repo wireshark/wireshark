@@ -31,443 +31,10 @@ This is the last release branch with official support for macOS 11.
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-This release fixes quite a few vulnerabiliteis.
-This is due to an internal review and a recent trend in AI-assisted vulnerability reports from outside researchers.
-See wsbuglink:21638[issue 21638] for details.
-
-* wssalink:2026-111[] {notable}
-RTSE protocol dissector crash.
-wsbuglink:21585[].
-cveidlink:2026-130469[].
-// Fixed in master: 8574da1dc1
-// Fixed in release-5.0: 8574da1dc1
-// Fixed in release-4.6: 5fb0b1190f
-// Fixed in release-4.4: 6873368472
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-416
-// Credit: Antti Levomäki & Christian Jalio, Forcepoint
-
-* wssalink:2026-112[] {notable}
-NBAP protocol dissector crash.
-wsbuglink:21630[], wsbuglink:21632[].
-cveidlink:2026-130468[].
-// Fixed in master: 6d2bd70dc4
-// Fixed in release-5.0: 6d2bd70dc4
-// Fixed in release-4.6: a7bd79de27
-// Fixed in release-4.4: cc59e57a90
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Credit: Discovered independently by Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern) and Jaish Smael
-
-* wssalink:2026-114[] {notable}
-ERF file parser crash.
-wsbuglink:21635[].
-cveidlink:2026-130466[].
-// Fixed in master: bec0686a0e
-// Fixed in release-5.0: bec0686a0e
-// Fixed in release-4.6: 708ca796f6
-// Fixed in release-4.4: 75021b2094
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-125
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-115[] {notable}
-Ascend file parser large loop.
-// (no issue link)
-cveidlink:2026-130465[].
-// Fixed in master: 08ed4cf790
-// Fixed in release-5.0: 08ed4cf790
-// Fixed in release-4.6: 9cead26816
-// Fixed in release-4.4: ebc86cf10f
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-407
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-116[] {notable}
-MsgPack and NNTP protocol dissector crashes.
-wsbuglink:21746[].
-cveidlink:2026-130464[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-126
-// Credit: <none, discovered internally>
-
-* wssalink:2026-117[] {notable}
-Android Logcat file parser crash.
-wsbuglink:21639[].
-cveidlink:2026-130463[].
-// Fixed in master: 4c0455a50f
-// Fixed in release-5.0: 4c0455a50f
-// Fixed in release-4.6: acf9b4761e
-// Fixed in release-4.4: 8c18d52e03
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-456
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-118[] {notable}
-Multiple protocol dissector and file parser hangs.
-wsbuglink:21747[].
-cveidlink:2026-130462[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-407
-// Credit: <none, discovered internally>
-
-* wssalink:2026-119[] {notable}
-IEEE 1609.2 protocol dissector crash.
-wsbuglink:21640[].
-cveidlink:2026-130461[].
-// Fixed in master: e13e9f9046
-// Fixed in release-5.0: e13e9f9046
-// Fixed in release-4.6: 23d90044a3
-// Fixed in release-4.4: 2e36691493
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-120[] {notable}
-Multiple protocol dissector crashes.
-wsbuglink:21749[].
-cveidlink:2026-130460[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// Credit: <none, discovered internally>
-
-* wssalink:2026-121[] {notable}
-Tektronix K12xx file parser large loop.
-// (no issue link)
-cveidlink:2026-130459[].
-// Fixed in master: 78ead179aa
-// Fixed in release-5.0: 78ead179aa
-// Fixed in release-4.6: f16938bc4b
-// Fixed in release-4.4: 07260ac4a2
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-407
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-122[] {notable}
-IrDA protocol dissector crash.
-wsbuglink:21658[].
-cveidlink:2026-130458[].
-// Fixed in master: 729dfb0048
-// Fixed in release-5.0: c1dfafd49a
-// Fixed in release-4.6: 1a7cf02c2f
-// Fixed in release-4.4: 0900e5ed03
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// Credit: Secbuddy, Tencent Keen Security Lab
-
-* wssalink:2026-123[] {notable}
-Matter protocol dissector crash.
-wsbuglink:21675[].
-cveidlink:2026-130457[].
-// Fixed in master: 390f3482d1
-// Fixed in release-5.0: a967df5191
-// Fixed in release-4.6: bff839598e
-// Fixed in release-4.4: ​​19f2c90064
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-674
-// Credit: Alex Williams from Pellera Technologies
-
-* wssalink:2026-124[] {notable}
-ERF file parser crash.
-wsbuglink:21682[].
-cveidlink:2026-130456[].
-// Fixed in master: 055f2a8f5f
-// Fixed in release-5.0: 349d413fc9
-// Fixed in release-4.6: 671072c8aa
-// Fixed in release-4.4: 32cac07a8d
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-125
-// Credit: Claude and Ada Logics
-
-* wssalink:2026-125[] {notable}
-Kafka protocol dissector infinite loop.
-wsbuglink:21684[].
-cveidlink:2026-130455[].
-// Fixed in master: e5d6aeb719
-// Fixed in release-5.0: 4529d782ac
-// Fixed in release-4.6: 84c148e797
-// Fixed in release-4.4: 6702678ce6
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-190
-// Credit: Claude and Ada Logics
-
-* wssalink:2026-126[] {notable}
-IEEE 1905 protocol dissector crash.
-wsbuglink:21683[].
-cveidlink:2026-130454[].
-// Fixed in master: e099bf71c4
-// Fixed in release-5.0: 7b2e97964b
-// Fixed in release-4.6: a3a7cd3054
-// Fixed in release-4.4: c10ced89a8
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Credit: Claude and Ada Logics
-
-* wssalink:2026-127[] {notable}
-OpenWire protocol dissector crash.
-wsbuglink:21676[].
-cveidlink:2026-130453[].
-// Fixed in master: 3823253aaa
-// Fixed in release-5.0: 06456f5ef2
-// Fixed in release-4.6: ed78238844
-// Fixed in release-4.4: 954af87215
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-674
-// Credit: Alex Williams from Pellera Technologies
-
-* wssalink:2026-129[] {notable}
-Multiple protocol dissector infinite loops.
-wsbuglink:21752[].
-cveidlink:2026-130451[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-835
-// Credit: <none, discovered internally>
-
-* wssalink:2026-130[] {notable}
-Multiple protocol dissector crashes.
-wsbuglink:21753[].
-cveidlink:2026-130450[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-1325
-// Credit: <none, discovered internally>
-
-* wssalink:2026-131[] {notable}
-TLS protocol dissector memory leak.
-wsbuglink:21693[].
-cveidlink:2026-130449[].
-// Fixed in master: eb6fdfd825
-// Fixed in release-5.0: 6f87657b6a
-// Fixed in release-4.6: d20ccf390e
-// Fixed in release-4.4: 0af2d309ff
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-190
-// Credit: Itay Finci from Hex-Rays
-
-* wssalink:2026-132[] {notable}
-Exported PDU protocol dissector crash.
-wsbuglink:21695[].
-cveidlink:2026-130448[].
-// Fixed in master: 656881e3e0
-// Fixed in release-5.0: f508db4c81
-// Fixed in release-4.6: 2df7565e52
-// Fixed in release-4.4: f740fe895a
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// Credit: 5un9hun
-
-* wssalink:2026-133[] {notable}
-Exported PDU protocol dissector crash.
-wsbuglink:21702[].
-cveidlink:2026-130447[].
-// Fixed in master: 576969db4d
-// Fixed in release-5.0: ed9023e320
-// Fixed in release-4.6: 36ff0cebd9
-// Fixed in release-4.4: 4e702cc7ed
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// Credit: Doha Nam
-
-* wssalink:2026-134[] {notable}
-ACN protocol dissector crash.
-wsbuglink:21754[].
-cveidlink:2026-130446[].
-// Fixed in master: 7a8aafe417
-// Fixed in release-5.0: 0e3d518331
-// Fixed in release-4.6: daf4910f29
-// Fixed in release-4.4: 2d8230ff69
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-120
-// Credit: <none, discovered internally>
-
-* wssalink:2026-135[] {notable}
-Multiple protocol dissector crashes and infinite loops, and memory leaks.
-wsbuglink:21755[].
-cveidlink:2026-130445[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-190
-// Credit: <none, discovered internally>
-
-* wssalink:2026-136[] {notable}
-Multiple protocol dissector crashes.
-wsbuglink:21757[].
-cveidlink:2026-130442[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Credit: <none, discovered internally>
-
-* wssalink:2026-137[] {notable}
-Multiple protocol dissector crashes.
-wsbuglink:21758[].
-cveidlink:2026-130443[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-416
-// Credit: <none, discovered internally>
-
-* wssalink:2026-138[] {notable}
-Multiple protocol dissector crashes.
-wsbuglink:21759[].
-cveidlink:2026-130440[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-125
-// Credit: <none, discovered internally>
-
-* wssalink:2026-139[] {notable}
-Multiple protocol dissector crashes.
-wsbuglink:21760[].
-cveidlink:2026-130439[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-674
-// Credit: <none, discovered internally>
-
-* wssalink:2026-140[] {notable}
-Dissection engine crash.
-wsbuglink:21726[].
-cveidlink:2026-130441[].
-// Fixed in master: 6ffc6fdd47
-// Fixed in release-5.0: ​​2ad0552516
-// Fixed in release-4.6: 8294f62e4a
-// Fixed in release-4.4: 7a58ef9609
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-121
-// Credit: Khaled Suliman of AISLE Research
-
-* wssalink:2026-141[] {notable}
-Multiple protocol dissector crashes.
-wsbuglink:21762[].
-cveidlink:2026-130438[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-843
-// Credit: <none, discovered internally>
-
-* wssalink:2026-142[] {notable}
-PROFINET protocol dissector crash.
-wsbuglink:21745[].
-cveidlink:2026-130444[].
-// Fixed in master: a0ab51c632
-// Fixed in release-5.0: 7830b76f98
-// Fixed in release-4.6: aff82af0ba
-// Fixed in release-4.4: cb99473337
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-843
-// Credit: Tomer Fichman
-
-* wssalink:2026-143[] {notable}
-Multiple protocol dissector crashes.
-wsbuglink:21763[].
-cveidlink:2026-130437[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-369
-// Credit: <none, discovered internally>
-
-* wssalink:2026-144[] {notable}
-Multiple protocol dissector memory leaks.
-wsbuglink:21764[].
-cveidlink:2026-130436[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-789, CWE-409
-// Credit: <none, discovered internally>
-
-* wssalink:2026-146[] {notable}
-Protocol dissector crashes.
-wsbuglink:21768[].
-cveidlink:2026-130434[].
-// Fixed in master: xxx
-// Fixed in release-5.0: xxx
-// Fixed in release-4.6: xxx
-// Fixed in release-4.4: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-789, CWE-409
-// Credit: <none, discovered internally>
-
-* wssalink:2026-147[] {notable}
-SCTP protocol dissector heap disclosure.
-wsbuglink:21712[].
-cveidlink:2026-xxx[].
-// Fixed in master: 6a560feb09
-// Fixed in release-5.0: f699131b44
-// Fixed in release-4.6: 05336bbe42
-// Fixed in release-4.4: d2f322d11f
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-456
-// Credit: Khaled Suliman of AISLE Research
-
-* wssalink:2026-148[] {notable}
-iLBC audio codec crash.
-wsbuglink:21779[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 24e3d327e0
-// Fixed in release-5.0: e7e42e7961
-// Fixed in release-4.6: c252de2bc4
-// Fixed in release-4.4: 5364272e1b
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-125
-// Credit: YoungJin
-
-* wssalink:2026-149[] {notable}
-AMR audio codec crash.
-wsbuglink:21772[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 8274108df1
-// Fixed in release-5.0: 0ec21de81f
-// Fixed in release-4.6: 9d1079775c
-// Fixed in release-4.4: d654a97c81
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-125
-// Credit: Simon Huang
+// This release fixes quite a few vulnerabiliteis.
+// This is due to an internal review and a recent trend in AI-assisted vulnerability reports from outside researchers.
 
 // * wssalink:2026-150[] {notable}
 // Foo protocol dissector {crash,infinite loop,memory leak}.
@@ -480,21 +47,12 @@ wsbuglink:21772[].
 // CWE-???
 // Credit:
 
-The Windows and macOS installers now ship with brotli 1.2.1, which fixes https://www.cve.org/CVERecord?id=CVE-2026-111497[CVE-2026-111497].
-
 The following bugs have been fixed:
 
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one. {notable}
-
-* ZDI-CAN-32851: Wireshark LoRaWAN Decryption Numeric Truncation Error Remote Code Execution Vulnerability. wsbuglink:21520[].
-* Endpoint map now requires API key. wsbuglink:21578[].
-* NRPPA: Id-TRP-MeasurementReportList (43) Open Type value not dissect although IE is identified. wsbuglink:21615[].
-* E2AP: Assignment used where equality comparison meant. wsbuglink:21646[].
-* Wiretap Aethra reader stores skipped records in packet buffer on first pass. wsbuglink:21654[].
-* Float field label appends a unit past a 240-byte stack buffer overflow. wsbuglink:21726[].
 
 // == Known Bugs
 
@@ -515,7 +73,7 @@ There are no new protocols in this release.
 
 Too many protocols have been updated to list here.
 // Add one protocol per line between the -- delimiters.
-// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.18.. | rg packet- | sort -u)
+// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.20.. | rg packet- | sort -u)
 // [commaize]
 // --
 // --
@@ -544,6 +102,194 @@ There is no updated file format support in this release.
 // === Major API Changes
 
 == Prior Versions
+
+Wireshark 4.4.20 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.4.20.html[release notes]
+for details:
+
+* wssalink:2026-111[] {notable}
+RTSE protocol dissector crash.
+wsbuglink:21585[].
+cveidlink:2026-130469[].
+
+* wssalink:2026-112[] {notable}
+NBAP protocol dissector crash.
+wsbuglink:21630[], wsbuglink:21632[].
+cveidlink:2026-130468[].
+
+* wssalink:2026-114[] {notable}
+ERF file parser crash.
+wsbuglink:21635[].
+cveidlink:2026-130466[].
+
+* wssalink:2026-115[] {notable}
+Ascend file parser large loop.
+cveidlink:2026-130465[].
+
+* wssalink:2026-116[] {notable}
+MsgPack and NNTP protocol dissector crashes.
+wsbuglink:21746[].
+cveidlink:2026-130464[].
+
+* wssalink:2026-117[] {notable}
+Android Logcat file parser crash.
+wsbuglink:21639[].
+cveidlink:2026-130463[].
+
+* wssalink:2026-118[] {notable}
+Multiple protocol dissector and file parser hangs.
+wsbuglink:21747[].
+cveidlink:2026-130462[].
+
+* wssalink:2026-119[] {notable}
+IEEE 1609.2 protocol dissector crash.
+wsbuglink:21640[].
+cveidlink:2026-130461[].
+
+* wssalink:2026-120[] {notable}
+Multiple protocol dissector crashes.
+wsbuglink:21749[].
+cveidlink:2026-130460[].
+
+* wssalink:2026-121[] {notable}
+Tektronix K12xx file parser large loop.
+cveidlink:2026-130459[].
+
+* wssalink:2026-122[] {notable}
+IrDA protocol dissector crash.
+wsbuglink:21658[].
+cveidlink:2026-130458[].
+
+* wssalink:2026-123[] {notable}
+Matter protocol dissector crash.
+wsbuglink:21675[].
+cveidlink:2026-130457[].
+
+* wssalink:2026-124[] {notable}
+ERF file parser crash.
+wsbuglink:21682[].
+cveidlink:2026-130456[].
+
+* wssalink:2026-125[] {notable}
+Kafka protocol dissector infinite loop.
+wsbuglink:21684[].
+cveidlink:2026-130455[].
+
+* wssalink:2026-126[] {notable}
+IEEE 1905 protocol dissector crash.
+wsbuglink:21683[].
+cveidlink:2026-130454[].
+
+* wssalink:2026-127[] {notable}
+OpenWire protocol dissector crash.
+wsbuglink:21676[].
+cveidlink:2026-130453[].
+
+* wssalink:2026-129[] {notable}
+Multiple protocol dissector infinite loops.
+wsbuglink:21752[].
+cveidlink:2026-130451[].
+
+* wssalink:2026-130[] {notable}
+Multiple protocol dissector crashes.
+wsbuglink:21753[].
+cveidlink:2026-130450[].
+
+* wssalink:2026-131[] {notable}
+TLS protocol dissector memory leak.
+wsbuglink:21693[].
+cveidlink:2026-130449[].
+
+* wssalink:2026-132[] {notable}
+Exported PDU protocol dissector crash.
+wsbuglink:21695[].
+cveidlink:2026-130448[].
+
+* wssalink:2026-133[] {notable}
+Exported PDU protocol dissector crash.
+wsbuglink:21702[].
+cveidlink:2026-130447[].
+
+* wssalink:2026-134[] {notable}
+ACN protocol dissector crash.
+wsbuglink:21754[].
+cveidlink:2026-130446[].
+
+* wssalink:2026-135[] {notable}
+Multiple protocol dissector crashes and infinite loops, and memory leaks.
+wsbuglink:21755[].
+cveidlink:2026-130445[].
+
+* wssalink:2026-136[] {notable}
+Multiple protocol dissector crashes.
+wsbuglink:21757[].
+cveidlink:2026-130442[].
+
+* wssalink:2026-137[] {notable}
+Multiple protocol dissector crashes.
+wsbuglink:21758[].
+cveidlink:2026-130443[].
+
+* wssalink:2026-138[] {notable}
+Multiple protocol dissector crashes.
+wsbuglink:21759[].
+cveidlink:2026-130440[].
+
+* wssalink:2026-139[] {notable}
+Multiple protocol dissector crashes.
+wsbuglink:21760[].
+cveidlink:2026-130439[].
+
+* wssalink:2026-140[] {notable}
+Dissection engine crash.
+wsbuglink:21726[].
+cveidlink:2026-130441[].
+
+* wssalink:2026-141[] {notable}
+Multiple protocol dissector crashes.
+wsbuglink:21762[].
+cveidlink:2026-130438[].
+
+* wssalink:2026-142[] {notable}
+PROFINET protocol dissector crash.
+wsbuglink:21745[].
+cveidlink:2026-130444[].
+
+* wssalink:2026-143[] {notable}
+Multiple protocol dissector crashes.
+wsbuglink:21763[].
+cveidlink:2026-130437[].
+
+* wssalink:2026-144[] {notable}
+Multiple protocol dissector memory leaks.
+wsbuglink:21764[].
+cveidlink:2026-130436[].
+
+* wssalink:2026-146[] {notable}
+Protocol dissector crashes.
+wsbuglink:21768[].
+cveidlink:2026-130434[].
+
+* wssalink:2026-147[] {notable}
+SCTP protocol dissector heap disclosure.
+wsbuglink:21712[].
+cveidlink:2026-xxx[].
+
+* wssalink:2026-148[] {notable}
+iLBC audio codec crash.
+wsbuglink:21779[].
+
+* wssalink:2026-149[] {notable}
+AMR audio codec crash.
+wsbuglink:21772[].
+
+* ZDI-CAN-32851: Wireshark LoRaWAN Decryption Numeric Truncation Error Remote Code Execution Vulnerability. wsbuglink:21520[].
+* Endpoint map now requires API key. wsbuglink:21578[].
+* NRPPA: Id-TRP-MeasurementReportList (43) Open Type value not dissect although IE is identified. wsbuglink:21615[].
+* E2AP: Assignment used where equality comparison meant. wsbuglink:21646[].
+* Wiretap Aethra reader stores skipped records in packet buffer on first pass. wsbuglink:21654[].
+* Float field label appends a unit past a 240-byte stack buffer overflow. wsbuglink:21726[].
 
 Wireshark 4.4.19 included the following changes.
 See the
