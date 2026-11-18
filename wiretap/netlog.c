@@ -33,6 +33,14 @@
 /* This is to avoid having large files overload the JSON parser. Adjust as appropriate. */
 #define MAX_FILE_SIZE (1024*1024*1024)
 
+/*
+ * How much of the start of the file we read at a time, and at most, to
+ * find and check the "constants" object (typically about 50 KiB) and the
+ * start of the "events" array that follows it.
+ */
+#define NETLOG_HEADER_CHUNK_SIZE (64 * 1024)
+#define NETLOG_MAX_HEADER_SIZE   (1024 * 1024)
+
 #define DECRYPTED_TRAFFIC_PORT 44380
 #define CLIENT_SEQ_START 10000
 #define SERVER_SEQ_START 20000
@@ -173,19 +181,15 @@ static bool parse_address_port(const char* address_port, IP_Port* dest)
 }
 
 /**
- * Parses all of the significant log event constants from JSON data and stores them in `out`
+ * Parses all of the significant log event constants from the JSON
+ * "constants" object and stores them in `out`
  */
-static bool parse_log_event_constants(char *filebuf, jsmntok_t *root_json_token, NetLogEventConstants *out)
+static bool parse_log_event_constants(char *filebuf, jsmntok_t *json_constants, NetLogEventConstants *out)
 {
-    if (!filebuf || !root_json_token || !out) {
+    if (!filebuf || !json_constants || !out) {
         return false;
     }
 
-    jsmntok_t* json_constants = json_get_object(filebuf, root_json_token, "constants");
-    if (json_constants == NULL){
-        ws_debug("Failed to parse the JSON constants");
-        return false;
-    }
     jsmntok_t* json_logevent_constants = json_get_object(filebuf, json_constants, "logEventTypes");
     if (json_logevent_constants == NULL){
         ws_debug("Failed to parse the JSON logEventTypes");
@@ -699,110 +703,239 @@ static bool parse_json_events(char* filebuf, const NetLogEventConstants netlog_e
     return true;
 }
 
+typedef enum {
+    NETLOG_HEADER_OK,
+    NETLOG_HEADER_BAD,
+    NETLOG_HEADER_INCOMPLETE
+} netlog_header_result;
+
+/* Is tok the string str? */
+static bool
+netlog_token_is(const char *buf, const jsmntok_t *tok, const char *str)
+{
+    size_t str_len = strlen(str);
+
+    return tok->type == JSMN_STRING &&
+        (size_t)(tok->end - tok->start) == str_len &&
+        memcmp(buf + tok->start, str, str_len) == 0;
+}
+
+/*
+ * Check the tokens the parser has produced so far from the start of a
+ * NetLog file, in buf: a JSON object whose first member is the
+ * "constants" object, from which we get the constants we need, followed
+ * by the "events" array, with at least one member (an object). That is,
+ * {"constants": {...}, "events": [{
+ *
+ * num_tokens is the number of tokens produced; the last object or array
+ * among them may not be closed yet (its end is -1), but strings and
+ * primitives are only produced once complete.
+ */
+static netlog_header_result
+netlog_check_header_tokens(char *buf, jsmntok_t *tokens, unsigned num_tokens,
+                           NetLogEventConstants *out)
+{
+    if (num_tokens < 1) {
+        return NETLOG_HEADER_INCOMPLETE;
+    }
+    if (tokens[0].type != JSMN_OBJECT) {
+        return NETLOG_HEADER_BAD;
+    }
+    if (num_tokens < 2) {
+        return NETLOG_HEADER_INCOMPLETE;
+    }
+    if (!netlog_token_is(buf, &tokens[1], "constants")) {
+        return NETLOG_HEADER_BAD;
+    }
+    if (num_tokens < 3) {
+        return NETLOG_HEADER_INCOMPLETE;
+    }
+    if (tokens[2].type != JSMN_OBJECT) {
+        return NETLOG_HEADER_BAD;
+    }
+    if (tokens[2].end == -1) {
+        /* The "constants" object isn't closed yet. */
+        return NETLOG_HEADER_INCOMPLETE;
+    }
+
+    /* The "constants" object is complete, so we can skip over it. */
+    unsigned events = (unsigned)(json_get_next_object(&tokens[2]) - tokens);
+    if (num_tokens <= events) {
+        return NETLOG_HEADER_INCOMPLETE;
+    }
+    if (tokens[events].parent != 0 ||
+        !netlog_token_is(buf, &tokens[events], "events")) {
+        return NETLOG_HEADER_BAD;
+    }
+    if (num_tokens <= events + 1) {
+        return NETLOG_HEADER_INCOMPLETE;
+    }
+    if (tokens[events + 1].type != JSMN_ARRAY) {
+        return NETLOG_HEADER_BAD;
+    }
+    if (num_tokens <= events + 2) {
+        return NETLOG_HEADER_INCOMPLETE;
+    }
+    if (tokens[events + 2].type != JSMN_OBJECT ||
+        tokens[events + 2].parent != (int)(events + 1)) {
+        /* The array is empty, or its first member isn't an object. */
+        return NETLOG_HEADER_BAD;
+    }
+
+    /* This modifies buf (it NUL-terminates primitives), so do it last. */
+    if (!parse_log_event_constants(buf, &tokens[2], out)) {
+        return NETLOG_HEADER_BAD;
+    }
+    return NETLOG_HEADER_OK;
+}
+
 /**
  * Parses the entire NetLog JSON file from `fh` and stores the packets in json_packets_ht.
  * Returns WTAP_OPEN_MINE on success, WTAP_OPEN_NOT_MINE if it isn't a NetLog
  * file, and WTAP_OPEN_ERROR on a read error.
+ *
+ * First check the start of the file, without reading all of a perhaps large
+ * file that isn't ours. Chrome writes the "constants" object first, then
+ * the "events" array, and then perhaps "polledData", so we depend on that
+ * order; something that reads and rewrites the file could change it, but we
+ * don't support that.
+ *
+ * Parse the file incrementally as we read it, with one parser: the parser
+ * can be continued after it runs out of tokens (JSMN_ERROR_NOMEM) once we
+ * give it more, and after it runs out of data (JSMN_ERROR_PART, or a count
+ * if the objects and arrays produced so far happen to be closed) once we
+ * read more. Start with only enough tokens to check the beginning of the
+ * file, so that JSON that doesn't start with the "constants" object is
+ * rejected right away, and stop reading as soon as what we've read isn't
+ * valid JSON.
  */
 static wtap_open_return_val netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_info, GHashTable *json_packets_ht)
 {
-    int64_t file_size;
-
-    if ((file_size = wtap_file_size(wth, err)) == -1)
-        return WTAP_OPEN_ERROR;
-
-    if (file_size > MAX_FILE_SIZE) {
-        /* Avoid allocating space for an immensely-large file. */
-        return WTAP_OPEN_NOT_MINE;
+    NetLogEventConstants netlog_event_constants = {0};
+    /*
+     * The most we read: one byte more than the largest file we accept,
+     * so that a full read means the file is too large. On a pipe, we can
+     * seek back (as we and the open routines tried after us must) only
+     * within what the I/O routines have buffered, so read no more than
+     * that, and give up on a file that fills it.
+     */
+    size_t max_size = (size_t)MAX_FILE_SIZE + 1;
+    if (wth->ispipe) {
+        max_size = MIN(max_size, file_bufsize(fh));
     }
+    size_t buf_size = MIN(NETLOG_HEADER_CHUNK_SIZE, max_size);
+    char *filebuf = (char *)g_malloc(buf_size);
+    size_t buf_len = 0;
+    unsigned max_tokens = 3;
+    jsmntok_t *json_tokens = g_new(jsmntok_t, max_tokens);
+    jsmn_parser parser;
+    netlog_header_result result;
+    bool header_ok = false;
+    bool size_checked = false;
+    int r;
+    wtap_open_return_val ret = WTAP_OPEN_NOT_MINE;
 
-    uint8_t* filebuf = (uint8_t*)g_malloc(file_size);
-    if (!filebuf)
-        return WTAP_OPEN_NOT_MINE;
-
-    /* Read the entire file into memory */
-    int bytes_read = file_read(filebuf, (unsigned int) file_size, fh);
-
-    if (bytes_read < 0) {
-        /* Read error. */
-        *err = file_error(fh, err_info);
-        g_free(filebuf);
-        return WTAP_OPEN_ERROR;
-    }
-    if (bytes_read == 0) {
-        /* empty file, not *anybody's* */
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
-    }
-
-    /* A NetLog file is a single JSON object, with members with names
-     * "constants", "events", and possibly "polledData". Chrome writes
-     * the file such that "constants" is always the first. Check the
-     * first two tokens are an object, and a name that is one of the
-     * possible names (it SHOULD be "constants", but something might
-     * read and write the JSON and reorder the members.) */
-    int num_tokens = 2;
-    jsmntok_t* json_tokens = g_new0(jsmntok_t, num_tokens);
-    if (!json_tokens) {
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
-    }
-
-    if (json_parse_len((const char*)filebuf, bytes_read, json_tokens, num_tokens) != JSMN_ERROR_NOMEM) {
-        /* We require at least ten known constants, so if we don't get the
-         * insufficient token error, this isn't our file. */
-        g_free(json_tokens);
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
-    }
-
-    if (json_tokens[0].type != JSMN_OBJECT || json_tokens[1].type != JSMN_STRING) {
-        g_free(json_tokens);
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
-    }
-    ptrdiff_t len = json_tokens[1].end - json_tokens[1].start;
-    uint8_t *tok_start = &filebuf[json_tokens[1].start];
-    g_free(json_tokens);
-    switch (len) {
-    case 6: // strlen("events")
-        if (memcmp(tok_start, "events", len) != 0) {
-            g_free(filebuf);
-            return WTAP_OPEN_NOT_MINE;
+    jsmn_init(&parser);
+    for (;;) {
+        int nread = file_read(filebuf + buf_len, (unsigned int)(buf_size - buf_len), fh);
+        if (nread < 0) {
+            *err = file_error(fh, err_info);
+            ret = WTAP_OPEN_ERROR;
+            goto done;
         }
-        break;
-    case 9: // strlen("constants")
-        if (memcmp(tok_start, "constants", len) != 0) {
-            g_free(filebuf);
-            return WTAP_OPEN_NOT_MINE;
+        /*
+         * JSON text can't contain a NUL byte (not even in a string,
+         * where control characters must be escaped), and the parser
+         * stops at one as if it were the end of the data, so that we'd
+         * keep reading more in vain.
+         */
+        if (memchr(filebuf + buf_len, '\0', (size_t)nread) != NULL) {
+            goto done;
         }
-        break;
-    case 12: // strlen("polledEvents")
-        if (memcmp(tok_start, "polledEvents", len) != 0) {
-            g_free(filebuf);
-            return WTAP_OPEN_NOT_MINE;
+        buf_len += (size_t)nread;
+        bool at_eof = (buf_len < buf_size);
+
+        /* Parse what we've read, giving the parser more tokens as needed. */
+        for (;;) {
+            r = jsmn_parse(&parser, filebuf, buf_len, json_tokens, max_tokens);
+            if (r != JSMN_ERROR_NOMEM) {
+                break;
+            }
+            if (!header_ok) {
+                /* Check what we have before parsing any further. */
+                result = netlog_check_header_tokens(filebuf, json_tokens, parser.toknext, &netlog_event_constants);
+                if (result == NETLOG_HEADER_BAD) {
+                    goto done;
+                }
+                header_ok = (result == NETLOG_HEADER_OK);
+            }
+            /* Each token starts at a different byte, so there can't be
+             * more tokens than bytes. */
+            unsigned new_max = (unsigned)MIN((size_t)max_tokens * 2, buf_len + 1);
+            if (new_max <= max_tokens) {
+                /* Shouldn't happen. */
+                goto done;
+            }
+            max_tokens = new_max;
+            json_tokens = g_renew(jsmntok_t, json_tokens, max_tokens);
         }
-        break;
-    default:
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
+        if (r == JSMN_ERROR_INVAL) {
+            /* Not valid JSON. */
+            goto done;
+        }
+        if (!header_ok) {
+            result = netlog_check_header_tokens(filebuf, json_tokens, parser.toknext, &netlog_event_constants);
+            if (result == NETLOG_HEADER_BAD) {
+                goto done;
+            }
+            if (result == NETLOG_HEADER_INCOMPLETE &&
+                (at_eof || buf_size >= NETLOG_MAX_HEADER_SIZE)) {
+                /* The end of the file, or too long to be ours. */
+                goto done;
+            }
+            header_ok = (result == NETLOG_HEADER_OK);
+        }
+        if (at_eof) {
+            break;
+        }
+
+        /* Make room to read more. */
+        if (buf_size >= max_size) {
+            /* Too large to be ours or, on a pipe, for us to read. */
+            goto done;
+        }
+        size_t new_size = 0;
+        if (header_ok && !size_checked) {
+            /* If the file isn't compressed or a pipe, its size is that
+             * of its contents, so reject a file that's too large without
+             * reading it, and read the rest of it with one read. */
+            size_checked = true;
+            if (!wth->ispipe && !file_iscompressed(fh)) {
+                int64_t file_size = wtap_file_size(wth, err);
+                if (file_size == -1) {
+                    ret = WTAP_OPEN_ERROR;
+                    goto done;
+                }
+                if (file_size > MAX_FILE_SIZE) {
+                    goto done;
+                }
+                /* One more byte, so that a full read means it isn't the end. */
+                new_size = (size_t)file_size + 1;
+            }
+        }
+        if (new_size <= buf_size) {
+            new_size = MIN(buf_size * 2, max_size);
+            if (!header_ok) {
+                new_size = MIN(new_size, NETLOG_MAX_HEADER_SIZE);
+            }
+        }
+        buf_size = new_size;
+        filebuf = (char *)g_realloc(filebuf, buf_size);
     }
-
-    num_tokens = json_parse_len((const char*)filebuf, bytes_read, NULL, 0);
-    if (num_tokens <= 0) {
-        /* 0 tokens needed is a degenerate case, e.g., nothing but whitespace
-         * until the first NUL. Reject that too. (That shouldn't happen, since
-         * we read 2 tokens above.) */
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
-    }
-
-    json_tokens = g_new0(jsmntok_t, num_tokens);
-
-    if (json_parse_len((const char*)filebuf, bytes_read, json_tokens, num_tokens) < 0){
-        g_free(json_tokens);
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
+    if (r < 0) {
+        /* The file ends with objects or arrays not closed, or in the
+         * middle of a string or primitive. */
+        goto done;
     }
 
     /*
@@ -811,42 +944,30 @@ static wtap_open_return_val netlog_parse_entirety(wtap *wth, FILE_T fh, int *err
     */
     jsmntok_t* root_json_token = json_tokens;
 
-    NetLogEventConstants netlog_event_constants = {0};
-    if (!parse_log_event_constants((char*)filebuf, root_json_token, &netlog_event_constants)) {
-        ws_debug("Failed to parse one or more netlog event constants.");
-        g_free(json_tokens);
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
-    }
-
-    /* At this point, we have all of the constants needed within 'json_logevent_constants'
+    /* We got the constants we need when checking the start of the file.
        We can now begin parsing the events to extract the data!
     */
-    jsmntok_t* json_events = json_get_array((const char*)filebuf, root_json_token, "events");
+    jsmntok_t* json_events = json_get_array(filebuf, root_json_token, "events");
 
     if (json_events == NULL) {
         ws_debug("NetLog file lacks 'events' array");
-        g_free(json_tokens);
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
+        goto done;
     }
 
-    if (!parse_json_events((char*)filebuf, netlog_event_constants, json_events, json_packets_ht)){
-        g_free(json_tokens);
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
+    if (!parse_json_events(filebuf, netlog_event_constants, json_events, json_packets_ht)){
+        goto done;
     }
 
     if (g_hash_table_size(json_packets_ht) == 0){
         /* Might be a NetLog capture without any data. Skip it so it can be parsed by the JSON parser. */
-        g_free(json_tokens);
-        g_free(filebuf);
-        return WTAP_OPEN_NOT_MINE;
+        goto done;
     }
 
+    ret = WTAP_OPEN_MINE;
+done:
     g_free(json_tokens);
     g_free(filebuf);
-    return WTAP_OPEN_MINE;
+    return ret;
 }
 
 /* Read the next packet */
@@ -893,6 +1014,21 @@ static void netlog_close(wtap* wth) {
  */
 wtap_open_return_val netlog_open(wtap* wth, int* err, char** err_info)
 {
+    /*
+     * We have to read and parse the whole file before deciding whether
+     * it's ours, and the packets are read later by seeking back to their
+     * offsets. On a pipe, we can do that only if the whole file fits in
+     * what the I/O routines buffer, so netlog_parse_entirety() doesn't
+     * read more than that; a larger file is left to the JSON reader,
+     * which reads it as plain JSON.
+     *
+     * XXX - that means a larger NetLog file read from a pipe is silently
+     * shown as plain JSON, not dissected as NetLog as it would be if read
+     * from a file. Find a way to tell the user that (perhaps an expert
+     * info from the JSON dissector, or a way for an open routine to report
+     * that a file is probably its type but can't be read this way.)
+     */
+
     /**
      * Parsing JSON is very slow. To avoid parsing the entire
      * file multiple times, store the cached result.
