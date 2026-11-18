@@ -766,6 +766,7 @@ static expert_field ei_kerberos_decrypted_keytype;
 static expert_field ei_kerberos_learnt_keytype;
 static expert_field ei_kerberos_address;
 static expert_field ei_krb_gssapi_bndlen;
+static expert_field ei_kerberos_pac_buffer;
 static expert_field ei_krb_gssapi_dlglen;
 static expert_field ei_krb_gssapi_extlen;
 
@@ -4260,15 +4261,16 @@ dissect_kerberos_AD_TARGET_PRINCIPAL(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 				     unsigned offset _U_, asn1_ctx_t *actx _U_,
 				     proto_tree *tree _U_, int hf_index _U_)
 {
-	int tp_offset, tp_len;
-	uint16_t bc;
+	int tp_len;
 
-	bc = tvb_reported_length_remaining(tvb, offset);
-	tp_offset = offset;
-	tp_len = bc;
+	tp_len = tvb_reported_length_remaining(tvb, offset);
+	if (tp_len < 0) {
+		tp_len = 0;
+	}
 	proto_tree_add_item(tree, hf_krb_ad_target_principal, tvb,
-			    tp_offset, tp_len,
+			    offset, tp_len,
 			    ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+	offset += tp_len;
 
 	return offset;
 }
@@ -4621,6 +4623,24 @@ static int * const hf_krb_pac_upn_flags_fields[] = {
 	NULL
 };
 
+#ifdef HAVE_KERBEROS
+/*
+ * The names live as long as the key they belong to, so they are
+ * allocated on wmem_epan_scope(). Other keys may share the pointers
+ * (see save_EncAPRepPart_subkey()), so the previous value is not
+ * freed; only allocate when the name changes, as the PAC is dissected
+ * again on every pass.
+ */
+static void
+kerberos_set_pac_name(const char **dst, const char *value)
+{
+	if (*dst != NULL && strcmp(*dst, value) == 0) {
+		return;
+	}
+	*dst = wmem_strdup(wmem_epan_scope(), value);
+}
+#endif /* HAVE_KERBEROS */
+
 static unsigned
 dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx)
 {
@@ -4669,7 +4689,7 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, unsigned o
 		proto_tree_add_item_ret_uint16(tree, hf_krb_pac_upn_objectsid_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &objectsid_len);
 		offset+=2;
 		proto_tree_add_item_ret_uint16(tree, hf_krb_pac_upn_objectsid_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &objectsid_offset);
-		/* offset+=2; */
+		offset+=2;
 	}
 
 	/* upn */
@@ -4692,33 +4712,40 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, unsigned o
 #ifdef HAVE_KERBEROS
 	if (private_data->current_ticket_key != NULL) {
 		enc_key_t *ek = private_data->current_ticket_key;
+		const char *account_name;
+		const char *account_domain;
 
+		/*
+		 * Build the strings on the packet scope and copy them
+		 * to the key once.
+		 */
 		if (samaccountname_offset != 0 && samaccountname_len != 0) {
-			ek->pac_names.account_name = (char*)tvb_get_string_enc(wmem_epan_scope(),
-									tvb,
-									samaccountname_offset,
-									samaccountname_len,
-									ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			account_name = (const char *)tvb_get_string_enc(actx->pinfo->pool,
+							  tvb,
+							  samaccountname_offset,
+							  samaccountname_len,
+							  ENC_UTF_16|ENC_LITTLE_ENDIAN);
 		} else {
-			ek->pac_names.account_name = (char*)tvb_get_string_enc(wmem_epan_scope(),
-									tvb,
-									upn_offset,
-									upn_len,
-									ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			account_name = (const char *)tvb_get_string_enc(actx->pinfo->pool,
+							  tvb,
+							  upn_offset,
+							  upn_len,
+							  ENC_UTF_16|ENC_LITTLE_ENDIAN);
 		}
-		ek->pac_names.account_domain = (char*)tvb_get_string_enc(wmem_epan_scope(),
-								  tvb,
-								  dns_offset,
-								  dns_len,
-								  ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		account_domain = (const char *)tvb_get_string_enc(actx->pinfo->pool,
+						    tvb,
+						    dns_offset,
+						    dns_len,
+						    ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		kerberos_set_pac_name(&ek->pac_names.account_name, account_name);
+		kerberos_set_pac_name(&ek->pac_names.account_domain, account_domain);
 		if (sid_str != NULL) {
-			ek->pac_names.account_sid = wmem_strdup(wmem_epan_scope(),
-								sid_str);
+			kerberos_set_pac_name(&ek->pac_names.account_sid, sid_str);
 		}
 	}
 #endif /* HAVE_KERBEROS */
 
-	return dns_offset;
+	return offset;
 }
 
 static unsigned
@@ -4775,9 +4802,11 @@ dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, unsigned of
 
 		/*
 		 * netlogon_dissect_PAC_DEVICE_INFO allocated on
-		 * wmem_epan_scope() for us
+		 * the packet scope, copy it to the key
 		 */
-		ek->pac_names.device_sid = device_sid;
+		if (device_sid != NULL) {
+			kerberos_set_pac_name(&ek->pac_names.device_sid, device_sid);
+		}
 	}
 #endif /* HAVE_KERBEROS */
 
@@ -4952,12 +4981,30 @@ dissect_krb5_PAC_FULL_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, unsigned 
 	return offset;
 }
 
+/*
+ * The PAC_INFO_BUFFERs we have dissected so far. Each type may be
+ * present once and the buffers must not overlap, otherwise a PAC with
+ * many entries pointing to the same big buffer makes us dissect that
+ * buffer again and again.
+ */
+#define PAC_MAX_BUFFER_TYPE 64
+struct pac_buffers_state {
+	uint64_t seen_types;
+	unsigned num_ranges;
+	struct {
+		uint32_t start;
+		uint32_t end;
+	} ranges[PAC_MAX_BUFFER_TYPE];
+};
+
 static unsigned
-dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx)
+dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, struct pac_buffers_state *state)
 {
 	uint32_t pac_type;
 	uint32_t pac_size;
 	uint32_t pac_offset;
+	uint32_t pac_offset_high;
+	uint32_t pac_len = tvb_reported_length(tvb);
 	proto_item *it=NULL;
 	proto_tree *tr=NULL;
 	tvbuff_t *next_tvb;
@@ -4977,7 +5024,44 @@ dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, unsigned offse
 	/* offset to pac data */
 	pac_offset=tvb_get_letohl(tvb, offset);
 	proto_tree_add_uint(tr, hf_krb_w2k_pac_offset, tvb, offset, 4, pac_offset);
+	/* the offset is 64 bits, the high dword must be zero */
+	pac_offset_high=tvb_get_letohl(tvb, offset + 4);
 	offset += 8;
+
+	if (pac_offset_high != 0 || pac_offset > pac_len || pac_size > pac_len - pac_offset) {
+		expert_add_info_format(actx->pinfo, it, &ei_kerberos_pac_buffer,
+				       "PAC_INFO_BUFFER (offset %" PRIu64 " size %u) is outside of the PAC (length %u)",
+				       ((uint64_t)pac_offset_high << 32) | pac_offset,
+				       pac_size, pac_len);
+		return offset;
+	}
+
+	if (pac_type < PAC_MAX_BUFFER_TYPE) {
+		uint64_t type_bit = UINT64_C(1) << pac_type;
+		unsigned i;
+
+		if (state->seen_types & type_bit) {
+			expert_add_info_format(actx->pinfo, it, &ei_kerberos_pac_buffer,
+					       "Repeated PAC_INFO_BUFFER of type %u skipped", pac_type);
+			return offset;
+		}
+		state->seen_types |= type_bit;
+
+		if (pac_size != 0) {
+			for (i = 0; i < state->num_ranges; i++) {
+				if (pac_offset < state->ranges[i].end &&
+				    state->ranges[i].start < pac_offset + pac_size) {
+					expert_add_info_format(actx->pinfo, it, &ei_kerberos_pac_buffer,
+							       "PAC_INFO_BUFFER overlaps another buffer, skipped");
+					return offset;
+				}
+			}
+			/* At most one range per type, so this is bounded */
+			state->ranges[state->num_ranges].start = pac_offset;
+			state->ranges[state->num_ranges].end = pac_offset + pac_size;
+			state->num_ranges++;
+		}
+	}
 
 	next_tvb=tvb_new_subset_length(tvb, pac_offset, pac_size);
 	switch(pac_type){
@@ -5036,6 +5120,7 @@ dissect_krb5_AD_WIN2K_PAC(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset,
 	uint32_t entries;
 	uint32_t version;
 	uint32_t i;
+	struct pac_buffers_state *state = wmem_new0(actx->pinfo->pool, struct pac_buffers_state);
 
 #if defined(HAVE_MIT_KERBEROS) && defined(HAVE_KRB5_PAC_VERIFY)
 	verify_krb5_pac(tree, actx, tvb);
@@ -5052,7 +5137,7 @@ dissect_krb5_AD_WIN2K_PAC(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset,
 	offset += 4;
 
 	for(i=0;i<entries;i++){
-		offset=dissect_krb5_AD_WIN2K_PAC_struct(tree, tvb, offset, actx);
+		offset=dissect_krb5_AD_WIN2K_PAC_struct(tree, tvb, offset, actx, state);
 	}
 
 	return offset;
@@ -10818,6 +10903,7 @@ void proto_register_kerberos(void) {
 		{ &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decrypted keytype", EXPFILL }},
 		{ &ei_kerberos_learnt_keytype, { "kerberos.learnt_keytype", PI_SECURITY, PI_CHAT, "Learnt keytype", EXPFILL }},
 		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I don't know how to parse this type of address yet", EXPFILL }},
+		{ &ei_kerberos_pac_buffer, { "kerberos.pac_buffer.invalid", PI_MALFORMED, PI_ERROR, "Invalid PAC_INFO_BUFFER", EXPFILL }},
 		{ &ei_krb_gssapi_bndlen, { "kerberos.gssapi.bndlen.error", PI_MALFORMED, PI_ERROR, "Bnd length exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_extlen, { "kerberos.gssapi.extension.length.error", PI_MALFORMED, PI_ERROR, "Invalid GSSAPI extension length", EXPFILL }},

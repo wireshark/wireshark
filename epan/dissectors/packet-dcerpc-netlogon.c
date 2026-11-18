@@ -2456,7 +2456,7 @@ struct device_sid_callback_args {
     const char *device_sid;
 };
 
-static void device_sid_callback_fnct(packet_info *pinfo _U_,
+static void device_sid_callback_fnct(packet_info *pinfo,
                                      proto_tree *tree _U_,
                                      proto_item *item _U_,
                                      dcerpc_info *di,
@@ -2509,9 +2509,9 @@ static void device_sid_callback_fnct(packet_info *pinfo _U_,
 
     /*
      * we know we're called dissect_krb5_PAC_DEVICE_INFO
-     * so we should allocate the device_sid on wmem_epan_scope()
+     * which copies the device_sid when it needs to keep it
      */
-    args->device_sid = wmem_strdup_printf(wmem_epan_scope(),
+    args->device_sid = wmem_strdup_printf(pinfo->pool,
                                           "%*.*s-%" PRIu32,
                                           (int)len, (int)len,
                                           args->domain_sid,
