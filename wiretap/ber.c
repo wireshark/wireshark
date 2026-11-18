@@ -116,10 +116,36 @@ wtap_open_return_val ber_open(wtap *wth, int *err, char **err_info)
     if (ckd_add(&len, len, 2 + ntb + nlb)) {
       return WTAP_OPEN_NOT_MINE;
     }
-    file_size = wtap_file_size(wth, err);
+    if (!wth->ispipe && !file_iscompressed(wth->fh)) {
+      file_size = wtap_file_size(wth, err);
+      if (file_size == -1)
+        return WTAP_OPEN_ERROR;
 
-    if(len != file_size) {
-      return WTAP_OPEN_NOT_MINE; /* not ASN.1 */
+      if(len != file_size) {
+        return WTAP_OPEN_NOT_MINE; /* not ASN.1 */
+      }
+    } else {
+      /*
+       * The file size is the compressed size, or, for a pipe, unknown,
+       * so read the rest of the contents instead, which must be exactly
+       * len bytes long. We can't read a file longer than INT_MAX with
+       * wtap_full_file_read() anyway, so reject that now. On a pipe, we
+       * have to be able to seek back after reading one byte more than
+       * that, so it must be shorter than what the I/O routines buffer.
+       */
+      if (len < BER_BYTES_TO_CHECK || len > INT_MAX)
+        return WTAP_OPEN_NOT_MINE;
+      if (wth->ispipe && len >= file_bufsize(wth->fh))
+        return WTAP_OPEN_NOT_MINE;
+      if (!wtap_read_bytes(wth->fh, NULL, (unsigned)(len - BER_BYTES_TO_CHECK), err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ)
+          return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE; /* shorter than len */
+      }
+      if (wtap_read_bytes_or_eof(wth->fh, &oct, 1, err, err_info))
+        return WTAP_OPEN_NOT_MINE; /* longer than len */
+      if (*err != 0)
+        return WTAP_OPEN_ERROR;
     }
   } else {
     /* Indefinite length encoded - assume it is BER */
