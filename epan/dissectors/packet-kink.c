@@ -202,6 +202,9 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   uint8_t value_a;
   int offset=0;
 
+  /* Set by the AP-REQ or AP-REP of this message only */
+  keytype = 0;
+
   type = tvb_get_uint8(tvb,offset);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "KINK");
@@ -361,8 +364,9 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 
     krb_ap_req_length = payload_length - PAYLOAD_HEADER;
     krb_tvb=tvb_new_subset_length(tvb, offset, krb_ap_req_length);
-    keytype=kerberos_output_keytype();
     dissect_kerberos_main(krb_tvb, pinfo, payload_kink_ap_req_tree, false, NULL);
+    /* the keytype of this message, for the encrypted payload */
+    keytype=kerberos_output_keytype();
     /*offset += krb_ap_req_length;*/
   }
 
@@ -417,8 +421,9 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 
     krb_ap_rep_length = payload_length - PAYLOAD_HEADER;
     krb_tvb=tvb_new_subset_length(tvb, offset, krb_ap_rep_length);
-    keytype=kerberos_output_keytype();
     dissect_kerberos_main(krb_tvb, pinfo, payload_kink_ap_rep_tree, false, NULL);
+    /* the keytype of this message, for the encrypted payload */
+    keytype=kerberos_output_keytype();
 
     /*offset += krb_ap_rep_length;*/
   }

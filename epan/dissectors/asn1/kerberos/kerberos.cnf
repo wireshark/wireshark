@@ -579,7 +579,12 @@ EncryptionKey/keytype STRINGS = VALS(kerberos_ENCTYPE_vals)
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_kerbKeyListRep_key;
 ##ifdef HAVE_KERBEROS
-  private_data->save_encryption_key_fn = save_encryption_key;
+  if (private_data->is_enc_padata && private_data->within_decrypted_kdc_rep) {
+    private_data->save_encryption_key_fn = save_encryption_key;
+  } else {
+    /* Don't learn keys from the cleartext of a capture */
+    private_data->save_encryption_key_fn = ignore_encryption_key;
+  }
 ##endif
 %(DEFAULT_BODY)s
   private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;

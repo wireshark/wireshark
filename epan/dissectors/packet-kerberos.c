@@ -173,6 +173,8 @@ typedef struct {
 	wmem_list_t *missing_keys;
 	uint32_t within_PA_TGS_REQ;
 	uint32_t nesting;
+	bool within_decrypted_kdc_rep;
+	bool key_limit_reported;
 	struct _kerberos_PA_FX_FAST_REQUEST {
 		bool defer;
 		tvbuff_t *tvb;
@@ -769,6 +771,7 @@ static expert_field ei_kerberos_address;
 static expert_field ei_krb_gssapi_bndlen;
 static expert_field ei_kerberos_pac_buffer;
 static expert_field ei_kerberos_nesting;
+static expert_field ei_kerberos_key_limit;
 static expert_field ei_krb_gssapi_dlglen;
 static expert_field ei_krb_gssapi_extlen;
 
@@ -1389,6 +1392,16 @@ static void insert_longterm_keys_into_key_map(wmem_map_t *key_map)
 	}
 }
 
+/*
+ * Every key we learn from the capture is kept, and tried for every
+ * encrypted part that follows. Real captures have a few thousand keys
+ * at most; don't let a crafted one make that quadratic. Keys from a
+ * keytab or a key log are not counted.
+ */
+#define KERBEROS_MAX_LEARNT_KEYS 10000
+#define KERBEROS_PROTO_DATA_KEY_LIMIT 1
+static unsigned kerberos_learnt_key_count;
+
 static void
 kerberos_key_list_append(wmem_list_t *key_list, enc_key_t *new_key)
 {
@@ -1414,6 +1427,8 @@ add_encryption_key(packet_info *pinfo,
 {
 	wmem_allocator_t *key_scope = NULL;
 	enc_key_t *new_key = NULL;
+	bool keep_key = false;
+	bool key_limit = false;
 	const char *methodl = "learnt";
 	const char *methodu = "Learnt";
 	proto_item *item = NULL;
@@ -1425,13 +1440,26 @@ add_encryption_key(packet_info *pinfo,
 		methodu = "Derived";
 	}
 
-	if(pinfo->fd->visited){
-		/*
-		 * We already processed this,
-		 * we can use a shortterm scope
-		 */
-		key_scope = pinfo->pool;
-	} else {
+	if (!pinfo->fd->visited) {
+		if (kerberos_learnt_key_count < KERBEROS_MAX_LEARNT_KEYS) {
+			keep_key = true;
+			kerberos_learnt_key_count++;
+		} else {
+			key_limit = true;
+			/* Remember it for the next pass over this frame. */
+			if (p_get_proto_data(wmem_file_scope(), pinfo, proto_kerberos,
+					     KERBEROS_PROTO_DATA_KEY_LIMIT) == NULL) {
+				p_add_proto_data(wmem_file_scope(), pinfo, proto_kerberos,
+						 KERBEROS_PROTO_DATA_KEY_LIMIT,
+						 GUINT_TO_POINTER(1));
+			}
+		}
+	} else if (p_get_proto_data(wmem_file_scope(), pinfo, proto_kerberos,
+				    KERBEROS_PROTO_DATA_KEY_LIMIT) != NULL) {
+		key_limit = true;
+	}
+
+	if (keep_key) {
 		/*
 		 * As long as we have enc_key_list, we need to
 		 * use wmem_epan_scope(), when that's gone
@@ -1439,6 +1467,12 @@ add_encryption_key(packet_info *pinfo,
 		 * how long we'll need the particular key.
 		 */
 		key_scope = wmem_epan_scope();
+	} else {
+		/*
+		 * We already processed this, or we don't remember
+		 * any more keys, we can use a shortterm scope
+		 */
+		key_scope = pinfo->pool;
 	}
 
 	new_key = wmem_new0(key_scope, enc_key_t);
@@ -1454,7 +1488,7 @@ add_encryption_key(packet_info *pinfo,
 	new_key->src1 = src1;
 	new_key->src2 = src2;
 
-	if(!pinfo->fd->visited){
+	if (keep_key) {
 		/*
 		 * Only keep it if we don't processed it before.
 		 */
@@ -1471,6 +1505,10 @@ add_encryption_key(packet_info *pinfo,
 			key_to_hexstr_maxfour((const uint8_t*)keyvalue, keylength));
 	if (item != NULL && key_hidden_item != NULL) {
 		proto_tree_move_item(key_tree, key_hidden_item, item);
+	}
+	if (key_limit && !private_data->key_limit_reported) {
+		private_data->key_limit_reported = true;
+		expert_add_info(pinfo, item, &ei_kerberos_key_limit);
 	}
 	if (src1 != NULL) {
 		enc_key_t *sek = src1;
@@ -1515,6 +1553,14 @@ save_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
 			   origin,
 			   NULL,
 			   NULL);
+}
+
+static void
+ignore_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
+		      asn1_ctx_t *actx _U_, proto_tree *tree _U_,
+		      int parent_hf_index _U_,
+		      int hf_index _U_)
+{
 }
 
 static void
@@ -1897,6 +1943,16 @@ struct decrypt_krb5_with_cb_state {
 	enc_key_t *ek;
 };
 
+/*
+ * A key learnt in a later frame can't have been used in this one. Keys
+ * from a keytab or a key log have fd_num -1.
+ */
+static bool
+kerberos_key_from_later_frame(const enc_key_t *ek, const packet_info *pinfo)
+{
+	return ek->fd_num != -1 && (uint32_t)ek->fd_num > pinfo->num;
+}
+
 static void
 decrypt_krb5_with_cb_try_key(void *__key _U_, void *value, void *userdata)
 {
@@ -1915,6 +1971,13 @@ decrypt_krb5_with_cb_try_key(void *__key _U_, void *value, void *userdata)
 	if (state->ek != NULL) {
 		/*
 		 * we're done.
+		 */
+		return;
+	}
+
+	if (kerberos_key_from_later_frame(ek, state->pinfo)) {
+		/*
+		 * Don't use it in an earlier frame (on the second pass).
 		 */
 		return;
 	}
@@ -2535,6 +2598,7 @@ keytype_for_cksumtype(krb5_cksumtype checksum)
 }
 
 struct verify_krb5_pac_state {
+	const packet_info *pinfo;
 	int pacbuffer_length;
 	const uint8_t *pacbuffer;
 	krb5_pac pac;
@@ -2573,6 +2637,10 @@ verify_krb5_pac_try_server_key(void *__key _U_, void *value, void *userdata)
 		/*
 		 * we're done.
 		 */
+		return;
+	}
+
+	if (kerberos_key_from_later_frame(ek, state->pinfo)) {
 		return;
 	}
 
@@ -3129,6 +3197,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	unsigned longterm_count;
 	unsigned dsb_count;
 	struct verify_krb5_pac_state state = {
+		.pinfo = actx->pinfo,
 		.kdc_checksum = 0,
 	};
 
@@ -3898,6 +3967,7 @@ dissect_krb5_decrypt_KDC_REP_data (bool imp_tag _U_, tvbuff_t *tvb, unsigned off
 	uint8_t *plaintext = NULL;
 	int length;
 	tvbuff_t *next_tvb;
+	bool saved_within_decrypted_kdc_rep;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_captured_length_remaining(tvb, offset);
@@ -4000,7 +4070,14 @@ dissect_krb5_decrypt_KDC_REP_data (bool imp_tag _U_, tvbuff_t *tvb, unsigned off
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, child_tvb, "Krb5 KDC-REP");
 
+		/*
+		 * The encrypted padata (PA-KERB-KEY-LIST-REP) is only
+		 * trusted when it comes out of a decrypted KDC-REP.
+		 */
+		saved_within_decrypted_kdc_rep = private_data->within_decrypted_kdc_rep;
+		private_data->within_decrypted_kdc_rep = true;
 		offset=dissect_kerberos_Applications(false, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+		private_data->within_decrypted_kdc_rep = saved_within_decrypted_kdc_rep;
 	}
 	return offset;
 }
@@ -7826,7 +7903,12 @@ dissect_kerberos_PA_KERB_KEY_LIST_REP_item(bool implicit_tag _U_, tvbuff_t *tvb 
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
   private_data->save_encryption_key_parent_hf_index = hf_kerberos_kerbKeyListRep_key;
 #ifdef HAVE_KERBEROS
-  private_data->save_encryption_key_fn = save_encryption_key;
+  if (private_data->is_enc_padata && private_data->within_decrypted_kdc_rep) {
+    private_data->save_encryption_key_fn = save_encryption_key;
+  } else {
+    /* Don't learn keys from the cleartext of a capture */
+    private_data->save_encryption_key_fn = ignore_encryption_key;
+  }
 #endif
   offset = dissect_kerberos_PA_KERB_KEY_LIST_REP_Key(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -8848,6 +8930,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int krb_reclen = 0;
 
 	gbl_do_col_info=dci;
+	gbl_keytype = 0;
 
 	if (have_rm) {
 		krb_rm = tvb_get_ntohl(tvb, offset);
@@ -9342,6 +9425,8 @@ kerberos_secrets_cleanup(void)
 	enc_key_t *head;
 	enc_key_t **pp;
 	enc_key_t *ek;
+
+	kerberos_learnt_key_count = 0;
 
 	if (kerberos_dsb_keys == NULL) {
 		kerberos_dsb_decrypt = false;
@@ -10974,6 +11059,7 @@ void proto_register_kerberos(void) {
 		{ &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decrypted keytype", EXPFILL }},
 		{ &ei_kerberos_learnt_keytype, { "kerberos.learnt_keytype", PI_SECURITY, PI_CHAT, "Learnt keytype", EXPFILL }},
 		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I don't know how to parse this type of address yet", EXPFILL }},
+		{ &ei_kerberos_key_limit, { "kerberos.key_limit", PI_DECRYPTION, PI_WARN, "Too many learnt keys, not remembering this key", EXPFILL }},
 		{ &ei_kerberos_nesting, { "kerberos.nesting_too_deep", PI_MALFORMED, PI_ERROR, "Kerberos messages nested too deeply", EXPFILL }},
 		{ &ei_kerberos_pac_buffer, { "kerberos.pac_buffer.invalid", PI_MALFORMED, PI_ERROR, "Invalid PAC_INFO_BUFFER", EXPFILL }},
 		{ &ei_krb_gssapi_bndlen, { "kerberos.gssapi.bndlen.error", PI_MALFORMED, PI_ERROR, "Bnd length exceeds bytes remaining", EXPFILL }},
