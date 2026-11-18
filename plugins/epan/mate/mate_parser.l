@@ -187,7 +187,7 @@ quote				["]
 not_quoted			[^"]*
 
 include			"#include"
-filename		[-A-Za-z0-9_/.]+
+filename		[-A-Za-z0-9_/.:\\]+
 
 whitespace		[[:blank:]\r]+
 newline			\n
