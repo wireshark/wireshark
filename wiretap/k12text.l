@@ -214,7 +214,9 @@ hdlc HDLC
 %%
 <MAGIC>{start_timestamp}  { yyextra->is_k12text = true; yyterminate(); }
 
-<MAGIC>. { if (++ yyextra->junk_chars > MAX_JUNK) { yyextra->is_k12text = false;  yyterminate(); } }
+<MAGIC>(.|\n) {
+	/* Newlines are junk too, or a file of empty lines is read to its end. */
+	if (++ yyextra->junk_chars > MAX_JUNK) { yyextra->is_k12text = false;  yyterminate(); } }
 
 <NEXT_FRAME>{start_timestamp} {BEGIN(HOURS); }
 <HOURS>{oneortwodigits} { SET_HOURS(yytext); BEGIN(MINUTES); }
