@@ -409,6 +409,7 @@ static expert_field ei_kerberos_missing_keytype;
 static expert_field ei_kerberos_decrypted_keytype;
 static expert_field ei_kerberos_learnt_keytype;
 static expert_field ei_kerberos_address;
+static expert_field ei_krb_gssapi_bndlen;
 static expert_field ei_krb_gssapi_dlglen;
 static expert_field ei_krb_gssapi_extlen;
 
@@ -3815,6 +3816,11 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb)
 	offset += 4;
 
 	/* Bnd field */
+	if (len > (uint32_t)tvb_reported_length_remaining(tvb, offset)) {
+		proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_krb_gssapi_bndlen, tvb, offset,
+				"Bnd length:%u exceeds bytes remaining:%d", len, tvb_reported_length_remaining(tvb, offset));
+		return offset;
+	}
 	proto_tree_add_item(tree, hf_krb_gssapi_bnd, tvb, offset, len, ENC_NA);
 	offset += len;
 
@@ -5944,6 +5950,7 @@ void proto_register_kerberos(void) {
 		{ &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decrypted keytype", EXPFILL }},
 		{ &ei_kerberos_learnt_keytype, { "kerberos.learnt_keytype", PI_SECURITY, PI_CHAT, "Learnt keytype", EXPFILL }},
 		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I don't know how to parse this type of address yet", EXPFILL }},
+		{ &ei_krb_gssapi_bndlen, { "kerberos.gssapi.bndlen.error", PI_MALFORMED, PI_ERROR, "Bnd length exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_extlen, { "kerberos.gssapi.extension.length.error", PI_MALFORMED, PI_ERROR, "Invalid GSSAPI extension length", EXPFILL }},
 	};

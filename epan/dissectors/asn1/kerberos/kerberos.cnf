@@ -417,13 +417,15 @@ EncryptionKey/keytype STRINGS = VALS(kerberos_ENCTYPE_vals)
 %(DEFAULT_BODY)s
 
 #.FN_BODY Checksum/checksum
-  tvbuff_t *next_tvb;
+  tvbuff_t *next_tvb = NULL;
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
   switch(private_data->checksum_type){
   case KRB5_CHKSUM_GSSAPI:
     offset=dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &next_tvb);
-    dissect_krb5_rfc1964_checksum(actx, tree, next_tvb);
+    if (next_tvb != NULL) {
+      dissect_krb5_rfc1964_checksum(actx, tree, next_tvb);
+    }
     break;
   default:
     offset=dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, NULL);
@@ -444,10 +446,18 @@ EncryptionKey/keytype STRINGS = VALS(kerberos_ENCTYPE_vals)
   private_data->key.keytype = gbl_keytype;
 
 #.FN_BODY EncryptionKey/keyvalue VAL_PTR=&out_tvb
-  tvbuff_t *out_tvb;
+  tvbuff_t *out_tvb = NULL;
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
 %(DEFAULT_BODY)s
+
+  private_data->key.keylength = 0;
+  private_data->key.keyvalue = NULL;
+  private_data->key_tvb = NULL;
+  if (out_tvb == NULL) {
+    /* The element is not an OCTET STRING */
+    return offset;
+  }
 
   /* XXX - Expert info if this length > KRB_MAX_KEY_LENGTH? */
   private_data->key.keylength = tvb_reported_length(out_tvb);
@@ -460,6 +470,10 @@ EncryptionKey/keytype STRINGS = VALS(kerberos_ENCTYPE_vals)
 ##ifdef HAVE_KERBEROS
   int start_offset = offset;
 ##endif
+
+  /* Don't reuse the values of a previous EncryptionKey */
+  private_data->key = (kerberos_key_t) { .keytype = 0, };
+  private_data->key_tvb = NULL;
 
   %(DEFAULT_BODY)s
 

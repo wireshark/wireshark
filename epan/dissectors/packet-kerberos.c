@@ -765,6 +765,7 @@ static expert_field ei_kerberos_missing_keytype;
 static expert_field ei_kerberos_decrypted_keytype;
 static expert_field ei_kerberos_learnt_keytype;
 static expert_field ei_kerberos_address;
+static expert_field ei_krb_gssapi_bndlen;
 static expert_field ei_krb_gssapi_dlglen;
 static expert_field ei_krb_gssapi_extlen;
 
@@ -4288,6 +4289,11 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb)
 	offset += 4;
 
 	/* Bnd field */
+	if (len > (uint32_t)tvb_reported_length_remaining(tvb, offset)) {
+		proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_krb_gssapi_bndlen, tvb, offset,
+				"Bnd length:%u exceeds bytes remaining:%d", len, tvb_reported_length_remaining(tvb, offset));
+		return offset;
+	}
 	proto_tree_add_item(tree, hf_krb_gssapi_bnd, tvb, offset, len, ENC_NA);
 	offset += len;
 
@@ -5393,13 +5399,15 @@ dissect_kerberos_CKSUMTYPE(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
 
 static unsigned
 dissect_kerberos_T_checksum(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *next_tvb;
+  tvbuff_t *next_tvb = NULL;
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
   switch(private_data->checksum_type){
   case KRB5_CHKSUM_GSSAPI:
     offset=dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &next_tvb);
-    dissect_krb5_rfc1964_checksum(actx, tree, next_tvb);
+    if (next_tvb != NULL) {
+      dissect_krb5_rfc1964_checksum(actx, tree, next_tvb);
+    }
     break;
   default:
     offset=dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, NULL);
@@ -5478,12 +5486,20 @@ dissect_kerberos_T_keytype(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
 
 static unsigned
 dissect_kerberos_T_keyvalue(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *out_tvb;
+  tvbuff_t *out_tvb = NULL;
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &out_tvb);
 
+
+  private_data->key.keylength = 0;
+  private_data->key.keyvalue = NULL;
+  private_data->key_tvb = NULL;
+  if (out_tvb == NULL) {
+    /* The element is not an OCTET STRING */
+    return offset;
+  }
 
   /* XXX - Expert info if this length > KRB_MAX_KEY_LENGTH? */
   private_data->key.keylength = tvb_reported_length(out_tvb);
@@ -5508,6 +5524,10 @@ dissect_kerberos_EncryptionKey(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigne
 #ifdef HAVE_KERBEROS
   int start_offset = offset;
 #endif
+
+  /* Don't reuse the values of a previous EncryptionKey */
+  private_data->key = (kerberos_key_t) { .keytype = 0, };
+  private_data->key_tvb = NULL;
 
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptionKey_sequence, hf_index, ett_kerberos_EncryptionKey);
@@ -10798,6 +10818,7 @@ void proto_register_kerberos(void) {
 		{ &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decrypted keytype", EXPFILL }},
 		{ &ei_kerberos_learnt_keytype, { "kerberos.learnt_keytype", PI_SECURITY, PI_CHAT, "Learnt keytype", EXPFILL }},
 		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I don't know how to parse this type of address yet", EXPFILL }},
+		{ &ei_krb_gssapi_bndlen, { "kerberos.gssapi.bndlen.error", PI_MALFORMED, PI_ERROR, "Bnd length exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_extlen, { "kerberos.gssapi.extension.length.error", PI_MALFORMED, PI_ERROR, "Invalid GSSAPI extension length", EXPFILL }},
 	};
