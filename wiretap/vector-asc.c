@@ -38,6 +38,9 @@
 
 #define ASC_MAGIC "date"
 #define VECTOR_ASC_MAX_LINE_SIZE 512
+/* Give up if a file starts with more than this many bytes of empty lines
+ * (or NULs, which file_gets() returns as empty lines). */
+#define VECTOR_ASC_MAX_LEADING_EMPTY 65536
 /* Columns are separated by spaces or tabs; also drop the line ending */
 #define VECTOR_ASC_DELIMITERS " \t\r\n"
 
@@ -237,8 +240,11 @@ vector_asc_parse(wtap* wth, vector_asc_state_t* state, gint64* offset, int* err,
     size_t line_len = strlen(line_buffer);
 
     /* Ignore empty lines */
-    if (line_len == 0)
+    if (line_len == 0) {
+      if (state->state == Date && file_tell(wth->fh) > VECTOR_ASC_MAX_LEADING_EMPTY)
+        return WTAP_OPEN_NOT_MINE;
       continue;
+    }
 
     switch (state->state) {
       case Date:
