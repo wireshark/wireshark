@@ -284,6 +284,7 @@ def features(cmd_tshark, make_env):
         have_nghttp2='+nghttp2' in tshark_v,
         have_nghttp3='+nghttp3' in tshark_v,
         have_kerberos='+Kerberos' in tshark_v,
+        have_mit_kerberos='Kerberos (MIT)' in tshark_v,
         have_gcrypt_1_10=gcry_m and gcry_ver >= (1, 10),
         have_gnutls='+GnuTLS' in tshark_v,
         have_pkcs11='PKCS#11' in tshark_v,
