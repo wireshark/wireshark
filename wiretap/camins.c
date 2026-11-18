@@ -108,7 +108,9 @@ typedef enum {
 
 /* Maximum number of bytes to read before making a heuristic decision
  * of whether this is our file type or not. Arbitrary. */
-#define CAMINS_BYTES_TO_CHECK 0x3FFFFFFFU
+#define CAMINS_BYTES_TO_CHECK 0x40000000U
+/* Must be even and divide CAMINS_BYTES_TO_CHECK */
+#define CAMINS_CHUNK_SIZE (64 * 1024)
 
 static int camins_file_type_subtype = -1;
 
@@ -120,65 +122,74 @@ void register_camins(void);
    A file may have errors that affect the size blocks. Therefore, we
    read CAMINS_BYTES_TO_CHECK bytes and require that we have many more
    valid pairs than errors. */
-static wtap_open_return_val detect_camins_file(FILE_T fh)
+static wtap_open_return_val detect_camins_file(FILE_T fh, int *err, char **err_info)
 {
-    int      err;
-    char    *err_info;
-    uint8_t  block[2];
+    uint8_t *buf;
+    int      nread;
     uint8_t  search_block = 0;
     uint8_t  gap_count = 0;
     uint32_t valid_pairs = 0, invalid_pairs = 0;
     uint64_t read_bytes = 0;
 
-    while (wtap_read_bytes(fh, block, sizeof(block), &err, &err_info)) {
-       if (search_block != 0) {
-           /* We're searching for a matching block to complete the pair. */
+    /* Read in chunks, not one block at a time; this can read a lot. */
+    buf = (uint8_t *)g_malloc(CAMINS_CHUNK_SIZE);
+    while (read_bytes < CAMINS_BYTES_TO_CHECK &&
+           (nread = file_read(buf, CAMINS_CHUNK_SIZE, fh)) > 0) {
+        /* Any odd byte at the end of the file is ignored. */
+        for (int i = 0; i + 1 < nread; i += 2) {
+            const uint8_t *block = &buf[i];
 
-            if (block[1] == search_block) {
-                /* We found it */
-                valid_pairs++;
-                search_block = 0;
+            if (search_block != 0) {
+                /* We're searching for a matching block to complete the pair. */
+
+                if (block[1] == search_block) {
+                    /* We found it */
+                    valid_pairs++;
+                    search_block = 0;
+                }
+                else {
+                    /* We didn't find it. */
+                    gap_count++;
+                    if (gap_count > 5) {
+                        /* Give up the search, we have no pair. */
+                        invalid_pairs++;
+                        search_block = 0;
+                    }
+                }
             }
             else {
-                /* We didn't find it. */
-                gap_count++;
-                if (gap_count > 5) {
-                    /* Give up the search, we have no pair. */
-                    invalid_pairs++;
-                    search_block = 0;
+                /* We're not searching for a matching block at the moment.
+                   If we see a size read/write block of one type, the matching
+                   block is the other type and we can start searching. */
+
+                if (block[1] == TRANS_READ_SIZE_LOW) {
+                    search_block = TRANS_READ_SIZE_HIGH;
+                    gap_count = 0;
+                }
+                else if (block[1] == TRANS_READ_SIZE_HIGH) {
+                    search_block = TRANS_READ_SIZE_LOW;
+                    gap_count = 0;
+                }
+                else if (block[1] == TRANS_WRITE_SIZE_LOW) {
+                    search_block = TRANS_WRITE_SIZE_HIGH;
+                    gap_count = 0;
+                }
+                else if (block[1] == TRANS_WRITE_SIZE_HIGH) {
+                    search_block = TRANS_WRITE_SIZE_LOW;
+                    gap_count = 0;
                 }
             }
         }
-        else {
-            /* We're not searching for a matching block at the moment.
-               If we see a size read/write block of one type, the matching
-               block is the other type and we can start searching. */
-
-            if (block[1] == TRANS_READ_SIZE_LOW) {
-                search_block = TRANS_READ_SIZE_HIGH;
-                gap_count = 0;
-            }
-            else if (block[1] == TRANS_READ_SIZE_HIGH) {
-                search_block = TRANS_READ_SIZE_LOW;
-                gap_count = 0;
-            }
-            else if (block[1] == TRANS_WRITE_SIZE_LOW) {
-                search_block = TRANS_WRITE_SIZE_HIGH;
-                gap_count = 0;
-            }
-            else if (block[1] == TRANS_WRITE_SIZE_HIGH) {
-                search_block = TRANS_WRITE_SIZE_LOW;
-                gap_count = 0;
-            }
-        }
-        read_bytes += sizeof(block);
-        if (read_bytes > CAMINS_BYTES_TO_CHECK) {
-            err = 0;
+        read_bytes += (unsigned)nread;
+        if (nread < CAMINS_CHUNK_SIZE) {
+            /* End of file (or an error, checked below) */
             break;
         }
     }
+    g_free(buf);
 
-    if ((err != 0) && (err != WTAP_ERR_SHORT_READ)) {
+    *err = file_error(fh, err_info);
+    if (*err != 0) {
         /* A real read error. */
         return WTAP_OPEN_ERROR;
     }
@@ -421,11 +432,11 @@ camins_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 }
 
 
-wtap_open_return_val camins_open(wtap *wth, int *err, char **err_info _U_)
+wtap_open_return_val camins_open(wtap *wth, int *err, char **err_info)
 {
     wtap_open_return_val status;
 
-    status = detect_camins_file(wth->fh);
+    status = detect_camins_file(wth->fh, err, err_info);
     if (status != WTAP_OPEN_MINE) {
         /* A read error or a failed heuristic. */
         return status;
