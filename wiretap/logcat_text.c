@@ -288,10 +288,17 @@ wtap_open_return_val logcat_text_open(wtap *wth, int *err, char **err_info) {
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
 
+    /*
+     * Skip short and special lines, but give up after 64 KiB of them
+     * (NULs are read as empty lines, too), so that a large file of
+     * them isn't read to its end. A skipped line can't match any of
+     * the formats below.
+     */
     cbuff = (char*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
     do {
         ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE_STANDARD, wth->fh);
     } while (NULL != ret && !file_eof(wth->fh)
+            && file_tell(wth->fh) <= 65536
             && ((3 > strlen(cbuff))
                     || g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
                             G_REGEX_MATCH_NOTEMPTY)));
