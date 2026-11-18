@@ -1849,7 +1849,7 @@ void proto_register_idn(void) {
 			NULL, HFILL }
 		},
 		{ &hf_idn_uid_category,
-			{ "Caregory", "idn.unit_id_category",
+			{ "Category", "idn.unit_id_category",
 			FT_UINT8, BASE_HEX,
 			NULL, 0x0,
 			NULL, HFILL }
