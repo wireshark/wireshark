@@ -546,17 +546,6 @@ def tshark_fields(cmd_tshark, capture_file, test_env):
 
 
 @pytest.fixture
-def assert_frame_matches(tshark_fields):
-    '''Asserts that a display filter expression matches exactly the given
-    frame of a capture.'''
-    def check(filename, frame, expr):
-        stdout = tshark_fields(filename, f'frame.number == {frame} && {expr}')
-        assert stdout.strip() == str(frame), \
-            f'Frame {frame}: filter did not match: {expr}'
-    return check
-
-
-@pytest.fixture
 def assert_frames_match(tshark_fields):
     '''Asserts several (frame, expr) cases in a *single* tshark invocation.
 

@@ -1444,19 +1444,35 @@ class TestNvmeSecurityNativeWindows:
     CAPTURE = 'nvme-tcp-security.pcapng'
 
     def test_native_security_windows(self, assert_frames_match):
-        # The TCG Storage frames (2, 6, 12 and 14) are asserted below only for
-        # the layer; their decode belongs to the TCG Storage suite.
         assert_frames_match(self.CAPTURE, [
+            (2, ('tcg-storage.compacket && !tcg-storage.compacket.outstanding'
+                 ' && !_ws.expert')),
             (3, '!_ws.expert && nvme.cmd.security.data && !tcg-storage'),
             (4, 'nvme.security.invalid_length && nvme.cmd.security.data && !tcg-storage'),
+            (6, 'tcg-storage && !_ws.expert && !tcg-storage.l0.feat'),
             (8, '!_ws.expert && nvme.cmd.security.data && !tcg-storage'),
             (10, 'nvme.security.invalid_length && nvme.cmd.security.data && !tcg-storage'),
+            (12, ('tcg-storage.compacket && tcg-storage.compacket.outstanding == 0'
+                  ' && !_ws.expert')),
+            # A non-final (LAST_PDU 0) initial PDU is a legal prefix.
+            (14, ('tcg-storage.l0.feat.tper.flags == 0x41 && !_ws.expert'
+                  ' && !tcg-storage.l0.feat.locking.flags')),
             (16, 'nvme.data.wrong_direction && nvme.data && !tcg-storage'),
             (17, 'nvme.data.wrong_direction && nvme.data && !tcg-storage'),
         ])
 
     def test_native_security_layers(self, tshark_fields):
         assert tshark_fields(self.CAPTURE, 'tcg-storage').split() == ['2', '6', '12', '14']
+
+    def test_tcg_info_has_no_leading_separator(self, fields_table):
+        """C2H data starts with an empty Info column."""
+        t = fields_table(self.CAPTURE, ('_ws.col.info',))
+        data = '| NVMeOF Data for Security Receive'
+        assert {n: t[n]['_ws.col.info'] for n in (2, 6, 12)} == {
+            2: 'NVMe Security Send, TCG Security Send, ComID 0x1000 (empty ComPacket)',
+            6: 'TCG Security Receive (Level 0 Discovery)' + data,
+            12: 'TCG Security Receive, ComID 0x1000 (no pending response data)' + data,
+        }
 
 
 def pdu_extents(pdml, frame, name):

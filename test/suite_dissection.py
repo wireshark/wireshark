@@ -111616,18 +111616,29 @@ class TestDissectNvmeMiMi:
 
     def test_nvme_mi_mi_protocols(self, cmd_tshark, capture_file, test_env):
         '''All 204 frames decode: 196 NVMe-MI messages, 6 over SMBus and two
-        Exported PDUs; there is no malformed packet and no warning or error
-        expert info in one and two passes (only notes).'''
+        Exported PDUs. 22 frames carry a warning or error expert info, in
+        one and two passes: the ones where the capture holds a message the
+        specification does not allow (a Successful Response without its
+        Response Data, a DLEN that the data does not match, a reserved
+        MAXRENT, a second MPR, ...). 17 of them are flagged malformed.'''
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Tfields', '-e_ws.col.protocol')
         assert len(lines) == 204
         assert lines.count('NVMe-MI') == 196
         assert lines.count('SMBus/I2C / NVMe-MI') == 6
         assert lines.count('') == 2
+        warned = ['59', '80', '82', '84', '86', '88', '90', '91', '92', '93', '94',
+                  '96', '98', '139', '140', '142', '143', '144', '153', '161',
+                  '186', '196']
+        malformed = ['84', '86', '88', '90', '91', '92', '93', '94', '96', '98',
+                     '139', '140', '142', '143', '144', '153', '186']
         for passes in ((), ('-2',)):
             lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
                     '-Y', self.BAD, '-Tfields', '-eframe.number')
-            assert lines == []
+            assert lines == warned
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+            assert lines == malformed
 
     def test_nvme_mi_mi_data_structures(self, cmd_tshark, capture_file, test_env):
         '''Read NVMe-MI Data Structure: the DTYP selects the layout of the
@@ -111667,10 +111678,20 @@ class TestDissectNvmeMiMi:
                 '-Tfields', '-envme-mi.mi.nshds.ctemp')
         assert lines == ['48', '126', '0', '42', '127', '128', '129', '144', '195',
                          '196', '197', '224', '255']
+        # NVMe-MI 2.2, NVM Subsystem Health Status: 00h-7Eh is 0-126 C, 7Fh is
+        # 127 C or higher, 80h is older than 5 s, 81h a sensor failure, 82h-C3h
+        # reserved, C4h is -60 C or lower, C5h-FFh the two's complement.
         text = subprocess.check_output(
             (cmd_tshark, '-r', capture_file('nvme_mi_mi_coverage.pcapng.gz'), '-V',
-             '-Y', 'frame.number == 40'), encoding='utf-8', env=test_env)
-        assert 'Composite Temperature (CTEMP): 127 °C or higher' in text
+             '-Y', 'nvme-mi.mi.nshds.ctemp && frame.number >= 32 && frame.number <= 56'),
+            encoding='utf-8', env=test_env)
+        labels = [line.split('Composite Temperature (CTEMP): ')[1]
+                  for line in text.splitlines()
+                  if 'Composite Temperature (CTEMP): ' in line]
+        assert labels == ['48 °C', '126 °C', '0 °C', '42 °C', '127 °C or higher',
+                          'Temperature data is more than 5 s old',
+                          'Temperature sensor failure', 'Reserved (0x90)',
+                          'Reserved (0xc3)', '-60 °C or lower', '-59 °C', '-32 °C', '-1 °C']
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'nvme-mi.mi.chsp.rent', '-Tfields', '-eframe.number',
                 '-envme-mi.mi.chsp.rent', '-envme-mi.mi.chds.ctlid')
@@ -111695,7 +111716,7 @@ class TestDissectNvmeMiMi:
                 '-Y', 'nvme-mi.mi.reserved_configid || nvme-mi.mi.reserved_dtyp'
                       ' || nvme-mi.mi.reserved_value', '-Tfields', '-eframe.number')
         assert lines == ['27', '29', '101', '103', '105', '107', '109', '111', '113',
-                         '115', '129', '135']
+                         '115', '129', '135', '145']
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'nvme-mi.mi.config.sfreq_cur || nvme-mi.mi.config.mtus_cur'
                       ' || nvme-mi.mi.config.aeelver',
@@ -111714,11 +111735,26 @@ class TestDissectNvmeMiMi:
                 '-Y', 'nvme-mi.mi.reset.rsttyp || nvme-mi.mi.shutdown.shdntyp',
                 '-Tfields', '-eframe.number', '-envme-mi.mi.reset.rsttyp',
                 '-envme-mi.mi.shutdown.shdntyp')
-        assert [l.split('\t')[0] for l in lines] == ['127', '129', '131', '133', '135']
+        assert lines == ['127\t0x00000000\t', '129\t0x00000001\t', '131\t\t0x00000000',
+                         '133\t\t0x00000001', '135\t\t0x00000002']
+        # NVMe-MI 2.2: RSTTYP 00h resets the subsystem, 01h-FFh are reserved;
+        # SHDNTYP 00h is normal, 01h abrupt, 02h-FFh reserved.
+        text = subprocess.check_output(
+            (cmd_tshark, '-r', capture_file('nvme_mi_mi_coverage.pcapng.gz'), '-V', '-Y',
+             'nvme-mi.mi.reset.rsttyp || nvme-mi.mi.shutdown.shdntyp'),
+            encoding='utf-8', env=test_env)
+        labels = [line.split(' = ')[1] for line in text.splitlines()
+                  if ' = Reset Type (RSTTYP): ' in line or ' = Shutdown Type (SHDNTYP): ' in line]
+        assert labels == ['Reset Type (RSTTYP): Reset NVM Subsystem (0x00)',
+                          'Reset Type (RSTTYP): Reserved (0x01)',
+                          'Shutdown Type (SHDNTYP): Normal NVM Subsystem Shutdown (0x00)',
+                          'Shutdown Type (SHDNTYP): Abrupt NVM Subsystem Shutdown (0x01)',
+                          'Shutdown Type (SHDNTYP): Reserved (0x02)']
 
     def test_nvme_mi_mi_responses(self, cmd_tshark, capture_file, test_env):
         '''More Processing Required (twice) before the final response,
-        Invalid Parameter locations, orphans and a superseded request.'''
+        Invalid Parameter locations, orphans and superseded requests: 190
+        replaces the unanswered Admin request 188 and 191 replaces 190.'''
         lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
                 '-Y', 'nvme-mi.response_is_mpr', '-Tfields', '-eframe.number',
                 '-envme-mi.mprt', '-envme-mi.response_to')
@@ -111730,7 +111766,7 @@ class TestDissectNvmeMiMi:
         lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
                 '-Y', 'nvme-mi.mi.orphan_response || nvme-mi.req_superseded',
                 '-Tfields', '-eframe.number')
-        assert lines == ['187', '189', '191']
+        assert lines == ['187', '189', '190', '191']
 
     def test_nvme_mi_mi_mic_and_smbus(self, cmd_tshark, capture_file, test_env):
         '''The MIC of the frames with the IC bit verifies; the SMBus frames
@@ -147657,9 +147693,24 @@ class TestDissectTcgStorage:
 
     def test_tcg_storage_clean(self, cmd_tshark, capture_file, test_env):
         '''All 118 frames are NVMe-MI, 58 of them carry TCG Storage; no
-        malformed frame. Frame 111 carries a warning, in one and two passes:
-        its TPER_RESET has a Transfer Length of 0, which shall be non-zero
-        (Opal SSC 2.30, 3.2.3 TPER_RESET command).'''
+        frame has an error expert info. 19 frames carry a warning, 18 of
+        them flagged malformed, in one and two passes: the ones where the
+        capture holds a structure the specifications do not allow (a
+        Geometry feature of 32 bytes where Opal says 28, a Pyrite SSC 2.00
+        feature of Length 12 where Pyrite SSC 2.01 says 0x10, a zero length
+        integer atom, a status list of fewer than three elements, a Credit
+        Control Subpacket that is not 4 bytes long, TPer Reset with a
+        zero Transfer Length, ...). The responses have no MIC, so every one
+        also has a note that the IC bit shall be set. Frame 4 also carries
+        an Additional DataStore Tables descriptor of Length 16 and Opalite
+        and Pyrite 1.0 descriptors of Length 12, where nvme-cli's
+        sedopal_spec.h lays them out as 12 and 16 bytes; those are not
+        warned, as their layouts were not checked against the TCG
+        specifications.'''
+        warned = ['2', '4', '6', '8', '12', '21', '60', '61', '64', '66', '68', '70',
+                  '72', '74', '76', '77', '87', '102', '111']
+        malformed = ['2', '4', '6', '8', '12', '21', '60', '61', '64', '66', '68',
+                     '70', '72', '74', '76', '77', '87', '102']
         for passes in ((), ('-2',)):
             cap = capture_file(self.CAP)
             assert len(self._fields(cmd_tshark, cap, test_env, 'nvme-mi',
@@ -147667,14 +147718,18 @@ class TestDissectTcgStorage:
             assert len(self._fields(cmd_tshark, cap, test_env, 'tcg-storage',
                     ['frame.number'], *passes)) == 58
             assert self._fields(cmd_tshark, cap, test_env,
-                    '_ws.malformed', ['frame.number'], *passes) == []
+                    '_ws.expert.severity >= 0x00800000', ['frame.number'], *passes) == []
             assert self._fields(cmd_tshark, cap, test_env,
-                    '_ws.expert', ['frame.number'], *passes) == ['111']
+                    '_ws.expert.severity >= 0x00600000', ['frame.number'], *passes) == warned
+            assert self._fields(cmd_tshark, cap, test_env,
+                    '_ws.malformed', ['frame.number'], *passes) == malformed
 
     def test_tcg_storage_level0(self, cmd_tshark, capture_file, test_env):
         '''Feature descriptors of every kind (including a vendor specific
         one and unknown codes), the geometry, Opal SSC 2.02 and data
-        removal values and the SSC names appended to the Info column.'''
+        removal values and the SSC names appended to the Info column.
+        The Geometry features of frames 2 and 8 are 32 bytes where Opal
+        SSC says 28, so their values are not decoded.'''
         rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
                 'frame.number in {2, 4, 6}', ['frame.number', 'tcg-storage.l0.feat.code'])
         assert rows == [
@@ -147690,7 +147745,7 @@ class TestDissectTcgStorage:
                  'tcg-storage.l0.feat.opal2.num_users',
                  'tcg-storage.l0.feat.ssc_minor',
                  'tcg-storage.l0.feat.data_removal.mechanism'])
-        assert rows == ['2\t512\t8\t\t\t\t', '4\t\t\t4\t8\t0x02\t', '6\t\t\t4\t8\t\t0x27']
+        assert rows == ['2\t\t\t\t\t\t', '4\t\t\t4\t8\t0x02\t', '6\t\t\t4\t8\t\t0x27']
         info = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
                 'frame.number in {2, 4, 6, 8}', ['_ws.col.info'])
         assert [i.split('(Level 0 Discovery): ', 1)[1] for i in info] == [
@@ -147699,8 +147754,9 @@ class TestDissectTcgStorage:
 
     def test_tcg_storage_methods(self, cmd_tshark, capture_file, test_env):
         '''Method calls name the invoking and method UIDs and the Method
-        Status; unknown UIDs are shown in hex; a status list that closes
-        without an integer shows no status.'''
+        Status, which a request shows as the expected one; unknown UIDs are
+        shown in hex; a status list of fewer than three integers (frame 64)
+        or one that closes without an integer shows no status.'''
         rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
                 'frame.number in {24, 28, 30, 40, 43, 45, 57, 64, 68}', ['frame.number', '_ws.col.info'])
         tails = [r.split('ComID 0x1000, ', 1)[1] for r in rows]
@@ -147709,45 +147765,49 @@ class TestDissectTcgStorage:
             'Session Manager (SMUID).SyncSession(), Status: SUCCESS',
             'This SP.Get(), Status: NOT_AUTHORIZED',
             'This SP.Get(), Status: Unknown',
-            'Locking_Range1.Set(), Status: SUCCESS',
-            'C_PIN_MSID.Authenticate(), Status: SUCCESS',
-            '0x1234567890abcdef.0x0123456789abcdef(), Status: SUCCESS',
-            'This SP.Get(), Status: SP_DISABLED',
+            'Locking_Range1.Set(), Expected Status: SUCCESS',
+            'C_PIN_MSID.Authenticate(), Expected Status: SUCCESS',
+            '0x1234567890abcdef.0x0123456789abcdef(), Expected Status: SUCCESS',
+            'This SP.Get()',
             'This SP.Get()',
         ]
 
     def test_tcg_storage_atoms(self, cmd_tshark, capture_file, test_env):
         '''Frame 60 holds tiny, short, medium and long atoms: the signed
         and unsigned values are decoded (a 12 and a 16 octet integer and
-        the 9 and 15 octet ones are shown as bytes).'''
+        the 9 and 15 octet ones are shown as bytes). An integer atom of
+        zero length is flagged and has no value.'''
         rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
                 'frame.number == 60', ['tcg-storage.tok.int', 'tcg-storage.tok.uint'])
         assert rows == ['-5,7,-2,-300,5,-1,-7,-129\t'
-                        '63,18446744073709551615,0,1234,73588229205,0,0']
+                        '63,18446744073709551615,1234,73588229205,0,0']
 
     def test_tcg_storage_packets(self, cmd_tshark, capture_file, test_env):
         '''Frame 87: a ComPacket with three Packets and Subpackets of the
         kinds Data, Credit Control and an unknown one; frame 90 is an empty
-        ComPacket.'''
+        ComPacket. Only the first of the two Credit Control Subpackets is 4
+        bytes long, so only its credit is decoded.'''
         rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
                 'frame.number in {87, 90}',
                 ['frame.number', 'tcg-storage.packet.tsn', 'tcg-storage.subpacket.kind',
                  'tcg-storage.compacket.comid_ext', 'tcg-storage.subpacket.credit'])
         assert rows == [
             '87\t0x00001001,0x00001002,0x00000000\t0x0000,0x8001,0x8001,0x0005,0x0000,0x0000,0x0000'
-            '\t0x0003\t4660,4660',
+            '\t0x0003\t4660',
             '90\t\t\t0x0001\t',
         ]
 
     def test_tcg_storage_comid_management(self, cmd_tshark, capture_file, test_env):
-        '''ComID management requests and responses, TPer Reset and GET COMID.'''
+        '''ComID management requests and responses, TPer Reset and GET COMID.
+        The data of a Protocol Stack Reset response is its result, not raw
+        data.'''
         rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
                 'frame.number in {104, 108, 114, 116}',
                 ['frame.number', 'tcg-storage.comid_mgmt.request_code',
                  'tcg-storage.comid_mgmt.available_data_length',
                  'tcg-storage.comid_mgmt.data', 'tcg-storage.get_comid.ext_comid'])
         assert rows == [
-            '104\t0x00000002\t4\t00000000\t',
+            '104\t0x00000002\t4\t\t',
             '108\t0x00000009\t8\taaaaaaaaaaaaaaaa\t',
             '114\t\t\t\t0x10000001',
             '116\t\t\t\t0x00000000',

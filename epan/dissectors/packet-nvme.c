@@ -35,6 +35,7 @@ static int proto_nvme;
 /* Dissector table for Security Send/Receive payloads, keyed on the Security
  * Protocol (SECP); see struct nvme_security_info in packet-nvme.h. */
 static dissector_table_t nvme_security_secp_table;
+static dissector_table_t nvme_security_send_failed_table;
 
 
 /* NVMeOF fields */
@@ -1459,7 +1460,6 @@ static int ett_data;
 
 static expert_field ei_nvme_cqe_status_error;
 static expert_field ei_nvme_cqe_sc_undefined_for_cmd;
-static expert_field ei_nvme_cqe_sc_sanitize_ns_fig455;
 static expert_field ei_nvme_lbaf_count_invalid;
 static expert_field ei_nvme_data_len_exceeds_frame;
 static expert_field ei_nvme_logpage_window_misaligned;
@@ -7812,9 +7812,11 @@ nvme_logpage_walk_reset(struct nvme_cmd_ctx *cmd_ctx)
     cmd_ctx->cmd_ctx.get_logpage.tr_next_off = 0;
 }
 
-/* pinfo->pool key: how many Get Log Page windows this frame has had.  It is
- * above the layer numbers that key the file-scope proto data. */
-#define NVME_WALK_ORDINAL_KEY 0x10000
+/* pinfo->pool keys, above the layer numbers that key the file-scope proto
+ * data: how many Security Send data windows, and how many Get Log Page windows,
+ * this frame has had. */
+#define NVME_SEC_SEND_ORDINAL_KEY 0x10000
+#define NVME_WALK_ORDINAL_KEY 0x10001
 
 /* The walk state a Get Log Page window started with, by (frame, ordinal of the
  * window in the frame): the first pass records it, and a later visit of the
@@ -10386,6 +10388,7 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
                  enum nvme_data_direction dir, struct nvme_data_origin origin)
 {
     struct nvme_cmd_ctx unretained;
+    struct nvme_cmd_ctx *persistent = cmd_ctx;
     proto_tree *cmd_tree;
     proto_item *ti;
     const char *str_opcode;
@@ -10443,6 +10446,13 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
             proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data,
                                               nvme_tvb, 0, len, NULL,
                                               "%s, offset %u", str_opcode, off);
+        }
+        /* The Security Send's data frame outlives a decode from a copy. */
+        if (cmd_ctx->opcode == NVME_AQ_OPC_SECURITY_SEND) {
+            persistent->cmd_ctx.security.request_frame =
+                cmd_ctx->cmd_ctx.security.request_frame;
+            persistent->cmd_ctx.security.request_ordinal =
+                cmd_ctx->cmd_ctx.security.request_ordinal;
         }
     }
     if (is_inline)
@@ -11213,6 +11223,18 @@ static void dissect_nvme_security_data(tvbuff_t *tvb, packet_info *pinfo,
         tvbuff_t *sec_tvb = tvb_new_subset_length(tvb, 0, len);
 
         sec.level0_prefix = !is_send && level0_prefix;
+        if (is_send && sec.state_valid && !PINFO_FD_VISITED(pinfo) &&
+            !sec.request_frame) {
+            /* Several Sends can end in one frame: tell them apart, counting
+             * in the frame's own dissection. */
+            unsigned ordinal = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
+                                                proto_nvme, NVME_SEC_SEND_ORDINAL_KEY));
+
+            p_set_proto_data(pinfo->pool, pinfo, proto_nvme, NVME_SEC_SEND_ORDINAL_KEY,
+                             GUINT_TO_POINTER(ordinal + 1));
+            cmd_ctx->cmd_ctx.security.request_frame = sec.request_frame = pinfo->num;
+            cmd_ctx->cmd_ctx.security.request_ordinal = sec.request_ordinal = (uint16_t)ordinal;
+        }
         if (sec.secp == 0x00) {
             if (!sec.send &&
                 dissect_nvme_security_info_resp(sec_tvb, tree, cmd_ctx, len))
@@ -12065,6 +12087,17 @@ void dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_t
         nvme_dissect_admin_cqe_dw1(nvme_tvb, 4, cqe_tree,
                                    tvb_get_uint16(nvme_tvb, 14, ENC_LITTLE_ENDIAN), cmd_ctx);
     dissect_nvme_cqe_common(nvme_tvb, pinfo, cqe_tree, 0, false);
+
+    /* A Security Send that fails transferred no data (SIIS 1.20 Table 25):
+     * tell the Security Protocol dissector, on the first pass only. */
+    if (!q_ctx->qid && cmd_ctx->opcode == NVME_AQ_OPC_SECURITY_SEND &&
+        cmd_ctx->cmd_ctx.security.request_frame && !PINFO_FD_VISITED(pinfo) &&
+        (tvb_get_letohs(nvme_tvb, 14) & 0x0ffe)) {
+        struct nvme_security_info sec = nvme_security_info_of(cmd_ctx, true);
+
+        dissector_try_uint_with_data(nvme_security_send_failed_table, sec.secp,
+                                     nvme_tvb, pinfo, NULL, false, &sec);
+    }
 }
 
 void
@@ -19622,10 +19655,6 @@ proto_register_nvme(void)
             { "nvme.cqe.status.sc.undefined_for_cmd", PI_PROTOCOL, PI_WARN,
               "Command Specific Status is not defined for this command", EXPFILL }
         },
-        { &ei_nvme_cqe_sc_sanitize_ns_fig455,
-            { "nvme.cqe.status.sc.sanitize_ns_conflict", PI_PROTOCOL, PI_NOTE,
-              "NVMe Base 'Status Code - Command Specific Status Values' and 'Sanitize Namespace -" " Command Specific Status Values' disagree on this Sanitize Namespace status", EXPFILL }
-        },
         { &ei_nvme_cqe_status_error,
             { "nvme.cqe.status.error", PI_RESPONSE_CODE, PI_NOTE,
               "Command completed with an error status", EXPFILL }
@@ -19716,7 +19745,8 @@ proto_register_nvme(void)
         { &ei_nvme_feat_sel_no_data,
             { "nvme.cmd.get_features.sel_no_data", PI_PROTOCOL, PI_WARN,
               "Get Features with Select 011b returns capabilities in Dword 0 and"
-              " this Feature uses no data buffer (NVMe Base 'Get Features - Command Dword 10'," " 'Set Features - Feature Identifiers');"
+              " this Feature uses no data buffer (NVMe Base 'Get Features - Command Dword 10',"
+              " 'Set Features - Feature Identifiers');"
               " data shown raw", EXPFILL }
         },
         { &ei_nvme_feat_sel_caps_data,
@@ -19746,6 +19776,11 @@ proto_register_nvme(void)
      * as the data pointer. */
     nvme_security_secp_table = register_dissector_table("nvme.security.secp",
             "NVMe Security Protocol (SECP)", proto_nvme, FT_UINT8, BASE_HEX);
+    /* A Security Send's failed completion, for the same SECP, with the
+     * completion queue entry as the tvb and the same data pointer. */
+    nvme_security_send_failed_table = register_dissector_table(
+            "nvme.security.send_failed", "NVMe Security Send failure",
+            proto_nvme, FT_UINT8, BASE_HEX);
 }
 
 /*

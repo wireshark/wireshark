@@ -222,6 +222,11 @@ struct nvme_cmd_ctx {
             /* Security Send/Receive CDW10 selectors, for data dispatch. */
             uint16_t spsp;   /* SP Specific (SPSP1:SPSP0); the ComID for TCG */
             uint8_t  secp;   /* Security Protocol */
+            /* Security Send: the frame that carried its first data window,
+             * where the Security Protocol dissector saw the data; 0 if none. */
+            uint32_t request_frame;
+            /* Which of the Sends whose data share that frame (0 for the first). */
+            uint16_t request_ordinal;
         } security;
         struct {
             union {
@@ -398,6 +403,8 @@ struct nvme_security_info {
     const void *scope;
     uint16_t controller;
     bool state_valid; /* Complete, trustworthy transport data may advance streams. */
+    uint32_t request_frame; /* Send: the frame of the data, as in the command */
+    uint16_t request_ordinal; /* Send: its place among those in that frame */
     /* Receive only: the window may legally end before AL (Level 0 prefix). */
     bool level0_prefix;
 };
@@ -414,6 +421,8 @@ nvme_security_info_of(const struct nvme_cmd_ctx *cmd_ctx, bool send)
         .scope = cmd_ctx->cmd_ctx.security.scope,
         .controller = cmd_ctx->cmd_ctx.security.controller,
         .state_valid = cmd_ctx->cmd_ctx.security.state_valid,
+        .request_frame = cmd_ctx->cmd_ctx.security.request_frame,
+        .request_ordinal = cmd_ctx->cmd_ctx.security.request_ordinal,
     };
 }
 

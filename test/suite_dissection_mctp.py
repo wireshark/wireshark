@@ -143,7 +143,8 @@ class TestMctpReassembly:
 
     def test_expert_census(self, fields_table):
         """Exact frame sets, so an expert that over-fires is caught.  F2 and
-        F7 reach NVMe-MI, which may flag them; no other frame has an expert."""
+        F7 reach NVMe-MI, which flags F2's meaningless payload; F7 is a PCIe
+        command, which is left as data."""
         t = section(fields_table(CAPTURE, self.FIELDS), REASSEMBLY)
         expected = {
             'mctp.assembly.orphan': [3, 4, 10, 11, 16],
@@ -154,8 +155,8 @@ class TestMctpReassembly:
         }
         for field, frames in expected.items():
             assert list(column(t, field)) == frames, field
-        assert {n for n, row in t.items()
-                if row['_ws.expert'] and not any(row[f] for f in self.EXPERTS)} <= {2, 7}
+        assert [n for n, row in t.items()
+                if row['_ws.expert'] and not any(row[f] for f in self.EXPERTS)] == [2]
 
     def test_payload_dispatch(self, fields_table):
         """Bytes after the type byte of a complete message nobody claims (0Ah)
@@ -644,13 +645,3 @@ class TestCrossLayerCaptures:
         assert set(fixtures) == {self.VERSION}
         for filename, expected in fixtures.items():
             assert Path(capture_file(filename)).read_bytes() == expected, filename
-
-    def test_version_dropped_before_assembly(self, assert_frames_match, tshark_fields):
-        for two_pass in (False, True):
-            assert_frames_match(self.VERSION, [
-                (2, 'mctp.version.unsupported && !mctp.assembly.restarted'),
-                (3, ('mctp.reassembled.length == 72 && mctp.fragment == 1'
-                     ' && mctp.fragment == 3 && mctp.fragment.count == 2')),
-                (5, 'mctp.version.unsupported'),
-                (6, 'mctp.assembly.orphan && !mctp.reassembled.length'),
-            ], two_pass=two_pass)

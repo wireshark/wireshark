@@ -14,8 +14,7 @@
 
 #include <epan/packet.h>
 
-/* NVMe-MI Message Type (NMIMT) values — NVMe-MI 2.1 Figure 20.
- * 3h and 6h-Fh are Reserved. */
+/* NVMe-MI Message Type (NMIMT) values (NVMe-MI 2.2 Figure 20). */
 enum nvme_mi_msg_type {
     NVME_MI_TYPE_CONTROL = 0x0,
     NVME_MI_TYPE_MI      = 0x1,
@@ -24,146 +23,132 @@ enum nvme_mi_msg_type {
     NVME_MI_TYPE_AEM     = 0x5,   /* Asynchronous Event Message (§4.1.3) */
 };
 
-/*
- * Response Message Status values (NVMe-MI 2.1 Figure 29).  The status byte is
- * common to every response message type, so the table is shared by all the
- * per-type body dissectors.  Defined in packet-nvme-mi.c.
- */
+/* Response Message Status values (NVMe-MI 2.2 Figure 29). */
 extern const range_string nvme_mi_status_vals[];
 
-/*
- * NVMe-MI Message Type (NMIMT) names (NVMe-MI 2.1 Figure 12).  Defined in
- * packet-nvme-mi.c and shared so the command-list entry decode (which carries
- * an NMIMT in each entry) renders the same names as the message header.
- */
+/* NMIMT names over the whole four-bit domain (NVMe-MI 2.2 Figure 20). */
 extern const value_string mi_type_vals[];
 
-/* Status values the body dissectors branch on (subset of status values). */
+extern const range_string nvme_mi_pcie_opcode_vals[];
+
+/* Status values the body dissectors branch on. */
 #define NVME_MI_STATUS_SUCCESS                   0x00
 #define NVME_MI_STATUS_MORE_PROCESSING_REQUIRED  0x01
-#define NVME_MI_STATUS_INVALID_PARAMETER         0x04
 
-/*
- * Decode payload bytes 3:1 of a Response Message according to its Response
- * Message Status.  Those bytes are status-dependent and mutually exclusive:
- * the Parameter Error Location on an Invalid Parameter Error Response
- * (NVMe-MI 2.1 Figure 32), the More Processing Required Time on a More
- * Processing Required Response (Figure 34), and Reserved on any other Error
- * Response (Figure 30).  Only a Success Response gives them a command-specific
- * meaning, so this returns true in that case alone and the caller renders the
- * bytes itself (the MI NVMe Management Response, the Admin reserved dwords).
- *
- * The error-response formats are defined at the message level and shared by
- * every command message type, so the MI/Admin/PCIe body dissectors all call
- * this rather than each decoding them -- and none of them mislabels an error
- * response's bytes as command-specific.  The caller must have at least 4
- * payload bytes.  Defined in packet-nvme-mi.c.
- */
-bool nvme_mi_dissect_resp_status_bytes(tvbuff_t *tvb, proto_tree *tree,
-                                       uint8_t status);
+/* Figure 29 Status runs with no Response Message format (inclusive). */
+#define NVME_MI_STATUS_RSVD_LOW_FIRST            0x09
+#define NVME_MI_STATUS_RSVD_LOW_LAST             0x1f
+#define NVME_MI_STATUS_RSVD_HIGH_FIRST           0x2b
+#define NVME_MI_STATUS_RSVD_HIGH_LAST            0xdf
+#define NVME_MI_STATUS_VENDOR_FIRST              0xe0
 
-/*
- * Flag a truncated/short payload via the given expert field and render any
- * bytes remaining from `off` raw under `hf_data`.  Shared by the body
- * dissectors so the "expert + leftover bytes" rendering is defined once.
- * Defined in packet-nvme-mi.c.
- */
+/* A non-Success Status whose 4-byte Response Message format the spec
+ * defines (NVMe-MI 2.2 Figures 30-34): not Reserved, not Vendor Specific
+ * (E0h-FFh). */
+static inline bool
+nvme_mi_status_has_response_format(uint8_t status)
+{
+    return status != NVME_MI_STATUS_SUCCESS &&
+           !(status >= NVME_MI_STATUS_RSVD_LOW_FIRST &&
+             status <= NVME_MI_STATUS_RSVD_LOW_LAST) &&
+           !(status >= NVME_MI_STATUS_RSVD_HIGH_FIRST);
+}
+
+/* "nvme-mi.ctrlinfo_ari": read the Controller Information Routing ID as ARI. */
+extern bool nvme_mi_ctrlinfo_ari;
+
+/* MI Reset (NVMe-MI 2.2 Figure 68): Reset NVM Subsystem has no response. */
+#define NVME_MI_MI_OPC_RESET                     0x07
+
+/* Control Primitive opcodes the framing layer tracks (NVMe-MI 2.2 Figure 38). */
+#define NVME_MI_CP_OPC_ABORT                     0x02
+#define NVME_MI_CP_OPC_REPLAY                    0x04
+
+/* Decode Response Message bytes 3:1 by Status (NVMe-MI 2.2 Figures 30-34).
+ * Needs >= 4 payload bytes.  Returns true for a Success Response, whose
+ * bytes the caller renders. */
+bool nvme_mi_dissect_resp_status_bytes(tvbuff_t *tvb, packet_info *pinfo,
+                                       proto_tree *tree, uint8_t status);
+
+/* Flag a short payload with 'ei' and render the rest from 'off' raw. */
 void nvme_mi_dissect_truncated(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, proto_item *it,
                                expert_field *ei, int hf_data, int off);
 
-/*
- * Per-transaction state shared across the request frame and every response
- * frame (including MPR interim responses) that belongs to the same command.
- * Allocated in wmem_file_scope().
- *
- * The per-type fields below are owned by the body dissector, not the framing
- * layer: the body dissector fills them in while dissecting the request and
- * reads them back when the matching response is dissected (the response
- * carries no opcode of its own).  'opcode' is the per-type opcode (CP CPO /
- * MI opcode / Admin opcode); any further per-type request state lives behind
- * 'body_ctx'.
- */
+struct nvme_mi_endpoint;
+
+/* Per-transaction state shared by a request and its responses; file scope. */
 struct nvme_mi_transaction {
+    struct nvme_mi_endpoint *endpoint;
     uint32_t  req_frame;
     uint32_t  resp_frame;   /* 0 until a non-MPR response is seen */
+    uint32_t  mpr_count;    /* Admitted, original MPRs; Replay does not increment. */
     nstime_t  req_time;
-    /*
-     * true once the request 'opcode' (the command byte at payload offset 0)
-     * has been recorded: by the always-run framing layer for Admin/MI Command
-     * Messages, or by the Control body once past its >= 4-byte guard.  Stays
-     * false when the request was too short to record an opcode; the response
-     * side must then treat the opcode as unknown (zero-filled, not observed)
-     * rather than interpreting it.  Independent of body_ctx, which the body
-     * dissector populates separately and which may be NULL even when
-     * req_parsed is true (e.g. an Admin request truncated below its 64-byte
-     * SQE, or a disabled body protocol).
-     */
-    bool      req_parsed;
-    /*
-     * NMIMT of the request that owns 'opcode' and 'body_ctx'.  ADMIN and MI
-     * requests share the same per-CSI command slot, so a response of one type
-     * can land on a slot opened by a request of the other type; the response
-     * side must check this matches its own NMIMT before trusting opcode or
-     * casting body_ctx.  Set by the framing layer when the request is seen.
-     */
-    uint8_t   nmimt;
+    bool      req_parsed;       /* 'opcode' was recorded */
+    bool      req_integrity_ok; /* the request's MIC verified good */
+    bool      req_mic_bad;      /* the request's MIC verified bad */
+    uint8_t   nmimt;            /* NMIMT of the request owning opcode/body_ctx */
     unsigned  opcode;
-    /*
-     * Opaque per-opcode request context, owned entirely by the body
-     * dissector that handles this transaction's NMIMT (the framing layer
-     * never looks inside).  Allocated in wmem_file_scope() while dissecting
-     * the request and read back when dissecting the matching response(s),
-     * for request parameters that select the response layout or that the
-     * response must echo (e.g. the MI Read NVMe-MI Data Structure DTYP, the
-     * Configuration Set/Get CONFIGID, or the Control Primitive tag).  NULL
-     * when the request did not carry those fields (truncated) or no request
-     * was seen.
-     */
-    void     *body_ctx;
+    uint8_t   ctl_tag;          /* Control Primitive Tag (NVMe-MI 2.2 Figure 40) */
+    bool      ctl_tag_known;
+    uint8_t   req_csi;          /* the request's Command Slot Identifier */
+    bool      req_meb;          /* routing is selected by the request */
+    uint8_t   replay_rro;  /* Fig 46: packet offset, not a byte offset */
+    struct nvme_mi_transaction *cp_superseded; /* unanswered CP this one displaced */
+    bool      reset_nvm_subsystem; /* an MI Reset owed no response (section 5.9) */
+    void     *body_ctx;         /* the body dissector's request context, or NULL */
 };
 
-/*
- * Passed as the 'data' void-pointer through the "nvme-mi.type" dissector
- * table so each sub-dissector receives request/response context without
- * needing a global.  The framing layer always passes a valid pointer, but
- * the table is globally registered and external callers (e.g. Lua scripts
- * driving it directly) may pass NULL, so sub-dissectors must reject a NULL
- * data pointer:
- *
- *   if (!data) return 0;
- *
- * trans may be NULL when no matching request has been seen yet.
- */
+/* MEB observations and routing: MEBS needs a proven current physical port,
+ * and routing a command-list PORTID that matches it. */
+void nvme_mi_mebs_observe(struct nvme_mi_endpoint *ep, packet_info *pinfo,
+                          uint8_t port, uint32_t size);
+void nvme_mi_meb_commands_observe(struct nvme_mi_endpoint *ep, packet_info *pinfo,
+                                 uint8_t port, const uint8_t commands[32]);
+bool nvme_mi_meb_routes(const struct nvme_mi_endpoint *ep, uint32_t frame,
+                         unsigned opcode);
+
+/* The "nvme-mi.type" table's 'data'.  External callers may pass NULL, so
+ * sub-dissectors must reject it; trans is NULL with no request seen. */
 struct nvme_mi_dissect_ctx {
     bool                        resp;
+    bool                        integrity_ok; /* MIC present and good */
+    bool                        admitted;
+    bool                        replay;       /* no state effects; nonzero RRO: raw only */
+    bool                        replay_response; /* the replay is the command's response of record */
+    bool                        meb;
     struct nvme_mi_transaction *trans;
+    struct nvme_mi_endpoint    *endpoint;     /* NULL outside the framing layer */
 };
 
-/*
- * Response opcode recovery, shared by the command-message body dissectors.  A
- * response carries no opcode of its own, so it must be recovered from the
- * matching request.  When 'trans' is a parsed request of NMIMT 'nmimt', adds a
- * generated 'hf_opcode' item carrying the recovered opcode (returned via
- * '*opcode'), and returns that proto_item so the caller can append a name.
- * Otherwise (no request, truncated request, or a request of a different
- * NMIMT that happens to share the slot) fires 'ei_orphan' against 'it' and
- * returns NULL with '*opcode' set to 0.  Defined in packet-nvme-mi.c.
- */
-proto_item *nvme_mi_recover_resp_opcode(tvbuff_t *tvb, packet_info *pinfo,
-                                        proto_tree *tree, proto_item *it,
-                                        const struct nvme_mi_transaction *trans,
-                                        uint8_t nmimt, int hf_opcode,
-                                        expert_field *ei_orphan,
-                                        unsigned *opcode);
+/* The response's opcode from its request, if one of NMIMT 'nmimt' was parsed. */
+bool nvme_mi_resp_opcode(const struct nvme_mi_transaction *trans,
+                         uint8_t nmimt, unsigned *opcode);
 
-/*
- * Return the transaction's per-opcode request context, allocating it (zeroed,
- * 'size' bytes, wmem_file_scope) on first use.  Lets each body dissector store
- * its own struct in trans->body_ctx without repeating the allocate-once
- * idiom.  'trans' must be non-NULL.  Defined in packet-nvme-mi.c.
- */
-void *nvme_mi_trans_body_ctx(struct nvme_mi_transaction *trans, size_t size);
+/* Admit MEB observations in an NMIMT 1h message, before body
+ * dissection and independent of the tree. */
+void nvme_mi_mi_pre_observe(tvbuff_t *body_tvb, packet_info *pinfo,
+                            const struct nvme_mi_dissect_ctx *ctx);
+
+/* nvme_mi_resp_opcode() plus the orphan expert; '*opcode' is 0 on false.
+ * '*opcode_it' (optional) gets the generated item, NULL without a tree:
+ * display only, never decide on it. */
+bool nvme_mi_recover_resp_opcode(tvbuff_t *tvb, packet_info *pinfo,
+                                 proto_tree *tree, proto_item *it,
+                                 const struct nvme_mi_transaction *trans,
+                                 uint8_t nmimt, int hf_opcode,
+                                 expert_field *ei_orphan, unsigned *opcode,
+                                 proto_item **opcode_it);
+
+/* An Abort Success with CPAS 01b ended 'trans' before it took effect. */
+void nvme_mi_admin_command_aborted(packet_info *pinfo,
+                                   const struct nvme_mi_transaction *trans);
+
+/* Copy a fully parsed request context in, on the first pass; NULL when
+ * 'trans' is NULL. */
+void *nvme_mi_trans_publish_body_ctx(packet_info *pinfo,
+                                     struct nvme_mi_transaction *trans,
+                                     const void *src, size_t size);
 
 #endif /* __PACKET_NVME_MI_H__ */
 
