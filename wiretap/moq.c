@@ -19,6 +19,7 @@
 
 #define MOQ_MAX_METADATA_SIZE (50 * 1024 * 1024)
 #define MOQ_MAX_OBJECT_SIZE   (64 * 1024 * 1024)
+#define MOQ_READ_CHUNK_SIZE   (64 * 1024)
 
 typedef struct {
     char *metadata;
@@ -78,34 +79,61 @@ moq_read_record(wtap *wth, moq_record_t *record, wtap_rec *rec,
     uint8_t *object_data = NULL;
     uint8_t metadata_len[4];
     uint32_t epdu_len;
-    int64_t file_size;
     int io_err = 0;
 
-    data_fp = file_open(record->data_path);
-    if (data_fp == NULL) {
-        *err = errno != 0 ? errno : WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("MoQ data file could not be opened: %s", record->data_path);
-        return false;
-    }
-    if (file_seek(data_fp, 0, SEEK_END, &io_err) < 0 || (file_size = file_tell(data_fp)) < 0 ||
-        record->data_offset > (uint64_t)file_size || record->data_length > (uint64_t)file_size - record->data_offset ||
-        file_seek(data_fp, (int64_t)record->data_offset, SEEK_SET, &io_err) < 0) {
-        file_close(data_fp);
-        *err = io_err != 0 ? io_err : WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("MoQ data range is outside file: %s", record->data_path);
-        return false;
-    }
+    /* An object with no data needs nothing from the data file. Otherwise,
+     * don't check the range against the file's size first: getting the
+     * size of a compressed file by seeking to its end decompresses all of
+     * it. A range past the end fails the seek or the read.
+     *
+     * Set *err_info only with an error whose message uses it (and frees
+     * it); the message for an errno value doesn't.
+     *
+     * XXX - the message for an errno value names the file being read,
+     * i.e. the metadata file (or "the standard input"), even though the
+     * error is with the data file. */
     if (record->data_length > 0) {
+        data_fp = file_open(record->data_path);
+        if (data_fp == NULL) {
+            if (errno != 0) {
+                *err = errno;
+            } else {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("MoQ data file could not be opened: %s", record->data_path);
+            }
+            return false;
+        }
+        if (file_seek(data_fp, (int64_t)record->data_offset, SEEK_SET, &io_err) < 0) {
+            /* The seek can fail with an error from reading the file
+             * (e.g., decompressing it), which comes with its own
+             * err_info, or with an errno value, which doesn't. */
+            int file_err = file_error(data_fp, err_info);
+            file_close(data_fp);
+            if (file_err != 0) {
+                *err = file_err;
+            } else if (io_err != 0) {
+                *err = io_err;
+            } else {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("MoQ data range is outside file: %s", record->data_path);
+            }
+            return false;
+        }
         object_data = (uint8_t *)g_malloc(record->data_length);
         if (file_read(object_data, record->data_length, data_fp) != (int)record->data_length) {
             g_free(object_data);
+            io_err = file_error(data_fp, err_info);
             file_close(data_fp);
-            *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("MoQ data range is truncated: %s", record->data_path);
+            if (io_err != 0) {
+                *err = io_err;
+            } else {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("MoQ data range is outside file or truncated: %s", record->data_path);
+            }
             return false;
         }
+        file_close(data_fp);
     }
-    file_close(data_fp);
 
     ws_buffer_assure_space(&rec->data, (size_t)record->metadata_len + record->data_length + 4 + ws_buffer_length(&priv->epdu_header));
     ws_buffer_append(&rec->data, ws_buffer_start_ptr(&priv->epdu_header), ws_buffer_length(&priv->epdu_header));
@@ -174,37 +202,136 @@ moq_close(wtap *wth)
 wtap_open_return_val
 moq_open(wtap *wth, int *err, char **err_info)
 {
-    int64_t file_size;
     char *json_buf = NULL;
+    size_t buf_size, buf_len;
+    size_t max_size;
     jsmntok_t *tokens = NULL;
+    unsigned max_tokens;
     int token_count;
     int bytes_read;
+    jsmn_parser parser;
     moq_priv_t *priv = NULL;
+    wtap_open_return_val ret = WTAP_OPEN_NOT_MINE;
 
-    file_size = wtap_file_size(wth, err);
-    if (file_size < 0) return WTAP_OPEN_ERROR;
-    if (file_size == 0 || file_size > MOQ_MAX_METADATA_SIZE) return WTAP_OPEN_NOT_MINE;
+    /*
+     * Read the metadata, a JSON array of at most MOQ_MAX_METADATA_SIZE
+     * bytes, in growing chunks, passing each to the JSON parser as we
+     * go, so that we stop reading as soon as it isn't an array or isn't
+     * valid JSON. (Don't size the buffer from the file's size: that's
+     * the compressed size for a compressed file.)
+     */
+    jsmn_init(&parser);
+    /*
+     * On a pipe, read no more than the I/O routines guarantee we can
+     * seek back over (see below). Read one more byte than the maximum
+     * otherwise, so that a full read means the metadata is too large.
+     */
+    max_size = (size_t)MOQ_MAX_METADATA_SIZE + 1;
+    if (wth->ispipe) {
+        max_size = MIN(max_size, file_bufsize(wth->fh));
+    }
+    buf_size = MIN((size_t)MOQ_READ_CHUNK_SIZE, max_size);
+    buf_len = 0;
+    json_buf = (char *)g_malloc(buf_size + 1);
+    max_tokens = 16;
+    tokens = g_new(jsmntok_t, max_tokens);
+    for (;;) {
+        bytes_read = file_read((uint8_t *)json_buf + buf_len, (unsigned int)(buf_size - buf_len), wth->fh);
+        if (bytes_read < 0) {
+            *err = file_error(wth->fh, err_info);
+            ret = WTAP_OPEN_ERROR;
+            goto fail;
+        }
+        /*
+         * JSON text can't contain a NUL byte (not even in a string,
+         * where control characters must be escaped), and the parser
+         * stops at one as if it were the end of the data, so that we'd
+         * keep reading more in vain.
+         */
+        if (memchr(json_buf + buf_len, '\0', (size_t)bytes_read) != NULL) {
+            goto fail;
+        }
+        bool first_chunk = (buf_len == 0);
+        buf_len += (size_t)bytes_read;
+        bool at_eof = (buf_len < buf_size);
 
-    json_buf = (char *)g_malloc((size_t)file_size + 1);
-    bytes_read = file_read((uint8_t *)json_buf, (unsigned int)file_size, wth->fh);
-    if (bytes_read < 0) {
-        *err = file_error(wth->fh, err_info);
-        g_free(json_buf);
-        return WTAP_OPEN_ERROR;
+        /* Parse what we've read, giving the parser more tokens as needed. */
+        for (;;) {
+            token_count = jsmn_parse(&parser, json_buf, buf_len, tokens, max_tokens);
+            if (token_count != JSMN_ERROR_NOMEM) {
+                break;
+            }
+            if (tokens[0].type != JSMN_ARRAY) {
+                goto fail;
+            }
+            /* Each token starts at a different byte, so there can't be
+             * more tokens than bytes. */
+            unsigned new_max = (unsigned)MIN((size_t)max_tokens * 2, buf_len + 1);
+            if (new_max <= max_tokens) {
+                /* Shouldn't happen. */
+                goto fail;
+            }
+            max_tokens = new_max;
+            tokens = g_renew(jsmntok_t, tokens, max_tokens);
+        }
+        if (token_count == JSMN_ERROR_INVAL) {
+            /* Not valid JSON. */
+            goto fail;
+        }
+        if (parser.toknext > 0 && tokens[0].type != JSMN_ARRAY) {
+            goto fail;
+        }
+        if (first_chunk) {
+            if (parser.toknext == 0) {
+                /* Nothing but whitespace (or one long string or
+                 * primitive), so not an array. */
+                goto fail;
+            }
+            if (!file_iscompressed(wth->fh)) {
+                int64_t file_size = wtap_file_size(wth, err);
+                if (file_size < 0) {
+                    ret = WTAP_OPEN_ERROR;
+                    goto fail;
+                }
+                if (file_size > MOQ_MAX_METADATA_SIZE) {
+                    goto fail;
+                }
+            }
+        }
+        if (at_eof) {
+            break;
+        }
+        if (wth->ispipe && buf_size >= max_size) {
+            /*
+             * We have to read and parse all the metadata before deciding
+             * whether it's ours. On a pipe, reading more could read past
+             * what the I/O routines buffer, after which neither we nor
+             * the open routines tried after us (which start by seeking
+             * back to the beginning) could seek back, so give up; the
+             * JSON reader can read it as plain JSON.
+             *
+             * XXX - that means larger MoQ metadata read from a pipe is
+             * silently shown as plain JSON, without its objects. Find a
+             * way to tell the user that (see the same comment in
+             * netlog.c). Following metadata that is appended to as new
+             * data files are written would also need the metadata parsed
+             * as a stream, which might fit better in an extcap.
+             */
+            goto fail;
+        }
+        if (buf_size >= max_size) {
+            /* Too large */
+            goto fail;
+        }
+        buf_size = MIN(buf_size * 2, max_size);
+        json_buf = (char *)g_realloc(json_buf, buf_size + 1);
     }
-    json_buf[bytes_read] = '\0';
-    token_count = json_parse_len(json_buf, (size_t)bytes_read, NULL, 0);
-    if (token_count <= 0) {
-        g_free(json_buf);
-        return WTAP_OPEN_NOT_MINE;
+    if (token_count < 0) {
+        /* The file ends with the array (or something in it) not
+         * closed, or in the middle of a string or primitive. */
+        goto fail;
     }
-    tokens = g_new0(jsmntok_t, token_count);
-    if (json_parse_len(json_buf, (size_t)bytes_read, tokens, (unsigned int)token_count) < 0 ||
-        tokens[0].type != JSMN_ARRAY) {
-        g_free(tokens);
-        g_free(json_buf);
-        return WTAP_OPEN_NOT_MINE;
-    }
+    json_buf[buf_len] = '\0';
 
     priv = g_new0(moq_priv_t, 1);
     priv->records = g_ptr_array_new_with_free_func(moq_record_free);
@@ -273,6 +400,11 @@ moq_open(wtap *wth, int *err, char **err_info)
     wth->file_tsprec = WTAP_TSPREC_MSEC;
     wth->snapshot_length = 0;
     return WTAP_OPEN_MINE;
+
+fail:
+    g_free(tokens);
+    g_free(json_buf);
+    return ret;
 }
 
 static const struct supported_block_type moq_blocks_supported[] = {
