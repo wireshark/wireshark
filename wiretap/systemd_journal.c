@@ -69,10 +69,29 @@ static int systemd_journal_file_type_subtype = -1;
 
 void register_systemd_journal(void);
 
-wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, char **err_info _U_)
+/*
+ * If line starts with a field name (which consists of uppercase letters,
+ * digits, and underscores) followed by '=' (a text field) or a newline
+ * (a binary field), return a pointer to the character after the name;
+ * otherwise, return NULL.
+ */
+static const char *
+export_field_name_end(const char *line)
+{
+    const char *p = line;
+
+    while ((*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9') || *p == '_')
+        p++;
+    if (p == line || (*p != '=' && *p != '\n'))
+        return NULL;
+    return p;
+}
+
+wtap_open_return_val systemd_journal_open(wtap *wth, int *err, char **err_info)
 {
     char *entry_buff = (char*) g_malloc(MAX_EXPORT_ENTRY_LENGTH);
     char *entry_line = NULL;
+    const char *name_end;
     bool got_cursor = false;
     bool got_rt_ts = false;
     bool got_mt_ts = false;
@@ -86,12 +105,56 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, char **err_in
         }
         if (entry_line[0] == '\n') {
             break;
+        }
+        /*
+         * Every line of an entry must start with a field name. If one
+         * doesn't, this isn't an export file; stop now, rather than
+         * reading up to MAX_EXPORT_ENTRY_LINES lines of up to
+         * MAX_EXPORT_ENTRY_LENGTH bytes each, which is slow and, on a
+         * pipe, more than we can seek back over.
+         */
+        name_end = export_field_name_end(entry_line);
+        if (name_end == NULL) {
+            g_free(entry_buff);
+            return WTAP_OPEN_NOT_MINE;
+        }
+        if (*name_end == '\n') {
+            /*
+             * A binary field: a 64-bit little-endian length, the data,
+             * and a newline. Skip it.
+             */
+            uint8_t len_buf[8];
+            uint64_t data_len;
+
+            if (!wtap_read_bytes(wth->fh, len_buf, sizeof len_buf, err, err_info)) {
+                g_free(entry_buff);
+                if (*err != WTAP_ERR_SHORT_READ)
+                    return WTAP_OPEN_ERROR;
+                *err = 0;
+                return WTAP_OPEN_NOT_MINE;
+            }
+            data_len = pletohu64(len_buf);
+            if (data_len >= MAX_EXPORT_ENTRY_LENGTH) {
+                g_free(entry_buff);
+                return WTAP_OPEN_NOT_MINE;
+            }
+            if (!wtap_read_bytes(wth->fh, NULL, (unsigned) data_len + 1, err, err_info)) {
+                g_free(entry_buff);
+                if (*err != WTAP_ERR_SHORT_READ)
+                    return WTAP_OPEN_ERROR;
+                *err = 0;
+                return WTAP_OPEN_NOT_MINE;
+            }
         } else if (strncmp(entry_line, FLD__CURSOR, strlen(FLD__CURSOR)) == 0) {
             got_cursor = true;
         } else if (strncmp(entry_line, FLD__REALTIME_TIMESTAMP, strlen(FLD__REALTIME_TIMESTAMP)) == 0) {
             got_rt_ts = true;
         } else if (strncmp(entry_line, FLD__MONOTONIC_TIMESTAMP, strlen(FLD__MONOTONIC_TIMESTAMP)) == 0) {
             got_mt_ts = true;
+        }
+        if (got_cursor && got_rt_ts && got_mt_ts) {
+            /* That's all we need. */
+            break;
         }
     }
     g_free(entry_buff);
