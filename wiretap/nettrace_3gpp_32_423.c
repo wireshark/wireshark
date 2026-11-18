@@ -36,6 +36,7 @@
 #include <wsutil/ws_assert.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
+#include <libxml/xmlreader.h>
 #include <libxml/xpath.h>
 #include <glib.h>
 
@@ -643,6 +644,7 @@ nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, xmlNodePtr root_element, int* e
 							(void)g_strlcpy(proto_name_str, (const char*)str, (size_t)proto_str_len + 1);
 							ascii_strdown_inplace(proto_name_str);
 							found_protocol = true;
+							xmlFree(str);
 						}
 					}
 				}
@@ -1021,94 +1023,123 @@ nettrace_close(wtap *wth)
 	}
 }
 
-/* Validate the file header and extract the beginTime timestamp.
+/* Validate a <fileHeader> element and extract the beginTime timestamp.
  * Returns WTAP_OPEN_MINE if valid, WTAP_OPEN_NOT_MINE otherwise.
  * On success, start_time is set from the traceCollec beginTime attribute.
  */
 static wtap_open_return_val
-nettrace_parse_file_header(xmlNodePtr root_element, nstime_t *start_time)
+nettrace_parse_file_header(xmlNodePtr cur, nstime_t *start_time)
 {
-	if (root_element->children == NULL)
-		return WTAP_OPEN_NOT_MINE;
-
-	for (xmlNodePtr cur = root_element->children; cur != NULL; cur = cur->next) {
-		if (cur->type != XML_ELEMENT_NODE)
-			continue;
-		if (xmlStrcmp(cur->name, (const xmlChar*)"fileHeader") != 0)
-			continue;
-
-		/* Validate fileFormatVersion attribute */
-		for (xmlAttrPtr attr = cur->properties; attr; attr = attr->next) {
-			if (xmlStrcmp(attr->name, (const xmlChar*)"fileFormatVersion") == 0) {
-				xmlChar* version = xmlNodeListGetString(cur->doc, attr->children, 1);
-				if (version == NULL)
-					return WTAP_OPEN_NOT_MINE;
-				bool valid = (strncmp((const char*)version, "32.423", strlen("32.423")) == 0);
-				xmlFree(version);
-				if (!valid)
-					return WTAP_OPEN_NOT_MINE;
-			}
+	/* Validate fileFormatVersion attribute */
+	for (xmlAttrPtr attr = cur->properties; attr; attr = attr->next) {
+		if (xmlStrcmp(attr->name, (const xmlChar*)"fileFormatVersion") == 0) {
+			xmlChar* version = xmlNodeListGetString(cur->doc, attr->children, 1);
+			if (version == NULL)
+				return WTAP_OPEN_NOT_MINE;
+			bool valid = (strncmp((const char*)version, "32.423", strlen("32.423")) == 0);
+			xmlFree(version);
+			if (!valid)
+				return WTAP_OPEN_NOT_MINE;
 		}
+	}
 
-		/* Extract beginTime from <traceCollec beginTime="..."> */
-		for (xmlNodePtr child = cur->children; child != NULL; child = child->next) {
-			if (child->type != XML_ELEMENT_NODE)
-				continue;
-			if (xmlStrcmp(child->name, (const xmlChar*)"traceCollec") != 0)
-				continue;
-			for (xmlAttrPtr attr = child->properties; attr; attr = attr->next) {
-				if (xmlStrcmp(attr->name, (const xmlChar*)"beginTime") == 0) {
-					xmlChar* str_begintime = xmlNodeListGetString(child->doc, attr->children, 1);
-					if (str_begintime != NULL) {
-						iso8601_to_nstime(start_time, (const char*)str_begintime, ISO8601_DATETIME);
-						xmlFree(str_begintime);
-					}
+	/* Extract beginTime from <traceCollec beginTime="..."> */
+	for (xmlNodePtr child = cur->children; child != NULL; child = child->next) {
+		if (child->type != XML_ELEMENT_NODE)
+			continue;
+		if (xmlStrcmp(child->name, (const xmlChar*)"traceCollec") != 0)
+			continue;
+		for (xmlAttrPtr attr = child->properties; attr; attr = attr->next) {
+			if (xmlStrcmp(attr->name, (const xmlChar*)"beginTime") == 0) {
+				xmlChar* str_begintime = xmlNodeListGetString(child->doc, attr->children, 1);
+				if (str_begintime != NULL) {
+					iso8601_to_nstime(start_time, (const char*)str_begintime, ISO8601_DATETIME);
+					xmlFree(str_begintime);
 				}
 			}
 		}
-		return WTAP_OPEN_MINE;
 	}
-	return WTAP_OPEN_NOT_MINE;
+	return WTAP_OPEN_MINE;
+}
+
+/*
+ * libxml2 read callback, reading the file through our own file handle.
+ *
+ * Don't have libxml2 open the file by name: it would then be read
+ * independently of wth->fh, so a compressed file wouldn't be decompressed
+ * by us (and possibly not at all), and on a pipe it would read, and so
+ * take away from the open routines tried after us, data that we haven't
+ * buffered yet.
+ */
+static int
+nettrace_xml_read(void *context, char *buffer, int len)
+{
+	/* Returns -1 on error, as libxml2 expects. */
+	return file_read(buffer, (unsigned int)len, (FILE_T)context);
 }
 
 /* Test the current file to see if it's one we can read.
  * Set in file_access.c as the function to be called for this file type.
  */
 wtap_open_return_val
-nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
+nettrace_3gpp_32_423_file_open(wtap *wth, int *err, char **err_info)
 {
 	nstime_t start_time = NSTIME_INIT_UNSET;
 	nettrace_3gpp_32_423_file_info_t *file_info;
-	xmlDocPtr doc;
-	xmlNodePtr root_element = NULL;
+	xmlTextReaderPtr reader;
+	xmlNodePtr header;
+	wtap_open_return_val header_result = WTAP_OPEN_NOT_MINE;
+	int ret;
 
-	doc = xmlReadFile(wth->pathname, NULL, XML_PARSE_NONET | XML_PARSE_NOERROR);
-	if (doc == NULL) {
-		return WTAP_OPEN_NOT_MINE;
+	/*
+	 * Read only as far as the file header, rather than parsing the
+	 * whole document: on a pipe, reading past what the I/O routines
+	 * buffer means that the open routines tried after us (e.g., for
+	 * other XML files) couldn't seek back to the beginning, and parsing
+	 * a large file twice (here and when reading it) is slow anyway.
+	 */
+	reader = xmlReaderForIO(nettrace_xml_read, NULL, wth->fh, wth->pathname, NULL,
+	    XML_PARSE_NONET | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
+	if (reader == NULL) {
+		goto not_mine;
 	}
 
-	root_element = xmlDocGetRootElement(doc);
-	if (root_element == NULL) {
-		xmlFreeDoc(doc);
-		return WTAP_OPEN_NOT_MINE;
+	/* The root element must be <traceCollecFile> (note: no 't' in Collec) */
+	while ((ret = xmlTextReaderRead(reader)) == 1 &&
+	    xmlTextReaderNodeType(reader) != XML_READER_TYPE_ELEMENT)
+		;
+	if (ret != 1 || xmlStrcmp(xmlTextReaderConstLocalName(reader), (const xmlChar*)"traceCollecFile") != 0) {
+		goto not_mine;
 	}
 
-	/* Sanity check: root must be <traceCollecFile> (note: no 't' in Collec) */
-	if (xmlStrcmp(root_element->name, (const xmlChar*)"traceCollecFile") != 0) {
-		ws_debug("traceCollecFile did not match root_element->name %s", root_element->name);
-		xmlFreeDoc(doc);
-		return WTAP_OPEN_NOT_MINE;
+	/* Its first child element must be <fileHeader> */
+	while ((ret = xmlTextReaderRead(reader)) == 1 &&
+	    xmlTextReaderNodeType(reader) != XML_READER_TYPE_ELEMENT &&
+	    xmlTextReaderNodeType(reader) != XML_READER_TYPE_END_ELEMENT)
+		;
+	if (ret != 1 || xmlTextReaderNodeType(reader) != XML_READER_TYPE_ELEMENT ||
+	    xmlTextReaderDepth(reader) != 1 ||
+	    xmlStrcmp(xmlTextReaderConstLocalName(reader), (const xmlChar*)"fileHeader") != 0) {
+		goto not_mine;
 	}
 
-	/* Validate file header and extract beginTime */
-	wtap_open_return_val header_result = nettrace_parse_file_header(root_element, &start_time);
+	/* Validate the file header and extract beginTime */
+	header = xmlTextReaderExpand(reader);
+	if (header == NULL) {
+		goto not_mine;
+	}
+	header_result = nettrace_parse_file_header(header, &start_time);
+	xmlFreeTextReader(reader);
+	reader = NULL;
 	if (header_result != WTAP_OPEN_MINE) {
-		xmlFreeDoc(doc);
 		return header_result;
 	}
 
 	/* Ok it's our file. From here we'll need to free memory */
-	xmlFreeDoc(doc);
+
+	/* libxml2 read the file; go back to the beginning to read the packets. */
+	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+		return WTAP_OPEN_ERROR;
 
 	file_info = g_new0(nettrace_3gpp_32_423_file_info_t, 1);
 	file_info->start_time = start_time;
@@ -1128,6 +1159,15 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 	wth->priv = (void*)file_info;
 
 	return WTAP_OPEN_MINE;
+
+not_mine:
+	if (reader != NULL)
+		xmlFreeTextReader(reader);
+	*err = file_error(wth->fh, err_info);
+	if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+		return WTAP_OPEN_ERROR;
+	*err = 0;
+	return WTAP_OPEN_NOT_MINE;
 }
 
 static const struct supported_block_type nettrace_3gpp_32_423_blocks_supported[] = {
