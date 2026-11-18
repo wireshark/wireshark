@@ -27,6 +27,9 @@
 #include "socketcan.h"
 
 #define PEAK_TRC_MAX_LINE_SIZE 4096 // J1939 logs could contain long lines
+/* Give up if a file starts with more than this many bytes of empty lines
+ * (or NULs, which file_gets() returns as empty lines). */
+#define PEAK_TRC_MAX_LEADING_EMPTY 65536
 
 typedef enum {
     FileVersion,
@@ -102,6 +105,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
 {
     int64_t seek_off = 0;
     bool found_timestamp = false;
+    bool found_line = false;
     char line_buffer[PEAK_TRC_MAX_LINE_SIZE];
 
     /* 1.0 file format does not have version info or column line,
@@ -144,8 +148,12 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
         size_t line_len = strlen(line_buffer);
 
         /* Ignore empty lines */
-        if (line_len == 0)
+        if (line_len == 0) {
+            if (!found_line && file_tell(wth->fh) > PEAK_TRC_MAX_LEADING_EMPTY)
+                return WTAP_OPEN_NOT_MINE;
             continue;
+        }
+        found_line = true;
 
         /* The intention here is to get through all of the "header" which consists of
          * "commented" lines (notated with a ;)
