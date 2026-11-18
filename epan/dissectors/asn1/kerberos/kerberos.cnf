@@ -113,6 +113,22 @@ PADATA-TYPE PROT_PREFIX UPPER_CASE
 AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
+#.FN_HDR Applications
+  if (!kerberos_nesting_enter(actx, tree, tvb, offset)) {
+    return tvb_reported_length(tvb);
+  }
+
+#.FN_FTR Applications
+  kerberos_nesting_leave(actx);
+
+#.FN_HDR AD-IF-RELEVANT
+  if (!kerberos_nesting_enter(actx, tree, tvb, offset)) {
+    return tvb_reported_length(tvb);
+  }
+
+#.FN_FTR AD-IF-RELEVANT
+  kerberos_nesting_leave(actx);
+
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   uint32_t msgtype;

@@ -167,6 +167,7 @@ typedef struct {
 	wmem_list_t *learnt_keys;
 	wmem_list_t *missing_keys;
 	uint32_t within_PA_TGS_REQ;
+	uint32_t nesting;
 	struct _kerberos_PA_FX_FAST_REQUEST {
 		bool defer;
 		tvbuff_t *tvb;
@@ -411,6 +412,7 @@ static expert_field ei_kerberos_learnt_keytype;
 static expert_field ei_kerberos_address;
 static expert_field ei_krb_gssapi_bndlen;
 static expert_field ei_kerberos_pac_buffer;
+static expert_field ei_kerberos_nesting;
 static expert_field ei_krb_gssapi_dlglen;
 static expert_field ei_krb_gssapi_extlen;
 
@@ -421,6 +423,38 @@ static uint32_t gbl_keytype;
 static bool gbl_do_col_info;
 
 #include "packet-kerberos-val.h"
+
+/*
+ * Kerberos messages and authorization data can contain other Kerberos
+ * messages (an AP-REQ in a PA-TGS-REQ or a FAST armor, a KRB-ERROR in
+ * a PA-FX-ERROR, an AD-IF-RELEVANT in an AD-IF-RELEVANT, ...). No
+ * real message nests more than a few levels, so don't go deeper than
+ * this. The counter is kept in the private data of the packet.
+ */
+#define KERBEROS_MAX_NESTING 16
+
+static bool
+kerberos_nesting_enter(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, unsigned offset)
+{
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+
+	if (private_data->nesting >= KERBEROS_MAX_NESTING) {
+		proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_nesting, tvb, offset, -1);
+		return false;
+	}
+	private_data->nesting++;
+	return true;
+}
+
+static void
+kerberos_nesting_leave(asn1_ctx_t *actx)
+{
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+
+	if (private_data->nesting > 0) {
+		private_data->nesting--;
+	}
+}
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -6035,6 +6069,7 @@ void proto_register_kerberos(void) {
 		{ &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decrypted keytype", EXPFILL }},
 		{ &ei_kerberos_learnt_keytype, { "kerberos.learnt_keytype", PI_SECURITY, PI_CHAT, "Learnt keytype", EXPFILL }},
 		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I don't know how to parse this type of address yet", EXPFILL }},
+		{ &ei_kerberos_nesting, { "kerberos.nesting_too_deep", PI_MALFORMED, PI_ERROR, "Kerberos messages nested too deeply", EXPFILL }},
 		{ &ei_kerberos_pac_buffer, { "kerberos.pac_buffer.invalid", PI_MALFORMED, PI_ERROR, "Invalid PAC_INFO_BUFFER", EXPFILL }},
 		{ &ei_krb_gssapi_bndlen, { "kerberos.gssapi.bndlen.error", PI_MALFORMED, PI_ERROR, "Bnd length exceeds bytes remaining", EXPFILL }},
 		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen exceeds bytes remaining", EXPFILL }},
