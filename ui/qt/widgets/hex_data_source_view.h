@@ -573,6 +573,19 @@ private:
     void scrollToByte(int byte);
 
     /**
+     * @brief Scroll the minimum amount needed to show as much of a field
+     * as possible while keeping one of its bytes visible.
+     *
+     * If the field is already entirely visible, or as much of it as
+     * possible with @p anchor visible already is, nothing is scrolled.
+     *
+     * @param start  The first byte of the field.
+     * @param length The length of the field.
+     * @param anchor The byte that must remain visible, e.g. the clicked byte.
+     */
+    void scrollToField(int start, int length, int anchor);
+
+    /**
      * @brief Update scrollbar page steps, ranges, and single-step sizes.
      */
     void updateScrollbars();
@@ -672,6 +685,9 @@ private:
     int selection_start_;  /**< Smaller of anchor and end; the first selected byte. */
     int selection_end_;    /**< Larger of anchor and end; the last selected byte. */
     bool selecting_;       /**< true while a mouse-drag selection is in progress. */
+    int pending_scroll_start_;  /**< Field to scroll to when the press selecting it is released, or -1. */
+    int pending_scroll_len_;    /**< Length of the field to scroll to on release. */
+    int pending_scroll_anchor_; /**< The pressed byte, which must stay visible. */
     int context_byte_offset_;   /**< Byte offset saved at context-menu open time. */
     int cursor_byte_;           /**< Byte offset of the keyboard cursor. */
     int hovered_annotation_index_; /**< Index of the annotation under the cursor, or -1. */
