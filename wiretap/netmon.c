@@ -44,6 +44,9 @@
 /* Magic number size, for both 1.x and 2.x. */
 #define MAGIC_SIZE	4
 
+/* Size of the chunks in which to read the frame table */
+#define NETMON_FRAME_TABLE_CHUNK_SIZE	(64 * 1024)
+
 /* Magic number in Network Monitor 1.x files. */
 static const char netmon_1_x_magic[MAGIC_SIZE] = {
 	'R', 'T', 'S', 'S'
@@ -431,7 +434,8 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 	uint32_t comment_table_size, process_info_table_count;
 	GHashTable *comment_table, *process_info_table;
 	struct netmonrec_comment* comment_rec;
-	int64_t file_size = wtap_file_size(wth, err);
+	int64_t file_size = -1;
+	uint32_t frame_table_read, frame_table_alloc;
 #if G_BYTE_ORDER == G_BIG_ENDIAN
 	unsigned int i;
 #endif
@@ -453,6 +457,18 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 	/* Read the rest of the header. */
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
 		return WTAP_OPEN_ERROR;
+
+	/*
+	 * If the file is neither compressed nor a pipe, its size is that
+	 * of its contents, and we check that the tables fit within it.
+	 * Otherwise, the size is unknown (-1); reads past the end of the
+	 * contents fail instead.
+	 */
+	if (!wth->ispipe && !file_iscompressed(wth->fh)) {
+		file_size = wtap_file_size(wth, err);
+		if (file_size == -1)
+			return WTAP_OPEN_ERROR;
+	}
 
 	switch (hdr.ver_major) {
 
@@ -566,7 +582,8 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 	 * in it as the offsets of the frames.
 	 */
 	frame_table_length = pletohu32(&hdr.frametablelength);
-	if (frame_table_length > file_size || frame_table_offset > file_size - frame_table_length) {
+	if (file_size != -1 &&
+	    (frame_table_length > file_size || frame_table_offset > file_size - frame_table_length)) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("netmon: frame table is %u bytes at offset %u, which does not fit into a file of size %" PRIu64,
 		    frame_table_length, frame_table_offset, file_size);
@@ -630,7 +647,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 			return WTAP_OPEN_ERROR;
 		}
 
-		if (comment_table_offset > file_size) {
+		if (file_size != -1 && comment_table_offset > file_size) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = ws_strdup_printf("netmon: comment table offset (%u) is larger than file",
 				comment_table_offset);
@@ -654,7 +671,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 			return WTAP_OPEN_ERROR;
 		}
 
-		if (process_info_table_offset > file_size) {
+		if (file_size != -1 && process_info_table_offset > file_size) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = ws_strdup_printf("netmon: process info table offset (%u) is larger than file",
 				process_info_table_offset);
@@ -666,15 +683,36 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 		return WTAP_OPEN_ERROR;
 	}
 
-	frame_table = (uint32_t *)g_try_malloc(frame_table_length);
-	if (frame_table_length != 0 && frame_table == NULL) {
-		*err = ENOMEM;	/* we assume we're out of memory */
-		return WTAP_OPEN_ERROR;
-	}
-	if (!wtap_read_bytes(wth->fh, frame_table, frame_table_length,
-	    err, err_info)) {
-		g_free(frame_table);
-		return WTAP_OPEN_ERROR;
+	/*
+	 * Read the frame table in chunks, growing the buffer as we go, so
+	 * that if we couldn't check its length against the file's size, a
+	 * bogus length in a short file doesn't make us allocate a huge
+	 * table before the read fails.
+	 */
+	frame_table = NULL;
+	frame_table_read = 0;
+	frame_table_alloc = 0;
+	while (frame_table_read < frame_table_length) {
+		uint32_t chunk = MIN(frame_table_length - frame_table_read, NETMON_FRAME_TABLE_CHUNK_SIZE);
+		if (frame_table_read + chunk > frame_table_alloc) {
+			uint32_t *new_table;
+
+			frame_table_alloc = (uint32_t)MIN(frame_table_length,
+			    MAX(frame_table_read + chunk, (uint64_t)frame_table_alloc * 2));
+			new_table = (uint32_t *)g_try_realloc(frame_table, frame_table_alloc);
+			if (new_table == NULL) {
+				g_free(frame_table);
+				*err = ENOMEM;	/* we assume we're out of memory */
+				return WTAP_OPEN_ERROR;
+			}
+			frame_table = new_table;
+		}
+		if (!wtap_read_bytes(wth->fh, (uint8_t *)frame_table + frame_table_read,
+		    chunk, err, err_info)) {
+			g_free(frame_table);
+			return WTAP_OPEN_ERROR;
+		}
+		frame_table_read += chunk;
 	}
 	netmon->frame_table_size = frame_table_size;
 	netmon->frame_table = frame_table;
