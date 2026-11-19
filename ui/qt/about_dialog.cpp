@@ -448,8 +448,8 @@ void AboutDialog::updateWiresharkText()
     QString vcs_version_info_str = getVCSVersion();
     QString copyright_info_str = get_copyright_info();
     QString license_info_str = get_license_info();
-    QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(gather_wireshark_qt_compiled_info));
-    QString runtime_info_str = gstring_free_to_qbytearray(get_runtime_version_info(gather_wireshark_runtime_info));
+    QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(gather_application_qt_compiled_info));
+    QString runtime_info_str = gstring_free_to_qbytearray(get_runtime_version_info(gather_application_runtime_info));
 
     QString message = ColorUtils::themeLinkStyle();
 
@@ -478,8 +478,8 @@ void AboutDialog::updateWiresharkText()
 #if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
 DIAG_OFF(stringop-overread)
 #endif
-    clipboardInfo += gstring_free_to_qbytearray(get_compiled_version_info(gather_wireshark_qt_compiled_info)) + "\n";
-    clipboardInfo += gstring_free_to_qbytearray(get_runtime_version_info(gather_wireshark_runtime_info)) + "\n";
+    clipboardInfo += gstring_free_to_qbytearray(get_compiled_version_info(gather_application_qt_compiled_info)) + "\n";
+    clipboardInfo += gstring_free_to_qbytearray(get_runtime_version_info(gather_application_runtime_info)) + "\n";
 #if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
 DIAG_ON(stringop-overread)
 #endif
