@@ -302,19 +302,15 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
 
     // Buttons take the window surface with readable window text in high
     // contrast, so a platform baseline (such as a Windows high-contrast
-    // scheme) does not mix its colors into the theme.
-#ifdef Q_OS_MACOS
-    // On macOS they also do so whenever the theme sets a window color for
-    // this mode.  QMacStyle fills item view header sections, the packet
-    // list column header among them, with Button and labels them in
-    // ButtonText, so without this a tinted window keeps the system grey
-    // header.  Themes without a window color keep the system roles, since
-    // every build starts from the baseline.
+    // scheme) does not mix its colors into the theme. QHeaderViews (which
+    // includes the packet list column header) are filled with Button and
+    // labeled in ButtonText on QMacStyle, QWindows11Style, QFusionStyle,
+    // etc., so without this the headers keep the system gray color and
+    // don't match the theme. Themes without a window color keep the
+    // system colors. Alternatively we could add Button and ButtonText
+    // tokens and have themes specify those as well.
     const bool buttonFollowsWindow = highContrast
             || ThemeTokenHandler::sideOf(tokens, ThemeManager::PaletteWindow, isDarkMode).isValid();
-#else
-    const bool buttonFollowsWindow = highContrast;
-#endif
 
     if (buttonFollowsWindow) {
         const QColor window     = pal.color(QPalette::Active, QPalette::Window);
