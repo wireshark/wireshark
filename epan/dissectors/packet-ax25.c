@@ -3679,7 +3679,7 @@ ax25_dissect_control_unknown_cr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	poll_final = (control & XDLC_P_F) != 0;
 	info = wmem_strdup_printf(pinfo->pool, "U%s, func=%s",
 			poll_final ? " P/F" : "",
-			val_to_str(pinfo->pool, control & XDLC_U_MODIFIER_MASK, ax25_u_short_vals, "Unknown"));
+			val_to_str_const(control & XDLC_U_MODIFIER_MASK, ax25_u_short_vals, "Unknown"));
 	col_add_str(pinfo->cinfo, COL_INFO, info);
 	tc = proto_tree_add_uint_format(tree, hf_ax25_ctl, tvb, offset, 1, control,
 			"Control field: %s (0x%02X)", info, control);
