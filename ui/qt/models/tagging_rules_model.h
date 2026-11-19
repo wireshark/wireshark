@@ -17,7 +17,7 @@
 
 #include <epan/tag_rules.h>
 
-#include <ui/qt/models/tree_model_helpers.h>
+#include <ui/qt/models/inherited_rules_model.h>
 
 #include <QList>
 #include <QAbstractItemModel>
@@ -83,12 +83,18 @@ public:
 
     /** @brief Optional reference comment. */
     QString comment_;
+
+    /** @brief The parent profile the rule is inherited from, empty for an own rule. */
+    QString source_profile_;
+
+    /** @brief Whether the rule comes from a parent profile; such a rule is read-only. @return true if inherited. */
+    bool isInherited() const { return !source_profile_.isEmpty(); }
 };
 
 /**
  * @brief A model managing the tagging rules for packet display.
  */
-class TaggingRulesModel : public QAbstractItemModel
+class TaggingRulesModel : public InheritedRulesModel<TaggingRuleItem>
 {
     Q_OBJECT
 
@@ -149,13 +155,18 @@ public:
     bool loadFromPath(const QString &path, QString &err);
 
     /**
-     * @brief Write current model rules to an arbitrary path.
+     * @brief Write the own rules to the profile's file.
+     *
+     * A file without rules is written only if the file had rules, or the
+     * preferences changed; a profile without a file keeps using the
+     * inherited rules.
      * @param path     Full path to write.
      * @param prefs    Prefs to embed in the file header (may be NULL).
+     * @param prefs_changed Set if the preferences differ from the file's.
      * @param err      Set to error message on failure.
      * @return True on success.
      */
-    bool writeToPath(const QString &path, const tag_prefs_t *prefs, QString &err);
+    bool writeToPath(const QString &path, const tag_prefs_t *prefs, bool prefs_changed, QString &err);
 
     /**
      * @brief Imports tagging rules from a file, appending to the current model.
@@ -172,12 +183,6 @@ public:
      * @return True if the export succeeded, false otherwise.
      */
     bool exportRules(const QString &path, QString &err);
-
-    /**
-     * @brief Applies the model rules as the active list and writes to the active profile's file.
-     * @return True if writing succeeded, false otherwise.
-     */
-    bool writeTags();
 
     /**
      * @brief Retrieves the item flags for a given index.
@@ -214,30 +219,6 @@ public:
                         int role = Qt::DisplayRole) const override;
 
     /**
-     * @brief Generates an index for the specified row and column.
-     * @param row The row number.
-     * @param column The column number.
-     * @param parent The parent model index (defaults to an invalid QModelIndex).
-     * @return The generated model index.
-     */
-    QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const override;
-
-    /**
-     * @brief Retrieves the parent index of the specified index.
-     * @param indexItem The child model index.
-     * @return The parent model index.
-     */
-    QModelIndex parent(const QModelIndex &indexItem) const override;
-
-    /**
-     * @brief Returns the number of rows under the given parent.
-     * @param parent The parent model index (defaults to an invalid QModelIndex).
-     * @return The number of rows in the model.
-     */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-
-    /**
      * @brief Returns the number of columns under the given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of columns in the model.
@@ -261,19 +242,6 @@ public:
      * @return True if the removal was successful, false otherwise.
      */
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
-
-    /**
-     * @brief Moves rules, as RowMoveTreeView and the UAT model do.
-     * @param sourceParent Unused, the rules are a flat list.
-     * @param sourceRow The first rule to move.
-     * @param count The number of rules to move.
-     * @param destinationParent Unused, the rules are a flat list.
-     * @param destinationChild The row where the first rule moved up, or the
-     * last rule moved down, ends up.
-     * @return true if the rules were moved.
-     */
-    bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count,
-                  const QModelIndex &destinationParent, int destinationChild) override;
 
     // Drag-and-drop functionality
 
@@ -308,7 +276,21 @@ public:
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column,
                       const QModelIndex &parent) override;
 
+protected:
+    QList<TaggingRuleItem*> readInherited(profile_inherit_e mode) override;
+    QList<TaggingRuleItem*> readOwnRows() override;
+
 private:
+    /** The profile's file, which the own rules are read from and written to. */
+    QString own_path_;
+
+    /**
+     * @brief Whether a tagging rules file has rules, which an empty file may replace.
+     * @param path The file.
+     * @return true if so.
+     */
+    static bool fileHasRules(const QString &path);
+
     /**
      * @brief Builds a GSList of tag_rule_t pointers from the current model items.
      *
@@ -318,8 +300,12 @@ private:
      */
     GSList *createTagRuleList();
 
-    /** @brief Pointer to the root (sentinel) item of the tagging rules tree. */
-    TaggingRuleItem *root_;
+    /**
+     * @brief Creates a GSList of tag rules from rule items.
+     * @param rules The rule items.
+     * @return Newly allocated GSList of tag_rule_t*; caller takes ownership.
+     */
+    GSList *createTagRuleList(const QList<TaggingRuleItem *> &rules);
 
     /** @brief List of rows currently involved in a drag-and-drop operation. */
 };

@@ -10,6 +10,7 @@
 #include <ui/qt/widgets/list_edit_buttons.h>
 
 #include <ui/qt/utils/themes/themed_icon.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
 
 #include <QHBoxLayout>
 
@@ -89,39 +90,63 @@ void ListEditButtons::updateToolTip(QToolButton *button, const QString &base, co
     button->setToolTip(reason.isEmpty() ? base : QStringLiteral("%1\n%2").arg(base, reason));
 }
 
-void ListEditButtons::setSelection(const QModelIndexList &indexes, int row_count)
+void ListEditButtons::setSelection(const InheritSelection &sel)
 {
+    const QString parent_only = ProfileInheritComboBox::ownEntriesNotUsedText();
     const QString nothing_selected = tr("Select an entry first.");
-    const QList<int> rows = rowsLastFirst(indexes);
-    int selected_count = static_cast<int>(rows.count());
-    int first_row = rows.isEmpty() ? -1 : rows.last();
-    int last_row = rows.isEmpty() ? -1 : rows.first();
-    bool selected = selected_count > 0;
+    const QString inherited_read_only = tr("Inherited entries are read-only. Change them in the parent profile, "
+                                           "or copy them to this profile first.");
+    const QString unavailable = tr("Not available for this selection.");
+
+    // New
+    new_button_->setEnabled(sel.own_used);
+    updateToolTip(new_button_, tool_tips_.add, sel.own_used ? QString() : parent_only);
 
     // Delete
-    delete_button_->setEnabled(selected);
-    updateToolTip(delete_button_, tool_tips_.remove, selected ? QString() : nothing_selected);
-
-    // Copy
     QString reason;
-    bool copy_selection = selected && (!copy_single_ || selected_count == 1);
-    if (!selected)
+    if (!sel.selected())
+        reason = nothing_selected;
+    else if (sel.inherited_selected)
+        reason = inherited_read_only;
+    delete_button_->setEnabled(sel.selected() && !sel.inherited_selected);
+    updateToolTip(delete_button_, tool_tips_.remove, reason);
+
+    // Copy; an inherited entry is copied into the entries of this profile
+    reason.clear();
+    bool copy_selection = sel.selected() && (!copy_single_ || sel.selected_count == 1);
+    if (!sel.own_used)
+        reason = parent_only;
+    else if (!sel.selected())
         reason = nothing_selected;
     else if (!copy_selection)
-        reason = tr("Select a single entry to duplicate.");
-    copy_button_->setEnabled(copy_selection);
+        reason = unavailable;
+    copy_button_->setEnabled(sel.own_used && copy_selection);
     updateToolTip(copy_button_, tool_tips_.copy, reason);
 
     // Move
-    bool contiguous = selected_count == last_row - first_row + 1;
-    bool can_move = selected && contiguous;
-    reason = !selected ? nothing_selected : !contiguous ? tr("Select adjacent entries to move them.") : QString();
-    move_up_button_->setEnabled(can_move && first_row > 0);
+    bool can_move = sel.selected() && !sel.inherited_selected && sel.contiguous();
+    reason = !sel.selected() ? nothing_selected : sel.inherited_selected ? inherited_read_only
+           : !sel.contiguous() ? unavailable : QString();
+    move_up_button_->setEnabled(can_move && sel.first_row > 0);
     updateToolTip(move_up_button_, tool_tips_.moveUp, reason);
-    move_down_button_->setEnabled(can_move && last_row < row_count - 1);
+    move_down_button_->setEnabled(can_move && sel.last_row < sel.own_count - 1);
     updateToolTip(move_down_button_, tool_tips_.moveDown, reason);
 
-    // Clear
-    clear_button_->setEnabled(row_count != 0);
-    updateToolTip(clear_button_, tool_tips_.clear, row_count != 0 ? QString() : tr("There are no entries to clear."));
+    // Clear removes the entries of this profile only
+    reason.clear();
+    if (sel.own_visible == 0)
+        reason = unavailable;
+    clear_button_->setEnabled(sel.own_visible != 0);
+    updateToolTip(clear_button_, tool_tips_.clear, reason);
+}
+
+void ListEditButtons::setSelection(const QModelIndexList &indexes, int row_count)
+{
+    const QList<int> rows = rowsLastFirst(indexes);
+    InheritSelection sel;
+    sel.own_count = row_count;
+    sel.selected_count = static_cast<int>(rows.count());
+    sel.first_row = rows.isEmpty() ? -1 : rows.last();
+    sel.last_row = rows.isEmpty() ? -1 : rows.first();
+    setSelection(sel);
 }

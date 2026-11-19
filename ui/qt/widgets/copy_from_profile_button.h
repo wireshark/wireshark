@@ -41,6 +41,14 @@ public:
      */
     void setFilename(QString filename);
 
+    /**
+     * @brief Enables the button when the profile's own entries are used and it has profiles to copy from.
+     *
+     * A tool tip tells why the button is disabled when the own entries are not used.
+     * @param own_used Whether the own entries are used.
+     */
+    void setOwnEntriesUsed(bool own_used);
+
 signals:
     /**
      * @brief Signal emitted when a profile has been selected for copying.

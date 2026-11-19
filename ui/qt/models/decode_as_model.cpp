@@ -21,9 +21,16 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
+#include <ui/qt/utils/color_utils.h>
+#include <QFont>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <app/application_flavor.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_assert.h>
 
+#include <QFont>
+#include <QSet>
 #include <QVector>
 
 static const char *DEFAULT_TABLE = "tcp.port";    // Arbitrary
@@ -167,17 +174,192 @@ void DecodeAsItem::updateHandles()
     }
 }
 
+QString DecodeAsItem::selectorText() const
+{
+    ftenum_t selector_type = get_dissector_table_selector_type(tableName_);
+
+    if (FT_IS_STRING(selector_type)) {
+        return selectorString_;
+    } else if (FT_IS_UINT(selector_type)) {
+        return QString::number(selectorUint_);
+    } else if (selector_type == FT_NONE) {
+        return QStringLiteral("0");
+    }
+
+    // DCE/RPC entries are not read from the decode_as_entries file
+    return QString();
+}
+
+QString DecodeAsItem::entryId() const
+{
+    QString selector = selectorText();
+    if (selector.isNull())
+        return QString();
+
+    return gchar_free_to_qstring(decode_as_entry_id(tableName_, selector.toUtf8().constData()));
+}
+
 DecodeAsModel::DecodeAsModel(QObject *parent, capture_file *cf) :
     QAbstractTableModel(parent),
-    cap_file_(cf)
+    cap_file_(cf),
+    inherit_mode_(profile_get_inherit(application_configuration_environment_prefix(), NULL, DECODE_AS_ENTRIES_FILE_NAME)),
+    refreshing_inherited_(false),
+    own_unsaved_(false)
 {
+    // Changes of the own entries, not the inherited entries being replaced
+    auto changed = [this]() { if (!refreshing_inherited_) own_unsaved_ = true; };
+    connect(this, &QAbstractItemModel::dataChanged, this, changed);
+    connect(this, &QAbstractItemModel::rowsInserted, this, changed);
+    connect(this, &QAbstractItemModel::rowsRemoved, this, changed);
 }
 
 DecodeAsModel::~DecodeAsModel()
 {
-    foreach(DecodeAsItem* item, decode_as_items_)
-        delete item;
+    qDeleteAll(decode_as_items_);
+    qDeleteAll(inherited_items_);
+}
+
+int DecodeAsModel::ownRowCount() const
+{
+    int count = 0;
+    foreach (DecodeAsItem *item, decode_as_items_) {
+        if (!item->isInherited())
+            count++;
+    }
+    return count;
+}
+
+bool DecodeAsModel::isInherited(int row) const
+{
+    return row >= 0 && row < decode_as_items_.count() && decode_as_items_[row]->isInherited();
+}
+
+QString DecodeAsModel::sourceProfile(int row) const
+{
+    return row >= 0 && row < decode_as_items_.count() ? decode_as_items_[row]->sourceProfile() : QString();
+}
+
+void DecodeAsModel::addInheritedEntry(const char *profile_name, const char *value, void *user_data)
+{
+    QList<DecodeAsItem *> *items = static_cast<QList<DecodeAsItem *> *>(user_data);
+    DecodeAsItem *item = itemFromEntry(value);
+    if (item == nullptr)
+        return;
+
+    item->setSourceProfile(QString::fromUtf8(profile_name));
+    *items << item;
+}
+
+void DecodeAsModel::loadInherited()
+{
+    qDeleteAll(inherited_items_);
+    inherited_items_.clear();
+
+    if (inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY)
+        return;
+
+    decode_as_foreach_inherited(inherit_mode_, application_configuration_environment_prefix(),
+                                addInheritedEntry, &inherited_items_);
+}
+
+bool DecodeAsModel::overriddenByOwn(const DecodeAsItem *item) const
+{
+    if (!item->isInherited())
+        return false;
+
+    foreach (DecodeAsItem *own, decode_as_items_) {
+        if (!own->isInherited() && own->entryId() == item->entryId())
+            return true;
+    }
+    return false;
+}
+
+bool DecodeAsModel::isOverridden(int row) const
+{
+    return row >= 0 && row < decode_as_items_.count() && overriddenByOwn(decode_as_items_[row]);
+}
+
+void DecodeAsModel::refreshInherited()
+{
+    // The inherited entries overridden by an own entry are shown too
+    QList<DecodeAsItem *> visible = inherited_items_;
+    int own_count = ownRowCount();
+    int shown = static_cast<int>(decode_as_items_.count()) - own_count;
+
+    // Nothing to do if the same entries are shown already
+    bool same = (shown == visible.count());
+    for (int i = 0; same && i < shown; i++) {
+        DecodeAsItem *item = decode_as_items_[own_count + i];
+        same = item->entryId() == visible[i]->entryId() &&
+               item->currentDissector() == visible[i]->currentDissector() &&
+               item->sourceProfile() == visible[i]->sourceProfile();
+    }
+    if (same) {
+        // Own entries may have changed which inherited entries they override
+        if (shown > 0) {
+            refreshing_inherited_ = true;
+            emit dataChanged(index(own_count, 0), index(own_count + shown - 1, columnCount() - 1));
+            refreshing_inherited_ = false;
+        }
+        return;
+    }
+
+    refreshing_inherited_ = true;
+    if (shown > 0) {
+        beginRemoveRows(QModelIndex(), own_count, own_count + shown - 1);
+        while (decode_as_items_.count() > own_count)
+            delete decode_as_items_.takeLast();
+        endRemoveRows();
+    }
+    if (!visible.isEmpty()) {
+        beginInsertRows(QModelIndex(), own_count, own_count + static_cast<int>(visible.count()) - 1);
+        foreach (DecodeAsItem *item, visible)
+            decode_as_items_ << new DecodeAsItem(*item);
+        endInsertRows();
+    }
+    refreshing_inherited_ = false;
+}
+
+void DecodeAsModel::setInheritMode(profile_inherit_e mode)
+{
+    if (mode == inherit_mode_)
+        return;
+
+    beginResetModel();
+
+    // Drop the inherited rows; they are read again for the new mode
+    QList<DecodeAsItem *> own_items;
+    foreach (DecodeAsItem *item, decode_as_items_) {
+        if (item->isInherited())
+            delete item;
+        else
+            own_items << item;
+    }
     decode_as_items_.clear();
+
+    if (mode == PROFILE_INHERIT_PARENT_ONLY) {
+        // The own entries are not used; the file is left as it is
+        qDeleteAll(own_items);
+    } else if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
+        // The own entries were not used, so read them from the profile
+        char *path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, application_configuration_environment_prefix());
+        FILE *fp = ws_fopen(path, "r");
+        if (fp) {
+            read_prefs_file(path, fp, readDecodeAsEntry, this);
+            fclose(fp);
+        }
+        g_free(path);
+    } else {
+        decode_as_items_ << own_items;
+    }
+
+    inherit_mode_ = mode;
+    own_unsaved_ = false;
+    loadInherited();
+    foreach (DecodeAsItem *item, inherited_items_)
+        decode_as_items_ << new DecodeAsItem(*item);
+
+    endResetModel();
 }
 
 Qt::ItemFlags DecodeAsModel::flags(const QModelIndex &index) const
@@ -188,6 +370,11 @@ Qt::ItemFlags DecodeAsModel::flags(const QModelIndex &index) const
     DecodeAsItem* item = decode_as_items_[index.row()];
 
     Qt::ItemFlags flags = QAbstractTableModel::flags(index);
+
+    // Inherited entries are read-only
+    if (item->isInherited())
+        return flags;
+
     switch(index.column())
     {
     case DecodeAsModel::colTable:
@@ -213,25 +400,69 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    DecodeAsItem* item;
+    DecodeAsItem* item = decode_as_items_[index.row()];
+    bool inherited = item != NULL && item->isInherited();
+    bool overridden = inherited && overriddenByOwn(item);
 
     switch (role)
     {
+    case Qt::FontRole:
+        if (inherited) {
+            QFont font = ProfileInheritComboBox::inheritedData(role, item->sourceProfile()).value<QFont>();
+            // Not used: also struck out
+            font.setStrikeOut(overridden);
+            return font;
+        }
+        return QVariant();
+    case Qt::ForegroundRole:
+        if (inherited)
+            return ProfileInheritComboBox::inheritedData(role, item->sourceProfile());
+        return QVariant();
+    case Qt::DecorationRole:
+        // A lock marks the inherited entries. Own entries get room for it
+        // only when inherited entries are shown, so the first column lines up.
+        if (index.column() != colTable)
+            return QVariant();
+        if (inherited)
+            return overridden ? ProfileInheritComboBox::overriddenIcon() : ProfileInheritComboBox::inheritedIcon();
+        if (ownRowCount() < rowCount()) {
+            return ProfileInheritComboBox::inheritedPlaceholderIcon();
+        }
+        return QVariant();
+    case Qt::AccessibleDescriptionRole:
+        if (inherited)
+            return ProfileInheritComboBox::inheritedData(role, item->sourceProfile());
+        return QVariant();
     case Qt::ToolTipRole:
+    {
+        QString tip;
         switch (index.column())
         {
         case colTable:
-            return tr("Match using this field");
+            tip = tr("Match using this field");
+            break;
         case colSelector:
-            return tr("Change behavior when the field matches this value");
+            tip = tr("Change behavior when the field matches this value");
+            break;
         case colType:
-            return tr("Field value type (and base, if Integer)");
+            tip = tr("Field value type (and base, if Integer)");
+            break;
         case colDefault:
-            return tr("Default \"Decode As\" behavior");
+            tip = tr("Default \"Decode As\" behavior");
+            break;
         case colProtocol:
-            return tr("Current\"Decode As\" behavior");
+            tip = tr("Current\"Decode As\" behavior");
+            break;
         }
-        return QVariant();
+        // The column's description, and where an inherited entry comes from
+        if (overridden)
+            tip = tip.isEmpty() ? ProfileInheritComboBox::notUsedText(item->sourceProfile()) :
+                                  QStringLiteral("%1\n%2").arg(tip, ProfileInheritComboBox::notUsedText(item->sourceProfile()));
+        else if (inherited)
+            tip = tip.isEmpty() ? ProfileInheritComboBox::inheritedText(item->sourceProfile()) :
+                                  QStringLiteral("%1\n%2").arg(tip, ProfileInheritComboBox::inheritedText(item->sourceProfile()));
+        return tip.isEmpty() ? QVariant() : QVariant(tip);
+    }
     case Qt::DisplayRole:
     case Qt::EditRole:
         item = decode_as_items_[index.row()];
@@ -350,7 +581,7 @@ int DecodeAsModel::columnCount(const QModelIndex &parent) const
 
 bool DecodeAsModel::setData(const QModelIndex &cur_index, const QVariant &value, int role)
 {
-    if (!cur_index.isValid())
+    if (!cur_index.isValid() || isInherited(cur_index.row()))
         return false;
 
     if (role != Qt::EditRole)
@@ -403,15 +634,19 @@ bool DecodeAsModel::setData(const QModelIndex &cur_index, const QVariant &value,
         break;
     }
 
+    // An own entry hides an inherited entry for the same field and value
+    refreshInherited();
     return true;
 }
 
 bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/)
 {
     // support insertion of just one item for now.
-    if (count != 1 || row < 0 || row > rowCount())
+    if (count != 1 || row < 0 || row > rowCount() || inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
         return false;
 
+    // New entries are own entries, which come before the inherited entries
+    row = qMin(row, ownRowCount());
     beginInsertRows(QModelIndex(), row, row);
 
     DecodeAsItem* item = nullptr;
@@ -465,16 +700,19 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
     if (item == nullptr) {
         item = new DecodeAsItem(firstEntry);
     }
-    decode_as_items_ << item;
+    decode_as_items_.insert(row, item);
 
     endInsertRows();
 
+    // The inherited entries are refreshed when the new entry is set, so
+    // that a row copied into it right after keeps its index
     return true;
 }
 
 bool DecodeAsModel::removeRows(int row, int count, const QModelIndex &/*parent*/)
 {
-    if (count != 1 || row < 0 || row >= rowCount())
+    // Only own entries can be removed
+    if (count != 1 || row < 0 || row >= ownRowCount())
         return false;
 
     beginRemoveRows(QModelIndex(), row, row);
@@ -482,6 +720,8 @@ bool DecodeAsModel::removeRows(int row, int count, const QModelIndex &/*parent*/
     delete item;
     endRemoveRows();
 
+    // A removed own entry may have hidden an inherited entry
+    refreshInherited();
     return true;
 }
 
@@ -490,10 +730,13 @@ void DecodeAsModel::clearAll()
     if (rowCount() < 1)
         return;
 
+    // Inherited entries are not cleared
     beginResetModel();
     foreach(DecodeAsItem* item, decode_as_items_)
         delete item;
     decode_as_items_.clear();
+    foreach (DecodeAsItem *item, inherited_items_)
+        decode_as_items_ << new DecodeAsItem(*item);
     endResetModel();
 }
 
@@ -506,12 +749,18 @@ bool DecodeAsModel::copyRow(int dst_row, int src_row)
     DecodeAsItem* src = decode_as_items_[src_row];
     DecodeAsItem* dst = decode_as_items_[dst_row];
 
+    if (dst->isInherited())
+        return false;
+
     *dst = *src;
+    // A copy of an inherited entry is an own entry, which then hides the inherited one
+    dst->setSourceProfile(QString());
 
     QVector<int> roles;
     roles << Qt::EditRole << Qt::BackgroundRole;
     emit dataChanged(index(dst_row, 0), index(dst_row, columnCount()), roles);
 
+    refreshInherited();
     return true;
 }
 
@@ -525,6 +774,19 @@ prefs_set_pref_e DecodeAsModel::readDecodeAsEntry(char *key, const char *value, 
         return PREFS_SET_NO_SUCH_PREF;
     }
 
+    DecodeAsItem *item = itemFromEntry(value);
+    if (item == nullptr) {
+        return PREFS_SET_SYNTAX_ERR;
+    }
+
+    // Own entries come before the inherited entries
+    model->decode_as_items_.insert(model->ownRowCount(), item);
+
+    return PREFS_SET_OK;
+}
+
+DecodeAsItem *DecodeAsModel::itemFromEntry(const char *value)
+{
     /* Parse into table, selector, initial, current */
     char **values = g_strsplit_set(value, ",", 4);
     DecodeAsItem *item = nullptr;
@@ -541,9 +803,10 @@ prefs_set_pref_e DecodeAsModel::readDecodeAsEntry(char *key, const char *value, 
         }
     }
 
-    if (item == nullptr) {
+    if (item == nullptr || g_strv_length(values) < 4) {
+        delete item;
         g_strfreev(values);
-        return PREFS_SET_SYNTAX_ERR;
+        return nullptr;
     }
 
     QString selector(values[1]);
@@ -556,10 +819,9 @@ prefs_set_pref_e DecodeAsModel::readDecodeAsEntry(char *key, const char *value, 
      */
     item->setDissectorHandle(dissector_table_get_dissector_handle(dissector_table, values[3]));
 
-    model->decode_as_items_ << item;
     g_strfreev(values);
 
-    return PREFS_SET_OK;
+    return item;
 }
 
 bool DecodeAsModel::copyFromProfile(QString filename, const char **err)
@@ -571,12 +833,15 @@ bool DecodeAsModel::copyFromProfile(QString filename, const char **err)
         return false;
     }
 
-    beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    // The copied entries are own entries, which come before the inherited entries
+    beginResetModel();
     read_prefs_file(filename.toUtf8().constData(), fp, readDecodeAsEntry, this);
-    endInsertRows();
+    endResetModel();
 
     fclose(fp);
 
+    // An own entry hides an inherited entry for the same field and value
+    refreshInherited();
     return true;
 }
 
@@ -665,14 +930,32 @@ void DecodeAsModel::fillTable()
             entry->build_changed_list(buildDceRpcChangedList, this);
     }
 
+    // The tables hold the entries applied from parent profiles as well.
+    // Those are shown as inherited, after the own entries.
+    loadInherited();
+    QList<DecodeAsItem *> own_items;
+    foreach (DecodeAsItem *item, decode_as_items_) {
+        QString selector = item->selectorText();
+        if (!selector.isNull() &&
+            decode_as_entry_is_inherited(item->tableName(), selector.toUtf8().constData(),
+                                         item->currentDissector().toUtf8().constData()))
+            delete item;
+        else
+            own_items << item;
+    }
+    decode_as_items_ = own_items;
+    foreach (DecodeAsItem *item, inherited_items_)
+        decode_as_items_ << new DecodeAsItem(*item);
+
     endResetModel();
 }
 
 void DecodeAsModel::setDissectorHandle(const QModelIndex &index, dissector_handle_t  dissector_handle)
 {
     DecodeAsItem* item = decode_as_items_[index.row()];
-    if (item != NULL)
+    if (item != NULL && !item->isInherited()) {
         item->setDissectorHandle(dissector_handle);
+    }
 }
 
 void DecodeAsModel::buildChangedList(const char *table_name, ftenum_t, void *key, void *value, void *user_data)
@@ -750,6 +1033,7 @@ void DecodeAsModel::gatherChangedEntries(const char *table_name,
 
 void DecodeAsModel::applyChanges()
 {
+    own_unsaved_ = false;
     dissector_table_t sub_dissectors;
     module_t *module;
     pref_t* pref_value;
@@ -788,7 +1072,7 @@ void DecodeAsModel::applyChanges()
     foreach(DecodeAsItem *item, decode_as_items_) {
         decode_as_t       *decode_as_entry;
 
-        if (item->currentDissector().isEmpty()) {
+        if (item->currentDissector().isEmpty() || overriddenByOwn(item)) {
             continue;
         }
 
@@ -879,4 +1163,14 @@ void DecodeAsModel::applyChanges()
         }
     }
     prefs_apply_all();
+
+    // The inherited entries applied are not saved to the profile
+    decode_as_clear_inherited_entries();
+    foreach (DecodeAsItem *item, decode_as_items_) {
+        QString selector = item->selectorText();
+        if (item->isInherited() && !overriddenByOwn(item) && !selector.isNull()) {
+            decode_as_set_inherited_entry(item->tableName(), selector.toUtf8().constData(),
+                                          item->currentDissector().toUtf8().constData());
+        }
+    }
 }

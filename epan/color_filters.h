@@ -15,6 +15,7 @@
 
 #include <wsutil/color.h>
 #include <wsutil/wmem/wmem_list.h>
+#include <wsutil/profile_inherit.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,6 +41,7 @@ typedef struct _color_filter {
     color_t    bg_color;            /* background color for packets that match */
     color_t    fg_color;            /* foreground color for packets that match */
     bool       enabled;             /* set if the filter is enabled */
+    char      *source_profile;      /* the parent profile the filter is inherited from, NULL if own */
 
                                     /* only used inside of color_filters.c */
     struct epan_dfilter *c_colorfilter;  /* compiled filter expression */
@@ -211,6 +213,25 @@ WS_DLL_PUBLIC void color_filters_clone(void *user_data, color_filter_add_cb_func
  * @return true, if read succeeded
  */
 WS_DLL_PUBLIC bool color_filters_import(const char *path, void *user_data, char **err_msg, color_filter_add_cb_func add_cb);
+
+/**
+ * @brief Read the coloring rules inherited from the parent profiles.
+ *
+ * Reads the rules of the parent profile and up, nearest parent first, as
+ * given by the mode. Rules disabled in a parent, conversation rules and
+ * rules with the name of a rule from a nearer parent are
+ * skipped. A parent using its own rules only without a coloring rules file,
+ * like the Default profile, contributes the global rules. Each rule passed
+ * to add_cb has inherited and source_profile set.
+ *
+ * @param mode The inherit mode of the current profile, e.g. one not yet saved.
+ * @param user_data Data passed to add_cb.
+ * @param err_msg Set to a g_malloc()'d error message on failure.
+ * @param add_cb Called for each inherited rule.
+ * @param app_env_var_prefix The prefix for the application environment variable.
+ * @return true on success.
+ */
+WS_DLL_PUBLIC bool color_filters_read_inherited(profile_inherit_e mode, void *user_data, char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix);
 
 /**
  * @brief Read filters from the global filter file (not the users file).

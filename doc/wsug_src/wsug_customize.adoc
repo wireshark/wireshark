@@ -1725,6 +1725,50 @@ profiles. Drag and drop a profile in the Configuration Profiles dialog to move
 it. Nested profiles are named by their path, for example “Customers/ACME”,
 which can also be used with the `-C` command line option.
 
+[#ChCustConfigProfilesInherit]
+==== Entries From Parent Profiles
+
+A profile can use the entries of its parent profile, where a top-level
+profile has the “Default” profile as its parent. This applies to the
+configuration files holding a list of entries, such as the coloring rules,
+tagging rules, “Decode As” entries, saved filters, display filter macros and
+most User Accessible Tables. The dialog editing such a list has a selector
+for where its entries come from:
+
+Profile only::
+Only the entries of this profile are used. This is the default.
+
+Profile and Parent::
+The entries of this profile come first, then the entries of the parent
+profile. An entry of the parent with the same name as an entry of this
+profile is not used, and is shown struck out. For a “Decode As” entry, which
+has no name, the table, the field value and the protocol are compared, and for
+a User Accessible Table without a name field the values of all fields. The
+“Hide unused” check box, shown while there are such entries, hides them and,
+where entries have a check box, the unchecked entries of this profile. It is
+not saved.
+
+Parent only::
+Only the entries of the parent profile are used. The entries of this profile
+are kept, but not used.
+Changes to the entries of this profile that are not saved yet are discarded
+when switching to this setting. A question offers to save them first.
+
+The parent profile uses its own setting, so entries can come from several
+profiles up to the “Default” profile. Entries disabled in a parent profile
+are not used, and still hide an entry with the same name in a profile further
+up. Entries from a parent profile are shown with a lock and can't be changed,
+but they can be copied into the profile's own entries. The
+setting is stored per configuration file in the profile's `profile_settings`
+file, and also applies to TShark.
+
+The profile's own entries always come before the entries from the parent
+profiles. New entries are added among the profile's own entries, at the top
+where the first matching entry is used, such as for coloring rules. A
+profile without entries of its own gets no file, so it keeps using the
+parent's entries or the default entries. A file without entries is only
+saved after the last entry is deleted.
+
 Configuration files stored in each profile include:
 
 * Preferences (preferences) (<<ChCustPreferencesSection>>)

@@ -18,6 +18,7 @@
 #include <epan/uat.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/profile_inherit.h>
 
 #include <ui/preference_utils.h>
 #include <ui/io_graph_item.h>
@@ -37,6 +38,7 @@ class QRubberBand;
 class QTimer;
 class QAbstractButton;
 class CopyFromProfileButton;
+class ProfileInheritComboBox;
 
 class QCPGraph;
 class QCPItemTracer;
@@ -457,9 +459,10 @@ protected:
 private:
     Ui::IOGraphDialog *ui;
     CopyFromProfileButton *copy_profile_bt_; /**< Button that copies graph settings from another profile. */
+    ProfileInheritComboBox *inherit_combo_ = nullptr; /**< Selects where the graphs come from. */
 
-    /** @brief Enables the buttons editing the graphs for the selected rows. */
-    void updateEditButtons();
+    /** @brief Updates the buttons for the selected rows and the source of the graphs. */
+    void updateInheritWidgets();
 
     // Model and delegate chosen over UatFrame to allow custom button layout.
     UatDelegate *uat_delegate_;     /**< Item delegate providing in-place editors for UAT fields. */
@@ -571,6 +574,12 @@ private slots:
      * @param filename Path of the profile file to copy from.
      */
     void copyFromProfile(QString filename);
+
+    /**
+     * @brief Selects where the graphs come from, and saves the selection.
+     * @param mode The inherit mode.
+     */
+    void inheritModeChanged(profile_inherit_e mode);
 
     /** @brief Refresh enabled/disabled state of all toolbar and dialog widgets. */
     void updateWidgets() override;

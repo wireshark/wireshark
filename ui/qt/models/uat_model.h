@@ -19,7 +19,10 @@
 #include <QAbstractItemModel>
 #include <QList>
 #include <QMap>
+#include <QSet>
+#include <optional>
 #include <epan/uat.h>
+#include <wsutil/profile_inherit.h>
 
 /**
  * @brief Table model for representing and managing User Accessible Tables (UAT).
@@ -171,11 +174,6 @@ public:
     bool hasErrors() const;
 
     /**
-     * @brief Clears all entries from the model.
-     */
-    void clearAll();
-
-    /**
      * If the UAT has changed, save the contents to file and invoke the UAT
      * post_update_cb.
      *
@@ -201,7 +199,71 @@ public:
      */
     QModelIndex findRowForColumnContent(QVariant columnContent, int columnToCheckAgainst, int role = Qt::DisplayRole);
 
+    /**
+     * @brief Selects where the records come from, reloading the inherited records.
+     * @param mode The inherit mode.
+     * @param error Set to an error message on failure.
+     * @return True if successful.
+     */
+    bool setInheritMode(profile_inherit_e mode, QString &error);
+
+    /**
+     * @brief Where the records come from.
+     * @return The inherit mode.
+     */
+    profile_inherit_e inheritMode() const;
+
+    /**
+     * @brief The number of the profile's own records, which come first.
+     * @return The number of own rows.
+     */
+    int ownRowCount() const;
+
+    /**
+     * @brief Whether a row is a record inherited from a parent profile.
+     * @param row The row.
+     * @return True if inherited.
+     */
+    bool isInherited(int row) const;
+
+    /**
+     * @brief The parent profile a record is inherited from.
+     * @param row The row.
+     * @return The profile name, empty for an own record.
+     */
+    QString sourceProfile(int row) const;
+
+    /**
+     * @brief Whether a row is an inherited record not used, as an own record has the same key.
+     * @param row The row.
+     * @return true if the record is inherited and overridden.
+     */
+    bool isOverridden(int row) const;
+
+    /**
+     * @brief Whether the own records were changed since they were read or saved.
+     * @return true if changes would be lost by reading them again.
+     */
+    bool hasUnsavedOwn() const { return own_unsaved_; }
+
+    /**
+     * @brief Marks the profile's own records as changed, e.g. after copying from another profile.
+     */
+    void markOwnChanged() { ownEdited(); }
+
 private:
+    /** @brief Marks the own records as changed by the user. */
+    void ownEdited();
+
+    /** @brief Shows the inherited records not duplicated by an own record, after the own records, once the current edit is done. */
+    void refreshInherited();
+
+    /** @brief Replaces the inherited records, if the keys of the own records changed. */
+    void doRefreshInherited();
+
+    /** @brief The keys identifying the own records. */
+    QSet<QString> ownKeys() const;
+
     /**
      * @brief Validates the contents of a specific field.
      * @param row The row index.
@@ -237,6 +299,30 @@ private:
 
     /** @brief Flag indicating if an apply operation is currently in progress. */
     bool applying_;
+
+    /** @brief Set while a refresh of the inherited rows is pending. */
+    bool refresh_pending_;
+
+    /** @brief Rows read but not yet announced, which rowCount() does not count. */
+    int unannounced_rows_;
+
+    /** @brief The keys of the own records the inherited records were last read for; none to read them again. */
+    std::optional<QSet<QString>> refreshed_for_keys_;
+
+    /** Per row: an inherited record overridden by an own record, kept up to date as the rows change. */
+    QVector<bool> overridden_;
+
+    /** @brief Works out overridden_ for the current rows. */
+    void updateOverridden();
+
+    /** @brief Updates overridden_ whenever the rows change. */
+    void followOverridden();
+
+    /** @brief Set while the inherited rows are being replaced. */
+    bool refreshing_inherited_ = false;
+
+    /** @brief Set if the own records were changed since they were read or saved. */
+    bool own_unsaved_ = false;
 
     /** @brief Vector tracking which records have been modified. */
     QVector<bool> dirty_records;

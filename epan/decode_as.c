@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/report_message.h>
 
 GList *decode_as_list;
 
@@ -283,25 +284,220 @@ read_set_decode_as_entries(char *key, const char *value,
     return retval;
 }
 
+char *
+decode_as_entry_id(const char *table_name, const char *selector)
+{
+    dissector_table_t sub_dissectors = find_dissector_table(table_name);
+
+    if (sub_dissectors != NULL && !FT_IS_STRING(dissector_table_get_type(sub_dissectors))) {
+        char *p;
+        unsigned long num = strtoul(selector, &p, 0);
+        if (p != selector && *p == '\0') {
+            return ws_strdup_printf("%s,%lu", table_name, num);
+        }
+    }
+
+    if (sub_dissectors != NULL && get_dissector_table_param(table_name) == STRING_CASE_INSENSITIVE) {
+        /* The table lowercases its keys */
+        char *lower = g_ascii_strdown(selector, -1);
+        char *id = ws_strdup_printf("%s,%s", table_name, lower);
+        g_free(lower);
+        return id;
+    }
+
+    return ws_strdup_printf("%s,%s", table_name, selector);
+}
+
+/* The table and selector of a "decode as" entry value, and its current dissector */
+static char *
+decode_as_value_id(const char *value, char **current)
+{
+    char **values = g_strsplit(value, ",", 4);
+    char *id = NULL;
+
+    if (g_strv_length(values) == 4) {
+        id = decode_as_entry_id(values[0], values[1]);
+        if (current)
+            *current = g_strdup(values[3]);
+    }
+    g_strfreev(values);
+    return id;
+}
+
+/*
+ * The entries in the dissector tables applied from parent profiles: the
+ * current dissector by entry id. These are not saved to the profile.
+ */
+static GHashTable *applied_inherited;
+
+static GHashTable *
+get_applied_inherited(void)
+{
+    if (applied_inherited == NULL) {
+        applied_inherited = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+    }
+    return applied_inherited;
+}
+
+void
+decode_as_clear_inherited_entries(void)
+{
+    if (applied_inherited) {
+        g_hash_table_remove_all(applied_inherited);
+    }
+}
+
+void
+decode_as_set_inherited_entry(const char *table_name, const char *selector, const char *current)
+{
+    g_hash_table_replace(get_applied_inherited(), decode_as_entry_id(table_name, selector), g_strdup(current));
+}
+
+bool
+decode_as_entry_is_inherited(const char *table_name, const char *selector, const char *current)
+{
+    if (applied_inherited == NULL || g_hash_table_size(applied_inherited) == 0) {
+        return false;
+    }
+
+    char *id = decode_as_entry_id(table_name, selector);
+    const char *inherited_current = (const char *)g_hash_table_lookup(applied_inherited, id);
+    g_free(id);
+    return inherited_current != NULL && g_ascii_strcasecmp(inherited_current, current) == 0;
+}
+
+typedef struct {
+    const char            *profile_name;      /* the profile being read, NULL for the own profile */
+    profile_inherit_seen_t *seen;             /* entries read from a nearer profile */
+    GHashTable            *processed_entries; /* for read_set_decode_as_entries(), or NULL to not apply */
+    decode_as_inherited_cb cb;                /* called for each new entry, or NULL */
+    void                  *cb_data;
+} decode_as_layer_read_t;
+
+/* Read an entry, unless an entry for its table and selector was read from a nearer profile */
+static prefs_set_pref_e
+read_layer_decode_as_entry(char *key, const char *value, void *user_data, bool return_range_errors)
+{
+    decode_as_layer_read_t *layer_read = (decode_as_layer_read_t *)user_data;
+    prefs_set_pref_e retval = PREFS_SET_OK;
+
+    if (strcmp(key, DECODE_AS_ENTRY) != 0) {
+        return PREFS_SET_NO_SUCH_PREF;
+    }
+
+    char *current = NULL;
+    char *id = decode_as_value_id(value, &current);
+    if (id == NULL) {
+        g_free(current);
+        return PREFS_SET_SYNTAX_ERR;
+    }
+    /* The nearer profile wins; within a profile, the last entry wins as before */
+    if (profile_inherit_seen_check(layer_read->seen, id)) {
+        g_free(id);
+        g_free(current);
+        return PREFS_SET_OK;
+    }
+
+    if (layer_read->processed_entries) {
+        retval = read_set_decode_as_entries(key, value, layer_read->processed_entries, return_range_errors);
+        if (layer_read->profile_name != NULL && retval == PREFS_SET_OK) {
+            g_hash_table_replace(get_applied_inherited(), id, current);
+            id = NULL;
+            current = NULL;
+        }
+    }
+    if (layer_read->cb && retval == PREFS_SET_OK) {
+        layer_read->cb(layer_read->profile_name, value, layer_read->cb_data);
+    }
+    g_free(id);
+    g_free(current);
+    return retval;
+}
+
+/* Read the entries of one parent profile */
+static bool
+read_layer_decode_as_entries(const profile_inherit_layer_t *layer, const char *path, const char *filename _U_,
+                             profile_inherit_seen_t *seen _U_, void *user_data, char **err)
+{
+    decode_as_layer_read_t *layer_read = (decode_as_layer_read_t *)user_data;
+    FILE *daf;
+
+    if ((daf = ws_fopen(path, "r")) == NULL) {
+        *err = ws_strdup_printf("Can't open decode_as_entries file\n\"%s\": %s.", path, g_strerror(errno));
+        return false;
+    }
+    layer_read->profile_name = layer->profile_name;
+    read_prefs_file(path, daf, read_layer_decode_as_entry, layer_read);
+    fclose(daf);
+    return true;
+}
+
+/* Read the entries of the parent profiles, nearest parent first */
+static void
+read_inherited_decode_as_entries(profile_inherit_e mode, const char *app_env_var_prefix,
+                                 decode_as_layer_read_t *layer_read)
+{
+    char *err = NULL;
+
+    if (!profile_inherit_read_layers(app_env_var_prefix, DECODE_AS_ENTRIES_FILE_NAME, NULL, false, mode,
+                                     layer_read->seen, read_layer_decode_as_entries, layer_read, &err)) {
+        report_warning("%s", err);
+    }
+    g_free(err);
+}
+
+void
+decode_as_foreach_inherited(profile_inherit_e mode, const char* app_env_var_prefix,
+                            decode_as_inherited_cb cb, void *user_data)
+{
+    decode_as_layer_read_t layer_read = {
+        .profile_name = NULL,
+        .seen = profile_inherit_seen_new(),
+        .processed_entries = NULL,
+        .cb = cb,
+        .cb_data = user_data,
+    };
+
+    read_inherited_decode_as_entries(mode, app_env_var_prefix, &layer_read);
+
+    profile_inherit_seen_free(layer_read.seen);
+}
+
 void
 load_decode_as_entries(const char* app_env_var_prefix)
 {
     char   *daf_path;
     FILE   *daf;
+    profile_inherit_e mode = profile_get_inherit(app_env_var_prefix, NULL, DECODE_AS_ENTRIES_FILE_NAME);
 
     decode_clear_all();
+    decode_as_clear_inherited_entries();
 
+    /* Store saved entries for better range processing */
+    GHashTable* processed_entries = g_hash_table_new(g_str_hash, g_str_equal);
+    decode_as_layer_read_t layer_read = {
+        .profile_name = NULL,
+        .seen = profile_inherit_seen_new(),
+        .processed_entries = processed_entries,
+        .cb = NULL,
+        .cb_data = NULL,
+    };
+
+    /* The profile's own entries come first, and win over the parent's entries */
     daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, app_env_var_prefix);
-    if ((daf = ws_fopen(daf_path, "r")) != NULL) {
-        /* Store saved entries for better range processing */
-        GHashTable* processed_entries = g_hash_table_new(g_str_hash, g_str_equal);
-        read_prefs_file(daf_path, daf, read_set_decode_as_entries, processed_entries);
-        g_hash_table_destroy(processed_entries);
+    if (mode != PROFILE_INHERIT_PARENT_ONLY && (daf = ws_fopen(daf_path, "r")) != NULL) {
+        read_prefs_file(daf_path, daf, read_layer_decode_as_entry, &layer_read);
         fclose(daf);
     }
     g_free(daf_path);
-}
+    profile_inherit_seen_next(layer_read.seen);
 
+    if (mode != PROFILE_INHERIT_PROFILE_ONLY)
+        read_inherited_decode_as_entries(mode, app_env_var_prefix, &layer_read);
+
+    profile_inherit_seen_free(layer_read.seen);
+    g_hash_table_destroy(processed_entries);
+}
 
 /* Make a sorted list of the entries as we are fetching them from a hash table. Then write it out from the sorted list */
 static void
@@ -372,6 +568,19 @@ decode_as_write_entry (const char *table_name, ftenum_t selector_type,
         break;
     }
 
+    /* An entry applied from a parent profile is not written to this profile */
+    {
+        char *selector = (selector_type == FT_NONE) ? g_strdup("0") :
+                         FT_IS_STRING(selector_type) ? g_strdup((const char *)key) :
+                         ws_strdup_printf("%u", GPOINTER_TO_UINT(key));
+        bool inherited = decode_as_entry_is_inherited(table_name, selector, current_dissector_name);
+        g_free(selector);
+        if (inherited) {
+            g_free((char *)decode_as_row);
+            return;
+        }
+    }
+
     /* Do we need a better sort function ???*/
     *decode_as_rows_list = g_list_insert_sorted (*decode_as_rows_list, (void *)decode_as_row,
         (GCompareFunc)g_ascii_strcasecmp);
@@ -391,10 +600,55 @@ decode_as_print_rows(void *data, void *user_data)
 int
 save_decode_as_entries(const char* app_name, const char* app_env_var_prefix, char** err)
 {
+    return save_decode_as_entries_for_mode(app_name, app_env_var_prefix,
+                                           profile_get_inherit(app_env_var_prefix, NULL, DECODE_AS_ENTRIES_FILE_NAME),
+                                           err);
+}
+
+/* Note that a "decode as" entries file has an entry */
+static prefs_set_pref_e
+find_decode_as_entry(char *key, const char *value _U_, void *user_data, bool return_range_errors _U_)
+{
+    if (strcmp(key, DECODE_AS_ENTRY) != 0) {
+        return PREFS_SET_NO_SUCH_PREF;
+    }
+    *(bool *)user_data = true;
+    return PREFS_SET_OK;
+}
+
+/* Whether the profile's file has entries, which an empty file may replace */
+static bool
+decode_as_file_has_entries(const char *daf_path)
+{
+    bool has_entries = false;
+    FILE *daf = ws_fopen(daf_path, "r");
+
+    if (daf != NULL) {
+        read_prefs_file(daf_path, daf, find_decode_as_entry, &has_entries);
+        fclose(daf);
+    }
+    return has_entries;
+}
+
+/* Write the sorted "decode as" rows to the profile's file. A file without
+ * rows is written only if the file had entries; a profile without a file
+ * keeps using the inherited entries. */
+static int
+write_decode_as_rows(const char* app_name, const char* app_env_var_prefix, GList *rows, char** err)
+{
     char *pf_dir_path;
     char *daf_path;
     FILE *da_file;
-    GList *decode_as_rows_list = NULL;
+
+    if (rows == NULL) {
+        daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, app_env_var_prefix);
+        bool has_entries = decode_as_file_has_entries(daf_path);
+        g_free(daf_path);
+        if (!has_entries) {
+            /* Nothing to keep; don't create a file for no entries */
+            return 0;
+        }
+    }
 
     if (create_persconffile_dir(app_env_var_prefix, &pf_dir_path) == -1) {
         *err = ws_strdup_printf("Can't create directory\n\"%s\"\nfor recent file: %s.",
@@ -418,16 +672,30 @@ save_decode_as_entries(const char* app_name, const char* app_env_var_prefix, cha
         "# however.\n",
         app_name, app_name);
 
-    dissector_all_tables_foreach_changed(decode_as_write_entry, &decode_as_rows_list);
-
-    g_list_foreach(decode_as_rows_list, decode_as_print_rows, da_file);
+    g_list_foreach(rows, decode_as_print_rows, da_file);
 
     fclose(da_file);
     g_free(daf_path);
-    g_list_free_full(decode_as_rows_list, g_free);
-
     return 0;
 }
+
+int
+save_decode_as_entries_for_mode(const char* app_name, const char* app_env_var_prefix,
+                                profile_inherit_e mode, char** err)
+{
+    GList *decode_as_rows_list = NULL;
+
+    if (mode == PROFILE_INHERIT_PARENT_ONLY) {
+        /* Only the parent's entries are in the tables; the own file is left as it is */
+        return 0;
+    }
+
+    dissector_all_tables_foreach_changed(decode_as_write_entry, &decode_as_rows_list);
+    int ret = write_decode_as_rows(app_name, app_env_var_prefix, decode_as_rows_list, err);
+    g_list_free_full(decode_as_rows_list, g_free);
+    return ret;
+}
+
 
 /*
  * Data structure for tracking which dissector need to be reset.  This
@@ -541,6 +809,11 @@ decode_cleanup(void)
 {
     g_list_free(decode_as_list);
     decode_as_list = NULL;
+
+    if (applied_inherited) {
+        g_hash_table_destroy(applied_inherited);
+        applied_inherited = NULL;
+    }
 }
 
 /*

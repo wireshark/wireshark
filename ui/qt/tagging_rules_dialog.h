@@ -26,6 +26,8 @@ class ColoringRulesDialog;
 #include <functional>
 
 class QAbstractButton;
+class CopyFromProfileButton;
+class ProfileInheritComboBox;
 
 namespace Ui {
 class TaggingRulesDialog;
@@ -54,6 +56,9 @@ private slots:
 
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_accepted();
+
+    /** @brief Saves the rules without closing the dialog. @return true on success. */
+    bool saveRules();
     void on_buttonBox_helpRequested();
 
     void rowCountChanged();
@@ -64,12 +69,15 @@ private slots:
     void fontSizeChanged(int idx);
     void separatorChanged(const QString &text);
     void linkClickChanged(int idx);
+    void inheritModeChanged(profile_inherit_e mode);
 
 private:
     Ui::TaggingRulesDialog *ui;
 
     QPushButton *import_button_;
     QPushButton *export_button_;
+    CopyFromProfileButton *copy_button_;     // copies rules from another profile
+    ProfileInheritComboBox *inherit_combo_;  // selects where the rules come from
 
     tag_prefs_t originalPrefs_; // saved at open; restored if user cancels
     tag_prefs_t pendingPrefs_;
@@ -85,7 +93,15 @@ private:
     void updateHint(QModelIndex idx = QModelIndex());
     void addRule(bool copy_from_current);
     bool isValidFilter(QString filter, QString *error);
+    void updatePathLabel();
     void updateWidgets();
+
+    /**
+     * @brief Whether the preferences differ from the ones when the dialog opened.
+     * @param prefs The preferences to save.
+     * @return true if changed.
+     */
+    bool prefsChanged(const tag_prefs_t &prefs) const;
 };
 
 #endif // TAGGING_RULES_DIALOG_H

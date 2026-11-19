@@ -28,6 +28,9 @@
 #include <ui/qt/widgets/qcp_spacer_legend_item.h>
 #include <ui/qt/widgets/qcp_string_legend_item.h>
 #include <ui/qt/widgets/copy_from_profile_button.h>
+#include <ui/qt/utils/hide_overridden_rows.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/utils/inherit_selection.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 #include <ui/qt/main_window.h>
@@ -45,6 +48,8 @@
 // record_errors and dirty_records lists do not.
 static QPointer<UatModel> static_uat_model_;
 static uat_t* plot_uat_;
+// The configuration file of the plots
+static const char *const plot_uat_filename_ = "plots";
 static plot_settings_t* plot_settings_;
 static unsigned num_plots_;
 
@@ -145,9 +150,17 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf) :
     copy_bt_ = ui->rightButtonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     connect(copy_bt_, SIGNAL(clicked()), this, SLOT(copyAsCsvClicked()));
 
-    copy_profile_bt_ = new CopyFromProfileButton(this, "plots", tr("Copy plots from another profile."));
+    copy_profile_bt_ = new CopyFromProfileButton(this, plot_uat_filename_, tr("Copy plots from another profile."));
     ui->rightButtonBox->addButton(copy_profile_bt_, QDialogButtonBox::ActionRole);
     connect(copy_profile_bt_, &CopyFromProfileButton::copyProfile, this, &PlotDialog::copyFromProfile);
+
+    // Where the plots come from, next to the button clearing them
+    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, plot_uat_filename_,
+                                                    [this]() { return uat_model_ && uat_model_->hasUnsavedOwn(); },
+                                                    []() { applyChanges(); return true; });
+    if (plot_uat_)
+        inherit_combo_->syncMode(uat_get_inherit_mode(plot_uat_));
+    connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &PlotDialog::inheritModeChanged);
 
     QPushButton* close_bt = ui->rightButtonBox->button(QDialogButtonBox::Close);
     if (close_bt) close_bt->setDefault(true);
@@ -297,7 +310,7 @@ void PlotDialog::initialize(QWidget& parent, uat_field_t* plot_fields, bool show
             createPlot(i);
         }
     }
-    else if (show_default) {
+    else if (show_default && uat_model_->inheritMode() != PROFILE_INHERIT_PARENT_ONLY) {
         addDefaultPlot(true, false);
         addDefaultPlot(true, true);
     }
@@ -308,7 +321,7 @@ void PlotDialog::initialize(QWidget& parent, uat_field_t* plot_fields, bool show
     plot->setFocus();
     plot->rescaleAxes();
 
-    updateEditButtons();
+    updateInheritWidgets();
 
     ui->splitter->setStretchFactor(0, 90);
     ui->splitter->setStretchFactor(1, 10);
@@ -345,7 +358,7 @@ void PlotDialog::loadProfileGraphs(uat_field_t* plot_fields)
     if (!plot_uat_) {
         plot_uat_ = uat_new("Plots",
             sizeof(plot_settings_t),
-            "plots",
+            plot_uat_filename_,
             true,
             &plot_settings_,
             &num_plots_,
@@ -359,6 +372,12 @@ void PlotDialog::loadProfileGraphs(uat_field_t* plot_fields)
             plot_fields);
 
         uat_set_default_values(plot_uat_, plot_uat_defaults_);
+
+        // A plot from a parent profile is identified by its name, and is
+        // not inherited if disabled there
+        const unsigned key_fields[] = { plotColName };
+        uat_set_key_fields(plot_uat_, key_fields, 1);
+        uat_set_enabled_field(plot_uat_, plotColEnabled);
 
         char* err = NULL;
         if (!uat_load(plot_uat_, NULL, application_configuration_environment_prefix(), &err)) {
@@ -385,6 +404,9 @@ void PlotDialog::loadProfileGraphs(uat_field_t* plot_fields)
     ui->plotUat->setModel(uat_model_);
     ui->plotUat->setItemDelegate(uat_delegate_);
 
+    // Not used plots can be hidden, which is not stored
+    addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->plotUat, uat_model_.data(), plotColEnabled);
+
     ui->plotUat->setHeader(new ResizeHeaderView(Qt::Horizontal, ui->plotUat));
 
     connect(uat_model_, &UatModel::dataChanged, this, &PlotDialog::modelDataChanged);
@@ -392,19 +414,44 @@ void PlotDialog::loadProfileGraphs(uat_field_t* plot_fields)
     connect(uat_model_, &UatModel::rowsInserted, this, &PlotDialog::modelRowsInserted);
     connect(uat_model_, &UatModel::rowsRemoved, this, &PlotDialog::modelRowsRemoved);
     connect(uat_model_, &UatModel::rowsMoved, this, &PlotDialog::modelRowsMoved);
-    connect(uat_model_, &UatModel::rowsMoved, this, &PlotDialog::updateEditButtons);
+    connect(uat_model_, &UatModel::rowsMoved, this, &PlotDialog::updateInheritWidgets);
 
     connect(ui->plotUat->selectionModel(), &QItemSelectionModel::selectionChanged, this, &PlotDialog::plotUatSelectionChanged);
 }
 
-void PlotDialog::updateEditButtons()
+void PlotDialog::updateInheritWidgets()
 {
     if (uat_model_ == nullptr)
         return;
 
     QModelIndexList selectedRows = ui->plotUat->selectionModel() ?
                 ui->plotUat->selectionModel()->selectedRows() : QModelIndexList();
-    ui->editButtons->setSelection(selectedRows, uat_model_->rowCount());
+    InheritSelection sel = inheritSelection(uat_model_.data(), selectedRows, ui->plotUat);
+
+    // Inherited entries can be copied into the own entries, but not changed
+    ui->editButtons->setSelection(sel);
+    if (copy_profile_bt_) {
+        copy_profile_bt_->setEnabled(sel.own_used && copy_profile_bt_->menu() != nullptr);
+        ProfileInheritComboBox::setOwnEntriesUsed(copy_profile_bt_, sel.own_used);
+    }
+}
+
+void PlotDialog::inheritModeChanged(profile_inherit_e mode)
+{
+    if (!uat_model_)
+        return;
+
+    // This dialog saves as it goes, so the selection is saved as well,
+    // also if reading the inherited records failed
+    QString error;
+    if (!uat_model_->setInheritMode(mode, error)) {
+        report_failure("%s", qPrintable(error));
+    }
+    error.clear();
+    if (!inherit_combo_->saveMode(error)) {
+        report_failure("%s", qPrintable(error));
+    }
+    updateInheritWidgets();
 }
 
 void PlotDialog::copyFromProfile(const QString& filename)
@@ -418,6 +465,7 @@ void PlotDialog::copyFromProfile(const QString& filename)
     // just add the new rows instead of resetting the information.
     if (uat_load(plot_uat_, filename.toUtf8().constData(), application_configuration_environment_prefix(), &err)) {
         plot_uat_->changed = true;
+        uat_model_->markOwnChanged();
         // uat_load calls the post update cb, which reloads the Uat.
         //uat_model_->reloadUat();
     }
@@ -583,6 +631,9 @@ void PlotDialog::addPlot(bool checked, const QString& name, const QString& dfilt
 {
     if (!uat_model_) return;
 
+        // A requested plot is an own one, which needs the own plots in use
+    inherit_combo_->useOwnEntries();
+
     const QColor graphColor = newGraphColor();
     QVariantList newRowData;
     newRowData.append(checked ? Qt::Checked : Qt::Unchecked);
@@ -652,6 +703,7 @@ void PlotDialog::captureFileClosing()
     ui->editButtons->moveDownButton()->setEnabled(false);
     ui->editButtons->clearButton()->setEnabled(false);
     copy_profile_bt_->setEnabled(false);
+    inherit_combo_->setEnabled(false);
     copy_bt_->setEnabled(false);
     ctx_menu_.removeAction(ui->actionToggleTimeOrigin); // This action needs a recalc
 
@@ -730,6 +782,10 @@ void PlotDialog::modelDataChanged(const QModelIndex& topLeft, const QModelIndex&
 
 void PlotDialog::modelRowsReset()
 {
+    // The model is shared with other Plot dialogs, which may change the mode
+    if (inherit_combo_ && uat_model_)
+        inherit_combo_->syncMode(uat_model_->inheritMode());
+
     ui->plot->deleteMarkersElements();
     foreach(Plot * plot, plots_) {
         if (plot) delete plot;
@@ -743,7 +799,7 @@ void PlotDialog::modelRowsReset()
     removeExcessPlots();
     recreateMultiValueAxes();
 
-    updateEditButtons();
+    updateInheritWidgets();
     drawMarkers();
 }
 
@@ -866,6 +922,9 @@ void PlotDialog::updateStatistics()
 bool PlotDialog::graphIsEnabled(int row) const
 {
     if (uat_model_) {
+        // An inherited plot is always enabled, and shows a lock instead of the check box
+        if (uat_model_->isInherited(row))
+            return true;
         Qt::CheckState state = static_cast<Qt::CheckState>(uat_model_->data(uat_model_->index(row, plotColEnabled), Qt::CheckStateRole).toInt());
         return state == Qt::Checked;
     }
@@ -1585,7 +1644,7 @@ void PlotDialog::selectedFrameChanged(const QList<int>& frames)
 void PlotDialog::plotUatSelectionChanged(const QItemSelection&, const QItemSelection&)
 {
     qsizetype num_selected = ui->plotUat->selectionModel()->selectedRows().size();
-    updateEditButtons();
+    updateInheritWidgets();
     copy_bt_->setEnabled(num_selected == 1);    // We can export one plot at a time
     updateLegend(); // Update selected item in the legend
 }
@@ -1635,7 +1694,7 @@ void PlotDialog::on_automaticUpdateCheckBox_toggled(bool checked)
 void PlotDialog::on_plotUat_currentItemChanged(const QModelIndex& current, const QModelIndex&)
 {
     Q_UNUSED(current);
-    updateEditButtons();
+    updateInheritWidgets();
     getGraphInfo();
     updateHint();
 }
@@ -1702,7 +1761,7 @@ void PlotDialog::copyClicked()
 
 void PlotDialog::clearClicked()
 {
-    if (uat_model_) uat_model_->clearAll();
+    if (uat_model_) removeVisibleOwnRows(ui->plotUat, uat_model_.data());
 
     tracer_->setVisible(false);
 

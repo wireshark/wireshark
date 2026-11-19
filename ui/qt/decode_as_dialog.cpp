@@ -20,6 +20,9 @@
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
+#include <ui/qt/utils/hide_overridden_rows.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/utils/inherit_selection.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "main_application.h"
@@ -43,13 +46,15 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     GeometryStateDialog(parent),
     ui(new Ui::DecodeAsDialog),
     model_(new DecodeAsModel(this, cf)),
-    delegate_(NULL)
+    delegate_(NULL),
+    copy_button_(NULL),
+    inherit_combo_(NULL)
 {
     ui->setupUi(this);
 
     ListEditButtons::ToolTips tool_tips;
     tool_tips.add = tr("Change the dissection behavior for a protocol.");
-    tool_tips.remove = tr("Remove this dissection behavior.");
+    tool_tips.remove = tr("Remove the selected dissection behaviors.");
     tool_tips.copy = tr("Copy this dissection behavior.");
     tool_tips.clear = tr("Clear all dissection behaviors.");
     ui->editButtons->setToolTips(tool_tips);
@@ -71,27 +76,33 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
 
     setWindowTitle(mainApp->windowTitleString(tr("Decode As…")));
 
-    QString abs_path = gchar_free_to_qstring(get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, application_configuration_environment_prefix()));
-    if (file_exists(abs_path.toUtf8().constData())) {
-        ui->pathLabel->setText(abs_path);
-        ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
-        ui->pathLabel->setToolTip(tr("Open ") + DECODE_AS_ENTRIES_FILE_NAME);
-        ui->pathLabel->setEnabled(true);
-    }
+    copy_button_ = new CopyFromProfileButton(this, DECODE_AS_ENTRIES_FILE_NAME);
+    ui->buttonBox->addButton(copy_button_, QDialogButtonBox::ActionRole);
+    connect(copy_button_, &CopyFromProfileButton::copyProfile, this, &DecodeAsDialog::copyFromProfile);
 
-    CopyFromProfileButton *copy_button = new CopyFromProfileButton(this, DECODE_AS_ENTRIES_FILE_NAME);
-    ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
-    connect(copy_button, &CopyFromProfileButton::copyProfile, this, &DecodeAsDialog::copyFromProfile);
+    // Where the entries come from, next to the button clearing them
+    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, DECODE_AS_ENTRIES_FILE_NAME,
+                                                    [this]() { return model_->hasUnsavedOwn(); },
+                                                    [this]() { return saveEntries(); });
+    connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &DecodeAsDialog::inheritModeChanged);
+
+    // Not used entries can be hidden, which is not stored
+    addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->decodeAsTreeView, model_, -1);
 
     fillTable();
+    updatePathLabel();
+    followInheritedProfiles(model_, this, &DecodeAsDialog::updatePathLabel);
 
     connect(model_, &DecodeAsModel::modelReset, this, &DecodeAsDialog::modelRowsReset);
     connect(model_, &DecodeAsModel::rowsInserted, this, &DecodeAsDialog::modelRowsReset);
     connect(model_, &DecodeAsModel::rowsRemoved, this, &DecodeAsDialog::modelRowsReset);
     updateWidgets();
 
-    if (create_new)
+    if (create_new) {
+        // A new entry is an own entry, which needs the own entries in use
+        inherit_combo_->useOwnEntries();
         newClicked();
+    }
 }
 
 DecodeAsDialog::~DecodeAsDialog()
@@ -128,9 +139,32 @@ void DecodeAsDialog::modelRowsReset()
     updateWidgets();
 }
 
+void DecodeAsDialog::updatePathLabel()
+{
+    inherit_combo_->updatePathLabel(ui->pathLabel, inheritedProfiles(model_));
+}
+
 void DecodeAsDialog::updateWidgets()
 {
-    ui->editButtons->setSelection(ui->decodeAsTreeView->selectionModel()->selectedRows(), model_->rowCount());
+    if (!inherit_combo_)
+        return;
+
+    InheritSelection sel = inheritSelection(model_, ui->decodeAsTreeView->selectionModel()->selectedRows());
+
+    // Inherited entries can be copied into the own entries, but not changed
+    ui->editButtons->setSelection(sel);
+    if (copy_button_) {
+        copy_button_->setOwnEntriesUsed(sel.own_used);
+    }
+}
+
+void DecodeAsDialog::inheritModeChanged(profile_inherit_e mode)
+{
+    // The own entries are kept while hidden, and saved from there
+    model_->setInheritMode(mode);
+    resizeColumns();
+    updatePathLabel();
+    updateWidgets();
 }
 
 void DecodeAsDialog::copyFromProfile(QString filename)
@@ -154,14 +188,17 @@ void DecodeAsDialog::addRecord(bool copy_from_current)
 //    XXX - This doesn't appear to work as intended to give "edit triggers on demand"
     ui->decodeAsTreeView->setEditTriggers(ui->decodeAsTreeView->editTriggers() | QAbstractItemView::CurrentChanged | QAbstractItemView::AnyKeyPressed);
 
+    // New entries go after the own entries, before the inherited entries
+    int row = model_->ownRowCount();
+    int src_row = (copy_from_current && current.row() >= row) ? current.row() + 1 : current.row();
     // should not fail, but you never know.
-    if (!model_->insertRows(model_->rowCount(), 1)) {
+    if (!model_->insertRows(row, 1)) {
         qDebug() << "Failed to add a new record";
         return;
     }
-    const QModelIndex &new_index = model_->index(model_->rowCount() - 1, 0);
+    const QModelIndex &new_index = model_->index(row, 0);
     if (copy_from_current) {
-        model_->copyRow(new_index.row(), current.row());
+        model_->copyRow(new_index.row(), src_row);
     }
 
     resizeColumns();
@@ -197,6 +234,21 @@ void DecodeAsDialog::clearClicked()
     model_->clearAll();
 }
 
+bool DecodeAsDialog::saveEntries()
+{
+    char* err = NULL;
+
+    // In the mode of the entries shown, the selected one is not applied yet
+    applyChanges();
+    if (save_decode_as_entries_for_mode(application_flavor_name_proper(), application_configuration_environment_prefix(),
+                                        model_->inheritMode(), &err) < 0) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
+        g_free(err);
+        return false;
+    }
+    return true;
+}
+
 void DecodeAsDialog::applyChanges()
 {
     model_->applyChanges();
@@ -209,16 +261,29 @@ void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
 
     switch (ui->buttonBox->standardButton(button)) {
     case QDialogButtonBox::Ok:
+        {
+        // The entries applied follow the selected mode, so it is kept as well;
+        // otherwise the next Decode As would take inherited entries as own
+        QString inherit_err;
         applyChanges();
+        if (!inherit_combo_->saveMode(inherit_err)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", inherit_err.toUtf8().constData());
+        }
+        }
         break;
     case QDialogButtonBox::Save:
         {
         char* err = NULL;
+        QString inherit_err;
 
         applyChanges();
-        if (save_decode_as_entries(application_flavor_name_proper(), application_configuration_environment_prefix(), &err) < 0) {
+        if (save_decode_as_entries_for_mode(application_flavor_name_proper(), application_configuration_environment_prefix(),
+                                            inherit_combo_->mode(), &err) < 0) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
             g_free(err);
+        }
+        if (!inherit_combo_->saveMode(inherit_err)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", inherit_err.toUtf8().constData());
         }
         }
         break;

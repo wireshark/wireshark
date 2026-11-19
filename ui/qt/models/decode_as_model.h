@@ -21,6 +21,7 @@
 
 #include <epan/packet.h>
 #include <epan/decode_as.h>
+#include <wsutil/profile_inherit.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 /**
@@ -100,6 +101,26 @@ public:
      */
     void updateHandles();
 
+    /** @brief Whether the entry comes from a parent profile; such an entry is read-only.
+     *  @return true if inherited. */
+    bool isInherited() const { return !source_profile_.isEmpty(); }
+
+    /** @brief The parent profile an inherited entry comes from.
+     *  @return The profile name, empty for an own entry. */
+    QString sourceProfile() const { return source_profile_; }
+
+    /** @brief Set the parent profile an inherited entry comes from.
+     *  @param profile The profile name, empty for an own entry. */
+    void setSourceProfile(const QString &profile) { source_profile_ = profile; }
+
+    /** @brief The selector as written in the decode_as_entries file.
+     *  @return The selector, a null string for an entry not in that file. */
+    QString selectorText() const;
+
+    /** @brief Identify the entry by its table and selector.
+     *  @return The identifier, empty for an entry that cannot be inherited. */
+    QString entryId() const;
+
 private:
     /** @brief Initialize the item from a raw table name and selector.
      *  @param table_name The dissector table name, or NULL for none.
@@ -121,6 +142,7 @@ private:
     QString default_dissector_;        /**< Name of the default dissector. */
     QString current_dissector_;        /**< Name of the currently selected dissector. */
     dissector_handle_t dissector_handle_; /**< Handle of the currently selected dissector. */
+    QString source_profile_;           /**< The parent profile an inherited entry comes from. */
 };
 
 /**
@@ -280,6 +302,39 @@ public:
      */
     void applyChanges();
 
+    /**
+     * @brief Selects where the entries come from, reloading the inherited entries.
+     * @param mode The inherit mode.
+     */
+    void setInheritMode(profile_inherit_e mode);
+
+    /** @brief The selected inherit mode.
+     *  @return The mode. */
+    profile_inherit_e inheritMode() const { return inherit_mode_; }
+
+    /** @brief The number of the profile's own entries shown, which come first.
+     *  @return The number of own rows. */
+    int ownRowCount() const;
+
+    /** @brief Whether a row is an entry inherited from a parent profile.
+     *  @param row The row.
+     *  @return true if inherited. */
+    bool isInherited(int row) const;
+
+    /** @brief The parent profile an entry is inherited from.
+     *  @param row The row.
+     *  @return The profile name, empty for an own entry. */
+    QString sourceProfile(int row) const;
+
+    /** @brief Whether a row is an inherited entry not used, as an own entry has the same id.
+     *  @param row The row.
+     *  @return true if overridden. */
+    bool isOverridden(int row) const;
+
+    /** @brief Whether the own entries were changed since they were read or applied.
+     *  @return true if changes would be lost by reading them again. */
+    bool hasUnsavedOwn() const { return own_unsaved_; }
+
 protected:
     /** @brief Callback to record a changed uint or string dissector table entry.
      *  @param table_name    The dissector table name.
@@ -312,11 +367,28 @@ protected:
     static prefs_set_pref_e readDecodeAsEntry(char *key, const char *value,
                           void *user_data, bool);
 
+    static DecodeAsItem *itemFromEntry(const char *value);
+
+    static void addInheritedEntry(const char *profile_name, const char *value, void *user_data);
+
 private:
     capture_file *cap_file_;                                          /**< The associated capture file. */
     QList<DecodeAsItem *> decode_as_items_;                           /**< The list of decode-as entries. */
     QList<UIntEntry> changed_uint_entries_;                           /**< Pending changes to uint-keyed tables. */
     QList<QPair<const char *, const char *> > changed_string_entries_; /**< Pending changes to string-keyed tables. */
+    QList<DecodeAsItem *> inherited_items_;                           /**< The inherited entries, including the ones hidden by own entries. */
+    profile_inherit_e inherit_mode_;                                  /**< Where the entries come from. */
+    bool refreshing_inherited_;                                       /**< Set while the inherited entries are being replaced. */
+    bool own_unsaved_;                                                /**< Set if the own entries were changed since they were read or applied. */
+
+    /** @brief Reads the inherited entries for the selected mode. */
+    void loadInherited();
+
+    /** @brief Shows the inherited entries not duplicated by an own entry, after the own entries. */
+    void refreshInherited();
+
+    /** @brief Whether an inherited entry is overridden by an own entry. */
+    bool overriddenByOwn(const DecodeAsItem *item) const;
 };
 
 #endif // DECODE_AS_MODEL_H

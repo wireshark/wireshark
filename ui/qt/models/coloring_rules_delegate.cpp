@@ -13,6 +13,7 @@
 #include <ui/qt/models/coloring_rules_delegate.h>
 #include <ui/qt/models/coloring_rules_model.h>
 #include <ui/qt/widgets/display_filter_edit.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
 
 ColoringRulesDelegate::ColoringRulesDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
@@ -33,6 +34,9 @@ void ColoringRulesDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         QStyleOptionViewItem opt = option;
         const QWidget *widget = option.widget;
         initStyleOption(&opt, index);
+        // Inherited rules have no check box
+        if (!(opt.features & QStyleOptionViewItem::HasCheckIndicator))
+            break;
         QStyle *style = widget->style();
         opt.rect = style->subElementRect(QStyle::SE_ItemViewItemCheckIndicator, &opt, widget);
         switch (opt.checkState) {
@@ -60,6 +64,13 @@ void ColoringRulesDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     default:
         Q_ASSERT(false);
     }
+}
+
+QSize ColoringRulesDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index));
 }
 
 QWidget* ColoringRulesDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem&,

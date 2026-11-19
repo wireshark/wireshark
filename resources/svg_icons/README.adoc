@@ -95,6 +95,7 @@ If you add, modify, or remove an icon please update this list to match.
 * list-move-down.svg {raw-assets-url-prefix}Chevron%20Down/SVG/ic_fluent_chevron_down_24_filled.svg[Chevron Down]
 * list-move-up.svg {raw-assets-url-prefix}Chevron%20Up/SVG/ic_fluent_chevron_up_24_filled.svg[Chevron Up]
 * list-remove.svg {raw-assets-url-prefix}Subtract/SVG/ic_fluent_subtract_24_filled.svg[Subtract]
+* lock-closed.svg {raw-assets-url-prefix}Lock%20Closed/SVG/ic_fluent_lock_closed_24_regular.svg[Lock Closed]
 * lua-debug-add.svg {raw-assets-url-prefix}Add%20Square/SVG/ic_fluent_add_square_20_regular.svg[Add Square]
 * lua-debug-break-on-error.svg Modified {raw-assets-url-prefix}Bug/SVG/ic_fluent_bug_24_filled.svg[Bug] + {raw-assets-url-prefix}Bug/SVG/ic_fluent_bug_24_regular.svg[Bug] + {raw-assets-url-prefix}Error%20Circle/SVG/ic_fluent_error_circle_12_filled.svg[Error Circle]
 * lua-debug-breakpoint-actions.svg Modified {raw-assets-url-prefix}Circle%20Multiple%20Concentric/SVG/ic_fluent_circle_multiple_concentric_24_filled.svg[Circle Multiple Concentric] + {raw-assets-url-prefix}Circle%20Multiple%20Concentric/SVG/ic_fluent_circle_multiple_concentric_24_regular.svg[Circle Multiple Concentric]

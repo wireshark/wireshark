@@ -40,6 +40,15 @@ typedef struct filter_expression {
 WS_DLL_PUBLIC void filter_expression_iterate_expressions(wmem_foreach_func func, void* user_data);
 
 /**
+ * @brief Use the own display expressions, if only the parent profile's are used.
+ *
+ * Call before adding a button, which is an own record.
+ * @param app_env_var_prefix The prefix for the application environment variable.
+ */
+WS_DLL_PUBLIC
+void filter_expressions_use_own(const char *app_env_var_prefix);
+
+/**
  * @brief Create a filter expression
  *
  * @param label Label (button) text for the expression.

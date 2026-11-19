@@ -11,6 +11,7 @@
 #include <ui_filter_expression_frame.h>
 
 #include <epan/filter_expressions.h>
+#include <app/application_flavor.h>
 #include <ui/preference_utils.h>
 
 #include <ui/qt/models/uat_model.h>
@@ -144,6 +145,7 @@ void FilterExpressionFrame::on_buttonBox_accepted()
     }
     else
     {
+        filter_expressions_use_own(application_configuration_environment_prefix());
         filter_expression_new(label_ba.constData(), expr_ba.constData(), comment_ba.constData(), true);
     }
 

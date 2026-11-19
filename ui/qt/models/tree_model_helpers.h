@@ -133,6 +133,12 @@ public:
      */
     Item* parentItem() {return parent_; }
 
+    /**
+     * @brief Sets the parent item, e.g. for a copy of an item of another tree.
+     * @param parent The new parent item.
+     */
+    void setParentItem(Item *parent) { parent_ = parent; }
+
 protected:
     /** Pointer to the parent item. */
     Item* parent_;

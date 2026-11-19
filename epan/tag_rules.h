@@ -13,6 +13,8 @@
 
 #include "ws_symbol_export.h"
 
+#include <wsutil/profile_inherit.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -57,6 +59,7 @@ typedef struct _tag_rule {
     char     *tag_url;                /* Optional URL opened when cell is clicked */
     char     *comment;                /* Optional reference comment */
     bool      disabled;
+    char     *source_profile;         /* The parent profile the rule is inherited from, NULL if own */
     struct epan_dfilter *c_tagfilter; /* compiled dfilter, NULL if disabled or invalid */
 } tag_rule_t;
 
@@ -158,6 +161,19 @@ WS_DLL_PUBLIC tag_prefs_t tag_rules_get_prefs(void);
  * @brief Set the display preferences (does not write to disk).
  */
 WS_DLL_PUBLIC void tag_rules_set_prefs(const tag_prefs_t *prefs);
+
+/**
+ * @brief Read the tag rules inherited from the parent profiles.
+ *
+ * Reads the rules of the parent profile and up, nearest parent first, as
+ * given by the mode. Rules disabled in a parent and rules with the name
+ * of a rule from a nearer parent are skipped. Each rule
+ * has inherited and source_profile set.
+ *
+ * @param mode The inherit mode of the current profile, e.g. one not yet saved.
+ * @return A newly allocated list of tag_rule_t; free with tag_rule_list_free().
+ */
+WS_DLL_PUBLIC GSList *tag_rules_read_inherited(profile_inherit_e mode);
 
 /**
  * @brief Read tag rules from a file into a new GSList without touching the active list.

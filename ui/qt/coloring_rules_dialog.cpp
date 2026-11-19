@@ -26,6 +26,9 @@
 #include "ui/qt/utils/qt_ui_utils.h"
 #include "ui/qt/utils/themes/themed_icon.h"
 #include "ui/qt/widgets/copy_from_profile_button.h"
+#include "ui/qt/widgets/profile_inherit_combo_box.h"
+#include "ui/qt/utils/inherit_selection.h"
+#include <ui/qt/utils/hide_overridden_rows.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
@@ -33,6 +36,7 @@
 #include <QColorDialog>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QSet>
 #include <QUrl>
 
 /*
@@ -48,6 +52,10 @@
 ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter, QString add_name) :
     GeometryStateDialog(parent),
     ui(new Ui::ColoringRulesDialog),
+    import_button_(nullptr),
+    export_button_(nullptr),
+    copy_button_(nullptr),
+    inherit_combo_(nullptr),
     colorRuleModel_(palette().color(QPalette::Text), palette().color(QPalette::Base), this),
     colorRuleDelegate_(this)
 {
@@ -90,28 +98,33 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter, QS
     connect(&colorRuleModel_, &ColoringRulesModel::rowsRemoved, this, &ColoringRulesDialog::rowCountChanged);
     connect(&colorRuleModel_, &ColoringRulesModel::rowsMoved, this, &ColoringRulesDialog::updateWidgets);
 
-    rowCountChanged();
+    // Where the rules come from, next to the button clearing them
+    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, COLORING_RULES_FILE_NAME,
+                                                    [this]() { return colorRuleModel_.hasUnsavedOwn(); },
+                                                    [this]() { return saveRules(); });
+    connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &ColoringRulesDialog::inheritModeChanged);
+
+    // Not used entries can be hidden, which is not stored
+    addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->coloringRulesTreeView, &colorRuleModel_);
 
     import_button_ = ui->buttonBox->addButton(tr("Import…"), QDialogButtonBox::ApplyRole);
     import_button_->setToolTip(tr("Select a file and add its filters to the end of the list."));
     export_button_ = ui->buttonBox->addButton(tr("Export…"), QDialogButtonBox::ApplyRole);
     export_button_->setToolTip(tr("Save filters in a file."));
 
-    CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, COLORING_RULES_FILE_NAME,
-                                                                    tr("Copy coloring rules from another profile."),
-                                                                    COLORFILTERS_FILE_NAME);
-    ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
-    connect(copy_button, &CopyFromProfileButton::copyProfile, this, &ColoringRulesDialog::copyFromProfile);
+    copy_button_ = new CopyFromProfileButton(this, COLORING_RULES_FILE_NAME,
+                                             tr("Copy coloring rules from another profile."),
+                                             COLORFILTERS_FILE_NAME);
+    ui->buttonBox->addButton(copy_button_, QDialogButtonBox::ActionRole);
+    connect(copy_button_, &CopyFromProfileButton::copyProfile, this, &ColoringRulesDialog::copyFromProfile);
 
-    QString abs_path = gchar_free_to_qstring(get_persconffile_path(COLORING_RULES_FILE_NAME, true, application_configuration_environment_prefix()));
-    if (file_exists(abs_path.toUtf8().constData())) {
-        ui->pathLabel->setText(abs_path);
-        ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
-        ui->pathLabel->setToolTip(tr("Open ") + COLORING_RULES_FILE_NAME);
-        ui->pathLabel->setEnabled(true);
-    }
+    updatePathLabel();
+    followInheritedProfiles(&colorRuleModel_, this, &ColoringRulesDialog::updatePathLabel);
+    rowCountChanged();
 
     if (!add_filter.isEmpty()) {
+        // A new rule is an own rule, which is not used with the parent's rules only
+        inherit_combo_->useOwnEntries();
         colorRuleModel_.addColor(true, add_filter, palette().color(QPalette::Text), palette().color(QPalette::Base));
 
         if (!add_name.isEmpty()) {
@@ -163,15 +176,40 @@ void ColoringRulesDialog::rowCountChanged()
     updateWidgets();
 }
 
+void ColoringRulesDialog::updatePathLabel()
+{
+    inherit_combo_->updatePathLabel(ui->pathLabel, inheritedProfiles(&colorRuleModel_));
+}
+
 void ColoringRulesDialog::updateWidgets()
 {
-    QModelIndexList selected = ui->coloringRulesTreeView->selectionModel()->selectedIndexes();
-    ui->editButtons->setSelection(selected, colorRuleModel_.rowCount());
+    if (!inherit_combo_)
+        return;
 
-    int num_selected = static_cast<int>(rowsLastFirst(selected).count());
-    ui->fGPushButton->setVisible(num_selected == 1);
-    ui->bGPushButton->setVisible(num_selected == 1);
-    ui->displayFilterPushButton->setVisible(num_selected == 1);
+    InheritSelection sel = inheritSelection(&colorRuleModel_, ui->coloringRulesTreeView->selectionModel()->selectedIndexes(), ui->coloringRulesTreeView);
+
+    // Inherited rules can be copied into the own rules, but not changed
+    ui->editButtons->setSelection(sel);
+    if (copy_button_) {
+        copy_button_->setOwnEntriesUsed(sel.own_used);
+    }
+
+    ui->fGPushButton->setVisible(sel.selected_count == 1 && !sel.inherited_selected);
+    ui->bGPushButton->setVisible(sel.selected_count == 1 && !sel.inherited_selected);
+    ui->displayFilterPushButton->setVisible(sel.selected_count == 1);
+    ProfileInheritComboBox::setOwnEntriesUsed(import_button_, sel.own_used);
+    if (import_button_)
+        import_button_->setEnabled(sel.own_used);
+}
+
+void ColoringRulesDialog::inheritModeChanged(profile_inherit_e mode)
+{
+    colorRuleModel_.setInheritMode(mode);
+    for (int i = 0; i < colorRuleModel_.columnCount(); i++) {
+        ui->coloringRulesTreeView->resizeColumnToContents(i);
+    }
+    updatePathLabel();
+    updateWidgets();
 }
 
 bool ColoringRulesDialog::isValidFilter(QString filter, QString * error)
@@ -410,7 +448,7 @@ void ColoringRulesDialog::copyClicked()
 
 void ColoringRulesDialog::clearClicked()
 {
-    colorRuleModel_.removeRows(0, colorRuleModel_.rowCount());
+    removeVisibleOwnRows(ui->coloringRulesTreeView, &colorRuleModel_);
 }
 
 void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
@@ -446,6 +484,16 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
     }
 }
 
+bool ColoringRulesDialog::saveRules()
+{
+    QString err;
+    if (!colorRuleModel_.writeColors(err)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
+        return false;
+    }
+    return true;
+}
+
 void ColoringRulesDialog::on_buttonBox_accepted()
 {
     QString err;
@@ -453,6 +501,9 @@ void ColoringRulesDialog::on_buttonBox_accepted()
     if (!colorRuleModel_.writeColors(err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
         ret = QDialog::Rejected;
+    } else if (!inherit_combo_->saveMode(err)) {
+        // The mode is only kept with the rules written for it
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
     }
     done(ret);
 }

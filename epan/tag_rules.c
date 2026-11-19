@@ -109,6 +109,7 @@ tag_rule_delete(tag_rule_t *rule)
     g_free(rule->tag_content);
     g_free(rule->tag_url);
     g_free(rule->comment);
+    g_free(rule->source_profile);
     dfilter_free(rule->c_tagfilter);
     g_free(rule);
 }
@@ -175,7 +176,8 @@ read_tag_prefs(char *buf, jsmntok_t *props)
 static int
 read_tagrules_file(const char *path, FILE *f,
                    GSList **list_out,
-                   tag_rule_add_cb_func add_cb, void *cb_data)
+                   tag_rule_add_cb_func add_cb, void *cb_data,
+                   bool read_prefs)
 {
     long        size;
     char       *buf;
@@ -252,7 +254,9 @@ read_tagrules_file(const char *path, FILE *f,
         }
 
         if (strcmp(name, TAG_PREFS_KEY) == 0) {
-            read_tag_prefs(buf, properties_tok);
+            /* The preferences of a parent profile are not inherited */
+            if (read_prefs)
+                read_tag_prefs(buf, properties_tok);
             g_free(name);
             continue;
         }
@@ -388,7 +392,7 @@ load_tagrules_from_path(const char *path)
         }
         return;
     }
-    ret = read_tagrules_file(path, f, &tag_rule_list, NULL, NULL);
+    ret = read_tagrules_file(path, f, &tag_rule_list, NULL, NULL, true);
     if (ret != 0) {
         report_warning("Error reading tag rules file \"%s\": %s.",
                        path, g_strerror(ret));
@@ -396,17 +400,99 @@ load_tagrules_from_path(const char *path)
     fclose(f);
 }
 
+/* Read the rules of one parent profile, appending them to the list in user_data */
+static bool
+read_layer_tagrules(const profile_inherit_layer_t *layer, const char *path, const char *filename _U_,
+                    profile_inherit_seen_t *seen, void *user_data, char **err)
+{
+    GSList **list = (GSList **)user_data;
+    GSList *layer_list = NULL;
+    FILE *f;
+
+    if ((f = ws_fopen(path, "r")) == NULL) {
+        *err = ws_strdup_printf("Could not open tag rules file \"%s\": %s.", path, g_strerror(errno));
+        return false;
+    }
+    int ret = read_tagrules_file(path, f, &layer_list, NULL, NULL, false);
+    fclose(f);
+    if (ret != 0) {
+        report_warning("Error reading tag rules file \"%s\": %s.", path, g_strerror(ret));
+    }
+
+    for (GSList *item = layer_list; item; item = g_slist_next(item)) {
+        tag_rule_t *rule = (tag_rule_t *)item->data;
+
+        if (profile_inherit_seen_check(seen, rule->rule_name) || rule->disabled) {
+            tag_rule_delete(rule);
+            continue;
+        }
+        g_free(rule->source_profile);
+        rule->source_profile = g_strdup(layer->profile_name);
+        *list = g_slist_append(*list, rule);
+    }
+    g_slist_free(layer_list);
+    return true;
+}
+
+/*
+ * Read the rules inherited from the parent profile layers, nearest parent
+ * first, appending them to *list. A rule is skipped if its name
+ * was seen in a nearer profile, or if it is disabled. A disabled rule
+ * still hides the same rule from profiles further up. Rules duplicating a
+ * rule in own_list, which may be NULL, are not inherited.
+ */
+static void
+read_inherited_tagrules(profile_inherit_e mode, GSList *own_list, GSList **list)
+{
+    profile_inherit_seen_t *seen = profile_inherit_seen_new();
+    char *err = NULL;
+
+    /* The profile's own rules come first, and win over duplicates from parents */
+    for (GSList *item = own_list; item; item = g_slist_next(item)) {
+        const tag_rule_t *rule = (const tag_rule_t *)item->data;
+        profile_inherit_seen_check(seen, rule->rule_name);
+    }
+    profile_inherit_seen_next(seen);
+
+    if (!profile_inherit_read_layers(NULL, TAGRULES_FILE_NAME, NULL, false, mode, seen,
+                                     read_layer_tagrules, list, &err)) {
+        report_warning("%s", err);
+    }
+    g_free(err);
+
+    profile_inherit_seen_free(seen);
+}
+
+GSList *
+tag_rules_read_inherited(profile_inherit_e mode)
+{
+    GSList *list = NULL;
+
+    read_inherited_tagrules(mode, NULL, &list);
+    return list;
+}
+
 void
 tag_rules_init(void)
 {
     char *path;
+    profile_inherit_e mode = profile_get_inherit(NULL, NULL, TAGRULES_FILE_NAME);
 
     tag_rule_list_delete(&tag_rule_list);
 
     /* Load current-profile rules from the profile directory */
     path = get_persconffile_path(TAGRULES_FILE_NAME, true, NULL);
-    load_tagrules_from_path(path);
+    if (mode != PROFILE_INHERIT_PARENT_ONLY) {
+        load_tagrules_from_path(path);
+    } else {
+        /* The own rules are not used, but the own preferences are */
+        tag_rule_list_free(tag_rules_read_path(path, NULL));
+    }
     g_free(path);
+
+    if (mode != PROFILE_INHERIT_PROFILE_ONLY) {
+        read_inherited_tagrules(mode, tag_rule_list, &tag_rule_list);
+    }
 }
 
 void
@@ -428,7 +514,7 @@ tag_rules_read_path(const char *path, char **err_msg)
                                        path, g_strerror(errno));
         return NULL;
     }
-    ret = read_tagrules_file(path, f, &list, NULL, NULL);
+    ret = read_tagrules_file(path, f, &list, NULL, NULL, true);
     fclose(f);
     if (ret != 0) {
         if (err_msg)
@@ -445,12 +531,23 @@ tag_rules_write_path(GSList *list, const char *path,
 {
     FILE *f;
 
+    GSList *own_list = NULL;
+
     if ((f = ws_fopen(path, "w+")) == NULL) {
         if (err_msg) *err_msg = ws_strdup_printf("Could not open\n%s\nfor writing: %s.",
                                                   path, g_strerror(errno));
         return false;
     }
-    write_tagrules_file(list, f, tprefs);
+
+    /* Rules inherited from parent profiles are not written to this profile */
+    for (GSList *item = list; item; item = g_slist_next(item)) {
+        if (((tag_rule_t *)item->data)->source_profile == NULL)
+            own_list = g_slist_prepend(own_list, item->data);
+    }
+    own_list = g_slist_reverse(own_list);
+
+    write_tagrules_file(own_list, f, tprefs);
+    g_slist_free(own_list);
     fclose(f);
     return true;
 }
@@ -473,7 +570,29 @@ tag_rules_write(void)
     }
 
     path = get_persconffile_path(TAGRULES_FILE_NAME, true, NULL);
-    ok = tag_rules_write_path(tag_rule_list, path, &tag_prefs, &err_msg);
+    if (profile_get_inherit(NULL, NULL, TAGRULES_FILE_NAME) == PROFILE_INHERIT_PARENT_ONLY) {
+        /* The own rules are not in use, and not in the list; keep them as they are */
+        GSList *own_list = NULL;
+        FILE *f = ws_fopen(path, "r");
+        if (f == NULL) {
+            /* No own rules to keep, and nothing to write */
+            g_free(path);
+            return true;
+        }
+        int ret = read_tagrules_file(path, f, &own_list, NULL, NULL, false);
+        fclose(f);
+        if (ret != 0) {
+            /* Do not overwrite the own rules with what could be read */
+            report_warning("Error reading tag rules file \"%s\": %s.", path, g_strerror(ret));
+            tag_rule_list_delete(&own_list);
+            g_free(path);
+            return false;
+        }
+        ok = tag_rules_write_path(own_list, path, &tag_prefs, &err_msg);
+        tag_rule_list_delete(&own_list);
+    } else {
+        ok = tag_rules_write_path(tag_rule_list, path, &tag_prefs, &err_msg);
+    }
     if (!ok) {
         report_warning("%s", err_msg);
         g_free(err_msg);
@@ -494,6 +613,7 @@ tag_rules_clone(tag_rule_add_cb_func cb, void *user_data)
                                        orig->tag_content, orig->tag_url,
                                        orig->comment);
         clone->disabled = orig->disabled;
+        clone->source_profile = g_strdup(orig->source_profile);
         /* c_tagfilter is not cloned; caller compiles as needed */
         cb(clone, user_data);
     }

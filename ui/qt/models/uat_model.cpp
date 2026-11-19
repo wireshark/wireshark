@@ -15,8 +15,12 @@
 #include <epan/to_str.h>
 #include <epan/uat-int.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
 #include <app/application_flavor.h>
 #include <QFont>
+#include <QSet>
+#include <QTimer>
 #include <QBrush>
 #include <QDebug>
 
@@ -31,16 +35,27 @@
 UatModel::UatModel(QObject *parent, epan_uat *uat) :
     QAbstractTableModel(parent),
     uat_(0),
-    applying_(false)
+    applying_(false),
+    refresh_pending_(false),
+    unannounced_rows_(0)
 {
     loadUat(uat);
+    followOverridden();
+    // The records overridden by own records are shown too
+    refreshInherited();
 }
 
 UatModel::UatModel(QObject * parent, QString tableName) :
     QAbstractTableModel(parent),
-    uat_(0)
+    uat_(0),
+    applying_(false),
+    refresh_pending_(false),
+    unannounced_rows_(0)
 {
     loadUat(uat_get_table_by_name(tableName.toStdString().c_str()));
+    followOverridden();
+    // The records overridden by own records are shown too
+    refreshInherited();
 }
 
 void UatModel::loadUat(epan_uat * uat)
@@ -70,10 +85,174 @@ void UatModel::reloadUat()
     dirty_records.clear();
     loadUat(uat_);
     endResetModel();
+
+    // Records copied from another profile may hide inherited records
+    refreshInherited();
+}
+
+profile_inherit_e UatModel::inheritMode() const
+{
+    return uat_get_inherit_mode(uat_);
+}
+
+int UatModel::ownRowCount() const
+{
+    return static_cast<int>(uat_own_count(uat_));
+}
+
+bool UatModel::isInherited(int row) const
+{
+    return row >= 0 && uat_record_is_inherited(uat_, static_cast<unsigned>(row));
+}
+
+QString UatModel::sourceProfile(int row) const
+{
+    return row >= 0 ? QString::fromUtf8(uat_record_source(uat_, static_cast<unsigned>(row))) : QString();
+}
+
+bool UatModel::isOverridden(int row) const
+{
+    return row >= 0 && row < overridden_.count() && overridden_[row];
+}
+
+void UatModel::followOverridden()
+{
+    // The overridden records follow the rows
+    auto update = [this]() { updateOverridden(); };
+    connect(this, &QAbstractItemModel::rowsInserted, this, update);
+    connect(this, &QAbstractItemModel::rowsRemoved, this, update);
+    connect(this, &QAbstractItemModel::rowsMoved, this, update);
+    connect(this, &QAbstractItemModel::dataChanged, this, update);
+    connect(this, &QAbstractItemModel::modelReset, this, update);
+
+    // Changes of the own records, not the inherited records being replaced
+    auto changed = [this]() { if (!refreshing_inherited_) own_unsaved_ = true; };
+    connect(this, &QAbstractItemModel::rowsInserted, this, changed);
+    connect(this, &QAbstractItemModel::rowsRemoved, this, changed);
+    connect(this, &QAbstractItemModel::rowsMoved, this, changed);
+    connect(this, &QAbstractItemModel::dataChanged, this, changed);
+}
+
+void UatModel::updateOverridden()
+{
+    QSet<QString> keys = ownKeys();
+    int own_count = ownRowCount();
+
+    overridden_.fill(false, rowCount());
+    for (int row = own_count; row < overridden_.count(); row++) {
+        overridden_[row] = keys.contains(gchar_free_to_qstring(uat_record_key_string(uat_, static_cast<unsigned>(row))));
+    }
+}
+
+void UatModel::ownEdited()
+{
+    uat_own_records_edited(uat_);
+}
+
+bool UatModel::setInheritMode(profile_inherit_e mode, QString &error)
+{
+    if (mode == inheritMode())
+        return true;
+
+    char *err = NULL;
+    int own_count = ownRowCount();
+    // The edit state of the own records, which stay as they are if they are not read again
+    QVector<bool> own_dirty = dirty_records.mid(0, own_count);
+
+    own_unsaved_ = false;
+    beginResetModel();
+    bool ok = uat_set_inherit_mode(uat_, mode, application_configuration_environment_prefix(), &err);
+    record_errors.clear();
+    dirty_records.clear();
+    loadUat(uat_);
+    if (ownRowCount() == own_dirty.count()) {
+        for (int row = 0; row < own_dirty.count() && row < dirty_records.count(); row++)
+            dirty_records[row] = own_dirty[row];
+    }
+    // The inherited records were read for the own records now
+    refreshed_for_keys_ = ownKeys();
+    endResetModel();
+
+    if (!ok) {
+        error = QStringLiteral("Error while loading %1: %2").arg(uat_->name).arg(err);
+        g_free(err);
+    }
+    return ok;
+}
+
+QSet<QString> UatModel::ownKeys() const
+{
+    QSet<QString> keys;
+    int own_count = ownRowCount();
+    for (int row = 0; row < own_count; row++)
+        keys << gchar_free_to_qstring(uat_record_key_string(uat_, static_cast<unsigned>(row)));
+    return keys;
+}
+
+void UatModel::refreshInherited()
+{
+    if (!uat_->from_profile || inheritMode() == PROFILE_INHERIT_PROFILE_ONLY)
+        return;
+
+    // Not while a view is committing an edit; the rows may be replaced
+    if (!refresh_pending_) {
+        refresh_pending_ = true;
+        QTimer::singleShot(0, this, &UatModel::doRefreshInherited);
+    }
+}
+
+void UatModel::doRefreshInherited()
+{
+    refresh_pending_ = false;
+    if (!uat_->from_profile || inheritMode() == PROFILE_INHERIT_PROFILE_ONLY)
+        return;
+
+    // Only the keys of the own records decide which records are inherited
+    QSet<QString> keys = ownKeys();
+    if (refreshed_for_keys_ && *refreshed_for_keys_ == keys)
+        return;
+    refreshed_for_keys_ = keys;
+
+    // Replace only the inherited rows after the own rows, so that the
+    // current index, the selection and an open editor on own rows stay
+    const char *prefix = application_configuration_environment_prefix();
+    int own_count = ownRowCount();
+    int shown = rowCount() - own_count;
+    refreshing_inherited_ = true;
+    if (shown > 0) {
+        beginRemoveRows(QModelIndex(), own_count, own_count + shown - 1);
+        uat_remove_inherited_records(uat_);
+        record_errors.remove(own_count, shown);
+        dirty_records.remove(own_count, shown);
+        endRemoveRows();
+    }
+
+    // Only reading the records tells how many are inherited. The model
+    // does not count them until the rows to insert are announced.
+    char *err = NULL;
+    uat_add_inherited_records(uat_, prefix, &err);
+    g_free(err);
+    int added = static_cast<int>(uat_->raw_data->len) - own_count;
+    if (added <= 0) {
+        refreshing_inherited_ = false;
+        return;
+    }
+
+    unannounced_rows_ = added;
+    beginInsertRows(QModelIndex(), own_count, own_count + added - 1);
+    unannounced_rows_ = 0;
+    for (int row = own_count; row < rowCount(); row++) {
+        record_errors.push_back(QMap<int, QString>());
+        checkRow(row);
+        dirty_records.push_back(false);
+    }
+    endInsertRows();
+    refreshing_inherited_ = false;
 }
 
 bool UatModel::applyChanges(QString &error)
 {
+    own_unsaved_ = false;
     if (uat_->changed) {
         char *err = NULL;
 
@@ -122,6 +301,10 @@ Qt::ItemFlags UatModel::flags(const QModelIndex &index) const
 
     if (!index.isValid())
         return flags;
+
+    // Inherited records are read-only
+    if (isInherited(index.row()))
+        return flags & ~Qt::ItemIsDropEnabled;
 
     uat_field_t *field = &uat_->fields[index.column()];
 
@@ -200,6 +383,10 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
         }
     }
 
+    // An inherited record shows a lock instead of the check box enabling it
+    if (role == Qt::CheckStateRole && index.column() == uat_->enabled_field && isInherited(index.row()))
+        return QVariant();
+
     if ((role == Qt::CheckStateRole) && (field->mode == PT_TXTMOD_BOOL))
     {
         char *str = NULL;
@@ -231,11 +418,45 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
+    bool inherited = isInherited(index.row());
+
+    bool overridden = inherited && isOverridden(index.row());
+
     if (role == Qt::FontRole) {
-        if (!g_array_index(uat_->valid_data, bool, index.row())) {
+        if (inherited || !g_array_index(uat_->valid_data, bool, index.row())) {
             QFont font;
+            // Not used: also struck out
             font.setItalic(!font.italic());
+            font.setStrikeOut(overridden);
             return font;
+        }
+        return QVariant();
+    }
+
+    if (role == Qt::ForegroundRole && inherited) {
+        return ProfileInheritComboBox::inheritedData(role, QString());
+    }
+
+    if ((role == Qt::ToolTipRole || role == Qt::AccessibleDescriptionRole) && overridden) {
+        return ProfileInheritComboBox::notUsedText(QString::fromUtf8(uat_record_source(uat_, index.row())));
+    }
+
+    if ((role == Qt::ToolTipRole || role == Qt::AccessibleDescriptionRole) && inherited) {
+        return ProfileInheritComboBox::inheritedData(role, QString::fromUtf8(uat_record_source(uat_, index.row())));
+    }
+
+    // A lock marks the inherited records. It replaces the check box of the
+    // field enabling a record, as an inherited record is always enabled, or
+    // else comes first in the first column. Own records get room for it only
+    // when inherited records are shown, so the first column lines up.
+    const int lock_column = uat_->enabled_field >= 0 ? uat_->enabled_field : 0;
+    if (role == Qt::DecorationRole && index.column() == lock_column && field->mode != PT_TXTMOD_COLOR) {
+        if (inherited) {
+            return overridden ? ProfileInheritComboBox::overriddenIcon() : ProfileInheritComboBox::inheritedIcon();
+        }
+        // Inherited records come last
+        if (uat_->enabled_field < 0 && isInherited(rowCount() - 1)) {
+            return ProfileInheritComboBox::inheritedPlaceholderIcon();
         }
         return QVariant();
     }
@@ -298,7 +519,7 @@ int UatModel::rowCount(const QModelIndex &parent) const
         return 0;
     }
 
-    return uat_->raw_data->len;
+    return static_cast<int>(uat_->raw_data->len) - unannounced_rows_;
 }
 
 int UatModel::columnCount(const QModelIndex &parent) const
@@ -319,7 +540,11 @@ QModelIndex UatModel::appendEntry(QVariantList rowData)
         return QModelIndex();
 
     QModelIndex newIndex;
-    int row = rowCount();
+    if (inheritMode() == PROFILE_INHERIT_PARENT_ONLY)
+        return QModelIndex();
+
+    // New records are own records, which come before the inherited records
+    int row = ownRowCount();
     emit beginInsertRows(QModelIndex(), row, row);
 
     // Initialize with given values
@@ -356,9 +581,11 @@ QModelIndex UatModel::appendEntry(QVariantList rowData)
     checkRow(row);
     dirty_records.insert(row, true);
     uat_->changed = true;
+    ownEdited();
 
     emit endInsertRows();
 
+    refreshInherited();
     newIndex = index(row, 0, QModelIndex());
 
     return newIndex;
@@ -366,7 +593,7 @@ QModelIndex UatModel::appendEntry(QVariantList rowData)
 
 bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid())
+    if (!index.isValid() || isInherited(index.row()))
         return false;
 
     uat_field_t *field = &uat_->fields[index.column()];
@@ -428,6 +655,7 @@ bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role
     uat_update_record(uat_, rec, record_errors[row].isEmpty());
     dirty_records[row] = true;
     uat_->changed = true;
+    ownEdited();
 
     if (updated_cols.size() > updated_cols.count(index.column())) {
         // The validation status for other columns were also affected by
@@ -438,14 +666,20 @@ bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role
 
         emit dataChanged(index, index, roles);
     }
+
+    // An own record hides an inherited record with the same key
+    refreshInherited();
     return true;
 }
 
 bool UatModel::insertRows(int row, int count, const QModelIndex &/*parent*/)
 {
     // support insertion of just one item for now.
-    if (count != 1 || row < 0 || row > rowCount())
+    if (count != 1 || row < 0 || row > rowCount() || inheritMode() == PROFILE_INHERIT_PARENT_ONLY)
         return false;
+
+    // New records are own records, which come before the inherited records
+    row = qMin(row, ownRowCount());
 
     beginInsertRows(QModelIndex(), row, row);
 
@@ -468,13 +702,15 @@ bool UatModel::insertRows(int row, int count, const QModelIndex &/*parent*/)
     checkRow(row);
     dirty_records.insert(row, true);
     uat_->changed = true;
+    ownEdited();
     endInsertRows();
     return true;
 }
 
 bool UatModel::removeRows(int row, int count, const QModelIndex &/*parent*/)
 {
-    if (row < 0 || count < 0 || row + count > rowCount())
+    // Only own records can be removed
+    if (row < 0 || count < 0 || row + count > ownRowCount())
         return false;
 
     if (count == 0)
@@ -485,29 +721,22 @@ bool UatModel::removeRows(int row, int count, const QModelIndex &/*parent*/)
     record_errors.remove(row, count);
     dirty_records.remove(row, count);
     uat_->changed = true;
+    ownEdited();
     endRemoveRows();
+
+    // A removed own record may have hidden an inherited record
+    refreshInherited();
     return true;
-}
-
-void UatModel::clearAll()
-{
-    if (rowCount() < 1)
-        return;
-
-    beginResetModel();
-    uat_clear(uat_);
-    record_errors.clear();
-    dirty_records.clear();
-    uat_->changed = true;
-    endResetModel();
 }
 
 QModelIndex UatModel::copyRow(QModelIndex original)
 {
-    if (! original.isValid())
+    if (! original.isValid() || inheritMode() == PROFILE_INHERIT_PARENT_ONLY)
         return QModelIndex();
 
-    int newRow = rowCount();
+    // The copy is an own record, which comes before the inherited records
+    int newRow = ownRowCount();
+    int srcRow = original.row() >= newRow ? original.row() + 1 : original.row();
 
     beginInsertRows(QModelIndex(), newRow, newRow);
 
@@ -531,7 +760,7 @@ QModelIndex UatModel::copyRow(QModelIndex original)
     dirty_records.insert(newRow, true);
 
     // the UAT record has been created, now it is filled with the information
-    const void *src_record = UAT_INDEX_PTR(uat_, original.row());
+    const void *src_record = UAT_INDEX_PTR(uat_, srcRow);
     void *dst_record = UAT_INDEX_PTR(uat_, newRow);
     // insertRows always initializes the record with empty value. Before copying
     // over the new values, be sure to clear the old fields.
@@ -544,15 +773,18 @@ QModelIndex UatModel::copyRow(QModelIndex original)
       /* According to documentation of uat_copy_cb_t memcpy should be used if uat_->copy_cb is NULL */
       memcpy(dst_record, src_record, uat_->record_size);
     }
-    bool src_valid = g_array_index(uat_->valid_data, bool, original.row());
+    bool src_valid = g_array_index(uat_->valid_data, bool, srcRow);
     uat_update_record(uat_, dst_record, src_valid);
-    record_errors[newRow] = record_errors[original.row()];
+    record_errors[newRow] = record_errors[srcRow];
     dirty_records[newRow] = true;
 
     uat_->changed = true;
+    ownEdited();
 
     endInsertRows();
 
+    // A copy of an inherited record hides that record
+    refreshInherited();
     return index(newRow, 0, QModelIndex());
 }
 
@@ -565,6 +797,7 @@ bool UatModel::moveRowPrivate(int src_row, int dst_row)
     record_errors.move(src_row, dst_row);
     dirty_records.move(src_row, dst_row);
     uat_->changed = true;
+    ownEdited();
 
     return true;
 }
@@ -576,7 +809,9 @@ bool UatModel::moveRow(int src_row, int dst_row)
 
 bool UatModel::moveRows(const QModelIndex &, int sourceRow, int count, const QModelIndex &, int destinationChild)
 {
-    if (sourceRow < 0 || sourceRow >= rowCount() || destinationChild < 0 || destinationChild >= rowCount() || count < 0)
+    // Records move within the own records only
+    int own_count = ownRowCount();
+    if (sourceRow < 0 || sourceRow + count > own_count || destinationChild < 0 || destinationChild >= own_count || count < 0)
         return false;
 
     if (count == 0)

@@ -45,6 +45,7 @@
         <file alias="list-move-down.svg">svg_icons/list-move-down.svg</file>
         <file alias="list-move-up.svg">svg_icons/list-move-up.svg</file>
         <file alias="list-remove.svg">svg_icons/list-remove.svg</file>
+        <file alias="lock-closed.svg">svg_icons/lock-closed.svg</file>
         <file alias="lua-debug-add.svg">svg_icons/lua-debug-add.svg</file>
         <file alias="lua-debug-break-on-error.svg">svg_icons/lua-debug-break-on-error.svg</file>
         <file alias="lua-debug-breakpoint-actions.svg">svg_icons/lua-debug-breakpoint-actions.svg</file>

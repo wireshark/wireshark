@@ -13,6 +13,7 @@
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/models/uat_model.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/main_application.h>
 
@@ -114,17 +115,30 @@ void FilterExpressionToolBar::customMenu(QWidget* target, QAction * filterAction
         filterMenu->addSeparator();
         filterMenu->addAction(FilterAction::copyFilterAction(filterText, target));
         filterMenu->addSeparator();
+        // A button from a parent profile can't be changed in this profile
+        uat_t *table = uat_get_table_by_name("Display expressions");
+        int idx = uatRowIndexForFilter(filterAction->property(dfe_property_label_).toString(),
+                                       filterAction->property(dfe_property_expression_).toString());
+        bool inherited = table && idx >= 0 && uat_record_is_inherited(table, static_cast<unsigned>(idx));
+        if (inherited) {
+            QAction *actInherited = filterMenu->addAction(ProfileInheritComboBox::inheritedIcon(),
+                    tr("Inherited from profile '%1'").arg(QString::fromUtf8(uat_record_source(table, static_cast<unsigned>(idx)))));
+            actInherited->setEnabled(false);
+        }
         QAction * actEdit = filterMenu->addAction(tr("Edit"));
+        actEdit->setEnabled(!inherited);
         connect(actEdit, &QAction::triggered, this, &FilterExpressionToolBar::editFilter);
         actEdit->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
         actEdit->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
         actEdit->setData(filterAction->data());
         QAction * actDisable = filterMenu->addAction(tr("Disable"));
+        actDisable->setEnabled(!inherited);
         connect(actDisable, &QAction::triggered, this, &FilterExpressionToolBar::disableFilter);
         actDisable->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
         actDisable->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
         actDisable->setData(filterAction->data());
         QAction * actRemove = filterMenu->addAction(tr("Remove"));
+        actRemove->setEnabled(!inherited);
         connect(actRemove, &QAction::triggered, this, &FilterExpressionToolBar::removeFilter);
         actRemove->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
         actRemove->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
@@ -210,8 +224,18 @@ void FilterExpressionToolBar::onActionMoved(QAction* action, int oldPos, int new
     if (idx > -1 && oldPos > -1 && newPos > -1)
     {
         uat_t * table = uat_get_table_by_name("Display expressions");
+        if (uat_record_is_inherited(table, static_cast<unsigned>(idx))) {
+            // An inherited button cannot be moved; show it where it was
+            filterExpressionsChanged();
+            return;
+        }
         uat_move_index(table, oldPos, newPos);
+        // Own buttons stay before the inherited ones
+        bool regrouped = uat_move_inherited_last(table);
         uat_save(table, application_configuration_environment_prefix(), &err);
+        if (regrouped) {
+            filterExpressionsChanged();
+        }
 
         g_free(err);
     }
@@ -253,6 +277,7 @@ void FilterExpressionToolBar::onFilterDropped(QString description, QString filte
     if (filter.length() == 0)
         return;
 
+    filter_expressions_use_own(application_configuration_environment_prefix());
     filter_expression_new(qUtf8Printable(description),
             qUtf8Printable(filter), qUtf8Printable(description), true);
 

@@ -35,6 +35,14 @@ public:
     UatDelegate(QObject *parent = 0);
 
     /**
+     * @brief Returns the size of an item, not making rows with the lock of an inherited entry taller.
+     * @param option The style option for the item.
+     * @param index The model index of the item.
+     * @return The size of the item.
+     */
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
+    /**
      * @brief Creates the editor widget for the specified item.
      * @param parent The parent widget.
      * @param option The style option for the item.

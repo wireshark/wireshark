@@ -19,6 +19,9 @@
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
+#include <ui/qt/utils/hide_overridden_rows.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/utils/inherit_selection.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/themed_icon.h>
@@ -36,7 +39,9 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ui(new Ui::UatDialog),
     uat_model_(NULL),
     uat_delegate_(NULL),
-    uat_(uat)
+    uat_(uat),
+    copy_button_(NULL),
+    inherit_combo_(NULL)
 {
     ui->setupUi(this);
 
@@ -103,26 +108,30 @@ void UatDialog::setUat(epan_uat *uat)
         }
 
         if (uat->from_profile) {
-            CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, uat->filename);
-            ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
-            connect(copy_button, &CopyFromProfileButton::copyProfile, this, &UatDialog::copyFromProfile);
-        }
+            copy_button_ = new CopyFromProfileButton(this, uat->filename);
+            ui->buttonBox->addButton(copy_button_, QDialogButtonBox::ActionRole);
+            connect(copy_button_, &CopyFromProfileButton::copyProfile, this, &UatDialog::copyFromProfile);
 
-        QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, false, application_configuration_environment_prefix()));
-        if (abs_path.length() > 0) {
-            ui->pathLabel->setText(abs_path);
-            ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
-            ui->pathLabel->setToolTip(tr("Open ") + uat->filename);
-        } else {
-            ui->pathLabel->setText(uat_->filename);
+            // Where the records come from, next to the button clearing them
+            inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, uat->filename,
+                                                    [this]() { return uat_model_ && uat_model_->hasUnsavedOwn(); },
+                                                    [this]() { return saveRecords(); });
+            inherit_combo_->syncMode(uat_get_inherit_mode(uat_));
+            connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &UatDialog::inheritModeChanged);
         }
-        ui->pathLabel->setEnabled(true);
 
         uat_model_ = new UatModel(NULL, uat);
         uat_delegate_ = new UatDelegate;
         ui->uatTreeView->setModel(uat_model_);
         ui->uatTreeView->setItemDelegate(uat_delegate_);
+
+        if (inherit_combo_) {
+            // Not used records can be hidden, which is not stored
+            addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->uatTreeView, uat_model_, uat->enabled_field);
+        }
         resizeColumns();
+        updatePathLabel();
+        followInheritedProfiles(uat_model_, this, &UatDialog::updatePathLabel);
         updateWidgets();
 
         connect(uat_model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -148,6 +157,22 @@ void UatDialog::setUat(epan_uat *uat)
     setWindowTitle(title);
 }
 
+void UatDialog::updatePathLabel()
+{
+    bool own_used = !inherit_combo_ || inherit_combo_->mode() != PROFILE_INHERIT_PARENT_ONLY;
+    QString abs_path = own_used ? gchar_free_to_qstring(uat_get_actual_filename(uat_, false, application_configuration_environment_prefix())) : QString();
+    QString own_text = !own_used ? QString() : abs_path.length() > 0 ? abs_path : QString(uat_->filename);
+
+    if (inherit_combo_) {
+        inherit_combo_->setPathText(ui->pathLabel, own_text, inheritedProfiles(uat_model_));
+    } else {
+        ui->pathLabel->setText(own_text);
+    }
+    ui->pathLabel->setUrl(abs_path.length() > 0 ? QUrl::fromLocalFile(abs_path).toString() : QString());
+    ui->pathLabel->setToolTip(abs_path.length() > 0 ? tr("Open ") + uat_->filename : QString());
+    ui->pathLabel->setEnabled(own_used);
+}
+
 void UatDialog::updateWidgets()
 {
     if (!uat_model_)
@@ -155,7 +180,28 @@ void UatDialog::updateWidgets()
 
     QModelIndexList selectedRows = ui->uatTreeView->selectionModel() ?
                 ui->uatTreeView->selectionModel()->selectedRows() : QModelIndexList();
-    ui->editButtons->setSelection(selectedRows, uat_model_->rowCount());
+    InheritSelection sel = inheritSelection(uat_model_, selectedRows, ui->uatTreeView);
+
+    // Inherited entries can be copied into the own entries, but not changed
+    ui->editButtons->setSelection(sel);
+    if (copy_button_) {
+        copy_button_->setOwnEntriesUsed(sel.own_used);
+    }
+}
+
+void UatDialog::inheritModeChanged(profile_inherit_e mode)
+{
+    if (!uat_model_)
+        return;
+
+    QString error;
+    if (!uat_model_->setInheritMode(mode, error)) {
+        report_failure("%s", qPrintable(error));
+    }
+    resizeColumns();
+    updatePathLabel();
+    updateWidgets();
+    ok_button_->setEnabled(!uat_model_->hasErrors());
 }
 
 void UatDialog::copyFromProfile(QString filename)
@@ -164,6 +210,7 @@ void UatDialog::copyFromProfile(QString filename)
     if (uat_load(uat_, filename.toUtf8().constData(), application_configuration_environment_prefix(), &err)) {
         uat_->changed = true;
         uat_model_->reloadUat();
+        uat_model_->markOwnChanged();
     } else {
         report_failure("Error while loading %s: %s", uat_->name, err);
         g_free(err);
@@ -270,13 +317,15 @@ void UatDialog::addRecord(bool copy_from_current)
     if (copy_from_current) {
         new_index = uat_model_->copyRow(current);
     }  else {
+        // New records go after the own records, before the inherited records
+        int row = uat_model_->ownRowCount();
         // should not fail, but you never know.
-        if (!uat_model_->insertRows(uat_model_->rowCount(), 1)) {
+        if (!uat_model_->insertRows(row, 1)) {
             qDebug() << "Failed to add a new record";
             return;
         }
 
-        new_index = uat_model_->index(uat_model_->rowCount() - 1, 0);
+        new_index = uat_model_->index(row, 0);
     }
 
     // due to an EditTrigger, this will also start editing.
@@ -333,7 +382,7 @@ void UatDialog::copyClicked()
 void UatDialog::clearClicked()
 {
     if (uat_model_) {
-        uat_model_->clearAll();
+        removeVisibleOwnRows(ui->uatTreeView, uat_model_);
     }
 }
 
@@ -352,15 +401,38 @@ void UatDialog::applyChanges()
 }
 
 
+bool UatDialog::saveRecords()
+{
+    if (!uat_model_) return true;
+
+    QString error;
+    bool applied = uat_model_->applyChanges(error);
+    if (!error.isEmpty()) {
+        report_failure("%s", qPrintable(error));
+        return false;
+    }
+    if (applied) {
+        applyChanges();
+    }
+    return true;
+}
+
 void UatDialog::acceptChanges()
 {
     if (!uat_model_) return;
 
     QString error;
-    if (uat_model_->applyChanges(error)) {
-        if (!error.isEmpty()) {
-            report_failure("%s", qPrintable(error));
+    bool applied = uat_model_->applyChanges(error);
+    if (!error.isEmpty()) {
+        report_failure("%s", qPrintable(error));
+    } else {
+        // The mode is only kept with the records saved for it
+        QString mode_error;
+        if (inherit_combo_ && !inherit_combo_->saveMode(mode_error)) {
+            report_failure("%s", qPrintable(mode_error));
         }
+    }
+    if (applied) {
         applyChanges();
     }
 }

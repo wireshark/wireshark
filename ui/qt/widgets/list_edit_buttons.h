@@ -12,6 +12,8 @@
 
 #include <config.h>
 
+#include <ui/qt/utils/inherit_selection.h>
+
 #include <QList>
 #include <QModelIndexList>
 #include <QSet>
@@ -25,8 +27,9 @@
 /**
  * @brief The row of buttons editing a list: new, delete, copy, move up, move down and clear.
  *
- * The buttons are enabled for the selection of the list. A disabled button
- * tells why in its tool tip, so that nobody is left wondering.
+ * The buttons are enabled for the selection of the list, which may show
+ * entries inherited from parent profiles. A disabled button tells why in
+ * its tool tip, so that nobody is left wondering.
  */
 class ListEditButtons : public QWidget
 {
@@ -80,6 +83,15 @@ public:
 
     /**
      * @brief Enables the buttons for the selection.
+     *
+     * Inherited entries can be copied into the own entries, but not changed.
+     * The own entries are not used with the parent's entries only.
+     * @param sel What the selection allows.
+     */
+    void setSelection(const InheritSelection &sel);
+
+    /**
+     * @brief Enables the buttons for the selection of a list without inherited entries.
      * @param indexes The selected indexes, which may hold several columns of a row.
      * @param row_count The number of rows.
      */

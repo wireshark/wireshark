@@ -558,7 +558,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
             const bool enable = rule_entry.disabled;
             const QString action_text = enable ? tr("Enable Coloring Rule") : tr("Disable Coloring Rule");
 
-            ctx_menu->addAction(action_text, [this, rule_entry, enable]() {
+            QAction *rule_action = ctx_menu->addAction(action_text, [this, rule_entry, enable]() {
                 QString err;
                 if (!ColoringRuleUtils::setRuleEnabled(rule_entry, enable, &err)) {
                     return;
@@ -570,6 +570,14 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
                     emit redissectPacketsRequested();
                 });
             });
+
+            // Rules inherited from a parent profile cannot be changed here
+            const QString source_profile = ColoringRuleUtils::inheritedFrom(rule_entry);
+            if (!source_profile.isEmpty()) {
+                rule_action->setEnabled(false);
+                rule_action->setToolTip(tr("This coloring rule is inherited from profile '%1'. Change it there.").arg(source_profile));
+                ctx_menu->setToolTipsVisible(true);
+            }
         }
     }
 

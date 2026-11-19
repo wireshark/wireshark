@@ -62,6 +62,17 @@ public:
     static bool isDisabledEntryItem(const ProtoNode *node);
 
     /**
+     * @brief The parent profile the rule of an entry is inherited from.
+     *
+     * Rules are matched as in setRuleEnabled(). An inherited rule is
+     * read-only, so it cannot be enabled or disabled in this profile.
+     * @param entry Entry from entryForNode().
+     * @return The name of the profile; empty if the rule is the profile's
+     * own, an own rule overrides it, or no rule matches.
+     */
+    static QString inheritedFrom(const ColoringRuleEntry &entry);
+
+    /**
      * @brief Enables or disables the rule of an entry and saves the rule list.
      *
      * Rules are matched by name, and by filter text when the entry has one,

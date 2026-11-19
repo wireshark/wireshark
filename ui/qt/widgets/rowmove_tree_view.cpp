@@ -102,8 +102,9 @@ void RowMoveTreeView::dragMoveEvent(QDragMoveEvent *event)
     TabnavTreeView::dragMoveEvent(event);
     drag_pos_ = event->position().toPoint();
     viewport()->update();
-    // A drop on rows that can't be dropped on, or below them, goes to the
-    // last row above them that can, so it is refused only if there is none.
+    // A drop on rows that can't be dropped on, such as inherited records,
+    // or below them goes to the last row above them that can, so it is
+    // refused only if there is none.
     if (event->source() == this) {
         if (dropRow(event->position().toPoint()) >= 0)
             event->accept();

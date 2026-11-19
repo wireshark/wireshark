@@ -17,6 +17,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
+#include <ui/qt/utils/color_utils.h>
 
 #include <QMimeData>
 #include <QJsonDocument>
@@ -47,7 +48,8 @@ TaggingRuleItem::TaggingRuleItem(tag_rule_t *rule, TaggingRuleItem *parent)
       filter_(rule->filter_text),
       tag_content_(rule->tag_content ? rule->tag_content : ""),
       tag_url_(rule->tag_url ? rule->tag_url : ""),
-      comment_(rule->comment ? rule->comment : "")
+      comment_(rule->comment ? rule->comment : ""),
+      source_profile_(rule->source_profile ? QString::fromUtf8(rule->source_profile) : QString())
 {
 }
 
@@ -58,7 +60,8 @@ TaggingRuleItem::TaggingRuleItem(const TaggingRuleItem &item)
       filter_(item.filter_),
       tag_content_(item.tag_content_),
       tag_url_(item.tag_url_),
-      comment_(item.comment_)
+      comment_(item.comment_),
+      source_profile_(item.source_profile_)
 {
 }
 
@@ -74,6 +77,7 @@ TaggingRuleItem &TaggingRuleItem::operator=(TaggingRuleItem &rhs)
     tag_content_ = rhs.tag_content_;
     tag_url_     = rhs.tag_url_;
     comment_     = rhs.comment_;
+    source_profile_ = rhs.source_profile_;
     return *this;
 }
 
@@ -96,15 +100,42 @@ tag_rule_add_cb(tag_rule_t *rule, void *user_data)
 // ---------------------------------------------------------------------------
 
 TaggingRulesModel::TaggingRulesModel(QObject *parent)
-    : QAbstractItemModel(parent),
-      root_(new TaggingRuleItem(false, QString(), QString(), QString(), QString(), QString(), NULL))
+    : InheritedRulesModel<TaggingRuleItem>(TAGRULES_FILE_NAME, parent)
 {
+    root_ = new TaggingRuleItem(false, QString(), QString(), QString(), QString(), QString(), NULL);
     tag_rules_clone(tag_rule_add_cb, this);
+    initInherited();
 }
 
 TaggingRulesModel::~TaggingRulesModel()
 {
-    delete root_;
+}
+
+QList<TaggingRuleItem*> TaggingRulesModel::readOwnRows()
+{
+    QList<TaggingRuleItem*> rules;
+    if (own_path_.isEmpty() || !file_exists(own_path_.toUtf8().constData()))
+        return rules;
+
+    char *err_msg = NULL;
+    GSList *list = tag_rules_read_path(own_path_.toUtf8().constData(), &err_msg);
+    g_free(err_msg);
+    for (GSList *r = list; r; r = g_slist_next(r)) {
+        rules << new TaggingRuleItem((tag_rule_t *)r->data, NULL);
+    }
+    tag_rule_list_free(list);
+    return rules;
+}
+
+QList<TaggingRuleItem*> TaggingRulesModel::readInherited(profile_inherit_e mode)
+{
+    QList<TaggingRuleItem*> rules;
+    GSList *list = tag_rules_read_inherited(mode);
+    for (GSList *r = list; r; r = g_slist_next(r)) {
+        rules << new TaggingRuleItem((tag_rule_t *)r->data, NULL);
+    }
+    tag_rule_list_free(list);
+    return rules;
 }
 
 // ---------------------------------------------------------------------------
@@ -113,9 +144,16 @@ TaggingRulesModel::~TaggingRulesModel()
 
 GSList *TaggingRulesModel::createTagRuleList()
 {
+    QList<TaggingRuleItem *> rules;
+    for (int row = 0; row < root_->childCount(); row++)
+        rules << root_->child(row);
+    return createTagRuleList(rules);
+}
+
+GSList *TaggingRulesModel::createTagRuleList(const QList<TaggingRuleItem *> &rules)
+{
     GSList *list = NULL;
-    for (int row = 0; row < root_->childCount(); row++) {
-        TaggingRuleItem *rule = root_->child(row);
+    for (TaggingRuleItem *rule : rules) {
         if (rule == NULL)
             continue;
 
@@ -132,6 +170,8 @@ GSList *TaggingRulesModel::createTagRuleList()
             rule->comment_.isEmpty() ? NULL : comment_ba.constData()
         );
         tr->disabled = rule->disabled_;
+        if (rule->isInherited())
+            tr->source_profile = g_strdup(rule->source_profile_.toUtf8().constData());
         list = g_slist_append(list, tr);
     }
     return list;
@@ -156,11 +196,18 @@ void TaggingRulesModel::addRule(tag_rule_t *rule)
     if (!rule)
         return;
 
-    int count = root_->childCount();
+    if (rule->source_profile) {
+        // Inherited rules are read by loadInherited(), including the ones an own rule hides
+        tag_rule_delete(rule);
+        return;
+    }
+
+    // Added rules are own rules, which come before the inherited rules
+    int count = ownRowCount();
     beginInsertRows(QModelIndex(), count, count);
     TaggingRuleItem *item = new TaggingRuleItem(rule, root_);
     tag_rule_delete(rule);
-    root_->appendChild(item);
+    root_->insertChild(count, item);
     endInsertRows();
 }
 
@@ -175,25 +222,54 @@ bool TaggingRulesModel::loadFromPath(const QString &path, QString &err)
 
     beginResetModel();
     delete root_;
+    own_path_ = path;
     root_ = new TaggingRuleItem(false, QString(), QString(), QString(), QString(), QString(), NULL);
     for (GSList *r = list; r; r = g_slist_next(r)) {
         tag_rule_t *rule = (tag_rule_t *)r->data;
-        root_->appendChild(new TaggingRuleItem(rule, root_));
+        // The own rules are not used when only the parent's rules are used
+        if (inherit_mode_ != PROFILE_INHERIT_PARENT_ONLY)
+            root_->appendChild(new TaggingRuleItem(rule, root_));
     }
     tag_rule_list_free(list);
     endResetModel();
     return true;
 }
 
-bool TaggingRulesModel::writeToPath(const QString &path, const tag_prefs_t *prefs, QString &err)
+bool TaggingRulesModel::writeToPath(const QString &path, const tag_prefs_t *prefs, bool prefs_changed, QString &err)
 {
-    GSList *list = createTagRuleList();
+    // The own rules of the file are kept as they are when only the parent's
+    // rules are used. Without own rules there may be nothing to keep, and
+    // then no file is created for no rules.
+    bool parent_only = inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY;
+    char *read_err = NULL;
+    GSList *list = parent_only ? tag_rules_read_path(path.toUtf8().constData(), &read_err) : createTagRuleList();
+    g_free(read_err);
+    if (list == NULL && !prefs_changed && !fileHasRules(path))
+        return true;
+
     char *err_msg = NULL;
     bool ok = tag_rules_write_path(list, path.toUtf8().constData(), prefs, &err_msg);
     tag_rule_list_free(list);
     if (!ok)
         err = gchar_free_to_qstring(err_msg);
+    else
+        ownSaved();
     return ok;
+}
+
+bool TaggingRulesModel::fileHasRules(const QString &path)
+{
+    QByteArray path_utf8 = path.toUtf8();
+    if (!file_exists(path_utf8.constData()))
+        return false;
+
+    // A file that can't be read has no rules to keep
+    char *err_msg = NULL;
+    GSList *list = tag_rules_read_path(path_utf8.constData(), &err_msg);
+    g_free(err_msg);
+    bool has_rules = list != NULL;
+    tag_rule_list_free(list);
+    return has_rules;
 }
 
 bool TaggingRulesModel::importRules(const QString &path, QString &err)
@@ -230,13 +306,6 @@ bool TaggingRulesModel::exportRules(const QString &path, QString &err)
     return true;
 }
 
-bool TaggingRulesModel::writeTags()
-{
-    GSList *list = createTagRuleList();
-    tag_rules_apply(list);
-    return tag_rules_write();
-}
-
 // ---------------------------------------------------------------------------
 // QAbstractItemModel overrides
 // ---------------------------------------------------------------------------
@@ -244,6 +313,11 @@ bool TaggingRulesModel::writeTags()
 Qt::ItemFlags TaggingRulesModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags f = QAbstractItemModel::flags(index);
+
+    // Inherited rules are read-only
+    if (index.isValid() && isInherited(index.row()))
+        return inheritedFlags(index, f);
+
     switch (index.column()) {
     case colName:
         f |= (Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
@@ -273,6 +347,12 @@ QVariant TaggingRulesModel::data(const QModelIndex &index, int role) const
     if (rule == NULL)
         return QVariant();
 
+    // The lock, italics and tool tip of an inherited rule
+    bool handled;
+    QVariant inherited_data = inheritedData(rule, index, role, &handled);
+    if (handled)
+        return inherited_data;
+
     switch (role) {
     case Qt::DisplayRole:
     case Qt::EditRole:
@@ -287,6 +367,11 @@ QVariant TaggingRulesModel::data(const QModelIndex &index, int role) const
     case Qt::CheckStateRole:
         if (index.column() == colName)
             return rule->disabled_ ? Qt::Unchecked : Qt::Checked;
+        break;
+    case Qt::ForegroundRole:
+        // Dim inherited rules
+        if (rule->isInherited())
+            return ColorUtils::disabledForeground();
         break;
     case TagContentRole:
         return rule->tag_content_;
@@ -305,7 +390,7 @@ bool TaggingRulesModel::setData(const QModelIndex &dataIndex, const QVariant &va
         return true;
 
     TaggingRuleItem *rule = root_->child(dataIndex.row());
-    if (rule == NULL)
+    if (rule == NULL || rule->isInherited())
         return false;
 
     QModelIndex topLeft     = dataIndex;
@@ -371,60 +456,6 @@ QVariant TaggingRulesModel::headerData(int section, Qt::Orientation orientation,
     return QVariant();
 }
 
-QModelIndex TaggingRulesModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!hasIndex(row, column, parent))
-        return QModelIndex();
-
-    TaggingRuleItem *parent_item;
-    if (!parent.isValid())
-        parent_item = root_;
-    else
-        parent_item = static_cast<TaggingRuleItem *>(parent.internalPointer());
-
-    Q_ASSERT(parent_item);
-
-    TaggingRuleItem *child_item = parent_item->child(row);
-    if (child_item)
-        return createIndex(row, column, child_item);
-
-    return QModelIndex();
-}
-
-QModelIndex TaggingRulesModel::parent(const QModelIndex &indexItem) const
-{
-    if (!indexItem.isValid())
-        return QModelIndex();
-
-    TaggingRuleItem *item = static_cast<TaggingRuleItem *>(indexItem.internalPointer());
-    if (item != NULL) {
-        TaggingRuleItem *parent_item = item->parentItem();
-        if (parent_item != NULL) {
-            if (parent_item == root_)
-                return QModelIndex();
-            return createIndex(parent_item->row(), 0, parent_item);
-        }
-    }
-    return QModelIndex();
-}
-
-int TaggingRulesModel::rowCount(const QModelIndex &parent) const
-{
-    if (parent.column() > 0)
-        return 0;
-
-    TaggingRuleItem *parent_item;
-    if (!parent.isValid())
-        parent_item = root_;
-    else
-        parent_item = static_cast<TaggingRuleItem *>(parent.internalPointer());
-
-    if (parent_item == NULL)
-        return 0;
-
-    return parent_item->childCount();
-}
-
 int TaggingRulesModel::columnCount(const QModelIndex &) const
 {
     return colCount;
@@ -432,54 +463,39 @@ int TaggingRulesModel::columnCount(const QModelIndex &) const
 
 bool TaggingRulesModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    if (row < 0)
+    // New rules go into the own rules, before the inherited rules
+    if (row < 0 || inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
         return false;
+    row = qMin(row, ownRowCount());
 
     beginInsertRows(parent, row, row + (count - 1));
+    // Don't touch the inherited rows while inserting
+    refreshing_inherited_ = true;
     for (int i = row; i < row + count; i++) {
         TaggingRuleItem *item = new TaggingRuleItem(
             true, tr("New tagging rule"), QString(), QString(), QString(), QString(), root_);
         root_->insertChild(i, item);
         setData(index(i, colName, parent), Qt::Checked, Qt::CheckStateRole);
     }
+    refreshing_inherited_ = false;
     endInsertRows();
     return true;
 }
 
 bool TaggingRulesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    if (row < 0)
+    // Only own rules can be removed
+    int own_count = ownRowCount();
+    if (row < 0 || row >= own_count)
+        return false;
+    count = qMin(count, own_count - row);
+    if (count <= 0)
         return false;
 
     beginRemoveRows(parent, row, row + (count - 1));
     for (int i = 0; i < count; i++)
         root_->removeChild(row);
     endRemoveRows();
-    return true;
-}
-
-bool TaggingRulesModel::moveRows(const QModelIndex &, int sourceRow, int count,
-                                const QModelIndex &, int destinationChild)
-{
-    int row_count = rowCount();
-    if (count <= 0 || sourceRow < 0 || sourceRow + count > row_count ||
-        destinationChild < 0 || destinationChild >= row_count ||
-        (destinationChild >= sourceRow && destinationChild < sourceRow + count))
-        return false;
-
-    bool up = destinationChild < sourceRow;
-    if (!beginMoveRows(QModelIndex(), sourceRow, sourceRow + count - 1, QModelIndex(),
-                       up ? destinationChild : destinationChild + 1))
-        return false;
-
-    // Move the items themselves, which the persistent indexes point to
-    QList<TaggingRuleItem *> rules;
-    for (int i = 0; i < count; i++)
-        rules << root_->takeChild(sourceRow);
-    int insert_at = up ? destinationChild : destinationChild - count + 1;
-    for (int i = 0; i < count; i++)
-        root_->insertChild(insert_at + i, rules[i]);
-    endMoveRows();
     return true;
 }
 
@@ -545,6 +561,9 @@ bool TaggingRulesModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
         beginRow = parent.row();
     else
         beginRow = rowCount();
+
+    // Dropped rules become own rules, which come before the inherited rules
+    beginRow = qMin(beginRow, ownRowCount());
 
     QJsonDocument encodedData = QJsonDocument::fromJson(
         data->data(WiresharkMimeData::TaggingRulesMimeType));
