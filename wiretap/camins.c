@@ -436,6 +436,22 @@ wtap_open_return_val camins_open(wtap *wth, int *err, char **err_info)
 {
     wtap_open_return_val status;
 
+    /*
+     * The heuristic always reads to the end of the file (or up to
+     * CAMINS_BYTES_TO_CHECK bytes, 1 GiB) before deciding, and then
+     * seeks back to the beginning. On a pipe, that reads past what the
+     * I/O routines buffer, after which neither we nor the open routines
+     * tried after us (which also start by seeking back to the beginning)
+     * can seek back, so it only ever worked on a pipe for a file small
+     * enough to be buffered entirely. Don't try.
+     *
+     * XXX - to read CAM Inspector files from a pipe, the heuristic would
+     * have to decide after reading a bounded amount, perhaps only on a
+     * pipe, so that it stays within what the I/O routines buffer.
+     */
+    if (wth->ispipe)
+        return WTAP_OPEN_NOT_MINE;
+
     status = detect_camins_file(wth->fh, err, err_info);
     if (status != WTAP_OPEN_MINE) {
         /* A read error or a failed heuristic. */
