@@ -424,6 +424,10 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, char **err_info)
     }
     if (!wtap_read_bytes_or_eof(wth->fh,&header,erf_header_size,err,err_info)) {
       if (*err == 0) {
+        if (i == 0) {
+          /* EOF before the first record - an empty file isn't ERF */
+          return WTAP_OPEN_NOT_MINE;
+        }
         /* EOF - all records have been successfully checked, accept the file */
         break;
       }
@@ -456,6 +460,12 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, char **err_info)
        * Probably a corrupt capture file or a file that's not an ERF file
        * but that passed earlier tests.
        */
+      return WTAP_OPEN_NOT_MINE;
+    }
+
+    /* No record types above ERF_TYPE_PAD are defined, so this is
+       probably not ERF */
+    if ((header.type & 0x7F) > ERF_TYPE_PAD) {
       return WTAP_OPEN_NOT_MINE;
     }
 
@@ -562,6 +572,15 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, char **err_info)
         if (packet_size < erf_eth_hdr_size)
           return WTAP_OPEN_NOT_MINE;
         packet_size -= erf_eth_hdr_size;
+        break;
+      case ERF_TYPE_IP_COUNTER:
+      case ERF_TYPE_TCP_FLOW_COUNTER:
+        /* These are deprecated and otherwise unhandled, but the payloads
+         * were always multiple of 4 bytes. Among other things, this
+         * eliminates a long run of CR LF, which otherwise looks like
+         * IP counter records with rlen 3338. */
+        if ((packet_size % 4) != 0)
+          return WTAP_OPEN_NOT_MINE;
         break;
       default:
         break;
