@@ -1187,8 +1187,7 @@ static const value_string tns_csform_vals[] = {
 #define TNS_AQ_TOID_LEN    16
 #define TNS_AQ_ARRAY_ENQ   1
 
-/* An OAC flag marking a PL/SQL associative-array bind: in the flag byte
- * from 12.2, in the continuation flags before. */
+/* An OAC flag byte bit marking a PL/SQL associative-array bind. */
 #define TNS_BIND_ARRAY     0x40
 /* An OCI bind descriptor's flag marking a placeholder whose name came
  * earlier in the statement: the row carries no value for it. */
@@ -2733,8 +2732,9 @@ static void tns_add_call_status_flags(proto_item *ti, tvbuff_t *tvb, int start, 
  * shared by describe columns and bind descriptors. Fields
  * use the Oracle variable-length form (get_sb4_custom). From field version
  * 12.1 the scale is a single signed byte, where 11g sends a variable-length
- * sb4 (NUMBER's default -127 as 0x81 0x7f), and the flag byte marks an
- * array bind; from 12.2 a ub4 oaccolid also follows the max size.
+ * sb4 (NUMBER's default -127 as 0x81 0x7f); from 12.2 a ub4 oaccolid
+ * also follows the max size. The flag byte marks an array bind, whose
+ * capacity is the max number of array elements.
  * When col is not NULL it receives the type and data length.
  * Returns the new offset. */
 static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, tns_column_t *col)
@@ -2749,8 +2749,8 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* type (ub1) */
 	proto_tree_add_item(tree, hf_tns_data_col_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	/* flag (ub1); from 12.1 it marks an array bind */
-	if ( col && fv_12_1 )
+	/* flag (ub1), which marks an array bind */
+	if ( col )
 		col->is_array = (tvb_get_uint8(tvb, offset) & TNS_BIND_ARRAY) != 0;
 	offset += 1;
 	/* precision (sb1) */
@@ -2777,10 +2777,8 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += get_sb4_custom(tvb, offset, &v);
 	if ( v > 0 )
 		proto_tree_add_uint(tree, hf_tns_data_col_max_elements, tvb, start, offset - start, v);
-	/* cont flags (ub8); below 12.1 they mark an array bind */
+	/* cont flags (ub8, skip) */
 	offset += get_ub8_custom(tvb, offset, &u);
-	if ( col && !fv_12_1 )
-		col->is_array = (u & TNS_BIND_ARRAY) != 0;
 	/* type OID (bytes_with_length, skip) */
 	offset += get_field_with_length(tvb, pinfo, offset, NULL);
 	/* version (ub4, skip) */

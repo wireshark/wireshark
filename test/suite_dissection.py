@@ -5409,7 +5409,9 @@ class TestDissectTns:
 
     def test_tns_array_binds(self, cmd_tshark, capture_file, test_env):
         '''An associative-array bind's value is an element count and the
-        elements, in the request and in the OUT reply alike.'''
+        elements, in the request and in the OUT reply alike. An 11.2
+        session marks the array in the descriptor's flag byte as 12.2
+        does.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_array_binds.pcap'),
             '-d', 'tcp.port==1521,tns',
@@ -5424,6 +5426,8 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [
             ['10', '3', 'c102,c103,c104', '', ''],
+            ['', '3', 'c103,c105,c107', '0', ''],
+            ['3', '3', 'c102,c103,c104', '', ''],
             ['', '3', 'c103,c105,c107', '0', ''],
         ], rows
 

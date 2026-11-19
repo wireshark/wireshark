@@ -6,7 +6,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Generate test/captures/tns_array_binds.pcap: a PL/SQL associative-array
-bind, IN OUT.
+bind, IN OUT, in a 12.2 session and in an 11.2 one.
 
     Frame 1 - the client's TTI_DTY, negotiating field version 8 (12.2)
     Frame 2 - "BEGIN pkg.double_all(:1); END;" with one NUMBER bind whose
@@ -14,6 +14,12 @@ bind, IN OUT.
               is 10; its value is the element count 3 and 1, 2, 3
     Frame 3 - the reply: TTI_IOV (IN OUT), then the OUT value - the count 3
               and 2, 4, 6, each with its actual length - and TTI_OER
+
+Frames 4 to 6 are the same in a second connection, at field version 6
+(11.2). An 11.2 session marks the array in the flag byte as well: JDBC
+thin 11.2 sends 02 43 00 00 01 58 01 03 00 00 00 00 00 00 for a table
+of three NUMBER elements, with the capacity, 3, as the max number of
+array elements.
 
 Bytes are built by hand.
 """
@@ -191,14 +197,25 @@ def num(n):
     return dalc(bytes([0xc1, n + 1]))
 
 
-frames = [
-    (True, dty(FV)),
-    (True, all8(1, b"BEGIN pkg.double_all(:1); END;", 0x0429,
-                binds=[oac(TYPE_NUMBER, 22, fv=FV, flag=0x41, max_elements=10)],
-                rows=[ub4(3) + num(1) + num(2) + num(3)], fv=FV)),
-    (False, iov([IN_OUT]) + bytes([TTI_RXD]) + ub4(3)
-     + num(2) + sb4(0) + num(4) + sb4(0) + num(6) + sb4(0) + oer(fv=FV)),
-]
+FV_11_2 = 6
+
+
+def session(fv, flag, max_length, max_elements):
+    """The three frames of a session at field version fv."""
+    return [
+        (True, dty(fv)),
+        (True, all8(1, b"BEGIN pkg.double_all(:1); END;", 0x0429,
+                    binds=[oac(TYPE_NUMBER, max_length, fv=fv, flag=flag,
+                               max_elements=max_elements)],
+                    rows=[ub4(3) + num(1) + num(2) + num(3)], fv=fv)),
+        (False, iov([IN_OUT]) + bytes([TTI_RXD]) + ub4(3)
+         + num(2) + sb4(0) + num(4) + sb4(0) + num(6) + sb4(0) + oer(fv=fv)),
+    ]
+
+
+# (connection, to_server, body)
+frames = ([(0, d, b) for d, b in session(FV, 0x41, 22, 10)]
+          + [(1, d, b) for d, b in session(FV_11_2, 0x43, 88, 3)])
 
 
 OUT_NAME = "tns_array_binds.pcap"
@@ -222,13 +239,14 @@ def tcp_checksum(src: bytes, dst: bytes, seg: bytes) -> int:
     return (~s) & 0xFFFF
 
 
-CLIENT = (bytes([10, 0, 0, 1]), 54321)
+CLIENTS = [(bytes([10, 0, 0, 1]), 54321), (bytes([10, 0, 0, 1]), 54322)]
 SERVER = (bytes([10, 0, 0, 2]), 1521)
 
 
-def wrap(body: bytes, to_server: bool, seq: int, ack: int, ip_id: int) -> bytes:
+def wrap(body: bytes, conn: int, to_server: bool, seq: int, ack: int, ip_id: int) -> bytes:
     tns = struct.pack(">HhBBhh", len(body) + 10, 0, 6, 0, 0, 0) + body
-    (src_ip, sport), (dst_ip, dport) = (CLIENT, SERVER) if to_server else (SERVER, CLIENT)
+    client = CLIENTS[conn]
+    (src_ip, sport), (dst_ip, dport) = (client, SERVER) if to_server else (SERVER, client)
     tcp_no_csum = struct.pack(">HHIIBBHHH", sport, dport, seq, ack, 0x50, 0x18, 65535, 0, 0)
     csum = tcp_checksum(src_ip, dst_ip, tcp_no_csum + tns)
     tcp = tcp_no_csum[:16] + struct.pack(">H", csum) + tcp_no_csum[18:]
@@ -243,10 +261,12 @@ with open(out, "wb") as f:
     f.write(struct.pack("<IHHIIII", 0xA1B2C3D4, 2, 4, 0, 0, 65535, 101))
     # Cumulative TCP sequence numbers per direction, so a smaller follow-on
     # frame is not read as a retransmission and dropped before TNS sees it.
-    seq = {True: 1, False: 1}
-    for i, (to_server, body) in enumerate(frames):
-        pkt = wrap(body, to_server, seq[to_server], seq[not to_server], i + 1)
-        seq[to_server] += len(body) + 10
+    seq = {}
+    for i, (conn, to_server, body) in enumerate(frames):
+        seq.setdefault(conn, {True: 1, False: 1})
+        s = seq[conn]
+        pkt = wrap(body, conn, to_server, s[to_server], s[not to_server], i + 1)
+        s[to_server] += len(body) + 10
         f.write(struct.pack("<IIII", 0, i, len(pkt), len(pkt)))
         f.write(pkt)
 print(f"wrote {out} ({os.path.getsize(out)} bytes, {len(frames)} frames)")
