@@ -13,6 +13,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/tvbuff.h>
 #include <epan/reassemble.h>
 #include "packet-socketcan.h"
 #include <epan/wmem_scopes.h>
@@ -50,6 +51,15 @@ static int hf_isobus_datetime_day;
 static int hf_isobus_datetime_month;
 static int hf_isobus_datetime_year;
 static int hf_isobus_datetime_utc_offset;
+
+static int hf_isobus_ecu_identification_information;
+static int hf_isobus_ecu_part_number;
+static int hf_isobus_ecu_serial_number;
+static int hf_isobus_ecu_location;
+static int hf_isobus_ecu_type;
+static int hf_isobus_ecu_manufacturer_name;
+static int hf_isobus_ecu_hardware_id;
+static int hf_isobus_ecu_identification_additional;
 
 static int hf_isobus_ack_response;
 static int hf_isobus_ack_control_byte;
@@ -122,6 +132,8 @@ static int hf_msg_reassembled_length;
 static int hf_msg_reassembled_data;
 
 static expert_field ei_isobus_ack_msg_reserved;
+
+static void dissect_isobus_ecu_identification_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Desegmentation of isobus transport protocol streams */
 static reassembly_table isobus_reassembly_table;
@@ -325,6 +337,7 @@ static int ett_isobus_fragment;
 static int ett_isobus_fragments;
 static int ett_isobus_datetime_response;
 static int ett_isobus_ack_response;
+static int ett_isobus_ecu_identification_information;
 
 static const fragment_items isobus_frag_items = {
     &ett_isobus_fragment,
@@ -845,21 +858,25 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
             reassembled_data = process_reassembled_data(tvb, 0, pinfo, "Reassembled data", fg_head, &isobus_frag_items, NULL, isobus_tree);
 
             if (reassembled_data) {
-                uint32_t id_reassembled = tvb_get_uint24(reassembled_data, 0, ENC_BIG_ENDIAN);
-                uint8_t pdu_format_reassembled = (uint8_t)((id_reassembled >> 8) & 0xff);
+                uint32_t pgn_reassembled = tvb_get_uint24(reassembled_data, 0, ENC_LITTLE_ENDIAN);
+                uint8_t pdu_format_reassembled = (uint8_t)((pgn_reassembled >> 8) & 0xff);
 
-                uint32_t pgn_reassembled;
                 if (pdu_format_reassembled < 240) {
-                    pgn_reassembled = id_reassembled & 0x03ff00;
+                    pgn_reassembled &= 0x03ff00;
                 } else {
-                    pgn_reassembled = id_reassembled & 0x03ffff;
+                    pgn_reassembled &= 0x03ffff;
                 }
 
                 proto_tree_add_uint(isobus_tree, hf_isobus_pgn, reassembled_data, 0, 3, pgn_reassembled);
 
-                if (call_isobus_subdissector(tvb_new_subset_remaining(reassembled_data, 3), pinfo, isobus_tree, false, 0, pdu_format_reassembled,
+                tvbuff_t *reassembled_payload = tvb_new_subset_remaining(reassembled_data, 3);
+                if (call_isobus_subdissector(reassembled_payload, pinfo, isobus_tree, false, 0, pdu_format_reassembled,
                     pgn_reassembled, src_addr, data) == 0) {
-                    col_append_str(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
+                    if (pgn_reassembled == 64965) {
+                        dissect_isobus_ecu_identification_information(reassembled_payload, pinfo, isobus_tree);
+                    } else {
+                        col_append_str(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
+                    }
                 }
             } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Fragment number %u", sequenceId);
@@ -922,7 +939,9 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Address claimed %u", address_claimed);
         }
     } else if (call_isobus_subdissector(tvb, pinfo, isobus_tree, false, priority, pdu_format, pgn, src_addr, data) == 0) {
-        if (pgn == 65254) {
+        if (pgn == 64965) {
+            dissect_isobus_ecu_identification_information(tvb, pinfo, isobus_tree);
+        } else if (pgn == 65254) {
             // Time/Date response
             uint16_t year = tvb_get_uint8(tvb, 5) + 1985;
             uint8_t day = (uint8_t)(tvb_get_uint8(tvb, 4) * 0.25f);
@@ -1010,6 +1029,42 @@ static void isobus_print_datetime_day_or_sec(char* s, uint32_t v)
     snprintf(s, ITEM_LABEL_LENGTH, "%u", (uint8_t)(v * 0.25f));
 }
 
+static void dissect_isobus_ecu_identification_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    static int * const fields[] = {
+        &hf_isobus_ecu_part_number,
+        &hf_isobus_ecu_serial_number,
+        &hf_isobus_ecu_location,
+        &hf_isobus_ecu_type,
+        &hf_isobus_ecu_manufacturer_name,
+        &hf_isobus_ecu_hardware_id
+    };
+    proto_item *ti;
+    proto_tree *ecu_tree;
+    unsigned offset = 0;
+    unsigned field_number = 0;
+    const unsigned length = tvb_captured_length(tvb);
+
+    ti = proto_tree_add_item(tree, hf_isobus_ecu_identification_information, tvb, 0, length, ENC_NA);
+    ecu_tree = proto_item_add_subtree(ti, ett_isobus_ecu_identification_information);
+
+    while (offset < length) {
+        unsigned delimiter_offset;
+        bool delimiter_found = tvb_find_uint8_length(tvb, offset, length - offset, '*', &delimiter_offset);
+        unsigned field_length = delimiter_found ? delimiter_offset - offset : length - offset;
+        int *field = field_number < array_length(fields) ? fields[field_number] : &hf_isobus_ecu_identification_additional;
+
+        proto_tree_add_item(ecu_tree, *field, tvb, offset, field_length, ENC_ASCII);
+        field_number++;
+        offset += field_length;
+        if (!delimiter_found)
+            break;
+        offset++; /* ASCII '*' field delimiter */
+    }
+
+    col_append_str(pinfo->cinfo, COL_INFO, "ECU Identification Information");
+}
+
 static void isobus_print_datetime_utc_offset(char* s, uint32_t v)
 {
     snprintf(s, ITEM_LABEL_LENGTH, "%d hour", (int8_t)(((v >> 8) & 0xFF) - 125));
@@ -1074,6 +1129,23 @@ proto_register_isobus(void) {
             "Second", "isobus.datetime.second", FT_UINT8, BASE_CUSTOM, CF_FUNC(isobus_print_datetime_day_or_sec), 0x0, NULL, HFILL } },
         { &hf_isobus_datetime_utc_offset, {
             "Local time - UTC offset", "isobus.datetime.utc_offset", FT_UINT16, BASE_CUSTOM, CF_FUNC(isobus_print_datetime_utc_offset), 0x0, NULL, HFILL } },
+
+        { &hf_isobus_ecu_identification_information, {
+            "ECU Identification Information", "isobus.ecu_identification_information", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_ecu_part_number, {
+            "ECU Part Number", "isobus.ecu_identification_information.part_number", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_ecu_serial_number, {
+            "ECU Serial Number", "isobus.ecu_identification_information.serial_number", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_ecu_location, {
+            "ECU Location", "isobus.ecu_identification_information.location", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_ecu_type, {
+            "ECU Type", "isobus.ecu_identification_information.type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_ecu_manufacturer_name, {
+            "ECU Manufacturer Name", "isobus.ecu_identification_information.manufacturer_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_ecu_hardware_id, {
+            "ECU Hardware ID", "isobus.ecu_identification_information.hardware_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_ecu_identification_additional, {
+            "Additional ECU Identification Field", "isobus.ecu_identification_information.additional", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
         { &hf_isobus_ack_response, {"ACK", "isobus.ack_response", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_isobus_ack_control_byte, {"Control byte", "isobus.ack_response.control_byte", FT_UINT8, BASE_DEC, VALS(acknowledgement_control_byte), 0x0, NULL, HFILL } },
@@ -1215,7 +1287,8 @@ proto_register_isobus(void) {
         &ett_isobus_fragment,
         &ett_isobus_fragments,
         &ett_isobus_datetime_response,
-        &ett_isobus_ack_response
+        &ett_isobus_ack_response,
+        &ett_isobus_ecu_identification_information
     };
 
     /* Register protocol init routine */
