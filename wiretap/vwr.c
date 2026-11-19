@@ -74,6 +74,14 @@
  */
 #define VW_BYTES_TO_CHECK 0x3FFFFFFFU
 
+/*
+ * Maximum number of bytes to read looking for a frame on a pipe. We
+ * (and the open routines tried after us, which start by seeking back to
+ * the beginning) can seek back on a pipe only over what the I/O routines
+ * buffer, which is guaranteed to be at least the first 64 KiB.
+ */
+#define VW_PIPE_BYTES_TO_CHECK (64 * 1024)
+
 /* Command byte values */
 #define COMMAND_RX   0x21
 #define COMMAND_TX   0x31
@@ -976,6 +984,9 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
     uint16_t data_length  = 0;
     uint16_t fpga_version;
     bool valid_but_empty_file = false;
+    /* Bytes read in total, to stay within what we can seek back over */
+    uint64_t total_read   = 0;
+    uint64_t max_read     = wth->ispipe ? VW_PIPE_BYTES_TO_CHECK : UINT64_MAX;
 
     filePos = file_tell(wth->fh);
     if (filePos == -1) {
@@ -992,7 +1003,9 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
     /* Each 16-byte message is decoded; if we run across a non-frame message followed by a */
     /*  variable-length item, we read the variable length item out and discard it.         */
     /* If we find a frame, we return (with the header in the passed buffer).               */
-    while (wtap_read_bytes(wth->fh, header, VW_RECORD_HEADER_LENGTH, err, err_info)) {
+    while (total_read + VW_RECORD_HEADER_LENGTH <= max_read &&
+           wtap_read_bytes(wth->fh, header, VW_RECORD_HEADER_LENGTH, err, err_info)) {
+        total_read += VW_RECORD_HEADER_LENGTH;
         /* Got a header; invoke decode-message function to parse and process it.     */
         /* If the function returns a length, then a frame or variable-length message */
         /*  follows the 16-byte message.                                             */
@@ -1004,7 +1017,13 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
                 /*  isn't a vwr file. */
                 return UNKNOWN_FPGA;
             }
-            else if (v_type != VT_FRAME) {
+            if (total_read + f_len > max_read) {
+                /* We couldn't seek back after reading it. */
+                g_free(rec);
+                return UNKNOWN_FPGA;
+            }
+            total_read += f_len;
+            if (v_type != VT_FRAME) {
                 if (!wtap_read_bytes(wth->fh, NULL, f_len, err, err_info)) {
                     g_free(rec);
                     if (*err == WTAP_ERR_SHORT_READ)
@@ -1114,6 +1133,12 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
             g_free(rec);
             return UNKNOWN_FPGA;
         }
+    }
+
+    if (total_read + VW_RECORD_HEADER_LENGTH > max_read) {
+        /* No frame found in VW_PIPE_BYTES_TO_CHECK on a pipe */
+        g_free(rec);
+        return UNKNOWN_FPGA;
     }
 
     /* Is this a valid but empty file?  If so, claim it's the S3_W_FPGA FPGA. */
