@@ -9448,6 +9448,22 @@ class TestDissectAx25Link:
         assert f[1][0] == f[3][0] and f[1][1] == f[3][1] and f[3][2] == '5'   # DM
         assert f[2][0] == f[4][0] and f[2][1] == f[4][1] and f[4][2] == '2'   # UA
 
+    def test_ax25_link_key_ignore_interface(self, cmd_tshark, capture_file, test_env):
+        '''With ax25.ignore_interface the capture interface is left out of the
+        link: the SABM on interface 1 repeats the one on interface 0, the DM
+        refuses it, and the UA after the DM starts a new stream.'''
+        opts = ('-o', 'ax25.ignore_interface:TRUE')
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_interfaces.pcapng.gz',
+                            'frame.interface_id', 'ax25.stream', 'ax25.link.state',
+                            'ax25.analysis.retransmitted_frame', 'ax25.link.refused',
+                            opts=opts)
+        assert f == {1: ['1', '0', '1', '', ''], 2: ['0', '0', '1', '1', ''],
+                     3: ['1', '0', '5', '', '1'], 4: ['0', '1', '2', '', '']}
+        outputs = [subprocess.check_output((cmd_tshark, *opts, *two_pass,
+                '-r', capture_file('ax25_interfaces.pcapng.gz'), '-V',
+            ), encoding='utf-8', env=test_env) for two_pass in ((), ('-2',))]
+        assert outputs[0] == outputs[1]
+
     def test_ax25_station_table(self, cmd_tshark, capture_file, test_env):
         '''The station table comes after XID and before the preferences.'''
         uat = ('-o', 'uat:ax25_stations:"NJ7P","5000","60","3","100","5","2.2"')

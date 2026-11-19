@@ -37,7 +37,10 @@
  * Link tracking
  * -------------
  * Every frame belongs to a link, identified by the two station addresses,
- * the KISS port and the capture interface (see ax25_link_key()). A link is
+ * the KISS port and the capture interface (see ax25_link_key()); the
+ * interface can be left out with the ignore_interface preference, for
+ * captures that record each direction of a channel on its own interface
+ * (a TX and an RX interface, say). A link is
  * a conversation; a new conversation starts at each connection attempt.
  * UI frames are connectionless (section 6.3.7): they are tracked with the
  * link (digipeated copies, segments), but they don't count as traffic of
@@ -88,7 +91,10 @@
  * Link key values used when the information isn't available. A frame
  * without a KISS port shares the value with KISS port 0; they can't be
  * confused, as KISS and other AX.25 encapsulations don't share a capture
- * interface, and the interface is part of the key.
+ * interface, and the interface is part of the key. With the
+ * ignore_interface preference it isn't: frames without a KISS port then
+ * share the link of KISS port 0, which is what that preference asks for
+ * (all interfaces are one channel).
  */
 #define AX25_NO_PORT		0
 #define AX25_NO_INTERFACE	0xFFFFFFFFU
@@ -497,6 +503,8 @@ static bool ax25_pref_analyze_seq = true;
 static bool ax25_pref_flag_anomalous_resume = true;
 static bool ax25_pref_flag_unpolled_busy = true;
 static bool ax25_pref_no_subdissector_on_error;
+/* Leave the capture interface out of the link key (see ax25_link_key()) */
+static bool ax25_pref_ignore_interface;
 
 /* pinfo->pool key: the AX.25 snapshot, for the segment dissector */
 #define AX25_PROTO_DATA_SEG_PKT	0x80000002U
@@ -1367,6 +1375,9 @@ ax25_mask_address(tvbuff_t *tvb, int offset, uint8_t *masked)
  * every key has the same shape. The digipeater path is deliberately not
  * part of the key: a link keeps its identity if the path changes, and
  * frames heard both before and after a digipeater belong to the same link.
+ * With the ignore_interface preference the interface is always
+ * AX25_NO_INTERFACE, so the key keeps its shape and frames from every
+ * interface share the link.
  */
 #define AX25_KEY_ADDR_LO	0
 #define AX25_KEY_ADDR_HI	2
@@ -4894,7 +4905,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		trailer = GPOINTER_TO_UINT( port_data );
 		p_remove_proto_data( pinfo->pool, pinfo, proto_ax25, AX25_PROTO_DATA_TRAILER );
 		}
-	if ( pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID )
+	if ( !ax25_pref_ignore_interface && ( pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID ) )
 		iface = pinfo->rec->rec_header.packet_header.interface_id;
 
 	memset( &frame, 0, sizeof frame );
@@ -6350,6 +6361,13 @@ proto_register_ax25(void)
 		" section 6.6) included, as it would see the data twice or out of order;"
 		" show it as data. Needs sequence analysis",
 		&ax25_pref_no_subdissector_on_error);
+	prefs_register_bool_preference(ax25_module, "ignore_interface",
+		"Ignore the capture interface when tracking links",
+		"Track the frames of two stations as one link whatever capture interface"
+		" they were captured on, for captures that put each direction of a channel"
+		" on its own interface (TX and RX, say). The KISS port still tells links"
+		" apart; frames without one share the link of KISS port 0",
+		&ax25_pref_ignore_interface);
 
 	/*
 	 * Per-station parameters, in between XID and the preferences above.
