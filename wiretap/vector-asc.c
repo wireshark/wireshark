@@ -211,8 +211,19 @@ vector_asc_parse(wtap* wth, vector_asc_state_t* state, gint64* offset, int* err,
 {
   gint64 seek_off = 0;
   char line_buffer[VECTOR_ASC_MAX_LINE_SIZE];
+  int64_t max_read = INT64_MAX;
 
   vector_asc_debug_printf("%s: Trying vector_asc file decoder\n", G_STRFUNC);
+
+  /*
+   * On a pipe, read no farther than the I/O routines guarantee we can
+   * seek back over looking for the header and the first packet;
+   * otherwise neither we nor the open routines tried after us could
+   * seek back to the beginning.
+   */
+  if (wth->ispipe) {
+    max_read = file_bufsize(wth->fh);
+  }
 
   /* Initial start time until we find it in the header */
   state->trace_start.secs = time(NULL);
@@ -226,7 +237,9 @@ vector_asc_parse(wtap* wth, vector_asc_state_t* state, gint64* offset, int* err,
     seek_off = file_tell(wth->fh);
     vector_asc_debug_printf("%s: Starting parser at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
 
-    if (file_gets(line_buffer, VECTOR_ASC_MAX_LINE_SIZE, wth->fh) == NULL)
+    if (seek_off >= max_read)
+      return WTAP_OPEN_NOT_MINE;
+    if (file_gets(line_buffer, (int)MIN(VECTOR_ASC_MAX_LINE_SIZE - 1, max_read - seek_off) + 1, wth->fh) == NULL)
     {
       /* Error reading file, bail out */
       *err = file_error(wth->fh, err_info);
