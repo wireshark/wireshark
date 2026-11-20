@@ -177,8 +177,19 @@ ipfix_open(wtap *wth, int *err, char **err_info)
     uint16_t checked_len;
     ipfix_message_header_t msg_hdr;
     ipfix_set_header_t set_hdr;
+    int64_t max_read = INT64_MAX;
 
     ws_debug("opening file");
+
+    /*
+     * On a pipe, read no farther than the I/O routines guarantee we can
+     * seek back over; otherwise neither we nor the open routines tried
+     * after us could seek back to the beginning. A message that would
+     * take us past that is treated like the end of the file.
+     */
+    if (wth->ispipe) {
+        max_read = file_bufsize(wth->fh);
+    }
 
     /* number of records to scan before deciding if this really is IPFIX */
     if ((s = getenv("IPFIX_RECORDS_TO_CHECK")) != NULL) {
@@ -193,6 +204,12 @@ ipfix_open(wtap *wth, int *err, char **err_info)
      * records.
      */
     for (i = 0; i < records_for_ipfix_check; i++) {
+        if (file_tell(wth->fh) + IPFIX_MSG_HDR_SIZE > max_read) {
+            if (i < 1) {
+                return WTAP_OPEN_NOT_MINE;
+            }
+            break;
+        }
         /* read first message header to check version */
         if (!ipfix_read_message_header(&msg_hdr, wth->fh, err, err_info)) {
             ws_debug("couldn't read message header #%d with err code #%d (%s)",
@@ -216,6 +233,12 @@ ipfix_open(wtap *wth, int *err, char **err_info)
              * we've seen looks like an IPFIX record - so we assume this
              * is an IPFIX file.
              */
+            break;
+        }
+        if (file_tell(wth->fh) + msg_hdr.message_length > max_read) {
+            if (i < 1) {
+                return WTAP_OPEN_NOT_MINE;
+            }
             break;
         }
         if (file_seek(wth->fh, IPFIX_MSG_HDR_SIZE, SEEK_CUR, err) == -1) {
