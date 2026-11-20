@@ -135,6 +135,11 @@ static GHashTable* hash_packet;
 #define NTLMSSP_NEGOTIATE_KEY_EXCH                 0x40000000 // V
 #define NTLMSSP_NEGOTIATE_56                       0x80000000 // W
 
+/* [MS-NLMP] 2.2.2.1 MsvAvFlags */
+#define MSV_AV_FLAGS_CONSTRAINED_AUTHENTICATION 0x00000001
+#define MSV_AV_FLAGS_MIC_PRESENT                0x00000002
+#define MSV_AV_FLAGS_UNTRUSTED_TARGET_SPN       0x00000004
+
 static int proto_ntlmssp;
 static int hf_ntlmssp_auth;
 static int hf_ntlmssp_message_type;
@@ -216,6 +221,9 @@ static int hf_ntlmssp_challenge_target_info_dns_computer_name;
 static int hf_ntlmssp_challenge_target_info_dns_domain_name;
 static int hf_ntlmssp_challenge_target_info_dns_tree_name;
 static int hf_ntlmssp_challenge_target_info_flags;
+static int hf_ntlmssp_challenge_target_info_flags_constrained_authentication;
+static int hf_ntlmssp_challenge_target_info_flags_mic_present;
+static int hf_ntlmssp_challenge_target_info_flags_untrusted_target_spn;
 static int hf_ntlmssp_challenge_target_info_timestamp;
 static int hf_ntlmssp_challenge_target_info_restrictions;
 static int hf_ntlmssp_challenge_target_info_target_name;
@@ -231,6 +239,9 @@ static int hf_ntlmssp_ntlmv2_response_dns_computer_name;
 static int hf_ntlmssp_ntlmv2_response_dns_domain_name;
 static int hf_ntlmssp_ntlmv2_response_dns_tree_name;
 static int hf_ntlmssp_ntlmv2_response_flags;
+static int hf_ntlmssp_ntlmv2_response_flags_constrained_authentication;
+static int hf_ntlmssp_ntlmv2_response_flags_mic_present;
+static int hf_ntlmssp_ntlmv2_response_flags_untrusted_target_spn;
 static int hf_ntlmssp_ntlmv2_response_timestamp;
 static int hf_ntlmssp_ntlmv2_response_restrictions;
 static int hf_ntlmssp_ntlmv2_response_target_name;
@@ -270,6 +281,7 @@ static int hf_ntlmssp_NTLM_REMOTE_SUPPLEMENTAL_CREDENTIAL_EncryptedCreds;
 
 static int ett_ntlmssp;
 static int ett_ntlmssp_negotiate_flags;
+static int ett_ntlmssp_av_flags;
 static int ett_ntlmssp_string;
 static int ett_ntlmssp_blob;
 static int ett_ntlmssp_version;
@@ -1605,25 +1617,42 @@ static int *ntlmssp_hf_ntlmv2_response_hf_ptr_array[] = {
   &hf_ntlmssp_ntlmv2_response_channel_bindings
 };
 
+static int * const ntlmssp_challenge_av_flags[] = {
+  &hf_ntlmssp_challenge_target_info_flags_constrained_authentication,
+  &hf_ntlmssp_challenge_target_info_flags_mic_present,
+  &hf_ntlmssp_challenge_target_info_flags_untrusted_target_spn,
+  NULL
+};
+
+static int * const ntlmssp_ntlmv2_av_flags[] = {
+  &hf_ntlmssp_ntlmv2_response_flags_constrained_authentication,
+  &hf_ntlmssp_ntlmv2_response_flags_mic_present,
+  &hf_ntlmssp_ntlmv2_response_flags_untrusted_target_spn,
+  NULL
+};
+
 typedef struct _tif {
   int   *ett;
   int   *hf_item_type;
   int   *hf_item_length;
   int  **hf_attr_array_p;
+  int   * const *av_flags;
 } tif_t;
 
 static tif_t ntlmssp_challenge_target_info_tif = {
   &ett_ntlmssp_challenge_target_info_item,
   &hf_ntlmssp_challenge_target_info_item_type,
   &hf_ntlmssp_challenge_target_info_item_len,
-  ntlmssp_hf_challenge_target_info_hf_ptr_array
+  ntlmssp_hf_challenge_target_info_hf_ptr_array,
+  ntlmssp_challenge_av_flags
 };
 
 static tif_t ntlmssp_ntlmv2_response_tif = {
   &ett_ntlmssp_ntlmv2_response_item,
   &hf_ntlmssp_ntlmv2_response_item_type,
   &hf_ntlmssp_ntlmv2_response_item_len,
-  ntlmssp_hf_ntlmv2_response_hf_ptr_array
+  ntlmssp_hf_ntlmv2_response_hf_ptr_array,
+  ntlmssp_ntlmv2_av_flags
 };
 
 /** See [MS-NLMP] 2.2.2.1 */
@@ -1688,8 +1717,13 @@ dissect_ntlmssp_target_info_list(tvbuff_t *_tvb, packet_info *pinfo, proto_tree 
         break;
 
       case NTLM_TARGET_INFO_FLAGS:
-        proto_tree_add_item(target_info_tree, *hf_array_p[item_type], tvb, content_offset, content_length, ENC_LITTLE_ENDIAN);
-      break;
+        if (content_length == 4) {
+          proto_tree_add_bitmask(target_info_tree, tvb, content_offset, *hf_array_p[item_type],
+                                 ett_ntlmssp_av_flags, tif_p->av_flags, ENC_LITTLE_ENDIAN);
+        } else {
+          proto_tree_add_item(target_info_tree, *hf_array_p[item_type], tvb, content_offset, content_length, ENC_LITTLE_ENDIAN);
+        }
+        break;
 
       case NTLM_TARGET_INFO_TIMESTAMP:
         if (content_length == 8) {
@@ -3656,6 +3690,21 @@ proto_register_ntlmssp(void)
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_ntlmssp_challenge_target_info_flags_constrained_authentication,
+      { "Constrained Authentication", "ntlmssp.challenge.target_info.flags.constrained_authentication",
+        FT_BOOLEAN, 32, TFS (&tfs_set_notset), MSV_AV_FLAGS_CONSTRAINED_AUTHENTICATION,
+        NULL, HFILL }
+    },
+    { &hf_ntlmssp_challenge_target_info_flags_mic_present,
+      { "MIC Present", "ntlmssp.challenge.target_info.flags.mic_present",
+        FT_BOOLEAN, 32, TFS (&tfs_set_notset), MSV_AV_FLAGS_MIC_PRESENT,
+        NULL, HFILL }
+    },
+    { &hf_ntlmssp_challenge_target_info_flags_untrusted_target_spn,
+      { "Untrusted Target SPN", "ntlmssp.challenge.target_info.flags.untrusted_target_spn",
+        FT_BOOLEAN, 32, TFS (&tfs_set_notset), MSV_AV_FLAGS_UNTRUSTED_TARGET_SPN,
+        NULL, HFILL }
+    },
     { &hf_ntlmssp_challenge_target_info_timestamp,
       { "Timestamp", "ntlmssp.challenge.target_info.timestamp",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
@@ -3721,6 +3770,21 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_ntlmv2_response_flags,
       { "Flags", "ntlmssp.ntlmv2_response.flags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_ntlmssp_ntlmv2_response_flags_constrained_authentication,
+      { "Constrained Authentication", "ntlmssp.ntlmv2_response.flags.constrained_authentication",
+        FT_BOOLEAN, 32, TFS (&tfs_set_notset), MSV_AV_FLAGS_CONSTRAINED_AUTHENTICATION,
+        NULL, HFILL }
+    },
+    { &hf_ntlmssp_ntlmv2_response_flags_mic_present,
+      { "MIC Present", "ntlmssp.ntlmv2_response.flags.mic_present",
+        FT_BOOLEAN, 32, TFS (&tfs_set_notset), MSV_AV_FLAGS_MIC_PRESENT,
+        NULL, HFILL }
+    },
+    { &hf_ntlmssp_ntlmv2_response_flags_untrusted_target_spn,
+      { "Untrusted Target SPN", "ntlmssp.ntlmv2_response.flags.untrusted_target_spn",
+        FT_BOOLEAN, 32, TFS (&tfs_set_notset), MSV_AV_FLAGS_UNTRUSTED_TARGET_SPN,
         NULL, HFILL }
     },
     { &hf_ntlmssp_ntlmv2_response_timestamp,
@@ -3886,6 +3950,7 @@ proto_register_ntlmssp(void)
   static int *ett[] = {
     &ett_ntlmssp,
     &ett_ntlmssp_negotiate_flags,
+    &ett_ntlmssp_av_flags,
     &ett_ntlmssp_string,
     &ett_ntlmssp_blob,
     &ett_ntlmssp_version,
