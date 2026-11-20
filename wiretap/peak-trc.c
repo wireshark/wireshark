@@ -106,6 +106,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
     bool found_timestamp = false;
     bool found_line = false;
     char line_buffer[PEAK_TRC_MAX_LINE_SIZE];
+    int64_t max_read = INT64_MAX;
 
     /* 1.0 file format does not have version info or column line,
      * so assume that until told otherwise
@@ -126,6 +127,15 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
     for (int i = 0; i < Col_Invalid; i++)
         state->column_positions[i] = Col_Invalid;
 
+    /*
+     * On a pipe, read no farther than the I/O routines guarantee we can
+     * seek back over looking for the end of the header; otherwise
+     * neither we nor the open routines tried after us could seek back
+     * to the beginning.
+     */
+    if (wth->ispipe)
+        max_read = file_bufsize(wth->fh);
+
     /* Bail if the end of the file is here and it hasn't been determined it's a PEAK file */
     while (!file_eof(wth->fh))
     {
@@ -133,7 +143,9 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
 
         ws_debug("%s: Starting parser at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
 
-        if (file_gets(line_buffer, PEAK_TRC_MAX_LINE_SIZE, wth->fh) == NULL)
+        if (seek_off >= max_read)
+            return WTAP_OPEN_NOT_MINE;
+        if (file_gets(line_buffer, (int)MIN(PEAK_TRC_MAX_LINE_SIZE - 1, max_read - seek_off) + 1, wth->fh) == NULL)
         {
             /* Error reading file, bail out */
             int read_err = file_error(wth->fh, NULL);
