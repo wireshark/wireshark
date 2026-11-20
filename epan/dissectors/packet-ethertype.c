@@ -70,6 +70,7 @@ const value_string etype_vals[] = {
 	/* Ethernet Loopback */
 	{ ETHERTYPE_LOOP,                 "Loopback" },
 	{ ETHERTYPE_FOUNDRY,              "Foundry proprietary" },
+	{ ETHERTYPE_SNMP,                 "SNMP" },
 	{ ETHERTYPE_WCP,                  "Wellfleet Compression Protocol" },
 	{ ETHERTYPE_STP,                  "Spanning Tree Protocol" },
 	/* for ISMP, see RFC 2641, RFC 2642, RFC 2643 */

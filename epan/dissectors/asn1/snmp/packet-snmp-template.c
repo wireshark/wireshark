@@ -187,6 +187,7 @@ static bool snmp_desegment = true;
 static uint32_t MsgSecurityModel;
 
 static dissector_handle_t snmp_handle;
+static dissector_handle_t snmp_udp_handle;
 static dissector_handle_t snmp_tcp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t smux_handle;
@@ -1997,9 +1998,9 @@ snmp_find_conversation_and_get_conv_data(packet_info *pinfo) {
         } else {
                 conversation = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), NO_PORT_B, 1);
         }
-        if ( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num)!=snmp_handle) ) {
+        if ( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num)!=snmp_udp_handle) ) {
                 conversation = conversation_new_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), NO_PORT2);
-                conversation_set_dissector(conversation, snmp_handle);
+                conversation_set_dissector(conversation, snmp_udp_handle);
 
                 conversation = conversation_new_strat(pinfo, CONVERSATION_SNMP, NO_PORT2);
         }
@@ -2182,7 +2183,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_snmp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int offset;
 	int8_t tmp_class;
@@ -2265,10 +2266,10 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 if (conversation == NULL) {
                         conversation = conversation_new_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), NO_PORT2);
 
-                        conversation_set_dissector(conversation, snmp_handle);
+                        conversation_set_dissector(conversation, snmp_udp_handle);
                 }
-                else if (conversation_get_dissector(conversation,pinfo->num)!=snmp_handle) {
-                        conversation_set_dissector(conversation, snmp_handle);
+                else if (conversation_get_dissector(conversation,pinfo->num)!=snmp_udp_handle) {
+                        conversation_set_dissector(conversation, snmp_udp_handle);
                 }
         }
 
@@ -2294,6 +2295,12 @@ dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		offset += message_len;
 	}
 	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	return dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_snmp, ett_snmp, false);
 }
 
 static int
@@ -2652,7 +2659,7 @@ void proto_register_snmp(void) {
 
 	/* Register protocol */
 	proto_snmp = proto_register_protocol("Simple Network Management Protocol", "SNMP", "snmp");
-	snmp_handle = register_dissector("snmp", dissect_snmp, proto_snmp);
+	snmp_udp_handle = register_dissector("snmp", dissect_snmp_udp, proto_snmp);
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_snmp, hf, array_length(hf));
@@ -2662,6 +2669,9 @@ void proto_register_snmp(void) {
 
 	/* Register dissector */
 	snmp_tcp_handle = register_dissector("snmp.tcp", dissect_snmp_tcp, proto_snmp);
+
+	/* Register dissector */
+	snmp_handle = register_dissector("snmp.raw", dissect_snmp, proto_snmp);
 
 	/* Register configuration preferences */
 	snmp_module = prefs_register_protocol(proto_snmp, process_prefs);
@@ -2716,19 +2726,19 @@ void proto_register_snmp(void) {
 /*--- proto_reg_handoff_snmp ---------------------------------------*/
 void proto_reg_handoff_snmp(void) {
 
-	dissector_add_uint_with_preference("udp.port", UDP_PORT_SNMP, snmp_handle);
+	dissector_add_uint_with_preference("udp.port", UDP_PORT_SNMP, snmp_udp_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_SNMP, snmp_handle);
-	dissector_add_uint("ipx.socket", IPX_SOCKET_SNMP_AGENT, snmp_handle);
-	dissector_add_uint("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);
-	dissector_add_uint("hpext.dxsap", HPEXT_SNMP, snmp_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_SNMP_AGENT, snmp_udp_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_udp_handle);
+	dissector_add_uint("hpext.dxsap", HPEXT_SNMP, snmp_udp_handle);
 
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_SNMP, snmp_tcp_handle);
 	/* Since "regular" SNMP port and "trap" SNMP port use the same handler,
 	   the "trap" port doesn't really need a separate preference.  Just register
 	   normally */
 	dissector_add_uint("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
-	dissector_add_uint("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
-	dissector_add_uint("udp.port", UDP_PORT_SNMP_PATROL, snmp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_SNMP_TRAP, snmp_udp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_SNMP_PATROL, snmp_udp_handle);
 
 	data_handle = find_dissector("data");
 
