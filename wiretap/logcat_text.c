@@ -284,9 +284,20 @@ static bool logcat_text_seek_read(wtap *wth, int64_t seek_off,
 wtap_open_return_val logcat_text_open(wtap *wth, int *err, char **err_info) {
     char *cbuff;
     char *ret = NULL;
+    int64_t max_read = INT64_MAX;
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
+
+    /*
+     * On a pipe, read no farther than the I/O routines guarantee we can
+     * seek back over; otherwise neither we nor the open routines tried
+     * after us could seek back to the beginning. A line cut short by
+     * that is checked as is; the formats below match only its start.
+     */
+    if (wth->ispipe) {
+        max_read = file_bufsize(wth->fh);
+    }
 
     /*
      * Skip short and special lines, but give up after 64 KiB of them
@@ -296,7 +307,13 @@ wtap_open_return_val logcat_text_open(wtap *wth, int *err, char **err_info) {
      */
     cbuff = (char*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
     do {
-        ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE_STANDARD, wth->fh);
+        int64_t left = max_read - file_tell(wth->fh);
+
+        if (left <= 0) {
+            g_free(cbuff);
+            return WTAP_OPEN_NOT_MINE;
+        }
+        ret = file_gets(cbuff, (int)MIN(WTAP_MAX_PACKET_SIZE_STANDARD - 1, left) + 1, wth->fh);
     } while (NULL != ret && !file_eof(wth->fh)
             && file_tell(wth->fh) <= 65536
             && ((3 > strlen(cbuff))
