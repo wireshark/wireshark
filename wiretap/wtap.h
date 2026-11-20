@@ -2467,6 +2467,10 @@ int64_t wtap_read_so_far(wtap *wth);
  *
  * Returns the total file size in bytes. On failure, sets an error code.
  *
+ * @note This is the size on disk, not the decompressed size if
+ * file_iscompressed() is true. It is also not reliable if @ref wtap->ispipe
+ * is true.
+ *
  * @param wth Wiretap file handle.
  * @param err Pointer to an error code variable.
  * @return File size in bytes, or -1 on error.

@@ -2142,6 +2142,12 @@ file_fstat(FILE_T stream, ws_statb64 *statb, int *err)
     return 0;
 }
 
+unsigned
+file_bufsize(FILE_T stream)
+{
+    return stream->size;
+}
+
 bool
 file_iscompressed(FILE_T stream)
 {
