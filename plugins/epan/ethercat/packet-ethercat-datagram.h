@@ -13,18 +13,14 @@
 
 /* structure for decoding the header -----------------------------------------*/
 /**
- * @brief Union allowing an EtherCAT address to be accessed either as
- *        a split ADP/ADO pair or as a single 32-bit word.
+ * @brief An EtherCAT address, as an ADP/ADO pair. For logical addressing,
+ *        the 32-bit logical address is ado << 16 | adp.
  */
-typedef union
+typedef struct
 {
-   struct
-   {
-      uint16_t adp; /**< ADP (Auto-Increment / Configured Station Address). */
-      uint16_t ado; /**< ADO (EtherCAT Register / Physical Memory Offset). */
-   } a;             /**< Structured access to the address components. */
-   uint32_t addr;   /**< Raw 32-bit combined address word. */
-} EcParserAddrUnion;
+   uint16_t adp; /**< ADP (Auto-Increment / Configured Station Address). */
+   uint16_t ado; /**< ADO (EtherCAT Register / Physical Memory Offset). */
+} EcParserAddr;
 
 
 /**
@@ -35,7 +31,7 @@ typedef struct _EcParser
 {
    uint8_t           cmd;          /**< EtherCAT command (e.g. NOP, APRD, FPWR, BRD). */
    uint8_t           idx;          /**< Index byte used to match responses to requests. */
-   EcParserAddrUnion anAddrUnion;  /**< Address field; interpretation depends on @c cmd. */
+   EcParserAddr      anAddr;       /**< Address field; interpretation depends on @c cmd. */
    uint16_t          len;          /**< Data length in bytes, plus flags in upper bits. */
    uint16_t          intr;         /**< Interrupt / working counter field. */
 } EcParserHDR, *PEcParserHDR;

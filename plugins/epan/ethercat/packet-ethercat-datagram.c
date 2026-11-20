@@ -1225,28 +1225,28 @@ static int dissect_esc_register(packet_info* pinfo, proto_tree *tree, tvbuff_t *
       case EC_CMD_TYPE_FRMW:
          for ( i=0; i<array_length(ecat_esc_registers); i++ )
          {
-            if ( hdr->anAddrUnion.a.ado + len< ecat_esc_registers[i].reg )
+            if ( hdr->anAddr.ado + len< ecat_esc_registers[i].reg )
                break;
 
             regOffset = ecat_esc_registers[i].reg;
             for ( r=0; r<ecat_esc_registers[i].repeat; r++ )
             {
-               if ( regOffset >= hdr->anAddrUnion.a.ado && regOffset+ecat_esc_registers[i].length <= (uint16_t)(hdr->anAddrUnion.a.ado + len) )
+               if ( regOffset >= hdr->anAddr.ado && regOffset+ecat_esc_registers[i].length <= (uint16_t)(hdr->anAddr.ado + len) )
                {
                   if ( cnt > 0 || !read )
                   {
                       if (ecat_esc_registers[i].dissect != NULL)
                       {
-                          ecat_esc_registers[i].dissect(pinfo, tree, tvb, offset+(regOffset-hdr->anAddrUnion.a.ado));
+                          ecat_esc_registers[i].dissect(pinfo, tree, tvb, offset+(regOffset-hdr->anAddr.ado));
                       }
                       else if (ecat_esc_registers[i].bitmask_info != NULL)
                       {
-                          proto_tree_add_bitmask(tree, tvb, offset+(regOffset-hdr->anAddrUnion.a.ado), *ecat_esc_registers[i].phf,
+                          proto_tree_add_bitmask(tree, tvb, offset+(regOffset-hdr->anAddr.ado), *ecat_esc_registers[i].phf,
                                                  *ecat_esc_registers[i].pett, ecat_esc_registers[i].bitmask_info, ENC_LITTLE_ENDIAN);
                       }
                       else
                       {
-                          proto_tree_add_item(tree, *ecat_esc_registers[i].phf, tvb, offset+(regOffset-hdr->anAddrUnion.a.ado), ecat_esc_registers[i].length, ENC_LITTLE_ENDIAN);
+                          proto_tree_add_item(tree, *ecat_esc_registers[i].phf, tvb, offset+(regOffset-hdr->anAddr.ado), ecat_esc_registers[i].length, ENC_LITTLE_ENDIAN);
                       }
                   }
                   res = 0;
@@ -1264,8 +1264,8 @@ static void init_EcParserHDR(EcParserHDR* pHdr, tvbuff_t *tvb, int offset)
 {
    pHdr->cmd = tvb_get_uint8(tvb, offset++);
    pHdr->idx = tvb_get_uint8(tvb, offset++);
-   pHdr->anAddrUnion.a.adp = tvb_get_letohs(tvb, offset); offset+=2;
-   pHdr->anAddrUnion.a.ado = tvb_get_letohs(tvb, offset); offset+=2;
+   pHdr->anAddr.adp = tvb_get_letohs(tvb, offset); offset+=2;
+   pHdr->anAddr.ado = tvb_get_letohs(tvb, offset); offset+=2;
    pHdr->len = tvb_get_letohs(tvb, offset); offset+=2;
    pHdr->intr = tvb_get_letohs(tvb, offset);
 }
@@ -1335,7 +1335,7 @@ static char* EcSummaryFormater(wmem_allocator_t* scope, uint32_t datalength, tvb
       uint16_t len = ecFirst.len&0x07ff;
       uint16_t cnt = get_wc(&ecFirst, tvb, offset);
       szText = wmem_strdup_printf( scope, "'%s': Len: %d, Adp 0x%x, Ado 0x%x, Wc %d ",
-          convertEcCmdToShortText(scope, ecFirst.cmd), len, ecFirst.anAddrUnion.a.adp, ecFirst.anAddrUnion.a.ado, cnt );
+          convertEcCmdToShortText(scope, ecFirst.cmd), len, ecFirst.anAddr.adp, ecFirst.anAddr.ado, cnt );
    }
    else if ( nSub == 2 )
    {
@@ -1387,13 +1387,13 @@ static char* EcSubFormatter(wmem_allocator_t* scope, tvbuff_t *tvb, int offset)
    case EC_CMD_TYPE_ARMW:
    case EC_CMD_TYPE_FRMW:
       szText = wmem_strdup_printf(scope, "EtherCAT datagram: Cmd: '%s' (%d), Len: %d, Adp 0x%x, Ado 0x%x, Cnt %d",
-         convertEcCmdToShortText(scope, ecParser.cmd), ecParser.cmd, len, ecParser.anAddrUnion.a.adp, ecParser.anAddrUnion.a.ado, cnt);
+         convertEcCmdToShortText(scope, ecParser.cmd), ecParser.cmd, len, ecParser.anAddr.adp, ecParser.anAddr.ado, cnt);
       break;
    case EC_CMD_TYPE_LRD:
    case EC_CMD_TYPE_LWR:
    case EC_CMD_TYPE_LRW:
       szText = wmem_strdup_printf(scope, "EtherCAT datagram: Cmd: '%s' (%d), Len: %d, Addr 0x%x, Cnt %d",
-           convertEcCmdToShortText(scope, ecParser.cmd), ecParser.cmd, len, ecParser.anAddrUnion.addr, cnt);
+           convertEcCmdToShortText(scope, ecParser.cmd), ecParser.cmd, len, ((uint32_t)ecParser.anAddr.ado << 16 | ecParser.anAddr.adp), cnt);
       break;
    case EC_CMD_TYPE_EXT:
       szText = wmem_strdup_printf(scope, "EtherCAT datagram: Cmd: 'EXT' (%d), Len: %d",  ecParser.cmd, len);
@@ -1559,7 +1559,7 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
          suboffset+=EcParserHDR_Len;
       }
 
-      if ( (ecHdr.cmd == 1 || ecHdr.cmd == 4) && ecHdr.anAddrUnion.a.ado == 0x900 && len >= 16 && cnt > 0 )
+      if ( (ecHdr.cmd == 1 || ecHdr.cmd == 4) && ecHdr.anAddr.ado == 0x900 && len >= 16 && cnt > 0 )
       {
          uint32_t pDC[4];
          init_dc_measure(pDC, tvb, suboffset);
@@ -1629,11 +1629,11 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
          if ( len >= ETHERCAT_MBOX_HEADER_LEN &&
            ((ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd == EC_CMD_TYPE_APWR || ecHdr.cmd == EC_CMD_TYPE_APRW || ecHdr.cmd == EC_CMD_TYPE_FPRW) || ((ecHdr.cmd==EC_CMD_TYPE_FPRD  || ecHdr.cmd==EC_CMD_TYPE_APRD) && cnt==1) ) &&
-           ecHdr.anAddrUnion.a.ado>=0x1000
+           ecHdr.anAddr.ado>=0x1000
          )
          {
             init_mbx_header(&mbox, tvb, startOfData);
-            switch ( mbox.aControlUnion.v.Type )
+            switch ( ETHERCAT_MBOX_TYPE(mbox.Control) )
             {
                case ETHERCAT_MBOX_TYPE_EOE:
                case ETHERCAT_MBOX_TYPE_ADS:

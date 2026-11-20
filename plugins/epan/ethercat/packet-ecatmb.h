@@ -37,21 +37,18 @@ typedef struct TETHERNET_ADDRESS
 #define ETHERCAT_MBOX_TYPE_VOE  15 /**< Mailbox type: Vendor-specific over EtherCAT — #ETHERCAT_VOE_HEADER follows. */
 
 
-/**
- * @brief Union providing bit-field and raw access to the EtherCAT mailbox control word.
+/*
+ * Fields of the mailbox control word, as read with tvb_get_letohs(). These
+ * (and the other header word accessors below) are shifts and masks rather
+ * than bit-fields, whose layout depends on the compiler and on the host's
+ * byte order. Also note that the structs on the wire are packed, so the
+ * lengths for some are different than what sizeof() may give due to padding.
  */
-typedef union tMbxHeaderControlUnion
-{
-    uint16_t Control; /**< Raw 16-bit mailbox control word. */
-    struct
-    {
-        uint16_t Channel     : 6; /**< Optional communication channel index (default = 0). */
-        uint16_t Priority    : 2; /**< Optional communication priority (default = 0; higher = more urgent). */
-        uint16_t Type        : 4; /**< Mailbox protocol type; see @c ETHERCAT_MBOX_TYPE_* values. */
-        uint16_t Counter     : 3; /**< Sequence counter for duplicate detection (0 = counter not used). */
-        uint16_t Unsupported : 1; /**< Set by the slave when the requested protocol is not supported. */
-    } v;                          /**< Structured bit-field access. */
-} MbxHeaderControlUnion;
+#define ETHERCAT_MBOX_CHANNEL(ctrl)     ((ctrl) & 0x3F)        /**< Optional communication channel index (default = 0). */
+#define ETHERCAT_MBOX_PRIORITY(ctrl)    (((ctrl) >> 6) & 0x3)  /**< Optional communication priority (default = 0; higher = more urgent). */
+#define ETHERCAT_MBOX_TYPE(ctrl)        (((ctrl) >> 8) & 0xF)  /**< Mailbox protocol type; see @c ETHERCAT_MBOX_TYPE_* values. */
+#define ETHERCAT_MBOX_COUNTER(ctrl)     (((ctrl) >> 12) & 0x7) /**< Sequence counter for duplicate detection (0 = counter not used). */
+#define ETHERCAT_MBOX_UNSUPPORTED(ctrl) (((ctrl) >> 15) & 0x1) /**< Set by the slave when the requested protocol is not supported. */
 
 
 /**
@@ -62,7 +59,7 @@ typedef struct TETHERCAT_MBOX_HEADER
     uint16_t              Length;       /**< Number of bytes of mailbox data following this header. */
     uint16_t              Address;      /**< Slave→Master: physical address of the destination station;
                                          *   Master→Slave: physical address of the source station (0 = master). */
-    MbxHeaderControlUnion aControlUnion; /**< Channel, priority, type, counter, and unsupported-protocol flag. */
+    uint16_t              Control;      /**< Channel, priority, type, counter, and unsupported-protocol flag; see @c ETHERCAT_MBOX_TYPE() etc. */
 } ETHERCAT_MBOX_HEADER, *PETHERCAT_MBOX_HEADER;
 
 #define ETHERCAT_MBOX_HEADER_LEN ((int) sizeof(ETHERCAT_MBOX_HEADER))
@@ -102,21 +99,10 @@ typedef struct TETHERCAT_MBOX_HEADER
 } ETHERCAT_EOE_INIT, *PETHERCAT_EOE_INIT;*/
 #define ETHERCAT_EOE_INIT_LEN 58 /*sizeof(ETHERCAT_EOE_INIT)*/
 
-/**
- * @brief Union providing bit-field and raw access to EoE MAC filter options.
- */
-typedef union tEoeMacFilterOptionsUnion
-{
-    struct
-    {
-        uint16_t MacFilterCount     : 4; /**< Number of valid MAC address filter entries (0–15). */
-        uint16_t MacFilterMaskCount : 2; /**< Number of valid MAC address filter mask entries (0–3). */
-        uint16_t Reserved1          : 1; /**< Reserved; must be zero. */
-        uint16_t NoBroadcasts       : 1; /**< Non-zero to suppress forwarding of broadcast frames. */
-        uint16_t Reserved2          : 8; /**< Reserved; must be zero. */
-    } v;                                 /**< Structured bit-field access. */
-    uint16_t Options;                    /**< Raw 16-bit options word. */
-} EoeMacFilterOptionsUnion;
+/* Fields of the EoE MAC filter options word. */
+#define EOE_MACFILTER_COUNT(opt)         ((opt) & 0xF)        /**< Number of valid MAC address filter entries (0–15). */
+#define EOE_MACFILTER_MASK_COUNT(opt)    (((opt) >> 4) & 0x3) /**< Number of valid MAC address filter mask entries (0–3). */
+#define EOE_MACFILTER_NO_BROADCASTS(opt) (((opt) >> 7) & 0x1) /**< Non-zero to suppress forwarding of broadcast frames. */
 
 
 /**
@@ -124,7 +110,7 @@ typedef union tEoeMacFilterOptionsUnion
  */
 typedef struct TETHERCAT_EOE_MACFILTER
 {
-    EoeMacFilterOptionsUnion anEoeMacFilterOptionsUnion; /**< Filter count, mask count, and option flags. */
+    uint16_t         Options;           /**< Filter count, mask count, and option flags; see @c EOE_MACFILTER_COUNT() etc. */
     ETHERNET_ADDRESS MacFilter[16];                      /**< Array of up to 16 MAC address filter entries. */
     ETHERNET_ADDRESS MacFilterMask[4];                   /**< Array of up to 4 MAC address masks applied to @c MacFilter entries. */
 } ETHERCAT_EOE_MACFILTER;
@@ -145,38 +131,22 @@ typedef struct TETHERCAT_EOE_TIMESTAMP
 #define ETHERCAT_EOE_TIMESTAMP_LEN ((int) sizeof(ETHERCAT_EOE_TIMESTAMP))
 
 
-/**
- * @brief Union providing typed access to the EoE header data word, interpreted by message type.
+/*
+ * Fields of the EoE header data word for @c EOE_TYPE_FRAME_FRAG and
+ * @c EOE_TYPE_TIMESTAMP_RES; for @c EOE_TYPE_INIT_RES and
+ * @c EOE_TYPE_MACFILTER_RES the word is a result code.
  */
-typedef union tEoeHeaderDataUnion
-{
-    struct
-    {                                /**< Valid for @c EOE_TYPE_FRAME_FRAG and @c EOE_TYPE_TIMESTAMP_RES. */
-        uint16_t Fragment     : 6;   /**< Fragment sequence number within the current Ethernet frame (FRAME_FRAG only). */
-        uint16_t OffsetBuffer : 6;   /**< If @c Fragment != 0: byte offset of this fragment × 32.
-                                      *   If @c Fragment == 0: total buffer size × 32 (FRAME_FRAG only). */
-        uint16_t FrameNo      : 4;   /**< Frame number correlating fragments to a single Ethernet frame. */
-    } v;                             /**< Structured bit-field access for fragment and timestamp responses. */
-    uint16_t Result;                 /**< Result/status code for @c EOE_TYPE_INIT_RES and @c EOE_TYPE_MACFILTER_RES. */
-} EoeHeaderDataUnion;
+#define EOE_DATA_FRAGMENT(data)      ((data) & 0x3F)        /**< Fragment sequence number within the current Ethernet frame. */
+#define EOE_DATA_OFFSET_BUFFER(data) (((data) >> 6) & 0x3F) /**< If the fragment number != 0: byte offset of this fragment / 32; else the buffer size / 32. */
+#define EOE_DATA_FRAME_NO(data)      (((data) >> 12) & 0xF) /**< Frame number correlating fragments to a single Ethernet frame. */
 
 
-/**
- * @brief Union providing bit-field and raw access to the EoE header info word.
- */
-typedef union tEoeHeaderInfoUnion
-{
-    struct
-    {
-        uint16_t Type               : 4; /**< EoE message type identifier (e.g. FRAME_FRAG, INIT_REQ, MACFILTER_REQ). */
-        uint16_t PortAssign         : 4; /**< Virtual port assignment (0 = unspecified, 1 = port 1). */
-        uint16_t LastFragment       : 1; /**< Non-zero if this is the last fragment of the Ethernet frame (FRAME_FRAG only). */
-        uint16_t TimeStampAppended  : 1; /**< Non-zero if a 32-bit timestamp is appended after the last fragment (FRAME_FRAG with LastFragment = 1 only). */
-        uint16_t TimeStampRequested : 1; /**< Non-zero if a timestamp response is requested by the sender (FRAME_FRAG only). */
-        uint16_t Reserved           : 5; /**< Reserved; must be zero. */
-    } v;                                 /**< Structured bit-field access. */
-    uint16_t Info;                       /**< Raw 16-bit info word. */
-} EoeHeaderInfoUnion;
+/* Fields of the EoE header info word. */
+#define EOE_INFO_TYPE(info)                 ((info) & 0xF)         /**< EoE message type identifier (e.g. FRAME_FRAG, INIT_REQ, MACFILTER_REQ). */
+#define EOE_INFO_PORT_ASSIGN(info)          (((info) >> 4) & 0xF)  /**< Virtual port assignment (0 = unspecified, 1 = port 1). */
+#define EOE_INFO_LAST_FRAGMENT(info)        (((info) >> 8) & 0x1)  /**< Non-zero if this is the last fragment of the Ethernet frame (FRAME_FRAG only). */
+#define EOE_INFO_TIMESTAMP_APPENDED(info)   (((info) >> 9) & 0x1)  /**< Non-zero if a 32-bit timestamp is appended after the last fragment. */
+#define EOE_INFO_TIMESTAMP_REQUESTED(info)  (((info) >> 10) & 0x1) /**< Non-zero if a timestamp response is requested by the sender. */
 
 
 /**
@@ -184,8 +154,8 @@ typedef union tEoeHeaderInfoUnion
  */
 typedef struct TETHERCAT_EOE_HEADER
 {
-    EoeHeaderInfoUnion anEoeHeaderInfoUnion; /**< Info word carrying the message type, port, and fragment control flags. */
-    EoeHeaderDataUnion anEoeHeaderDataUnion; /**< Data word carrying fragment/frame numbers or a result code. */
+    uint16_t Info; /**< Info word carrying the message type, port, and fragment control flags; see @c EOE_INFO_TYPE() etc. */
+    uint16_t Data; /**< Data word carrying fragment/frame numbers (see @c EOE_DATA_FRAGMENT() etc.) or a result code. */
 } ETHERCAT_EOE_HEADER, *PETHERCAT_EOE_HEADER;
 
 /** @brief Wire-size of #ETHERCAT_EOE_HEADER in bytes. */
@@ -204,98 +174,28 @@ typedef struct TETHERCAT_EOE_HEADER
 /**
  * @brief EtherCAT CoE (CANopen over EtherCAT) mailbox header.
  */
-typedef union TETHERCAT_COE_HEADER
+typedef struct TETHERCAT_COE_HEADER
 {
-    struct
-    {
-        uint16_t Number   : 9; /**< CANopen number field (e.g. PDO number or SDO counter). */
-        uint16_t Reserved : 3; /**< Reserved; must be zero. */
-        uint16_t Type     : 4; /**< CANopen message type (e.g. SDO, PDO, NMT, EMCY). */
-    } v;                       /**< Structured bit-field access. */
-    uint16_t header;           /**< Raw 16-bit CoE header word. */
+    uint16_t header; /**< Raw 16-bit CoE header word; see @c ETHERCAT_COE_NUMBER() and @c ETHERCAT_COE_TYPE(). */
 } ETHERCAT_COE_HEADER, *PETHERCAT_COE_HEADER;
+
+#define ETHERCAT_COE_NUMBER(hdr) ((hdr) & 0x1FF)        /**< CANopen number field (e.g. PDO number or SDO counter). */
+#define ETHERCAT_COE_TYPE(hdr)   (((hdr) >> 12) & 0xF)  /**< CANopen message type (e.g. SDO, PDO, NMT, EMCY). */
 
 /** @brief Wire-size of #ETHERCAT_COE_HEADER in bytes. */
 #define ETHERCAT_COE_HEADER_LEN ((int) sizeof(ETHERCAT_COE_HEADER))
 
 
-/**
- * @brief Union providing per-service-command bit-field access to the SDO command specifier byte.
- *
- * Exactly one member is valid per SDO message, selected by the service type
- * (Ccs/Scs field value and transfer direction).
+/*
+ * Fields of the SDO command specifier byte. The command specifier (Ccs in
+ * requests, Scs in responses) is always the top 3 bits; which of the other
+ * fields are present depends on it and on the direction.
  */
-typedef union tSdoHeaderUnion
-{
-    struct
-    {   /* Initiate Download Request (Ccs = 1) */
-        uint8_t SizeInd   : 1; /**< Size indicator: non-zero if @c Size is valid. */
-        uint8_t Expedited : 1; /**< Expedited transfer flag: non-zero if data fits in this frame. */
-        uint8_t Size      : 2; /**< Number of bytes in @c Data that do NOT contain data (expedited only). */
-        uint8_t Complete  : 1; /**< Complete access flag: non-zero to access all sub-indices at once. */
-        uint8_t Ccs       : 3; /**< Client command specifier; must be 1 for Initiate Download Request. */
-    } Idq;
-
-    struct
-    {   /* Initiate Download Response (Scs = 3) */
-        uint8_t Reserved : 5; /**< Reserved; must be zero. */
-        uint8_t Scs      : 3; /**< Server command specifier; must be 3 for Initiate Download Response. */
-    } Ids;
-
-    struct
-    {   /* Download Segment Request (Ccs = 0) */
-        uint8_t LastSeg : 1; /**< Last-segment flag: non-zero if this is the final segment. */
-        uint8_t Size    : 3; /**< Number of bytes in the segment that do NOT contain data. */
-        uint8_t Toggle  : 1; /**< Toggle bit; alternates between 0 and 1 for each successive segment. */
-        uint8_t Ccs     : 3; /**< Client command specifier; must be 0 for Download Segment Request. */
-    } Dsq;
-
-    struct
-    {   /* Download Segment Response (Scs = 1) */
-        uint8_t Reserved : 4; /**< Reserved; must be zero. */
-        uint8_t Toggle   : 1; /**< Toggle bit; must match the toggle bit of the corresponding request. */
-        uint8_t Scs      : 3; /**< Server command specifier; must be 1 for Download Segment Response. */
-    } Dss;
-
-    struct
-    {   /* Initiate Upload Request (Ccs = 2) */
-        uint8_t Reserved : 4; /**< Reserved; must be zero. */
-        uint8_t Complete : 1; /**< Complete access flag: non-zero to access all sub-indices at once. */
-        uint8_t Ccs      : 3; /**< Client command specifier; must be 2 for Initiate Upload Request. */
-    } Iuq;
-
-    struct
-    {   /* Initiate Upload Response (Scs = 2) */
-        uint8_t SizeInd   : 1; /**< Size indicator: non-zero if @c Size is valid. */
-        uint8_t Expedited : 1; /**< Expedited transfer flag: non-zero if data fits in this frame. */
-        uint8_t Size      : 2; /**< Number of bytes in @c Data that do NOT contain data (expedited only). */
-        uint8_t Complete  : 1; /**< Complete access flag: non-zero if all sub-indices are included. */
-        uint8_t Scs       : 3; /**< Server command specifier; must be 2 for Initiate Upload Response. */
-    } Ius;
-
-    struct
-    {   /* Upload Segment Request (Ccs = 3) */
-        uint8_t Reserved : 4; /**< Reserved; must be zero. */
-        uint8_t Toggle   : 1; /**< Toggle bit; alternates between 0 and 1 for each successive segment. */
-        uint8_t Ccs      : 3; /**< Client command specifier; must be 3 for Upload Segment Request. */
-    } Usq;
-
-    struct
-    {   /* Upload Segment Response (Scs = 0) */
-        uint8_t LastSeg : 1; /**< Last-segment flag: non-zero if this is the final segment. */
-        uint8_t Bytes   : 3; /**< Number of bytes in the segment that do NOT contain data. */
-        uint8_t Toggle  : 1; /**< Toggle bit; must match the toggle bit of the corresponding request. */
-        uint8_t Scs     : 3; /**< Server command specifier; must be 0 for Upload Segment Response. */
-    } Uss;
-
-    struct
-    {   /* Abort Transfer (Ccs = 4) */
-        uint8_t Reserved : 5; /**< Reserved; must be zero. */
-        uint8_t Ccs      : 3; /**< Client command specifier; must be 4 for Abort Transfer. */
-    } Abt;
-
-    uint8_t CS; /**< Raw command specifier byte. */
-} SdoHeaderUnion;
+#define SDO_CS_CCS(cs)       (((cs) >> 5) & 0x7) /**< Client command specifier (requests). */
+#define SDO_CS_SCS(cs)       (((cs) >> 5) & 0x7) /**< Server command specifier (responses). */
+#define SDO_CS_SIZE_IND(cs)  ((cs) & 0x1)        /**< Initiate Download Request / Initiate Upload Response: non-zero if the size is indicated. */
+#define SDO_CS_EXPEDITED(cs) (((cs) >> 1) & 0x1) /**< Initiate Download Request / Initiate Upload Response: non-zero if the data fits in this frame. */
+#define SDO_CS_SIZE(cs)      (((cs) >> 2) & 0x3) /**< Initiate Download Request / Initiate Upload Response: number of bytes of expedited data that do NOT contain data. */
 
 
 /**
@@ -303,7 +203,7 @@ typedef union tSdoHeaderUnion
  */
 typedef struct TETHERCAT_SDO_HEADER
 {
-    SdoHeaderUnion anSdoHeaderUnion; /**< Command specifier byte; interpretation depends on the SDO service type. */
+    uint8_t        CS;               /**< Command specifier byte; see @c SDO_CS_CCS() etc. */
     uint16_t       Index;            /**< Object dictionary index of the object being accessed. */
     uint8_t        SubIndex;         /**< Sub-index within the object, or 0 for complete access. */
     uint32_t       Data;             /**< Expedited data, data size, or abort code depending on the command. */
@@ -423,18 +323,9 @@ typedef union tSdoInfoUnion
 } SdoInfoUnion;
 
 
-/**
- * @brief Union providing bit-field and byte-level access to the SDO Information control octet.
- */
-typedef union tSdoControlUnion
-{
-    struct
-    {
-        uint8_t OpCode     : 7; /**< SDO Information operation code; see @c SDO_INFO_TYPE_* values. */
-        uint8_t InComplete : 1; /**< More-follows flag: non-zero if additional fragments are pending. */
-    } v;                        /**< Structured bit-field access. */
-    uint8_t Control;            /**< Raw control byte. */
-} SdoControlUnion;
+/* Fields of the SDO Information control byte. */
+#define SDO_INFO_OPCODE(ctrl)     ((ctrl) & 0x7F)       /**< SDO Information operation code; see @c ECAT_COE_INFO_OPCODE_* values. */
+#define SDO_INFO_INCOMPLETE(ctrl) (((ctrl) >> 7) & 0x1) /**< More-follows flag: non-zero if additional fragments are pending. */
 
 
 /**
@@ -442,10 +333,10 @@ typedef union tSdoControlUnion
  */
 typedef struct TETHERCAT_SDO_INFO_HEADER
 {
-    SdoControlUnion anSdoControlUnion; /**< Control byte carrying the opcode and more-follows flag. */
+    uint8_t         Control;           /**< Control byte carrying the opcode and more-follows flag; see @c SDO_INFO_OPCODE() etc. */
     uint8_t         Reserved;          /**< Reserved; must be zero. */
     uint16_t        FragmentsLeft;     /**< Number of remaining fragments in a multi-fragment transfer. */
-    SdoInfoUnion    anSdoInfoUnion;    /**< Payload interpreted according to @c anSdoControlUnion.v.OpCode. */
+    SdoInfoUnion    anSdoInfoUnion;    /**< Payload interpreted according to @c SDO_INFO_OPCODE(Control). */
 } ETHERCAT_SDO_INFO_HEADER, *PETHERCAT_SDO_INFO_HEADER;
 
 /** @brief Wire offset to the start of the SDO Info list response data (list request length). */
@@ -473,24 +364,13 @@ typedef struct TETHERCAT_SDO_INFO_HEADER
 #define ECAT_FOE_ERRCODE_NOTINBOOTSTRAP 9 /**< FoE error: Operation not permitted in Bootstrap state. */
 
 
-/**
- * @brief Union providing typed access to the FoE header data word, interpreted by @c OpMode.
+/*
+ * The FoE header data word, as read with tvb_get_letohl(), is the file
+ * length (RRQ, WRQ) or the error code (ERR); for the others:
  */
-typedef union tFoeHeaderDataUnion
-{
-    uint32_t FileLength; /**< Total file length in bytes for RRQ/WRQ; 0 if unknown. */
-    struct
-    {
-        uint16_t PacketNo;  /**< Sequential packet number for DATA and ACK frames. */
-        uint16_t Reserved2; /**< Reserved; must be zero (DATA, ACK). */
-    } v;                    /**< Structured access for DATA and ACK opcodes. */
-    uint32_t ErrorCode;     /**< FoE error code for ERR frames; see @c ECAT_FOE_ERRCODE_* values. */
-    struct
-    {
-        uint16_t Done;   /**< Number of bytes already transferred (BUSY). */
-        uint16_t Entire; /**< Total number of bytes to be transferred (BUSY). */
-    } v2;                /**< Structured access for BUSY opcode progress reporting. */
-} FoeHeaderDataUnion;
+#define FOE_DATA_PACKET_NO(data)   ((data) & 0xFFFF)         /**< Sequential packet number (DATA, ACK). */
+#define FOE_DATA_BUSY_DONE(data)   ((data) & 0xFFFF)         /**< Number of bytes already transferred (BUSY). */
+#define FOE_DATA_BUSY_ENTIRE(data) (((data) >> 16) & 0xFFFF) /**< Total number of bytes to be transferred (BUSY). */
 
 
 /**
@@ -504,7 +384,7 @@ typedef struct TETHERCAT_FOE_HEADER
 {
     uint8_t            OpMode;    /**< FoE operation mode; see @c ECAT_FOE_OPMODE_* values. */
     uint8_t            Reserved1; /**< Reserved; must be zero. */
-    FoeHeaderDataUnion aFoeHeaderDataUnion; /**< Mode-specific data word (file length, packet number, error code, or progress). */
+    uint32_t           Data;      /**< Mode-specific data word (file length, packet number, error code, or progress); see @c FOE_DATA_PACKET_NO() etc. */
     /*   typedef union tMailBoxDataUnion
     {
     char      Name[]        (RRQ, WRQ)  rest of mailbox data
@@ -536,33 +416,20 @@ typedef struct
 #define ECAT_SOE_OPCODE_NFC 5 /**< SoE opcode: Notification (command changed notification). */
 
 
-/**
- * @brief Union providing bit-field and byte-level access to the SoE header control and element fields.
- */
-typedef union tSoeHeaderControlUnion
-{
-    struct
-    {
-        uint8_t OpCode     : 3; /**< Operation code; see @c ECAT_SOE_OPCODE_* values (0 = unused). */
-        uint8_t InComplete : 1; /**< More-follows flag: non-zero if additional fragments are pending. */
-        uint8_t Error      : 1; /**< Error flag: non-zero if an error word follows the header. */
-        uint8_t DriveNo    : 3; /**< Drive number addressed by this SoE message (0–7). */
+/* Fields of the SoE header control byte. */
+#define SOE_CTRL_OPCODE(ctrl)     ((ctrl) & 0x7)        /**< Operation code; see @c ECAT_SOE_OPCODE_* values (0 = unused). */
+#define SOE_CTRL_INCOMPLETE(ctrl) (((ctrl) >> 3) & 0x1) /**< More-follows flag: non-zero if additional fragments are pending. */
+#define SOE_CTRL_ERROR(ctrl)      (((ctrl) >> 4) & 0x1) /**< Error flag: non-zero if an error word follows the header. */
+#define SOE_CTRL_DRIVE_NO(ctrl)   (((ctrl) >> 5) & 0x7) /**< Drive number addressed by this SoE message (0–7). */
 
-        uint8_t DataState  : 1; /**< Data-state element follows (response) or is requested (request). */
-        uint8_t Name       : 1; /**< Name element follows or is requested. */
-        uint8_t Attribute  : 1; /**< Attribute element follows or is requested. */
-        uint8_t Unit       : 1; /**< Unit element follows or is requested. */
-        uint8_t Min        : 1; /**< Minimum value element follows or is requested. */
-        uint8_t Max        : 1; /**< Maximum value element follows or is requested. */
-        uint8_t Value      : 1; /**< Value element follows or is requested. */
-        uint8_t Reserved   : 1; /**< Reserved; must be zero. */
-    } v;                        /**< Structured bit-field access. */
-    struct
-    {
-        uint8_t Control; /**< Raw control byte (OpCode, InComplete, Error, DriveNo). */
-        uint8_t Element; /**< Raw element flags byte (DataState … Reserved). */
-    } v2;                /**< Byte-level access to the two control octets. */
-} SoeHeaderControlUnion;
+/* Flags in the SoE header element byte: the element follows (response) or is requested (request). */
+#define SOE_ELEM_DATASTATE 0x01
+#define SOE_ELEM_NAME      0x02
+#define SOE_ELEM_ATTRIBUTE 0x04
+#define SOE_ELEM_UNIT      0x08
+#define SOE_ELEM_MIN       0x10
+#define SOE_ELEM_MAX       0x20
+#define SOE_ELEM_VALUE     0x40
 
 
 /**
@@ -570,8 +437,8 @@ typedef union tSoeHeaderControlUnion
  */
 typedef union tSoeHeaderDataUnion
 {
-    uint16_t IDN;           /**< Servo IDN (parameter identifier) when @c InComplete == 0. */
-    uint16_t FragmentsLeft; /**< Number of pending fragments remaining when @c InComplete == 1. */
+    uint16_t IDN;           /**< Servo IDN (parameter identifier) when @c SOE_CTRL_INCOMPLETE(Control) == 0. */
+    uint16_t FragmentsLeft; /**< Number of pending fragments remaining when @c SOE_CTRL_INCOMPLETE(Control) == 1. */
 } SoeHeaderDataUnion;
 
 
@@ -583,8 +450,9 @@ typedef union tSoeHeaderDataUnion
  */
 typedef struct TETHERCAT_SOE_HEADER
 {
-    SoeHeaderControlUnion anSoeHeaderControlUnion; /**< Control and element flag fields. */
-    SoeHeaderDataUnion    anSoeHeaderDataUnion;    /**< IDN or fragment count, depending on @c InComplete. */
+    uint8_t               Control;                 /**< Opcode, flags and drive number; see @c SOE_CTRL_OPCODE() etc. */
+    uint8_t               Element;                 /**< Element flags; see @c SOE_ELEM_* values. */
+    SoeHeaderDataUnion    anSoeHeaderDataUnion;    /**< IDN or fragment count, depending on @c SOE_CTRL_INCOMPLETE(Control). */
     /* typedef union tMailBoxDataUnion
     {
     uint8_t   Data[]      rest of mailbox data  if (Error==0)
