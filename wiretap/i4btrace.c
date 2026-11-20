@@ -110,6 +110,17 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, char **err_info)
 		 */
 		for (int i = 1; i < PACKETS_TO_CHECK; i++) {
 			/*
+			 * On a pipe, read no farther than the I/O routines
+			 * guarantee we can seek back over; otherwise neither
+			 * we nor the open routines tried after us could seek
+			 * back to the beginning. Stop as if at the end of the
+			 * file.
+			 */
+			if (wth->ispipe &&
+			    file_tell(wth->fh) + (int64_t)sizeof(hdr) > file_bufsize(wth->fh))
+				break;
+
+			/*
 			 * Read and check the file header; we've already
 			 * decided whether this would be a byte-swapped file
 			 * or not, so we swap iff we decided it was.
@@ -133,6 +144,11 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, char **err_info)
 				 */
 				return WTAP_OPEN_NOT_MINE;
 			}
+
+			/* As above, but for the packet bytes. */
+			if (wth->ispipe &&
+			    file_tell(wth->fh) + (int64_t)(hdr.length - sizeof(hdr)) > file_bufsize(wth->fh))
+				break;
 
 			/*
 			 * Now try to read past the packet bytes; if that
