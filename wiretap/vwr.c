@@ -74,14 +74,6 @@
  */
 #define VW_BYTES_TO_CHECK 0x3FFFFFFFU
 
-/*
- * Maximum number of bytes to read looking for a frame on a pipe. We
- * (and the open routines tried after us, which start by seeking back to
- * the beginning) can seek back on a pipe only over what the I/O routines
- * buffer, which is guaranteed to be at least the first 64 KiB.
- */
-#define VW_PIPE_BYTES_TO_CHECK (64 * 1024)
-
 /* Command byte values */
 #define COMMAND_RX   0x21
 #define COMMAND_TX   0x31
@@ -984,9 +976,14 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
     uint16_t data_length  = 0;
     uint16_t fpga_version;
     bool valid_but_empty_file = false;
-    /* Bytes read in total, to stay within what we can seek back over */
+    /*
+     * Bytes read in total. On a pipe, we (and the open routines tried
+     * after us, which start by seeking back to the beginning) can seek
+     * back only over what the I/O routines buffer, so read no more than
+     * that looking for a frame.
+     */
     uint64_t total_read   = 0;
-    uint64_t max_read     = wth->ispipe ? VW_PIPE_BYTES_TO_CHECK : UINT64_MAX;
+    uint64_t max_read     = wth->ispipe ? file_bufsize(wth->fh) : UINT64_MAX;
 
     filePos = file_tell(wth->fh);
     if (filePos == -1) {
@@ -1136,7 +1133,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
     }
 
     if (total_read + VW_RECORD_HEADER_LENGTH > max_read) {
-        /* No frame found in VW_PIPE_BYTES_TO_CHECK on a pipe */
+        /* No frame found in what we can read on a pipe */
         g_free(rec);
         return UNKNOWN_FPGA;
     }
