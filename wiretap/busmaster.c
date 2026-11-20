@@ -142,6 +142,8 @@ busmaster_parse(FILE_T fh, busmaster_state_t *state, int *err, char **err_info)
         seek_off               = file_tell(fh);
         ws_debug("%s: Starting parser at offset %" PRIi64 "\n",
                                G_STRFUNC, seek_off);
+        if (state->at_max_read)
+            return LOG_ENTRY_EOF;
         state->file_bytes_read = 0;
         ok                     = run_busmaster_parser(state, err, err_info);
 
@@ -178,6 +180,14 @@ busmaster_open(wtap *wth, int *err, char **err_info)
     /* Rewind to the beginning */
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
+
+    /*
+     * On a pipe, read no farther than the I/O routines guarantee we can
+     * seek back over looking for the header; otherwise neither we nor
+     * the open routines tried after us could seek back to the beginning.
+     */
+    if (wth->ispipe)
+        state.max_read = file_bufsize(wth->fh);
 
     entry = busmaster_parse(wth->fh, &state, err, err_info);
 

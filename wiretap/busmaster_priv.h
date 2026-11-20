@@ -124,6 +124,8 @@ typedef struct {
 typedef struct {
     FILE_T  fh;              /**< Wiretap file handle for the open BusMaster log file */
     int64_t file_bytes_read; /**< Total number of bytes consumed from the file so far */
+    int64_t max_read;        /**< If nonzero, act as if at end of file at this file offset */
+    bool    at_max_read;     /**< Set if the scanner stopped reading at @p max_read */
 
     char *parse_error; /**< Human-readable description of the most recent parse error, or NULL */
     int   err;         /**< Wiretap error code set when a read or parse failure occurs */

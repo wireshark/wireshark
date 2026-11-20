@@ -55,7 +55,21 @@
 
 static int busmaster_yyinput(void *buf, unsigned int length, busmaster_state_t *state)
 {
-    int ret = file_read(buf, length, state->fh);
+    int ret;
+
+    if (state->max_read != 0)
+    {
+        int64_t left = state->max_read - file_tell(state->fh);
+
+        if (left <= 0)
+        {
+            state->at_max_read = true;
+            return YY_NULL;
+        }
+        if (length > left)
+            length = (unsigned int)left;
+    }
+    ret = file_read(buf, length, state->fh);
 
     if (ret < 0)
     {
