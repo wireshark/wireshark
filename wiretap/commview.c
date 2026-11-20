@@ -720,13 +720,16 @@ commview_ncfx_open(wtap *wth, int *err, char **err_info)
 		}
 		if (*err == WTAP_ERR_SHORT_READ) {
 			/* Short read - not our file */
+			*err = 0;
 			return WTAP_OPEN_NOT_MINE;
 		}
 		if (*err == WTAP_ERR_BAD_FILE) {
 			/*
 			 * Not a valid record header - not our file;
-			 * discard the error.
+			 * discard the error, so that the open routines
+			 * tried after this one don't see it.
 			 */
+			*err = 0;
 			wmem_free(NULL, *err_info);
 			*err_info = NULL;
 			return WTAP_OPEN_NOT_MINE;
