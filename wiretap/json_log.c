@@ -196,7 +196,17 @@ wtap_open_return_val json_log_open(wtap *wth, int *err, char **err_info _U_)
         tokens = g_malloc(sizeof(jsmntok_t) * num_tokens);
     }
 
-    int bytes_read = file_read(log_data, MAX_JSON_LOG_ENTRY_SIZE, wth->fh);
+    /*
+     * On a pipe, read no farther than the I/O routines guarantee we can
+     * seek back over; otherwise neither we nor the open routines tried
+     * after us could seek back to the beginning. If the first entry
+     * doesn't end within that, it has no timestamp below.
+     */
+    unsigned max_read = MAX_JSON_LOG_ENTRY_SIZE;
+    if (wth->ispipe) {
+        max_read = MIN(max_read, file_bufsize(wth->fh));
+    }
+    int bytes_read = file_read(log_data, max_read, wth->fh);
     if (bytes_read < 1) {
         g_free(log_buf);
         return WTAP_OPEN_NOT_MINE;
