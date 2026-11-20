@@ -120,9 +120,9 @@ void register_camins(void);
    size register. The matching blocks to access the upper and lower 8bit
    must be no further than 5 blocks apart.
    A file may have errors that affect the size blocks. Therefore, we
-   read CAMINS_BYTES_TO_CHECK bytes and require that we have many more
+   read up to max_read bytes and require that we have many more
    valid pairs than errors. */
-static wtap_open_return_val detect_camins_file(FILE_T fh, int *err, char **err_info)
+static wtap_open_return_val detect_camins_file(FILE_T fh, uint64_t max_read, int *err, char **err_info)
 {
     uint8_t *buf;
     int      nread;
@@ -130,11 +130,17 @@ static wtap_open_return_val detect_camins_file(FILE_T fh, int *err, char **err_i
     uint8_t  gap_count = 0;
     uint32_t valid_pairs = 0, invalid_pairs = 0;
     uint64_t read_bytes = 0;
+    unsigned to_read;
 
     /* Read in chunks, not one block at a time; this can read a lot. */
     buf = (uint8_t *)g_malloc(CAMINS_CHUNK_SIZE);
-    while (read_bytes < CAMINS_BYTES_TO_CHECK &&
-           (nread = file_read(buf, CAMINS_CHUNK_SIZE, fh)) > 0) {
+    while (read_bytes < max_read) {
+        to_read = (unsigned)MIN(CAMINS_CHUNK_SIZE, max_read - read_bytes);
+        nread = file_read(buf, to_read, fh);
+        if (nread <= 0) {
+            /* End of file (or an error, checked below) */
+            break;
+        }
         /* Any odd byte at the end of the file is ignored. */
         for (int i = 0; i + 1 < nread; i += 2) {
             const uint8_t *block = &buf[i];
@@ -181,7 +187,7 @@ static wtap_open_return_val detect_camins_file(FILE_T fh, int *err, char **err_i
             }
         }
         read_bytes += (unsigned)nread;
-        if (nread < CAMINS_CHUNK_SIZE) {
+        if ((unsigned)nread < to_read) {
             /* End of file (or an error, checked below) */
             break;
         }
@@ -435,24 +441,20 @@ camins_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 wtap_open_return_val camins_open(wtap *wth, int *err, char **err_info)
 {
     wtap_open_return_val status;
+    uint64_t max_read = CAMINS_BYTES_TO_CHECK;
 
     /*
-     * The heuristic always reads to the end of the file (or up to
+     * The heuristic reads to the end of the file (or up to
      * CAMINS_BYTES_TO_CHECK bytes, 1 GiB) before deciding, and then
-     * seeks back to the beginning. On a pipe, that reads past what the
-     * I/O routines buffer, after which neither we nor the open routines
-     * tried after us (which also start by seeking back to the beginning)
-     * can seek back, so it only ever worked on a pipe for a file small
-     * enough to be buffered entirely. Don't try.
-     *
-     * XXX - to read CAM Inspector files from a pipe, the heuristic would
-     * have to decide after reading a bounded amount, perhaps only on a
-     * pipe, so that it stays within what the I/O routines buffer.
+     * seeks back to the beginning. On a pipe, we (and the open routines
+     * tried after us, which also start by seeking back to the beginning)
+     * can seek back only over what the I/O routines buffer, so decide
+     * from no more than that.
      */
     if (wth->ispipe)
-        return WTAP_OPEN_NOT_MINE;
+        max_read = MIN(max_read, file_bufsize(wth->fh));
 
-    status = detect_camins_file(wth->fh, err, err_info);
+    status = detect_camins_file(wth->fh, max_read, err, err_info);
     if (status != WTAP_OPEN_MINE) {
         /* A read error or a failed heuristic. */
         return status;
