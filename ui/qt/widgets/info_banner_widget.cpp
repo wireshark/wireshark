@@ -15,6 +15,7 @@
 #include <QPainterPath>
 #include <QLinearGradient>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QFont>
@@ -101,6 +102,8 @@ InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
     QFrame(parent)
     , current_slide_(0)
     , compact_mode_(false)
+    , swipe_accum_(0)
+    , swipe_handled_(false)
     , hovered_(false)
     , auto_advance_timer_(new QTimer(this))
     , auto_advance_ms_(kDefaultAutoAdvanceMs)
@@ -1009,6 +1012,53 @@ int InfoBannerWidget::dotHitTest(const QPoint &pos) const
     return -1;
 }
 
+void InfoBannerWidget::showSlide(int index)
+{
+    if (index < 0 || index >= static_cast<int>(slides_.size()) || index == current_slide_)
+        return;
+    current_slide_ = index;
+    if (auto_advance_timer_->isActive())
+        auto_advance_timer_->start(auto_advance_ms_);
+    updateAccessibility();
+    update();
+}
+
+void InfoBannerWidget::wheelEvent(QWheelEvent *event)
+{
+    // Only react to horizontal, touchpad-style scrolling.
+    const QPoint delta = event->angleDelta();
+    if (event->source() == Qt::MouseEventNotSynthesized
+        || slides_.size() < 2
+        || qAbs(delta.x()) <= qAbs(delta.y())) {
+        QFrame::wheelEvent(event);
+        return;
+    }
+    event->accept();
+
+    const Qt::ScrollPhase phase = event->phase();
+    if (phase == Qt::ScrollBegin) {
+        swipe_accum_ = 0;
+        swipe_handled_ = false;
+    }
+    if (swipe_handled_) {
+        // Ignore the rest of the gesture, including momentum scrolling.
+        if (phase == Qt::ScrollEnd || phase == Qt::NoScrollPhase)
+            swipe_handled_ = false;
+        return;
+    }
+
+    swipe_accum_ += delta.x();
+    if (qAbs(swipe_accum_) >= kSwipeThreshold) {
+        // Fingers moving right (positive delta) show the next slide.
+        const int count = static_cast<int>(slides_.size());
+        const int step = swipe_accum_ > 0 ? 1 : -1;
+        showSlide((current_slide_ + step + count) % count);
+        swipe_accum_ = 0;
+        // Devices without scroll phases deliver discrete events: re-arm immediately.
+        swipe_handled_ = (phase != Qt::NoScrollPhase);
+    }
+}
+
 void InfoBannerWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton) {
@@ -1019,11 +1069,7 @@ void InfoBannerWidget::mousePressEvent(QMouseEvent *event)
     // Check navigation dots first
     int dot_index = dotHitTest(event->pos());
     if (dot_index >= 0 && dot_index != current_slide_) {
-        current_slide_ = dot_index;
-        if (auto_advance_timer_->isActive())
-            auto_advance_timer_->start(auto_advance_ms_);
-        updateAccessibility();
-        update();
+        showSlide(dot_index);
         return;
     }
 
