@@ -34,11 +34,10 @@ mp4_open(wtap *wth, int *err, char **err_info)
 		*err = file_error(wth->fh, err_info);
 		return WTAP_OPEN_ERROR;
 	}
-	if (bytes_read == 0)
+	if (bytes_read != sizeof (magic_buf))
 		return WTAP_OPEN_NOT_MINE;
 
-	if (bytes_read == sizeof (magic_buf) &&
-			memcmp(magic_buf + 4, mp4_magic, sizeof (mp4_magic)) &&
+	if (memcmp(magic_buf + 4, mp4_magic, sizeof (mp4_magic)) &&
 			memcmp(magic_buf + 4, mp4_magic_sidx, sizeof (mp4_magic_sidx)) &&
 			memcmp(magic_buf + 4, mp4_magic_styp, sizeof (mp4_magic_styp)))
 		return WTAP_OPEN_NOT_MINE;
