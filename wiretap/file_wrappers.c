@@ -53,15 +53,19 @@ wtap_get_compression_type(wtap *wth)
 
 /*
  * The minimum size of the input buffer (the output buffer is twice as
- * big). Besides being the unit of I/O, this determines how far back
- * we're guaranteed to be able to seek on a pipe (or other stream we
- * can't seek on): the first GZBUFSIZE bytes of uncompressed data (or
- * of decompressed data, as the first decompression fills the output
- * buffer) stay in the buffer until something reads past them. The open
+ * big). The actual size, which file_bufsize() returns, can be larger,
+ * to suit the file system or, in builds with zstd or LZ4 support, the
+ * decompressors.
+ *
+ * Besides being the unit of I/O, the size determines how far back we're
+ * guaranteed to be able to seek on a pipe (or other stream we can't
+ * seek on): the first file_bufsize() bytes of uncompressed data, or of
+ * decompressed data (as the first decompression fills the output buffer,
+ * unless the compressed stream, e.g. a gzip member or zstd frame, ends
+ * first), stay in the buffer until something reads past them. The open
  * routines tried while determining a file's type each start by seeking
- * back to the beginning, and some (e.g., JSON) read a fair amount of
- * the file before deciding, so make it large enough for them; it's
- * larger anyway in builds with zstd or LZ4 support.
+ * back to the beginning, and some (e.g., JSON) read a fair amount of the
+ * file before deciding, so make the minimum large enough for them.
  */
 #define GZBUFSIZE 65536
 #define LZ4BUFSIZE 4194304 // 4MiB, maximum block size
@@ -907,29 +911,50 @@ zstd_fill_out_buffer(FILE_T state)
 {
     ws_assert(state->out.avail == 0);
 
-    if (state->in.avail == 0 && fill_in_buffer(state) == -1)
-        return false;
-
     ZSTD_outBuffer output = {state->out.buf, state->size << 1, 0};
-    ZSTD_inBuffer input = {state->in.next, state->in.avail, 0};
-    const size_t ret = ZSTD_decompressStream(state->zstd_dctx, &output, &input);
-    if (ZSTD_isError(ret)) {
-        state->err = WTAP_ERR_DECOMPRESS;
-        state->err_info = ZSTD_getErrorName(ret);
-        return false;
-    }
 
-    state->in.next = state->in.next + input.pos;
-    state->in.avail -= (unsigned)input.pos;
+    /*
+     * Fill the output buffer, as the other decompressors do, up to the
+     * end of the frame or an error, rather than stopping after one call,
+     * which produces only as much as one read's worth of input decodes
+     * to (typically about one block). Otherwise, on a pipe, we couldn't
+     * seek back as far as file_bufsize() says.
+     */
+    do {
+        if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+            break;
+        if (state->in.avail == 0) {
+            /* EOF */
+            break;
+        }
 
-    state->out.next = output.dst;
+        ZSTD_inBuffer input = {state->in.next, state->in.avail, 0};
+        const size_t ret = ZSTD_decompressStream(state->zstd_dctx, &output, &input);
+        if (ZSTD_isError(ret)) {
+            state->err = WTAP_ERR_DECOMPRESS;
+            state->err_info = ZSTD_getErrorName(ret);
+            break;
+        }
+
+        state->in.next = state->in.next + input.pos;
+        state->in.avail -= (unsigned)input.pos;
+
+        if (ret == 0) {
+            /* End of the frame */
+            state->last_compression = state->compression;
+            state->compression = UNKNOWN;
+            break;
+        }
+    } while (output.pos < output.size);
+
+    /*
+     * Return what we decompressed, even if we then got an error; as
+     * with the other decompressors, file_read() returns the data before
+     * reporting the error.
+     */
+    state->out.next = state->out.buf;
     state->out.avail = (unsigned)output.pos;
-
-    if (ret == 0) {
-        state->last_compression = state->compression;
-        state->compression = UNKNOWN;
-    }
-    return true;
+    return state->err == 0 || output.pos != 0;
 }
 #endif /* HAVE_ZSTD */
 
