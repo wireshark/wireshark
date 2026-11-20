@@ -183,6 +183,13 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
 
     /**
+     * @brief Switch slides on horizontal touchpad swipes.
+     *
+     * @param event The wheel event.
+     */
+    void wheelEvent(QWheelEvent *event) override;
+
+    /**
      * @brief Clear the hover state when the pointer leaves the widget.
      *
      * @param event The leave event.
@@ -209,6 +216,8 @@ private:
     QList<BannerSlide> slides_;      /**< Ordered, filtered list of slides to display. */
     int current_slide_;              /**< Index into @c slides_ of the currently shown slide. */
     bool compact_mode_;              /**< true when the compact (half-height) layout is active. */
+    int swipe_accum_;                /**< Accumulated horizontal wheel delta for the current swipe gesture. */
+    bool swipe_handled_;             /**< true once the current swipe gesture has changed slides. */
     bool hovered_;                   /**< true while the pointer is inside the widget bounds. */
 
     /** Per-type visibility flags, consulted by @c applySlideFilter(). */
@@ -301,6 +310,13 @@ private:
     int dotHitTest(const QPoint &pos) const;
 
     /**
+     * @brief Show the slide at @p index, restarting the auto-advance timer.
+     *
+     * Does nothing if @p index is out of range or already current.
+     */
+    void showSlide(int index);
+
+    /**
      * @brief Return the bounding rectangle of the dot indicator for a slide.
      * @param index Zero-based slide index.
      * @return The @c QRect of the dot in widget-local coordinates, centred
@@ -349,6 +365,7 @@ private:
     static constexpr int kIllustrationHeight = 120;  /**< Height reserved for the slide illustration in full mode. */
     static constexpr int kContentLeftMargin  = 16;   /**< Left padding for text and button content. */
     static constexpr int kContentRightMargin = 16;   /**< Right padding for text and button content. */
+    static constexpr int kSwipeThreshold     = 210;  /**< Accumulated horizontal wheel delta needed to change slides. */
     static constexpr int kDotRadius          = 4;    /**< Radius of each dot indicator in pixels. */
     static constexpr int kDotSpacing         = 12;   /**< Centre-to-centre spacing between dot indicators. */
     static constexpr int kDotBottomMargin    = 14;   /**< Distance from the widget bottom edge to the dot row centre. */
