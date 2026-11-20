@@ -562,9 +562,12 @@ void FilterExpressionEdit::updateInlineMargins()
 void FilterExpressionEdit::updateRemoveEnabled()
 {
     // Always present; enabled only when the current text exactly matches a
-    // saved entry. Centralises logic the old edits duplicated in checkFilter().
-    const bool match = bookmarkModel_ && bookmarkModel_->contains(text());
+    // saved entry that can be removed, not one inherited from a parent profile.
+    // Centralises logic the old edits duplicated in checkFilter().
+    const bool match = bookmarkModel_ && bookmarkModel_->isRemovable(text());
     remove_action_->setEnabled(match);
+    const bool inherited = bookmarkModel_ && bookmarkModel_->contains(text()) && !match;
+    remove_action_->setToolTip(inherited ? tr("This filter is inherited from the parent profile. Remove it there.") : QString());
 }
 
 void FilterExpressionEdit::updateBookmarkState()

@@ -14,14 +14,54 @@
 
 #include <config.h>
 
-#include <QAbstractListModel>
+#include <ui/qt/models/inherited_rules_model.h>
+
 #include <QList>
 #include <QStringList>
 
 /**
- * @brief A list model for managing capture filters, display filters, and display macros.
+ * @brief A filter or macro in a FilterListModel.
  */
-class FilterListModel : public QAbstractListModel
+class FilterListItem : public ModelHelperTreeItem<FilterListItem>
+{
+public:
+    /**
+     * @brief Constructs a new FilterListItem.
+     * @param name The name of the filter.
+     * @param filter The expression of the filter.
+     * @param parent The parent item.
+     * @param source_profile The parent profile the filter is inherited from, empty for an own filter.
+     */
+    FilterListItem(const QString &name, const QString &filter, FilterListItem *parent,
+                   const QString &source_profile = QString());
+
+    /**
+     * @brief Copy constructor for FilterListItem.
+     * @param item The item to copy.
+     */
+    FilterListItem(const FilterListItem &item);
+
+    /** @brief The name of the filter. */
+    QString name_;
+
+    /** @brief The expression of the filter. */
+    QString filter_;
+
+    /** @brief The parent profile the filter is inherited from, empty for an own filter. */
+    QString source_profile_;
+
+    /** @brief Whether the filter comes from a parent profile; such a filter is read-only. @return true if inherited. */
+    bool isInherited() const { return !source_profile_.isEmpty(); }
+};
+
+/**
+ * @brief A list model for managing capture filters, display filters, and display macros.
+ *
+ * The profile's own filters come first, then the filters inherited from the
+ * parent profiles, as the inherit mode of the file selects. A filter is
+ * identified by its name and its expression, a macro by its name only.
+ */
+class FilterListModel : public InheritedRulesModel<FilterListItem>
 {
     Q_OBJECT
 
@@ -48,6 +88,8 @@ public:
      */
     explicit FilterListModel(QObject * parent = Q_NULLPTR);
 
+    ~FilterListModel() override;
+
     /**
      * @brief Enumerates the columns for the filter list model.
      */
@@ -70,6 +112,21 @@ public:
          */
         FilterListValue(QString n, QString e) : name(n), expression(e) {}
     };
+
+    /**
+     * @brief The configuration file name of a filter list type.
+     * @param type The type.
+     * @return The file name, e.g. "dfilters".
+     */
+    static const char *fileName(FilterListType type);
+
+    /**
+     * @brief Reads the filters of a file.
+     * @param path The file.
+     * @param ok Set to false if the file can't be read, may be NULL.
+     * @return The filters, in the order of the file.
+     */
+    static QList<FilterListValue> readFile(const QString &path, bool *ok = nullptr);
 
     /**
      * @brief Sets the filter type for this model.
@@ -98,30 +155,37 @@ public:
     QModelIndex findByExpression(QString expression);
 
     /**
-     * @brief Adds a new filter to the list.
+     * @brief Adds a new filter after the profile's own filters.
+     *
+     * Nothing is added while only the parent's filters are used.
      * @param name The name of the new filter.
      * @param expression The expression string of the new filter.
-     * @return The model index of the newly added filter.
+     * @return The model index of the newly added filter, or an invalid index.
      */
     QModelIndex addFilter(QString name, QString expression);
 
     /**
-     * @brief Removes a filter at the specified index.
+     * @brief Removes a filter at the specified index; inherited filters are not removed.
      * @param idx The model index of the filter to remove.
      */
     void removeFilter(QModelIndex idx);
 
     /**
-     * @brief Saves the current list of filters to persistent storage.
+     * @brief Adds the filters of a file, e.g. of another profile, to the profile's own filters.
+     * @param path The file.
+     * @param err Set to an error message on failure.
+     * @return true on success.
      */
-    void saveList();
+    bool importFile(const QString &path, QString &err);
 
     /**
-     * @brief Returns the number of rows under a given parent.
-     * @param parent The parent model index (defaults to an invalid QModelIndex).
-     * @return The number of rows.
+     * @brief Saves the profile's own filters to persistent storage.
+     *
+     * The inherited filters are not saved. A file without filters is
+     * written only if the file had filters, or the filters replace the global
+     * filters, so a profile without a file keeps using the inherited filters.
      */
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    void saveList();
 
     /**
      * @brief Returns the number of columns under a given parent.
@@ -164,36 +228,61 @@ public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /**
+     * @brief Removes the profile's own filters; inherited filters are not removed.
+     * @param row The first row.
+     * @param count The number of rows.
+     * @param parent The parent model index.
+     * @return True if rows were removed.
+     */
+    virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+
+    /**
      * @brief Retrieves the drop actions supported by the model.
      * @return The supported drop actions.
      */
     virtual Qt::DropActions supportedDropActions() const override;
 
-    /**
-     * @brief Moves filters, as RowMoveTreeView and the UAT model do.
-     * @param sourceParent Unused, the filters are a flat list.
-     * @param sourceRow The first filter to move.
-     * @param count The number of filters to move.
-     * @param destinationParent Unused, the filters are a flat list.
-     * @param destinationChild The row where the first filter moved up, or the
-     * last filter moved down, ends up.
-     * @return true if the filters were moved.
-     */
-    virtual bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count,
-                  const QModelIndex &destinationParent, int destinationChild) override;
+protected:
+    QList<FilterListItem *> readInherited(profile_inherit_e mode) override;
+    void leavingInheritMode(profile_inherit_e mode) override;
+    QList<FilterListItem *> readOwnRows() override;
+    void enteredInheritMode(profile_inherit_e mode) override;
 
 private:
 
     /** The current type of the filter list. */
     FilterListModel::FilterListType type_;
 
-    /** The underlying list storing the filter values. */
-    QList<struct FilterListModel::FilterListValue> storage;
+    /** The global filters, while not shown. */
+    QList<FilterListItem *> default_rules_;
+
+    /** Set if the own filters are the global filters, used without a file. */
+    bool own_from_globals_;
+
+    /** Set if the profile has a file of its own. */
+    bool own_file_exists_;
+
+    /**
+     * @brief Reads the profile's own filters into the model, which must be empty.
+     */
+    void loadOwn();
 
     /**
      * @brief Reloads the filter list from persistent storage.
      */
     void reload();
+
+    /**
+     * @brief The path the own filters are written to.
+     * @return The path.
+     */
+    QString ownFilePath() const;
+
+    /**
+     * @brief The global filters, e.g. used by a profile without a file.
+     * @return New items.
+     */
+    QList<FilterListItem *> readGlobals() const;
 };
 
 #endif // FILTER_LIST_MODEL_h

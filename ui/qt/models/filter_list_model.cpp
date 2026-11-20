@@ -9,6 +9,7 @@
  */
 
 #include <wsutil/filesystem.h>
+#include <wsutil/filter_files.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/models/filter_list_model.h>
@@ -20,59 +21,68 @@
 #include <QRegularExpression>
 #include <QDir>
 
-/*
- * Capture filter file name.
- */
-#define CFILTER_FILE_NAME     "cfilters"
+FilterListItem::FilterListItem(const QString &name, const QString &filter, FilterListItem *parent,
+                               const QString &source_profile) :
+    ModelHelperTreeItem<FilterListItem>(parent),
+    name_(name),
+    filter_(filter),
+    source_profile_(source_profile)
+{
+}
 
-/*
- * Display filter file name.
- */
-#define DFILTER_FILE_NAME     "dfilters"
-
-/*
- * Display filter macros file name.
- */
-#define DMACROS_FILE_NAME     "dmacros"
+FilterListItem::FilterListItem(const FilterListItem &item) :
+    ModelHelperTreeItem<FilterListItem>(item.parent_),
+    name_(item.name_),
+    filter_(item.filter_),
+    source_profile_(item.source_profile_)
+{
+}
 
 FilterListModel::FilterListModel(QObject * parent) :
-    QAbstractListModel(parent),
-    type_(FilterListModel::Display)
+    FilterListModel(FilterListModel::Display, parent)
 {
-    reload();
 }
 
 FilterListModel::FilterListModel(FilterListModel::FilterListType type, QObject * parent) :
-    QAbstractListModel(parent),
-    type_(type)
+    InheritedRulesModel<FilterListItem>(fileName(type), parent),
+    type_(type),
+    own_from_globals_(false),
+    own_file_exists_(false)
 {
-    reload();
+    root_ = new FilterListItem(QString(), QString(), nullptr);
+    loadOwn();
+    initInherited();
 }
 
-void FilterListModel::reload()
+FilterListModel::~FilterListModel()
 {
-    storage.clear();
+    qDeleteAll(default_rules_);
+}
 
-    const char *cfile;
-
-    switch (type_) {
-        case FilterListModel::Capture: cfile = CFILTER_FILE_NAME; break;
-        case FilterListModel::Display: cfile = DFILTER_FILE_NAME; break;
-        case FilterListModel::DisplayMacro: cfile = DMACROS_FILE_NAME; break;
+const char *FilterListModel::fileName(FilterListModel::FilterListType type)
+{
+    switch (type) {
+        case FilterListModel::Capture: return CFILTER_FILE_NAME;
+        case FilterListModel::Display: return DFILTER_FILE_NAME;
+        case FilterListModel::DisplayMacro: return DMACROS_FILE_NAME;
         default: ws_assert_not_reached();
     }
+    return NULL;
+}
 
-    /* Try personal config file first */
-    QString fileName = gchar_free_to_qstring(get_persconffile_path(cfile, true, application_configuration_environment_prefix()));
-    if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
-        fileName = gchar_free_to_qstring(get_datafile_path(cfile, application_configuration_environment_prefix()));
-    if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
-        return;
+QList<FilterListModel::FilterListValue> FilterListModel::readFile(const QString &path, bool *ok)
+{
+    QList<FilterListValue> values;
 
-    QFile file(fileName);
-    /* Still can use the model, just have to start from an empty set */
-    if (! file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
+    if (ok)
+        *ok = true;
+
+    QFile file(path);
+    if (! file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        if (ok)
+            *ok = false;
+        return values;
+    }
 
     QTextStream in(&file);
     QRegularExpression rx("\\s*\\\"\\s*(.*?)\\s*\\\"\\s(.*)");
@@ -91,15 +101,78 @@ void FilterListModel::reload()
         {
             QRegularExpressionMatch match = rx.match(line);
             if (match.hasMatch()) {
-                addFilter(match.captured(1).trimmed(), match.captured(2).trimmed());
+                QString name = match.captured(1).trimmed();
+                QString expression = match.captured(2).trimmed();
+                if (name.length() > 0 && expression.length() > 0)
+                    values << FilterListValue(name, expression);
             }
         }
     }
+
+    return values;
+}
+
+QList<FilterListItem *> FilterListModel::readGlobals() const
+{
+    QList<FilterListItem *> rules;
+    QString path = gchar_free_to_qstring(get_datafile_path(fileName(type_), application_configuration_environment_prefix()));
+    if (path.length() <= 0 || ! QFileInfo::exists(path))
+        return rules;
+
+    for (const FilterListValue &value : readFile(path))
+        rules << new FilterListItem(value.name, value.expression, nullptr);
+    return rules;
+}
+
+void FilterListModel::loadOwn()
+{
+    QString path = gchar_free_to_qstring(get_persconffile_path(fileName(type_), true, application_configuration_environment_prefix()));
+    own_file_exists_ = path.length() > 0 && QFileInfo::exists(path);
+
+    // Without a file, a profile using its own filters only uses the global filters
+    own_from_globals_ = inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY && !own_file_exists_;
+
+    QList<FilterListItem *> rules;
+    if (own_file_exists_) {
+        for (const FilterListValue &value : readFile(path))
+            rules << new FilterListItem(value.name, value.expression, nullptr);
+    } else if (own_from_globals_) {
+        rules = readGlobals();
+    }
+
+    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
+        // The own filters are not in use
+        qDeleteAll(rules);
+    } else {
+        for (FilterListItem *rule : rules) {
+            rule->setParentItem(root_);
+            root_->appendChild(rule);
+        }
+    }
+
+    own_edited_ = false;
+}
+
+void FilterListModel::reload()
+{
+    refreshing_inherited_ = true;
+    beginResetModel();
+    delete root_;
+    root_ = new FilterListItem(QString(), QString(), nullptr);
+    qDeleteAll(default_rules_);
+    default_rules_.clear();
+    loadOwn();
+    loadInherited();
+    endResetModel();
+    refreshing_inherited_ = false;
+
+    refreshInherited();
 }
 
 void FilterListModel::setFilterType(FilterListModel::FilterListType type)
 {
     type_ = type;
+    inherit_mode_ = profile_get_inherit(application_configuration_environment_prefix(), NULL, fileName(type_));
     reload();
 }
 
@@ -108,9 +181,78 @@ FilterListModel::FilterListType FilterListModel::filterType() const
     return type_;
 }
 
-int FilterListModel::rowCount(const QModelIndex &/* parent */) const
+/* The data of profile_inherit_read_layers() reading the filters of the parent profiles */
+struct FilterListReadLayer {
+    QList<FilterListItem *> rules;
+};
+
+static bool
+filter_list_read_layer(const profile_inherit_layer_t *layer, const char *path, const char *,
+                       profile_inherit_seen_t *seen, void *user_data, char **err)
 {
-    return static_cast<int>(storage.count());
+    FilterListReadLayer *data = static_cast<FilterListReadLayer *>(user_data);
+    bool ok;
+    QList<FilterListModel::FilterListValue> values = FilterListModel::readFile(QString::fromUtf8(path), &ok);
+    if (!ok) {
+        *err = ws_strdup_printf("Could not read \"%s\".", path);
+        return false;
+    }
+
+    for (const FilterListModel::FilterListValue &value : values) {
+        QByteArray name = value.name.toUtf8();
+        // A macro is found by its name, a filter also by its expression
+        if (profile_inherit_seen_check(seen, name.constData()))
+            continue;
+        data->rules << new FilterListItem(value.name, value.expression, nullptr, QString::fromUtf8(layer->profile_name));
+    }
+    return true;
+}
+
+QList<FilterListItem *> FilterListModel::readInherited(profile_inherit_e mode)
+{
+    // The own filters are not seen here: an own filter hides an inherited
+    // filter only while it is there, see refreshInherited()
+    FilterListReadLayer data;
+    profile_inherit_seen_t *seen = profile_inherit_seen_new();
+    char *err = NULL;
+    if (!profile_inherit_read_layers(application_configuration_environment_prefix(), fileName(type_), NULL, true,
+                                     mode, seen, filter_list_read_layer, &data, &err)) {
+        g_free(err);
+    }
+    profile_inherit_seen_free(seen);
+    return data.rules;
+}
+
+QList<FilterListItem *> FilterListModel::readOwnRows()
+{
+    QList<FilterListItem *> rules;
+    QString path = gchar_free_to_qstring(get_persconffile_path(fileName(type_), true, application_configuration_environment_prefix()));
+    if (path.length() > 0 && QFileInfo::exists(path)) {
+        for (const FilterListValue &value : readFile(path))
+            rules << new FilterListItem(value.name, value.expression, nullptr);
+    }
+    return rules;
+}
+
+void FilterListModel::leavingInheritMode(profile_inherit_e mode)
+{
+    if (mode == PROFILE_INHERIT_PROFILE_ONLY && own_from_globals_ && !own_edited_) {
+        // Unchanged global filters are not the profile's own; inherit instead
+        default_rules_ << takeOwnRows();
+    }
+}
+
+void FilterListModel::enteredInheritMode(profile_inherit_e mode)
+{
+    if (mode == PROFILE_INHERIT_PROFILE_ONLY && ownRowCount() == 0 && !own_file_exists_) {
+        // Without own filters or a file, the profile uses the global filters,
+        // as when loading them
+        if (default_rules_.isEmpty())
+            default_rules_ = readGlobals();
+        insertOwnRows(default_rules_);
+        own_from_globals_ = true;
+        own_edited_ = false;
+    }
 }
 
 int FilterListModel::columnCount(const QModelIndex &/* parent */) const
@@ -149,16 +291,40 @@ QVariant FilterListModel::data(const QModelIndex &index, int role) const
     if (! index.isValid() || index.row() >= rowCount())
         return QVariant();
 
-    auto row = storage.at(index.row());
-    if (role == Qt::DisplayRole) {
+    FilterListItem *row = root_->child(index.row());
+    if (row == nullptr)
+        return QVariant();
+
+    // The lock, italics and tool tip of an inherited filter
+    bool handled;
+    QVariant inherited_data = inheritedData(row, index, role, &handled);
+    if (handled)
+        return inherited_data;
+
+    switch (role) {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
         switch (index.column()) {
         case FilterListModel::ColumnName:
-            return row.name;
+            return row->name_;
         case FilterListModel::ColumnExpression:
-            return row.expression;
+            return row->filter_;
         default:
             break;
         }
+        break;
+    case Qt::ForegroundRole:
+        if (row->isInherited())
+            return ProfileInheritComboBox::inheritedData(role, row->source_profile_);
+        break;
+    case Qt::DecorationRole:
+        // Own filters get room for the lock only when inherited filters are
+        // shown, so the first column lines up
+        if (index.column() == ColumnName && ownRowCount() < rowCount())
+            return ProfileInheritComboBox::inheritedPlaceholderIcon();
+        break;
+    default:
+        break;
     }
 
     return QVariant();
@@ -169,27 +335,31 @@ bool FilterListModel::setData(const QModelIndex &index, const QVariant &value, i
     if (! index.isValid() || index.row() >= rowCount() || role != Qt::EditRole)
         return false;
 
-    auto row = storage.at(index.row());
+    FilterListItem *row = root_->child(index.row());
+    if (row == nullptr || row->isInherited())
+        return false;
 
     switch (index.column()) {
     case FilterListModel::ColumnName:
         if (value.toString().contains("\""))
             return false;
-        storage[index.row()].name = value.toString();
+        row->name_ = value.toString();
         break;
     case FilterListModel::ColumnExpression:
-        storage[index.row()].expression = value.toString();
+        row->filter_ = value.toString();
         break;
     default:
         return false;
     }
 
+    own_edited_ = true;
+    emit dataChanged(index, index, QVector<int>() << role);
     return true;
 }
 
 Qt::ItemFlags FilterListModel::flags(const QModelIndex &index) const
 {
-    Qt::ItemFlags fl = QAbstractListModel::flags(index);
+    Qt::ItemFlags fl = QAbstractItemModel::flags(index);
     fl |= Qt::ItemIsDropEnabled;
 
     if (! index.isValid() || index.row() >= rowCount())
@@ -197,18 +367,30 @@ Qt::ItemFlags FilterListModel::flags(const QModelIndex &index) const
 
     fl |= Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
 
-    return fl;
+    // Inherited filters are read-only
+    return inheritedFlags(index, fl);
 }
+
 QModelIndex FilterListModel::addFilter(QString name, QString expression)
 {
     if (name.length() == 0 || expression.length() == 0)
         return QModelIndex();
 
-    beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    storage.emplace_back(name, expression);
+    // New filters go into the own filters, which are not used with the parent's filters only
+    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
+        return QModelIndex();
+
+    // After the own filters, before the inherited filters
+    int row = ownRowCount();
+    beginInsertRows(QModelIndex(), row, row);
+    // Don't touch the inherited rows while inserting
+    refreshing_inherited_ = true;
+    root_->insertChild(row, new FilterListItem(name, expression, root_));
+    own_edited_ = true;
+    refreshing_inherited_ = false;
     endInsertRows();
 
-    return index(rowCount() - 1, 0);
+    return index(row, 0);
 }
 
 QModelIndex FilterListModel::findByName(QString name)
@@ -218,7 +400,7 @@ QModelIndex FilterListModel::findByName(QString name)
 
     for (int cnt = 0; cnt < rowCount(); cnt++)
     {
-        if (storage.at(cnt).name == name)
+        if (root_->child(cnt)->name_ == name)
             return index(cnt, 0);
     }
 
@@ -232,7 +414,7 @@ QModelIndex FilterListModel::findByExpression(QString expression)
 
     for (int cnt = 0; cnt < rowCount(); cnt++)
     {
-        if (storage.at(cnt).expression == expression)
+        if (root_->child(cnt)->filter_ == expression)
             return index(cnt, 0);
     }
 
@@ -244,72 +426,92 @@ void FilterListModel::removeFilter(QModelIndex idx)
     if (! idx.isValid() || idx.row() >= rowCount())
         return;
 
-    beginRemoveRows(QModelIndex(), idx.row(), idx.row());
-    storage.removeAt(idx.row());
-    endRemoveRows();
+    removeRows(idx.row(), 1);
 }
 
-void FilterListModel::saveList()
+bool FilterListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    const char *cfile;
-    QString filename;
+    // Only own filters can be removed
+    int own_count = ownRowCount();
+    if (parent.isValid() || row < 0 || row >= own_count)
+        return false;
+    count = qMin(count, own_count - row);
+    if (count <= 0)
+        return false;
 
-    switch (type_) {
-        case Capture: cfile = CFILTER_FILE_NAME; break;
-        case Display: cfile = DFILTER_FILE_NAME; break;
-        case DisplayMacro: cfile = DMACROS_FILE_NAME; break;
-        default: ws_assert_not_reached();
+    beginRemoveRows(parent, row, row + count - 1);
+    for (int i = 0; i < count; i++)
+        root_->removeChild(row);
+    own_edited_ = true;
+    endRemoveRows();
+    return true;
+}
+
+bool FilterListModel::importFile(const QString &path, QString &err)
+{
+    bool ok;
+    QList<FilterListValue> values = readFile(path, &ok);
+    if (!ok) {
+        err = tr("Could not read \"%1\".").arg(path);
+        return false;
     }
 
+    for (const FilterListValue &value : values)
+        addFilter(value.name, value.expression);
+    return true;
+}
+
+QString FilterListModel::ownFilePath() const
+{
     //Use the model object to pull the profile information
     ProfileModel model;
     QString profilePath;
     const ProfileItem* currentProfile = model.getCurrentProfile();
     if (currentProfile != Q_NULLPTR)
         profilePath = currentProfile->getProfilePath();
-    filename = QStringLiteral("%1%2%3").arg(profilePath).arg("/").arg(cfile);
+    return QStringLiteral("%1%2%3").arg(profilePath).arg("/").arg(fileName(type_));
+}
+
+void FilterListModel::saveList()
+{
+    // The profile's file is left as it is when only the parent's filters are used
+    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
+        return;
+
+    QList<FilterListItem *> rules;
+    for (int row = 0; row < ownRowCount(); row++)
+        rules << root_->child(row);
+
+    QString filename = ownFilePath();
+
+    // A file without filters is written only if the filters it replaces had
+    // filters: the file, or the global filters used without a file. A
+    // profile without a file keeps using the global or inherited filters.
+    if (rules.isEmpty() && !(own_from_globals_ && inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY)) {
+        if (!QFileInfo::exists(filename) || readFile(filename).isEmpty())
+            return;
+    }
+
     QFile file(filename);
 
     if (! file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
     QTextStream out(&file);
-    for (int row = 0; row < rowCount(); row++)
+    for (const FilterListItem *rule : rules)
     {
-        QString line = QStringLiteral("\"%1\"").arg(index(row, ColumnName).data().toString().trimmed());
-        line.append(join_lines(QStringLiteral(" %1").arg(index(row, ColumnExpression).data().toString())));
+        QString line = QStringLiteral("\"%1\"").arg(rule->name_.trimmed());
+        line.append(join_lines(QStringLiteral(" %1").arg(rule->filter_)));
 
         out << line << Qt::endl;
     }
 
     file.close();
+    own_file_exists_ = true;
+    ownSaved();
 }
 
 Qt::DropActions FilterListModel::supportedDropActions() const
 {
     return Qt::MoveAction;
-}
-
-bool FilterListModel::moveRows(const QModelIndex &, int sourceRow, int count,
-                              const QModelIndex &, int destinationChild)
-{
-    int row_count = rowCount();
-    if (count <= 0 || sourceRow < 0 || sourceRow + count > row_count ||
-        destinationChild < 0 || destinationChild >= row_count ||
-        (destinationChild >= sourceRow && destinationChild < sourceRow + count))
-        return false;
-
-    bool up = destinationChild < sourceRow;
-    if (!beginMoveRows(QModelIndex(), sourceRow, sourceRow + count - 1, QModelIndex(),
-                       up ? destinationChild : destinationChild + 1))
-        return false;
-
-    for (int i = 0; i < count; i++) {
-        if (up)
-            storage.move(sourceRow + i, destinationChild + i);
-        else
-            storage.move(sourceRow, destinationChild);
-    }
-    endMoveRows();
-    return true;
 }

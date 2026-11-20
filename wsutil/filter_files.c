@@ -18,6 +18,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/profile_inherit.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
@@ -38,6 +39,7 @@ add_filter_entry(GList *fl, const char *filt_name, const char *filt_expr)
     filt         = g_new(filter_def, 1);
     filt->name   = g_strdup(filt_name);
     filt->strval = g_strdup(filt_expr);
+    filt->source_profile = NULL;
     return g_list_prepend(fl, filt);
 }
 
@@ -47,6 +49,7 @@ free_filter_entry(void * data)
     filter_def *filt = (filter_def*)data;
     g_free(filt->name);
     g_free(filt->strval);
+    g_free(filt->source_profile);
     g_free(filt);
 }
 
@@ -64,6 +67,7 @@ remove_filter_entry(GList *fl, GList *fl_entry)
     filt = (filter_def *) fl_entry->data;
     g_free(filt->name);
     g_free(filt->strval);
+    g_free(filt->source_profile);
     g_free(filt);
     return g_list_remove_link(fl, fl_entry);
 }
@@ -98,78 +102,38 @@ getc_crlf(FILE *ff)
     return c;
 }
 
-filter_list_t *
-ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix)
+static const char *
+filter_list_file_name(filter_list_type_t list_type, const char **description)
 {
-    const char *ff_name, *ff_description;
-    char       *ff_path;
-    FILE       *ff;
-    GList      *flp = NULL;
+    switch (list_type) {
+
+        case CFILTER_LIST:
+            *description = "capture filter";
+            return CFILTER_FILE_NAME;
+
+        case DFILTER_LIST:
+            *description = "display filter";
+            return DFILTER_FILE_NAME;
+
+        case DMACROS_LIST:
+            *description = "display filter macro";
+            return DMACROS_FILE_NAME;
+    }
+
+    ws_assert_not_reached();
+}
+
+/*
+ * Read the filters of an open file, prepending them to flp.
+ */
+static GList *
+read_filter_file(FILE *ff, const char *ff_path, const char *ff_description, GList *flp)
+{
     int         c;
     char       *filt_name, *filt_expr;
     size_t      filt_name_len, filt_expr_len;
     size_t      filt_name_index, filt_expr_index;
     int         line = 1;
-
-    filter_list_t *list = g_new(filter_list_t, 1);
-    list->type = list_type;
-    list->list = NULL;
-
-    switch (list_type) {
-
-        case CFILTER_LIST:
-            ff_name = CFILTER_FILE_NAME;
-            ff_description = "capture filter";
-            break;
-
-        case DFILTER_LIST:
-            ff_name = DFILTER_FILE_NAME;
-            ff_description = "display filter";
-            break;
-
-        case DMACROS_LIST:
-            ff_name = DMACROS_FILE_NAME;
-            ff_description = "display filter macro";
-            break;
-
-        default:
-            ws_assert_not_reached();
-    }
-
-    /* try to open personal "cfilters"/"dfilters" file */
-    ff_path = get_persconffile_path(ff_name, true, app_env_var_prefix);
-    if ((ff = ws_fopen(ff_path, "r")) == NULL) {
-        /*
-         * Did that fail because the file didn't exist?
-         */
-        if (errno != ENOENT) {
-            /*
-             * No.  Just give up.
-             */
-            report_warning("Could not open your %s file\n\"%s\": %s.",
-                    ff_description, ff_path, g_strerror(errno));
-            g_free(ff_path);
-            return list;
-        }
-
-        /*
-         * Yes. Try to open the global "cfilters/dfilters" file.
-         */
-        g_free(ff_path);
-        ff_path = get_datafile_path(ff_name, app_env_var_prefix);
-        if ((ff = ws_fopen(ff_path, "r")) == NULL) {
-            /*
-             * Well, that didn't work, either.  Just give up.
-             * Report an error if the file existed but we couldn't open it.
-             */
-            if (errno != ENOENT) {
-                report_warning("Could not open your %s file\n\"%s\": %s.",
-                        ff_description, ff_path, g_strerror(errno));
-            }
-            g_free(ff_path);
-            return list;
-        }
-    }
 
     /* Allocate the filter name buffer. */
     filt_name_len = INIT_BUF_SIZE;
@@ -321,12 +285,152 @@ ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix
         report_warning("Error reading your %s file\n\"%s\": %s.",
                 ff_description, ff_path, g_strerror(errno));
     }
-    g_free(ff_path);
-    fclose(ff);
     g_free(filt_name);
     g_free(filt_expr);
-    list->list = flp;
+    return flp;
+}
+
+/*
+ * Read the profile's own filters. A profile using the parent's filters only
+ * has none, and only a profile using its own filters only falls back to the
+ * global file.
+ */
+static filter_list_t *
+filter_list_read_own(filter_list_type_t list_type, const char* app_env_var_prefix, profile_inherit_e mode)
+{
+    const char *ff_name, *ff_description;
+    char       *ff_path;
+    FILE       *ff;
+
+    filter_list_t *list = g_new(filter_list_t, 1);
+    list->type = list_type;
+    list->list = NULL;
+
+    ff_name = filter_list_file_name(list_type, &ff_description);
+
+    if (mode == PROFILE_INHERIT_PARENT_ONLY)
+        return list;
+
+    /* try to open personal "cfilters"/"dfilters" file */
+    ff_path = get_persconffile_path(ff_name, true, app_env_var_prefix);
+    if ((ff = ws_fopen(ff_path, "r")) == NULL) {
+        /*
+         * Did that fail because the file didn't exist?
+         */
+        if (errno != ENOENT) {
+            /*
+             * No.  Just give up.
+             */
+            report_warning("Could not open your %s file\n\"%s\": %s.",
+                    ff_description, ff_path, g_strerror(errno));
+            g_free(ff_path);
+            return list;
+        }
+
+        g_free(ff_path);
+        if (mode != PROFILE_INHERIT_PROFILE_ONLY) {
+            /* The global filters come from the parent profiles */
+            return list;
+        }
+
+        /*
+         * Yes. Try to open the global "cfilters/dfilters" file.
+         */
+        ff_path = get_datafile_path(ff_name, app_env_var_prefix);
+        if ((ff = ws_fopen(ff_path, "r")) == NULL) {
+            /*
+             * Well, that didn't work, either.  Just give up.
+             * Report an error if the file existed but we couldn't open it.
+             */
+            if (errno != ENOENT) {
+                report_warning("Could not open your %s file\n\"%s\": %s.",
+                        ff_description, ff_path, g_strerror(errno));
+            }
+            g_free(ff_path);
+            return list;
+        }
+    }
+
+    list->list = read_filter_file(ff, ff_path, ff_description, NULL);
+    g_free(ff_path);
+    fclose(ff);
     return list;
+}
+
+typedef struct {
+    filter_list_type_t type;
+    const char *description;
+    GList *entries;     /* The inherited filters, in reverse order */
+} read_layer_data_t;
+
+/* Read the filters of one parent profile */
+static bool
+read_layer_filters(const profile_inherit_layer_t *layer, const char *path, const char *filename _U_,
+                   profile_inherit_seen_t *seen, void *user_data, char **err)
+{
+    read_layer_data_t *data = (read_layer_data_t *)user_data;
+    FILE *ff;
+
+    if ((ff = ws_fopen(path, "r")) == NULL) {
+        *err = ws_strdup_printf("Could not open the %s file \"%s\": %s.",
+                                data->description, path, g_strerror(errno));
+        return false;
+    }
+    /* In the order of the file */
+    GList *layer_list = g_list_reverse(read_filter_file(ff, path, data->description, NULL));
+    fclose(ff);
+
+    for (GList *item = layer_list; item; item = g_list_next(item)) {
+        filter_def *filt = (filter_def *)item->data;
+
+        if (profile_inherit_seen_check(seen, filt->name)) {
+            free_filter_entry(filt);
+            continue;
+        }
+        filt->source_profile = g_strdup(layer->profile_name);
+        data->entries = g_list_prepend(data->entries, filt);
+    }
+    g_list_free(layer_list);
+    return true;
+}
+
+filter_list_t *
+ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix)
+{
+    const char *ff_name, *ff_description;
+
+    ff_name = filter_list_file_name(list_type, &ff_description);
+    profile_inherit_e mode = profile_get_inherit(app_env_var_prefix, NULL, ff_name);
+
+    filter_list_t *list = filter_list_read_own(list_type, app_env_var_prefix, mode);
+    if (mode == PROFILE_INHERIT_PROFILE_ONLY)
+        return list;
+
+    /* The profile's own filters come first, and win over duplicates from parents */
+    profile_inherit_seen_t *seen = profile_inherit_seen_new();
+    for (GList *item = list->list; item; item = g_list_next(item)) {
+        const filter_def *filt = (const filter_def *)item->data;
+        profile_inherit_seen_check(seen, filt->name);
+    }
+    profile_inherit_seen_next(seen);
+
+    read_layer_data_t data = { list_type, ff_description, NULL };
+    char *err = NULL;
+    if (!profile_inherit_read_layers(app_env_var_prefix, ff_name, NULL, true, mode, seen,
+                                     read_layer_filters, &data, &err)) {
+        report_warning("%s", err);
+    }
+    g_free(err);
+    profile_inherit_seen_free(seen);
+
+    list->list = g_list_concat(list->list, g_list_reverse(data.entries));
+    return list;
+}
+
+filter_list_t *
+ws_filter_list_read_own(filter_list_type_t list_type, const char* app_env_var_prefix)
+{
+    return filter_list_read_own(list_type, app_env_var_prefix, PROFILE_INHERIT_PROFILE_ONLY);
 }
 
 /*
@@ -382,27 +486,7 @@ ws_filter_list_write(filter_list_t *list, const char* app_env_var_prefix)
     FILE        *ff;
     unsigned char      *p, c;
 
-    switch (list->type) {
-
-        case CFILTER_LIST:
-            ff_name = CFILTER_FILE_NAME;
-            ff_description = "capture filter";
-            break;
-
-        case DFILTER_LIST:
-            ff_name = DFILTER_FILE_NAME;
-            ff_description = "display filter";
-            break;
-
-        case DMACROS_LIST:
-            ff_name = DMACROS_FILE_NAME;
-            ff_description = "display filter macro";
-            break;
-
-        default:
-            ws_assert_not_reached();
-            return;
-    }
+    ff_name = filter_list_file_name(list->type, &ff_description);
     fl = list->list;
 
     /* Create the directory that holds personal configuration files,
@@ -432,6 +516,12 @@ ws_filter_list_write(filter_list_t *list, const char* app_env_var_prefix)
     flpp = g_list_first(fl);
     while (flpp) {
         filt = (filter_def *) flpp->data;
+
+        /* Filters inherited from parent profiles are not written to this profile */
+        if (filt->source_profile != NULL) {
+            flpp = flpp->next;
+            continue;
+        }
 
         /* Write out the filter name as a quoted string; escape any quotes
            or backslashes. */

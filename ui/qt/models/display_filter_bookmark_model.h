@@ -33,10 +33,11 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     bool contains(const QString &expression) const override;
+    bool isRemovable(const QString &expression) const override;
 
-    /** @brief Adds a saved filter and persists the list. */
+    /** @brief Adds a saved filter to the profile's own filters and persists the list. */
     void addBookmark(const QString &name, const QString &expression);
-    /** @brief Removes the saved filter matching @p expression and persists. */
+    /** @brief Removes the saved filter matching @p expression and persists; an inherited filter is kept. */
     void removeBookmark(const QString &expression);
 
 public slots:
@@ -44,6 +45,10 @@ public slots:
     void reload();
 
 private:
+    /** @brief Fills rows_ with the rows of the filters in use, not those overridden by an own filter. */
+    void updateRows();
+
+    QList<int> rows_; /**< The rows of list_ in use. */
     FilterListModel *list_; /**< Underlying display saved-filter store. */
 };
 
