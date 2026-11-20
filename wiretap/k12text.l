@@ -128,6 +128,8 @@ typedef struct {
 	unsigned junk_chars;
 	char* error_str;
 	uint64_t file_bytes_read;
+	uint64_t input_bytes;	/* bytes read from fh */
+	uint64_t max_input;	/* read no more than this; then act as if at EOF */
 	bool ok_frame;
 } k12text_state_t;
 
@@ -147,7 +149,13 @@ typedef struct {
 }
 #define YY_INPUT(buf,result,max_size) { \
 	k12text_state_t *scanner_state = k12text_get_extra(yyscanner); \
-	int c = file_getc(scanner_state->fh); \
+	int c; \
+	if (scanner_state->input_bytes >= scanner_state->max_input) \
+		c = EOF; \
+	else { \
+		c = file_getc(scanner_state->fh); \
+		scanner_state->input_bytes++; \
+	} \
 	if (c == EOF) { \
 		scanner_state->err = file_error(scanner_state->fh, \
 		    &scanner_state->err_info); \
@@ -300,7 +308,7 @@ k12text_set_headers(wtap_rec *rec, k12text_state_t *state,
 
 static bool
 k12text_run_scanner(k12text_state_t *state, FILE_T fh, int start_state,
-    int *err, char **err_info)
+    uint64_t max_input, int *err, char **err_info)
 {
 	yyscan_t scanner = NULL;
 
@@ -322,6 +330,8 @@ k12text_run_scanner(k12text_state_t *state, FILE_T fh, int start_state,
 	state->junk_chars = 0;
 	state->error_str = NULL;
 	state->file_bytes_read=0;
+	state->input_bytes = 0;
+	state->max_input = max_input;
 	state->g_h=0;
 	state->g_m=0;
 	state->g_s=0;
@@ -363,7 +373,7 @@ k12text_read(wtap *wth, wtap_rec *rec, int *err, char ** err_info, int64_t *data
 	}
 	state.bb = (uint8_t*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
 
-	if (!k12text_run_scanner(&state, wth->fh, NEXT_FRAME, err, err_info)) {
+	if (!k12text_run_scanner(&state, wth->fh, NEXT_FRAME, UINT64_MAX, err, err_info)) {
 		g_free(state.bb);
 		return false;
 	}
@@ -403,7 +413,7 @@ k12text_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **e
 	}
 	state.bb = (uint8_t*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
 
-	if (!k12text_run_scanner(&state, wth->random_fh, NEXT_FRAME, err, err_info)) {
+	if (!k12text_run_scanner(&state, wth->random_fh, NEXT_FRAME, UINT64_MAX, err, err_info)) {
 		g_free(state.bb);
 		return false;
 	}
@@ -435,9 +445,21 @@ k12text_open(wtap *wth, int *err, char **err_info)
 {
 	k12text_t *k12text;
 	k12text_state_t state;
+	uint64_t max_input = UINT64_MAX;
+
+	/*
+	 * On a pipe, read no farther than the I/O routines guarantee we can
+	 * seek back over; otherwise neither we nor the open routines tried
+	 * after us could seek back to the beginning. (The scanner gives up
+	 * after MAX_JUNK characters that aren't the start of a frame, but
+	 * that can be more.)
+	 */
+	if (wth->ispipe) {
+		max_input = file_bufsize(wth->fh);
+	}
 
 	state.bb = (uint8_t*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
-	if (!k12text_run_scanner(&state, wth->fh, MAGIC, err, err_info)) {
+	if (!k12text_run_scanner(&state, wth->fh, MAGIC, max_input, err, err_info)) {
 		g_free(state.bb);
 		return WTAP_OPEN_ERROR;
 	}
