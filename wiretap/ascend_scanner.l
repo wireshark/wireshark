@@ -70,7 +70,13 @@ DIAG_OFF_FLEX()
 // NOLINTBEGIN(misc-no-recursion)
 
 static int ascend_yyinput(void *buf, ascend_state_t *parser_state) {
-    int c = file_getc(parser_state->fh);
+    int c;
+    if (parser_state->max_read != 0 &&
+        file_tell(parser_state->fh) >= parser_state->max_read) {
+        parser_state->err = WTAP_ERR_SHORT_READ;
+        return YY_NULL;
+    }
+    c = file_getc(parser_state->fh);
     if (c == EOF) {
         parser_state->err = file_error(parser_state->fh,
             &parser_state->err_info);

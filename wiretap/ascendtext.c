@@ -85,10 +85,14 @@ static int ascend_file_type_subtype = -1;
 
 void register_ascend(void);
 
+/* Give up looking for the next packet after reading this many bytes. */
+#define ASCEND_MAX_SEARCH 262144
+
 /* Seeks to the beginning of the next packet, and returns the
    byte offset at which the header for that packet begins.
+   Reads at most max_read bytes looking for it.
    Returns -1 on failure. */
-static int64_t ascend_find_next_packet(wtap *wth, int *err, char **err_info)
+static int64_t ascend_find_next_packet(wtap *wth, unsigned max_read, int *err, char **err_info)
 {
     int byte;
     int64_t date_off = -1, cur_off, packet_off;
@@ -97,7 +101,7 @@ static int64_t ascend_find_next_packet(wtap *wth, int *err, char **err_info)
     static const char ascend_date[] = ASCEND_DATE;
     size_t ascend_date_len           = sizeof ascend_date - 1; /* strlen of a constant string */
     size_t ascend_date_string_level;
-    unsigned excessive_read_count = 262144;
+    unsigned excessive_read_count = max_read;
 
     memset(&string_level, 0, sizeof(string_level));
     ascend_date_string_level = 0;
@@ -227,13 +231,22 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, char **err_info)
     ws_statb64 statbuf;
     ascend_t *ascend;
     wtap_rec rec;
+    unsigned max_read = ASCEND_MAX_SEARCH;
 
     /* We haven't yet allocated a data structure for our private stuff;
         set the pointer to null, so that "ascend_find_next_packet()" knows
         not to fill it in. */
     wth->priv = NULL;
 
-    offset = ascend_find_next_packet(wth, err, err_info);
+    /* On a pipe, read no farther than the I/O routines guarantee we can
+        seek back over, either looking for the first packet or parsing
+        it; otherwise neither we nor the open routines tried after us
+        could seek back to the beginning. */
+    if (wth->ispipe) {
+        max_read = MIN(max_read, file_bufsize(wth->fh));
+    }
+
+    offset = ascend_find_next_packet(wth, max_read, err, err_info);
     if (offset == -1) {
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
         return WTAP_OPEN_ERROR;  /* read error */
@@ -245,6 +258,7 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, char **err_info)
         fail; those will be I/O errors. */
     parser_state.fh = wth->fh;
     parser_state.pseudo_header = &rec.rec_header.packet_header.pseudo_header.ascend;
+    parser_state.max_read = max_read;
     if (!run_ascend_parser(buf, &parser_state, err, err_info)) {
         if (*err != WTAP_ERR_SHORT_READ && *err != WTAP_ERR_BAD_FILE) {
             /* An I/O error. */
@@ -420,7 +434,7 @@ static bool ascend_read(wtap *wth, wtap_rec *rec, int *err,
                     SEEK_SET, err) == -1)
         return false;
 
-    offset = ascend_find_next_packet(wth, err, err_info);
+    offset = ascend_find_next_packet(wth, ASCEND_MAX_SEARCH, err, err_info);
     if (offset == -1) {
         /* EOF or read error */
         return false;

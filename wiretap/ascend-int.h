@@ -57,6 +57,7 @@ typedef struct {
     bool                 saw_timestamp;      /**< Whether a timestamp record has been encountered for the current packet. */
     time_t               timestamp;          /**< Parsed wall-clock timestamp of the current packet record. */
     unsigned             line_len;           /**< Number of characters read on the current line. */
+    int64_t              max_read;           /**< If nonzero, act as if at end of file at this file offset. */
     int64_t              first_hexbyte;      /**< File offset of the first hex data byte of the current packet record. */
     uint32_t             wirelen;            /**< Original on-wire length of the current packet in bytes. */
     uint32_t             caplen;             /**< Captured length of the current packet in bytes. */
