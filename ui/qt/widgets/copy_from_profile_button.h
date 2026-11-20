@@ -30,8 +30,10 @@ public:
      * @param parent The parent widget, defaults to Q_NULLPTR.
      * @param profileFile The target configuration file to copy, defaults to an empty string.
      * @param toolTip The tooltip text for the button, defaults to an empty string.
+     * @param legacyFile A former name of the configuration file, used for profiles
+     * that do not have profileFile, defaults to an empty string.
      */
-    CopyFromProfileButton(QWidget * parent = Q_NULLPTR, QString profileFile = QString(), QString toolTip = QString());
+    CopyFromProfileButton(QWidget * parent = Q_NULLPTR, QString profileFile = QString(), QString toolTip = QString(), QString legacyFile = QString());
 
     /**
      * @brief Sets the target configuration filename for copying.
@@ -49,6 +51,9 @@ signals:
 private:
     /** The configuration filename associated with the copy operation. */
     QString filename_;
+
+    /** A former name of the configuration file, looked for when filename_ is missing. */
+    QString legacy_filename_;
 
     /** The drop-down menu containing available profiles. */
     QMenu * buttonMenu_;

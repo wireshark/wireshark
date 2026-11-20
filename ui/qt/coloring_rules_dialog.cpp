@@ -91,7 +91,9 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter, QS
     export_button_ = ui->buttonBox->addButton(tr("Export…"), QDialogButtonBox::ApplyRole);
     export_button_->setToolTip(tr("Save filters in a file."));
 
-    CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, COLORING_RULES_FILE_NAME, tr("Copy coloring rules from another profile."));
+    CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, COLORING_RULES_FILE_NAME,
+                                                                    tr("Copy coloring rules from another profile."),
+                                                                    COLORFILTERS_FILE_NAME);
     ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
     connect(copy_button, &CopyFromProfileButton::copyProfile, this, &ColoringRulesDialog::copyFromProfile);
 

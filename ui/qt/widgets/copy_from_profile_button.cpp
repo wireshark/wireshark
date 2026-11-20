@@ -19,8 +19,9 @@
 
 #include <functional>
 
-CopyFromProfileButton::CopyFromProfileButton(QWidget * parent, QString fileName, QString toolTip) :
+CopyFromProfileButton::CopyFromProfileButton(QWidget * parent, QString fileName, QString toolTip, QString legacyFileName) :
     QPushButton(parent),
+    legacy_filename_(legacyFileName),
     buttonMenu_(Q_NULLPTR)
 {
     setText(tr("Copy from"));
@@ -81,7 +82,13 @@ void CopyFromProfileButton::setFilename(QString filename)
                 addProfiles(subMenu, proxyIndex, global);
             }
 
-            QFileInfo fi(QDir(profile->getProfilePath()).filePath(filename));
+            QDir profileDir(profile->getProfilePath());
+            QFileInfo fi(profileDir.filePath(filename));
+            if (!fi.exists() && !legacy_filename_.isEmpty())
+            {
+                // A profile not yet converted may only have the file under its former name
+                fi.setFile(profileDir.filePath(legacy_filename_));
+            }
             bool hasFile = true;
 
             //Ignore current profile
