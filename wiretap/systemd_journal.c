@@ -96,10 +96,25 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err, char **err_info)
     bool got_rt_ts = false;
     bool got_mt_ts = false;
     int line_num;
+    int64_t max_read = INT64_MAX;
+    int64_t left;
+
+    /*
+     * On a pipe, read no farther than the I/O routines guarantee we can
+     * seek back over; otherwise neither we nor the open routines tried
+     * after us could seek back to the beginning.
+     */
+    if (wth->ispipe) {
+        max_read = file_bufsize(wth->fh);
+    }
 
     errno = 0;
     for (line_num = 0; line_num < MAX_EXPORT_ENTRY_LINES; line_num++) {
-        entry_line = file_gets(entry_buff, MAX_EXPORT_ENTRY_LENGTH, wth->fh);
+        left = max_read - file_tell(wth->fh);
+        if (left <= 0) {
+            break;
+        }
+        entry_line = file_gets(entry_buff, (int)MIN(MAX_EXPORT_ENTRY_LENGTH - 1, left) + 1, wth->fh);
         if (!entry_line) {
             break;
         }
@@ -126,6 +141,10 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err, char **err_info)
             uint8_t len_buf[8];
             uint64_t data_len;
 
+            if ((int64_t)sizeof len_buf > max_read - file_tell(wth->fh)) {
+                /* We couldn't seek back after reading it. */
+                break;
+            }
             if (!wtap_read_bytes(wth->fh, len_buf, sizeof len_buf, err, err_info)) {
                 g_free(entry_buff);
                 if (*err != WTAP_ERR_SHORT_READ)
@@ -137,6 +156,10 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err, char **err_info)
             if (data_len >= MAX_EXPORT_ENTRY_LENGTH) {
                 g_free(entry_buff);
                 return WTAP_OPEN_NOT_MINE;
+            }
+            if ((int64_t)data_len + 1 > max_read - file_tell(wth->fh)) {
+                /* We couldn't seek back after skipping it. */
+                break;
             }
             if (!wtap_read_bytes(wth->fh, NULL, (unsigned) data_len + 1, err, err_info)) {
                 g_free(entry_buff);
