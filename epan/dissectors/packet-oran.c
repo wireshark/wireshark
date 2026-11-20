@@ -410,6 +410,14 @@ static int hf_oran_num_ueid_se34;
 static int hf_oran_ueid_se34;
 static int hf_oran_num_port_list_index;
 static int hf_oran_chan_srs_port_mask;
+static int hf_oran_tpmi_phase_7;
+static int hf_oran_tpmi_phase_6;
+static int hf_oran_tpmi_phase_5;
+static int hf_oran_tpmi_phase_4;
+static int hf_oran_tpmi_phase_3;
+static int hf_oran_tpmi_phase_2;
+static int hf_oran_tpmi_phase_1;
+static int hf_oran_tpmi_phase_0;
 
 
 static int hf_oran_ready;
@@ -1166,6 +1174,14 @@ static const value_string tpmi_mode_vals[] = {
     { 0, NULL}
 };
 
+/* 7.7.34.7.3 */
+static const value_string tpmi_phase_vals[] = {
+    { 0, "no rotation applied" },
+    { 1, "rotation by pi/2 radians" },
+    { 2, "rotation by pi radians" },
+    { 3, "rotation by 3pi/2 radians" },
+    { 0, NULL}
+};
 
 /* Table 7.6.1-1 */
 static const value_string exttype_vals[] = {
@@ -2199,7 +2215,7 @@ typedef struct {
     uint32_t previous_frame;
 
     /* sectionId -> expected_section_data_t*   */
-    /* Frame only covers one direction */
+    /* Frame only covers one downlink (no modulation compression in UL) */
     wmem_tree_t *expected_sections;
 
     /* List of u-plane frames (corresponding_uplane_frame*) corresponding to a c-plane frame */
@@ -5801,7 +5817,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 1;
 
                 for (unsigned layer=0; layer < num_ueid; layer++) {
-                    /* TODO: TPMI data for layer */
+                    /* TPMI data for layer */
                     switch (tpmi_mode)  {
                         case 0:
                             /* srsPortMask (8 bits) */
@@ -5812,15 +5828,23 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* srsPortMask (8 bits) */
                             proto_tree_add_item(extension_tree, hf_oran_chan_srs_port_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset += 1;
-                            /* TODO: tpmiPhaseP7 (2 bits) */
-                            /* TODO: tpmiPhaseP6 (2 bits) */
-                            /* TODO: tpmiPhaseP5 (2 bits) */
-                            /* TODO: tpmiPhaseP4 (2 bits) */
+                            /* tpmiPhaseP7 (2 bits) */
+                            proto_tree_add_item(extension_tree, hf_oran_tpmi_phase_7, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            /* tpmiPhaseP6 (2 bits) */
+                            proto_tree_add_item(extension_tree, hf_oran_tpmi_phase_6, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            /* tpmiPhaseP5 (2 bits) */
+                            proto_tree_add_item(extension_tree, hf_oran_tpmi_phase_5, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            /* tpmiPhaseP4 (2 bits) */
+                            proto_tree_add_item(extension_tree, hf_oran_tpmi_phase_4, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset += 1;
-                            /* TODO: tpmiPhaseP3 (2 bits) */
-                            /* TODO: tpmiPhaseP2 (2 bits) */
-                            /* TODO: tpmiPhaseP1 (2 bits) */
-                            /* TODO: tpmiPhaseP0 (2 bits) */
+                            /* tpmiPhaseP3 (2 bits) */
+                            proto_tree_add_item(extension_tree, hf_oran_tpmi_phase_3, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            /* tpmiPhaseP2 (2 bits) */
+                            proto_tree_add_item(extension_tree, hf_oran_tpmi_phase_2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            /* tpmiPhaseP1 (2 bits) */
+                            proto_tree_add_item(extension_tree, hf_oran_tpmi_phase_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            /* tpmiPhaseP0 (2 bits) */
+                            proto_tree_add_item(extension_tree, hf_oran_tpmi_phase_0, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset += 1;
                     }
 
@@ -5847,6 +5871,26 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             }
 
             case 35: /* TODO: Codebook-based beamforming parameters */
+               /* cqiMode (2 bits) */
+               /* subbandSize (6 bits) */
+               offset += 1;
+               /* codebookId (4 bits) */
+               /* spatialConfigId (4 bits) */
+               offset += 1;
+               /* ueIdReset (1 bit) */
+               proto_tree_add_item(extension_tree, hf_oran_ueid_reset, tvb, offset, 1, ENC_BIG_ENDIAN);
+               /* reserved (3 bits) */
+               add_reserved_field(extension_tree, hf_oran_reserved_bits123, tvb, offset, 1);
+               /* p2aMappingType (4 bits) */
+               offset += 1;
+               /* reserved (8 bits) */
+               add_reserved_field(extension_tree, hf_oran_reserved_8bits, tvb, offset, 1);
+               offset += 1;
+
+               /* TODO: p2aMapping.. */
+                break;
+
+
 
             default:
             {
@@ -11001,6 +11045,55 @@ proto_register_oran(void)
             FT_UINT8, BASE_DEC,
             NULL, 0x0,
             "SRS antenna ports used for tx of UE layer", HFILL}
+        },
+        /* 7.7.34.6.3 */
+        { &hf_oran_tpmi_phase_7,
+          { "tpmiPhase7", "oran_fh_cus.tpmiPhase7",
+            FT_UINT8, BASE_DEC,
+            VALS(tpmi_phase_vals), 0xc0,
+            NULL, HFILL}
+        },
+        { &hf_oran_tpmi_phase_6,
+          { "tpmiPhase6", "oran_fh_cus.tpmiPhase6",
+            FT_UINT8, BASE_DEC,
+            VALS(tpmi_phase_vals), 0x30,
+            NULL, HFILL}
+        },
+        { &hf_oran_tpmi_phase_5,
+          { "tpmiPhase5", "oran_fh_cus.tpmiPhase5",
+            FT_UINT8, BASE_DEC,
+            VALS(tpmi_phase_vals), 0x0c,
+            NULL, HFILL}
+        },
+        { &hf_oran_tpmi_phase_4,
+          { "tpmiPhase4", "oran_fh_cus.tpmiPhase4",
+            FT_UINT8, BASE_DEC,
+            VALS(tpmi_phase_vals), 0x03,
+            NULL, HFILL}
+        },
+        { &hf_oran_tpmi_phase_3,
+          { "tpmiPhase3", "oran_fh_cus.tpmiPhase3",
+            FT_UINT8, BASE_DEC,
+            VALS(tpmi_phase_vals), 0xc0,
+            NULL, HFILL}
+        },
+        { &hf_oran_tpmi_phase_2,
+          { "tpmiPhase2", "oran_fh_cus.tpmiPhase2",
+            FT_UINT8, BASE_DEC,
+            VALS(tpmi_phase_vals), 0x30,
+            NULL, HFILL}
+        },
+        { &hf_oran_tpmi_phase_1,
+          { "tpmiPhase1", "oran_fh_cus.tpmiPhase1",
+            FT_UINT8, BASE_DEC,
+            VALS(tpmi_phase_vals), 0x0c,
+            NULL, HFILL}
+        },
+        { &hf_oran_tpmi_phase_0,
+          { "tpmiPhase0", "oran_fh_cus.tpmiPhase0",
+            FT_UINT8, BASE_DEC,
+            VALS(tpmi_phase_vals), 0x03,
+            NULL, HFILL}
         },
 
         /* 7.5.3.55 */
