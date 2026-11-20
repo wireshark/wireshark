@@ -77,8 +77,6 @@
 #include "packet-xdlc.h"
 #include <epan/iana-info.h>
 
-#define STRLEN	80
-
 #define AX25_HEADER_SIZE	15 /* length of src_addr + dst_addr + cntl */
 #define AX25_MAX_DIGIS		 8
 
@@ -4864,7 +4862,6 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	int offset;
 	int ctl_offset;
 	int via_index;
-	char *info_buffer;
 	const char *ax25_version;
 	int control;
 	uint8_t pid = AX25_P_NO_L3;
@@ -4883,9 +4880,6 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	bool is_extended;
 	uint32_t ana_errors;
 
-
-	info_buffer = (char *)wmem_alloc( pinfo->pool, STRLEN );
-	info_buffer[0] = '\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25" );
 	col_clear( pinfo->cinfo, COL_INFO );
