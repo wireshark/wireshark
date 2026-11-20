@@ -135,6 +135,9 @@ void UatFrame::copyFromProfile(QString filename)
     } else {
         report_failure("Error while loading %s: %s", uat_->name, err);
         g_free(err);
+        // Some errors are non-fatal (a record was added but failed
+        // validation), so the model must follow the records.
+        uat_model_->reloadUat();
     }
 }
 
