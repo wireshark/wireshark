@@ -61,6 +61,7 @@ static bool packetlogger_read_header(packetlogger_header_t *pl_hdr,
 static void packetlogger_byte_swap_header(packetlogger_header_t *pl_hdr);
 static wtap_open_return_val packetlogger_check_record(wtap *wth,
 						      packetlogger_header_t *pl_hdr,
+						      int64_t max_read,
 						      int *err,
 						      char **err_info);
 static bool packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
@@ -82,6 +83,17 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, char **err_info)
 	packetlogger_header_t pl_hdr;
 	wtap_open_return_val ret;
 	packetlogger_t *packetlogger;
+	int64_t max_read = INT64_MAX;
+
+	/*
+	 * On a pipe, read no farther than the I/O routines guarantee we can
+	 * seek back over; otherwise neither we nor the open routines tried
+	 * after us could seek back to the beginning. Stop checking records
+	 * there as if at the end of the file.
+	 */
+	if (wth->ispipe) {
+		max_read = file_bufsize(wth->fh);
+	}
 
 	/*
 	 * Try to read the first record.
@@ -115,7 +127,7 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, char **err_info)
 	 * Check whether the first record looks like a PacketLogger
 	 * record.
 	 */
-	ret = packetlogger_check_record(wth, &pl_hdr, err, err_info);
+	ret = packetlogger_check_record(wth, &pl_hdr, max_read, err, err_info);
 	if (ret != WTAP_OPEN_MINE) {
 		/*
 		 * Either we got an error or it's not valid.
@@ -134,11 +146,15 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, char **err_info)
 		 */
 		if (*err != WTAP_ERR_SHORT_READ)
 			return WTAP_OPEN_ERROR;
+		*err = 0;
 	} else {
 		/*
 		 * Now try reading a few more packets.
 		 */
 		for (int i = 1; i < PACKETS_TO_CHECK; i++) {
+			if (file_tell(wth->fh) + (int64_t)sizeof(pl_hdr) > max_read)
+				break;
+
 			/*
 			 * Read and check the file header; we've already
 			 * decided whether this would be a byte-swapped file
@@ -164,8 +180,8 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, char **err_info)
 			 * Check whether this record looks like a PacketLogger
 			 * record.
 			 */
-			ret = packetlogger_check_record(wth, &pl_hdr, err,
-			    err_info);
+			ret = packetlogger_check_record(wth, &pl_hdr, max_read,
+			    err, err_info);
 			if (ret != WTAP_OPEN_MINE) {
 				/*
 				 * Either we got an error or it's not valid.
@@ -186,6 +202,7 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, char **err_info)
 				 */
 				if (*err != WTAP_ERR_SHORT_READ)
 					return WTAP_OPEN_ERROR;
+				*err = 0;
 				break;
 			}
 		}
@@ -271,8 +288,8 @@ packetlogger_byte_swap_header(packetlogger_header_t *pl_hdr)
 }
 
 static wtap_open_return_val
-packetlogger_check_record(wtap *wth, packetlogger_header_t *pl_hdr, int *err,
-    char **err_info)
+packetlogger_check_record(wtap *wth, packetlogger_header_t *pl_hdr,
+    int64_t max_read, int *err, char **err_info)
 {
 	uint32_t length;
 	uint8_t type;
@@ -327,6 +344,16 @@ packetlogger_check_record(wtap *wth, packetlogger_header_t *pl_hdr, int *err,
 		length--;
 
 		if (length != 0) {
+			if ((int64_t)length > max_read - file_tell(wth->fh)) {
+				/*
+				 * We couldn't seek back after reading past
+				 * it; treat it as cut short by the end of
+				 * the file.
+				 */
+				*err = WTAP_ERR_SHORT_READ;
+				return WTAP_OPEN_ERROR;
+			}
+
 			/*
 			 * Now try to read past the rest of the packet bytes;
 			 * if that fails with a short read, we don't fail,
