@@ -2262,13 +2262,12 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, quint32 channels, u
 {
     uint8_t pd[4];
     int64_t nchars;
-    int32_t subchunk2Size;
-    int32_t data32;
-    int16_t data16;
+    uint32_t subchunk2Size;
 
-    subchunk2Size = sizeof(SAMPLE) * channels * (int32_t)samples;
+    subchunk2Size = (uint32_t)(sizeof(SAMPLE) * channels * samples);
 
     /* http://soundfile.sapp.org/doc/WaveFormat/ */
+    /* The numeric fields are little-endian. */
 
     /* RIFF header, ChunkID 0x52494646 == RIFF */
     phtonu32(pd, 0x52494646);
@@ -2278,8 +2277,8 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, quint32 channels, u
     }
 
     /* RIFF header, ChunkSize */
-    data32 = 36 + subchunk2Size;
-    nchars = save_file->write((const char *)&data32, 4);
+    phtoleu32(pd, 36 + subchunk2Size);
+    nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }
@@ -2299,50 +2298,50 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, quint32 channels, u
     }
 
     /* WAVE fmt header, Subchunk1Size */
-    data32 = 16;
-    nchars = save_file->write((const char *)&data32, 4);
+    phtoleu32(pd, 16);
+    nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }
 
     /* WAVE fmt header, AudioFormat 1 == PCM */
-    data16 = 1;
-    nchars = save_file->write((const char *)&data16, 2);
+    phtoleu16(pd, 1);
+    nchars = save_file->write((const char *)pd, 2);
     if (nchars != 2) {
         return -1;
     }
 
     /* WAVE fmt header, NumChannels */
-    data16 = channels;
-    nchars = save_file->write((const char *)&data16, 2);
+    phtoleu16(pd, channels);
+    nchars = save_file->write((const char *)pd, 2);
     if (nchars != 2) {
         return -1;
     }
 
     /* WAVE fmt header, SampleRate */
-    data32 = audio_rate;
-    nchars = save_file->write((const char *)&data32, 4);
+    phtoleu32(pd, audio_rate);
+    nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }
 
     /* WAVE fmt header, ByteRate */
-    data32 = audio_rate * channels * sizeof(SAMPLE);
-    nchars = save_file->write((const char *)&data32, 4);
+    phtoleu32(pd, audio_rate * channels * sizeof(SAMPLE));
+    nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }
 
     /* WAVE fmt header, BlockAlign */
-    data16 = channels * (int16_t)sizeof(SAMPLE);
-    nchars = save_file->write((const char *)&data16, 2);
+    phtoleu16(pd, channels * (int16_t)sizeof(SAMPLE));
+    nchars = save_file->write((const char *)pd, 2);
     if (nchars != 2) {
         return -1;
     }
 
     /* WAVE fmt header, BitsPerSample */
-    data16 = (int16_t)sizeof(SAMPLE) * 8;
-    nchars = save_file->write((const char *)&data16, 2);
+    phtoleu16(pd, (int16_t)sizeof(SAMPLE) * 8);
+    nchars = save_file->write((const char *)pd, 2);
     if (nchars != 2) {
         return -1;
     }
@@ -2355,8 +2354,8 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, quint32 channels, u
     }
 
     /* WAVE data header, Subchunk2Size */
-    data32 = subchunk2Size;
-    nchars = save_file->write((const char *)&data32, 4);
+    phtoleu32(pd, subchunk2Size);
+    nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }

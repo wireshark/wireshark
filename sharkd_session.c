@@ -24,6 +24,7 @@
 #include <wsutil/json_dumper.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/pint.h>
 
 #include <file.h>
 #include <epan/epan_dissect.h>
@@ -5753,6 +5754,21 @@ sharkd_rtp_download_free_items(void *ptr)
     g_free(rtp_packet);
 }
 
+/* WAV files are little-endian; the decoders produce samples in host byte order. */
+static void
+sharkd_rtp_samples_to_le(SAMPLE *buf, size_t nbytes)
+{
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+    for (size_t i = 0; i < nbytes / SAMPLE_BYTES; i++)
+    {
+        phtoleu16((uint8_t *)&buf[i], (uint16_t)buf[i]);
+    }
+#else
+    (void)buf;
+    (void)nbytes;
+#endif
+}
+
 static void
 sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
 {
@@ -5792,8 +5808,6 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
 
         if (audio_out_rate_ == 0)
         {
-            uint32_t tmp32;
-            uint16_t tmp16;
             uint8_t wav_hdr[44];
 
             /* First non-zero wins */
@@ -5811,20 +5825,15 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
             memcpy(&wav_hdr[16], "\x10\x00\x00\x00", 4); /* PCM */
             memcpy(&wav_hdr[20], "\x01\x00", 2);         /* PCM */
             /* # channels */
-            tmp16 = channels;
-            memcpy(&wav_hdr[22], &tmp16, 2);
+            phtoleu16(&wav_hdr[22], channels);
             /* sample rate */
-            tmp32 = sample_rate;
-            memcpy(&wav_hdr[24], &tmp32, 4);
+            phtoleu32(&wav_hdr[24], sample_rate);
             /* byte rate */
-            tmp32 = sample_rate * channels * sample_bytes_;
-            memcpy(&wav_hdr[28], &tmp32, 4);
+            phtoleu32(&wav_hdr[28], sample_rate * channels * sample_bytes_);
             /* block align */
-            tmp16 = channels * sample_bytes_;
-            memcpy(&wav_hdr[32], &tmp16, 2);
+            phtoleu16(&wav_hdr[32], channels * sample_bytes_);
             /* bits per sample */
-            tmp16 = 8 * sample_bytes_;
-            memcpy(&wav_hdr[34], &tmp16, 2);
+            phtoleu16(&wav_hdr[34], 8 * sample_bytes_);
 
             memcpy(&wav_hdr[36], "data", 4);
             memcpy(&wav_hdr[40], "\xFF\xFF\xFF\xFF", 4); /* XXX, unknown */
@@ -5873,6 +5882,7 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
         }
 
         /* Write the decoded, possibly-resampled audio */
+        sharkd_rtp_samples_to_le((SAMPLE *)write_buff, write_bytes);
         json_dumper_write_base64(&dumper, (const uint8_t*)write_buff, write_bytes);
 
         g_free(decode_buff);
