@@ -606,6 +606,16 @@ private:
     int byteOffsetAtPixel(QPoint pos, bool allow_fuzzy = false);
 
     /**
+     * @brief Check whether a viewport position is beside the bytes.
+     *
+     * @param pos Position in viewport (widget-local) coordinates.
+     * @return true if @p pos is in the offset column, in the gutter
+     *         between the hex and text panels, or to the right of the
+     *         last byte column of the rightmost shown panel.
+     */
+    bool pixelOutsideBytePanels(QPoint pos);
+
+    /**
      * @brief Build the context menu with all byte-view actions.
      */
     void createContextMenu();
