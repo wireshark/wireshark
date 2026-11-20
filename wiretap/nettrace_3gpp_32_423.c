@@ -1062,6 +1062,11 @@ nettrace_parse_file_header(xmlNodePtr cur, nstime_t *start_time)
 	return WTAP_OPEN_MINE;
 }
 
+typedef struct {
+	FILE_T fh;
+	int64_t max_read;	/* act as if at EOF at this offset */
+} nettrace_xml_input_t;
+
 /*
  * libxml2 read callback, reading the file through our own file handle.
  *
@@ -1074,8 +1079,15 @@ nettrace_parse_file_header(xmlNodePtr cur, nstime_t *start_time)
 static int
 nettrace_xml_read(void *context, char *buffer, int len)
 {
+	nettrace_xml_input_t *input = (nettrace_xml_input_t *)context;
+	int64_t left = input->max_read - file_tell(input->fh);
+
+	if (left <= 0)
+		return 0;
+	if (len > left)
+		len = (int)left;
 	/* Returns -1 on error, as libxml2 expects. */
-	return file_read(buffer, (unsigned int)len, (FILE_T)context);
+	return file_read(buffer, (unsigned int)len, input->fh);
 }
 
 /* Test the current file to see if it's one we can read.
@@ -1089,6 +1101,7 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, char **err_info)
 	xmlTextReaderPtr reader;
 	xmlNodePtr header;
 	wtap_open_return_val header_result = WTAP_OPEN_NOT_MINE;
+	nettrace_xml_input_t input;
 	int ret;
 
 	/*
@@ -1097,8 +1110,14 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, char **err_info)
 	 * buffer means that the open routines tried after us (e.g., for
 	 * other XML files) couldn't seek back to the beginning, and parsing
 	 * a large file twice (here and when reading it) is slow anyway.
+	 *
+	 * On a pipe, also don't read past what the I/O routines buffer
+	 * looking for the file header (e.g., in a long run of whitespace
+	 * or comments); give up if it isn't within that.
 	 */
-	reader = xmlReaderForIO(nettrace_xml_read, NULL, wth->fh, wth->pathname, NULL,
+	input.fh = wth->fh;
+	input.max_read = wth->ispipe ? (int64_t)file_bufsize(wth->fh) : INT64_MAX;
+	reader = xmlReaderForIO(nettrace_xml_read, NULL, &input, wth->pathname, NULL,
 	    XML_PARSE_NONET | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
 	if (reader == NULL) {
 		goto not_mine;
