@@ -2570,14 +2570,21 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
     try_call_dissector(gsmtap_handle, gsmtap_tvb, pinfo, proto_tree_get_parent_tree(tree));
 }
 
+/*
+ * LTE NAS OTA messages. Each log code names its own direction: the even code of
+ * each pair is the "Incoming" (network to UE) message and the odd code is the
+ * "Outgoing" (UE to network) one, e.g. 0xB0EC EMM Plain OTA Incoming and 0xB0ED
+ * EMM Plain OTA Outgoing. The payload cannot tell us: for ESM the second octet
+ * is the procedure transaction identity, and for a security protected message
+ * it is part of the MAC.
+ */
 static void
-dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree, bool plain)
+dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *log_tree, proto_tree *tree, bool plain, bool direction)
 {
     tvbuff_t *payload_tvb, *gsmtap_hdr_tvb, *gsmtap_tvb;
     uint16_t arfcn;
-    uint8_t msgtype, number, major, minor;
+    uint8_t number, major, minor;
     wmem_strbuf_t *buf;
-    bool direction;
 
     /* Version */
     proto_tree_add_item(log_tree, hf_qcdiag_log_ver, tvb, offset, 1, ENC_NA);
@@ -2593,20 +2600,6 @@ dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
     /* Release Version */
     proto_tree_add_string(log_tree, hf_qcdiag_lte_nas_rel, tvb, offset, 3, wmem_strbuf_get_str(buf));
     offset += 3;
-
-    /* Message Type */
-    msgtype = tvb_get_uint8(tvb, offset+1);
-
-    /* Uplink */
-    direction = (msgtype == 0x41 ||  /* Attach request */
-                 msgtype == 0x45 ||  /* Detach request */
-                 msgtype == 0x48 ||  /* Tracking area update request */
-                 msgtype == 0x4c ||  /* Extended service request */
-                 msgtype == 0x4d ||  /* Control plane service request */
-                 msgtype == 0x52 ||  /* Authentication request */
-                 msgtype == 0x55 ||  /* Identity request */
-                 msgtype == 0x63 ||  /* Uplink NAS transport */
-                 msgtype == 0x69);   /* Uplink generic NAS transport */
 
     arfcn = (direction) ? GSMTAP_ARFCN_F_UPLINK : 0;
 
@@ -2940,21 +2933,18 @@ dissect_qcdiag_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     case 0xb0c0:
         dissect_qcdiag_log_lte_rrc(tvb, offset, pinfo, diag_log_tree, tree);
         break;
-    case 0xb0e0:
-    case 0xb0e1:
-        dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, false);
+    /* LTE NAS OTA: even code = Incoming (downlink), odd code = Outgoing (uplink) */
+    case 0xb0e0:  /* ESM Security Protected OTA Incoming */
+    case 0xb0e1:  /* ESM Security Protected OTA Outgoing */
+    case 0xb0ea:  /* EMM Security Protected OTA Incoming */
+    case 0xb0eb:  /* EMM Security Protected OTA Outgoing */
+        dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, false, (code & 1) != 0);
         break;
-    case 0xb0e2:
-    case 0xb0e3:
-        dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, true);
-        break;
-    case 0xb0ea:
-    case 0xb0eb:
-        dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, false);
-        break;
-    case 0xb0ec:
-    case 0xb0ed:
-        dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, true);
+    case 0xb0e2:  /* ESM Plain OTA Incoming */
+    case 0xb0e3:  /* ESM Plain OTA Outgoing */
+    case 0xb0ec:  /* EMM Plain OTA Incoming */
+    case 0xb0ed:  /* EMM Plain OTA Outgoing */
+        dissect_qcdiag_log_lte_nas(tvb, offset, pinfo, diag_log_tree, tree, true, (code & 1) != 0);
         break;
 
     /* NR - 0xB800 log code base (0xB800 - 0xB9FF ) */

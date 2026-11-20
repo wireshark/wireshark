@@ -123404,6 +123404,19 @@ class TestDissectQcdiagLog:
         assert [subs[str(n)] for n in (35, 36, 37)] == ['3', '2', '0']
         assert subs['34'] == '255'
 
+    def test_qcdiag_log_lte_nas_direction(self, cmd_tshark, capture_file, test_env):
+        '''The LTE NAS direction comes from the log code, whose Incoming
+        (even) and Outgoing (odd) codes come in pairs: frames 175-182 carry
+        the same Identity request under 0xB0E0-0xB0E3 and 0xB0EA-0xB0ED.
+        Frames 183-193 are all 0xB0E2 (Incoming), whatever message type they
+        carry. The direction used to be guessed from the message type.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 175 && frame.number <= 193',
+                '-Tfields', '-eframe.number', '-egsmtap.uplink')
+        uplink = dict(l.split('\t') for l in stdout.splitlines())
+        assert [uplink[str(n)] for n in range(175, 183)] == ['0', '1'] * 4
+        assert [uplink[str(n)] for n in range(183, 194)] == ['0'] * 11
+
     def test_qcdiag_log_frame_time(self, cmd_tshark, capture_file, test_env):
         '''The QCDIAG LOG time stamp is shown as a field (frames 285-287,
         also a huge value) and is not written into the frame time: the
