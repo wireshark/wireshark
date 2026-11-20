@@ -38,6 +38,9 @@
 #ifndef LZ4F_BLOCK_HEADER_SIZE /* Added in LZ4_VERSION_NUMBER 10902 */
 #define LZ4F_BLOCK_HEADER_SIZE 4
 #endif /* LZ4F_BLOCK_HEADER_SIZE */
+#ifndef LZ4F_BLOCK_CHECKSUM_SIZE /* Added in LZ4_VERSION_NUMBER 10902 */
+#define LZ4F_BLOCK_CHECKSUM_SIZE 4
+#endif /* LZ4F_BLOCK_CHECKSUM_SIZE */
 #endif /* HAVE_LZ4FRAME_H */
 
 static ws_compression_type file_get_compression_type(FILE_T stream);
@@ -1048,13 +1051,19 @@ lz4_fill_out_buffer(FILE_T state)
             break;
         }
 
-        if (compressedSize > state->size) {
+        if (compressedSize > LZ4BUFSIZE + LZ4F_BLOCK_CHECKSUM_SIZE + LZ4F_BLOCK_HEADER_SIZE) {
             /*
-             * What is this? Either bogus, or some new variant of LZ4 Frames with
-             * a larger block size we don't support. We could have a buffer
-             * overrun if we try to process it.
+             * The hint is the rest of the current block (including its
+             * checksum, if any), plus the next block's header. Anything
+             * larger is either bogus, or some new variant of LZ4 Frames
+             * with a larger block size we don't support.
              *
-             * TODO - We could realloc here.
+             * The block doesn't have to fit in our buffers: we pass no
+             * more input than we have, and LZ4F_decompress() buffers
+             * partial blocks, and output that doesn't fit, internally.
+             * (Requiring it to fit in the input buffer rejected a
+             * maximum-size block that's stored uncompressed, as its hint
+             * is a few bytes larger than the maximum block size.)
              */
             state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
             state->err_info = "lz4 compressed block size too large";
@@ -1241,12 +1250,6 @@ check_for_lz4_compression(FILE_T state)
             return -1;
         }
 
-        /*
-         * XXX - We could check state->lz4_info.blockSizeID here, and
-         * only realloc the buffers to a larger value if the max
-         * block size is bigger than state->size. Also we could fail
-         * on unknown values?
-         */
         state->in.avail -= (unsigned)inBufSize;
         state->in.next += (unsigned)inBufSize;
 
@@ -1600,6 +1603,14 @@ file_fdopen(int fd)
     }
 #endif /* HAVE_ZSTD */
 #ifdef HAVE_LZ4FRAME_H
+    /*
+     * LZ4F_decompress() doesn't need our buffers to hold a whole block,
+     * but the larger buffers let us seek back farther on a pipe, which
+     * some heuristics that read a lot before deciding rely on.
+     *
+     * XXX - bound how much those heuristics read on a pipe, and then
+     * this could be dropped, saving memory for every file.
+     */
     if (LZ4BUFSIZE > want) {
         if (LZ4BUFSIZE <= MAX_READ_BUF_SIZE) {
             want = LZ4BUFSIZE;
