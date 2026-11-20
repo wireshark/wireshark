@@ -90,13 +90,6 @@ public:
      */
     void setSelection(const InheritSelection &sel);
 
-    /**
-     * @brief Enables the buttons for the selection of a list without inherited entries.
-     * @param indexes The selected indexes, which may hold several columns of a row.
-     * @param row_count The number of rows.
-     */
-    void setSelection(const QModelIndexList &indexes, int row_count);
-
 signals:
     void newClicked();
     void deleteClicked();

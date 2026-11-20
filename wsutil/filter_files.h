@@ -54,6 +54,7 @@ typedef enum {
 typedef struct {
     char *name;    /**< Filter name */
     char *strval;  /**< Filter expression string */
+    char *source_profile; /**< The parent profile the filter is inherited from, NULL for the profile's own filter */
 } filter_def;
 
 /**
@@ -71,7 +72,10 @@ typedef struct {
  * @brief Reads a list of filters from persistent storage.
  *
  * Loads the specified type of filter list (e.g., display, capture) from disk or configuration.
- * On error, a message is reported via the UI.
+ * The profile's own filters come first, followed by the filters inherited from
+ * its parent profiles, which have source_profile set, as the inherit setting
+ * of the file selects. A filter of a parent with the name of a filter
+ * of a nearer profile is not inherited. On error, a message is reported via the UI.
  *
  * @param list_type The type of filter list to read.
  * @param app_env_var_prefix The prefix for the application environment variable used to get the personal config directory.
@@ -80,6 +84,19 @@ typedef struct {
 WS_DLL_PUBLIC
 WS_RETNONNULL
 filter_list_t *ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix);
+
+/**
+ * @brief Reads the profile's own filters, ignoring the parent profiles.
+ *
+ * Without a personal file, the global file is read.
+ *
+ * @param list_type The type of filter list to read.
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the personal config directory.
+ * @return A pointer to the loaded filter list. Never returns NULL.
+ */
+WS_DLL_PUBLIC
+WS_RETNONNULL
+filter_list_t *ws_filter_list_read_own(filter_list_type_t list_type, const char* app_env_var_prefix);
 
 /**
  * @brief Adds a new filter to the end of a filter list.
@@ -121,7 +138,8 @@ bool ws_filter_list_remove(filter_list_t *list, const char *name);
 /**
  * @brief Writes a filter list to persistent storage.
  *
- * Saves the current filter list to disk or configuration. On error, a message is reported via the UI.
+ * Saves the current filter list to disk or configuration, leaving out the
+ * filters inherited from parent profiles. On error, a message is reported via the UI.
  *
  * @param list The filter list to write.
  * @param app_env_var_prefix The prefix for the application environment variable used to get the personal config directory.

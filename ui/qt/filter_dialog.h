@@ -18,7 +18,9 @@
 #include <QValidator>
 
 class QItemSelection;
+class CopyFromProfileButton;
 class FilterTreeDelegate;
+class ProfileInheritComboBox;
 
 namespace Ui {
 class FilterDialog;
@@ -67,6 +69,20 @@ private:
     /** Delegate used for editing items in the filter tree. */
     FilterTreeDelegate *filter_tree_delegate_;
 
+    /** The configuration file name of the filters. */
+    const char *filename_;
+
+    /** The button copying the filters of another profile. */
+    CopyFromProfileButton *copy_button_;
+
+    /** Selects where the filters come from. */
+    ProfileInheritComboBox *inherit_combo_;
+
+    /**
+     * @brief Shows the own file, and the parent profiles the filters are inherited from.
+     */
+    void updatePathLabel();
+
     /**
      * @brief Adds a new filter to the dialog's model.
      * @param name The name of the new filter.
@@ -89,24 +105,36 @@ private slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
     /**
-     * @brief Slot triggered when the "New" tool button is clicked.
+     * @brief Slot triggered when the button adding a filter is clicked.
      */
     void newClicked();
 
     /**
-     * @brief Slot triggered when the "Delete" tool button is clicked.
+     * @brief Slot triggered when the button deleting the selected filters is clicked.
      */
     void deleteClicked();
 
     /**
-     * @brief Slot triggered when the "Copy" tool button is clicked.
+     * @brief Slot triggered when the button copying the selected filter is clicked.
      */
     void copyClicked();
 
     /**
-     * @brief Slot triggered when the "Clear" tool button is clicked.
+     * @brief Slot triggered when the button clearing the own filters is clicked.
      */
     void clearClicked();
+
+    /**
+     * @brief Slot triggered when another inherit mode is selected.
+     * @param mode The new mode.
+     */
+    void inheritModeChanged(profile_inherit_e mode);
+
+    /**
+     * @brief Adds the filters of another profile.
+     * @param filename The file of the other profile.
+     */
+    void copyFromProfile(QString filename);
 
     /**
      * @brief Slot triggered when the dialog is accepted.
@@ -133,6 +161,14 @@ public:
      * @param filter_type The type of filter being edited.
      */
     FilterTreeDelegate(QObject *parent, FilterDialog::FilterType filter_type);
+
+    /**
+     * @brief Returns the size of an item, not making rows with the lock of an inherited entry taller.
+     * @param option The style option for the item.
+     * @param index The model index of the item.
+     * @return The size of the item.
+     */
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
     /**
      * @brief Creates the editor widget for a specific item.

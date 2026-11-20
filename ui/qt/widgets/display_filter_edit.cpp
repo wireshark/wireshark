@@ -455,8 +455,11 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
 
                 bookmark_button_->setIcon(ContrastAdaptIcon("bookmark-match"));
                 if (remove_action_) {
+                    // A filter inherited from a parent profile can't be removed here
                     remove_action_->setData(text());
-                    remove_action_->setEnabled(true);
+                    bool inherited = model.isInherited(idx.row());
+                    remove_action_->setEnabled(!inherited);
+                    remove_action_->setToolTip(inherited ? tr("This filter is inherited from the parent profile. Remove it there.") : QString());
                 }
             } else {
                 bookmark_button_->setIcon(ContrastAdaptIcon("bookmark-display"));
@@ -778,7 +781,7 @@ void DisplayFilterEdit::removeFilter()
     FilterListModel model(FilterListModel::Display);
     QModelIndex idx = model.findByExpression(remove_filter);
 
-    if (idx.isValid())
+    if (idx.isValid() && !model.isInherited(idx.row()))
     {
         model.removeFilter(idx);
         model.saveList();

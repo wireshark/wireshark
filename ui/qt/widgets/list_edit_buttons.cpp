@@ -139,14 +139,3 @@ void ListEditButtons::setSelection(const InheritSelection &sel)
     clear_button_->setEnabled(sel.own_visible != 0);
     updateToolTip(clear_button_, tool_tips_.clear, reason);
 }
-
-void ListEditButtons::setSelection(const QModelIndexList &indexes, int row_count)
-{
-    const QList<int> rows = rowsLastFirst(indexes);
-    InheritSelection sel;
-    sel.own_count = row_count;
-    sel.selected_count = static_cast<int>(rows.count());
-    sel.first_row = rows.isEmpty() ? -1 : rows.last();
-    sel.last_row = rows.isEmpty() ? -1 : rows.first();
-    setSelection(sel);
-}

@@ -21,9 +21,15 @@
 #include <QUrl>
 #include <QSortFilterProxyModel>
 
+#include "ui/simple_dialog.h"
+
+#include <ui/qt/utils/inherit_selection.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/widgets/filter_edit.h>
+#include <ui/qt/utils/hide_overridden_rows.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
 #include <ui/qt/models/capture_filter_validator.h>
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "main_application.h"
@@ -32,7 +38,9 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     GeometryStateDialog(parent),
     ui(new Ui::FilterDialog),
     filter_type_(filter_type),
-    filter_tree_delegate_(new FilterTreeDelegate(this, filter_type))
+    filter_tree_delegate_(new FilterTreeDelegate(this, filter_type)),
+    copy_button_(nullptr),
+    inherit_combo_(nullptr)
 {
     ui->setupUi(this);
 
@@ -43,14 +51,15 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    const char * filename = NULL;
     QString newFilterText;
+    QString copyToolTip;
     ListEditButtons::ToolTips tool_tips;
     switch (filter_type) {
         case CaptureFilter:
             setWindowTitle(mainApp->windowTitleString(tr("Capture Filters")));
-            filename = CFILTER_FILE_NAME;
+            filename_ = CFILTER_FILE_NAME;
             newFilterText = tr("New capture filter");
+            copyToolTip = tr("Copy capture filters from another profile.");
             tool_tips.add = tr("Create a new filter.");
             tool_tips.remove = tr("Remove the selected filters.");
             tool_tips.copy = tr("Copy this filter.");
@@ -61,8 +70,9 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
             break;
         case DisplayFilter:
             setWindowTitle(mainApp->windowTitleString(tr("Display Filters")));
-            filename = DFILTER_FILE_NAME;
+            filename_ = DFILTER_FILE_NAME;
             newFilterText = tr("New display filter");
+            copyToolTip = tr("Copy display filters from another profile.");
             tool_tips.add = tr("Create a new filter.");
             tool_tips.remove = tr("Remove the selected filters.");
             tool_tips.copy = tr("Copy this filter.");
@@ -73,8 +83,9 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
             break;
         case DisplayMacro:
             setWindowTitle(mainApp->windowTitleString(tr("Display Filter Macros")));
-            filename = DMACROS_FILE_NAME;
+            filename_ = DMACROS_FILE_NAME;
             newFilterText = tr("New macro");
+            copyToolTip = tr("Copy display filter macros from another profile.");
             tool_tips.add = tr("Create a new macro.");
             tool_tips.remove = tr("Remove the selected macros.");
             tool_tips.copy = tr("Copy this macro.");
@@ -99,25 +110,36 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
 
     ui->filterTreeView->setItemDelegate(new FilterTreeDelegate(this, filter_type));
 
-    if (new_filter_.length() > 0)
-        addFilter(newFilterText, new_filter_, true);
-
-    ui->filterTreeView->resizeColumnToContents(FilterListModel::ColumnName);
-
     connect(ui->filterTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FilterDialog::selectionChanged);
     connect(model_, &FilterListModel::rowsInserted, this, &FilterDialog::updateWidgets);
     connect(model_, &FilterListModel::rowsRemoved, this, &FilterDialog::updateWidgets);
     connect(model_, &FilterListModel::rowsMoved, this, &FilterDialog::updateWidgets);
     connect(model_, &FilterListModel::modelReset, this, &FilterDialog::updateWidgets);
-    updateWidgets();
 
-    QString abs_path = gchar_free_to_qstring(get_persconffile_path(filename, true, application_configuration_environment_prefix()));
-    if (file_exists(abs_path.toUtf8().constData())) {
-        ui->pathLabel->setText(abs_path);
-        ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
-        ui->pathLabel->setToolTip(tr("Open ") + filename);
-        ui->pathLabel->setEnabled(true);
+    // Where the filters come from, next to the button clearing them
+    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, filename_,
+                                                    [this]() { return model_->hasUnsavedOwn(); },
+                                                    [this]() { model_->saveList(); return true; });
+    connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &FilterDialog::inheritModeChanged);
+
+    // Not used entries can be hidden, which is not stored
+    addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->filterTreeView, model_, -1);
+
+    copy_button_ = new CopyFromProfileButton(this, filename_, copyToolTip);
+    ui->buttonBox->addButton(copy_button_, QDialogButtonBox::ActionRole);
+    connect(copy_button_, &CopyFromProfileButton::copyProfile, this, &FilterDialog::copyFromProfile);
+
+    if (new_filter_.length() > 0) {
+        // A new filter is an own filter, which is not used with the parent's filters only
+        inherit_combo_->useOwnEntries();
+        addFilter(newFilterText, new_filter_, true);
     }
+
+    ui->filterTreeView->resizeColumnToContents(FilterListModel::ColumnName);
+
+    updatePathLabel();
+    followInheritedProfiles(model_, this, &FilterDialog::updatePathLabel);
+    updateWidgets();
 }
 
 FilterDialog::~FilterDialog()
@@ -130,6 +152,8 @@ void FilterDialog::addFilter(QString name, QString filter, bool start_editing)
     if (model_)
     {
         QModelIndex idx = model_->addFilter(name, filter);
+        if (!idx.isValid())
+            return;
         ui->filterTreeView->scrollTo(idx);
         if (start_editing)
             ui->filterTreeView->edit(idx);
@@ -138,17 +162,43 @@ void FilterDialog::addFilter(QString name, QString filter, bool start_editing)
     }
 }
 
+void FilterDialog::updatePathLabel()
+{
+    inherit_combo_->updatePathLabel(ui->pathLabel, inheritedProfiles(model_));
+}
+
 void FilterDialog::updateWidgets()
 {
-    if (! ui->filterTreeView->selectionModel())
+    if (! ui->filterTreeView->selectionModel() || ! inherit_combo_)
         return;
 
-    ui->editButtons->setSelection(ui->filterTreeView->selectionModel()->selectedRows(), model_->rowCount());
+    InheritSelection sel = inheritSelection(model_, ui->filterTreeView->selectionModel()->selectedIndexes(), ui->filterTreeView);
+
+    // Inherited filters can be copied into the own filters, but not changed
+    ui->editButtons->setSelection(sel);
+    copy_button_->setOwnEntriesUsed(sel.own_used);
 }
 
 void FilterDialog::selectionChanged(const QItemSelection &/*selected*/, const QItemSelection &/*deselected*/)
 {
     updateWidgets();
+}
+
+void FilterDialog::inheritModeChanged(profile_inherit_e mode)
+{
+    model_->setInheritMode(mode);
+    ui->filterTreeView->resizeColumnToContents(FilterListModel::ColumnName);
+    updatePathLabel();
+    updateWidgets();
+}
+
+void FilterDialog::copyFromProfile(QString filename)
+{
+    QString err;
+    if (!model_->importFile(filename, err)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
+    }
+    ui->filterTreeView->resizeColumnToContents(FilterListModel::ColumnName);
 }
 
 void FilterDialog::newClicked()
@@ -182,7 +232,7 @@ void FilterDialog::newClicked()
 void FilterDialog::deleteClicked()
 {
     for (int row : rowsLastFirst(ui->filterTreeView->selectionModel()->selectedRows()))
-        model_->removeFilter(model_->index(row, 0));
+        model_->removeRows(row, 1);
 }
 
 void FilterDialog::copyClicked()
@@ -194,18 +244,24 @@ void FilterDialog::copyClicked()
     int rowNr = selected.at(0).row();
     QModelIndex row = selected.at(0).sibling(rowNr, FilterListModel::ColumnName);
 
-    addFilter(row.data().toString(), row.sibling(rowNr, FilterListModel::ColumnExpression).data().toString(), true);
+    // An inherited filter is copied into the own filters, where the copy hides it
+    addFilter(row.data(Qt::EditRole).toString(), row.sibling(rowNr, FilterListModel::ColumnExpression).data(Qt::EditRole).toString(), true);
 }
 
 void FilterDialog::clearClicked()
 {
-    for (int row = model_->rowCount() - 1; row >= 0; row--)
-        model_->removeFilter(model_->index(row, 0));
+    removeVisibleOwnRows(ui->filterTreeView, model_);
 }
 
 void FilterDialog::on_buttonBox_accepted()
 {
     model_->saveList();
+
+    // The mode is only kept with the filters written for it, and before reloading them
+    QString err;
+    if (!inherit_combo_->saveMode(err)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
+    }
 
     switch (filter_type_) {
         case CaptureFilter:
@@ -256,6 +312,13 @@ FilterTreeDelegate::FilterTreeDelegate(QObject *parent, FilterDialog::FilterType
     QStyledItemDelegate(parent),
     filter_type_(filter_type)
 {}
+
+QSize FilterTreeDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index));
+}
 
 QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {

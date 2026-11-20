@@ -46,6 +46,14 @@ public:
      * centralising logic that the old edits duplicated inside checkFilter().
      */
     virtual bool contains(const QString &expression) const = 0;
+
+    /**
+     * @brief Returns true when @p expression matches a saved entry that can be removed.
+     *
+     * An entry inherited from a parent profile can't be removed from the
+     * current profile.
+     */
+    virtual bool isRemovable(const QString &expression) const { return contains(expression); }
 };
 
 #endif // BOOKMARK_MODEL_H

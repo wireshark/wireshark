@@ -120,6 +120,7 @@ If you add, modify, or remove an icon please update this list to match.
 * nav-last.svg: {raw-assets-url-prefix}Arrow Download/SVG/ic_fluent_arrow_download_24_regular.svg[Arrow Download]
 * nav-next.svg: {raw-assets-url-prefix}Arrow%20Right/SVG/ic_fluent_arrow_right_24_regular.svg[Arrow Right]
 * nav-previous.svg: {raw-assets-url-prefix}Arrow%20Left/SVG/ic_fluent_arrow_left_24_regular.svg[Arrow Left]
+* overridden.svg {raw-assets-url-prefix}Prohibited/SVG/ic_fluent_prohibited_24_regular.svg[Prohibited]
 * reset.svg {raw-assets-url-prefix}Arrow%20Reset/SVG/ic_fluent_arrow_reset_24_regular.svg[Arrow Reset]
 * section-collapsed.svg {raw-assets-url-prefix}Chevron%20Right/SVG/ic_fluent_chevron_right_16_filled.svg[Chevron Right]
 * section-expanded.svg {raw-assets-url-prefix}Chevron%20Down/SVG/ic_fluent_chevron_down_16_filled.svg[Chevron Down]

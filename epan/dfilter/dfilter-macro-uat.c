@@ -194,8 +194,9 @@ void convert_old_uat_file(const char* app_env_var_prefix)
 
 	if (uat_load(dfilter_macro_uat, old_path, app_env_var_prefix, &err)) {
 		if (num_macros > 0) {
-			// We expect the new list to be empty.
-			filter_list_t *list = ws_filter_list_read(DMACROS_LIST, app_env_var_prefix);
+			// We expect the new list to be empty. The macros of the
+			// parent profiles are not written to this profile.
+			filter_list_t *list = ws_filter_list_read_own(DMACROS_LIST, app_env_var_prefix);
 			for (unsigned i = 0; i < num_macros; i++) {
 				if (macros[i].usable) {
 					// Add only if it is a new entry
