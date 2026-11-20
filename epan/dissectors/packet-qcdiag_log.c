@@ -240,8 +240,12 @@ static int hf_qcdiag_nr_rrc_rb_id;
 static int hf_qcdiag_nr_rrc_pci;
 static int hf_qcdiag_nr_rrc_ncgi;
 static int hf_qcdiag_nr_rrc_arfcn;
+static int hf_qcdiag_nr_rrc_sfn_subframe_v9;
+static int hf_qcdiag_nr_rrc_sfn_subframe;
 static int hf_qcdiag_nr_rrc_sfn_v9;
 static int hf_qcdiag_nr_rrc_sfn;
+static int hf_qcdiag_nr_rrc_subframe_v9;
+static int hf_qcdiag_nr_rrc_subframe;
 static int hf_qcdiag_nr_rrc_pdu_v9;
 static int hf_qcdiag_nr_rrc_pdu_v14;
 static int hf_qcdiag_nr_rrc_pdu_v17;
@@ -2670,12 +2674,36 @@ dissect_qcdiag_log_nr_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, pr
     proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_arfcn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    /* System Frame Number */
+    /* System Frame Number and Subframe Number, packed in one little-endian
+     * word: 4 bytes before version 12, 3 bytes from version 12 on. The
+     * subframe number (1 ms) is in bits 3-6 on both. The 10-bit SFN is in
+     * bits 16-25 of the 4-byte word and in bits 9-18 of the 3-byte word.
+     * The layout was checked against the log timestamps on versions 9, 12,
+     * 14, 17 and 23 (SFN * 10 + subframe advances with the timestamp), and
+     * the SFN only on version 26. Other versions show the raw word. */
     if (version < 12) {
-        proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_sfn_v9, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_sfn_subframe_v9, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        if (version == 9) {
+            proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_sfn_v9, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_subframe_v9, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        }
         offset += 4;
     } else {
-        proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_sfn, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_sfn_subframe, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        switch (version) {
+            case 12:
+            case 14:
+            case 17:
+            case 23:
+                proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_sfn, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_subframe, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+                break;
+            case 26:
+                proto_tree_add_item(log_tree, hf_qcdiag_nr_rrc_sfn, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+                break;
+            default:
+                break;
+        }
         offset += 3;
     }
 
@@ -3297,12 +3325,24 @@ proto_register_qcdiag_log(void)
         { &hf_qcdiag_nr_rrc_arfcn,
           { "Frequency", "qcdiag_log.nr_rrc.arfcn",
             FT_UINT32, BASE_DEC, NULL, 0, "ARFCN", HFILL } },
+        { &hf_qcdiag_nr_rrc_sfn_subframe_v9,
+          { "SFN/Subframe", "qcdiag_log.nr_rrc.sfn_subframe",
+            FT_UINT32, BASE_HEX, NULL, 0, "Packed system frame and subframe number", HFILL } },
+        { &hf_qcdiag_nr_rrc_sfn_subframe,
+          { "SFN/Subframe", "qcdiag_log.nr_rrc.sfn_subframe",
+            FT_UINT24, BASE_HEX, NULL, 0, "Packed system frame and subframe number", HFILL } },
         { &hf_qcdiag_nr_rrc_sfn_v9,
           { "System Frame Number", "qcdiag_log.nr_rrc.sfn",
-            FT_UINT32, BASE_DEC, NULL, 0, "SFN", HFILL } },
+            FT_UINT32, BASE_DEC, NULL, 0x03ff0000, "SFN", HFILL } },
         { &hf_qcdiag_nr_rrc_sfn,
           { "System Frame Number", "qcdiag_log.nr_rrc.sfn",
-            FT_UINT24, BASE_DEC, NULL, 0, "SFN", HFILL } },
+            FT_UINT24, BASE_DEC, NULL, 0x07fe00, "SFN", HFILL } },
+        { &hf_qcdiag_nr_rrc_subframe_v9,
+          { "Subframe Number", "qcdiag_log.nr_rrc.subframe",
+            FT_UINT32, BASE_DEC, NULL, 0x00000078, NULL, HFILL } },
+        { &hf_qcdiag_nr_rrc_subframe,
+          { "Subframe Number", "qcdiag_log.nr_rrc.subframe",
+            FT_UINT24, BASE_DEC, NULL, 0x000078, NULL, HFILL } },
         { &hf_qcdiag_nr_rrc_pdu_v9,
           { "PDU Number", "qcdiag_log.nr_rrc.pdu",
             FT_UINT8, BASE_DEC, VALS(nr_rrc_pdu_type_v9_vals), 0, NULL, HFILL } },

@@ -123495,6 +123495,25 @@ class TestDissectQcdiagLog:
                 '-eqcdiag_log.nr_rrc.arfcn', '-eqcdiag_log.nr_rrc_rel')
         assert stdout.splitlines() == ['\t632628\t15.2.0', '4886718345\t632628\t15.2.0']
 
+    def test_qcdiag_log_nr_rrc_sfn(self, cmd_tshark, capture_file, test_env):
+        '''The NR RRC SFN/subframe word is kept raw and decoded where its
+        layout is known: frame 201 (version 9, 4-byte word 0x00123456: SFN
+        bits 16-25 = 18, subframe bits 3-6 = 10) and frames 218, 220, 230
+        (versions 12, 14, 17, 3-byte word 0x123456: SFN bits 9-18 = 282,
+        subframe bits 3-6 = 10). Versions 19 and 20 (frames 240, 242) show
+        only the raw word.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {201, 218, 220, 230, 240, 242}',
+                '-Tfields', '-eframe.number', '-eqcdiag_log.nr_rrc.sfn_subframe',
+                '-eqcdiag_log.nr_rrc.sfn', '-eqcdiag_log.nr_rrc.subframe')
+        assert stdout.splitlines() == [
+            '201\t0x00123456\t18\t10',
+            '218\t0x123456\t282\t10',
+            '220\t0x123456\t282\t10',
+            '230\t0x123456\t282\t10',
+            '240\t0x123456\t\t',
+            '242\t0x123456\t\t']
+
 
 class TestDissectQllc:
     '''QLLC (packet-qllc.c) from the synthetic capture qllc_coverage.pcap.gz:
