@@ -386,8 +386,19 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, char **err_info)
   uint64_t         erf_ext_header;
   unsigned         erf_ext_header_size = (unsigned)sizeof(erf_ext_header);
   uint8_t          type;
+  int64_t          max_read = INT64_MAX;
 
   prevts = 0;
+
+  /*
+   * On a pipe, read no farther than the I/O routines guarantee we can
+   * seek back over; otherwise neither we nor the open routines tried
+   * after us could seek back to the beginning. A record that would take
+   * us past that is treated like one cut short by the end of the file.
+   */
+  if (wth->ispipe) {
+    max_read = file_bufsize(wth->fh);
+  }
 
   /* number of records to scan before deciding if this really is ERF */
   if ((s = getenv("ERF_RECORDS_TO_CHECK")) != NULL) {
@@ -404,6 +415,13 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, char **err_info)
 
   for (i = 0; i < records_for_erf_check; i++) {  /* records_for_erf_check */
 
+    if (file_tell(wth->fh) + (int64_t)erf_header_size > max_read) {
+      /* As for a short read of the header, below */
+      if (i < MIN_RECORDS_FOR_ERF_CHECK) {
+        return WTAP_OPEN_NOT_MINE;
+      }
+      break;
+    }
     if (!wtap_read_bytes_or_eof(wth->fh,&header,erf_header_size,err,err_info)) {
       if (*err == 0) {
         /* EOF - all records have been successfully checked, accept the file */
@@ -443,6 +461,13 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, char **err_info)
 
     /* Skip PAD records, timestamps may not be set */
     if ((header.type & 0x7F) == ERF_TYPE_PAD) {
+      if (file_tell(wth->fh) + (int64_t)packet_size > max_read) {
+        /* As for a record cut short by the end of the file, below */
+        if (i < MIN_RECORDS_FOR_ERF_CHECK) {
+          return WTAP_OPEN_NOT_MINE;
+        }
+        break;
+      }
       if (!wtap_read_bytes(wth->fh, NULL, packet_size, err, err_info)) {
         if (*err != WTAP_ERR_SHORT_READ) {
           /* A real error */
@@ -476,6 +501,14 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, char **err_info)
     }
 
     prevts = ts;
+
+    if (file_tell(wth->fh) + (int64_t)packet_size > max_read) {
+      /* As for a record cut short by the end of the file, below */
+      if (i < MIN_RECORDS_FOR_ERF_CHECK) {
+        return WTAP_OPEN_NOT_MINE;
+      }
+      break;
+    }
 
     /* Read over the extension headers */
     type = header.type;
