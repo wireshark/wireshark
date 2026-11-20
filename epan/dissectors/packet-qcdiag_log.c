@@ -232,6 +232,7 @@ static int hf_qcdiag_lte_rrc_pci;
 static int hf_qcdiag_lte_rrc_earfcn_v2;
 static int hf_qcdiag_lte_rrc_earfcn_v8;
 static int hf_qcdiag_lte_rrc_sfn;
+static int hf_qcdiag_lte_rrc_subframe;
 static int hf_qcdiag_lte_rrc_pdu;
 static int hf_qcdiag_lte_rrc_sib;
 
@@ -2517,8 +2518,11 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
         offset += 4;
     }
 
-    /* System Frame Number */
+    /* System Frame Number (bits 4-13) and Subframe Number (bits 0-3). The SFN
+     * is 10 bits wide (3GPP TS 36.211); the top 2 bits are not part of it and
+     * are set on some records. */
     proto_tree_add_item_ret_uint(log_tree, hf_qcdiag_lte_rrc_sfn, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sfn);
+    proto_tree_add_item_ret_uint(log_tree, hf_qcdiag_lte_rrc_subframe, tvb, offset, 2, ENC_LITTLE_ENDIAN, &subslot);
     offset += 2;
 
     /* PDU */
@@ -2552,8 +2556,7 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
     if (direction)
         arfcn = arfcn | GSMTAP_ARFCN_F_UPLINK;
 
-    frame_nr = (sfn & 0xfff0) >> 4;
-    subslot = sfn & 0x000f;
+    frame_nr = sfn;
 
     gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(tvb, pinfo, GSMTAP_TYPE_LTE_RRC, arfcn, frame_nr, subtype, subslot);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -3262,7 +3265,10 @@ proto_register_qcdiag_log(void)
             FT_UINT32, BASE_DEC, NULL, 0, "EARFCN", HFILL } },
         { &hf_qcdiag_lte_rrc_sfn,
           { "System Frame Number", "qcdiag_log.lte_rrc.sfn",
-            FT_UINT16, BASE_DEC, NULL, 0, "SFN", HFILL } },
+            FT_UINT16, BASE_DEC, NULL, 0x3ff0, "SFN", HFILL } },
+        { &hf_qcdiag_lte_rrc_subframe,
+          { "Subframe Number", "qcdiag_log.lte_rrc.subframe",
+            FT_UINT16, BASE_DEC, NULL, 0x000f, NULL, HFILL } },
         { &hf_qcdiag_lte_rrc_pdu,
           { "PDU Number", "qcdiag_log.lte_rrc.pdu",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },

@@ -123483,11 +123483,13 @@ class TestDissectQcdiagLog:
         stdout = self._run(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number in {92, 93, 94}', '-Tfields', '-eqcdiag_log.lte_rrc.pdu',
                 '-eqcdiag_log.lte_rrc.earfcn', '-eqcdiag_log.lte_rrc.sfn',
+                '-eqcdiag_log.lte_rrc.subframe', '-egsmtap.frame_nr',
                 '-eqcdiag_log.lte_rrc_rel', '-e_ws.col.info')
+        # SFN/subframe word 0x1234: SFN = bits 4-13 = 291, subframe = 4
         assert stdout.splitlines() == [
-            '5\t1300\t4660\t9.2.0\tRRCConnectionReestablishment',
-            '1\t1300\t4660\t9.2.0\tMasterInformationBlock (SFN=0)',
-            '2\t1300\t4660\t9.2.0\tSystemInformation [ SIB2 ]']
+            '5\t1300\t291\t4\t291\t9.2.0\tRRCConnectionReestablishment',
+            '1\t1300\t291\t4\t291\t9.2.0\tMasterInformationBlock (SFN=0)',
+            '2\t1300\t291\t4\t291\t9.2.0\tSystemInformation [ SIB2 ]']
         stdout = self._run(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number in {201, 260}', '-Tfields', '-eqcdiag_log.nr_rrc.ncgi',
                 '-eqcdiag_log.nr_rrc.arfcn', '-eqcdiag_log.nr_rrc_rel')
