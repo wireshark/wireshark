@@ -205,6 +205,7 @@ target_link_libraries(wiretap
 		wsutil
 		GLib2::GLib2
 	PRIVATE
+		${M_LIBRARIES}
 		LibXml2::LibXml2
 		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
 		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
