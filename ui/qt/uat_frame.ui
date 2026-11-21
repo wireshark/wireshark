@@ -47,23 +47,13 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,1">
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,1">
         <item>
          <widget class="ListEditButtons" name="editButtons">
          </widget>
         </item>
         <item>
          <widget class="ProfileInheritComboBox" name="inheritComboBox"/>
-        </item>
-        <item>
-         <widget class="CopyFromProfileButton" name="copyFromProfileButton">
-          <property name="toolTip">
-           <string>Copy entries from another profile.</string>
-          </property>
-          <property name="text">
-           <string>Copy from</string>
-          </property>
-         </widget>
         </item>
         <item>
          <widget class="ElidedLabel" name="pathLabel">
@@ -106,11 +96,6 @@
    <class>RowMoveTreeView</class>
    <extends>QTreeView</extends>
    <header>widgets/rowmove_tree_view.h</header>
-  </customwidget>
-  <customwidget>
-   <class>CopyFromProfileButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets/copy_from_profile_button.h</header>
   </customwidget>
   <customwidget>
    <class>ProfileInheritComboBox</class>

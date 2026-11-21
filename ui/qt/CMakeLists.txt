@@ -310,6 +310,7 @@ set(WIRESHARK_QT_HEADERS
 	marker_dialog.h
 	preference_editor_frame.h
 	preferences_dialog.h
+	preferences_page_buttons.h
 	print_dialog.h
 	profile_dialog.h
 	progress_frame.h

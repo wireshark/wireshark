@@ -11,6 +11,7 @@
 #include <ui_preferences_dialog.h>
 
 #include "module_preferences_scroll_area.h"
+#include "preferences_page_buttons.h"
 
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
@@ -244,6 +245,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     connect(qApp, &QApplication::focusChanged, this, &PreferencesDialog::applicationFocusChanged);
 
     connect(pd_ui_->stackedWidget, &QStackedWidget::currentChanged, this, &PreferencesDialog::updatePageMinimumSize);
+    connect(pd_ui_->stackedWidget, &QStackedWidget::currentChanged, this, &PreferencesDialog::updatePageButtons);
+    updatePageButtons();
 
     /* Create a single-shot timer for debouncing calls to
      * updateSearchLineEdit() */
@@ -262,6 +265,12 @@ PreferencesDialog::~PreferencesDialog()
     // Child widgets are destroyed after this destructor; focus moving
     // among them must not reach applicationFocusChanged(), which uses pd_ui_.
     disconnect(qApp, &QApplication::focusChanged, this, &PreferencesDialog::applicationFocusChanged);
+    // Nor may pages leaving the stack reach updatePageButtons() or the
+    // cleanup of their buttons, which use page_buttons_.
+    disconnect(pd_ui_->stackedWidget, &QStackedWidget::currentChanged, this, &PreferencesDialog::updatePageButtons);
+    for (QWidget *page : page_buttons_.keys()) {
+        disconnect(page, &QObject::destroyed, this, nullptr);
+    }
     delete pd_ui_;
     delete searchLineEditTimer;
     prefs_modules_for_all_modules(module_prefs_clean_stash, NULL);
@@ -583,6 +592,40 @@ void PreferencesDialog::showEvent(QShowEvent *)
         fitToScreen();
     }
     updateNavigationMode();
+}
+
+void PreferencesDialog::updatePageButtons()
+{
+    QWidget *current = pd_ui_->stackedWidget->currentWidget();
+
+    if (current && !page_buttons_.contains(current)) {
+        QList<QPointer<QAbstractButton>> buttons;
+        const PreferencesPageButtons *page = dynamic_cast<PreferencesPageButtons *>(current);
+        if (page) {
+            for (QAbstractButton *button : page->pageButtons()) {
+                pd_ui_->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
+                buttons << button;
+            }
+        }
+        page_buttons_.insert(current, buttons);
+
+        // Module pages are replaced when another module is selected
+        connect(current, &QObject::destroyed, this, [this, current]() {
+            for (const QPointer<QAbstractButton> &button : page_buttons_.take(current)) {
+                if (button) {
+                    button->deleteLater();
+                }
+            }
+        });
+    }
+
+    for (auto it = page_buttons_.cbegin(); it != page_buttons_.cend(); ++it) {
+        for (const QPointer<QAbstractButton> &button : it.value()) {
+            if (button) {
+                button->setVisible(it.key() == current);
+            }
+        }
+    }
 }
 
 void PreferencesDialog::selectPane(QString pane)
