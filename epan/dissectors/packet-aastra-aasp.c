@@ -196,7 +196,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     case SET_TEXT:
         {
-            if(tvb_reported_length(tvb) > 3)
+            if(tvb_reported_length(tvb) > 4)
             {
                 proto_tree_add_item(subtree, hf_a_data, tvb, 1, 3, ENC_NA);
                 proto_tree_add_item(subtree, hf_a_length, tvb, 4, 1, ENC_BIG_ENDIAN);
