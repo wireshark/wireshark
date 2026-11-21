@@ -176515,3 +176515,134 @@ class TestDissectDhcpOpt139:
                 '-e', '_ws.expert.message',
             ), encoding='utf-8', env=test_env)
         assert 'IPv4 Address-MoS: sub-option length exceeds option' in stdout
+
+
+class TestDissectA21:
+    '''A21 (3GPP2 A21/S102) over UDP 23272 and Exported PDU, from the
+    synthetic capture a21_coverage.pcapng.gz: 117 frames, 1-115 UDP and
+    116-117 Exported PDU "a21". Some frames carry a GCSNA PDU, which the
+    gcsna dissector (and for two frames cdma2k) decodes.'''
+
+    @staticmethod
+    def a21_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('a21_coverage.pcapng.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number',
+                *(('-e' + f) for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_a21_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 117 frames decode without malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a21_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 117
+        assert protocols.count('A21') == 106
+        assert protocols.count('gcsna') == 9
+        assert protocols.count('CDMA2K') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('a21_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_a21_correlation_id_ie(self, cmd_tshark, capture_file, test_env):
+        '''A Correlation ID IE in the IE list is read at the start of
+        its value: frame 12 has the header value 12 and the IE value 7
+        (it showed 460801, two octets late, before "A21: Fix IE parsing
+        and several field definitions"); the Exported PDU frame 116 has 99
+        and 7. Frame 7 has 7 in its header.'''
+        for passes in ((), ('-2',)):
+            lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                    'a21.corr_id_corr_value == 7',
+                    'a21.corr_id_corr_value', passes=passes)
+            assert lines == ['7\t7', '12\t12,7', '116\t99,7']
+        lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {13, 14}', 'a21.corr_id_corr_value')
+        assert lines == ['13\t4294967294,4294967295', '14\t14,16909060']
+
+    def test_a21_gcsna_status_priority(self, cmd_tshark, capture_file, test_env):
+        '''The call priority of GCSNA Status is decoded when Priority
+        Incl is set (frames 82-84), also without the status.'''
+        lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                'a21.gcsna_status_priority_incl == 1',
+                'a21.gcsna_status', 'a21.gcsna_status_call_priority')
+        assert lines == ['82\t\t5', '83\t1\t15', '84\t3\t0']
+
+    def test_a21_hrpd_sector_id(self, cmd_tshark, capture_file, test_env):
+        '''The HRPD Sector ID of the Pilot List is a byte string of the
+        given length; the Pilot and the Channel Record items have their
+        own lengths (frame 98: 25 and 3 octets).'''
+        import re
+        lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 98', 'a21.hrpd_sector_id_len', 'a21.hrpd_sector_id',
+                'a21.cell_id_info', 'a21.ch_band_class', 'a21.ch_channel_number',
+                'a21.ch_pilot_pn')
+        assert lines == ['98\t16\t000102030405060708090a0b0c0d0e0f\t4\t1\t16\t291']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a21_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 98', '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        assert re.search(r'<field name="" show="Pilot 1" size="25" ', stdout)
+        assert re.search(r'<field name="" show="Channel Record" size="3" ', stdout)
+
+    def test_a21_field_masks(self, cmd_tshark, capture_file, test_env):
+        '''ESN Identity Digit 1 is the high nibble; the Service Option is
+        a 16 bit value, with a name for 0x003b only; the 1x LAC PDU is a
+        byte string.'''
+        lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                'a21.mn_id_identity_digit_1 > 0', 'a21.mn_id_identity_digit_1')
+        assert lines == ['3\t3', '48\t3']
+        lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {6, 7}', 'a21.service_option')
+        assert lines == ['6\t59', '7\t22785']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a21_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {6, 7}', '-V', '-O', 'a21',
+            ), encoding='utf-8', env=test_env)
+        assert 'Service Option: HRPD Packet Data (59)' in stdout
+        assert 'Service Option: Unknown (22785)' in stdout
+        lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 71}', 'a21.1x_lac_en_pdu')
+        assert lines == ['1\t0102030405060708090a0b0c0d0e0f10111213', '71\t00']
+
+    def test_a21_mobile_identity(self, cmd_tshark, capture_file, test_env):
+        '''IMSIs are decoded with the E.212 dissector, also from the
+        Exported PDU frame.'''
+        lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                'e212.imsi', 'e212.imsi', 'a21.mn_id_type_of_identity')
+        assert lines == [
+            '1\t001010123456789\t6',
+            '5\t00101\t6',
+            '50\t310260123456789\t6',
+            '51\t2406912345678\t6',
+            '52\t460001234567890\t6',
+            '117\t001019876543210\t6',
+        ]
+
+    def test_a21_pilot_list(self, cmd_tshark, capture_file, test_env):
+        '''The pilot counts of the Pilot List IEs, and 30 pilots in one.'''
+        lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                'a21.pilot_list_num_of_pilots', 'a21.pilot_list_num_of_pilots')
+        assert [l.split('\t')[1] for l in lines] == [
+            '1', '2', '1', '1', '3', '3', '3', '4', '0', '1', '30', '1']
+
+    def test_a21_unknown_ie(self, cmd_tshark, capture_file, test_env):
+        '''IEs with unknown identifiers get a note and the IEs after
+        them are still decoded (frames 111-113).'''
+        lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                'a21.ie_data_not_dissected_yet', 'a21.cause_value')
+        assert lines == ['111\t3', '112\t3', '113\t']
+
+    def test_a21_gcsna_pdu(self, cmd_tshark, capture_file, test_env):
+        '''GCSNA PDUs are handed to gcsna, and a circuit service message
+        on to cdma2k (frames 108-109 are CDMA2K).'''
+        lines = self.a21_fields(cmd_tshark, capture_file, test_env,
+                'a21.gcsna_content', '_ws.col.protocol')
+        assert [l.split('\t')[1] for l in lines] == ['gcsna'] * 8 + ['CDMA2K'] * 2 + ['gcsna']
