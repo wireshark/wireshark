@@ -1602,10 +1602,10 @@ blf_read_ethernetframe(blf_params_t *params, int *err, char **err_info, int64_t 
     fix_endianness_blf_ethernetframeheader(&ethheader);
 
     uint16_t payload_length = ethheader.payloadlength;
-    if (payload_length > object_remaining) {
-        ws_debug("shortening payload_length because not enough bytes for frame");
-        /* XXX - Should we set caplen to the original declared length? */
-        payload_length = (uint16_t)object_remaining;
+    uint16_t payload_length_valid = payload_length;
+    if (payload_length_valid > object_remaining) {
+        ws_debug("shortening payload because not enough bytes for frame in object");
+        payload_length_valid = (uint16_t)object_remaining;
     }
 
     /*
@@ -1634,16 +1634,16 @@ blf_read_ethernetframe(blf_params_t *params, int *err, char **err_info, int64_t 
         phtonu16(tmpbuf + 14, ethheader.tci);
         phtonu16(tmpbuf + 16, ethheader.ethtype);
         ws_buffer_append(&params->rec->data, tmpbuf, (size_t)18);
-        caplen = ((uint32_t)18 + payload_length);
+        caplen = ((uint32_t)18 + payload_length_valid);
         len = ((uint32_t)18 + payload_length);
     } else {
         phtonu16(tmpbuf + 12, ethheader.ethtype);
         ws_buffer_append(&params->rec->data, tmpbuf, (size_t)14);
-        caplen = ((uint32_t)14 + payload_length);
+        caplen = ((uint32_t)14 + payload_length_valid);
         len = ((uint32_t)14 + payload_length);
     }
 
-    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_ethernetframeheader_t), &params->rec->data, payload_length, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_ethernetframeheader_t), &params->rec->data, payload_length_valid, err, err_info)) {
         ws_debug("copying ethernet frame failed");
         return false;
     }
@@ -1672,23 +1672,22 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int6
     }
     fix_endianness_blf_ethernetframeheader_ex(&ethheader);
 
-    if (object_remaining < ethheader.frame_length) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("blf: %s: frame too short", error ? "ETHERNET_ERROR_EX" : "ETHERNET_FRAME_EX");
-        ws_debug("frame too short");
-        return false;
+    uint16_t caplen = ethheader.frame_length;
+    if (caplen > object_remaining) {
+        ws_debug("shortening frame because not enough bytes for frame in object");
+        caplen = (uint16_t)object_remaining;
     }
 
-    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_ethernetframeheader_ex_t), &params->rec->data, ethheader.frame_length, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_ethernetframeheader_ex_t), &params->rec->data, caplen, err, err_info)) {
         ws_debug("copying ethernet frame failed");
         return false;
     }
 
     if (ethheader.flags & BLF_ETHERNET_EX_HARDWARECHANNEL) {
-        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, caplen, ethheader.frame_length);
         wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
     } else {
-        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, ethheader.frame_length, ethheader.frame_length);
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, caplen, ethheader.frame_length);
     }
 
     blf_add_direction_option(params, ethheader.direction);
@@ -1713,25 +1712,22 @@ blf_read_ethernet_rxerror(blf_params_t* params, int* err, char** err_info, int64
     }
     fix_endianness_blf_ethernet_rxerror(&ethheader);
 
-    if (object_remaining < ethheader.frame_length) {
-        /* XXX - Should this be shortened, and the indicated frame length used as
-         * original caplen, as above, instead of an error? */
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup("blf: ETHERNET_RXERROR: frame too short");
-        ws_debug("frame too short");
-        return false;
+    uint16_t caplen = ethheader.frame_length;
+    if (caplen > object_remaining) {
+        ws_debug("shortening frame because not enough bytes for frame in object");
+        caplen = (uint16_t)object_remaining;
     }
 
-    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_ethernet_rxerror_t), &params->rec->data, ethheader.frame_length, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_ethernet_rxerror_t), &params->rec->data, caplen, err, err_info)) {
         ws_debug("copying ethernet rx error failed");
         return false;
     }
 
     if (ethheader.hw_channel != 0) {    /* In this object type, a value of 0 is considered invalid. */
-        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, caplen, ethheader.frame_length);
         wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
     } else {
-        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, ethheader.frame_length, ethheader.frame_length);
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, caplen, ethheader.frame_length);
     }
     blf_add_direction_option(params, ethheader.direction);
 
@@ -1758,19 +1754,18 @@ blf_read_wlanframe(blf_params_t* params, int* err, char** err_info, int64_t data
     }
     fix_endianness_blf_wlanframeheader(&wlanheader);
 
-    if (object_remaining < wlanheader.frame_length) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup("blf: WLAN_FRAME: frame too short");
-        ws_debug("frame too short");
-        return false;
+    uint16_t caplen = wlanheader.frame_length;
+    if (caplen > object_remaining) {
+        ws_debug("shortening frame because not enough bytes for frame in object");
+        caplen = (uint16_t)object_remaining;
     }
 
-    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_wlanframeheader_t), &params->rec->data, wlanheader.frame_length, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_wlanframeheader_t), &params->rec->data, caplen, err, err_info)) {
         ws_debug("copying wlan frame failed");
         return false;
     }
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_IEEE_802_11, wlanheader.channel, UINT16_MAX, wlanheader.frame_length, wlanheader.frame_length);
+    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_IEEE_802_11, wlanheader.channel, UINT16_MAX, caplen, wlanheader.frame_length);
     blf_add_direction_option(params, wlanheader.direction);
 
     return true;
@@ -2252,32 +2247,26 @@ blf_read_canxlchannelframe(blf_params_t *params, int *err, char **err_info, int6
         phtoleu16(tmpbuf + 6, payload_length);
         phtoleu32(tmpbuf + 8, canxlheader.acceptanceField);
 
-        if (object_remaining < payload_length) {
-            *err = WTAP_ERR_BAD_FILE;
-            *err_info = ws_strdup("blf: CAN_XL_CHANNEL_HEADER: not enough bytes for canxl payload in object");
-            ws_debug("not enough bytes for canxl payload in object");
-            return false;
+        uint16_t payload_length_valid = payload_length;
+        if (payload_length_valid > object_remaining) {
+            ws_debug("shortening canxl payload because not enough bytes for payload in object");
+            payload_length_valid = (uint16_t)object_remaining;
         }
 
         ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
-        if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_canxlchannelframe_t), &params->rec->data, payload_length, err, err_info)) {
+        if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_canxlchannelframe_t), &params->rec->data, payload_length_valid, err, err_info)) {
             ws_debug("copying canxl payload failed");
             return false;
         }
 
-        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, canxlheader.channel, UINT16_MAX, sizeof(tmpbuf) + payload_length, sizeof(tmpbuf) + payload_length);
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, canxlheader.channel, UINT16_MAX, sizeof(tmpbuf) + payload_length_valid, sizeof(tmpbuf) + payload_length);
     } else {
         // Support for CAN or CAN-FD in CAN-XL Channel Frame format is experimental as of 2025!
         // If you have samples traces, please create a ticket and attach them to it: https://gitlab.com/wireshark/wireshark/-/issues
 
         bool canfd = canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_FDF;
         uint8_t canfd_flags = 0;
-
-        if (object_remaining < payload_length) {
-            ws_debug("shortening canxl for can/canfd payload because buffer is too short.");
-            payload_length = (uint16_t)object_remaining;
-        }
 
         if (canfd) {
             if (payload_length > 64) {
@@ -2328,7 +2317,13 @@ blf_read_canxlchannelframe(blf_params_t *params, int *err, char **err_info, int6
             payload_length = 0;
         }
 
-        if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, (uint8_t)payload_length, (uint8_t)payload_length, data_start + sizeof(canxlheader), flags, object_timestamp, canxlheader.channel, canfd_flags)) {
+        uint16_t payload_length_valid = payload_length;
+        if (payload_length_valid > object_remaining) {
+            ws_debug("shortening can/canfd payload in canxl because not enough bytes for payload in object");
+            payload_length_valid = (uint16_t)object_remaining;
+        }
+
+        if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, (uint8_t)payload_length, (uint8_t)payload_length_valid, data_start + sizeof(canxlheader), flags, object_timestamp, canxlheader.channel, canfd_flags)) {
             return false;
         }
     }
@@ -3402,6 +3397,14 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
     }
     fix_endianness_blf_apptext_header(&apptextheader);
 
+    /*
+     * Unlike the frame objects, whose payload we shorten to the bytes
+     * in the object while keeping the declared length as the packet
+     * length, reject text that doesn't fit. The text isn't a frame
+     * with a captured and a reported length, and a metadata text can
+     * be continued in later objects and joined to them, so a shortened
+     * piece would silently leave a gap in the middle of the XML.
+     */
     if (apptextheader.textLength > object_remaining) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("blf: APP_TEXT: text length %u is larger than the object",
