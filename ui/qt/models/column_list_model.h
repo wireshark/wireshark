@@ -10,6 +10,8 @@
 #ifndef COLUMN_LIST_MODELS_H
 #define COLUMN_LIST_MODELS_H
 
+#include <glib.h>
+
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
@@ -172,9 +174,14 @@ public:
     void deleteEntry(int row);
 
     /**
-     * @brief Resets the column list to the default configuration.
+     * @brief Resets the column list to the saved configuration, undoing all changes.
      */
-    void reset();
+    void reload();
+
+    /**
+     * @brief Replaces the column list with the default columns.
+     */
+    void resetToDefaults();
 
     /**
      * @brief Retrieves header data for the table model.
@@ -273,9 +280,12 @@ private:
     QString headerTitle(int section) const;
 
     /**
-     * @brief Populates the model with the initial set of columns from the configuration.
+     * @brief Populates the model with a list of columns.
+     * @param col_list The columns, a list of fmt_data.
+     * @param use_recent True to take the widths and alignments from recent,
+     * false for the defaults.
      */
-    void populate();
+    void populate(GList *col_list, bool use_recent);
 };
 
 #endif // COLUMN_LIST_MODELS_H

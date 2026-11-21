@@ -8,6 +8,7 @@
  */
 
 #include <ui/qt/models/column_list_model.h>
+#include <ui/qt/models/pref_models.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
@@ -15,6 +16,7 @@
 
 #include <epan/column.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/proto.h>
 #include <ui/preference_utils.h>
 #include <ui/recent.h>
@@ -307,7 +309,7 @@ void ColumnTypeDelegate::updateEditorGeometry(QWidget *editor,
 ColumnListModel::ColumnListModel(QObject * parent):
     QAbstractTableModel(parent)
 {
-    populate();
+    populate(prefs.col_list, true);
 }
 
 bool ColumnListModel::displayEnabled(const QModelIndex &index, bool &displayStrings, bool &displayDetails)
@@ -366,13 +368,13 @@ QString ColumnListModel::headerTitle(int section) const
     return QString();
 }
 
-void ColumnListModel::populate()
+void ColumnListModel::populate(GList *col_list, bool use_recent)
 {
     store_.clear();
 
     int nr = 0;
 
-    for (GList *cur = g_list_first(prefs.col_list); cur != NULL && cur->data != NULL; cur = cur->next) {
+    for (GList *cur = g_list_first(col_list); cur != NULL && cur->data != NULL; cur = cur->next) {
         fmt_data *cfmt = (fmt_data *) cur->data;
         ListElement ne;
         ne.nr = nr;
@@ -383,8 +385,8 @@ void ColumnListModel::populate()
         ne.occurrence = cfmt->custom_occurrence;
         ne.display = cfmt->display;
 
-        ne.width = recent_get_column_width(nr);
-        ne.xalign = recent_get_column_xalign(nr);
+        ne.width = use_recent ? recent_get_column_width(nr) : -1;
+        ne.xalign = use_recent ? recent_get_column_xalign(nr) : COLUMN_XALIGN_DEFAULT;
 
         nr++;
         store_ << ne;
@@ -677,9 +679,22 @@ void ColumnListModel::deleteEntry(int row)
     endRemoveRows();
 }
 
-void ColumnListModel::reset()
+void ColumnListModel::reload()
 {
     beginResetModel();
-    populate();
+    populate(prefs.col_list, true);
+    endResetModel();
+}
+
+void ColumnListModel::resetToDefaults()
+{
+    pref_t *pref = prefFromPrefPtr(&prefs.col_list);
+    if (!pref) {
+        return;
+    }
+
+    // The widths and alignments in recent belong to the current columns
+    beginResetModel();
+    populate(prefs_get_list_value(pref, pref_default), false);
     endResetModel();
 }
