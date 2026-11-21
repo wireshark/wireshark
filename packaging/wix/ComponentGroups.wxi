@@ -85,7 +85,19 @@
         <ComponentRef Id="cmpExtcap_html" />
         <ComponentRef Id="cmpIpmap_html" />
         <ComponentRef Id="cmpReleaseNotes_html" />
+        <ComponentRef Id="cmpQuietUninstallString" />
       </ComponentGroup>
+    </Fragment>
+
+  <!-- Windows Installer writes UninstallString under Uninstall\[ProductCode].
+       Add QuietUninstallString next to it so that "msiexec" isn't required to
+       be typed by hand when scripting an uninstall. -->
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpQuietUninstallString">
+          <RegistryValue Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\[ProductCode]" Name="QuietUninstallString" Type="string" Value="MsiExec.exe /X[ProductCode] /qn /norestart" KeyPath="yes" />
+        </Component>
+      </DirectoryRef>
     </Fragment>
 
   <!-- global config files By design these shouldn't be overwritten if they already exist -->
