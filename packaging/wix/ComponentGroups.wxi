@@ -114,6 +114,34 @@
       </ComponentGroup>
     </Fragment>
 
+  <!-- Dynamically harvested files -->
+  <Fragment>
+    <!-- Diameter XML dictionary files -->
+    <ComponentGroup Id="CG.Diameter" Directory="dirDiameter">
+      <Files Include="$(var.DiameterDir)\**" />
+    </ComponentGroup>
+    <!-- Qualcomm XML dictionary files -->
+    <ComponentGroup Id="CG.Qualcomm" Directory="dirQualcomm">
+      <Files Include="$(var.QualcommDir)\**" />
+    </ComponentGroup>
+    <!-- Qt translation files -->
+    <ComponentGroup Id="CG.QtTranslations" Directory="dirTranslations">
+      <Files Include="$(var.QtTranslationDir)\**" />
+    </ComponentGroup>
+    <!-- RADIUS dictionary files -->
+    <ComponentGroup Id="CG.RadiusDict" Directory="dirRadius">
+      <Files Include="$(var.RadiusDictDir)\**" />
+    </ComponentGroup>
+    <!-- MIBs -->
+    <ComponentGroup Id="CG.Plugins.SNMP" Directory="dirSnmpMibs">
+      <Files Include="$(var.SnmpMibDir)\**" />
+    </ComponentGroup>
+    <!-- The contents of wsug_html_chunked -->
+    <ComponentGroup Id="CG.Documentation" Directory="dirUsersGuide">
+      <Files Include="$(var.UsersGuideDir)\**" />
+    </ComponentGroup>
+  </Fragment>
+
   <!-- dtds -->
     <Fragment>
       <DirectoryRef Id="dirDtds">
