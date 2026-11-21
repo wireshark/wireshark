@@ -102,44 +102,51 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         }
 
         /*
-         * Put the line into the protocol tree.
+         * Show every line of the segment as tags + requests or replies.
+         * (Literals, quoted strings and continuation lines are not
+         * interpreted.)
          */
-        ti = proto_tree_add_format_text(acap_tree, tvb, offset, next_offset - offset);
-        reqresp_tree = proto_item_add_subtree(ti, ett_acap_reqresp);
+        while (offset < tvb_captured_length(tvb)) {
+            /*
+             * Put the line into the protocol tree.
+             */
+            tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset);
+            line = tvb_get_ptr(tvb, offset, linelen);
 
-        /*
-         * Show the first line as tags + requests or replies.
-         */
+            ti = proto_tree_add_format_text(acap_tree, tvb, offset, next_offset - offset);
+            reqresp_tree = proto_item_add_subtree(ti, ett_acap_reqresp);
 
-        /*
-         * Extract the first token, and, if there is a first
-         * token, add it as the request or reply tag.
-         */
-        tokenlen = get_token_len(line, line + linelen, &next_token);
-        if (tokenlen != 0) {
-            if (is_request) {
-                proto_tree_add_string(reqresp_tree, hf_acap_request_tag, tvb, offset,
-                    tokenlen, format_text(pinfo->pool, (const char*)line, tokenlen));
-            } else {
-                proto_tree_add_string(reqresp_tree, hf_acap_response_tag, tvb, offset,
-                    tokenlen, format_text(pinfo->pool, (const char*)line, tokenlen));
+            /*
+             * Extract the first token, and, if there is a first
+             * token, add it as the request or reply tag.
+             */
+            tokenlen = get_token_len(line, line + linelen, &next_token);
+            if (tokenlen != 0) {
+                if (is_request) {
+                    proto_tree_add_string(reqresp_tree, hf_acap_request_tag, tvb, offset,
+                        tokenlen, format_text(pinfo->pool, (const char*)line, tokenlen));
+                } else {
+                    proto_tree_add_string(reqresp_tree, hf_acap_response_tag, tvb, offset,
+                        tokenlen, format_text(pinfo->pool, (const char*)line, tokenlen));
+                }
+                offset += (unsigned)(next_token - line);
+                linelen -= (unsigned)(next_token - line);
+                line = next_token;
             }
-            offset += (int)(next_token - line);
-            linelen -= (int)(next_token - line);
-            line = next_token;
-        }
 
-        /*
-         * Add the rest of the line as request or reply data.
-         */
-        if (linelen != 0) {
-            if (is_request) {
-                proto_tree_add_string(reqresp_tree, hf_acap_request_data, tvb, offset,
-                    linelen, format_text(pinfo->pool, (const char*)line, linelen));
-            } else {
-                proto_tree_add_string(reqresp_tree, hf_acap_response_data, tvb, offset,
-                    linelen, format_text(pinfo->pool, (const char*)line, linelen));
+            /*
+             * Add the rest of the line as request or reply data.
+             */
+            if (linelen != 0) {
+                if (is_request) {
+                    proto_tree_add_string(reqresp_tree, hf_acap_request_data, tvb, offset,
+                        linelen, format_text(pinfo->pool, (const char*)line, linelen));
+                } else {
+                    proto_tree_add_string(reqresp_tree, hf_acap_response_data, tvb, offset,
+                        linelen, format_text(pinfo->pool, (const char*)line, linelen));
+                }
             }
+            offset = next_offset;
         }
 
         /*
