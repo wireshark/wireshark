@@ -464,6 +464,10 @@ QFont FontManager::fontFromName(const QString &name)
         }
 #endif
         f.fromString(trimmedName);
+        // Older versions could store a struck-out or underlined font,
+        // which is of no use for the UI and can no longer be changed.
+        f.setStrikeOut(false);
+        f.setUnderline(false);
     } else if (!name.isEmpty()) {
         f.setFamily(name);
     }

@@ -19,14 +19,13 @@ class FontSelectionWidget;
 }
 
 /**
- * @brief Font selector with family, style and size lists, effects and a sample.
+ * @brief Font selector with family, style and size lists and a sample.
  *
  * The family list is built lazily, once per process, on the first show of any
  * selector; until then it holds only the current family and the style and size
  * lists stay empty. Setters never emit changed(); only user edits do. Every
- * field (family, style, size, strikeout, underline) the user did not edit is
- * kept exactly as set, so opening and closing a dialog does not rewrite a
- * stored font.
+ * field (family, style, size) the user did not edit is kept exactly as set,
+ * so opening and closing a dialog does not rewrite a stored font.
  */
 class FontSelectionWidget : public QWidget
 {
@@ -48,8 +47,7 @@ public:
     /** @brief Optional parts of the selector. */
     enum Feature {
         StyleFeature = 0x1,         ///< the style label and list
-        EffectsFeature = 0x2,       ///< the Effects group (strikeout, underline)
-        FamilyFilterFeature = 0x4   ///< the "Show only monospaced fonts" checkbox
+        FamilyFilterFeature = 0x2   ///< the "Show only monospaced fonts" checkbox
     };
     Q_DECLARE_FLAGS(Features, Feature)
 
@@ -140,7 +138,7 @@ public:
      * @brief Return the edited font.
      *
      * This is the font given to setSelectedFont() (or built by setSelection()),
-     * with family, style, size, strikeout and underline replaced only once the
+     * with family, style and size replaced only once the
      * user edited them.
      */
     QFont selectedFont() const;
@@ -161,7 +159,7 @@ public:
     void setSampleText(const QString &text);
 
 signals:
-    /** @brief Emitted when the user changes family, style, size or an effect. */
+    /** @brief Emitted when the user changes family, style or size. */
     void changed();
 
 protected:
@@ -176,7 +174,6 @@ private:
     void fillSizeList();
     void updateSizeSpin();
     void selectSizeRow();
-    void updateEffects();
     void resetTo(const QFont &font, const Selection &sel);
     void refreshAll();
     void refreshSample();
@@ -185,23 +182,17 @@ private:
     void styleSelectionChanged();
     void sizeSelectionChanged();
     void sizeValueChanged(double value);
-    void strikeOutToggled(bool checked);
-    void underlineToggled(bool checked);
 
     Ui::FontSelectionWidget *ui;
     QFont base_;
     Selection sel_;
     QString style_;
-    bool strikeOut_ = false;
-    bool underline_ = false;
     bool familyEdited_ = false;
     bool styleEdited_ = false;
     bool sizeEdited_ = false;
-    bool strikeOutEdited_ = false;
-    bool underlineEdited_ = false;
     FamilyFilter filter_ = FamilyFilter::AllFamilies;
     FontClass fontClass_ = FontClass::Regular;
-    Features features_ = Features(StyleFeature | EffectsFeature | FamilyFilterFeature);
+    Features features_ = Features(StyleFeature | FamilyFilterFeature);
     bool defaultAllowed_ = false;
     int filledGeneration_ = -1;
     QString sampleText_;
