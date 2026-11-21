@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 /* commands id */
 #define BEGIN_BLOCK_DATA    0x80
@@ -82,6 +83,8 @@ static int hf_a_weekofyear_prefix;
 static int ett_aasp;
 static int ett_a_cmd;
 static int ett_a_item;
+
+static expert_field ei_aasp_short;
 
 /* Preferences */
 
@@ -152,40 +155,46 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
             for(i = 1; i<tvb_reported_length(tvb); )
             {
-                switch(tvb_get_uint8(tvb, i))
-                {
-                default: i = tvb_reported_length(tvb); continue;
+                unsigned attr = tvb_get_uint8(tvb, i);
+                unsigned alen;
 
+                switch(attr)
+                {
                 case 1:
                 case 3:
                 case 7:
-                    {
-                        ti = proto_tree_add_item(subtree, hf_a_attr, tvb, i, 2, ENC_NA);
-                        proto_item_append_text(ti, " %d", tvb_get_uint8(tvb, i));
-                        i+=2; break;
-                    }
-
+                    alen = 2; break;
                 case 0:
                 case 4:
-                    {
-                        ti = proto_tree_add_item(subtree, hf_a_attr, tvb, i, 3, ENC_NA);
-                        proto_item_append_text(ti, " %d", tvb_get_uint8(tvb, i));
-                        i+=3; break;
-                    }
-
+                    alen = 3; break;
                 case 2:
-                    {
-                        ti = proto_tree_add_item(subtree, hf_a_attr, tvb, i, 5, ENC_NA);
-                        proto_item_append_text(ti, " %d", tvb_get_uint8(tvb, i));
-                        i+=5; break;
-                    }
+                    alen = 5; break;
+                default:
+                    alen = 0; break;
                 }
+                if (alen == 0)
+                    break;
+                if (tvb_reported_length(tvb) - i < alen)
+                {
+                    proto_tree_add_expert_remaining(subtree, pinfo, &ei_aasp_short, tvb, i);
+                    break;
+                }
+                ti = proto_tree_add_item(subtree, hf_a_attr, tvb, i, alen, ENC_NA);
+                proto_item_append_text(ti, " %d", attr);
+                i += alen;
             }
             break;
         }
     case BUTTON_PRESSED:
         {
-            uint8_t c = tvb_get_uint8(tvb, 5);
+            uint8_t c;
+
+            if(tvb_reported_length(tvb) <= 5)
+            {
+                proto_tree_add_expert_remaining(subtree, pinfo, &ei_aasp_short, tvb, 1);
+                break;
+            }
+            c = tvb_get_uint8(tvb, 5);
             proto_item_append_text(ti, ": %d '%c'", c, c);
 
             proto_tree_add_item(subtree, hf_a_data, tvb, 1, 4, ENC_NA);
@@ -200,12 +209,13 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 proto_tree_add_item(subtree, hf_a_data, tvb, 1, 3, ENC_NA);
                 proto_tree_add_item(subtree, hf_a_length, tvb, 4, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_a_text, tvb, 5, -1, ENC_ASCII);
-
-                pstr = tvb_get_string_enc(pinfo->pool, tvb, 5, tvb_get_uint8(tvb, 4), ENC_ASCII|ENC_NA);
-                if(pstr)
+                if(tvb_reported_length(tvb) > 5)
                 {
-                    proto_item_append_text(ti, ": '%s'", pstr);
+                    proto_tree_add_item_ret_string(subtree, hf_a_text, tvb, 5, -1, ENC_ASCII|ENC_NA, pinfo->pool, &pstr);
+                    if(pstr)
+                    {
+                        proto_item_append_text(ti, ": '%s'", pstr);
+                    }
                 }
             }
             else
@@ -220,7 +230,19 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             for(i=1; i<tvb_reported_length(tvb); )
             {
-                switch(tvb_get_uint8(tvb, i))
+                unsigned item = tvb_get_uint8(tvb, i);
+                unsigned need = 2;
+
+                /* Items 4 to 7 have a length byte; all items have two or more bytes */
+                if(item >= 4 && item <= 7 && tvb_reported_length(tvb) - i >= 2)
+                    need += tvb_get_uint8(tvb, i+1);
+                if(item >= 1 && item <= 10 && tvb_reported_length(tvb) - i < need)
+                {
+                    proto_tree_add_expert_remaining(subtree, pinfo, &ei_aasp_short, tvb, i);
+                    break;
+                }
+
+                switch(item)
                 {
                 default: i++; break;
                 case 1:
@@ -334,12 +356,16 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if(tvb_reported_length(tvb) > 1)
             {
                 proto_tree_add_item(subtree, hf_a_line, tvb, 1, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_a_length, tvb, 2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_a_cdpn, tvb, 3, -1, ENC_ASCII);
-
-                pstr = tvb_get_string_enc(pinfo->pool, tvb, 3, tvb_get_uint8(tvb, 2), ENC_ASCII|ENC_NA);
-                if(pstr)
-                    proto_item_append_text(ti, ": '%s'", pstr);
+                if(tvb_reported_length(tvb) > 2)
+                {
+                    proto_tree_add_item(subtree, hf_a_length, tvb, 2, 1, ENC_BIG_ENDIAN);
+                    if(tvb_reported_length(tvb) > 3)
+                    {
+                        proto_tree_add_item_ret_string(subtree, hf_a_cdpn, tvb, 3, -1, ENC_ASCII|ENC_NA, pinfo->pool, &pstr);
+                        if(pstr)
+                            proto_item_append_text(ti, ": '%s'", pstr);
+                    }
+                }
             }
             else
                 proto_item_append_text(ti, ": ???");
@@ -492,12 +518,20 @@ proto_register_aasp(void)
         &ett_a_item,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_aasp_short, { "aasp.short", PI_MALFORMED, PI_ERROR, "Command too short", EXPFILL }},
+    };
+    expert_module_t *expert_module;
+
     /* Register the protocol name and description */
     proto_aasp = proto_register_protocol("Aastra Signalling Protocol", "AASP", "aasp");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_aasp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_module = expert_register_protocol(proto_aasp);
+    expert_register_field_array(expert_module, ei, array_length(ei));
 
     /* Register our configuration options */
     /* aasp_module = prefs_register_protocol(proto_aasp, proto_reg_handoff_aasp); */
