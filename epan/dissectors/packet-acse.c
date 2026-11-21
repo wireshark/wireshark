@@ -1463,7 +1463,7 @@ dissect_acse_A_DT_apdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset
 
 static unsigned
 dissect_acse_T_ACRQ_aSO_context_name(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(false, actx, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset,
                                          hf_index, &actx->external.direct_reference);
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
@@ -1504,7 +1504,7 @@ dissect_acse_ACRQ_apdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset
 
 static unsigned
 dissect_acse_T_ACRP_aSO_context_name(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(false, actx, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset,
                                          hf_index, &actx->external.direct_reference);
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
@@ -1644,7 +1644,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	 * passes a tcap_private_t to the BER OID handle), so do not write
 	 * to it or hand it on.
 	 */
-	asn1_ctx.private_data = (session->spdu_type == SES_DATA_TRANSFER) ? NULL : session;
+	asn1_ctx.private_data = (session->spdu_type == SES_DATA_TRANSFER || session->spdu_type == SES_TYPED_DATA) ? NULL : session;
 	/* save parent_tree so subdissectors can create new top nodes */
 	asn1_ctx.subtree.top_tree = parent_tree;
 
@@ -1660,6 +1660,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	case SES_ABORT:				/*   ABRT   */
 	case CLSES_UNIT_DATA:		/* AARQ Connectionless session */
 	case SES_DATA_TRANSFER:		/* ACSE APDU in a P-DATA (presentation context is ACSE) */
+	case SES_TYPED_DATA:		/* the same in a P-TYPED-DATA */
 		break;
 	default:
 		return 0;

@@ -154,7 +154,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	 * passes a tcap_private_t to the BER OID handle), so do not write
 	 * to it or hand it on.
 	 */
-	asn1_ctx.private_data = (session->spdu_type == SES_DATA_TRANSFER) ? NULL : session;
+	asn1_ctx.private_data = (session->spdu_type == SES_DATA_TRANSFER || session->spdu_type == SES_TYPED_DATA) ? NULL : session;
 	/* save parent_tree so subdissectors can create new top nodes */
 	asn1_ctx.subtree.top_tree = parent_tree;
 
@@ -170,6 +170,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	case SES_ABORT:				/*   ABRT   */
 	case CLSES_UNIT_DATA:		/* AARQ Connectionless session */
 	case SES_DATA_TRANSFER:		/* ACSE APDU in a P-DATA (presentation context is ACSE) */
+	case SES_TYPED_DATA:		/* the same in a P-TYPED-DATA */
 		break;
 	default:
 		return 0;

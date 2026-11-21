@@ -69,12 +69,12 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY ACRQ-apdu/_untag/aSO-context-name
-  offset = dissect_ber_object_identifier_str(false, actx, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset,
                                          hf_index, &actx->external.direct_reference);
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
 #.FN_BODY ACRP-apdu/_untag/aSO-context-name
-  offset = dissect_ber_object_identifier_str(false, actx, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset,
                                          hf_index, &actx->external.direct_reference);
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
