@@ -80,6 +80,7 @@ static int ett_status_word;
 static int ett_status_word_sw2;
 
 static expert_field ei_unknown_command_or_invalid_parameters;
+static expert_field ei_response_too_short;
 
 static dissector_handle_t  acr122_handle;
 static dissector_handle_t  pn532_handle;
@@ -219,6 +220,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     uint8_t          p1;
     uint8_t          p2;
     uint8_t          length;
+    unsigned         cmd_len;
     uint8_t          command = CMD_UNKNOWN;
     command_data_t  *command_data;
     urb_info_t      *urb;
@@ -306,7 +308,17 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 command = CMD_SET_BUZZER_OUTPUT_FOR_CARD_DETECTION;
         }
 
-        sub_item = proto_tree_add_uint(main_tree, hf_command, tvb, offset, 5 + length, command);
+        /* For Read Binary Blocks and Read Value Block the last byte of the
+         * header is the expected length (Le), not the length of data that
+         * follows; the obsolete Authentication has a 6 byte header. */
+        if (command == CMD_READ_BINARY_BLOCKS || command == CMD_READ_VALUE_BLOCK)
+            cmd_len = 5;
+        else if (command == CMD_AUTHENTICATION_OBSOLETE)
+            cmd_len = 6;
+        else
+            cmd_len = 5 + (unsigned)length;
+
+        sub_item = proto_tree_add_uint(main_tree, hf_command, tvb, offset, cmd_len, command);
         proto_item_set_generated(sub_item);
         if (command == CMD_UNKNOWN)
             expert_add_info(pinfo, sub_item, &ei_unknown_command_or_invalid_parameters);
@@ -325,7 +337,12 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         p2_item = proto_tree_add_item(main_tree, hf_p2, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(main_tree, hf_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        if (command == CMD_AUTHENTICATION_OBSOLETE) {
+            /* The byte in the length position is the key type */
+            proto_tree_add_item(main_tree, hf_key_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        } else {
+            proto_tree_add_item(main_tree, hf_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        }
         offset += 1;
 
         switch (command) {
@@ -376,9 +393,6 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case CMD_AUTHENTICATION_OBSOLETE:
             p2_tree = proto_item_add_subtree(p2_item, ett_p2_item);
             proto_tree_add_item(p2_tree, hf_block_number, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
-
-            proto_tree_add_item(main_tree, hf_key_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
 
             proto_tree_add_item(main_tree, hf_key_number, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -472,6 +486,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     } else { /* Response */
         uint32_t      command_frame_number = 0;
         bool          use_status_word = false;
+        unsigned      min_len;
         wmem_tree_t  *wmem_tree;
 
         key[3].length = 0;
@@ -500,6 +515,17 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (command != CMD_UNKNOWN) {
             sub_item = proto_tree_add_uint(main_tree, hf_response_for, tvb, offset, tvb_captured_length_remaining(tvb, offset), command_frame_number);
             proto_item_set_generated(sub_item);
+        }
+
+        /* Every response but the firmware version ends in a status word */
+        min_len = 2;
+        if (command == CMD_GET_FIRMWARE_VERSION)
+            min_len = 0;
+        else if (command == CMD_READ_VALUE_BLOCK)
+            min_len = 6;
+        if (tvb_captured_length_remaining(tvb, offset) < min_len) {
+            proto_tree_add_expert_remaining(main_tree, pinfo, &ei_response_too_short, tvb, offset);
+            return tvb_captured_length(tvb);
         }
 
         switch (command) {
@@ -875,6 +901,7 @@ proto_register_acr122(void)
 
     static ei_register_info ei[] = {
         { &ei_unknown_command_or_invalid_parameters, { "acr122.expert.unknown_command", PI_PROTOCOL, PI_NOTE, "Unknown command or invalid parameters", EXPFILL }},
+        { &ei_response_too_short, { "acr122.expert.response_too_short", PI_MALFORMED, PI_ERROR, "Response too short", EXPFILL }},
     };
 
     command_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
