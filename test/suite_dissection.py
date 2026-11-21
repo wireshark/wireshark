@@ -177368,3 +177368,164 @@ class TestDissectAcp133:
                            '-eframe.number', '-eacp133.description',
                            '-eacp133.maximum_content_length')
         assert out == ['3\tMail gateway\t5000', '4\t\t5000']
+
+
+class TestDissectAcr122:
+    # ACR122 is reached only through Decode As of usbccid.subdissector.
+    DECODE_AS = ('-d', 'usbccid.subdissector,acr122')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, passes, display_filter, *fields):
+        '''Rows of the given fields (tab separated, split) for the frames
+        matching display_filter.'''
+        args = [cmd_tshark, *TestDissectAcr122.DECODE_AS, *passes,
+                '-r', capture_file('acr122_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_acr122_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames by top protocol; the only malformed frames are the two
+        too short responses, and the only expert infos are the two unknown commands and the two responses that are
+        too short, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('acr122_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 198
+        assert protocols.count('ACR 122') == 90
+        assert protocols.count('PN532') == 5
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, passes,
+                    '_ws.malformed', 'frame.number')
+            # the "too short" expert infos are malformed-class experts
+            assert rows == [['194'], ['198']]
+            rows = self.fields(cmd_tshark, capture_file, test_env, passes,
+                    '_ws.expert', 'frame.number', '_ws.expert.message')
+            assert rows == [
+                ['157', 'Unknown command or invalid parameters'],
+                ['161', 'Unknown command or invalid parameters'],
+                ['194', 'Response too short'],
+                ['198', 'Response too short'],
+            ]
+
+    def test_acr122_response_matching(self, cmd_tshark, capture_file, test_env):
+        '''A response on endpoint 0x82 is matched to the command sent on
+        endpoint 0x02 (the USB direction bit is masked out of the
+        conversation key); it was always "Unknown" before the fix.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, passes,
+                    'frame.number in {5, 8, 13, 16, 165, 168, 170, 176}',
+                    'frame.number', 'acr122.response_for', '_ws.col.info')
+            assert rows == [
+                ['5', '', 'Command: Get Firmware Version'],
+                ['8', '5', 'Response: Get Firmware Version'],
+                ['13', '', 'Command: Get Data - ATS'],
+                ['16', '13', 'Response: Get Data - ATS - Success'],
+                ['165', '', 'Command: Get Firmware Version'],
+                ['168', '165', 'Response: Get Firmware Version'],
+                # a second response to the same command is not matched
+                ['170', '', 'Response: Unknown - Error: Unknown error'],
+                # a response before any command of the device
+                ['176', '', 'Response: Unknown - Success'],
+            ]
+
+    def test_acr122_get_data_ats(self, cmd_tshark, capture_file, test_env):
+        '''Get Data (ATS) and Get Data (UID) are told apart (the ATS check
+        was an "if" and reset the UID command when it was not an ATS).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number in {9, 12, 13, 16}', 'frame.number', 'acr122.command',
+                'acr122.response', 'acr122.uid', 'acr122.ats')
+        assert rows == [
+            ['9', '0x01', '', '', ''],
+            ['12', '', '0x01', '04a1b2c3', ''],
+            ['13', '0x02', '', '', ''],
+            ['16', '', '0x02', '', '3b80800101'],
+        ]
+
+    def test_acr122_read_value_block(self, cmd_tshark, capture_file, test_env):
+        '''The offset is advanced after the value, so the status word is
+        read from the right place in a Read Value Block response.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, passes,
+                    'frame.number in {56, 60}', 'frame.number', 'acr122.value',
+                    'acr122.status_word', 'acr122.status_word.sw1',
+                    'acr122.status_word.sw2', '_ws.col.info')
+            assert rows == [
+                ['56', '5', '0x9000', '0x90', '0x00',
+                    'Response: Read Value Block - Success'],
+                ['60', '-7', '0x6300', '0x63', '0x00',
+                    'Response: Read Value Block - Error: Operation Fail'],
+            ]
+
+    def test_acr122_command_length(self, cmd_tshark, capture_file, test_env):
+        '''The Command item covers the whole APDU (5 + Lc bytes).'''
+        import json
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('acr122_coverage.pcap.gz'),
+                '-Y', 'acr122.command and frame.number in {5, 17, 25, 33, 37, 41, 53, 73}',
+                '-Tjson', '-x', '-j', 'acr122',
+            ), encoding='utf-8', env=test_env)
+        # Get Firmware Version (no data), Load Authentication Keys (6),
+        # Authentication (obsolete, 6 byte header), Read Binary Blocks (Le
+        # is not data: 5), Update Binary Blocks (16), Value Block Operation
+        # (5), Read Value Block (5) and Direct Transmit without data
+        assert [p['_source']['layers']['acr122']['acr122.command_raw'][2]
+                for p in json.loads(stdout)] == [5, 11, 6, 5, 21, 10, 5, 5]
+
+    def test_acr122_direct_transmit(self, cmd_tshark, capture_file, test_env):
+        '''Direct Transmit hands the payload to PN532 in both directions.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'pn532', 'frame.number', '_ws.col.info')
+        assert rows == [
+            ['65', 'GetFirmwareVersion'],
+            ['68', 'GetFirmwareVersion (Response) - Success'],
+            ['69', 'InListPassiveTarget'],
+            ['72', 'InListPassiveTarget (Response) - Success'],
+            ['77', 'GetFirmwareVersion'],
+        ]
+
+    def test_acr122_status_and_led(self, cmd_tshark, capture_file, test_env):
+        '''Status words, the LED bits in SW2, the PICC operating
+        parameter bits and the timeout formatting.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number in {88, 144, 148, 156, 100}', 'frame.number', '_ws.col.info')
+        assert rows == [
+            ['88', 'Response: Bi-Color and Buzzer LED Control - Success - Red LED: On, Green LED: On'],
+            ['100', 'Response: Get PICC Operating Parameter - Success'],
+            ['144', 'Response: Get Data - UID - Unknown error - Length 8'],
+            ['148', 'Response: Get Data - UID - Error: Operation Fail'],
+            ['156', 'Response: Get Data - UID - Error: Unknown error'],
+        ]
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'acr122.timeout', 'frame.number', 'acr122.timeout')
+        assert [r[1] for r in rows] == ['0', '255', '3', '11', '12', '24']
+
+    def test_acr122_authentication_obsolete(self, cmd_tshark, capture_file, test_env):
+        '''The obsolete Authentication is FF 88 00 <block> <key type>
+        <key number>: the byte in the length position is the key type
+        and there is no length field.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number == 25', 'acr122.key_type', 'acr122.key_number',
+                'acr122.length', 'acr122.block_number')
+        assert rows == [['0x60', '1', '', '4']]
+
+    def test_acr122_response_too_short(self, cmd_tshark, capture_file, test_env):
+        '''A response without the status word (or the value of a Read
+        Value Block) gets an expert info and no exception.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, passes,
+                    'frame.number in {194, 198}', 'frame.number', '_ws.col.info',
+                    'acr122.status_word', '_ws.expert.message')
+            assert rows == [
+                ['194', 'Response: Get Data - UID', '', 'Response too short'],
+                ['198', 'Response: Read Value Block', '', 'Response too short'],
+            ]
+            # no exception: the frames are marked malformed by the expert
+            # info only, the Response item and Info are present
+            rows = self.fields(cmd_tshark, capture_file, test_env, passes,
+                    '_ws.malformed && !_ws.expert', 'frame.number')
+            assert rows == []
