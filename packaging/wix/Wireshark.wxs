@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <?define WiresharkFileAssociation = "wireshark-capture-file" ?>
 
@@ -13,16 +12,16 @@
        .ico file instead of pointing to wireshark.exe.
   -->
   <?define ProgramsFeaturesIconPath="$(var.IconDir)\wireshark.ico"?>
-  <Product Id="*" Name="$(var.WiresharkName)" Language="1033" Version="$(var.WiresharkVersion)" Manufacturer="The Wireshark developer community, https://www.wireshark.org/" UpgradeCode="0d67aace-269a-4264-81a3-da8055c1c79c">
-        <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+  <Package Name="$(var.WiresharkName)" Language="1033" Version="$(var.WiresharkVersion)" Manufacturer="The Wireshark developer community, https://www.wireshark.org/" UpgradeCode="0d67aace-269a-4264-81a3-da8055c1c79c">
+
     <!-- Values for Additional Tasks -->
-    <Property Id="WIRESHARK_START_MENU" Value="1" Secure="yes"/>
-    <Property Id="WIRESHARK_DESKTOP_ICON" Secure="yes"/>
+    <Property Id="WIRESHARK_START_MENU" Value="1" Secure="yes" />
+    <Property Id="WIRESHARK_DESKTOP_ICON" Secure="yes" />
     <Property Id="WIRESHARK_QUICK_LAUNCH_ICON" Value="1" Secure="yes" />
     <Property Id="WIRESHARK_LEGACY_START_MENU" Value="1" Secure="yes" />
-    <Property Id="WIRESHARK_LEGACY_DESKTOP_ICON" Secure="yes"/>
+    <Property Id="WIRESHARK_LEGACY_DESKTOP_ICON" Secure="yes" />
     <Property Id="WIRESHARK_LEGACY_QUICK_LAUNCH_ICON" Value="1" Secure="yes" />
-    <Property Id="WIRESHARK_FILE_EXTENSIONS" Value="1"/>
+    <Property Id="WIRESHARK_FILE_EXTENSIONS" Value="1" />
 
     <!-- We set AllowSameVersionUpgrade so that automated builds (which
          only differ by micro version numbers) won't get installed side
@@ -30,10 +29,7 @@
          might want to find a better fix, e.g. REINSTALLMODE + AllowDowngrades:
          https://stackoverflow.com/questions/1544990/wix-major-upgrade-doesnt-completely-install-app-on-downgrade
     -->
-    <MajorUpgrade
-      DowngradeErrorMessage="A newer version of $(var.WiresharkName) is already installed."
-      AllowSameVersionUpgrades="yes"
-    />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.WiresharkName) is already installed." AllowSameVersionUpgrades="yes" />
 
 
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
@@ -45,8 +41,8 @@
     <FeatureRef Id="Fe.Wireshark" />
 
     <!-- Include the installer UI definition -->
-    <UIRef Id="UI.Wireshark"/>
-  </Product>
+    <UIRef Id="UI.Wireshark" />
+  </Package>
 
   <?include InputPaths.wxi ?>
   <?include DirectoryStructure.wxi ?>

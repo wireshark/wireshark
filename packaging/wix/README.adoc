@@ -6,7 +6,7 @@ It might one day replace the NSIS installer, but needs to be a little more compl
 == Differences/Notes Compared To The NSIS Installer
 
 . You need the https://wixtoolset.org/[WiX toolset] to build the .msi installer.
-Version 3.10 or later is recommended.
+Version 7 or later is recommended.
 
 . The User's Guide, SNMP, Radius, Diameter, and Qt translations files are harvested to
 be included in the installer.  Any custom/additional files just need to be written to the
@@ -25,7 +25,7 @@ modifying a file (custom_mibs.txt, etc) for inclusion
 
 . The .msi installer does not include and install Npcap or USBPcap like the NSIS installer does.
 These currently come as NSIS-generated .exe installers.
-We might be able to bundle them as https://wixtoolset.org/documentation/manual/v3/xsd/wix/exepackage.html[ExePackage elements].
+We might be able to bundle them as https://docs.firegiant.com/wix/schema/wxs/exepackage/[ExePackage elements].
 
 . The .msi installer does not bundle the Microsoft Visual C++ Redistributable.
 Instead, the installer checks the registry for a matching installed version and aborts with an explanatory message if it isn't found.
@@ -34,7 +34,7 @@ See Prerequisites.wxi for details.
 . Transitioning, upgrading, downgrading, and reinstalling is more tricky.
 The NSIS-based installer handles previously-installed versions by running any existing uninstaller prior to installation, which empties the installation directory and removes registry entries.
 These are subsequently filled back in by the installer.
-The Windows Installer architecture keeps track of installed items in a https://docs.microsoft.com/en-us/windows/win32/msi/installer-database[database] and uses the https://docs.microsoft.com/en-us/windows/win32/msi/upgradecode[UpgradeCode property] to identify installed products and the https://wixtoolset.org/documentation/manual/v3/xsd/wix/majorupgrade.html[MajorUpgrade property] to control upgrade behavior.
+The Windows Installer architecture keeps track of installed items in a https://docs.microsoft.com/en-us/windows/win32/msi/installer-database[database] and uses the https://docs.microsoft.com/en-us/windows/win32/msi/upgradecode[UpgradeCode property] to identify installed products and the https://docs.firegiant.com/wix/schema/wxs/majorupgrade/[MajorUpgrade property] to control upgrade behavior.
 As a result,
   * We can't easily upgrade from an NSIS-based installation to a .msi installation, and vice versa.
   * We have to be careful about setting things like UpgradeCode, MajorUpgrade, and REINSTALLMODE in our WiX configuration.

@@ -1,44 +1,24 @@
 #
-# - Find Wix executables
-# Find the candle and light command
+# - Find the WiX command line tool
+#   This finds the "wix" command.
+#   https://github.com/wixtoolset/wix/releases
 #
-#  MAKEWIX_EXECUTABLE - path to the candle utility.
-#  CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS - System runtime DLLs
+#  WIX_EXECUTABLE - path to the wix utility. It provides the "build" command.
 
-set(_PF86 "PROGRAMFILES(x86)")
-
-# According to
-# https://stackoverflow.com/questions/2375322/variable-for-wix-bin-directory-path
-# and
-# https://weblogs.sqlteam.com/mladenp/2010/02/23/wix-3-tutorial-generating-filedirectory-fragments-with-heat.exe/
-# WiX binaries are in $ENV{WIX}/bin.
-
-# Find candle
-find_program(WIX_CANDLE_EXECUTABLE candle
-	PATH
+# "dotnet tool install --global" puts wix.exe in %USERPROFILE%\.dotnet\tools,
+# which is normally in PATH. $ENV{WIX} and the Program Files directories
+# cover other installation methods.
+find_program(WIX_EXECUTABLE wix
+	HINTS
+		"$ENV{WIX}"
 		"$ENV{WIX}/bin"
-		"$ENV{PROGRAMFILES}/WiX Toolset v3.11/bin"
-		"$ENV{${_PF86}}/WiX Toolset v3.11/bin"
-		"$ENV{PROGRAMW6432}/WiX Toolset v3.11/bin"
-	DOC "Path to the WiX candle utility."
+		"$ENV{USERPROFILE}/.dotnet/tools"
+		"$ENV{PROGRAMFILES}/WiX Toolset v7.0/bin"
+		"$ENV{PROGRAMFILES}/WiX Toolset v7/bin"
+	DOC "Path to the WiX command line utility."
 )
 
-# Find light
-find_program(WIX_LIGHT_EXECUTABLE light
-	PATH
-		"$ENV{WIX}/bin"
-		"$ENV{PROGRAMFILES}/WiX Toolset v3.11/bin"
-		"$ENV{${_PF86}}/WiX Toolset v3.11/bin"
-		"$ENV{PROGRAMW6432}/WiX Toolset v3.11/bin"
-	DOC "Path to the WiX light utility."
-)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(WiX DEFAULT_MSG WIX_EXECUTABLE)
 
-# Find heat
-find_program(WIX_HEAT_EXECUTABLE heat
-	PATH
-		"$ENV{WIX}/bin"
-		"$ENV{PROGRAMFILES}/WiX Toolset v3.11/bin"
-		"$ENV{${_PF86}}/WiX Toolset v3.11/bin"
-		"$ENV{PROGRAMW6432}/WiX Toolset v3.11/bin"
-	DOC "Path to the WiX heat utility."
-)
+mark_as_advanced(WIX_EXECUTABLE)

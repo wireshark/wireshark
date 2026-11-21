@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
-<WixLocalization Culture="en-US" Codepage="1252" xmlns="http://schemas.microsoft.com/wix/2006/localization">
-    <String Id="WelcomeDlgDescription" Overridable="yes">This will install [ProductName] [ProductVersion] on your computer. If you installed [ProductName] using the .exe installer please uninstall it first.</String>
+﻿<WixLocalization Culture="en-US" Codepage="1252" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+    <String Id="WelcomeDlgDescription" Overridable="yes" Value="This will install [ProductName] [ProductVersion] on your computer. If you installed [ProductName] using the .exe installer please uninstall it first." />
 </WixLocalization>
