@@ -2439,7 +2439,7 @@ proto_reg_handoff_tcpcl(void)
         dissector_add_uint("tcpcl.v4.xfer_ext", TCPCLV4_XFEREXT_TRANSFER_LEN, dis_h);
     }
 
-    register_ber_oid_dissector("1.3.6.1.5.5.7.3.35", NULL, proto_tcpcl_exts, "id-kp-bundleSecurity");
+    register_ber_oid_dissector("1.3.6.1.5.5.7.3.35", dissect_ber_oid_NULL_callback, proto_tcpcl_exts, "id-kp-bundleSecurity");
     register_ber_oid_dissector("1.3.6.1.5.5.7.8.11", dissect_othername_bundleeid, proto_tcpcl_exts, "id-on-bundleEID");
 
     reinit_tcpcl();
