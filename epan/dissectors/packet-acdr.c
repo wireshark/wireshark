@@ -497,7 +497,8 @@ create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, unsigned offset
 
     extension_tree = proto_item_add_subtree(ti, ett_extension);
 
-    if (media_type == ACDR_TLS || media_type == ACDR_TLSPeek) {
+    // The TLS ports and application are in the first 13 octets of the extension
+    if ((media_type == ACDR_TLS || media_type == ACDR_TLSPeek) && extension_length >= 13) {
         tls_packet_info->source_port = tvb_get_ntohs(tvb, offset);
         tls_packet_info->dest_port = tvb_get_ntohs(tvb, offset + 2);
         tls_packet_info->application = tvb_get_uint8(tvb, offset + 12);
@@ -1162,7 +1163,9 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
         case ACDR_RTP_RFC2198:
         case ACDR_RTP_RFC2833:
         case ACDR_RTP_FEC:
-            payload_type = (tvb_get_uint8(tvb, acdr_header_length + 1) & 0x7F);
+            // The RTP header handed to the RTP dissector starts after the
+            // header extension, before any MII header
+            payload_type = (tvb_get_uint8(tvb, header_byte_length + header_extension_len + 1) & 0x7F);
             break;
         }
 
@@ -2027,7 +2030,7 @@ proto_reg_handoff_acdr(void)
     rtp_events_handle = find_dissector("rtpevent");
     rtp_rfc2198_handle = find_dissector("rtp.rfc2198");
     amr_handle = find_dissector("amr");
-    evrc_handle = find_dissector("EVRC");
+    evrc_handle = find_dissector("evrc");
     ip_dissector_handle = find_dissector("ip");
     rtcp_dissector_handle = find_dissector("rtcp");
     json_dissector_handle = find_dissector("json");
