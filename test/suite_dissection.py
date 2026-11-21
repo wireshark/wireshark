@@ -176646,3 +176646,94 @@ class TestDissectA21:
         lines = self.a21_fields(cmd_tshark, capture_file, test_env,
                 'a21.gcsna_content', '_ws.col.protocol')
         assert [l.split('\t')[1] for l in lines] == ['gcsna'] * 8 + ['CDMA2K'] * 2 + ['gcsna']
+
+
+class TestDissectAarp:
+    '''AARP (AppleTalk Address Resolution Protocol) from the synthetic
+    capture aarp_coverage.pcapng.gz: 36 frames, Ethernet II (ethertype
+    0x80f3), 802.1Q, LLC SNAP (frames 28-29) and Cisco HDLC (30-31).'''
+
+    @staticmethod
+    def aarp_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('aarp_coverage.pcapng.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number',
+                *(('-e' + f) for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_aarp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is AARP and none is malformed or has an error
+        expert info, in one and two passes. Frames 20-23 (zero address
+        lengths) have warnings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aarp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 36
+        assert protocols.count('AARP') == 36
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('aarp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_aarp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column for request, reply, probe, the byte swapped
+        opcodes of the Linux kernel and an unknown opcode.'''
+        lines = self.aarp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 2, 3, 4, 5, 6, 7, 8}', '_ws.col.info')
+        assert lines == [
+            '1\tWho has 1.20?  Tell 1.10',
+            '2\t1.20 is at 02:a0:00:00:00:02',
+            '3\tIs there a 65535.254',
+            '4\tWho has 1.20?  Tell 1.10',
+            '5\t1.20 is at 02:a0:00:00:00:02',
+            '6\tIs there a 1.20',
+            '7\tUnknown AARP opcode 0x0000',
+            '8\tUnknown AARP opcode 0x1234',
+        ]
+
+    def test_aarp_address_types(self, cmd_tshark, capture_file, test_env):
+        '''Ethernet and Token Ring addresses of 6 octets are MAC
+        addresses, other hardware addresses are bytes; AppleTalk
+        addresses of 4 octets are IDs, other protocol addresses are
+        bytes.'''
+        lines = self.aarp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {9, 10, 11, 14, 15}',
+                'aarp.src.hw_mac', 'aarp.src.hw', 'aarp.src.proto_id',
+                'aarp.src.proto')
+        assert lines == [
+            '9\t02:a0:00:00:00:01\t\t0000010a\t',
+            '10\t\t02a000000001\t0000010a\t',
+            '11\t\t0102030405060708\t0000010a\t',
+            '14\t02:a0:00:00:00:01\t\t\tc0000201',
+            '15\t02:a0:00:00:00:01\t\t\t010203',
+        ]
+
+    def test_aarp_zero_lengths(self, cmd_tshark, capture_file, test_env):
+        '''A hardware or protocol address length of 0 gets a warning
+        each and "Unknown" in the Info column (frames 20-23).'''
+        lines = self.aarp_fields(cmd_tshark, capture_file, test_env,
+                'aarp.length.invalid', '_ws.expert.message', '_ws.col.info')
+        assert lines == [
+            '20\tInvalid hardware address length: 0\t1.10 is at Unknown',
+            '21\tInvalid protocol address length: 0\tUnknown is at 02:a0:00:00:00:01',
+            '22\tInvalid hardware address length: 0,Invalid protocol address length: 0'
+            '\tWho has Unknown?  Tell Unknown',
+            '23\tInvalid hardware address length: 0,Invalid protocol address length: 0'
+            '\tIs there a Unknown',
+        ]
+
+    def test_aarp_encapsulations(self, cmd_tshark, capture_file, test_env):
+        '''AARP is reached from 802.1Q, LLC SNAP (OUI 0) and Cisco HDLC.'''
+        lines = self.aarp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {27, 28, 30}', 'frame.protocols')
+        assert lines == [
+            '27\teth:ethertype:vlan:ethertype:aarp',
+            '28\teth:llc:aarp',
+            '30\tchdlc:aarp',
+        ]
