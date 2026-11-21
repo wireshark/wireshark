@@ -40,14 +40,6 @@
       <StandardDirectory Id="ProgramMenuFolder">
         <!-- Shortcuts directly in menu -->
       </StandardDirectory>
-      <!-- "Special" directory for Quick Launch -->
-      <StandardDirectory Id="AppDataFolder">
-        <Directory Id="MicrosoftFolder" Name="Microsoft">
-          <Directory Id="InternetExplorerFolder" Name="Internet Explorer">
-            <Directory Id="QuickLaunchFolder" Name="Quick Launch" />
-          </Directory>
-        </Directory>
-      </StandardDirectory>
 
       <!-- Create a dummy configuraton directory for libgcrypt -->
       <StandardDirectory Id="CommonAppDataFolder">

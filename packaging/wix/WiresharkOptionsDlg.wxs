@@ -29,13 +29,12 @@
         <Control Id="Shortcuts" Type="Text" X="14" Y="122" Width="350" Height="11" Text="{\WixUI_Font_Bold}Create Shortcuts" /><!-- h = static text + label spacing = 8 + 3 -->
         <Control Id="WiresharkStartMenuCB" Type="CheckBox" X="20" Y="133" Width="350" Height="14" CheckBoxValue="1" Property="WIRESHARK_START_MENU" Text="Wireshark Start Menu Item" EnableCondition="&amp;Fe.Wireshark = 3" DisableCondition="&amp;Fe.Wireshark &lt;&gt; 3" />
         <Control Id="WiresharkDesktopIconCB" Type="CheckBox" X="20" Y="147" Width="350" Height="14" CheckBoxValue="1" Property="WIRESHARK_DESKTOP_ICON" Text="Wireshark Desktop Icon" EnableCondition="&amp;Fe.Wireshark = 3" DisableCondition="&amp;Fe.Wireshark &lt;&gt; 3" />
-        <Control Id="WiresharkQuickLaunchIconCB" Type="CheckBox" X="20" Y="161" Width="350" Height="14" CheckBoxValue="1" Property="WIRESHARK_QUICK_LAUNCH_ICON" Text="Wireshark Quick Launch Icon" EnableCondition="&amp;Fe.Wireshark = 3" DisableCondition="&amp;Fe.Wireshark &lt;&gt; 3" />
 
-        <!-- WiresharkQuickLaunchIconCB y = 161, 161 + 10 + 10 = 181 -->
-        <Control Id="FileExtensions" Type="Text" X="14" Y="181" Width="350" Height="11" Text="{\WixUI_Font_Bold}Associate File Extensions" /><!-- h = static text + label spacing = 8 + 3 -->
-        <Control Id="FileExtensionsCB" Type="CheckBox" X="20" Y="192" Width="350" Height="14" CheckBoxValue="1" Property="WIRESHARK_FILE_EXTENSIONS" Text="Associate trace file extensions with Wireshark" EnableCondition="&amp;Fe.Wireshark = 3" DisableCondition="&amp;Fe.Wireshark &lt;&gt; 3" />
-        <Control Id="FileExtensionsText1" Type="Text" X="20" Y="206" Width="350" Height="11" Transparent="yes" NoPrefix="yes" Text="Extensions include 5vw, acp, apc, atc, bfr, cap, enc, erf, fdc, lcap, mplog, ntar, out," />
-        <Control Id="FileExtensionsText2" Type="Text" X="20" Y="217" Width="350" Height="11" Transparent="yes" NoPrefix="yes" Text="pcap, pcapng, pkt, rf5, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, and wpz." />
+        <!-- WiresharkDesktopIconCB y = 147, 147 + 10 + 10 = 167 -->
+        <Control Id="FileExtensions" Type="Text" X="14" Y="167" Width="350" Height="11" Text="{\WixUI_Font_Bold}Associate File Extensions" /><!-- h = static text + label spacing = 8 + 3 -->
+        <Control Id="FileExtensionsCB" Type="CheckBox" X="20" Y="178" Width="350" Height="14" CheckBoxValue="1" Property="WIRESHARK_FILE_EXTENSIONS" Text="Associate trace file extensions with Wireshark" EnableCondition="&amp;Fe.Wireshark = 3" DisableCondition="&amp;Fe.Wireshark &lt;&gt; 3" />
+        <Control Id="FileExtensionsText1" Type="Text" X="20" Y="192" Width="350" Height="11" Transparent="yes" NoPrefix="yes" Text="Extensions include 5vw, acp, apc, atc, bfr, cap, enc, erf, fdc, lcap, mplog, ntar, out," />
+        <Control Id="FileExtensionsText2" Type="Text" X="20" Y="203" Width="350" Height="11" Transparent="yes" NoPrefix="yes" Text="pcap, pcapng, pkt, rf5, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, and wpz." />
 
         <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
