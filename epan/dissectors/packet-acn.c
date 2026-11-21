@@ -32,6 +32,7 @@
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-tcp.h"
 #include "data-dmx-manfid.h"
@@ -429,6 +430,10 @@ static dissector_handle_t acn_handle;
                                                                  /* through some means outside the scope of this  */
                                                                  /* standard (i.e. front panel configuration)     */
 
+/* Bytes of inherited PDU data (D flag clear) that may be dissected again
+   in one packet */
+#define ACN_MAX_INHERITED_DATA 65536
+
 typedef struct
 {
   uint32_t start;
@@ -516,6 +521,7 @@ static int ett_rdmnet_uid;
 
 static expert_field ei_acn_dmx_discovery_outofseq;
 static expert_field ei_acn_dmp_range_truncated;
+static expert_field ei_acn_inherited_data_limit;
 
 /*  Register fields */
 /* In alphabetical order */
@@ -4894,7 +4900,7 @@ dissect_pdu_bit_flag_h(int *offset, uint8_t pdu_flags, uint32_t *header_offset, 
 /******************************************************************************/
 /* Dissect PDU D bit flag                                                     */
 static void
-dissect_pdu_bit_flag_d(int offset, uint8_t pdu_flags, uint32_t pdu_length, uint32_t *data_offset, uint32_t *data_length, acn_pdu_offsets *last_pdu_offsets, uint32_t pdu_flvh_length, bool set_last_value_length)
+dissect_pdu_bit_flag_d(packet_info *pinfo, int offset, uint8_t pdu_flags, uint32_t pdu_length, uint32_t *data_offset, uint32_t *data_length, acn_pdu_offsets *last_pdu_offsets, uint32_t pdu_flvh_length, bool set_last_value_length)
 {
   /* Adjust data */
   if (pdu_flags & ACN_PDU_FLAG_D) {
@@ -4905,9 +4911,26 @@ dissect_pdu_bit_flag_d(int offset, uint8_t pdu_flags, uint32_t pdu_length, uint3
     last_pdu_offsets->data_length = *data_length;
   } else {
     /* use last values */
+    uint32_t *budget = (uint32_t *)p_get_proto_data(pinfo->pool, pinfo, proto_acn, 0);
+    if (budget == NULL) {
+      budget = wmem_new0(pinfo->pool, uint32_t);
+      p_add_proto_data(pinfo->pool, pinfo, proto_acn, 0, budget);
+    }
     *data_offset                  = last_pdu_offsets->data;
-    if (set_last_value_length) {
-      *data_length                = last_pdu_offsets->data_length;
+    if (*budget > ACN_MAX_INHERITED_DATA ||
+        last_pdu_offsets->data_length >= ACN_MAX_INHERITED_DATA - *budget) {
+      /* Every PDU without the D flag dissects the data of an earlier PDU
+         again, stop before this costs more than the packet is worth. */
+      if (*budget <= ACN_MAX_INHERITED_DATA) {
+        expert_add_info(pinfo, NULL, &ei_acn_inherited_data_limit);
+        *budget = ACN_MAX_INHERITED_DATA + 1;
+      }
+      *data_length                = 0;
+    } else {
+      *budget                    += last_pdu_offsets->data_length + 1;
+      if (set_last_value_length) {
+        *data_length              = last_pdu_offsets->data_length;
+      }
     }
   }
 }
@@ -5007,19 +5030,34 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   /* header contains address and data type */
   acn_add_dmp_address_type(tvb, pinfo, pdu_tree, header_offset, &adt);
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 1);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 1);
   end_offset = data_offset + data_length;
 
   /* Check if blob exists, find beginning offset */
   blob_offset = data_offset;
   blob_exists = 0;
-  while ((blob_offset < (end_offset - 4)) && (blob_exists != 1)) {
-    if (tvb_get_ntohl(tvb, blob_offset) == 0x426c6f62) {
-      /* 0x426c6f62 == "Blob" */
-      blob_exists = 1;
-      break;
+  {
+    uint32_t blob_limit = tvb_captured_length(tvb);
+    if (blob_limit >= 4)
+      blob_limit -= 4;   /* the 4 octets of "Blob" must be captured */
+    else
+      blob_limit = 0;
+    if (end_offset > 4 && end_offset - 4 < blob_limit)
+      blob_limit = end_offset - 4;
+    else if (end_offset <= 4)
+      blob_limit = 0;
+    while (blob_offset < blob_limit) {
+      unsigned found;
+      if (!tvb_find_uint8_length(tvb, blob_offset, blob_limit - blob_offset, 'B', &found))
+        break;
+      blob_offset = found;
+      if (tvb_memeql(tvb, blob_offset, (const uint8_t *)"Blob", 4) == 0) {
+        /* 0x426c6f62 == "Blob" */
+        blob_exists = 1;
+        break;
+      }
+      blob_offset += 1;
     }
-    blob_offset += 1;
   }
 
   /* Fix the end_offset for finding Address-Data pair if blob exists*/
@@ -5287,7 +5325,7 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
 
   switch (vector) {
     case ACN_SDT_VECTOR_ACK:
@@ -5414,7 +5452,7 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   proto_tree_add_uint(pdu_tree, hf_acn_association, tvb, header_offset, 2, association);
   /*header_offset += 2;*/
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 1);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 1);
   end_offset = data_offset + data_length;
 
   bool use_root_tree = (protocol_id == ACN_PROTOCOL_ID_SDT) ? global_acn_sdt_use_root_tree_wrap :
@@ -5550,7 +5588,7 @@ dissect_acn_dmx_data_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
   /* process based on vector */
   acn_add_dmp_address_type(tvb, pinfo, pdu_tree, header_offset, &adt);
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 1);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 1);
   end_offset = data_offset + data_length;
 
   switch (vector) {
@@ -5744,7 +5782,7 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
 
    //discovery pdu
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_acn_dmx_pdu, 4, 1);
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   end_offset = data_offset + data_length;
 
   /* Add Vector item */
@@ -5844,7 +5882,7 @@ dissect_acn_dmx_extension_base_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_i
 
   ///* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
 
   ///* process based on vector */
   switch (vector) {
@@ -5916,7 +5954,7 @@ dissect_acn_dmx_base_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
 
   /* process based on vector */
   switch (vector) {
@@ -6007,7 +6045,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 1);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 1);
   end_offset = data_offset + data_length;
 
   /* process based on vector */
@@ -6379,7 +6417,7 @@ dissect_acn_llrp_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   data_offset += 3;
 
   /* get destination (CID) 16 bytes */
@@ -6444,7 +6482,7 @@ dissect_broker_client_entry_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   data_offset += 3;
 
   /* client protocol cid */
@@ -6712,7 +6750,7 @@ dissect_acn_broker_base_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   data_offset += 1;
 
   /* process based on vector */
@@ -6798,7 +6836,7 @@ dissect_rpt_request_rdm_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   /* data_offset += 3; */
 
   pdu_end = pdu_start + pdu_length;
@@ -6840,7 +6878,7 @@ dissect_rpt_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   data_offset += 3;
 
   /* rdm command */
@@ -6884,7 +6922,7 @@ dissect_rpt_status(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offs
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   data_offset += 3;
 
   pdu_end = pdu_start + pdu_length;
@@ -6967,7 +7005,7 @@ dissect_rpt_notification_rdm_command(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   /* data_offset += 3; */
 
   pdu_end = pdu_start + pdu_length;
@@ -7011,7 +7049,7 @@ dissect_rpt_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   data_offset += 3;
 
   /* rdm command */
@@ -7058,7 +7096,7 @@ dissect_acn_rpt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   data_offset += 3;
 
   /* source uid (6 bytes) */
@@ -7230,7 +7268,7 @@ dissect_acn_ept_base_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, in
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
-  dissect_pdu_bit_flag_d(offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
+  dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
   data_offset += 3;
 
   /* destination cid (16 bytes) */
@@ -7280,7 +7318,7 @@ dissect_acn_root_pdu_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdu_t
   }
   /* header_offset += 16; */
 
-  dissect_pdu_bit_flag_d(*offset, pdu_flags, pdu_length, data_offset, data_length, last_pdu_offsets, *pdu_flvh_length, 1);
+  dissect_pdu_bit_flag_d(pinfo, *offset, pdu_flags, pdu_length, data_offset, data_length, last_pdu_offsets, *pdu_flvh_length, 1);
 
   return (*data_offset) + (*data_length);
 }
@@ -9069,6 +9107,7 @@ proto_register_acn(void)
   static ei_register_info ei[] = {
     { &ei_magic_reply_invalid_type, { "magic.reply.invalid_type", PI_PROTOCOL, PI_WARN, "Invalid type", EXPFILL }},
     { &ei_acn_dmx_discovery_outofseq, { "acn.dmx.discovery.out_of_order_universes", PI_PROTOCOL, PI_WARN, "Universe list is unordered, E1.31 Sec. 8.5 requires sorted lists", EXPFILL }},
+    { &ei_acn_inherited_data_limit, { "acn.inherited_data_limit", PI_PROTOCOL, PI_WARN, "Too much inherited PDU data in this packet, remaining PDUs not decoded", EXPFILL }},
     { &ei_acn_dmp_range_truncated, { "acn.dmp.range_truncated", PI_UNDECODED, PI_NOTE, "Range has more addresses than are shown", EXPFILL }},
   };
 
