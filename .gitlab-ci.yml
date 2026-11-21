@@ -634,6 +634,7 @@ Windows x64 Package:
     name: windows-package
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
+    - '& "C:\Program Files\WiX Toolset v7.0\bin\wix" eula accept wix7'
     # Show whether the cache from earlier jobs is there.
     - ccache --show-stats --verbose | Select-String -Pattern '^(Cache directory:|\s*Cache size|\s*Files:)'
     - ccache --zero-stats
