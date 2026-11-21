@@ -54,12 +54,9 @@ static int ett_acse;
 static expert_field ei_acse_dissector_not_available;
 static expert_field ei_acse_malformed;
 static expert_field ei_acse_invalid_oid;
+static expert_field ei_acse_wrong_spdu_type;
 
 static dissector_handle_t acse_handle;
-
-/* indirect_reference, used to pick up the signalling so we know what
-   kind of data is transferred in SES_DATA_TRANSFER_PDUs */
-static uint32_t indir_ref=0;
 
 #if NOT_NEEDED
 /* to keep track of presentation context identifiers and protocol-oids */
@@ -126,7 +123,6 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	unsigned offset = 0;
 	proto_item *item;
 	proto_tree *tree;
-	char *oid;
 	struct SESSION_DATA_STRUCTURE* session;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
@@ -146,13 +142,19 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 	session = ( (struct SESSION_DATA_STRUCTURE*)data);
 	if (session->spdu_type == 0) {
-		if (parent_tree) {
-			REPORT_DISSECTOR_BUG("Wrong spdu type %x from session dissector.",session->spdu_type);
-			return 0;
-		}
+		proto_tree_add_expert_format(parent_tree, pinfo, &ei_acse_wrong_spdu_type, tvb, 0, 0,
+		    "Wrong spdu type %x from session dissector.", session->spdu_type);
+		return 0;
 	}
 
-	asn1_ctx.private_data = session;
+	/*
+	 * Only the session dissectors pass a SESSION_DATA_STRUCTURE for
+	 * the connection and connectionless SPDU types. A data transfer
+	 * can also come from a dissector that passes its own data (TCAP
+	 * passes a tcap_private_t to the BER OID handle), so do not write
+	 * to it or hand it on.
+	 */
+	asn1_ctx.private_data = (session->spdu_type == SES_DATA_TRANSFER) ? NULL : session;
 	/* save parent_tree so subdissectors can create new top nodes */
 	asn1_ctx.subtree.top_tree = parent_tree;
 
@@ -167,22 +169,8 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	case SES_FINISH:			/*   RLRE   */
 	case SES_ABORT:				/*   ABRT   */
 	case CLSES_UNIT_DATA:		/* AARQ Connectionless session */
+	case SES_DATA_TRANSFER:		/* ACSE APDU in a P-DATA (presentation context is ACSE) */
 		break;
-	case SES_DATA_TRANSFER:
-		oid=find_oid_by_pres_ctx_id(pinfo, indir_ref);
-		if (oid) {
-			if (strcmp(oid, ACSE_APDU_OID) == 0) {
-				proto_tree_add_expert_format_remaining(parent_tree, pinfo, &ei_acse_invalid_oid, tvb, offset,
-				    "Invalid OID: %s", ACSE_APDU_OID);
-			}
-		 else {
-			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree, NULL);
-		 }
-		} else {
-			proto_tree_add_expert_remaining(parent_tree, pinfo, &ei_acse_dissector_not_available,
-									tvb, offset);
-		}
-		return 0;
 	default:
 		return 0;
 	}
@@ -239,6 +227,7 @@ void proto_register_acse(void) {
      { &ei_acse_dissector_not_available, { "acse.dissector_not_available", PI_UNDECODED, PI_WARN, "Dissector is not available", EXPFILL }},
      { &ei_acse_malformed, { "acse.malformed", PI_MALFORMED, PI_ERROR, "Malformed packet", EXPFILL }},
      { &ei_acse_invalid_oid, { "acse.invalid_oid", PI_UNDECODED, PI_WARN, "Invalid OID", EXPFILL }},
+     { &ei_acse_wrong_spdu_type, { "acse.wrong_spdu_type", PI_PROTOCOL, PI_WARN, "Internal error: can't get spdu type from session dissector", EXPFILL }},
   };
 
   expert_module_t* expert_acse;

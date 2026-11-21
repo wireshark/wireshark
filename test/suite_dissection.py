@@ -120924,11 +120924,11 @@ class TestDissectPres:
         assert columns[()] == columns[('-2',)]
         protocols = [l.split('\t')[0].strip() for l in columns[()]]
         assert len(protocols) == 186
-        assert protocols.count('PRES') == 41
+        assert protocols.count('PRES') == 40
         assert protocols.count('CL-PRES') == 1
         assert protocols.count('SES') == 8
         assert protocols.count('FTAM') == 13
-        assert protocols.count('ACSE') == 3
+        assert protocols.count('ACSE') == 4
 
     def test_pres_ppdus(self, cmd_tshark, capture_file, test_env):
         '''The PPDU types: CP, CPA, abort, CPR and typed data.'''

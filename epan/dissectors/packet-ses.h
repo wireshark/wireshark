@@ -188,7 +188,7 @@ struct SESSION_DATA_STRUCTURE
 {
 	uint8_t  spdu_type;
 	uint8_t  abort_type;
-	uint8_t  pres_ctx_id;
+	uint32_t pres_ctx_id;
 	uint32_t ros_op;
 	bool rtse_reassemble;
 };
