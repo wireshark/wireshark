@@ -12,30 +12,10 @@ BER built by hand (x500lib.py has the BER, TCP and OSI helpers); they
 travel in session SPDUs over COTP and TPKT on TCP 102, all registered by
 default.  CL-PRES goes through the connectionless session in an Exported
 PDU.  Everything is synthetic."""
-import os
-import sys
+import os, struct, sys
 
 sys.path.insert(1, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared'))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import struct
-from x500lib import (
-    aare, aarq, BITS, Conn, cotp_cc, cotp_cr, cotp_dt, INT, OCTS, OID, SEQ, ses_dt,
-    ses_param_userdata, SET, spdu, tlv, tpkt,
-)
+from x500lib import *
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else '.'
 ACSE = '2.2.1.0.1'
@@ -224,7 +204,7 @@ def main():
         fully(pdvl(3, 'octet', FT1)),
         fully(pdvl(3, 'arbitrary', b'\x01\x02\x03')),
         fully(pdvl(5, 'single', INT(5)), pdvl(5, 'octet', b'abc'), pdvl(5, 'arbitrary', b'\x80')),
-        fully(pdvl(7, 'single', INT(7), ts=BER)),
+        fully(pdvl(7, 'single', rlrq(), ts=BER)),
         fully(pdvl(9, 'single', INT(9))),
         fully(pdvl(3, 'single', FT1, ts=BER)),
         simply(b'simply encoded data'),

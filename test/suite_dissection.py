@@ -177529,3 +177529,146 @@ class TestDissectAcr122:
             rows = self.fields(cmd_tshark, capture_file, test_env, passes,
                     '_ws.malformed && !_ws.expert', 'frame.number')
             assert rows == []
+
+
+class TestDissectAcse:
+    '''ACSE (ISO 8650) and CL-ACSE (ISO 10035) from the synthetic capture
+    acse_coverage.pcapng.gz: associations on TCP 102 (TPKT, COTP, session,
+    presentation) with AARQ, AARE (accepted, refused), RLRQ, RLRE, ABRT,
+    and the higher level association APDUs (ADT, ACRQ, ACRP) in P-DATA,
+    user information in every EXTERNAL form, every authentication value,
+    title and qualifier form, and connectionless ACSE in an Exported PDU
+    for the session dissector.'''
+
+    # A TC-BEGIN whose dialogue application context is ACSE (2.2.1.0.1) in
+    # an Exported PDU "tcap" frame (the ber.oid handle for ACSE is called
+    # with the TCAP private data and not with session data)
+    TCAP_ACSE_FRAME = bytes.fromhex(
+        '000c0004746361700000000062324804010203046b1b2819060700118605010101'
+        'a00e600c80020780a1060604520100016c0da10b0201010201003003040100')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('acse_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_acse_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts, no malformed packets or error expert infos in
+        one and two passes, and the same columns in both passes.'''
+        columns = {}
+        for passes in ((), ('-2',)):
+            columns[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                           '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            frames = self._fields(cmd_tshark, capture_file, test_env,
+                                  '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                  '-eframe.number', passes=passes)
+            assert count_output('\n'.join(frames)) == 0
+        assert columns[()] == columns[('-2',)]
+        protocols = [l.split('\t')[0].strip() for l in columns[()]]
+        assert len(protocols) == 259
+        assert protocols.count('ACSE') == 60
+        assert protocols.count('CL-ACSE') == 1
+        assert protocols.count('MMS/IEC61850') == 22
+        assert protocols.count('COTP') == 44
+
+    def test_acse_apdus(self, cmd_tshark, capture_file, test_env):
+        '''The frames of every APDU type.'''
+        for field, count in (('aarq', 26), ('aare', 22), ('rlrq', 8), ('rlre', 6),
+                             ('abrt', 7), ('adt', 8), ('acrq', 3), ('acrp', 2)):
+            out = self._fields(cmd_tshark, capture_file, test_env,
+                               'acse.%s_element' % field, '-eframe.number')
+            assert len(out) == count, field
+
+    def test_acse_indirect_reference_state(self, cmd_tshark, capture_file, test_env):
+        '''Frame 36 is an ACSE APDU in P-DATA (an RLRQ) after an AARQ without
+        user information. The indirect reference of the EXTERNAL in frame
+        37 must not change it: it is the same in one and two passes (it
+        was "Dissector is not available" in the first pass and decoded
+        as MMS in the second one when the reference was kept in a static
+        variable).'''
+        for passes in ((), ('-2',)):
+            out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {36, 37}',
+                               '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                               '-eacse.rlrq_element', '-eacse.indirect_reference',
+                               '-e_ws.expert.message', passes=passes)
+            assert [l.split('\t') for l in out] == [
+                ['36', 'ACSE', 'Release-Request (normal)', '1', '', ''],
+                ['37', 'MMS/IEC61850', 'conclude-RequestPDU', '', '3', ''],
+            ]
+
+    def test_acse_connectionless(self, cmd_tshark, capture_file, test_env):
+        '''CL-ACSE is dissected through CL-PRES (the session data was NULL
+        before the fix, so the AARQ was not decoded).'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'clacse',
+                           '-eframe.number', '-eacse.aarq_element', '-eacse.aSO_context_name')
+        assert [l.split('\t')[0] for l in out] == ['256', '257', '258', '259']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 256',
+                           '-e_ws.col.protocol', '-e_ws.col.info', '-eacse.aARQ_aSO_context_name')
+        assert out == ['CL-ACSE\tA-Associate-Request\t1.0.9506.2.3']
+
+    def test_acse_typed_data_and_implicit_context(self, cmd_tshark, capture_file, test_env):
+        '''An ACSE APDU in a P-TYPED-DATA SPDU is dissected like one in a
+        P-DATA SPDU (frames 25 and 26), and the aSO-context-name of ACRQ
+        and ACRP is the implicit [3] OBJECT IDENTIFIER (frames 18-22).'''
+        for passes in ((), ('-2',)):
+            out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {25, 26}',
+                               '-eframe.number', '-e_ws.col.protocol', '-eacse.rlrq_element',
+                               '-eacse.adt_element', '-e_ws.expert.message', passes=passes)
+            assert out == ['25\tACSE\t1\t\t', '26\tACSE\t\t1\t']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'acse.acrq_element || acse.acrp_element',
+                           '-eframe.number', '-eacse.aCRQ_aSO_context_name', '-eacse.aSO_context_name')
+        assert out == ['18\t1.0.9506.2.3\t', '19\t\t1.0.9506.2.3', '20\t\t', '21\t\t',
+                       '22\t1.0.9506.2.3\t']
+
+    def test_acse_external(self, cmd_tshark, capture_file, test_env):
+        '''The EXTERNAL forms of the user information of frame 6: direct
+        reference, indirect reference (the presentation context of MMS),
+        octet-aligned and arbitrary encoding.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 6',
+                           '-eacse.direct_reference', '-eacse.indirect_reference',
+                           '-eacse.encoding', '-eacse.arbitrary',
+                           '-eacse.aARQ_aSO_context_name', '-eacse.implementation_information')
+        assert out == ['1.0.9506.2.1,1.0.9506.2.1,1.0.9506.2.1,1.0.9506.2.1\t3,3\t0,0,1,2,0\t55'
+                       '\t1.0.9506.2.3\timpl-1.0']
+
+    def test_acse_titles_and_authentication(self, cmd_tshark, capture_file, test_env):
+        '''AP-title and ASO-qualifier forms and the authentication values.'''
+        for field, frames in (
+                ('acse.ap_title_form1', 23), ('acse.ap_title_form2', 24), ('acse.ap_title_form3', 22),
+                ('acse.aso_qualifier_form_any_octets', 42), ('acse.aso_qualifier_form3', 26),
+                ('acse.charstring', 17), ('acse.bitstring', 19), ('acse.external_element', 2),
+                ('acse.other_element', 5), ('acse.context_list', 4), ('acse.default_contact_list', 1)):
+            out = self._fields(cmd_tshark, capture_file, test_env, field, '-eframe.number')
+            assert len(out) == frames, field
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 12',
+                           '-eacse.aso_qualifier_form2', '-eacse.simply_encoded_data')
+        assert out == ['42\t73696d706c7920656e636f646564']
+
+    def test_acse_results_and_abort(self, cmd_tshark, capture_file, test_env):
+        '''AARE result and diagnostics (frames 85, 95, 105, 115) and the
+        ABRT source and diagnostic.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {87, 97, 107, 117}',
+                           '-eframe.number', '-eacse.result', '-eacse.service_user',
+                           '-eacse.service_provider')
+        assert out == ['87\t0\t\t2', '97\t1\t2\t', '107\t2\t\t1', '117\t1\t14\t']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'acse.abrt_element',
+                           '-eframe.number', '-eacse.abort_source', '-eacse.abort_diagnostic')
+        assert out == ['128\t0\t1', '139\t1\t2', '150\t0\t3', '161\t1\t4', '172\t0\t5',
+                       '183\t0\t6', '194\t1\t']
+
+    def test_acse_tcap_application_context(self, cmd_tshark, test_env, tmp_path):
+        '''TCAP passes its own private data, not session data, to the ber.oid
+        handle of the ACSE application context 2.2.1.0.1. It must not
+        crash or write to it (one pass and two passes).'''
+        pcap = tmp_path / 'tcap_acse.pcap'
+        frame = self.TCAP_ACSE_FRAME
+        pcap.write_bytes(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 252)
+                         + struct.pack('<IIII', 1, 0, len(frame), len(frame)) + frame)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', str(pcap),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.strip() == 'exported_pdu:tcap:acse'
