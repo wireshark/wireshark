@@ -176737,3 +176737,125 @@ class TestDissectAarp:
             '28\teth:llc:aarp',
             '30\tchdlc:aarp',
         ]
+
+
+class TestDissectAasp:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, passes, display_filter, *fields):
+        '''Rows of the given fields (tab separated, split) for the frames
+        matching display_filter.'''
+        args = [cmd_tshark, *passes,
+                '-r', capture_file('aasp_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_aasp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''AASP is the body of SIP INFO messages with the media type
+        message/x-aasp-signalling. A body shorter than 3 octets and another
+        media type are not AASP. The only expert infos are the three commands
+        that are cut short (frames 22 to 24), in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aasp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 24
+        assert protocols.count('SIP/AASP') == 21
+        assert protocols.count('SIP') == 3
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, passes,
+                    '_ws.malformed || _ws.expert', 'frame.number',
+                    '_ws.expert.message')
+            assert rows == [
+                ['22', 'Command too short'],
+                ['23', 'Command too short'],
+                ['24', 'Command too short'],
+            ]
+
+    def test_aasp_set_text_four_octets(self, cmd_tshark, capture_file, test_env):
+        '''A Set Text command of 4 octets has no length byte and is shown
+        as data (it was dissected as if it had one, and ended in a
+        malformed packet, before the fix).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('aasp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 9',
+                    '-V', '-O', 'sip,aasp',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            start = lines.index('        Aastra Signalling Protocol')
+            assert lines[start + 1:start + 4] == [
+                '            Bin Cmd, Set Text',
+                '                ID: Set Text (137)',
+                '                Data: 010203',
+            ]
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number in {7, 8, 9}', 'frame.number', 'aasp.a.id',
+                'aasp.bin.data', 'aasp.bin.length')
+        assert rows == [
+            ['7', '137,254', '010203', ''],
+            ['8', '137', '01', ''],
+            ['9', '137', '010203', ''],
+        ]
+
+    def test_aasp_commands(self, cmd_tshark, capture_file, test_env):
+        '''Command ids of the frames, the Set Text and Do Command strings
+        and the Date Time Info items.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'aasp.bin.text or aasp.bin.cdpn', 'frame.number',
+                'aasp.bin.length', 'aasp.bin.text', 'aasp.bin.cdpn')
+        assert rows == [
+            ['6', '5', 'Hello', ''],
+            ['10', '3', 'abcde', ''],
+            ['13', '4', '', '1234'],
+            ['15', '2', '', '5678'],
+            ['16', '', 'plain text body', ''],
+        ]
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number == 11', 'aasp.bin.day', 'aasp.bin.month',
+                'aasp.bin.weekofyear', 'aasp.bin.weekday', 'aasp.bin.monthname',
+                'aasp.bin.weekofyearprefix', 'aasp.bin.hour', 'aasp.bin.minute')
+        assert rows == [['21', '11', '47', 'Mon', 'Nov', 'KW', '13', '30']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number in {2, 5}', 'frame.number', 'aasp.a.id',
+                'aasp.bin.btnid')
+        assert rows == [
+            ['2', ','.join(str(i) for i in range(200, 215)), ''],
+            ['5', '135,135', '0x35,0x23'],
+        ]
+
+    def test_aasp_short_and_empty(self, cmd_tshark, capture_file, test_env):
+        '''A command cut short gets the "Command too short" expert info
+        (it used to throw), an empty Set Text or Do Command at the end of a
+        command is dissected without an exception, and the command title
+        shows the whole string like the Text/CDPN item.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('aasp_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {10, 15, 20, 21}',
+                    '-V', '-O', 'sip,aasp',
+                ), encoding='utf-8', env=test_env)
+            lines = [l for l in stdout.splitlines()
+                     if l.startswith('            Bin Cmd') or 'Malformed' in l]
+            assert lines == [
+                "            Bin Cmd, Set Text: 'abcde'",
+                "            Bin Cmd, Do Command: '5678'",
+                '            Bin Cmd, Set Text',
+                '            Bin Cmd, End Block Data',
+                '            Bin Cmd, Do Command',
+                '            Bin Cmd, End Block Data',
+            ]
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number in {20, 21, 22, 23, 24}', 'frame.number', 'aasp.a.id',
+                'aasp.bin.length', 'aasp.bin.text', 'aasp.bin.cdpn',
+                'aasp.bin.btnid', '_ws.expert.message')
+        assert rows == [
+            ['20', '137,254', '0', '', '', '', ''],
+            ['21', '169,254', '0', '', '', '', ''],
+            ['22', '135', '', '', '', '', 'Command too short'],
+            ['23', '164', '', '', '', '', 'Command too short'],
+            ['24', '134', '', '', '', '', 'Command too short'],
+        ]
