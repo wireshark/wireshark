@@ -7,6 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "app/application_flavor.h"
 #include "wireshark_application.h"
 
 WiresharkApplication *wsApp;
@@ -19,6 +20,9 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     Q_INIT_RESOURCE(wsicon);
 #endif
     setApplicationName("Wireshark");
+#ifdef __linux__
+    setApplicationVersion(application_get_vcs_version_info_short());
+#endif
 }
 
 WiresharkApplication::~WiresharkApplication()
