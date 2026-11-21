@@ -21,7 +21,7 @@ Writes:
                                length-mismatch expert info today
 
 Dissecting needs the heuristics "acn", "rdmnet_udp" and "rdmnet_tcp"
-enabled and acn.dmx_enable set; see the README.
+enabled and acn.dmx_enable set.
 """
 
 import struct
@@ -339,6 +339,13 @@ def dmp_packets(cap):
         pdus.append(dmp(10, adt(3, a), range_addr(a, 5, 1, 2) + u8(6) + u8(99)))
     pdus += [dmp(9, adt(d, 3), b'\x00\x00\x00\x01\x02') for d in range(4)]
     cap.udp(dmp_in_sdt(*pdus))
+    # Data with "B" and "Blob" look-alikes: no blob
+    cap.udp(dmp_in_sdt(dmp(0, adt(0, 0), b'B Blo Bl BBlo Bloc B')))
+    # Inherited data: PDUs without the D flag use the data of the one before.
+    # 100 of them over 1000 octets pass the limit of 64 KB of inherited data
+    cap.udp(dmp_in_sdt(dmp(0, adt(0, 0), bytes(1000)), *([pdu(None, None, None)] * 100)))
+    # and a few that stay below it
+    cap.udp(dmp_in_sdt(dmp(0, adt(0, 0), bytes(100)), *([pdu(None, None, None)] * 5)))
     # Maps
     cap.udp(dmp_in_sdt(dmp(14, adt(0, 0), b''), dmp(15, adt(0, 0), u8(7)), dmp(16, adt(0, 0), b'')))
 
@@ -399,14 +406,16 @@ def blob_packets(cap):
                                          bfield(12)])),
                        blob_pdu(blob(2, [bfield(11, bytes([0xfd] + [0] * 14 + [5])), bfield(12)]))))
     # Metadata: field 15 is a CID
-    cap.udp(dmp_in_sdt(blob_pdu(blob(5, [num(1, i) for i in range(1, 15)] + [bfield(11, cid(3)), num(2, 16)]))))
+    cap.udp(dmp_in_sdt(blob_pdu(blob(5, [num(1, i) for i in range(1, 15)] + [bfield(11, cid(3)), num(2, 16)])),
+                       blob_pdu(blob(5, [num(1, i) for i in range(1, 15)] + [bfield(11, cid(6))]))))   # CID last
     # Dimmer properties v2: type 20 with a string as field 12
     cap.udp(dmp_in_sdt(blob_pdu(blob(20, [num(2, i) for i in range(1, 12)] + [bfield(11, b'Dimmer 1'), num(1, 3)]))))
     # Preset properties: type 20 with a number as field 12, levels from field 17
     cap.udp(dmp_in_sdt(blob_pdu(blob(20, [num(2, i) for i in range(1, 17)] + [num(1, 0x80), num(1, 0x40),
                                                                               num(1, 0xff)]))))
     # Dimming rack properties v2: field 12 is a CID
-    cap.udp(dmp_in_sdt(blob_pdu(blob(22, [num(1, i) for i in range(1, 12)] + [bfield(11, cid(4)), num(1, 1)]))))
+    cap.udp(dmp_in_sdt(blob_pdu(blob(22, [num(1, i) for i in range(1, 12)] + [bfield(11, cid(4)), num(1, 1)])),
+                       blob_pdu(blob(22, [num(1, i) for i in range(1, 12)] + [bfield(11, cid(4))]))))
     # Dimming rack status properties v2: active preset group IDs from field 22
     cap.udp(dmp_in_sdt(blob_pdu(blob(23, [num(2, i) for i in range(1, 22)] + [num(2, 1), num(2, 2)]))))
     # RPC: field names repeat from field 4
@@ -425,6 +434,14 @@ def blob_packets(cap):
     cap.udp(dmp_in_sdt(blob_pdu(blob(30, fields)), blob_pdu(blob(30, custom))))
     # Blob after some address-data pairs, and a blob of unknown type
     cap.udp(dmp_in_sdt(dmp(2, adt(0, 1), addr(1, 7) + u8(1) + blob(250, [num(1, 1)]))))
+    # Fields that were shown wrongly: 8 octet numbers in a 64 bit field (type 8
+    # is the unsigned one), a signed 4 octet number, an IPv4 value in a fixed
+    # size field, a Variblob that is exactly its two octet length, a Variblob
+    # after which the blob type is looked for, and a blob that ends in a string
+    cap.udp(dmp_in_sdt(blob_pdu(blob(9, [num(8, 0x1122334455667788), num(3, 0xfffffffe)])),
+                       blob_pdu(blob(1, [num(3, 0x0a000005)])),
+                       blob_pdu(blob(9, [bfield(11, b''), bfield(11, b'x'), num(1, 7)])),
+                       blob_pdu(blob(21, [num(1, 1), bfield(11, b'0123456789abcdef0123456789abcdef'), num(1, 2)]))))
 
 
 # --------------------------------------------------------------------------
@@ -456,6 +473,8 @@ def sacn_packets(cap):
     cap.udp(acn_packet(root(DMX, dmx_framing(DMX, 1, full, options=0x00))), dport=ACN_PORT)
     cap.udp(acn_packet(root(DMX, dmx_framing(DMX, 2, bytes([0, 1, 2, 3, 128, 254, 255] * 5), seq=2,
                                              options=0xe0, sync=7, start=0xdd))))
+    # more than 999 levels (not valid in a universe): line labels with four digits
+    cap.udp(acn_packet(root(DMX, dmx_framing(DMX, 5, bytes((i * 3) & 0xff for i in range(1100)), seq=5))))
     cap.udp(acn_packet(root(DMX_DRAFT, dmx_framing(DMX_DRAFT, 3, bytes(range(40))))))
     cap.udp(acn_packet(root(DMX_3, dmx_framing(DMX_3, 4, bytes(range(255, 215, -1))))))
     # A framing vector without levels, and an unknown one
@@ -594,6 +613,12 @@ def rdmnet_tcp_packets(cap):
     s.server(tcp_msg(broker(5, bytes([0xfd] + [0] * 14 + [3]) + u16(8888))))
     s.client(tcp_msg(broker(6, n=2)))
     s.server(tcp_msg(broker(7, client_entry_rpt(2, dev=2) + client_entry_rpt(3, dev=3, ctype=1))))
+    # Client entries of EPT clients: manufacturer and protocol ID, 32 octet
+    # description, and a list that ends with two of them
+    ept_entry = lambda n, manf, proto: pdu(u32(EPT), b'', cid(n) + u16(manf) + u16(proto)
+                                           + source_name('vendor protocol', 32), L=True)
+    s.client(tcp_msg(broker(3, u8(0) + ept_entry(5, 0x6574, 1), n=5)))
+    s.server(tcp_msg(broker(7, client_entry_rpt(2, dev=2) + ept_entry(5, 0x6574, 1) + ept_entry(6, 0x1234, 9))))
     s.server(tcp_msg(broker(8, client_entry_rpt(4, dev=4))))
     s.server(tcp_msg(broker(9, client_entry_rpt(4, dev=4))))
     s.server(tcp_msg(broker(10, client_entry_rpt(3, dev=3))))
@@ -610,7 +635,7 @@ def rdmnet_tcp_packets(cap):
     # RPT request, then a status and a notification for it
     s.client(tcp_msg(rpt(1, pdu(u32(1), b'', rdm_cmd(RDM_GET_DEVICE_INFO), L=True))))
     for v in range(1, 10):
-        status = pdu(u16(v), b'', u16(0) + (b'status %d' % v if v < 8 else b''), L=True)
+        status = pdu(u16(v), b'', (b'status %d' % v if v < 8 else b''), L=True)
         s.server(tcp_msg(rpt(2, status, src=(0x6574, 1), dst=(0x6574, 2), seq=v, n=1)))
     s.server(tcp_msg(rpt(3, pdu(u32(1), b'', rdm_cmd(RDM_GET_DEVICE_INFO) + rdm_cmd(RDM_DEVICE_INFO), L=True),
                          src=(0x6574, 1), dst=(0x6574, 2), n=1)))
@@ -618,9 +643,9 @@ def rdmnet_tcp_packets(cap):
     s.client(tcp_msg(rpt(99, b'', seq=3)))                              # unknown
 
     # EPT data and status: the vector is at the start of the PDU
-    s.client(tcp_msg(ept(1, pdu(b'\x00' + u16(0x6574) + u16(1), b'', b'opaque data', L=True))))
-    s.server(tcp_msg(ept(2, pdu(b'\x00' + u16(1), b'', cid(9) + b'unknown CID', L=True), n=1)))
-    s.server(tcp_msg(ept(2, pdu(b'\x00' + u16(2), b'', u16(0x6574) + u16(7) + b'unknown vector', L=True), n=1)))
+    s.client(tcp_msg(ept(1, pdu(u16(0x6574) + u16(1), b'', b'opaque data', L=True))))
+    s.server(tcp_msg(ept(2, pdu(u16(1), b'', cid(9) + b'unknown CID', L=True), n=1)))
+    s.server(tcp_msg(ept(2, pdu(u16(2), b'', u16(0x6574) + u16(7) + b'unknown vector', L=True), n=1)))
     s.client(tcp_msg(ept(99, b'')))                                     # unknown
 
     # Two messages in one segment, and a message split over two segments
@@ -638,6 +663,11 @@ def rdmnet_tcp_packets(cap):
     other.client(tcp_msg(root(1, sdt(7, b''))))                         # ACN, but not RDMnet
     other.client(b' / HTTP/1.1\r\nHost: x\r\n\r\n')                 # not ACN
     cap.udp(b'\x01\x02\x03\x04 not ACN or Magic', sport=MAGIC_PORT + 2, dport=MAGIC_PORT + 2)
+    # A 18 octet segment that starts with the ACN packet identifier: the
+    # RDMnet heuristic has to decline, not run past the end
+    short = TcpStream(cap, cport=CLIENT_PORT + 3, sport=BROKER_PORT + 3)
+    short.client(ACN_ID + u32(2) + b'\x70\x00')
+    cap.udp(b'', sport=MAGIC_PORT + 3, dport=MAGIC_PORT + 3)             # empty payload
 
 
 # --------------------------------------------------------------------------

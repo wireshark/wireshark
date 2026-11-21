@@ -6611,13 +6611,24 @@ class TestDissectDnsNsid:
 # acn_coverage.pcap.gz is synthetic: every packet was generated, to cover
 # as much of the ACN dissector as possible (ACN SDT and DMP, ETC blobs,
 # sACN, Magic Bullet and RDMnet). Its heuristics ship disabled.
-ACN_OPTS = ('--enable-heuristic', 'acn',
+class TestDissectAcn:
+    OPTS = ('--enable-heuristic', 'acn',
             '--enable-heuristic', 'rdmnet_udp',
             '--enable-heuristic', 'rdmnet_tcp',
             '-o', 'acn.dmx_enable:TRUE')
 
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *names, passes=()):
+        '''Return the lines of the given fields for the matching frames,
+        values of repeated fields joined with "|".'''
+        args = [cmd_tshark, *TestDissectAcn.OPTS, *passes,
+                '-r', capture_file('acn_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                '-Eaggregator=|']
+        args += ['-e' + name for name in names]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
 
-class TestDissectAcn:
     def test_acn_heuristics_disabled_by_default(self, cmd_tshark, capture_file, test_env):
         '''Nothing is dissected as ACN unless the heuristics are enabled.'''
         stdout = subprocess.check_output((cmd_tshark,
@@ -6629,26 +6640,54 @@ class TestDissectAcn:
 
     def test_acn_protocols(self, cmd_tshark, capture_file, test_env):
         '''Every part of the capture is found by its heuristic, with no
-        malformed packets.'''
-        stdout = subprocess.check_output((cmd_tshark, *ACN_OPTS,
+        malformed packets, in one and two passes. This includes the short
+        TCP segment and the empty UDP payload that the heuristics have to
+        decline, which used to throw an exception from the heuristic.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('acn_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.split()
-        assert protocols.count('ACN') == 56
+        assert protocols.count('ACN') == 61
         assert protocols.count('MAGIC') == 18
-        assert protocols.count('RDMnet') == 43
-        stdout = subprocess.check_output((cmd_tshark, *ACN_OPTS,
+        assert protocols.count('RDMnet') == 45
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('acn_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_acn_rdmnet_tcp_short_segment(self, cmd_tshark, capture_file, test_env):
+        '''A TCP segment of 18 octets that starts with the ACN packet
+        identifier is not RDMnet and is left to TCP.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('acn_coverage.pcap.gz'),
-                '-Y', '_ws.malformed || _ws.expert.severity == error',
-                '-Tfields', '-eframe.number',
+                '-Y', 'tcp.len == 18 && tcp.port == 41046',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.malformed',
             ), encoding='utf-8', env=test_env)
-        assert count_output(stdout) == 0
+        assert stdout.split('\n')[:-1] == ['TCP\t']
+
+    def test_acn_inherited_data_limit(self, cmd_tshark, capture_file, test_env):
+        '''PDUs without the data flag dissect the data of an earlier PDU
+        again: a packet with 100 of them over 1000 octets passes the limit
+        of the work done on inherited data, and only that packet is
+        warned about.'''
+        import re
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('acn_coverage.pcap.gz'),
+                    '-qz', 'expert,warn',
+                ), encoding='utf-8', env=test_env)
+            assert re.search(r'^\s+1\s+Protocol\s+ACN/DMP\s+Too much inherited PDU data in this packet, remaining PDUs not decoded$',
+                             stdout, re.MULTILINE)
+            assert 'Warns (3)' in stdout
 
     def test_acn_sacn_universe_discovery(self, cmd_tshark, capture_file, test_env):
         '''Universe lists are shown 16 to a line, including lists of more
         than one universe, which made fortified builds abort.'''
-        stdout = subprocess.check_output((cmd_tshark, *ACN_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('acn_coverage.pcap.gz'),
                 '-Y', 'acn.dmx.discovery.list',
                 '-Tfields', '-eacn.dmx.discovery.list', '-E', 'aggregator=|',
@@ -6661,6 +6700,109 @@ class TestDissectAcn:
             [[str(u) for u in range(1, 17)], [str(u) for u in range(17, 33)],
              [str(u) for u in range(33, 40)]],
         ]
+
+    def test_acn_sacn_line_labels_past_999(self, cmd_tshark, capture_file, test_env):
+        '''The line labels of more than 999 levels have four digits and the
+        levels that follow are not overwritten by them.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('acn_coverage.pcap.gz'),
+                '-Y', 'acn.dmx.data contains "1000-1020"', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert '980-1000: 7C 7F 82 85 88 8B 8E 91 94 97 | 9A 9D A0 A3 A6 A9 AC AF B2 B5' in stdout
+        assert '1000-1020: B8 BB BE C1 C4 C7 CA CD D0 D3 | D6 D9 DC DF E2 E5 E8 EB EE F1' in stdout
+        assert '1020-1040: F4 F7 FA FD ..  3  6  9  C  F | 12 15 18 1B 1E 21 24 27 2A 2D' in stdout
+
+    def test_acn_sdt_sessions(self, cmd_tshark, capture_file, test_env):
+        '''The channel owner and member info blocks step over the session
+        count: the protocol IDs that follow it are the real ones (SDT, DMP),
+        after the root PDU's own SDT ID.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'acn.sdt_vector == 17', 'acn.protocol_id')
+        assert rows[0] == ['7', '1|1|2|2']
+        assert rows[1][1].startswith('1|1|2|2|2|2|')
+
+    def test_acn_blob_fields(self, cmd_tshark, capture_file, test_env):
+        '''Blob fields: a 4 octet number is shown with its 4 octets, 8 octet
+        numbers in the 64 bit field, a Variblob (two octet length that
+        includes itself) with all of its length, CIDs with 16 octets, even
+        as the last field, and IP addresses with the length of the value.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'acn.blob_field_value_number == 67438087',
+                           'acn.blob_field_length')
+        assert len(rows) > 5
+        assert '4' in rows[0][1].split('|')
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'acn.blob_field_value_number64 == 0x1122334455667788',
+                           'acn.blob_field_value_number64', 'acn.blob_field_value_number')
+        assert [r[1] for r in rows] == ['1234605616436508552']
+        assert rows[0][2].split('|')[0] == '4294967294'
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'acn.blob_field_value_string == "0123456789abcdef0123456789abcdef"',
+                           'acn.blob_field_length', 'acn.blob_field_value_number')
+        # 8 and 4 octet numbers, the 4 octet IPv4 value, Variblobs of 2, 3
+        # and 34 octets (an empty one, one octet and 32 octets) and numbers
+        assert [r[1] for r in rows] == ['8|4|4|2|3|1|1|34|1']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'acn.blob_field_value_guid', 'acn.blob_field_value_guid')
+        assert [r[1] for r in rows] == [
+            '5a1e0003-0102-0304-0506-0708090a0b0c|5a1e0006-0102-0304-0506-0708090a0b0c',
+            '5a1e0004-0102-0304-0506-0708090a0b0c|5a1e0004-0102-0304-0506-0708090a0b0c']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'acn.blob_field_value_ipv4', 'acn.blob_field_value_ipv4')
+        assert [r[1] for r in rows] == ['10.0.0.5|255.255.255.0', '10.0.0.5']
+
+    def test_acn_rdmnet_llrp_probe_request_filter(self, cmd_tshark, capture_file, test_env):
+        '''The LLRP probe request filter is 16 bits wide.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'rdmnet.llrp.probe_request.filter',
+                           'rdmnet.llrp.probe_request.filter',
+                           'rdmnet.llrp.probe_request.filter_brokers_only',
+                           'rdmnet.llrp.probe_request.filter_client_tcp_inactive',
+                           'rdmnet.llrp.probe_request.known_uid')
+        assert [r[1:4] for r in rows] == [['0x0003', 'True', 'True'], ['0x0000', 'False', 'False']]
+        assert rows[0][4] == '65 74 00 00 00 01|65 74 00 00 00 02'
+
+    def test_acn_rdmnet_rpt_status(self, cmd_tshark, capture_file, test_env):
+        '''The RPT status string starts right after the two octet vector.'''
+        import re
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('acn_coverage.pcap.gz'),
+                '-Y', 'rdmnet.rpt.status.vector', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert sorted(re.findall(r'^\s+Status: (status \d)$', stdout, re.MULTILINE)) == \
+            ['status %d' % n for n in range(1, 8)]
+
+    def test_acn_rdmnet_ept(self, cmd_tshark, capture_file, test_env):
+        '''EPT data and status PDUs are read from the start of the PDU.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rdmnet.ept.data.vector',
+                           'rdmnet.ept.data.vector.manufacturer_id',
+                           'rdmnet.ept.data.vector.protocol_id',
+                           'rdmnet.ept.data.opaque_data')
+        assert [r[1:] for r in rows] == [['0x6574', '0x0001', '6f 70 61 71 75 65 20 64 61 74 61']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rdmnet.ept.status.vector',
+                           'rdmnet.ept.status.unknown_cid', 'rdmnet.ept.status.status_string',
+                           'rdmnet.ept.status.vector_string')
+        assert [r[1:] for r in rows] == [
+            ['5a 1e 00 09 01 02 03 04 05 06 07 08 09 0a 0b 0c', 'unknown CID', ''],
+            ['', '', 'unknown vector']]
+
+    def test_acn_rdmnet_broker_lists(self, cmd_tshark, capture_file, test_env):
+        '''EPT client entries show their manufacturer and protocol IDs, in
+        lists too, and the last entry of a list that fills the PDU, also of
+        the dynamic UID lists, is shown.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'rdmnet.broker_client_ept_protocol_string',
+                           'rdmnet.broker_client_ept_manufacturer_id',
+                           'rdmnet.broker_client_ept_protocol_id',
+                           'rdmnet.broker_client_ept_protocol_string')
+        assert [r[1:] for r in rows] == [
+            ['0x6574', '0x0001', 'vendor protocol'],
+            ['0x6574|0x1234', '0x0001|0x0009', 'vendor protocol|vendor protocol']]
+        for field in ('request_dynamic_uids.dynamic_uid_request', 'assigned_dynamic_uids.dynamic_uid',
+                      'fetch_dynamic_uids.dynamic_uid'):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               'rdmnet.broker.' + field, 'rdmnet.broker.' + field)
+            assert [len(r[1].split('|')) for r in rows] == [2]
 
 
 AJP13_OPTS = ('-d', 'tcp.port==8009,ajp13')  # 8009 is nvme-tcp by default
