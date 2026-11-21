@@ -176954,3 +176954,329 @@ class TestDissectAcap:
                 '    \\r\\n',
                 '    a010 OK\\r\\n',
             ]
+
+
+class TestDissectAcdr:
+    '''AudioCodes Debug Recording (ACDR, UDP 925) and its Exported PDU entry
+    points, from the synthetic capture acdr_coverage.pcapng.gz: 254 frames
+    for every version (0-9), header extension, trace point, media type and
+    payload path that can be reached with valid data. Frames 1-4 are the
+    reproducers of "ACDR: Fix RTP payload type table state, 48-bit
+    timestamp and header fields".'''
+
+    CAPTURE = 'acdr_coverage.pcapng.gz'
+    ERRORS = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, fields, display_filter=None, two_pass=False):
+        '''The tab separated fields of the (filtered) frames, as lists.'''
+        import subprocess
+        cmd = [cmd_tshark]
+        if two_pass:
+            cmd.append('-2')
+        cmd += ['-r', capture_file(TestDissectAcdr.CAPTURE)]
+        if display_filter:
+            cmd += ['-Y', display_filter]
+        cmd += ['-Tfields'] + ['-e' + f for f in fields]
+        stdout = subprocess.check_output(cmd, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    @staticmethod
+    def tree_text(cmd_tshark, capture_file, test_env, frame, two_pass=False):
+        '''The -V text of one frame.'''
+        import subprocess
+        cmd = [cmd_tshark]
+        if two_pass:
+            cmd.append('-2')
+        cmd += ['-r', capture_file(TestDissectAcdr.CAPTURE), '-Y', 'frame.number == %d' % frame, '-V']
+        return subprocess.check_output(cmd, encoding='utf-8', env=test_env, timeout=120)
+
+    def test_acdr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame and protocol counts; all but the Exported PDU frames
+        (250-254) are ACDR over UDP port 925.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, ['_ws.col.protocol', 'frame.protocols'])
+        assert len(rows) == 254
+        assert all(r[1].startswith('eth:ethertype:ip:udp:acdr') for r in rows[:249])
+        assert all(r[1].startswith('exported_pdu:') for r in rows[249:])
+        protocols = [r[0] for r in rows]
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['AC DR'] == 94
+        assert counts['RTP'] == 42
+        assert counts['SIP'] == 21
+        assert counts['Signaling'] == 12
+        assert counts['RTP AMR'] == 8
+        assert counts['RTP Evrc'] == 2
+        assert counts['STUN'] == 3
+        assert counts['TLS'] == 4
+        assert counts['HTTP'] == 4
+        assert counts['LDAP'] == 2
+        assert counts['RTCP Video'] == 3
+        assert counts['ACDR/XML'] == 3
+        assert counts['SSH-SHELL'] == counts['SSH-SFTP'] == counts['SSH-SCP'] == 1
+        assert counts['VoiceAI'] == 1
+        assert counts['DTLS data'] == 1
+
+    def test_acdr_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two passes,
+        and the same protocols and Info text either way. Only the three
+        unsupported versions (frames 23-25) have a warning.'''
+        for two_pass in (False, True):
+            assert self.rows(cmd_tshark, capture_file, test_env, ['frame.number'],
+                             self.ERRORS, two_pass) == []
+            rows = self.rows(cmd_tshark, capture_file, test_env, ['frame.number'],
+                             'acdr.version_not_supported', two_pass)
+            assert rows == [['23'], ['24'], ['25']]
+        fields = ['frame.number', 'frame.protocols', '_ws.col.protocol', '_ws.col.info']
+        one = self.rows(cmd_tshark, capture_file, test_env, fields)
+        two = self.rows(cmd_tshark, capture_file, test_env, fields, two_pass=True)
+        assert one == two
+
+    def test_acdr_rtp_pt_state(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1 and 3 are the same plain ACDR RTP packet with payload
+        type 96, frame 2 is ACDR RTP AMR with payload type 96. The AMR
+        handle must be bound to rtp.pt 96 only while frame 2 is dissected:
+        frames 1 and 3 give the same protocols in one pass and with -2.'''
+        for two_pass in (False, True):
+            rows = self.rows(cmd_tshark, capture_file, test_env,
+                             ['frame.number', 'frame.protocols', '_ws.col.protocol'],
+                             'frame.number <= 3', two_pass)
+            assert rows[0][1] == rows[2][1] == 'eth:ethertype:ip:udp:acdr:rtp'
+            assert rows[0][2] == rows[2][2] == 'RTP'
+            assert rows[1][1] == 'eth:ethertype:ip:udp:acdr:rtp:amr'
+            assert rows[1][2] == 'RTP AMR'
+
+    def test_acdr_rtp_pt_restored_later(self, cmd_tshark, capture_file, test_env):
+        '''Payload type 96 is plain RTP after every codec frame: frames
+        154-157 alternate RTP AMR (AMR bound) and plain RTP.'''
+        for two_pass in (False, True):
+            rows = self.rows(cmd_tshark, capture_file, test_env,
+                             ['frame.number', 'frame.protocols'],
+                             'frame.number in {144, 154, 155, 156, 157}', two_pass)
+            assert [r[1].endswith(':rtp:amr') for r in rows] == [True, False, False, True, False]
+
+    def test_acdr_timestamp_48_bit(self, cmd_tshark, capture_file, test_env):
+        '''Versions up to 3 have a 48 bit timestamp in microseconds: frame
+        4 (version 3) holds 2^32 us, which was shown as 0 when it was
+        truncated to 32 bits.'''
+        import re
+        rows = self.rows(cmd_tshark, capture_file, test_env, ['frame.number', 'acdr.timestamp'],
+                         'frame.number in {4, 5, 6, 7, 8, 9, 20}')
+        assert rows == [
+            ['4', '4294.967296000'],
+            ['5', '4294.967295000'],       # version 0, 2^32 - 1 us
+            ['6', '123456.789012000'],     # version 1
+            ['7', '281474976.710655000'],  # version 2, 2^48 - 1 us
+            ['8', '4294.967296000'],       # version 3
+            ['9', '4294.967295000'],       # version 4, 32 bit
+            ['20', '4294.967295000'],      # version 9
+        ]
+        for two_pass in (False, True):
+            text = self.tree_text(cmd_tshark, capture_file, test_env, 4, two_pass)
+            # "%f sec" is formatted with the locale's decimal separator
+            assert re.search(r'^    Time Stamp: 4294[.,]967296 sec$', text, re.M)
+
+    def test_acdr_timestamp_double(self, cmd_tshark, capture_file, test_env):
+        '''The timestamp text is computed in double precision: a float
+        would show 4294.967285 for 2^32 - 1 us (frames 9 and 188).'''
+        import re
+        text = self.tree_text(cmd_tshark, capture_file, test_env, 9)
+        assert re.search(r'^    Time Stamp: 4294[.,]967295 sec$', text, re.M)
+        text = self.tree_text(cmd_tshark, capture_file, test_env, 188)
+        assert re.search(r'^    Timestamp: 4294[.,]967295 sec$', text, re.M)
+
+    def test_acdr_versions_and_session_ids(self, cmd_tshark, capture_file, test_env):
+        '''Frames 5-22: versions 0-9, sequence numbers from version 4,
+        2 and 4 octet source/destination IDs (0xffff is -1), session IDs.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'acdr.ver', 'acdr.seq', 'acdr.src_id', 'acdr.dst_id',
+                          'acdr.full_session_id', 'acdr.session_id', 'acdr.long_session_id'],
+                         'frame.number >= 5 && frame.number <= 22')
+        assert [r[1] for r in rows] == ['0x00', '0x01', '0x02', '0x03', '0x04', '0x05', '0x06',
+                                        '0x07', '0x07', '0x07', '0x08', '0x08', '0x08', '0x09',
+                                        '0x09', '0x09', '0x05', '0x06']
+        by_frame = {int(r[0]): r for r in rows}
+        assert by_frame[7][3:5] == ['-1', '-1']
+        assert by_frame[9][2] == '65535'
+        assert by_frame[10][5:] == ['', '256', '']         # simple session ID
+        assert by_frame[11][3:5] == ['-1', '7']
+        assert by_frame[12][5:] == ['a1b:3:256', '256', '']
+        assert by_frame[13][5] == 'N/A'
+        assert by_frame[14][5] == 'a1b:3'                  # session number 0
+        assert by_frame[15][5:] == ['a1b:3:256', '', '256']
+        assert by_frame[16][5] == 'N/A'
+        assert by_frame[17][5] == 'a1b:3'
+        assert by_frame[18][3:5] == ['305419896', '-1']    # 32 bit IDs
+        assert by_frame[20][5] == 'ffffff:255:1099511627775'
+
+    def test_acdr_extra_data_bits(self, cmd_tshark, capture_file, test_env):
+        '''Frames 26-40: the extra data byte and its bits. 0xaa is a plain
+        value up to version 3 and a bit mask from version 4.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'acdr.extra_data', 'acdr.extra_data.li',
+                          'acdr.extra_data.mtce', 'acdr.extra_data.encrypted',
+                          'acdr.extra_data.headeradded', 'acdr.extra_data.fragmented',
+                          'acdr.extra_data.ipv6', 'acdr.extra_data.mii'],
+                         'frame.number >= 26 && frame.number <= 40')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[27] == ['0xaa'] + [''] * 7
+        assert by_frame[28][0] == '0xaa'
+        assert by_frame[28][1:] == ['0x00', '0x01', '0x00', '0x01', '0x00', '0x01', '0x00']
+        for frame, bit in ((29, 7), (30, 6), (31, 5), (32, 4), (33, 3), (34, 2), (35, 1)):
+            expected = ['0x00'] * 7
+            expected[bit - 1] = '0x01'
+            assert by_frame[frame][1:] == expected
+        assert by_frame[37][1:] == ['0x01'] * 7
+        # MII header only from version 3
+        assert self.rows(cmd_tshark, capture_file, test_env, ['frame.number'],
+                         'acdr.mii_header && frame.number >= 26 && frame.number <= 40') == \
+            [['29'], ['37'], ['39']]
+
+    def test_acdr_header_extension(self, cmd_tshark, capture_file, test_env):
+        '''Header extension fields of the RTP media types (IPv4, IPv6, C5
+        control flags), the System trace point and TLS.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'acdr.ext.src_ip', 'acdr.ext.dst_ip',
+                          'acdr.ext.src_ip_v6', 'acdr.ext.dst_ip_v6', 'acdr.ext.src_port',
+                          'acdr.ext.dst_port', 'acdr.ext.iptos', 'acdr.c5_control.favorite'],
+                         'frame.number in {57, 63, 64, 65, 69, 78, 85}')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[57] == ['10.0.0.1', '', '', '', '5004', '6000', '184', '']
+        assert by_frame[63][7] == '0x01' and by_frame[64][7] == '0x00'      # C5 favorite flag
+        assert by_frame[65][2] == '2001:db8::1'
+        assert by_frame[69] == ['', '10.0.0.1', '', '', '6000', '5004', '184', '']
+        assert by_frame[78][3] == '2001:db8::1'
+        assert by_frame[85][:2] == ['10.0.0.1', '10.0.0.2']
+        # System trace point: protocol and direction
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'acdr.ext.protocol', 'acdr.ext.direction'],
+                         'frame.number in {85, 91}')
+        assert rows == [['85', '17', '1'], ['91', '6', '0']]
+        # TLS: every application from the extension
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'acdr.ext.application', '_ws.col.protocol'],
+                         'frame.number >= 93 && frame.number <= 107')
+        assert [r[1] for r in rows[:10]] == [str(i) for i in range(10)]
+        assert [r[2] for r in rows[:10]] == ['TLS', 'HTTP', 'HTTP', 'SIP', 'LDAP', 'AC DR/XML',
+                                             'TLS', 'TELNET', 'FTP', 'TLS']
+        # application 6 (TCP) is resolved by the ports
+        assert [r[2] for r in rows[10:14]] == ['HTTP', 'LDAP', 'SIP', 'TLS']
+
+    def test_acdr_header_extension_payload_header(self, cmd_tshark, capture_file, test_env):
+        '''Trace points without a decoded extension show it as a payload
+        header.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'acdr.payload_header'],
+                         'frame.number in {92, 111}')
+        assert rows == [['92', 'deadbeef'], ['111', 'aabbcc']]
+
+    def test_acdr_dsp_trace_points_and_5x_headers(self, cmd_tshark, capture_file, test_env):
+        '''Frames 41-47: DSP incoming/outgoing trace points have the DSP
+        core and channel as header extension, a 16 octet 5x analysis
+        header at the start of the payload (it was added at offset 16
+        with length -1) and a 4 octet HPI header.'''
+        import subprocess
+        import xml.etree.ElementTree as ET
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'acdr.ext.dsp_core', 'acdr.ext.dsp_ch',
+                          'acdr.analysis_version', 'acdr.signaling_opcode', '_ws.col.info'],
+                         'frame.number == 41')
+        assert rows[0][:5] == ['41', '2', '9', '258', '0x0101']
+        assert rows[0][5] == 'DSP Incoming:  HOST --> PSTN'
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAPTURE),
+                                          '-Y', 'frame.number == 41', '-Tpdml'),
+                                         encoding='utf-8', env=test_env, timeout=120)
+        root = ET.fromstring(stdout)
+        fields = {f.get('name'): f for f in root.iter('field')}
+        analysis = fields['acdr.5x_analysis_packet_header']
+        version = fields['acdr.analysis_version']
+        hpi = fields['acdr.5x_hpi_packet_header']
+        assert analysis.get('size') == '16'
+        assert analysis.get('pos') == version.get('pos')
+        assert hpi.get('size') == '4'
+        assert int(hpi.get('pos')) == int(analysis.get('pos')) + 16
+
+    def test_acdr_signaling(self, cmd_tshark, capture_file, test_env):
+        '''Signaling: incoming trace points have a size, outgoing a
+        timestamp; the Info text names the direction.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'acdr.signaling_opcode', 'acdr.signaling_size',
+                          'acdr.signaling_timestamp', '_ws.col.info'],
+                         'frame.number >= 183 && frame.number <= 188')
+        assert rows[0] == ['183', '0x0042', '8', '', 'HOST --> PSTN']
+        assert rows[1][:3] == ['184', '0x0043', '']
+        assert rows[1][4] == 'PSTN --> HOST'
+        assert rows[1][3] == '4294.967295000'
+        assert rows[2][4] == ''           # trace point 0: no direction
+        assert rows[3] == ['186', '0x0042', '0', '', 'HOST --> PSTN']
+        assert rows[4][3] == '1.000000000'
+
+    def test_acdr_codec_media_types(self, cmd_tshark, capture_file, test_env):
+        '''The codec media types bind their handle for the payload type of
+        the RTP header (when it is not 0 and the extension exists).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'frame.protocols', '_ws.col.protocol'],
+                         'frame.number >= 144 && frame.number <= 153')
+        ends = {int(r[0]): (r[1].split(':acdr:')[1], r[2]) for r in rows}
+        assert ends[144] == ('rtp:amr', 'RTP AMR')
+        assert ends[145] == ('rtp', 'RTP AMR')              # payload type 0: no codec
+        assert ends[147] == ('rtp:evrc', 'RTP Evrc')        # EVRC bound for payload type 98
+        assert ends[148] == ('rtp:rtp_rfc2198', 'RTP Rfc2198')
+        assert ends[149] == ('rtp:rtp_rfc2198', 'RTP FEC')
+        assert ends[150] == ('rtp:rtpevent', 'RTP Rfc2833')
+        assert ends[153][0] == 'stun'                       # STUN inside the RTP media type
+        assert self.rows(cmd_tshark, capture_file, test_env, ['rtpevent.event_id'],
+                         'frame.number in {150, 151}') == [['5'], ['1']]
+
+    def test_acdr_codec_media_types_with_mii(self, cmd_tshark, capture_file, test_env):
+        '''With the MII bit the payload type is read from the RTP header
+        that follows the header extension (frames 247-249; it was read
+        from 4 octets later, after the MII header, which is part of
+        what RTP gets).'''
+        for two_pass in (False, True):
+            rows = self.rows(cmd_tshark, capture_file, test_env,
+                             ['frame.number', 'frame.protocols', 'acdr.mii_sequence_num'],
+                             'frame.number >= 247 && frame.number <= 249', two_pass)
+            assert [r[1].split(':acdr:')[1] for r in rows] == ['rtp:amr', 'rtp', 'rtp:evrc']
+            assert all(r[2] != '' for r in rows)
+
+    def test_acdr_rtp_media_types(self, cmd_tshark, capture_file, test_env):
+        '''The other RTP media types set the column protocol.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', '_ws.col.protocol'],
+                         'frame.number in {131, 138, 139, 140, 141, 142, 143, 161, 162}')
+        assert [r[1] for r in rows] == ['RTP', 'RTP Video', 'T38 over RTP', 'RTP Fax Bypass',
+                                        'RTP Modem Bypass', 'RTP NSE', 'RTP NoOp', 'RTCP Video',
+                                        'RTP Video']
+
+    def test_acdr_rtp_data_text(self, cmd_tshark, capture_file, test_env):
+        '''The RTP payload item shows its length and offset in the frame.'''
+        text = self.tree_text(cmd_tshark, capture_file, test_env, 131)
+        assert 'RTP Data (16 bytes, offset 82)' in text
+
+    def test_acdr_header_added(self, cmd_tshark, capture_file, test_env):
+        '''With the header-added bit the payload is an IP packet (a UDP
+        datagram for DTLS and T.38).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'frame.protocols', '_ws.col.protocol'],
+                         'frame.number in {199, 213, 214, 215}')
+        assert rows[0][1] == 'eth:ethertype:ip:udp:acdr:ip:udp:sip'
+        assert rows[1][1:] == ['eth:ethertype:ip:udp:acdr:ip:udp:json', 'VoiceAI']
+        assert rows[2][1:] == ['eth:ethertype:ip:udp:acdr:udp:data', 'DTLS data']
+        assert rows[3][1] == 'eth:ethertype:ip:udp:acdr:udp:data'
+
+    def test_acdr_unknown_media_types(self, cmd_tshark, capture_file, test_env):
+        '''Media types nothing handles are shown as unknown packet types
+        (frames 221-238 and the unregistered ones before them).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, ['frame.number'],
+                         'acdr.unknown_packet && frame.number >= 221')
+        assert [int(r[0]) for r in rows][:18] == list(range(221, 239))
+
+    def test_acdr_exported_pdu_without_data(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU calls "acdr", "acdr.rtp", "acdr.mii" and "acdr.xml"
+        without the ACDR data: the latter three return without
+        dissecting (they dereferenced the missing data).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'frame.protocols'], 'frame.number >= 250')
+        assert [r[1] for r in rows] == ['exported_pdu:acdr:rtp', 'exported_pdu:data',
+                                        'exported_pdu:data', 'exported_pdu:data',
+                                        'exported_pdu:data']
