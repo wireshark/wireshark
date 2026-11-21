@@ -1334,9 +1334,16 @@ Function .onInit
         ReadRegStr $WIX_DISPLAYVERSION HKLM \
           "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
           "DisplayVersion"
+        ; Prefer QuietUninstallString and fall back to UninstallString.
+        ReadRegStr $WIX_UNINSTALLSTRING HKLM \
+          "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
+          "QuietUninstallString"
+        StrCmp $WIX_UNINSTALLSTRING "" 0 wix_have_quietuninstallstring
         ReadRegStr $WIX_UNINSTALLSTRING HKLM \
           "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
           "UninstallString"
+
+        wix_have_quietuninstallstring:
         StrCmp $WIX_UNINSTALLSTRING "" done
         MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
           "$WIX_DISPLAYNAME $WIX_DISPLAYVERSION (msi) is already installed.\
@@ -1346,7 +1353,7 @@ Function .onInit
             IDNO done
         Abort
 
-        ; Run the WiX-provided UninstallString.
+        ; Run the WiX-provided QuietUninstallString or UninstallString.
         prep_wix_uninstaller:
           ClearErrors
           ExecWait "$WIX_UNINSTALLSTRING"
