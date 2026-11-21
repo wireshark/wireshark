@@ -68,8 +68,8 @@ static int hf_pres_CPA_PPDU;
 static int hf_pres_Abort_type;
 static int hf_pres_CPR_PPDU;
 static int hf_pres_Typed_data_type;
+static int hf_pres_UD_type_PDU;
 
-static int hf_pres_UD_type_PDU;                   /* UD_type */
 static int hf_pres_mode_selector;                 /* Mode_selector */
 static int hf_pres_x410_mode_parameters;          /* RTORQapdu */
 static int hf_pres_normal_mode_parameters;        /* T_normal_mode_parameters */
@@ -1280,16 +1280,6 @@ dissect_pres_UD_type(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _
 }
 
 
-/*--- PDUs ---*/
-
-static int dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_pres_UD_type(false, tvb, offset, &asn1_ctx, tree, hf_pres_UD_type_PDU);
-  return offset;
-}
-
 
 
 /*
@@ -1396,7 +1386,11 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		}
 
 		/* dissect the packet */
-		dissect_UD_type_PDU(tvb, pinfo, clpres_tree, NULL);
+		/* pass the session data on so that CL-ACSE gets it */
+		asn1_ctx_t asn1_ctx;
+		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+		asn1_ctx.private_data = session;
+		dissect_pres_UD_type(false, tvb, offset, &asn1_ctx, clpres_tree, hf_pres_UD_type_PDU);
 		return tvb_captured_length(tvb);
 	}
 
@@ -1436,6 +1430,10 @@ void proto_register_pres(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_pres_UD_type_PDU,
+      { "UD-type", "pres.UD_type_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pres_CP_type,
       { "CP-type", "pres.cptype",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1457,10 +1455,6 @@ void proto_register_pres(void) {
         FT_UINT32, BASE_DEC, VALS(pres_Typed_data_type_vals), 0,
         NULL, HFILL }},
 
-    { &hf_pres_UD_type_PDU,
-      { "UD-type", "pres.UD_type_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_pres_mode_selector,
       { "mode-selector", "pres.mode_selector_element",
         FT_NONE, BASE_NONE, NULL, 0,

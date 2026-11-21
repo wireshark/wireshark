@@ -63,6 +63,7 @@ static int hf_pres_CPA_PPDU;
 static int hf_pres_Abort_type;
 static int hf_pres_CPR_PPDU;
 static int hf_pres_Typed_data_type;
+static int hf_pres_UD_type_PDU;
 
 #include "packet-pres-hf.c"
 
@@ -290,7 +291,11 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		}
 
 		/* dissect the packet */
-		dissect_UD_type_PDU(tvb, pinfo, clpres_tree, NULL);
+		/* pass the session data on so that CL-ACSE gets it */
+		asn1_ctx_t asn1_ctx;
+		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+		asn1_ctx.private_data = session;
+		dissect_pres_UD_type(false, tvb, offset, &asn1_ctx, clpres_tree, hf_pres_UD_type_PDU);
 		return tvb_captured_length(tvb);
 	}
 
@@ -330,6 +335,10 @@ void proto_register_pres(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_pres_UD_type_PDU,
+      { "UD-type", "pres.UD_type_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pres_CP_type,
       { "CP-type", "pres.cptype",
         FT_NONE, BASE_NONE, NULL, 0,
