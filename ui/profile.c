@@ -370,9 +370,7 @@ bool profile_save_settings(const char* name, const char* app_env_var_prefix, con
     }
     g_free(profile_settings_path);
 
-    fprintf(fp, "# \"%s\" profile settings file for %s " VERSION ". Edit with care.\n",
-            profile->name, app_name);
-
+    fprintf(fp, "# profile settings file for %s " VERSION ". Edit with care.\n", app_name);
     fprintf(fp, "\n# Automatically switch to this profile if this display filter matches.\n");
     fprintf(fp, AUTO_SWITCH_FILTER_KEY ": %s\n", profile->auto_switch_filter);
 
