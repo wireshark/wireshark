@@ -2536,6 +2536,11 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, char **err_info, in
         ws_debug("reading odd length in FlexRay!?");
     }
 
+    if (payload_length_valid > payload_length) {
+        ws_debug("shortening FlexRay valid payload to the payload length.");
+        payload_length_valid = payload_length;
+    }
+
     if (payload_length_valid > object_remaining) {
         ws_debug("shortening FlexRay payload because buffer is too short.");
         payload_length_valid = (uint16_t)object_remaining;
@@ -2585,6 +2590,9 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, char **err_info, in
         tmpbuf[0] |= BLF_FLEXRAYDATA_CHANNEL_B;
     }
     else {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: %s: channel mask 0x%04x has neither channel A nor channel B",
+                                     ext ? "FLEXRAY_RCVMESSAGE_EX" : "FLEXRAY_RCVMESSAGE", frheader.channelMask);
         ws_debug("FlexRay channel mask not recognized.");
         return false;
     }
