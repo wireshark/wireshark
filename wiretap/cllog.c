@@ -813,6 +813,7 @@ cllog_open(wtap *wth, int *err, char **err_info)
     cCLLog_logFileInfo_t *clLog;
     char line[ MAX_LOG_LINE_LENGTH ];
     char *linep;
+    bool saw_header_line = false;
 
     clLog = g_new0(cCLLog_logFileInfo_t, 1);
 
@@ -890,6 +891,7 @@ cllog_open(wtap *wth, int *err, char **err_info)
                     }
                     return WTAP_OPEN_NOT_MINE;
                 }
+                saw_header_line = true;
             }
         }
     }
@@ -922,12 +924,22 @@ cllog_open(wtap *wth, int *err, char **err_info)
         }
 
         /*
-         * No, it just got an EOF; treat it as our file, as
-         * older versions did so.
+         * No, it just got an EOF. If we saw at least one valid
+         * header line, treat it as our file, as older versions did
+         * so; it might be the log of a session that logged nothing.
          *
-         * XXX - should we treat it as not our file, as it lacks
-         * the column header line?
+         * Otherwise, it's empty or consists only of other comment
+         * lines, which could be any of a number of file types
+         * (e.g., configuration files), so it's not ours.
+         *
+         * XXX - should we treat it as not our file in any case, as it
+         * lacks the column header line?
          */
+        if (!saw_header_line)
+        {
+            g_free(clLog);
+            return WTAP_OPEN_NOT_MINE;
+        }
     }
     else
     {
