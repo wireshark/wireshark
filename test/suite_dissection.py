@@ -60652,21 +60652,39 @@ class TestDissectFortinetSso:
             assert count_output(stdout) == 0
 
     def test_fortinet_sso_strings(self, cmd_tshark, capture_file, test_env):
-        '''Host/domain/user, domain/user/version for keep alives, and
-        strings with fewer than the expected "/" separators (the fix:
-        they used to underflow). The Info column shows the string.'''
+        '''Host/domain/user, host and version for keep alives (the word
+        in the middle gets no field of its own), and strings with fewer
+        than the expected "/" separators (the fix: they used to
+        underflow). The Info column shows the message kind and the
+        string.'''
         rows = self.sso_fields(cmd_tshark, capture_file, test_env,
                 'fortinet_sso.host', 'fortinet_sso.domain', 'fortinet_sso.user',
                 'fortinet_sso.version', '_ws.col.info', extra=('-Y', 'fortinet_sso'))
-        assert rows['1'] == ['WS-01', 'CORP', 'alice', '', 'WS-01/CORP/alice']
-        assert rows['3'] == ['', 'CORP', 'KeepAlive', '1.0', 'CORP/KeepAlive/1.0']
-        assert rows['4'] == ['', 'CORP', 'KeepAlive', '2.1', 'CORP/KeepAlive/2.1']
-        assert rows['9'] == ['nouser', '', '', '', 'nouser']
-        assert rows['10'] == ['host', 'domain', '', '', 'host/domain']
-        assert rows['11'] == ['', 'domainonly', '', '', 'domainonly']
-        assert rows['12'] == ['', 'dom', 'user', '', 'dom/user']
-        assert rows['13'] == ['', '', '', '', '//']
-        assert rows['14'] == ['', '', '', '', '/']
+        assert rows['1'] == ['WS-01', 'CORP', 'alice', '', 'Logon with extra data: WS-01/CORP/alice']
+        assert rows['2'] == ['WS-02', 'CORP', 'bob', '', 'DC Agent logon: WS-02/CORP/bob']
+        assert rows['3'] == ['CORP', '', '', '1.0', 'DC Agent keepalive: CORP/KeepAlive/1.0']
+        assert rows['4'] == ['CORP', '', '', '2.1', 'DC Agent keepalive: CORP/KeepAlive/2.1']
+        assert rows['9'] == ['nouser', '', '', '', 'DC Agent logon: nouser']
+        assert rows['10'] == ['host', 'domain', '', '', 'DC Agent logon: host/domain']
+        assert rows['11'] == ['domainonly', '', '', '', 'DC Agent keepalive: domainonly']
+        assert rows['12'] == ['dom', '', '', '', 'DC Agent keepalive: dom/user']
+        assert rows['13'] == ['', '', '', '', 'DC Agent logon: //']
+        assert rows['14'] == ['', '', '', '', 'DC Agent keepalive: /']
+
+    def test_fortinet_sso_kind_and_tsagent(self, cmd_tshark, capture_file, test_env):
+        '''The generated message kind, and the TS Agent fields in front
+        of the port ranges.'''
+        rows = self.sso_fields(cmd_tshark, capture_file, test_env,
+                'fortinet_sso.message_kind', 'fortinet_sso.additional_ip',
+                'fortinet_sso.tsagent.sync_id', 'fortinet_sso.tsagent.event_type',
+                'fortinet_sso.tsagent.length', 'fortinet_sso.tsagent.session_id',
+                '_ws.col.info', extra=('-Y', 'fortinet_sso'))
+        assert [rows[str(i)][0] for i in range(1, 16)] == [
+            '7', '1', '2', '2', '7', '6', '6', '6', '1', '1', '2', '2', '1', '2', '1']
+        assert rows['2'][1:6] == ['', '', '', '', '']
+        assert rows['6'] == ['6', '48.49.50.51,52.53.54.55,56.57.58.59', '0x3c3d3e50',
+                '0x51', '21332', '1616994915',
+                'TS Agent event: TS-01/CORP/dave, session 1616994915']
 
     def test_fortinet_sso_trailer(self, cmd_tshark, capture_file, test_env):
         '''An extra IPv4 address, the 0x2002 form and the TS Agent port
