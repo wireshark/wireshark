@@ -246,7 +246,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     k_bus_id  = bus_id;
     k_device_address  = device_address;
-    k_endpoint        = endpoint;
+    k_endpoint        = endpoint & 0x7F;
     k_frame_number    = pinfo->num;
 
     key[0].length = 1;
@@ -272,7 +272,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (acr_class == 0xFF) {
             if (ins == 0xCA && p1 == 0x00 && p2 == 0x00 && length == 0)
                 command = CMD_GET_DATA_UID;
-            if (ins == 0xCA && p1 == 0x01 && p2 == 0x00 && length == 0)
+            else if (ins == 0xCA && p1 == 0x01 && p2 == 0x00 && length == 0)
                 command = CMD_GET_DATA_ATS;
             else if (ins == 0x82 && length == 6)
                 command = CMD_LOAD_AUTHENTICATION_KEYS;
@@ -306,7 +306,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 command = CMD_SET_BUZZER_OUTPUT_FOR_CARD_DETECTION;
         }
 
-        sub_item = proto_tree_add_uint(main_tree, hf_command, tvb, offset, 4 + length, command);
+        sub_item = proto_tree_add_uint(main_tree, hf_command, tvb, offset, 5 + length, command);
         proto_item_set_generated(sub_item);
         if (command == CMD_UNKNOWN)
             expert_add_info(pinfo, sub_item, &ei_unknown_command_or_invalid_parameters);
@@ -528,6 +528,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case CMD_READ_VALUE_BLOCK:
             use_status_word = true;
             proto_tree_add_item(main_tree, hf_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
             break;
 
         case CMD_GET_DATA_UID:
