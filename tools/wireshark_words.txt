@@ -161,6 +161,7 @@ apsme
 arabic
 arbitrated
 arcnet
+arcsec
 arduino
 arfcn
 argparse
@@ -185,6 +186,8 @@ assignor
 assistive
 assoc
 asterix
+astro
+astrofi
 async
 asynchronous
 asynchronously
@@ -229,6 +232,7 @@ autodiscovery
 autokey
 autoneg
 autosar
+auxbus
 available
 avantel
 avaya
@@ -399,6 +403,7 @@ cdmacallmode
 cdmachanneldata
 cdrom
 celeron
+celestron
 cellid
 cellidentity
 celsius
@@ -1143,6 +1148,8 @@ fmconfig
 fmdata
 fname
 foconfig
+focuser
+focusers
 foffset
 followup
 fondelli
@@ -1618,6 +1625,7 @@ lanka
 lanman
 latencies
 latin
+latini
 latvian
 layer2octet
 layerables
@@ -1956,6 +1964,7 @@ mutex
 muting
 muxed
 mvfst
+mvswitch
 myanmar
 mycapture
 mycaptures
@@ -2018,6 +2027,7 @@ nettl
 netxray
 newark
 newpw
+nexstar
 nexthop
 nextint
 nextseq
@@ -2044,6 +2054,7 @@ njack
 nlink
 nlpid
 nmimt
+nmslew
 nmtcommand
 nnnnnnnn
 nnsvc
@@ -2112,6 +2123,7 @@ ntlmv
 ntohl
 ntohs
 ntpserver
+ntrack
 ntstatus
 nttime
 ntver
@@ -2292,6 +2304,7 @@ passthrough
 passwd
 pathbuf
 pathconf
+patricio
 paxos
 pbcch
 pblock
@@ -2365,6 +2378,7 @@ plura
 pmconfig
 pmiss
 pmkid
+pmslew
 pname
 poffset
 polestar
@@ -2476,6 +2490,7 @@ pssiae
 ptime
 ptlrpc
 ptmsi
+ptrack
 ptvcursor
 ptype
 pubdir

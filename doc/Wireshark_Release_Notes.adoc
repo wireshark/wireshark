@@ -162,6 +162,7 @@ determined per link.
 --
 3GPP TS 33.128 LI_XER Identity Association (LI_XER)
 Authentication Service Based on EAP for Use with CoAP (CoAP-EAP)
+Celestron AUX bus (Celestron AUX)
 ETSI TS 102 232-1 LI-PS-PDU (LI-PS-PDU)
 IEEE 1609.3 WAVE Service Advertisement (WSA)
 Network MIDI 2.0
