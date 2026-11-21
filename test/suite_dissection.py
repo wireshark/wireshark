@@ -176859,3 +176859,98 @@ class TestDissectAasp:
             ['23', '164', '', '', '', '', 'Command too short'],
             ['24', '134', '', '', '', '', 'Command too short'],
         ]
+
+
+class TestDissectAcap:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, passes, display_filter, *fields):
+        '''Rows of the given fields (tab separated, split) for the frames
+        matching display_filter.'''
+        args = [cmd_tshark, *passes,
+                '-r', capture_file('acap_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_acap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ACAP frames (TCP port 674; a payload starting with a
+        non-printable octet is not ACAP). No frame is malformed and none has
+        a warning or error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('acap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 71
+        assert protocols.count('ACAP') == 25
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, passes,
+                    '_ws.malformed || _ws.expert.severity >= 0x600000', 'frame.number')
+            assert rows == []
+            # the same ACAP result in both passes
+            rows = self.fields(cmd_tshark, capture_file, test_env, passes,
+                    'acap', 'frame.number')
+            assert len(rows) == 25
+
+    def test_acap_tags_and_data(self, cmd_tshark, capture_file, test_env):
+        '''The first token is the tag, the rest of the first line the
+        data; the direction comes from the destination port.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number in {4, 6, 8, 12, 28, 30, 32, 34, 36, 38, 40, 42}',
+                'frame.number', 'acap.request_tag', 'acap.request_data',
+                'acap.response_tag', 'acap.response_data')
+        assert rows == [
+            ['4', '', '', '*', 'ACAP (IMPLEMENTATION "Example ACAP server v1.0") (SASL "PLAIN" "DIGEST-MD5") (STARTTLS)'],
+            ['6', 'a001', 'STARTTLS', '', ''],
+            ['8', '', '', 'a001', 'OK "Begin TLS negotiation now"'],
+            ['12', '', '', '+', '""'],
+            # a token only, no data
+            ['28', 'NOOP', '', '', ''],
+            ['30', '', '', 'OK', ''],
+            # leading blanks: no tag, the whole line is data
+            ['32', '', '  indented request', '', ''],
+            ['34', '', '', '', ' indented response'],
+            # no line terminator, LF only, only the first line of a segment
+            ['36', 'a005', 'LISTEXT "/" ("*"', '', ''],
+            ['38', 'a006', 'NOOP', '', ''],
+            # two lines in one segment: both are dissected
+            ['40', 'a007,a008', 'NOOP,NOOP', '', ''],
+            ['42', '', '', '*', 'ALERT\\\\t(ctl\\\\001\\\\177) "text"'],
+        ]
+
+    def test_acap_info(self, cmd_tshark, capture_file, test_env):
+        '''The first line is in the Info column; a blank only line and a
+        connection with both ports 674 are requests.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number in {10, 22, 46, 56, 58}', 'frame.number', '_ws.col.info')
+        assert rows[0] == ['10', 'Request: a002 AUTHENTICATE "PLAIN" {20+}']
+        assert rows[1][1].startswith('Request: a004 SEARCH "/addressbook/" DEPTH 0 ')
+        assert rows[2:] == [
+            ['46', 'Request:  '],
+            ['56', 'Request: a001 NOOP'],
+            ['58', 'Request: a001 OK'],
+        ]
+
+    def test_acap_every_line(self, cmd_tshark, capture_file, test_env):
+        '''Every line of a segment is in the tree, an empty one without
+        tag or data (only the first line was dissected before).'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, passes,
+                    'frame.number == 48', 'acap.response_tag',
+                    'acap.response_data', 'acap.request_tag')
+            assert rows == [['*,*,a010', 'ENTRY "a" "1",ENTRY "b" "2",OK', '']]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('acap_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 48', '-V', '-O', 'acap',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            start = lines.index('Application Configuration Access Protocol')
+            assert [l for l in lines[start + 1:start + 12]
+                    if l.startswith('    ') and not l.startswith('        ')] == [
+                '    * ENTRY "a" "1"\\r\\n',
+                '    * ENTRY "b" "2"\\r\\n',
+                '    \\r\\n',
+                '    a010 OK\\r\\n',
+            ]
