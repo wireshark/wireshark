@@ -1,62 +1,60 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Include>
+﻿<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <!-- Basic directory structure -->
-  <Fragment>
-    <!-- "Special" directory, required for the root drive -->
-    <Directory Id="TARGETDIR" Name="SourceDir">
+  <Fragment><!-- "Special" directory, required for the root drive -->
+
+
       <!-- "Special" directory for desktop -->
-      <Directory Id="DesktopFolder" Name="Desktop"/>
+      <StandardDirectory Id="DesktopFolder" />
       <!-- "Special" directory, required for the Program Files folder -->
-      <Directory Id="$(var.PlatformProgramFilesFolder)">
+      <StandardDirectory Id="$(var.PlatformProgramFilesFolder)">
         <!-- These directories follow the typical hierarchical structure -->
         <Directory Id="INSTALLFOLDER" Name="$(var.WiresharkName)">
-          <Directory Id="dirDtds" Name="dtds"/>
-          <Directory Id="dirDiameter" Name="diameter"/>
-          <Directory Id="dirExtcap" Name="extcap"/>
-          <Directory Id="dirHelp" Name="help"/>
-          <Directory Id="dirRadius" Name="radius"/>
+          <Directory Id="dirDtds" Name="dtds" />
+          <Directory Id="dirDiameter" Name="diameter" />
+          <Directory Id="dirExtcap" Name="extcap" />
+          <Directory Id="dirHelp" Name="help" />
+          <Directory Id="dirRadius" Name="radius" />
           <Directory Id="dirPlugins" Name="plugins">
             <Directory Id="dirPluginsVersion" Name="$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)">
-              <Directory Id="dirPluginsVersionEpan" Name="epan"/>
-              <Directory Id="dirPluginsVersionWtap" Name="wiretap"/>
-              <Directory Id="dirPluginsVersionCodecs" Name="codecs"/>
+              <Directory Id="dirPluginsVersionEpan" Name="epan" />
+              <Directory Id="dirPluginsVersionWtap" Name="wiretap" />
+              <Directory Id="dirPluginsVersionCodecs" Name="codecs" />
             </Directory>
           </Directory>
-          <Directory Id="dirUsersGuide" Name="Wireshark User's Guide"/>
-          <Directory Id="dirProfiles" Name="profiles"/>
+          <Directory Id="dirUsersGuide" Name="Wireshark User's Guide" />
+          <Directory Id="dirProfiles" Name="profiles" />
           <Directory Id="dirSnmp" Name="snmp">
-            <Directory Id="dirSnmpMibs" Name="mibs"/>
+            <Directory Id="dirSnmpMibs" Name="mibs" />
           </Directory>
-          <Directory Id="dirTpncp" Name="tpncp"/>
-          <Directory Id="dirTranslations" Name="translations"/>
-          <Directory Id="dirTrdp" Name="trdp"/>
-          <Directory Id="dirWimaxasncp" Name="wimaxasncp"/>
-          <Directory Id="dirProtobuf" Name="protobuf"/>
-          <Directory Id="dirQualcomm" Name="qualcomm"/>
+          <Directory Id="dirTpncp" Name="tpncp" />
+          <Directory Id="dirTranslations" Name="translations" />
+          <Directory Id="dirTrdp" Name="trdp" />
+          <Directory Id="dirWimaxasncp" Name="wimaxasncp" />
+          <Directory Id="dirProtobuf" Name="protobuf" />
+          <Directory Id="dirQualcomm" Name="qualcomm" />
         </Directory>
-      </Directory>
+      </StandardDirectory>
 
       <!-- "Special" directory for the Start Menu -->
-      <Directory Id="ProgramMenuFolder">
+      <StandardDirectory Id="ProgramMenuFolder">
         <!-- Shortcuts directly in menu -->
-      </Directory>
+      </StandardDirectory>
       <!-- "Special" directory for Quick Launch -->
-      <Directory Id="AppDataFolder">
+      <StandardDirectory Id="AppDataFolder">
         <Directory Id="MicrosoftFolder" Name="Microsoft">
           <Directory Id="InternetExplorerFolder" Name="Internet Explorer">
             <Directory Id="QuickLaunchFolder" Name="Quick Launch" />
           </Directory>
         </Directory>
-      </Directory>
+      </StandardDirectory>
 
       <!-- Create a dummy configuraton directory for libgcrypt -->
-      <Directory Id="CommonAppDataFolder">
+      <StandardDirectory Id="CommonAppDataFolder">
         <Directory Id="GnuDataFolder" Name="GNU">
           <Directory Id="GnuEtcFolder" Name="etc">
             <Directory Id="GcryptDataFolder" Name="gcrypt">
-              <Component Id="gpg4win_etc_gcrypt" KeyPath="yes"
-                          Guid="7F122F29-AA33-4DE5-9DD2-0DAF1A24B630">
+              <Component Id="gpg4win_etc_gcrypt" KeyPath="yes" Guid="7F122F29-AA33-4DE5-9DD2-0DAF1A24B630">
                 <CreateFolder>
                   <Permission User="Administrators" GenericAll="yes" />
                   <Permission User="Everyone" Read="yes" ReadAttributes="yes" ReadExtendedAttributes="yes" ReadPermission="yes" GenericExecute="yes" />
@@ -65,8 +63,7 @@
             </Directory>
           </Directory>
         </Directory>
-      </Directory>
+      </StandardDirectory>
 
-    </Directory>
-  </Fragment>
+    </Fragment>
 </Include>

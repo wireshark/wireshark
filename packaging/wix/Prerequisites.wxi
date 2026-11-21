@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Include xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+﻿<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <!-- Check for required dependencies here -->
   <!--
@@ -12,7 +11,7 @@
          unless we reference at least one item defined within it.
          This "IncludePrerequisites" property is referenced in the "Product" element,
          to ensure the entire fragment is included. -->
-    <Property Id="IncludePrerequisites">1</Property>
+    <Property Id="IncludePrerequisites" Value="1" />
 
     <!-- The VersionNT variable was frozen. For later Windows versions, look
          at the Build Number. Qt 6.2 and later are officially supported on
@@ -22,12 +21,7 @@
     -->
 
     <Property Id="WINDOWSBUILDNUMBER" Secure="yes">
-      <RegistrySearch Id='WindowsBuildRegistrySearch'
-          Type='raw'
-          Root='HKLM'
-          Key='SOFTWARE\Microsoft\Windows NT\CurrentVersion'
-          Name='CurrentBuildNumber'
-          >
+      <RegistrySearch Id="WindowsBuildRegistrySearch" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\Windows NT\CurrentVersion" Name="CurrentBuildNumber">
       </RegistrySearch>
     </Property>
 
@@ -36,37 +30,21 @@
          - The <compatibility><application> section in resources\wireshark.exe.manifest.in
          - The WinVer parts of packaging\nsis\wireshark.nsi
     -->
-    <Condition Message="Windows 2000 is no longer supported. Please install $(var.WiresharkName) 1.2 or 1.0 instead.">
-      <![CDATA[Installed OR (VersionNT < 500) OR (VersionNT > 500)]]>
-    </Condition>
+    <Launch Condition="Installed OR (VersionNT &lt; 500) OR (VersionNT &gt; 500)" Message="Windows 2000 is no longer supported. Please install $(var.WiresharkName) 1.2 or 1.0 instead." />
 
-    <Condition Message="WindowsXP is no longer supported. Please install $(var.WiresharkName) 1.12 or 1.10 instead.">
-      <![CDATA[Installed OR (VersionNT < 501) OR (VersionNT > 501)]]>
-    </Condition>
+    <Launch Condition="Installed OR (VersionNT &lt; 501) OR (VersionNT &gt; 501)" Message="WindowsXP is no longer supported. Please install $(var.WiresharkName) 1.12 or 1.10 instead." />
 
-    <Condition Message="Windows Server 2003 is no longer supported. Please install $(var.WiresharkName) 1.12 or 1.10 instead.">
-      <![CDATA[Installed OR (VersionNT < 502) OR (VersionNT > 502)]]>
-    </Condition>
+    <Launch Condition="Installed OR (VersionNT &lt; 502) OR (VersionNT &gt; 502)" Message="Windows Server 2003 is no longer supported. Please install $(var.WiresharkName) 1.12 or 1.10 instead." />
 
-    <Condition Message="Windows Vista and Server 2008 are no longer supported. Please install $(var.WiresharkName) 2.2 instead.">
-      <![CDATA[Installed OR (VersionNT < 600) OR (VersionNT > 600)]]>
-    </Condition>
+    <Launch Condition="Installed OR (VersionNT &lt; 600) OR (VersionNT &gt; 600)" Message="Windows Vista and Server 2008 are no longer supported. Please install $(var.WiresharkName) 2.2 instead." />
 
-    <Condition Message="Windows 7, 8, 8.1, 10 version 1511, Server 2008R2, and Server 2012 are no longer supported. Please install $(var.WiresharkName) 4.0 instead.">
-      <![CDATA[Installed OR (VersionNT < 601) OR (WINDOWSBUILDNUMBER >= 14393)]]>
-    </Condition>
+    <Launch Condition="Installed OR (VersionNT &lt; 601) OR (WINDOWSBUILDNUMBER &gt;= 14393)" Message="Windows 7, 8, 8.1, 10 version 1511, Server 2008R2, and Server 2012 are no longer supported. Please install $(var.WiresharkName) 4.0 instead." />
 
-    <Condition Message="Windows 10 versions before 1809 and Server 2016 are no longer supported. Please install $(var.WiresharkName) 4.4 instead.">
-      <![CDATA[Installed OR (WINDOWSBUILDNUMBER < 14393) OR (WINDOWSBUILDNUMBER >= 17763)]]>
-    </Condition>
+    <Launch Condition="Installed OR (WINDOWSBUILDNUMBER &lt; 14393) OR (WINDOWSBUILDNUMBER &gt;= 17763)" Message="Windows 10 versions before 1809 and Server 2016 are no longer supported. Please install $(var.WiresharkName) 4.4 instead." />
 
-    <Condition Message="Windows 10 versions before 21H2 and Server 2019 are no longer supported. Please install $(var.WiresharkName) 4.6 instead.">
-      <![CDATA[Installed OR (WINDOWSBUILDNUMBER < 17763) OR (WINDOWSBUILDNUMBER >= 19044)]]>
-    </Condition>
+    <Launch Condition="Installed OR (WINDOWSBUILDNUMBER &lt; 17763) OR (WINDOWSBUILDNUMBER &gt;= 19044)" Message="Windows 10 versions before 21H2 and Server 2019 are no longer supported. Please install $(var.WiresharkName) 4.6 instead." />
 
-    <Condition Message="$(var.WiresharkName)$(var.WiresharkVersion) is only supported on Windows 10, version 21H2 or Windows Server 2022, or higher.">
-      <![CDATA[Installed OR (WINDOWSBUILDNUMBER >= 19044)]]>
-    </Condition>
+    <Launch Condition="Installed OR (WINDOWSBUILDNUMBER &gt;= 19044)" Message="$(var.WiresharkName)$(var.WiresharkVersion) is only supported on Windows 10, version 21H2 or Windows Server 2022, or higher." />
 
 <!--
   NSIS package uninstallation. The NSIS installer writes a bunch of keys to
@@ -81,52 +59,28 @@
 -->
 
     <Property Id="NSIS_INSTALL_LOCATION_32" Secure="yes">
-      <RegistrySearch Id='NsisInstallRegistrySearch32'
-          Type='raw'
-          Root='HKLM'
-          Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark'
-          Name='InstallLocation'
-          Win64='no'>
-        <DirectorySearch Id='NsisInstallDirectorySearch32' AssignToProperty='yes'/>
+      <RegistrySearch Id="NsisInstallRegistrySearch32" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" Name="InstallLocation" Bitness="always32">
+        <DirectorySearch Id="NsisInstallDirectorySearch32" AssignToProperty="yes" />
       </RegistrySearch>
     </Property>
 
     <Property Id="NSIS_DISPLAY_NAME_32" Value="Wireshark" Secure="yes">
-      <RegistrySearch Id='NsisDisplayNameRegistrySearch32'
-          Type='raw'
-          Root='HKLM'
-          Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark'
-          Name='DisplayName'
-          Win64='no'/>
+      <RegistrySearch Id="NsisDisplayNameRegistrySearch32" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" Name="DisplayName" Bitness="always32" />
     </Property>
 
-    <Condition Message="[NSIS_DISPLAY_NAME_32] was installed in [NSIS_INSTALL_LOCATION_32] using the .exe installer. Please uninstall it using Programs and Features.">
-      <![CDATA[Installed OR NOT NSIS_INSTALL_LOCATION_32]]>
-    </Condition>
+    <Launch Condition="Installed OR NOT NSIS_INSTALL_LOCATION_32" Message="[NSIS_DISPLAY_NAME_32] was installed in [NSIS_INSTALL_LOCATION_32] using the .exe installer. Please uninstall it using Programs and Features." />
 
     <Property Id="NSIS_INSTALL_LOCATION_64" Secure="yes">
-      <RegistrySearch Id='NsisInstallRegistrySearch64'
-          Type='raw'
-          Root='HKLM'
-          Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark'
-          Name='InstallLocation'
-          Win64='yes'>
-        <DirectorySearch Id='NsisInstallDirectorySearch64' AssignToProperty='yes'/>
+      <RegistrySearch Id="NsisInstallRegistrySearch64" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" Name="InstallLocation" Bitness="always64">
+        <DirectorySearch Id="NsisInstallDirectorySearch64" AssignToProperty="yes" />
       </RegistrySearch>
     </Property>
 
     <Property Id="NSIS_DISPLAY_NAME_64" Value="Wireshark" Secure="yes">
-      <RegistrySearch Id='NsisDisplayNameRegistrySearch64'
-          Type='raw'
-          Root='HKLM'
-          Key='SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark'
-          Name='DisplayName'
-          Win64='yes'/>
+      <RegistrySearch Id="NsisDisplayNameRegistrySearch64" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" Name="DisplayName" Bitness="always64" />
     </Property>
 
-    <Condition Message="[NSIS_DISPLAY_NAME_64] was installed in [NSIS_INSTALL_LOCATION_64] using the .exe installer. Please uninstall it using Programs and Features.">
-      <![CDATA[Installed OR NOT NSIS_INSTALL_LOCATION_64]]>
-    </Condition>
+    <Launch Condition="Installed OR NOT NSIS_INSTALL_LOCATION_64" Message="[NSIS_DISPLAY_NAME_64] was installed in [NSIS_INSTALL_LOCATION_64] using the .exe installer. Please uninstall it using Programs and Features." />
 
 <!--
   Starting with Visual Studio 2019 the Visual C++ Redistributable merge
@@ -159,14 +113,10 @@
       <?endif?>
     </Upgrade>
 
-    <Condition Message="The Microsoft Visual C++ Redistributable is required but wasn't found. Please download and install it from https://aka.ms/vs/17/release/vc_redist.$(var.Platform).exe before continuing.">
-      <![CDATA[Installed OR VCREDIST_INSTALLED]]>
-    </Condition>
+    <Launch Condition="Installed OR VCREDIST_INSTALLED" Message="The Microsoft Visual C++ Redistributable is required but wasn't found. Please download and install it from https://aka.ms/vs/17/release/vc_redist.$(var.Platform).exe before continuing." />
 
     <?ifdef VCRedistMinVersion?>
-    <Condition Message="The installed Microsoft Visual C++ Redistributable is older than the version $(var.WiresharkName) was built with ($(var.VCRedistMinVersion)). Please update it from https://aka.ms/vs/17/release/vc_redist.$(var.Platform).exe before continuing.">
-      <![CDATA[Installed OR VCREDIST_MIN_VERSION_INSTALLED]]>
-    </Condition>
+    <Launch Condition="Installed OR VCREDIST_MIN_VERSION_INSTALLED" Message="The installed Microsoft Visual C++ Redistributable is older than the version $(var.WiresharkName) was built with ($(var.VCRedistMinVersion)). Please update it from https://aka.ms/vs/17/release/vc_redist.$(var.Platform).exe before continuing." />
     <?endif?>
 
   </Fragment>

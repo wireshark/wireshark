@@ -4015,7 +4015,7 @@ if(WIN32)
 
 	find_package( WiX )
 
-	if(WIX_CANDLE_EXECUTABLE)
+	if(WIX_EXECUTABLE)
 		add_subdirectory( packaging/wix EXCLUDE_FROM_ALL )
 		ADD_WIX_PACKAGE_TARGET()
 	endif()

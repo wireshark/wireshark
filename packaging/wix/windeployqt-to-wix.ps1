@@ -52,7 +52,7 @@ Param(
 
 try {
     $qtVersion = [version](qmake -query QT_VERSION)
-    $wixComponents = "<Wix xmlns=`"http://schemas.microsoft.com/wix/2006/wi`">
+    $wixComponents = "<Wix xmlns=`"http://wixtoolset.org/schemas/v4/wxs`">
 <?include InputPaths.wxi ?>
 "
     $wixComponents += @("<!-- Qt version " + $qtVersion ; "-->
@@ -115,14 +115,14 @@ try {
                 $currentDir = $dir
             }
 
-            $currentDirList += "           <Component Id=`"cmp$wix_name`" Guid=`"*`">
+            $currentDirList += "           <Component Id=`"cmp$wix_name`">
               <File Id=`"fil$wix_name`" KeyPath=`"yes`" Source=`"`$(var.Staging.Dir)\$entry`" />
            </Component>
 "
             $componentGroup += "         <ComponentRef Id=`"cmp$wix_name`" />
 "
         } else {
-            $dllList += "       <Component Id=`"cmp$wix_name`" Guid=`"*`">
+            $dllList += "       <Component Id=`"cmp$wix_name`">
           <File Id=`"fil$wix_name`" KeyPath=`"yes`" Source=`"`$(var.Staging.Dir)\$entry`" />
        </Component>
 "

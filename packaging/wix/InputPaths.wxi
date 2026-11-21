@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Include>
+﻿<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <?if $(var.Platform) = x64 OR $(var.Platform) = arm64 ?>
   <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>

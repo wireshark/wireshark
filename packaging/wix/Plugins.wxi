@@ -1,37 +1,36 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Include>
+﻿<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <!-- Plugins -->
     <Fragment>
         <DirectoryRef Id="dirPluginsVersionEpan">
-            <Component Id="cmpEthercat_dll" Guid="*">
+            <Component Id="cmpEthercat_dll">
                 <File Id="filEthercat_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\ethercat.dll" />
             </Component>
-            <Component Id="cmpGryphon_dll" Guid="*">
+            <Component Id="cmpGryphon_dll">
                 <File Id="filGryphon_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\gryphon.dll" />
             </Component>
-            <Component Id="cmpIPAddress_dll" Guid="*">
+            <Component Id="cmpIPAddress_dll">
                 <File Id="filIPAddress_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\ipaddr.dll" />
             </Component>
-            <Component Id="cmpIrda_dll" Guid="*">
+            <Component Id="cmpIrda_dll">
                 <File Id="filIrda_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\irda.dll" />
             </Component>
-            <Component Id="cmpOpcua_dll" Guid="*">
+            <Component Id="cmpOpcua_dll">
                 <File Id="filOpcua_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\opcua.dll" />
             </Component>
-            <Component Id="cmpProfinet_dll" Guid="*">
+            <Component Id="cmpProfinet_dll">
                 <File Id="filProfinet_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\profinet.dll" />
             </Component>
-            <Component Id="cmpUnistim_dll" Guid="*">
+            <Component Id="cmpUnistim_dll">
                 <File Id="filUnistim_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\unistim.dll" />
             </Component>
-            <Component Id="cmpWimax_dll" Guid="*">
+            <Component Id="cmpWimax_dll">
                 <File Id="filWimax_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\wimax.dll" />
             </Component>
-            <Component Id="cmpWimaxasmcp_dll" Guid="*">
+            <Component Id="cmpWimaxasmcp_dll">
                 <File Id="filWimaxasmcp_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\wimaxasncp.dll" />
             </Component>
-            <Component Id="cmpWimaxmacphy_dll" Guid="*">
+            <Component Id="cmpWimaxmacphy_dll">
                 <File Id="filWimaxmacphy_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\wimaxmacphy.dll" />
             </Component>
           <!-- Add custom plugin Components here -->
@@ -56,7 +55,7 @@
     <!-- Stats Tree -->
     <Fragment>
         <DirectoryRef Id="dirPluginsVersionEpan">
-          <Component Id="cmpStatsTree_dll" Guid="*">
+          <Component Id="cmpStatsTree_dll">
             <File Id="filStatsTree_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\stats_tree.dll" />
           </Component>
         </DirectoryRef>
@@ -70,7 +69,7 @@
   <!-- MATE -->
   <Fragment>
     <DirectoryRef Id="dirPluginsVersionEpan">
-      <Component Id="cmpMate_dll" Guid="*">
+      <Component Id="cmpMate_dll">
         <File Id="filMate_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\mate.dll" />
       </Component>
     </DirectoryRef>
@@ -84,7 +83,7 @@
   <!-- TRANSUM -->
   <Fragment>
     <DirectoryRef Id="dirPluginsVersionEpan">
-      <Component Id="cmpTransum_dll" Guid="*">
+      <Component Id="cmpTransum_dll">
         <File Id="filTransum_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\transum.dll" />
       </Component>
     </DirectoryRef>
@@ -98,7 +97,7 @@
     <!-- wiretap -->
     <Fragment>
         <DirectoryRef Id="dirPluginsVersionWtap">
-            <Component Id="cmpUsbdump_dll" Guid="*">
+            <Component Id="cmpUsbdump_dll">
                 <File Id="filUsbdump_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\wiretap\usbdump.dll" />
             </Component>
         </DirectoryRef>
@@ -112,34 +111,34 @@
     <!-- codecs -->
     <Fragment>
         <DirectoryRef Id="dirPluginsVersionCodecs">
-            <Component Id="cmpG711_dll" Guid="*">
+            <Component Id="cmpG711_dll">
                 <File Id="filG711_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\g711.dll" />
             </Component>
-            <Component Id="cmpG722_dll" Guid="*">
+            <Component Id="cmpG722_dll">
                 <File Id="filG722_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\g722.dll" />
             </Component>
-            <Component Id="cmpG726_dll" Guid="*">
+            <Component Id="cmpG726_dll">
                 <File Id="filG726_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\g726.dll" />
             </Component>
-            <Component Id="cmpG729_dll" Guid="*">
+            <Component Id="cmpG729_dll">
                 <File Id="filG729_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\g729.dll" />
             </Component>
-            <Component Id="cmpL16mono_dll" Guid="*">
+            <Component Id="cmpL16mono_dll">
                 <File Id="filL16mono_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\l16mono.dll" />
             </Component>
-            <Component Id="cmpSBC_dll" Guid="*">
+            <Component Id="cmpSBC_dll">
                 <File Id="filSBC_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\sbc.dll" />
             </Component>
-            <Component Id="cmpILBC_dll" Guid="*">
+            <Component Id="cmpILBC_dll">
                 <File Id="filILBC_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\ilbc.dll" />
             </Component>
-            <Component Id="cmpOPUS_dll" Guid="*">
+            <Component Id="cmpOPUS_dll">
                 <File Id="filOPUS_dec_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\opus_dec.dll" />
             </Component>
-            <Component Id="cmpAMRNB_dll" Guid="*">
+            <Component Id="cmpAMRNB_dll">
                 <File Id="filAMRNB_dec_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\amrnb.dll" />
             </Component>
-            <Component Id="cmpAMRWB_dll" Guid="*">
+            <Component Id="cmpAMRWB_dll">
                 <File Id="filAMRWB_dec_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\amrwb.dll" />
             </Component>
         </DirectoryRef>
