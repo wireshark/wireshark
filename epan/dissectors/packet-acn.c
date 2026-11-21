@@ -3043,7 +3043,7 @@ is_magic(tvbuff_t *tvb)
 {
   static const uint8_t magic_protocol_id = 15;
 
-  if (tvb_get_uint8(tvb, 0) == magic_protocol_id)
+  if (tvb_captured_length(tvb) >= 1 && tvb_get_uint8(tvb, 0) == magic_protocol_id)
     return true;
 
   return false;
@@ -3284,7 +3284,7 @@ is_rdmnet_over_tcp(tvbuff_t *tvb)
   uint32_t protocol_id;
   uint8_t  pdu_flags;
 
-  if (tvb_captured_length(tvb) < (4+sizeof(acn_packet_id))) {
+  if (tvb_captured_length(tvb) < (5+sizeof(acn_packet_id))) {
     return false;
   }
 
@@ -3301,6 +3301,10 @@ is_rdmnet_over_tcp(tvbuff_t *tvb)
   } else {
     /* length bit is clear: there are two length bytes */
     offset += 2;
+  }
+
+  if (tvb_captured_length(tvb) < offset + 4) {
+    return false;
   }
 
   protocol_id = tvb_get_ntohl(tvb, offset);
@@ -3449,6 +3453,7 @@ acn_add_channel_owner_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   offset = acn_add_address(tvb, pinfo, this_tree, offset, "Source Address:");
 
   session_count = tvb_get_ntohs(tvb, offset);
+  offset += 2;
   for (x=0; x<session_count; x++) {
     pi = proto_tree_add_item(this_tree, hf_acn_protocol_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(pi, " #%d",  x+1);
@@ -3482,6 +3487,7 @@ acn_add_channel_member_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   offset += 2;
 
   session_count = tvb_get_ntohs(tvb, offset);
+  offset += 2;
   for (x=0; x<session_count; x++) {
     pi = proto_tree_add_item(this_tree, hf_acn_protocol_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(pi, " #%d",  x+1);
@@ -3902,7 +3908,6 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
           }
           /* add the item */
           ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, ENC_NA);
-          offset += data_size;
           /* change the text */
           proto_item_set_text(ti, "%s", wmem_strbuf_get_str(default_buffer));
           break;
@@ -4141,7 +4146,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 /******************************************************************************/
 /* Get Field Type Parameters */
 static void
-get_field_type_parameters(tvbuff_t *tvb, int blob_offset, uint8_t field_type, uint8_t *field_length, uint8_t *blob_offset1, uint8_t *blob_offset2, uint8_t *blob_offset3)
+get_field_type_parameters(tvbuff_t *tvb, int blob_offset, uint8_t field_type, uint16_t *field_length, uint8_t *blob_offset1, uint8_t *blob_offset2, uint16_t *blob_offset3)
 {
   /* Switch Over Field Type to Determine Data */
   switch (field_type) {
@@ -4195,10 +4200,11 @@ get_field_type_parameters(tvbuff_t *tvb, int blob_offset, uint8_t field_type, ui
       break;
     case ACN_BLOB_FIELD_TYPE11:
       /* Set field length and blob_offsets to use */
-      *field_length = tvb_get_uint8(tvb, blob_offset + 2);
-      *blob_offset1 = 2;
-      *blob_offset2 = 1;
-      *blob_offset3 = (*field_length) - 2;
+      /* two octet length that includes the length itself */
+      *field_length = tvb_get_ntohs(tvb, blob_offset + 1);
+      *blob_offset1 = 1;
+      *blob_offset2 = 2;
+      *blob_offset3 = (*field_length >= 2) ? (*field_length - 2) : 0;
       break;
     case ACN_BLOB_FIELD_TYPE12:
       /* Set field length and blob_offsets to use for ignores */
@@ -4349,7 +4355,7 @@ get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number
 /******************************************************************************/
 /* Display Blob Field Value */
 static void
-display_blob_field_value(tvbuff_t *tvb, packet_info* pinfo, proto_tree *field_tree, uint16_t field_number, uint8_t blob_type, uint8_t field_type, uint8_t field_length, int blob_offset, uint8_t blob_offset3, int display_variblob_as_CID)
+display_blob_field_value(tvbuff_t *tvb, packet_info* pinfo, proto_tree *field_tree, uint16_t field_number, uint8_t blob_type, uint8_t field_type, uint16_t field_length, int blob_offset, uint16_t blob_offset3, int display_variblob_as_CID)
 {
   int8_t            field_value8;
   int32_t           field_value32;
@@ -4362,10 +4368,10 @@ display_blob_field_value(tvbuff_t *tvb, packet_info* pinfo, proto_tree *field_tr
     proto_tree_add_string(field_tree, hf_acn_blob_field_value_string, tvb, blob_offset, field_length, "Ignore");
   }
   else if (blob_type == ACN_BLOB_IPV4) {
-    proto_tree_add_item(field_tree, hf_acn_blob_field_value_ipv4, tvb, blob_offset, field_length-2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_acn_blob_field_value_ipv4, tvb, blob_offset, blob_offset3, ENC_BIG_ENDIAN);
   }
   else if (blob_type == ACN_BLOB_IPV6) {
-    proto_tree_add_item(field_tree, hf_acn_blob_field_value_ipv6, tvb, blob_offset, field_length-2, ENC_NA);
+    proto_tree_add_item(field_tree, hf_acn_blob_field_value_ipv6, tvb, blob_offset, blob_offset3, ENC_NA);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 2)) {
     /* time zone index */
@@ -4446,10 +4452,11 @@ display_blob_field_value(tvbuff_t *tvb, packet_info* pinfo, proto_tree *field_tr
         break;
       case ACN_BLOB_FIELD_TYPE3:
         /* Need special code to display signed data */
-        ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number, tvb, blob_offset, 3, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number, tvb, blob_offset, 4, ENC_BIG_ENDIAN);
         proto_item_set_len(ti, blob_offset3);
         break;
       case ACN_BLOB_FIELD_TYPE4:
+      case ACN_BLOB_FIELD_TYPE8:
         /* Need special code to display signed data */
         ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number64, tvb, blob_offset, 8, ENC_BIG_ENDIAN);
         proto_item_set_len(ti, blob_offset3);
@@ -4466,8 +4473,8 @@ display_blob_field_value(tvbuff_t *tvb, packet_info* pinfo, proto_tree *field_tr
         if (blob_offset3 == 0) {
           proto_tree_add_string(field_tree, hf_acn_blob_field_value_string, tvb, blob_offset, 0, "<none>");
         }
-        else if (display_variblob_as_CID) {
-          proto_tree_add_item(field_tree, hf_acn_blob_field_value_guid, tvb, blob_offset, field_length, ENC_BIG_ENDIAN);
+        else if (display_variblob_as_CID && blob_offset3 == 16) {
+          proto_tree_add_item(field_tree, hf_acn_blob_field_value_guid, tvb, blob_offset, 16, ENC_BIG_ENDIAN);
         }
         else {
           proto_tree_add_item(field_tree, hf_acn_blob_field_value_string, tvb, blob_offset, blob_offset3, ENC_UTF_8);
@@ -4490,10 +4497,10 @@ static void
 display_blob_field(tvbuff_t *tvb, packet_info* pinfo, proto_tree *blob_tree, uint8_t blob_type, int *blob_offset, uint16_t *field_number, int display_variblob_as_CID)
 {
   uint8_t           field_type;
-  uint8_t           field_length;
+  uint16_t           field_length;
   uint8_t           blob_offset1;
   uint8_t           blob_offset2;
-  uint8_t           blob_offset3;
+  uint16_t           blob_offset3;
   uint16_t          temp_field_number;
 
   proto_item       *fi;
@@ -4562,7 +4569,7 @@ display_blob_field(tvbuff_t *tvb, packet_info* pinfo, proto_tree *blob_tree, uin
     *blob_offset += blob_offset1;
 
     /* Add field length to field sub tree */
-    proto_tree_add_uint(field_tree, hf_acn_blob_field_length, tvb, *blob_offset, 1, field_length);
+    proto_tree_add_uint(field_tree, hf_acn_blob_field_length, tvb, *blob_offset, (blob_offset2 > 1) ? blob_offset2 : 1, field_length);
     *blob_offset += blob_offset2;
 
     display_blob_field_value(tvb, pinfo, field_tree, *field_number, blob_type, field_type, field_length, *blob_offset, blob_offset3, display_variblob_as_CID);
@@ -4604,10 +4611,10 @@ dissect_acn_blob_preset_properties(tvbuff_t *tvb, packet_info* pinfo, proto_tree
 {
   uint8_t      blob_type = ACN_BLOB_PRESET_PROPERTIES;
   uint8_t      field_type;
-  uint8_t      field_length;
+  uint16_t      field_length;
   uint8_t      blob_offset1;
   uint8_t      blob_offset2;
-  uint8_t      blob_offset3;
+  uint16_t      blob_offset3;
   uint8_t      sub_blob_index;
   uint16_t     field_number = 1;
   uint8_t      max_sub_blobs = 192;
@@ -4682,10 +4689,10 @@ dissect_acn_blob_dimming_rack_status_properties_v2(tvbuff_t *tvb, packet_info* p
 {
   uint8_t      blob_type;
   uint8_t      field_type;
-  uint8_t      field_length;
+  uint16_t      field_length;
   uint8_t      blob_offset1;
   uint8_t      blob_offset2;
-  uint8_t      blob_offset3;
+  uint16_t      blob_offset3;
   uint8_t      sub_blob_index;
   uint16_t     field_number;
 
@@ -4743,10 +4750,10 @@ static uint8_t
 get_blob_type_from_fields(tvbuff_t *tvb, int blob_offset, int end_offset)
 {
   uint8_t field_type;
-  uint8_t field_length;
+  uint16_t field_length;
   uint8_t blob_offset1;
   uint8_t blob_offset2;
-  uint8_t blob_offset3;
+  uint16_t blob_offset3;
   uint16_t field_number = 1;
 
   while (blob_offset < end_offset) {
@@ -4760,7 +4767,7 @@ get_blob_type_from_fields(tvbuff_t *tvb, int blob_offset, int end_offset)
       return ACN_BLOB_PRESET_PROPERTIES;
     }
     get_field_type_parameters(tvb, blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
-    blob_offset += blob_offset2 + blob_offset3;
+    blob_offset += blob_offset1 + blob_offset2 + blob_offset3;
     field_number += 1;
   }
 
@@ -5694,8 +5701,8 @@ dissect_acn_dmx_data_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
           /* add leader... */
           proto_tree_add_string_format(pdu_tree, hf_acn_dmx_data, tvb, data_offset, item_cnt, buffer, "%s", buffer);
           data_offset += perline;
-          snprintf(buffer, BUFFER_SIZE, "%03d-%03d: ",total_cnt, total_cnt+perline);
-          buf_ptr = buffer + 9;
+          /* the numbers have more than three digits past 999 */
+          buf_ptr = buffer + snprintf(buffer, BUFFER_SIZE, "%03d-%03d: ",total_cnt, total_cnt+perline);
           item_cnt = 0;
         } else {
           /* add separator character */
@@ -5870,6 +5877,7 @@ dissect_acn_dmx_extension_base_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_i
   /* this pdu */
   const char      *name;
   uint32_t         vector;
+  acn_pdu_offsets  discovery_offsets = {0,0,0,0,0};
 
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_acn_dmx_pdu, 4, 1);
 
@@ -5893,7 +5901,8 @@ dissect_acn_dmx_extension_base_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_i
       proto_tree_add_item(pdu_tree, hf_acn_dmx_discovery_framing_reserved, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
 
-      dissect_acn_dmx_discovery_pdu(protocol_id, tvb, pinfo, pdu_tree, data_offset, last_pdu_offsets);
+      /* the discovery PDU is a new PDU block, it does not inherit from this one */
+      dissect_acn_dmx_discovery_pdu(protocol_id, tvb, pinfo, pdu_tree, data_offset, &discovery_offsets);
 
       break;
 
@@ -6209,7 +6218,7 @@ dissect_llrp_probe_request_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, acn_
   /* common to all pdu */
   uint8_t          pdu_flags;
   uint8_t          vector;
-  uint8_t          filter_flags;
+  uint16_t         filter_flags;
   uint32_t         pdu_start;
   uint32_t         pdu_length;
   uint32_t         pdu_flvh_length; /* flags, length, vector, header */
@@ -6245,11 +6254,11 @@ dissect_llrp_probe_request_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, acn_
   data_offset += 6;
 
   /* filter */
-  filter_flags = tvb_get_uint8(tvb, data_offset);
+  filter_flags = tvb_get_ntohs(tvb, data_offset);
   filter_flags = filter_flags & 0x03;
-  pi = proto_tree_add_uint(pdu_tree, hf_rdmnet_llrp_probe_request_filter, tvb, data_offset, 1, filter_flags);
+  pi = proto_tree_add_uint(pdu_tree, hf_rdmnet_llrp_probe_request_filter, tvb, data_offset, 2, filter_flags);
   flag_tree = proto_item_add_subtree(pi, ett_rdmnet_llrp_probe_request_filter_flags);
-  proto_tree_add_item(flag_tree, hf_rdmnet_llrp_probe_request_filter_brokers_only, tvb, data_offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_rdmnet_llrp_probe_request_filter_brokers_only, tvb, data_offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(flag_tree, hf_rdmnet_llrp_probe_request_filter_client_tcp_inactive, tvb, data_offset, 2, ENC_BIG_ENDIAN);
   data_offset += 2;
 
@@ -6505,13 +6514,13 @@ dissect_broker_client_entry_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
     data_offset += 16;
     break;
   case RDMNET_CLIENT_PROTOCOL_EPT:
-    while ((unsigned)offset + 36 < pdu_end) {
+    while (data_offset + 36 <= pdu_end) {
       /* protocol vector (manufacturer id + protocol id) */
       ti2 = proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_ept_protocol_vector, tvb, data_offset, 4, ENC_NA);
       pdu_tree2 = proto_item_add_subtree(ti2, ett_rdmnet_broker_client_entry_manufacturer_protocol_ids);
-      proto_tree_add_item(pdu_tree2, hf_rdmnet_broker_client_ept_protocol_manufacturer_id, tvb, 0, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item(pdu_tree2, hf_rdmnet_broker_client_ept_protocol_protocol_id, tvb, 2, 2, ENC_BIG_ENDIAN);
-      offset += 4;
+      proto_tree_add_item(pdu_tree2, hf_rdmnet_broker_client_ept_protocol_manufacturer_id, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(pdu_tree2, hf_rdmnet_broker_client_ept_protocol_protocol_id, tvb, data_offset + 2, 2, ENC_BIG_ENDIAN);
+      data_offset += 4;
 
       /* protocol string */
       proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_ept_protocol_string, tvb, data_offset, 32, ENC_ASCII);
@@ -6660,7 +6669,7 @@ static uint32_t
 dissect_broker_request_dynamic_uids(tvbuff_t *tvb, proto_tree *tree, uint32_t offset, uint32_t pdu_end)
 {
   /* packed list of dynamic uid request (6 bytes) and rid (16 bytes) */
-  while (offset + 22 < pdu_end) {
+  while (offset + 22 <= pdu_end) {
     /* dynamic uid request (6 bytes) */
     proto_tree_add_item(tree, hf_rdmnet_broker_dynamic_uid_request, tvb, offset, 6, ENC_NA);
     offset += 6;
@@ -6680,7 +6689,7 @@ static uint32_t
 dissect_broker_assigned_dynamic_uids(tvbuff_t *tvb, proto_tree *tree, uint32_t offset, uint32_t pdu_end)
 {
   /* packed list of dynamic uid request (6 bytes), rid (16 bytes), and status_code (2 bytes) */
-  while (offset + 24 < pdu_end) {
+  while (offset + 24 <= pdu_end) {
     /* dynamic uid request (6 bytes) */
     proto_tree_add_item(tree, hf_rdmnet_broker_assigned_dynamic_uid, tvb, offset, 6, ENC_NA);
     offset += 6;
@@ -6704,7 +6713,7 @@ static uint32_t
 dissect_broker_fetch_dynamic_uids(tvbuff_t *tvb, proto_tree *tree, uint32_t offset, uint32_t pdu_end)
 {
   /* packed list of dynamic uid request (6 bytes) */
-  while (offset + 6 < pdu_end) {
+  while (offset + 6 <= pdu_end) {
     /* dynamic uid request (6 bytes) */
     proto_tree_add_item(tree, hf_rdmnet_broker_fetch_dynamic_uid, tvb, offset, 6, ENC_NA);
     offset += 6;
@@ -6909,7 +6918,7 @@ dissect_rpt_status(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offs
   const char      *name;
   uint16_t         vector;
 
-  dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_rpt_status_pdu, 1, 0);
+  dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_rpt_status_pdu, 2, 0);
 
   /* Add Vector item */
   vector = tvb_get_ntohs(tvb, vector_offset);
@@ -6923,7 +6932,6 @@ dissect_rpt_status(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offs
   /* NO HEADER DATA ON THESE* (at least so far) */
 
   dissect_pdu_bit_flag_d(pinfo, offset, pdu_flags, pdu_length, &data_offset, &data_length, last_pdu_offsets, pdu_flvh_length, 0);
-  data_offset += 3;
 
   pdu_end = pdu_start + pdu_length;
   switch (vector) {
@@ -7158,24 +7166,26 @@ dissect_ept_data(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets *l
   proto_tree      *pdu_tree;
   proto_tree      *pdu_tree2;
 
-  dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_ept_data_pdu, 1, 0);
+  dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_ept_data_pdu, 2, 0);
 
   /* Add PDU Length item */
   proto_tree_add_uint(pdu_tree, hf_rdmnet_ept_data_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
 
-  dissect_pdu_bit_flag_v(&offset, pdu_flags, &data_offset, last_pdu_offsets, &pdu_flvh_length, 2);
-  /* offset should now be pointing to header (if one exists) */
+  /* the vector was stepped over by dissect_acn_common_base_pdu() */
+  data_offset = vector_offset;
 
   /* esta manufacturer id + protocol id (4 bytes) */
   ti2 = proto_tree_add_item(pdu_tree, hf_rdmnet_ept_data_vector, tvb, data_offset, 4, ENC_BIG_ENDIAN);
   pdu_tree2 = proto_item_add_subtree(ti2, ett_rdmnet_ept_data_vector_pdu);
-  proto_tree_add_item(pdu_tree2, hf_rdmnet_ept_data_vector_manufacturer_id, tvb, 0, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(pdu_tree2, hf_rdmnet_ept_data_vector_protocol_id, tvb, 2, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(pdu_tree2, hf_rdmnet_ept_data_vector_manufacturer_id, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(pdu_tree2, hf_rdmnet_ept_data_vector_protocol_id, tvb, data_offset + 2, 2, ENC_BIG_ENDIAN);
   data_offset += 4;
 
   /* opaque data */
   pdu_end = pdu_start + pdu_length;
-  proto_tree_add_item(pdu_tree, hf_rdmnet_ept_data_opaque_data, tvb, data_offset, (pdu_end - data_offset), ENC_NA);
+  if (pdu_end > data_offset) {
+    proto_tree_add_item(pdu_tree, hf_rdmnet_ept_data_opaque_data, tvb, data_offset, (pdu_end - data_offset), ENC_NA);
+  }
 
   return pdu_start + pdu_length;
 }
@@ -7198,13 +7208,13 @@ dissect_ept_status(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets 
   proto_item      *ti;
   proto_tree      *pdu_tree;
 
-  dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_ept_status_pdu, 1, 0);
+  dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_ept_status_pdu, 2, 0);
 
   /* Add PDU Length item */
   proto_tree_add_uint(pdu_tree, hf_rdmnet_ept_status_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
 
-  dissect_pdu_bit_flag_v(&offset, pdu_flags, &data_offset, last_pdu_offsets, &pdu_flvh_length, 2);
-  /* offset should now be pointing to header (if one exists) */
+  /* the vector was stepped over by dissect_acn_common_base_pdu() */
+  data_offset = vector_offset;
 
   vector = tvb_get_ntohs(tvb, data_offset);
   proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_vector, tvb, data_offset, 2, ENC_NA);
@@ -7219,7 +7229,9 @@ dissect_ept_status(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets 
 
       /* status string */
       pdu_end = pdu_start + pdu_length;
-      proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_status_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
+      if (pdu_end > data_offset) {
+        proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_status_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
+      }
       break;
   case RDMNET_EPT_VECTOR_UNKNOWN_VECTOR:
       /* unknown cid (4 bytes) */
@@ -7228,7 +7240,9 @@ dissect_ept_status(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets 
 
       /* vector string */
       pdu_end = pdu_start + pdu_length;
-      proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_vector_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
+      if (pdu_end > data_offset) {
+        proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_vector_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
+      }
       break;
   }
 
@@ -7599,7 +7613,7 @@ proto_register_acn(void)
     /* Blob Field Length */
     { &hf_acn_blob_field_length,
       { "Field Length", "acn.blob_field_length",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     /* Blob Field Type */
@@ -8553,12 +8567,12 @@ proto_register_acn(void)
     },
     { &hf_rdmnet_llrp_probe_request_filter_brokers_only,
       { "Brokers Only", "rdmnet.llrp.probe_request.filter_brokers_only",
-        FT_BOOLEAN, 8, NULL, RDMNET_LLRP_VECTOR_PROBE_REQUEST_BROKERS_ONLY,
+        FT_BOOLEAN, 16, NULL, RDMNET_LLRP_VECTOR_PROBE_REQUEST_BROKERS_ONLY,
         "Brokers only flag", HFILL }
     },
     { &hf_rdmnet_llrp_probe_request_filter_client_tcp_inactive,
       { "Client TCP Inactive", "rdmnet.llrp.probe_request.filter_client_tcp_inactive",
-        FT_BOOLEAN, 8, NULL, RDMNET_LLRP_VECTOR_PROBE_REQUEST_CLIENT_TCP_INACTIVE,
+        FT_BOOLEAN, 16, NULL, RDMNET_LLRP_VECTOR_PROBE_REQUEST_CLIENT_TCP_INACTIVE,
         "Client TCP inactive flag", HFILL }
     },
     /* LLRP Probe Request Unknown UID */
