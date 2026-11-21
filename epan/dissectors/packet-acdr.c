@@ -507,6 +507,10 @@ create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, unsigned offset
     if (tree == NULL)
         return;
 
+    // Never show fields beyond the header extension
+    tvb = tvb_new_subset_length(tvb, offset, extension_length);
+    offset = 0;
+
     switch (trace_point) {
     case DspIncoming:
     case DspOutgoing:
@@ -742,7 +746,7 @@ create_5x_analysis_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb)
 
     // parse the header extension
     proto_item *ti = proto_tree_add_item(tree, hf_acdr_5x_analysis_packet_header, tvb,
-                                         AC5X_ANALYSIS_PACKET_HEADER, -1, ENC_NA);
+                                         0, AC5X_ANALYSIS_PACKET_HEADER, ENC_NA);
 
     ac5x_analysis_packet_header = proto_item_add_subtree(ti, ett_5x_analysis_packet_header);
 
@@ -815,12 +819,44 @@ acdr_payload_handler(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_acdr_unknown_packet, tvb, 0, 0, ENC_NA);
 }
 
+/* Dissect an RTP packet with a codec handle bound to the payload type for the
+ * duration of the call only. The "rtp.pt" table is restored on exit, also when
+ * an exception is thrown, so nothing persists between packets. */
+static void
+call_rtp_with_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t payload_type,
+                    dissector_handle_t codec_handle)
+{
+    dissector_handle_t volatile old_handle = NULL;
+    volatile bool changed = false;
+
+    if (codec_handle) {
+        old_handle = dissector_get_uint_handle(rtp_dissector_table, payload_type);
+        if (old_handle != codec_handle) {
+            dissector_add_uint("rtp.pt", payload_type, codec_handle);
+            changed = true;
+        }
+    }
+
+    TRY {
+        call_dissector(rtp_dissector_handle, tvb, pinfo, tree);
+    }
+    FINALLY {
+        if (changed) {
+            if (old_handle)
+                dissector_add_uint("rtp.pt", payload_type, old_handle);
+            else
+                dissector_delete_uint("rtp.pt", payload_type, codec_handle);
+        }
+    }
+    ENDTRY;
+}
+
 static void
 dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t media_type,
                    uint16_t payload_type)
 {
     proto_tree *rtp_data_tree;
-    dissector_handle_t old_dissector_handle = NULL;
+    dissector_handle_t codec_handle = NULL;
 
     int bytes_dissected = 0;
 
@@ -839,44 +875,22 @@ dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t 
     if (payload_type != 0) {
         switch (media_type) {
         case ACDR_RTP_AMR:
-            if (amr_handle) {
-                old_dissector_handle = dissector_get_uint_handle(rtp_dissector_table, payload_type);
-                if (old_dissector_handle != amr_handle)
-                    dissector_add_uint("rtp.pt", payload_type, amr_handle);
-            }
+            codec_handle = amr_handle;
             break;
         case ACDR_RTP_EVRC:
-            if (evrc_handle) {
-                old_dissector_handle = dissector_get_uint_handle(rtp_dissector_table, payload_type);
-                if (old_dissector_handle != evrc_handle)
-                    dissector_add_uint("rtp.pt", payload_type, evrc_handle);
-            }
+            codec_handle = evrc_handle;
             break;
         case ACDR_RTP_RFC2198:
-            if (rtp_rfc2198_handle) {
-                old_dissector_handle = dissector_get_uint_handle(rtp_dissector_table, payload_type);
-                if (old_dissector_handle != rtp_rfc2198_handle)
-                    dissector_add_uint("rtp.pt", payload_type, rtp_rfc2198_handle);
-            }
+        case ACDR_RTP_FEC:
+            codec_handle = rtp_rfc2198_handle;
             break;
         case ACDR_RTP_RFC2833:
-            if (rtp_events_handle) {
-                old_dissector_handle = dissector_get_uint_handle(rtp_dissector_table, payload_type);
-                if (old_dissector_handle != rtp_events_handle)
-                    dissector_add_uint("rtp.pt", payload_type, rtp_events_handle);
-            }
-            break;
-        case ACDR_RTP_FEC:
-            if (rtp_rfc2198_handle) {
-                old_dissector_handle = dissector_get_uint_handle(rtp_dissector_table, payload_type);
-                if (old_dissector_handle != rtp_rfc2198_handle)
-                    dissector_add_uint("rtp.pt", payload_type, rtp_rfc2198_handle);
-            }
+            codec_handle = rtp_events_handle;
             break;
         }
     }
 
-    call_dissector(rtp_dissector_handle, tvb, pinfo, tree);
+    call_rtp_with_codec(tvb, pinfo, tree, payload_type, codec_handle);
 
     // see that the bottom protocol is indeed RTP and not some other protocol on top RTP
     if (tree && tree->last_child && PITEM_FINFO(tree->last_child)) {
@@ -893,31 +907,21 @@ dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t 
 
     switch (media_type) {
     case ACDR_RTP_AMR:
-        if (old_dissector_handle && (old_dissector_handle != amr_handle))
-            dissector_add_uint("rtp.pt", payload_type, old_dissector_handle);
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP AMR");
         break;
     case ACDR_RTP_EVRC:
-        if (old_dissector_handle && (old_dissector_handle != evrc_handle))
-            dissector_add_uint("rtp.pt", payload_type, old_dissector_handle);
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP Evrc");
         break;
     case ACDR_RTP_RFC2198:
-        if (old_dissector_handle && (old_dissector_handle != rtp_rfc2198_handle))
-            dissector_add_uint("rtp.pt", payload_type, old_dissector_handle);
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP Rfc2198");
         break;
     case ACDR_RTP_RFC2833:
-        if (old_dissector_handle && (old_dissector_handle != rtp_events_handle))
-            dissector_add_uint("rtp.pt", payload_type, old_dissector_handle);
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP Rfc2833");
         break;
     case ACDR_T38_OVER_RTP:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "T38 over RTP");
         break;
     case ACDR_RTP_FEC:
-        if (old_dissector_handle && (old_dissector_handle != rtp_rfc2198_handle))
-            dissector_add_uint("rtp.pt", payload_type, old_dissector_handle);
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP FEC");
         break;
     case ACDR_RTP_FAX_BYPASS:
@@ -957,7 +961,7 @@ dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
         nstime_t sig_time = {timestamp / 1000000, (timestamp % 1000000) * 1000};
         proto_tree_add_time_format_value(
                     tree, hf_acdr_signaling_timestamp, tvb, HEADER_FIELD_SIG_TIME_BYTE_NO,
-                    HEADER_FIELD_SIG_TIME_BYTE_COUNT, &sig_time, "%f sec", timestamp / 1000000.0f);
+                    HEADER_FIELD_SIG_TIME_BYTE_COUNT, &sig_time, "%f sec", timestamp / 1000000.0);
         offset += HEADER_FIELD_SIG_TIME_BYTE_COUNT;
     }
 
@@ -1039,7 +1043,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 
     // Timestamp
     if ((version & 0xF) <= 3) {
-        timestamp = (tvb_get_ntohl(tvb, offset) << 16) | tvb_get_ntohs(tvb, offset + 4);
+        timestamp = tvb_get_ntoh48(tvb, offset);
         time_size = 6;
     } else {
         timestamp = tvb_get_ntohl(tvb, offset);
@@ -1048,7 +1052,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     acdr_time.secs = timestamp / 1000000;
     acdr_time.nsecs = (timestamp % 1000000) * 1000;
     proto_tree_add_time_format_value(acdr_tree, hf_acdr_timestamp, tvb, offset, time_size, &acdr_time,
-                                     "%f sec", timestamp / 1000000.0f);
+                                     "%f sec", timestamp / 1000000.0);
     offset += time_size;
 
     // Sequence Number
@@ -1374,6 +1378,9 @@ dissect_acdr_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
     proto_tree *packet_tree;
     acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
 
+    if (acdr_data == NULL)
+        return 0;
+
     if (!dissector)
         return call_data_dissector(tvb, pinfo, parent_tree);
     packet_item = proto_tree_add_item(parent_tree, hf, tvb, 0, -1, ENC_NA);
@@ -1427,6 +1434,9 @@ dissect_acdr_mii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
     struct AcdrAc5xPrivateData private_data;
 
+    if (acdr_data == NULL)
+        return 0;
+
     if (!dsp_5x_MII_dissector_handle)
         return call_data_dissector(tvb, pinfo, packet_tree);
 
@@ -1473,8 +1483,14 @@ static int
 dissect_acdr_signaling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
-    proto_item *packet_item = proto_tree_add_item(tree, hf_signaling_packet, tvb, 0, -1, ENC_NA);
-    proto_tree *packet_tree = proto_item_add_subtree(packet_item, ett_signaling_packet);
+    proto_item *packet_item;
+    proto_tree *packet_tree;
+
+    if (acdr_data == NULL)
+        return 0;
+
+    packet_item = proto_tree_add_item(tree, hf_signaling_packet, tvb, 0, -1, ENC_NA);
+    packet_tree = proto_item_add_subtree(packet_item, ett_signaling_packet);
 
     int res = dissect_signaling_packet(tvb, pinfo, packet_tree, acdr_data->trace_point);
 
@@ -1526,6 +1542,10 @@ static int
 dissect_acdr_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
+
+    if (acdr_data == NULL)
+        return 0;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, acdr_ssh_protocol(acdr_data->media_type));
     col_set_str(pinfo->cinfo, COL_INFO, "SSH raw data");
     return call_data_dissector(tvb, pinfo, tree);
