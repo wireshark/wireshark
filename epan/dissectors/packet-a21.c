@@ -153,12 +153,8 @@ dissect_a21_correlation_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree *corr_tree;
 	uint32_t corr_id;
 
-	corr_tree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_a21_corr_id, &tc, "A21 Correlation ID");
-
-	proto_tree_add_item(corr_tree, hf_a21_element_identifier, tvb, offset,  1, ENC_BIG_ENDIAN);
-	offset++;
-	proto_tree_add_item(corr_tree, hf_a21_element_length, tvb, offset,  1, ENC_BIG_ENDIAN);
-	offset++;
+	/* The IE identifier and length were already added by dissect_a21_ie_common() */
+	corr_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_a21_corr_id, &tc, "A21 Correlation ID");
 
 	proto_tree_add_item_ret_uint(corr_tree, hf_a21_corr_id_corr_value, tvb, offset,  4, ENC_BIG_ENDIAN, &corr_id);
 	proto_item_append_text(tc, " %u", corr_id);
@@ -239,8 +235,7 @@ static void
 dissect_a21_1x_lac_encapsulated_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_)
 {
 	unsigned offset = 0;
-	proto_tree_add_item(tree, hf_a21_1x_lac_en_pdu, tvb, offset, 3, ENC_BIG_ENDIAN);
-	/* offset += 3; */
+	proto_tree_add_item(tree, hf_a21_1x_lac_en_pdu, tvb, offset, -1, ENC_NA);
 
 }
 
@@ -322,7 +317,7 @@ static void
 dissect_a21_pilot_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_)
 {
 	proto_tree *sub_tree, *cr_tree;
-	proto_item* ti;
+	proto_item *ti, *cr_item;
 	unsigned offset = 0, start_offset;
 	uint32_t num, ch_rec_len, i, cell_id_info, hrpd_len, reference_pilot, pilot_ow_delay_flag;
 
@@ -338,7 +333,7 @@ dissect_a21_pilot_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		 * information contained in a channel record include the system
 		 * type, band class, and channel number
 		*/
-		cr_tree = proto_tree_add_subtree(sub_tree, tvb, offset, ch_rec_len, ett_a21_cr, &ti, "Channel Record");
+		cr_tree = proto_tree_add_subtree(sub_tree, tvb, offset, ch_rec_len, ett_a21_cr, &cr_item, "Channel Record");
 
 		/* SystemType len = 8 bit */
 		proto_tree_add_item(cr_tree, hf_a21_ch_rec_sys_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -500,6 +495,7 @@ dissect_a21_mobile_subscription_information(tvbuff_t *tvb, packet_info *pinfo _U
 			/* Current Band Subclass */
 			proto_tree_add_item(record_tree, hf_a21_mob_sub_info_re_con_curr_band_sub, tvb, offset,  1, ENC_BIG_ENDIAN);
 			offset++;
+			j = 0;
 			while (offset < rec_end_offset) {
 				j++;
 				start_offset = offset;
@@ -561,7 +557,7 @@ dissect_a21_gcsna_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		offset++;
 	}
 
-	if (priority_incl == 1) {
+	if (priority_incl) {
 		proto_tree_add_item(tree, hf_a21_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_a21_gcsna_status_call_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
@@ -760,7 +756,7 @@ dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, p
 		proto_tree_add_item(ie_tree, hf_a21_gcsna_pdu_length, tvb, offset, length_len, ENC_BIG_ENDIAN);
 		offset = offset+length_len;
 
-		ie_tvb = tvb_new_subset_remaining(tvb, offset);
+		ie_tvb = tvb_new_subset_length(tvb, offset, length);
 
 		switch (ie_type) {
 		case A21_IEI_1X_LAC_ENCAPSULATED_PDU:
@@ -903,7 +899,7 @@ void proto_register_a21(void)
 		  },
 		  { &hf_a21_mn_id_identity_digit_1,
 			 {"Identity Digit 1", "a21.mn_id_identity_digit_1",
-			  FT_UINT8, BASE_DEC, NULL, 0x08,
+			  FT_UINT8, BASE_DEC, NULL, 0xf0,
 			  NULL, HFILL }
 		  },
 		  { &hf_a21_mn_id_odd_even_indicator,
@@ -953,7 +949,7 @@ void proto_register_a21(void)
 		  },
 		  { &hf_a21_1x_lac_en_pdu,
 			 {"1x LAC Encapsulated PDU", "a21.1x_lac_en_pdu",
-			  FT_UINT24, BASE_DEC, NULL, 0x0,
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
 		  },
 		  { &hf_a21_pilot_list_num_of_pilots,
@@ -1070,7 +1066,7 @@ void proto_register_a21(void)
 		  },
 		  { &hf_a21_service_option,
 			 {"Service Option", "a21.service_option",
-			  FT_UINT16, BASE_DEC, VALS(a21_service_option_vals), 0x7f,
+			  FT_UINT16, BASE_DEC, VALS(a21_service_option_vals), 0x0,
 			  NULL, HFILL }
 		  },
 		  { &hf_a21_gcsna_status_reserved,
@@ -1156,7 +1152,7 @@ void proto_register_a21(void)
 		  },
 		  { &hf_a21_ch_hrpd_sector_id,
 		      { "HRPD Sector id", "a21.hrpd_sector_id",
-		      FT_UINT8, BASE_HEX, NULL, 0x0,
+		      FT_BYTES, BASE_NONE, NULL, 0x0,
 		      NULL, HFILL }
 		  },
 		  { &hf_a21_ch_reference_pilot,
