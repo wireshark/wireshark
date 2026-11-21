@@ -177280,3 +177280,91 @@ class TestDissectAcdr:
         assert [r[1] for r in rows] == ['exported_pdu:acdr:rtp', 'exported_pdu:data',
                                         'exported_pdu:data', 'exported_pdu:data',
                                         'exported_pdu:data']
+
+
+class TestDissectAcp133:
+    '''The ACP 133 / SDN.701 / X.402 directory attribute syntaxes from the
+    synthetic capture acp133_coverage.pcapng.gz: Exported PDU "x509af" CRLs
+    whose subjectDirectoryAttributes extension carries one Attribute per
+    syntax (the 50 attribute types ACP133 registers in the BER OID table,
+    every choice, enumerated value and optional field), and a last frame
+    with one value of every syntax.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('acp133_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_acp133_protocols(self, cmd_tshark, capture_file, test_env):
+        '''51 CRL frames, no malformed packets and no warnings or errors
+        from the attribute values in one and two passes, and the same
+        columns in both passes.'''
+        columns = {}
+        for passes in ((), ('-2',)):
+            columns[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                           '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            frames = self._fields(cmd_tshark, capture_file, test_env,
+                                  '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                  '-eframe.number', passes=passes)
+            assert count_output('\n'.join(frames)) == 0
+        assert columns[()] == columns[('-2',)]
+        assert len(columns[()]) == 51
+        assert [l.split('\t')[0] for l in columns[()]].count('PKIX-CRL') == 51
+
+    def test_acp133_enumerated(self, cmd_tshark, capture_file, test_env):
+        '''Enumerated, integer and boolean syntaxes: community (frame 22),
+        classification (23), list type (34), legacy format (37), maximum
+        message size (40), protocol info (41), EMCON state (44), active
+        (42).'''
+        for frame, field, expected in (
+                (22, 'Community', '0,1,2'), (23, 'Classification', '0,1,2,3,4,5'),
+                (34, 'ALType', '0,1,2,3,4'), (37, 'ACPLegacyFormat', '0,1,4,8,17,18,32,36'),
+                (40, 'MaxMessageSize', '0,1048576,2147483647,1099511627776,-5'),
+                (41, 'MsgProtocolInfoCapability', '0,1'), (44, 'EmConState', '0,1,2,3'),
+                (42, 'Active', 'True,False')):
+            out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == %d' % frame,
+                               '-eacp133.%s' % field)
+            assert out == [expected], field
+
+    def test_acp133_strings(self, cmd_tshark, capture_file, test_env):
+        '''String syntaxes: addressees (18), remarks (27), distribution
+        code (31), key material identifier (5) and the JPEG image (38).'''
+        for frame, field, expected in (
+                (18, 'Addressees_item', 'ACTION ONE,ACTION TWO'),
+                (27, 'Remarks_item', 'first remark,second remark'),
+                (31, 'DistributionCode', 'DIST-ACTION-1,'),
+                (5, 'Kmid', '0001020304050607,<MISSING>'),
+                (38, 'JPEG', 'ffd8ffe04a464946000000000000000000ffd9')):
+            out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == %d' % frame,
+                               '-eacp133.%s' % field)
+            assert out == [expected], field
+
+    def test_acp133_choices(self, cmd_tshark, capture_file, test_env):
+        '''Choices: DL submit permission (frame 1, four forms), mailing
+        list receipt policy (36), routing indicator parameters (29, string
+        and deprecated SET) and the DL policy (2) with its requested
+        delivery method.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 1',
+                           '-eacp133.DLSubmitPermission')
+        assert out == ['0,1,2,3']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 36',
+                           '-eacp133.MLReceiptPolicy')
+        assert out == ['0,1,2,1']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 29',
+                           '-eacp133.rI', '-eacp133.rIType', '-eacp133.ri_parameters')
+        assert out == ['RI1,RI2,RI3\t0,1,2\t1,4']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 2',
+                           '-eacp133.report_propagation', '-eacp133.originating_MTA_report',
+                           '-eacp133.requested_delivery_method', '-eacp133.replaced')
+        assert out == ['2,0,1,2\t4,0,3,4\t2,0,1\t3']
+
+    def test_acp133_x402(self, cmd_tshark, capture_file, test_env):
+        '''Address capabilities (frame 3) and capability (4): description,
+        maximum content length and the security label.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {3, 4}',
+                           '-eframe.number', '-eacp133.description',
+                           '-eacp133.maximum_content_length')
+        assert out == ['3\tMail gateway\t5000', '4\t\t5000']
