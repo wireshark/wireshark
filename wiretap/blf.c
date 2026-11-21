@@ -1453,6 +1453,23 @@ blf_read_bytes(blf_params_t *params, uint64_t real_pos, void *target_buffer, uin
     return true;
 }
 
+/*
+ * Read count bytes at real_pos and append them to buf.  Reading
+ * 0 bytes succeeds and appends nothing.
+ */
+static bool
+blf_read_bytes_buffer(blf_params_t *params, uint64_t real_pos, Buffer *buf, uint32_t count, int *err, char **err_info) {
+    if (count == 0) {
+        return true;
+    }
+    ws_buffer_assure_space(buf, count);
+    if (!blf_read_bytes(params, real_pos, ws_buffer_end_ptr(buf), count, err, err_info)) {
+        return false;
+    }
+    ws_buffer_increase_length(buf, count);
+    return true;
+}
+
 static void
 blf_init_rec(blf_params_t *params, uint32_t flags, uint64_t object_timestamp, int pkt_encap, uint16_t channel, uint16_t hwchannel, unsigned caplen, unsigned len) {
     wtap_setup_packet_rec(params->rec, pkt_encap);
@@ -1616,23 +1633,20 @@ blf_read_ethernetframe(blf_params_t *params, int *err, char **err_info, int64_t 
         phtonu16(tmpbuf + 12, ethheader.tpid);
         phtonu16(tmpbuf + 14, ethheader.tci);
         phtonu16(tmpbuf + 16, ethheader.ethtype);
-        ws_buffer_assure_space(&params->rec->data, (size_t)18 + payload_length);
         ws_buffer_append(&params->rec->data, tmpbuf, (size_t)18);
         caplen = ((uint32_t)18 + payload_length);
         len = ((uint32_t)18 + payload_length);
     } else {
         phtonu16(tmpbuf + 12, ethheader.ethtype);
-        ws_buffer_assure_space(&params->rec->data, (size_t)14 + payload_length);
         ws_buffer_append(&params->rec->data, tmpbuf, (size_t)14);
         caplen = ((uint32_t)14 + payload_length);
         len = ((uint32_t)14 + payload_length);
     }
 
-    if (!blf_read_bytes(params, data_start + sizeof(blf_ethernetframeheader_t), ws_buffer_end_ptr(&params->rec->data), payload_length, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_ethernetframeheader_t), &params->rec->data, payload_length, err, err_info)) {
         ws_debug("copying ethernet frame failed");
         return false;
     }
-    ws_buffer_increase_length(&params->rec->data, payload_length);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, ethheader.direction);
@@ -1665,13 +1679,10 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int6
         return false;
     }
 
-    ws_buffer_assure_space(&params->rec->data, ethheader.frame_length);
-
-    if (!blf_read_bytes(params, data_start + sizeof(blf_ethernetframeheader_ex_t), ws_buffer_end_ptr(&params->rec->data), ethheader.frame_length, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_ethernetframeheader_ex_t), &params->rec->data, ethheader.frame_length, err, err_info)) {
         ws_debug("copying ethernet frame failed");
         return false;
     }
-    ws_buffer_increase_length(&params->rec->data, ethheader.frame_length);
 
     if (ethheader.flags & BLF_ETHERNET_EX_HARDWARECHANNEL) {
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
@@ -1711,13 +1722,10 @@ blf_read_ethernet_rxerror(blf_params_t* params, int* err, char** err_info, int64
         return false;
     }
 
-    ws_buffer_assure_space(&params->rec->data, ethheader.frame_length);
-
-    if (!blf_read_bytes(params, data_start + sizeof(blf_ethernet_rxerror_t), ws_buffer_end_ptr(&params->rec->data), ethheader.frame_length, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_ethernet_rxerror_t), &params->rec->data, ethheader.frame_length, err, err_info)) {
         ws_debug("copying ethernet rx error failed");
         return false;
     }
-    ws_buffer_increase_length(&params->rec->data, ethheader.frame_length);
 
     if (ethheader.hw_channel != 0) {    /* In this object type, a value of 0 is considered invalid. */
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
@@ -1757,13 +1765,10 @@ blf_read_wlanframe(blf_params_t* params, int* err, char** err_info, int64_t data
         return false;
     }
 
-    ws_buffer_assure_space(&params->rec->data, wlanheader.frame_length);
-
-    if (!blf_read_bytes(params, data_start + sizeof(blf_wlanframeheader_t), ws_buffer_end_ptr(&params->rec->data), wlanheader.frame_length, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_wlanframeheader_t), &params->rec->data, wlanheader.frame_length, err, err_info)) {
         ws_debug("copying wlan frame failed");
         return false;
     }
-    ws_buffer_increase_length(&params->rec->data, wlanheader.frame_length);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_IEEE_802_11, wlanheader.channel, UINT16_MAX, wlanheader.frame_length, wlanheader.frame_length);
     blf_add_direction_option(params, wlanheader.direction);
@@ -1786,16 +1791,14 @@ blf_can_fill_buf_and_rec(blf_params_t *params, int *err, char **err_info, uint32
     tmpbuf[6] = 0;
     tmpbuf[7] = 0;
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf) + payload_length_valid);
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
     caplen = sizeof(tmpbuf) + payload_length_valid;
     len = sizeof(tmpbuf) + payload_length;
 
-    if (payload_length_valid > 0 && !blf_read_bytes(params, start_position, ws_buffer_end_ptr(&params->rec->data), payload_length_valid, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, start_position, &params->rec->data, payload_length_valid, err, err_info)) {
         ws_debug("copying can payload failed");
         return false;
     }
-    ws_buffer_increase_length(&params->rec->data, payload_length_valid);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, channel, UINT16_MAX, caplen, len);
 
@@ -2256,14 +2259,12 @@ blf_read_canxlchannelframe(blf_params_t *params, int *err, char **err_info, int6
             return false;
         }
 
-        ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf) + payload_length);
         ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
-        if (payload_length > 0 && !blf_read_bytes(params, data_start + sizeof(blf_canxlchannelframe_t), ws_buffer_end_ptr(&params->rec->data), payload_length, err, err_info)) {
+        if (!blf_read_bytes_buffer(params, data_start + sizeof(blf_canxlchannelframe_t), &params->rec->data, payload_length, err, err_info)) {
             ws_debug("copying canxl payload failed");
             return false;
         }
-        ws_buffer_increase_length(&params->rec->data, payload_length);
 
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, canxlheader.channel, UINT16_MAX, sizeof(tmpbuf) + payload_length, sizeof(tmpbuf) + payload_length);
     } else {
@@ -2392,16 +2393,14 @@ blf_read_flexraydata(blf_params_t *params, int *err, char **err_info, int64_t da
     tmpbuf[5] = (0x03fc & frheader.crc) >> 2;
     tmpbuf[6] = ((0x0003 & frheader.crc) << 6) | (0x3f & frheader.mux);
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf) + payload_length_valid);
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
     caplen = sizeof(tmpbuf) + payload_length_valid;
     len = sizeof(tmpbuf) + payload_length;
 
-    if (payload_length_valid > 0 && !blf_read_bytes(params, data_start + sizeof(frheader), ws_buffer_end_ptr(&params->rec->data), payload_length_valid, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + sizeof(frheader), &params->rec->data, payload_length_valid, err, err_info)) {
         ws_debug("copying flexray payload failed");
         return false;
     }
-    ws_buffer_increase_length(&params->rec->data, payload_length_valid);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, frheader.dir);
@@ -2481,16 +2480,14 @@ blf_read_flexraymessage(blf_params_t *params, int *err, char **err_info, int64_t
     tmpbuf[5] = (0x03fc & frheader.headerCrc) >> 2;
     tmpbuf[6] = ((0x0003 & frheader.headerCrc) << 6) | (0x3f & frheader.cycle);
 
-    ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf) + payload_length_valid);
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
     caplen = sizeof(tmpbuf) + payload_length_valid;
     len = sizeof(tmpbuf) + payload_length;
 
-    if (payload_length_valid > 0 && !blf_read_bytes(params, data_start + sizeof(frheader), ws_buffer_end_ptr(&params->rec->data), payload_length_valid, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + sizeof(frheader), &params->rec->data, payload_length_valid, err, err_info)) {
         ws_debug("copying flexray payload failed");
         return false;
     }
-    ws_buffer_increase_length(&params->rec->data, payload_length_valid);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, frheader.dir);
@@ -2596,14 +2593,12 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, char **err_info, in
     tmpbuf[5] = (0x03fc & headerCrc) >> 2;
     tmpbuf[6] = ((0x0003 & headerCrc) << 6) | (0x3f & frheader.cycle);
 
-    ws_buffer_assure_space(&params->rec->data, caplen);
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
 
-    if (payload_length_valid > 0 && !blf_read_bytes(params, data_start + frheadersize, ws_buffer_end_ptr(&params->rec->data), payload_length_valid, err, err_info)) {
+    if (!blf_read_bytes_buffer(params, data_start + frheadersize, &params->rec->data, payload_length_valid, err, err_info)) {
         ws_debug("copying flexray payload failed");
         return false;
     }
-    ws_buffer_increase_length(&params->rec->data, payload_length_valid);
 
     blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_FLEXRAY, frheader.channel, UINT16_MAX, caplen, len);
     blf_add_direction_option(params, frheader.dir);
