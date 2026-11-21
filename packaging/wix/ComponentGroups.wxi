@@ -600,7 +600,7 @@
     </ComponentGroup>
   </Fragment>
 
-  <!-- Sshdump -->
+  <!-- Remote dumps -->
   <Fragment>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpSshdump_exe">
@@ -612,16 +612,6 @@
         <File Id="filSshdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\sshdump.html" />
       </Component>
     </DirectoryRef>
-  </Fragment>
-  <Fragment>
-    <ComponentGroup Id="CG.Extcap.Sshdump">
-      <ComponentRef Id="cmpSshdump_exe" />
-      <ComponentRef Id="cmpSshdump_html" />
-    </ComponentGroup>
-  </Fragment>
-
-  <!-- Ciscodump -->
-  <Fragment>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpCiscodump_exe">
         <File Id="filCiscodump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\Ciscodump.exe" />
@@ -632,16 +622,6 @@
         <File Id="filCiscodump_html" KeyPath="yes" Source="$(var.Staging.Dir)\Ciscodump.html" />
       </Component>
     </DirectoryRef>
-  </Fragment>
-  <Fragment>
-    <ComponentGroup Id="CG.Extcap.Ciscodump">
-      <ComponentRef Id="cmpCiscodump_exe" />
-      <ComponentRef Id="cmpCiscodump_html" />
-    </ComponentGroup>
-  </Fragment>
-
-  <!-- Wifidump -->
-  <Fragment>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpWifidump_exe">
         <File Id="filWifidump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\wifidump.exe" />
@@ -654,7 +634,11 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="CG.Extcap.Wifidump">
+    <ComponentGroup Id="CG.Extcap.Remotedumps">
+      <ComponentRef Id="cmpSshdump_exe" />
+      <ComponentRef Id="cmpSshdump_html" />
+      <ComponentRef Id="cmpCiscodump_exe" />
+      <ComponentRef Id="cmpCiscodump_html" />
       <ComponentRef Id="cmpWifidump_exe" />
       <ComponentRef Id="cmpWifidump_html" />
     </ComponentGroup>
@@ -694,17 +678,6 @@
         <Shortcut Id="scWiresharkDesktop" Name="$(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer" Target="[#filWireshark_exe]" WorkingDirectory="INSTALLFOLDER" />
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="DesktopIcon" Type="integer" Value="1" KeyPath="yes" />
 
-      </Component>
-    </ComponentGroup>
-    <ComponentGroup Id="CG.WiresharkQuickLaunchIcon" Directory="QuickLaunchFolder">
-      <Component Id="cmpWiresharkQuickLaunchIcon" Condition="WIRESHARK_QUICK_LAUNCH_ICON = &quot;1&quot;">
-        <Shortcut Id="scWiresharkQuickLaunch" Name="$(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer" Target="[#filWireshark_exe]" WorkingDirectory="INSTALLFOLDER" />
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="QuickLaunchIcon" Type="integer" Value="1" KeyPath="yes" />
-
-        <!-- Done to keep ICE64 happy -->
-        <RemoveFolder Id="RemoveMicrosoftFolder" Directory="MicrosoftFolder" On="uninstall" />
-        <RemoveFolder Id="RemoveInternetExplorerFolder" Directory="InternetExplorerFolder" On="uninstall" />
-        <RemoveFolder Id="RemoveQuickLaunchFolder" Directory="QuickLaunchFolder" On="uninstall" />
       </Component>
     </ComponentGroup>
   </Fragment>

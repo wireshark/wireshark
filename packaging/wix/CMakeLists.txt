@@ -17,6 +17,8 @@ set(WIX_GENERATED_FILES ${WIX_GENERATED_FILES} PARENT_SCOPE)
 
 set(WIX_SOURCE_FILES
 	${CMAKE_SOURCE_DIR}/packaging/wix/Wireshark.wxs
+	${CMAKE_SOURCE_DIR}/packaging/wix/WiresharkCertificationDlg.wxs
+	${CMAKE_SOURCE_DIR}/packaging/wix/WiresharkDonateDlg.wxs
 	${CMAKE_SOURCE_DIR}/packaging/wix/WiresharkOptionsDlg.wxs
 	${CMAKE_SOURCE_DIR}/packaging/wix/WiresharkWixUI.wxs
 	${WIX_GENERATED_FILES}
