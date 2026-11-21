@@ -117,14 +117,19 @@ wtap_open_return_val ems_open(wtap *wth, int *err, char **err_info) {
 
     // read complete EMS line
     if (!file_gets((char *)line, MAX_EMS_LINE_LEN, wth->fh)) {
-        return WTAP_OPEN_ERROR;
+        // empty file, or a read error
+        if (file_error(wth->fh, NULL) != 0 &&
+            file_error(wth->fh, NULL) != WTAP_ERR_SHORT_READ) {
+            *err = file_error(wth->fh, err_info);
+            return WTAP_OPEN_ERROR;
+        }
+        return WTAP_OPEN_NOT_MINE;
     }
 
     // Check whether the current line can be parsed.
     if (parse(&line, &msg)) {
         /* return to the beginning of the file */
         if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-            *err = file_error(wth->fh, err_info);
             return WTAP_OPEN_ERROR;
         }
 
