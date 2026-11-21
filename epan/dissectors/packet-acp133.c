@@ -1245,7 +1245,7 @@ void proto_register_acp133(void) {
         NULL, HFILL }},
     { &hf_acp133_MaxMessageSize_PDU,
       { "MaxMessageSize", "acp133.MaxMessageSize",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_acp133_MonthlyUKMs_PDU,
       { "MonthlyUKMs", "acp133.MonthlyUKMs_element",

@@ -65,6 +65,9 @@ Kmid
 &id		ObjectIdentifierType
 #.END
 
+#.TYPE_ATTR
+MaxMessageSize TYPE = FT_INT64  DISPLAY = BASE_DEC  STRING = NULL  BITMASK = 0
+
 #.REGISTER
 
 # X.402
