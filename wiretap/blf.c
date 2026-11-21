@@ -1559,6 +1559,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, char **err_info, int64_t 
     uint16_t payload_length = ethheader.payloadlength;
     if (payload_length > object_length - (data_start - block_start) - sizeof(blf_ethernetframeheader_t)) {
         ws_debug("shortening payload_length because not enough bytes for frame");
+        /* XXX - Should we set caplen to the original declared length? */
         payload_length = (uint16_t)(object_length - (data_start - block_start) - sizeof(blf_ethernetframeheader_t));
     }
 
@@ -1659,6 +1660,7 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int6
 static bool
 blf_read_ethernet_rxerror(blf_params_t* params, int* err, char** err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp) {
     blf_ethernet_rxerror_t ethheader;
+    uint64_t object_remaining;
 
     if (object_length < (data_start - block_start) + (int)sizeof(blf_ethernet_rxerror_t)) {
         *err = WTAP_ERR_BAD_FILE;
@@ -1667,13 +1669,17 @@ blf_read_ethernet_rxerror(blf_params_t* params, int* err, char** err_info, int64
         return false;
     }
 
+    object_remaining = object_length - (data_start - block_start) - (int64_t)sizeof(blf_ethernet_rxerror_t);
+
     if (!blf_read_bytes(params, data_start, &ethheader, sizeof(blf_ethernet_rxerror_t), err, err_info)) {
         ws_debug("not enough bytes for ethernet rx error header in file");
         return false;
     }
     fix_endianness_blf_ethernet_rxerror(&ethheader);
 
-    if (object_length - (data_start - block_start) < ethheader.frame_length) {
+    if (object_remaining < ethheader.frame_length) {
+        /* XXX - Should this be shortened, and the indicated frame length used as
+         * original caplen, as above, instead of an error? */
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup("blf: ETHERNET_RXERROR: frame too short");
         ws_debug("frame too short");
