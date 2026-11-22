@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <gmodule.h>
 
 #include <windows.h>
 #include <winsock2.h>
