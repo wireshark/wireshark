@@ -1331,11 +1331,11 @@ Off = solo logpoint (corrisponde alla convenzione storica secondo cui &quot;i lo
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation>Impossibile controllare il filtro di cattura</translation>
+        <translation type="vanished">Impossibile controllare il filtro di cattura</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation>Impossibile controllare il filtro di cattura (le estensioni BPF richiedono un handle live)</translation>
+        <translation type="vanished">Impossibile controllare il filtro di cattura (le estensioni BPF richiedono un handle live)</translation>
     </message>
 </context>
 <context>
@@ -3133,151 +3133,131 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
 <context>
     <name>DistributionDialog</name>
     <message>
-        <source>Field Values Distribution</source>
-        <translation type="vanished">Distribuzione valori di campo</translation>
-    </message>
-    <message>
-        <source>Field Value</source>
-        <translation type="vanished">Valore campo</translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation type="vanished">Occorrenze</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">Percento</translation>
-    </message>
-    <message>
-        <source>Distribution:</source>
-        <translation type="vanished">Distribuzione:</translation>
-    </message>
-    <message>
         <source>Dialog</source>
-        <translation type="unfinished">Finestra</translation>
+        <translation>Finestra</translation>
     </message>
     <message>
         <source>Fields:</source>
-        <translation type="unfinished">Campi:</translation>
+        <translation>Campi:</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Applica</translation>
+        <translation>Applica</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished">Filtro di visualizzazione:</translation>
+        <translation>Filtro di visualizzazione:</translation>
     </message>
     <message>
         <source>Resolve values</source>
-        <translation type="unfinished"></translation>
+        <translation>Risolvi i valori</translation>
     </message>
     <message>
         <source>Show chart</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra grafico</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Copia</translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Copy the selected rows as text</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia le righe selezionate come testo</translation>
     </message>
     <message>
         <source>Save as…</source>
-        <translation type="unfinished">Salva come...</translation>
+        <translation>Salva come...</translation>
     </message>
     <message>
         <source>Save the table in various formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva la tabella in diversi formati</translation>
     </message>
     <message>
         <source>Show in I/O Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra nel grafico I/O</translation>
     </message>
     <message>
         <source>Distribution</source>
-        <translation type="unfinished">Distribuzione</translation>
+        <translation>Distribuzione</translation>
     </message>
     <message>
         <source>Open an I/O Graph with a graph for each selected row (at most %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri un grafico I/O con un grafico per ogni riga selezionata (al massimo %1)</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished">Conteggio</translation>
+        <translation>Conteggio</translation>
     </message>
     <message>
         <source>%1 distinct values </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 valori distinti</translation>
     </message>
     <message>
         <source>A packet can contain a field more than once, so the percentages (of packets) add up to more than 100 %.</source>
-        <translation type="unfinished"></translation>
+        <translation>Un pacchetto può contenere un campo più di una volta, quindi le percentuali (di pacchetti) sommate superano il 100%.</translation>
     </message>
     <message>
         <source>An event can contain a field more than once, so the percentages (of events) add up to more than 100 %.</source>
-        <translation type="unfinished"></translation>
+        <translation>Un evento può contenere un campo più di una volta; di conseguenza, le percentuali (riferite agli eventi) sommano a più del 100%.</translation>
     </message>
     <message>
         <source>Enter one or more fields above and press Apply, for example ip.ttl, or ip.src, tcp.dstport for a joint distribution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci uno o più campi qui sopra e premi Applica; ad esempio, ip.ttl, oppure ip.src e tcp.dstport per una distribuzione congiunta.</translation>
     </message>
     <message>
         <source>Enter one or more fields above and press Apply, for example evt.type, or evt.type, proc.name for a joint distribution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci uno o più campi qui sopra e premi Applica; ad esempio, evt.type, oppure evt.type, proc.name per una distribuzione congiunta.</translation>
     </message>
     <message>
         <source>Count the field values in the packets matching the display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Conta i valori dei campi nei pacchetti che corrispondono al filtro di visualizzazione</translation>
     </message>
     <message>
         <source>Count the field values in the events matching the display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Conta i valori dei campi negli eventi che corrispondono al filtro di visualizzazione</translation>
     </message>
     <message>
         <source>Distribution of %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribuzione di %1</translation>
     </message>
     <message>
         <source>Copy as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia come filtro</translation>
     </message>
 </context>
 <context>
     <name>DistributionModel</name>
     <message>
         <source>&quot;%1&quot; cannot be counted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; non può essere conteggiato. </translation>
     </message>
     <message>
         <source>&quot;%1&quot; is a protocol and has no values to count. Enter one of its fields, for example %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; è un protocollo e non presenta valori da conteggiare. Inserisci uno dei suoi campi, ad esempio %2.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is a protocol and has no values to count.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 è un protocollo e non ha valori da conteggiare.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is a label without a value and cannot be counted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; è un&apos;etichetta priva di valore e non può essere conteggiata.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; has variants of different types and cannot be counted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; presenta varianti di diverso tipo e non può essere conteggiato.</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished">Conteggio</translation>
+        <translation>Conteggio</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished">Percento</translation>
+        <translation>Percento</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Valore</translation>
+        <translation>Valore</translation>
     </message>
 </context>
 <context>
@@ -3812,7 +3792,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Level:</source>
-        <translation type="unfinished"></translation>
+        <translation>Livello:</translation>
     </message>
     <message>
         <source>Export PDUs</source>
@@ -3916,11 +3896,11 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Enter up to %1 fields, separated by commas%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci fino a %1 campi, separati da virgole%2</translation>
     </message>
     <message>
         <source>Enter fields, separated by commas%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci i campi, separati da virgole%1</translation>
     </message>
     <message>
         <source>Enter a field %1</source>
@@ -3928,19 +3908,19 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Up to %1 fields can be combined (%2 entered).</source>
-        <translation type="unfinished"></translation>
+        <translation>È possibile combinare fino a %1 campi (%2 inseriti).</translation>
     </message>
     <message>
         <source>Field %1 is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il campo %1 è vuoto.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is neither a field nor a protocol name.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; non è né un campo né un nome di protocollo.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is deprecated. Use &quot;%2&quot; instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; è sconsigliato. Utilizza invece &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Invalid field: </source>
@@ -4720,8 +4700,12 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <translation>%1 non è un carattere a larghezza fissa. I byte esadecimali e le colonne allineate non risulteranno correttamente allineati.</translation>
     </message>
     <message>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic font only their colors mark them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
-        <translation>Il pannello Dettagli del pacchetto sottolinea i collegamenti e mostra in corsivo le voci delle regole di colorazione disabilitate. Con un carattere corsivo o sottolineato, si distinguono solo grazie ai loro colori.</translation>
+        <translation type="vanished">Il pannello Dettagli del pacchetto sottolinea i collegamenti e mostra in corsivo le voci delle regole di colorazione disabilitate. Con un carattere corsivo o sottolineato, si distinguono solo grazie ai loro colori.</translation>
     </message>
 </context>
 <context>
@@ -4775,15 +4759,15 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Effects</source>
-        <translation>Effetti</translation>
+        <translation type="vanished">Effetti</translation>
     </message>
     <message>
         <source>Stri&amp;keout</source>
-        <translation>&amp;Barrato</translation>
+        <translation type="vanished">&amp;Barrato</translation>
     </message>
     <message>
         <source>&amp;Underline</source>
-        <translation>&amp;Sottolineato</translation>
+        <translation type="vanished">&amp;Sottolineato</translation>
     </message>
     <message>
         <source>Sample</source>
@@ -5973,15 +5957,11 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Direction indication</source>
-        <translation type="unfinished"></translation>
+        <translation>Indicazione di direzione</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Decidi se eseguire un&apos;elaborazione aggiuntiva durante la rilevazione della rappresentazione ASCII alla fine di una riga hex+ASCII anche se sembrano byte esadecimali.&lt;/p&gt;&lt;p&gt;Non abilitarla se il dump esadecimale non contiene ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">Identificazione ASCII:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -6037,11 +6017,11 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>ASCII identification</source>
-        <translation type="unfinished"></translation>
+        <translation>Identificazione ASCII</translation>
     </message>
     <message>
         <source>Little-endian</source>
-        <translation type="unfinished"></translation>
+        <translation>Little-endian</translation>
     </message>
     <message>
         <source>Direction indication:</source>
@@ -6087,10 +6067,6 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Decidi se trattare più gruppi di byte come se fossero in ordine little-endian, anziché nell&apos;ordine di rete predefinito (big-endian).
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">Little-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8316,30 +8292,6 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
         <source>Clear output</source>
         <translation>Cancella il risultato</translation>
     </message>
-    <message>
-        <source>Settings</source>
-        <translation type="vanished">Impostazioni</translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="vanished">Automatico (segui lo schema di colori)</translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="vanished">Scuro</translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="vanished">Chiaro</translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="vanished">Tema di colori per l&apos;editor del codice</translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="vanished">Tema vista codice:</translation>
-    </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
         <translation type="vanished">
@@ -8455,7 +8407,7 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Debugger is disabled while the Preferences dialog is open. Close it to re-enable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il debugger è disabilitato mentre la finestra delle preferenze è aperta. Chiudila per riabilitarlo.</translation>
     </message>
     <message>
         <source>Debugger is disabled. Check to enable.</source>
@@ -8467,7 +8419,7 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Disabled (preferences)</source>
-        <translation type="unfinished"></translation>
+        <translation>Disabilitato (preferenze)</translation>
     </message>
     <message>
         <source>Disabled</source>
@@ -8480,6 +8432,18 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <message>
         <source>(runtime error)</source>
         <translation>(errore di runtime)</translation>
+    </message>
+    <message>
+        <source>%1 has unsaved changes, so the paused script may not match the editor. Save the file and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 was saved after the Lua plugins were last loaded, so the running script is out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editing is disabled while the debugger is paused in this file. Resume to edit.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Running</source>
@@ -8869,6 +8833,13 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
         <translation>Profilo personale selezionato...</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <translation type="unfinished">
+            <numerusform>%Ln profilo personale selezionato...</numerusform>
+            <numerusform>%Ln profili personali selezionati...</numerusform>
+        </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
@@ -10567,23 +10538,23 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <name>PreferencesDialog</name>
     <message>
         <source>Preference pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pagine delle preferenze</translation>
     </message>
     <message>
         <source>Show the list of preference pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra l&apos;elenco delle pagine delle preferenze</translation>
     </message>
     <message>
         <source>Show preference pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra le pagine delle preferenze</translation>
     </message>
     <message>
         <source>Pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pagine</translation>
     </message>
     <message>
         <source>Current preference page</source>
-        <translation type="unfinished"></translation>
+        <translation>Pagina attuale delle preferenze</translation>
     </message>
     <message>
         <source>Advanced</source>
@@ -10726,20 +10697,29 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile …</source>
-        <translation>Cerca profilo...</translation>
+        <source>Search profiles…</source>
+        <oldsource>Search for profile …</oldsource>
+        <translation type="unfinished">Cerca profilo...</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
         <translation>Crea un nuovo profilo usando le impostazioni predefinite.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi questo profilo. I profili forniti dal sistema non possono essere rimossi. Il profilo predefinito sarà ripristinato dopo l&apos;eliminazione.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi questo profilo. I profili forniti dal sistema non possono essere rimossi. Il profilo predefinito sarà ripristinato dopo l&apos;eliminazione.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation>Copia questo profilo.</translation>
+        <translation type="vanished">Copia questo profilo.</translation>
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
@@ -10774,9 +10754,16 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
         <translation>Da cartella...</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)…</source>
-        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation>
+        <source>%Ln Personal Profile(s)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)…</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln profilo personale selezionato...</numerusform>
             <numerusform>%Ln profili personali selezionati...</numerusform>
         </translation>
@@ -10786,13 +10773,67 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
         <oldsource>All Personal Profiles...</oldsource>
         <translation>Tutti i profili personali...</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln personal profile(s) selected</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>New profile</source>
         <translation>Nuovo profilo</translation>
     </message>
     <message>
+        <source>New sub-profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Ripristina</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Elimina</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished">Importa</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Esporta</translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">Mostra in Finder</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected profiles cannot be exported. Global, default, deleted and not yet applied profiles are not exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Exporting profiles</source>
         <translation>Esportazione profili</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>No profiles found for export</source>
@@ -10823,6 +10864,21 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
             <numerusform>%Ln profili esportati</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Select zip file for import</source>
         <translation>Seleziona file zip per l&apos;importazione</translation>
@@ -10837,11 +10893,11 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Errore</translation>
+        <translation type="vanished">Errore</translation>
     </message>
     <message>
         <source>An error has occurred while exporting profiles</source>
-        <translation>Si è verificato un errore durante l&apos;esportazione dei profili</translation>
+        <translation type="vanished">Si è verificato un errore durante l&apos;esportazione dei profili</translation>
     </message>
     <message>
         <source>No profiles found for import in %1</source>
@@ -10856,7 +10912,7 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>, %Ln profilo saltato</numerusform>
             <numerusform>, %Ln profili saltati</numerusform>
         </translation>
@@ -10897,7 +10953,7 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>A profile change for this name is pending (See: %1)</source>
-        <translation>Una modifica del profilo per questo nome è in sospeso (Vedi: %1)</translation>
+        <translation type="vanished">Una modifica del profilo per questo nome è in sospeso (Vedi: %1)</translation>
     </message>
     <message>
         <source>%1 (originally %2)</source>
@@ -10910,6 +10966,10 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <message>
         <source>Created from default settings</source>
         <translation>Creato dalle impostazioni predefinite</translation>
+    </message>
+    <message>
+        <source>Moved from: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>system provided</source>
@@ -10927,6 +10987,10 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
         <source>copy</source>
         <comment>noun</comment>
         <translation>copia</translation>
+    </message>
+    <message>
+        <source>Several profiles named &quot;%1&quot; cannot be exported together. Export them separately.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No profiles found to export</source>
@@ -12102,14 +12166,6 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
 %1: add or remove on the current line in the editor</source>
         <translation>Fai clic per disattivare tutti i breakpoint
 %1: aggiungi o rimuovi sulla riga attuale nell&apos;editor</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="vanished">Conteggio</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">Percento</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -14902,19 +14958,19 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">Salva statistiche come...</translation>
+        <translation>Salva statistiche come...</translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">File di testo (*.txt);;Valori separati da virgole (*.csv);;Documento XML (*.xml);;Documento YAML (*.yaml)</translation>
+        <translation>File di testo (*.txt);;Valori separati da virgole (*.csv);;Documento XML (*.xml);;Documento YAML (*.yaml)</translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">File di testo (*.txt)</translation>
+        <translation>File di testo (*.txt)</translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">Errore durante il salvataggio del file %1</translation>
+        <translation>Errore durante il salvataggio del file %1</translation>
     </message>
 </context>
 <context>
@@ -14940,7 +14996,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Encapsulation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Incapsulamento:</translation>
     </message>
     <message>
         <source>Strip Headers</source>
@@ -15952,22 +16008,6 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
         <source>Expand All</source>
         <translation>Espandi tutti</translation>
     </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">Salva statistiche come...</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">File di testo (*.txt);;Valori separati da virgole (*.csv);;Documento XML (*.xml);;Documento YAML (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">File di testo (*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">Errore durante il salvataggio del file %1</translation>
-    </message>
 </context>
 <context>
     <name>TcpDedupDialog</name>
@@ -16551,16 +16591,12 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>&quot;%1&quot; non può essere importato. </translation>
     </message>
     <message>
-        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The preview shows the theme&apos;s font.</source>
-        <translation type="vanished">La preferenza per il carattere a larghezza fissa impostata nella pagina Caratteri (%1) ha la precedenza su quella del tema; pertanto, questa impostazione si applica solo laddove tale preferenza non sia stata definita. L&apos;anteprima mostra il carattere previsto dal tema.</translation>
-    </message>
-    <message>
         <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The Packet List sample shows the theme&apos;s font, the Lua Code sample your preference.</source>
-        <translation type="unfinished"></translation>
+        <translation>La preferenza per il carattere a larghezza fissa impostata nella pagina Caratteri (%1) ha la precedenza su quella del tema; pertanto, questa impostazione si applica solo laddove tale preferenza non sia stata definita. l&apos;esempio dell&apos;elenco dei pacchetti mostra il carattere del tema, l&apos;esempio del codice Lua la tua preferenza.</translation>
     </message>
     <message>
         <source>Lua Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Codice Lua</translation>
     </message>
     <message>
         <source>Save the theme (%1)</source>
@@ -16800,7 +16836,7 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     <name>ThemeLuaCodePreview</name>
     <message>
         <source>Save Image As…</source>
-        <translation type="unfinished">Salva immagine come...</translation>
+        <translation>Salva immagine come...</translation>
     </message>
 </context>
 <context>
@@ -17086,7 +17122,7 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>fixed code editor default</source>
-        <translation type="unfinished"></translation>
+        <translation>predefinito fisso dell&apos;editor di codice</translation>
     </message>
     <message>
         <source>palette.mid, kept readable on palette.base</source>
@@ -17284,10 +17320,6 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
 <context>
     <name>ThemeWelcomePreview</name>
     <message>
-        <source>Development Build</source>
-        <translation type="vanished">Versione di sviluppo</translation>
-    </message>
-    <message>
         <source>Release Notes</source>
         <translation>Note di rilascio</translation>
     </message>
@@ -17316,12 +17348,8 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>5 interfacce</translation>
     </message>
     <message>
-        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</source>
-        <translation type="vanished">Aggiornamento disponibile: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiornamento disponibile: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Save Image As…</source>
@@ -17460,55 +17488,55 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: sfondo.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: plain text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: testo semplice.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: selection background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: sfondo della selezione.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: selected text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: testo selezionato.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: line number gutter and current line background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: margine dei numeri di riga e sfondo della riga attuale.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: line numbers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: numeri di riga.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: line the debugger is paused on; may be translucent.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: riga su cui il debugger è in pausa; può essere trasparente.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: string literals.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: stringhe letterali.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: keywords (drawn bold).</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: parole chiave (in grassetto).</translation>
     </message>
     <message>
         <source>Lua Debugger editor: numbers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: numeri.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: built-in names such as self.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: nomi interni come self.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: names of called functions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: nomi delle funzioni invocate.</translation>
     </message>
     <message>
         <source>Lua Debugger editor: comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del debugger Lua: commenti.</translation>
     </message>
     <message>
         <source>Follow Stream client background.</source>
@@ -17600,11 +17628,7 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[AAAA-MM-GG] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
@@ -20230,11 +20254,11 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Appearance Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità aspetto</translation>
     </message>
     <message>
         <source>Switch between the System, Light and Dark appearance modes</source>
-        <translation type="unfinished"></translation>
+        <translation>Passa tra le modalità aspetto sistema, chiaro e scuro</translation>
     </message>
     <message>
         <source>TLS Keylog Launcher</source>
@@ -20612,15 +20636,15 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Appearance mode: Light. Click to switch to Dark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità aspetto: chiaro, fai clic per passare a scuro</translation>
     </message>
     <message>
         <source>Appearance mode: Dark. Click to switch to System.</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità aspetto: scuro. Fai clic per passare a sistema.</translation>
     </message>
     <message>
         <source>Appearance mode: System. Click to switch to Light.</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità aspetto: sistema. Fai clic per passare a chiaro.</translation>
     </message>
     <message>
         <source>USB CDC Data</source>

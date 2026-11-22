@@ -1307,11 +1307,11 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation>Aufzeichnungsfilter kann nicht geprüft werden</translation>
+        <translation type="vanished">Aufzeichnungsfilter kann nicht geprüft werden</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation>Aufzeichnungsfilter kann nicht geprüft werden (BPF-Erweiterung benötigt ein Live-Handle)</translation>
+        <translation type="vanished">Aufzeichnungsfilter kann nicht geprüft werden (BPF-Erweiterung benötigt ein Live-Handle)</translation>
     </message>
 </context>
 <context>
@@ -3109,26 +3109,6 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
 <context>
     <name>DistributionDialog</name>
     <message>
-        <source>Field Values Distribution</source>
-        <translation type="vanished">Feld-Wertverteilung</translation>
-    </message>
-    <message>
-        <source>Field Value</source>
-        <translation type="vanished">Feldwert</translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation type="vanished">Vorkommen</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">Prozent</translation>
-    </message>
-    <message>
-        <source>Distribution:</source>
-        <translation type="vanished">Verteilung:</translation>
-    </message>
-    <message>
         <source>Dialog</source>
         <translation type="unfinished">Dialog</translation>
     </message>
@@ -3249,7 +3229,7 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished">Prozent</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Value</source>
@@ -4682,7 +4662,7 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic font only their colors mark them.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4733,18 +4713,6 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
     </message>
     <message>
         <source>Show only &amp;monospaced fonts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Effects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stri&amp;keout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Underline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5908,10 +5876,6 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Soll der Start der ASCII-Repräsentation am Ende einer Hex+ASCII Zeile auch erkannt werden, wenn dieser wie Hex-Bytes aussieht?&lt;/p&gt;&lt;p&gt;Nicht aktivieren, wenn Hex Dump kein ASCII enthält.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">ASCII Identifikation:</translation>
-    </message>
-    <message>
         <source>Regular Expression</source>
         <translation>Regulärer Ausdruck</translation>
     </message>
@@ -6014,10 +5978,6 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mehrere Byte-Gruppen in Litte-Endian-Reihenfolge behandeln. Andernfalls wird wird die Standard-Netzwerk-Reihenfolge (Big-Endian) angewendet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">Little-Endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8241,30 +8201,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Ausgabe zurücksetzen</translation>
     </message>
     <message>
-        <source>Settings</source>
-        <translation type="vanished">Einstellungen</translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="vanished">Auto (Farbschema beachten)</translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="vanished">Dunkel</translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="vanished">Hell</translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="vanished">Farbschema des Code-Editors</translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="vanished">Farbschema für Codeanzeige</translation>
-    </message>
-    <message>
         <source>Type: %1</source>
         <translation>Typ: %1</translation>
     </message>
@@ -8383,6 +8319,18 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>(runtime error)</source>
         <translation>(Laufzeitfehler)</translation>
+    </message>
+    <message>
+        <source>%1 has unsaved changes, so the paused script may not match the editor. Save the file and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 was saved after the Lua plugins were last loaded, so the running script is out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editing is disabled while the debugger is paused in this file. Resume to edit.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Running</source>
@@ -8772,6 +8720,13 @@ on an existing breakpoint, toggle its active state</source>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
         <translation>Ausgewähltes persönliches Profil...</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <translation type="unfinished">
+            <numerusform>%Ln ausgewähltes persönliches Profil...</numerusform>
+            <numerusform>%Ln ausgewählte persönliche Profile...</numerusform>
+        </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
@@ -10595,20 +10550,29 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile …</source>
-        <translation>Nach Profil suchen ...</translation>
+        <source>Search profiles…</source>
+        <oldsource>Search for profile …</oldsource>
+        <translation type="unfinished">Nach Profil suchen ...</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
         <translation>Ein neues Profil mit den Standardeinstellungen erstellen.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dieses Profil löschen. Systemprofile können nicht gelöscht werden. Das Standardprofil wird beim Löschen zurückgesetzt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dieses Profil löschen. Systemprofile können nicht gelöscht werden. Das Standardprofil wird beim Löschen zurückgesetzt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation>Dieses Profil kopieren.</translation>
+        <translation type="vanished">Dieses Profil kopieren.</translation>
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
@@ -10643,9 +10607,16 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Aus Verzeichnis...</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)…</source>
-        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation>
+        <source>%Ln Personal Profile(s)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)…</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln ausgewähltes persönliches Profil...</numerusform>
             <numerusform>%Ln ausgewählte persönliche Profile...</numerusform>
         </translation>
@@ -10655,13 +10626,67 @@ on an existing breakpoint, toggle its active state</source>
         <oldsource>All Personal Profiles...</oldsource>
         <translation>Alle persönlichen Profile...</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln personal profile(s) selected</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>New profile</source>
         <translation>Neues Profil</translation>
     </message>
     <message>
+        <source>New sub-profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Löschen</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished">Importieren</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Exportieren</translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected profiles cannot be exported. Global, default, deleted and not yet applied profiles are not exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Exporting profiles</source>
         <translation>Profile exportieren</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>No profiles found for export</source>
@@ -10678,6 +10703,21 @@ on an existing breakpoint, toggle its active state</source>
             <numerusform>%Ln Profile exportiert</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Select zip file for import</source>
         <translation>Zum Importieren eine Zipdatei auswählen</translation>
@@ -10692,11 +10732,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Error</source>
-        <translation>Fehler</translation>
+        <translation type="vanished">Fehler</translation>
     </message>
     <message>
         <source>An error has occurred while exporting profiles</source>
-        <translation>Ein Fehler ist beim exportieren der Profile aufgetreten</translation>
+        <translation type="vanished">Ein Fehler ist beim exportieren der Profile aufgetreten</translation>
     </message>
     <message>
         <source>No profiles found for import in %1</source>
@@ -10711,7 +10751,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>, %Ln Profil übersprungen</numerusform>
             <numerusform>, %Ln Profile übersprungen</numerusform>
         </translation>
@@ -10752,7 +10792,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>A profile change for this name is pending (See: %1)</source>
-        <translation>Eine Namensänderung für dieses Profil ist ausstehend (Siehe: %1)</translation>
+        <translation type="vanished">Eine Namensänderung für dieses Profil ist ausstehend (Siehe: %1)</translation>
     </message>
     <message>
         <source>%1 (originally %2)</source>
@@ -10765,6 +10805,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Created from default settings</source>
         <translation>Erstellt aus den Standardeinstellungen</translation>
+    </message>
+    <message>
+        <source>Moved from: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>system provided</source>
@@ -10782,6 +10826,10 @@ on an existing breakpoint, toggle its active state</source>
         <source>copy</source>
         <comment>noun</comment>
         <translation>Kopie</translation>
+    </message>
+    <message>
+        <source>Several profiles named &quot;%1&quot; cannot be exported together. Export them separately.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No profiles found to export</source>
@@ -14747,19 +14795,19 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">Statistik speichern als…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">Reine Textdatei (*.txt);;Komma getrennte Werte (*.csv);;XML Dokument (*.xml);;YAML Dokument (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">Reine Textdatei (*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">Fehler beim Speichern der Datei %1</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15756,22 +15804,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Expand All</source>
         <translation>Alles aufklappen</translation>
-    </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">Statistik speichern als…</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">Reine Textdatei (*.txt);;Komma getrennte Werte (*.csv);;XML Dokument (*.xml);;YAML Dokument (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">Reine Textdatei (*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">Fehler beim Speichern der Datei %1</translation>
     </message>
 </context>
 <context>
@@ -17393,10 +17425,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[JJJJ-MM-TT] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>

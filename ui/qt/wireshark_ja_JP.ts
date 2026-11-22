@@ -931,6 +931,26 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <source>Automatically detect file type</source>
         <translation>ファイル種別を自動的に検出</translation>
     </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%Ln パケットの後に %1, エラー </numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%Ln パケットにて %1, タイムアウト</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1, %Ln パケット</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前にパケットを挿入</translation>
@@ -1300,11 +1320,11 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation>キャプチャフィルタをチェックできません</translation>
+        <translation type="vanished">キャプチャフィルタをチェックできません</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation>キャプチャフィルタをチェックできません(BPF拡張はライブハンドルを必要とします)</translation>
+        <translation type="vanished">キャプチャフィルタをチェックできません(BPF拡張はライブハンドルを必要とします)</translation>
     </message>
 </context>
 <context>
@@ -1521,19 +1541,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Create a new interface bookmark.</source>
-        <translation type="unfinished"></translation>
+        <translation>新規インターフェースブックマークを作成</translation>
     </message>
     <message>
         <source>Remove this interface bookmark.</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースブックマークを削除</translation>
     </message>
     <message>
         <source>Processes:</source>
-        <translation type="unfinished"></translation>
+        <translation>プロセス:</translation>
     </message>
     <message>
         <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
-        <translation type="unfinished"></translation>
+        <translation>実行ファイルのパス、コマンドライン、およびユーザー名がキャプチャファイルに保存されます。コマンドラインにはパスワードが含まれる場合があります。</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1657,15 +1677,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Don&apos;t record processes</source>
-        <translation type="unfinished"></translation>
+        <translation>プロセスを記録しない</translation>
     </message>
     <message>
         <source>Record process IDs and names</source>
-        <translation type="unfinished"></translation>
+        <translation>プロセスIDと名前を記録</translation>
     </message>
     <message>
         <source>Record process IDs, names, paths, command lines and users</source>
-        <translation type="unfinished"></translation>
+        <translation>プロセスID、名前、パス、コマンドライン、およびユーザーを記録</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
@@ -1681,15 +1701,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Not supported on this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>このプラットフォームではサポートされていません。</translation>
     </message>
     <message>
         <source>Process information can only be recorded in pcapng files.</source>
-        <translation type="unfinished"></translation>
+        <translation>プロセス情報はpcapngファイルにのみ記録できます</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;TCPおよびUDPソケットのパケットについて、このコンピューター上のどのプロセスが各パケットを送受信したかを記録します。識別できるプロセスは権限によって異なり、非常に短時間しか存在しないソケットのパケットは記録できない場合があります。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Error</source>
@@ -1716,7 +1736,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished">キャプチャ</translation>
+        <translation>キャプチャ</translation>
     </message>
     <message>
         <source>Default interface</source>
@@ -1748,11 +1768,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Record the processes that packets belong to:</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットが属するプロセスを記録:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;pcapngファイルに記録されているものは、各パケットを送受信した、このコンピューター上のプロセスです。実行ファイルのパス、コマンドライン、およびユーザー名は機密情報となる場合があります。コマンドラインにはパスワードが含まれることがあります。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1776,15 +1796,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>一時ディレクトリ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory in which to write temporary capture files. Leave empty to use the system default. Overridden by the --temp-dir option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>一時キャプチャファイルを書き込むディレクトリです。空欄の場合はシステムの既定値を使用します。--temp-dirオプションを指定すると、この設定は上書きされます。</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>参照…</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -1796,19 +1816,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Nothing</source>
-        <translation type="unfinished"></translation>
+        <translation>なし</translation>
     </message>
     <message>
         <source>Process IDs and names</source>
-        <translation type="unfinished"></translation>
+        <translation>プロセスIDと名前</translation>
     </message>
     <message>
         <source>Process IDs, names, paths, command lines and users</source>
-        <translation type="unfinished"></translation>
+        <translation>プロセスID、名前、パス、コマンドライン、およびユーザー</translation>
     </message>
     <message>
         <source>Temporary Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>一時ディレクトリ</translation>
     </message>
 </context>
 <context>
@@ -2038,7 +2058,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Columns</source>
-        <translation type="unfinished">列</translation>
+        <translation>列</translation>
     </message>
     <message>
         <source>Add a new column</source>
@@ -2112,7 +2132,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Compress with Zstandard</source>
-        <translation type="unfinished"></translation>
+        <translation>Zstandardで圧縮</translation>
     </message>
 </context>
 <context>
@@ -3098,151 +3118,131 @@ Relative to reference: n/a (outside reference range)</source>
 <context>
     <name>DistributionDialog</name>
     <message>
-        <source>Field Values Distribution</source>
-        <translation type="vanished">フィールド値の分布</translation>
-    </message>
-    <message>
-        <source>Field Value</source>
-        <translation type="vanished">フィールド値</translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation type="vanished">出現位置</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">パーセント</translation>
-    </message>
-    <message>
-        <source>Distribution:</source>
-        <translation type="vanished">分布</translation>
-    </message>
-    <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Fields:</source>
-        <translation type="unfinished">フィールド:</translation>
+        <translation>フィールド:</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">適用</translation>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished">表示フィルタ:</translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <source>Resolve values</source>
-        <translation type="unfinished"></translation>
+        <translation>値を解決</translation>
     </message>
     <message>
         <source>Show chart</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを表示</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>Copy the selected rows as text</source>
-        <translation type="unfinished"></translation>
+        <translation>選択した行をテキストとしてコピー</translation>
     </message>
     <message>
         <source>Save as…</source>
-        <translation type="unfinished">…として保存</translation>
+        <translation>…として保存</translation>
     </message>
     <message>
         <source>Save the table in various formats</source>
-        <translation type="unfinished"></translation>
+        <translation>様々なフォーマットで表を保存</translation>
     </message>
     <message>
         <source>Show in I/O Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>入出力グラフに表示</translation>
     </message>
     <message>
         <source>Distribution</source>
-        <translation type="unfinished">分布</translation>
+        <translation>分布</translation>
     </message>
     <message>
         <source>Open an I/O Graph with a graph for each selected row (at most %1)</source>
-        <translation type="unfinished"></translation>
+        <translation> 選択した各行のグラフを含む入出力グラフを開く(最大 %1)</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished">カウント</translation>
+        <translation>カウント</translation>
     </message>
     <message>
         <source>%1 distinct values </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 個の異なる値</translation>
     </message>
     <message>
         <source>A packet can contain a field more than once, so the percentages (of packets) add up to more than 100 %.</source>
-        <translation type="unfinished"></translation>
+        <translation> 1つのパケットに同じフィールドが複数回含まれることがあるため、(パケットの)割合の合計が100%を超える場合があります。</translation>
     </message>
     <message>
         <source>An event can contain a field more than once, so the percentages (of events) add up to more than 100 %.</source>
-        <translation type="unfinished"></translation>
+        <translation> 1つのイベントに同じフィールドが複数回含まれることがあるため、(イベントの)割合の合計が100%を超える場合があります。</translation>
     </message>
     <message>
         <source>Enter one or more fields above and press Apply, for example ip.ttl, or ip.src, tcp.dstport for a joint distribution.</source>
-        <translation type="unfinished"></translation>
+        <translation>上に1つ以上のフィールドを入力して適用を押してください。例えば ip.ttl、または結合分布の場合は ip.src, tcp.dstport を指定します。</translation>
     </message>
     <message>
         <source>Enter one or more fields above and press Apply, for example evt.type, or evt.type, proc.name for a joint distribution.</source>
-        <translation type="unfinished"></translation>
+        <translation>上に1つ以上のフィールドを入力して適用を押してください。例えば evt.type、または結合分布の場合は evt.type, proc.name を指定します。</translation>
     </message>
     <message>
         <source>Count the field values in the packets matching the display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタに一致するパケットのフィールド値をカウント</translation>
     </message>
     <message>
         <source>Count the field values in the events matching the display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタに一致するイベントのフィールド値をカウント</translation>
     </message>
     <message>
         <source>Distribution of %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 の分布</translation>
     </message>
     <message>
         <source>Copy as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタとしてコピー</translation>
     </message>
 </context>
 <context>
     <name>DistributionModel</name>
     <message>
         <source>&quot;%1&quot; cannot be counted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; をカウントできません</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is a protocol and has no values to count. Enter one of its fields, for example %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;はプロトコルであり、カウントする値がありません。フィールドのいずれか（例: %2）を入力してください。</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is a protocol and has no values to count.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;はプロトコルであり、カウントする値がありません。フィールドのいずれかを入力してください。</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is a label without a value and cannot be counted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;は値のないラベルであるため、カウントできません。</translation>
     </message>
     <message>
         <source>&quot;%1&quot; has variants of different types and cannot be counted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;には異なる型のバリアントがあるため、カウントできません。</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished">カウント</translation>
+        <translation>カウント</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished">パーセント</translation>
+        <translation>パーセント</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">値</translation>
+        <translation>値</translation>
     </message>
 </context>
 <context>
@@ -3777,7 +3777,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Level:</source>
-        <translation type="unfinished"></translation>
+        <translation>レベル:</translation>
     </message>
     <message>
         <source>Export PDUs</source>
@@ -3822,7 +3822,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>%1 Select Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 フォルダーを選択</translation>
     </message>
 </context>
 <context>
@@ -4587,7 +4587,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Contrast:</source>
-        <translation type="unfinished"></translation>
+        <translation>コントラスト:</translation>
     </message>
     <message>
         <source>Theme Designer…</source>
@@ -4665,7 +4665,7 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic font only their colors mark them.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4716,18 +4716,6 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Show only &amp;monospaced fonts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Effects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stri&amp;keout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Underline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5924,10 +5912,6 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;たとえ16進数バイト列のように見えても16進数+ASCII行の末尾にてASCII表現の開始を検出する追加処理をするかどうか。&lt;/p&gt;&lt;p&gt;16進数ダンプにASCIIを含まない場合には有効にしません。&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">ASCII 識別:</translation>
-    </message>
-    <message>
         <source>Regular Expression</source>
         <translation>正規表現</translation>
     </message>
@@ -6030,10 +6014,6 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;デフォルトのネットワークでの（ビックエンディアン）順のかわりに、リトルエンディアンのバイト順であるとして複数バイトグループを取り扱うかどうか&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">リトルエンディアン:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8254,30 +8234,6 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation>出力をクリア</translation>
     </message>
     <message>
-        <source>Settings</source>
-        <translation type="vanished">設定</translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="vanished">自動 (配色に従う)</translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="vanished">ダーク</translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="vanished">ライト</translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="vanished">コードエディタのカラーテーマ</translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="vanished">コード表示テーマ:</translation>
-    </message>
-    <message>
         <source>Type: %1</source>
         <translation>種別: %1</translation>
     </message>
@@ -8396,6 +8352,18 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <message>
         <source>(runtime error)</source>
         <translation>(ランタイムエラー)</translation>
+    </message>
+    <message>
+        <source>%1 has unsaved changes, so the paused script may not match the editor. Save the file and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 was saved after the Lua plugins were last loaded, so the running script is out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editing is disabled while the debugger is paused in this file. Resume to edit.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Running</source>
@@ -8781,6 +8749,12 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
         <translation>選択された個人プロファイル...</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <translation type="unfinished">
+            <numerusform>%Ln 選択された個人プロファイル...</numerusform>
+        </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
@@ -10631,20 +10605,29 @@ Shift+クリック: 空行では無効なブレークポイントを追加
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile …</source>
-        <translation>プロファイルを探索…</translation>
+        <source>Search profiles…</source>
+        <oldsource>Search for profile …</oldsource>
+        <translation type="unfinished">プロファイルを探索…</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
         <translation>デフォルトの設定を用いて新規プロファイルを作成します</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このプロファイルを削除します。システムによって提供されたプロファイルは削除できません。デフォルトプロファイルは削除によってリセットされます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このプロファイルを削除します。システムによって提供されたプロファイルは削除できません。デフォルトプロファイルは削除によってリセットされます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation>このプロファイルをコピーします</translation>
+        <translation type="vanished">このプロファイルをコピーします</translation>
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
@@ -10679,9 +10662,15 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation>ディレクトリより...</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)…</source>
-        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation>
+        <source>%Ln Personal Profile(s)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)…</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln 選択された個人プロファイル...</numerusform>
         </translation>
     </message>
@@ -10690,13 +10679,65 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <oldsource>All Personal Profiles...</oldsource>
         <translation>すべての個人プロファイル...</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln personal profile(s) selected</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>New profile</source>
         <translation>新規プロファイル</translation>
     </message>
     <message>
+        <source>New sub-profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">リセット</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">削除</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished">インポート</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">エクスポート</translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">ファインダーで表示</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished">フォルダで表示</translation>
+    </message>
+    <message>
+        <source>The selected profiles cannot be exported. Global, default, deleted and not yet applied profiles are not exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Exporting profiles</source>
         <translation>プロファイルをエキスポート中</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>No profiles found for export</source>
@@ -10712,6 +10753,20 @@ Shift+クリック: 空行では無効なブレークポイントを追加
             <numerusform>%Ln プロファイルがエキスポートされました</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Select zip file for import</source>
         <translation>インポートするzipファイルを選択します</translation>
@@ -10726,11 +10781,11 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message>
         <source>Error</source>
-        <translation>エラー</translation>
+        <translation type="vanished">エラー</translation>
     </message>
     <message>
         <source>An error has occurred while exporting profiles</source>
-        <translation>プロファイルのエキスポート中にエラーが起きました。</translation>
+        <translation type="vanished">プロファイルのエキスポート中にエラーが起きました。</translation>
     </message>
     <message>
         <source>No profiles found for import in %1</source>
@@ -10744,7 +10799,7 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>, %Ln プロファイルがスキップされました。</numerusform>
         </translation>
     </message>
@@ -10783,7 +10838,7 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message>
         <source>A profile change for this name is pending (See: %1)</source>
-        <translation>この名前のプロファイル変更が保留中です (参照: %1)</translation>
+        <translation type="vanished">この名前のプロファイル変更が保留中です (参照: %1)</translation>
     </message>
     <message>
         <source>%1 (originally %2)</source>
@@ -10796,6 +10851,10 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <message>
         <source>Created from default settings</source>
         <translation>デフォルト設定から作成されました</translation>
+    </message>
+    <message>
+        <source>Moved from: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>system provided</source>
@@ -10813,6 +10872,10 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <source>copy</source>
         <comment>noun</comment>
         <translation>コピー</translation>
+    </message>
+    <message>
+        <source>Several profiles named &quot;%1&quot; cannot be exported together. Export them separately.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No profiles found to export</source>
@@ -14769,19 +14832,19 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">…として統計を保存</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">プレインテキストファイル(*.txt);;カンマ区切りテキスト(*.csv);;XMLドキュメント(*.xml);;YAMLドキュメント (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">プレインテキストファイル(*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">ファイル保存エラー %1</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15818,22 +15881,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Expand All</source>
         <translation>すべて展開</translation>
-    </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">…として統計を保存</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">プレインテキストファイル(*.txt);;カンマ区切りテキスト(*.csv);;XMLドキュメント(*.xml);;YAMLドキュメント (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">プレインテキストファイル(*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">ファイル保存エラー %1</translation>
     </message>
 </context>
 <context>
@@ -17458,10 +17505,6 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>

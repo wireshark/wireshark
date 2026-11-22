@@ -1321,17 +1321,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
 </context>
 <context>
-    <name>CaptureFilterSyntaxWorker</name>
-    <message>
-        <source>Unable to check capture filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>CaptureFilterValidator</name>
     <message>
         <source>No interfaces selected</source>
@@ -4683,7 +4672,7 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic font only their colors mark them.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4734,18 +4723,6 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Show only &amp;monospaced fonts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Effects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stri&amp;keout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Underline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8348,6 +8325,18 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>%1 has unsaved changes, so the paused script may not match the editor. Save the file and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 was saved after the Lua plugins were last loaded, so the running script is out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editing is disabled while the debugger is paused in this file. Resume to edit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Running</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10563,19 +10552,19 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile …</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Create a new profile using default settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>Search profiles…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy this profile.</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10641,6 +10630,46 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>New sub-profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected profiles cannot be exported. Global, default, deleted and not yet applied profiles are not exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Exporting profiles</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10681,6 +10710,14 @@ on an existing breakpoint, toggle its active state</source>
         </translation>
     </message>
     <message>
+        <source>Exporting profiles failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select zip file for import</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10690,14 +10727,6 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Zip File (*.zip)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An error has occurred while exporting profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10753,10 +10782,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A profile change for this name is pending (See: %1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1 (originally %2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10766,6 +10791,10 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Created from default settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moved from: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10783,6 +10812,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>copy</source>
         <comment>noun</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Several profiles named &quot;%1&quot; cannot be exported together. Export them separately.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -1331,11 +1331,11 @@ Av = endast loggpunkt (följer den historiska konventionen ”loggpunkter pausar
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation>Kan inte kontrollera fångstfiltret</translation>
+        <translation type="vanished">Kan inte kontrollera fångstfiltret</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation>Kan inte kontrollera fångstfiltret (BPF-utökningar kräver ett aktivt handtag)</translation>
+        <translation type="vanished">Kan inte kontrollera fångstfiltret (BPF-utökningar kräver ett aktivt handtag)</translation>
     </message>
 </context>
 <context>
@@ -3133,26 +3133,6 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
 <context>
     <name>DistributionDialog</name>
     <message>
-        <source>Field Values Distribution</source>
-        <translation type="vanished">Fördelning av fältvärden</translation>
-    </message>
-    <message>
-        <source>Field Value</source>
-        <translation type="vanished">Fältvärde</translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation type="vanished">Förekomster</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">Procent</translation>
-    </message>
-    <message>
-        <source>Distribution:</source>
-        <translation type="vanished">Fördelning:</translation>
-    </message>
-    <message>
         <source>Dialog</source>
         <translation type="unfinished">Dialog</translation>
     </message>
@@ -3273,7 +3253,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished">Procent</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Value</source>
@@ -4720,8 +4700,12 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>%1 är inte ett fastbreddsteckensnitt. Hexadecimala byte och justerade kolumner kommer inte att vara i linje.</translation>
     </message>
     <message>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic font only their colors mark them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
-        <translation>Paketdetaljer understryker länkar och visar poster med inaktiverade färgregler i kursiv stil. Med ett kursivt eller understruket teckensnitt är det endast deras färger som märker dem.</translation>
+        <translation type="vanished">Paketdetaljer understryker länkar och visar poster med inaktiverade färgregler i kursiv stil. Med ett kursivt eller understruket teckensnitt är det endast deras färger som märker dem.</translation>
     </message>
 </context>
 <context>
@@ -4775,15 +4759,15 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Effects</source>
-        <translation>Effekter</translation>
+        <translation type="vanished">Effekter</translation>
     </message>
     <message>
         <source>Stri&amp;keout</source>
-        <translation>Gen&amp;omstruken</translation>
+        <translation type="vanished">Gen&amp;omstruken</translation>
     </message>
     <message>
         <source>&amp;Underline</source>
-        <translation>&amp;Understruken</translation>
+        <translation type="vanished">&amp;Understruken</translation>
     </message>
     <message>
         <source>Sample</source>
@@ -5979,10 +5963,6 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Huruvida den extra bearbetningen skall göras för att upptäcka början på ASCII-representationen vid slutet av en hex+ASCII-rad även om det ser ut som hexbyte:ar.&lt;/p&gt;&lt;p&gt;Aktivera inte om hexdumpen inte innehåller ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">ASCII-identifikation:</translation>
-    </message>
-    <message>
         <source>Regular Expression</source>
         <translation>Reguljärt uttryck</translation>
     </message>
@@ -6085,10 +6065,6 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Om flera bytegrupper ska behandlas som bytegrupper i little-endian-ordning, istället för standardordningen i nätverket (big-endian).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">Little-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8314,30 +8290,6 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <source>Clear output</source>
         <translation>Rensa utdata</translation>
     </message>
-    <message>
-        <source>Settings</source>
-        <translation type="vanished">Inställningar</translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="vanished">Automatiskt (följ färgschemat)</translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="vanished">Mörkt</translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="vanished">Ljust</translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="vanished">Färgtema för kodredigeraren</translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="vanished">Tema för kodvy:</translation>
-    </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
         <translation type="vanished">
@@ -8478,6 +8430,18 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>(runtime error)</source>
         <translation>(körningsfel)</translation>
+    </message>
+    <message>
+        <source>%1 has unsaved changes, so the paused script may not match the editor. Save the file and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 was saved after the Lua plugins were last loaded, so the running script is out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editing is disabled while the debugger is paused in this file. Resume to edit.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Running</source>
@@ -8867,6 +8831,13 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
         <translation>Vald personlig profil...</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <translation type="unfinished">
+            <numerusform>%Ln vald personlig profil …</numerusform>
+            <numerusform>%Ln valda personliga profiler …</numerusform>
+        </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
@@ -10723,20 +10694,29 @@ växla aktivt läge på en befintlig brytpunkt</translation>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile …</source>
-        <translation>Sök efter profil …</translation>
+        <source>Search profiles…</source>
+        <oldsource>Search for profile …</oldsource>
+        <translation type="unfinished">Sök efter profil …</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
         <translation>Skapa en ny profil baserat på standardinställningarna.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta bort denna profil.  Profiler som tillhandahålls av systemet kan inte tas bort.  Standardprofilen kommer återställas vid radering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta bort denna profil.  Profiler som tillhandahålls av systemet kan inte tas bort.  Standardprofilen kommer återställas vid radering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation>Kopiera denna profil.</translation>
+        <translation type="vanished">Kopiera denna profil.</translation>
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
@@ -10771,9 +10751,16 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <translation>Från katalog …</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)…</source>
-        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation>
+        <source>%Ln Personal Profile(s)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)…</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln vald personlig profil …</numerusform>
             <numerusform>%Ln valda personliga profiler …</numerusform>
         </translation>
@@ -10783,13 +10770,67 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <oldsource>All Personal Profiles...</oldsource>
         <translation>Alla personliga profiler …</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln personal profile(s) selected</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>New profile</source>
         <translation>Ny profil</translation>
     </message>
     <message>
+        <source>New sub-profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Återställ</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Ta bort</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected profiles cannot be exported. Global, default, deleted and not yet applied profiles are not exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Exporting profiles</source>
         <translation>Exporterar profiler</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>No profiles found for export</source>
@@ -10820,6 +10861,21 @@ växla aktivt läge på en befintlig brytpunkt</translation>
             <numerusform>%Ln profiler exporterade</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Select zip file for import</source>
         <translation>Välj zip-fil för importen</translation>
@@ -10834,11 +10890,11 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Fel</translation>
+        <translation type="vanished">Fel</translation>
     </message>
     <message>
         <source>An error has occurred while exporting profiles</source>
-        <translation>Ett fel uppstod vid export av profiler</translation>
+        <translation type="vanished">Ett fel uppstod vid export av profiler</translation>
     </message>
     <message>
         <source>No profiles found for import in %1</source>
@@ -10853,7 +10909,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>, %Ln profil skippad</numerusform>
             <numerusform>, %Ln profiler skippade</numerusform>
         </translation>
@@ -10894,7 +10950,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>A profile change for this name is pending (See: %1)</source>
-        <translation>En profiländring för detta namn väntar (se: %1)</translation>
+        <translation type="vanished">En profiländring för detta namn väntar (se: %1)</translation>
     </message>
     <message>
         <source>%1 (originally %2)</source>
@@ -10907,6 +10963,10 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>Created from default settings</source>
         <translation>Skapad från standardinställningarna</translation>
+    </message>
+    <message>
+        <source>Moved from: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>system provided</source>
@@ -10924,6 +10984,10 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <source>copy</source>
         <comment>noun</comment>
         <translation>kopia</translation>
+    </message>
+    <message>
+        <source>Several profiles named &quot;%1&quot; cannot be exported together. Export them separately.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No profiles found to export</source>
@@ -14891,19 +14955,19 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">Spara statistik som …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">Vanlig textfil (*.txt);;Kommaseparerade värden (*.csv);;XML-dokument (*.xml);;YAML-dokument (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">Vanlig textfil (*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">Fel när filen %1 sparades</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15940,22 +16004,6 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <message>
         <source>Expand All</source>
         <translation>Fäll ut alla</translation>
-    </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">Spara statistik som …</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">Vanlig textfil (*.txt);;Kommaseparerade värden (*.csv);;XML-dokument (*.xml);;YAML-dokument (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">Vanlig textfil (*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">Fel när filen %1 sparades</translation>
     </message>
 </context>
 <context>
@@ -17578,10 +17626,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[ÅÅÅÅ-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>

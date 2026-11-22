@@ -1298,17 +1298,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
 </context>
 <context>
-    <name>CaptureFilterSyntaxWorker</name>
-    <message>
-        <source>Unable to check capture filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>CaptureFilterValidator</name>
     <message>
         <source>No interfaces selected</source>
@@ -4649,7 +4638,7 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic font only their colors mark them.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4700,18 +4689,6 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Show only &amp;monospaced fonts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Effects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stri&amp;keout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Underline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5873,10 +5850,6 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Si debe realizar un procesado adicional para detectar el inicio de la representación ASCII al final de una línea hexadecimal+ASCII incluso si parecen bytes hexadecimales.&lt;/p&gt;&lt;p&gt;No active si el volcado hexadecimal no contiene ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">Identificación ASCII:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -8297,6 +8270,18 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>%1 has unsaved changes, so the paused script may not match the editor. Save the file and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 was saved after the Lua plugins were last loaded, so the running script is out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editing is disabled while the debugger is paused in this file. Resume to edit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Running</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8684,6 +8669,13 @@ on an existing breakpoint, toggle its active state</source>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
         <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
@@ -10505,20 +10497,29 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile …</source>
-        <translation>Buscar perfil …</translation>
+        <source>Search profiles…</source>
+        <oldsource>Search for profile …</oldsource>
+        <translation type="unfinished">Buscar perfil …</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
         <translation>Crea un nuevo perfil usando los ajustes predeterminados.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elimina este perfil. Los perfiles proporcionados por el sistema no puede ser eliminados. El perfil predeterminado se restablecerá al eliminarlo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elimina este perfil. Los perfiles proporcionados por el sistema no puede ser eliminados. El perfil predeterminado se restablecerá al eliminarlo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation>Copia este perfil.</translation>
+        <translation type="vanished">Copia este perfil.</translation>
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
@@ -10553,8 +10554,15 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)…</source>
-        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
+        <source>%Ln Personal Profile(s)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)…</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -10565,13 +10573,67 @@ on an existing breakpoint, toggle its active state</source>
         <oldsource>All Personal Profiles...</oldsource>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln personal profile(s) selected</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>New profile</source>
         <translation>Nuevo perfil</translation>
     </message>
     <message>
+        <source>New sub-profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Restablecer</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Eliminar</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished">Importar</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Exportar</translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">Mostrar en Finder</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished">Mostrar en carpeta</translation>
+    </message>
+    <message>
+        <source>The selected profiles cannot be exported. Global, default, deleted and not yet applied profiles are not exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Exporting profiles</source>
         <translation>Exportando perfiles</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>No profiles found for export</source>
@@ -10588,6 +10650,21 @@ on an existing breakpoint, toggle its active state</source>
             <numerusform></numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Select zip file for import</source>
         <translation>Seleccione archivo zip para importar</translation>
@@ -10601,26 +10678,11 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Archivo zip (*.zip)</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="unfinished">Error</translation>
-    </message>
-    <message>
-        <source>An error has occurred while exporting profiles</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No profiles found for import in %1</source>
         <translation>No se encontraron perfiles para importar en %1</translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>, %Ln profile(s) skipped</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -10661,10 +10723,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A profile change for this name is pending (See: %1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1 (originally %2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10675,6 +10733,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Created from default settings</source>
         <translation>Creado desde ajustes predeterminados</translation>
+    </message>
+    <message>
+        <source>Moved from: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>system provided</source>
@@ -10691,6 +10753,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>copy</source>
         <comment>noun</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Several profiles named &quot;%1&quot; cannot be exported together. Export them separately.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14626,15 +14692,15 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">Guardar estadísticas como…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">Archivo de texto plano (*.txt);;Valores separados por coma (*.csv);;Documento XML (*.xml);;Documento YAML (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">Archivo de texto plano (*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
@@ -15635,18 +15701,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Expand All</source>
         <translation type="unfinished">Expandir todo</translation>
-    </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">Guardar estadísticas como…</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">Archivo de texto plano (*.txt);;Valores separados por coma (*.csv);;Documento XML (*.xml);;Documento YAML (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">Archivo de texto plano (*.txt)</translation>
     </message>
 </context>
 <context>
@@ -17268,10 +17322,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[AAAA-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>

@@ -1295,11 +1295,11 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation>Tidak bisa memeriksa filter tangkap</translation>
+        <translation type="vanished">Tidak bisa memeriksa filter tangkap</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation>Tidak bisa memeriksa filter tangkap (ekstensi BPF memerlukan live handle)</translation>
+        <translation type="vanished">Tidak bisa memeriksa filter tangkap (ekstensi BPF memerlukan live handle)</translation>
     </message>
 </context>
 <context>
@@ -3094,18 +3094,6 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
 <context>
     <name>DistributionDialog</name>
     <message>
-        <source>Occurrences</source>
-        <translation type="vanished">Kemunculan</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">Persen</translation>
-    </message>
-    <message>
-        <source>Distribution:</source>
-        <translation type="vanished">Distribusi:</translation>
-    </message>
-    <message>
         <source>Dialog</source>
         <translation type="unfinished">Dialog</translation>
     </message>
@@ -3226,7 +3214,7 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished">Persen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Value</source>
@@ -4653,7 +4641,7 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic font only their colors mark them.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4704,18 +4692,6 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
     </message>
     <message>
         <source>Show only &amp;monospaced fonts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Effects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stri&amp;keout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Underline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5879,10 +5855,6 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apakah melakukan pemrosesan ekstra yang mendeteksi awal representasi ASCII di akhir dari suatu baris heksa+ASCII bahkan bila itu tampak seperti byte heksa.&lt;/p&gt;&lt;p&gt;Jangan fungsikan bila curah heksa tidak mengandung ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">Identifikasi ASCII:</translation>
-    </message>
-    <message>
         <source>Regular Expression</source>
         <translation>Ekspresi Reguler</translation>
     </message>
@@ -5985,10 +5957,6 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apakah memperlakukan grup beberapa byte sebagai dalam urutan byte little-endian, bukan yang default, urutan jaringan (big-endian).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">Little-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8207,30 +8175,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Bersihkan keluaran</translation>
     </message>
     <message>
-        <source>Settings</source>
-        <translation type="vanished">Pengaturan</translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="vanished">Otomatis (ikuti skema warna)</translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="vanished">Gelap</translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="vanished">Terang</translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="vanished">Tema warna untuk editor kode</translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="vanished">Tema Tampilan Kode:</translation>
-    </message>
-    <message>
         <source>Type: %1</source>
         <translation>Tipe: %1</translation>
     </message>
@@ -8348,6 +8292,18 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>(runtime error)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 has unsaved changes, so the paused script may not match the editor. Save the file and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 was saved after the Lua plugins were last loaded, so the running script is out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editing is disabled while the debugger is paused in this file. Resume to edit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8734,6 +8690,12 @@ on an existing breakpoint, toggle its active state</source>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
         <translation>Profil Pribadi yang Dipilih...</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <translation type="unfinished">
+            <numerusform>%Ln Profil Pribadi yang Dipilih...</numerusform>
+        </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
@@ -10551,20 +10513,29 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile …</source>
-        <translation>Cari profil ...</translation>
+        <source>Search profiles…</source>
+        <oldsource>Search for profile …</oldsource>
+        <translation type="unfinished">Cari profil ...</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
         <translation>Membuat suatu profil baru memakai pengaturan baku.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hapus profil ini. Profil yang disediakan sistem tidak dapat dihapus. Profil baku akan di-reset saat dihapus.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hapus profil ini. Profil yang disediakan sistem tidak dapat dihapus. Profil baku akan di-reset saat dihapus.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation>Salin profil ini.</translation>
+        <translation type="vanished">Salin profil ini.</translation>
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
@@ -10599,9 +10570,15 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Dari Direktori...</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)…</source>
-        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation>
+        <source>%Ln Personal Profile(s)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)…</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln Profil Pribadi yang Dipilih...</numerusform>
         </translation>
     </message>
@@ -10610,13 +10587,65 @@ on an existing breakpoint, toggle its active state</source>
         <oldsource>All Personal Profiles...</oldsource>
         <translation>Semua Profil Pribadi...</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln personal profile(s) selected</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>New profile</source>
         <translation>Profil baru</translation>
     </message>
     <message>
+        <source>New sub-profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Reset</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Hapus</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished">Impor</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Ekspor</translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">Tampilkan dalam Finder</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished">Tampilkan dalam Folder</translation>
+    </message>
+    <message>
+        <source>The selected profiles cannot be exported. Global, default, deleted and not yet applied profiles are not exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Exporting profiles</source>
         <translation>Mengekspor profil</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>No profiles found for export</source>
@@ -10632,6 +10661,20 @@ on an existing breakpoint, toggle its active state</source>
             <numerusform>%Ln profil diekspor</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Select zip file for import</source>
         <translation>Pilih berkas zip untuk diimpor</translation>
@@ -10646,11 +10689,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Error</source>
-        <translation>Galat</translation>
+        <translation type="vanished">Galat</translation>
     </message>
     <message>
         <source>An error has occurred while exporting profiles</source>
-        <translation>Suatu kesalahan terjadi saat mengekspor profil</translation>
+        <translation type="vanished">Suatu kesalahan terjadi saat mengekspor profil</translation>
     </message>
     <message>
         <source>No profiles found for import in %1</source>
@@ -10664,7 +10707,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>, %Ln profil dilewati</numerusform>
         </translation>
     </message>
@@ -10702,10 +10745,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A profile change for this name is pending (See: %1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1 (originally %2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10716,6 +10755,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Created from default settings</source>
         <translation>Dibuat dari pengaturan baku</translation>
+    </message>
+    <message>
+        <source>Moved from: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>system provided</source>
@@ -10733,6 +10776,10 @@ on an existing breakpoint, toggle its active state</source>
         <source>copy</source>
         <comment>noun</comment>
         <translation>salinan</translation>
+    </message>
+    <message>
+        <source>Several profiles named &quot;%1&quot; cannot be exported together. Export them separately.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No profiles found to export</source>
@@ -14681,19 +14728,19 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">Simpan Statistik Sebagai...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">Berkas teks polos (*.txt);;Comma separated values (*.csv);;Dokumen XML (*.xml);;Dokumen YAML (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">Berkas teks polos (*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">Galat saat menyimpan berkas %1</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15730,22 +15777,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Expand All</source>
         <translation>Kembangkan Semua</translation>
-    </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">Simpan Statistik Sebagai...</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">Berkas teks polos (*.txt);;Comma separated values (*.csv);;Dokumen XML (*.xml);;Dokumen YAML (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">Berkas teks polos (*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">Galat saat menyimpan berkas %1</translation>
     </message>
 </context>
 <context>
@@ -17367,10 +17398,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[TTTT-BB-HH] jj:mm:dd[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>

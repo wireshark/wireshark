@@ -1292,17 +1292,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
 </context>
 <context>
-    <name>CaptureFilterSyntaxWorker</name>
-    <message>
-        <source>Unable to check capture filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>CaptureFilterValidator</name>
     <message>
         <source>No interfaces selected</source>
@@ -4637,7 +4626,7 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic font only their colors mark them.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4688,18 +4677,6 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Show only &amp;monospaced fonts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Effects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stri&amp;keout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Underline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5863,10 +5840,6 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;16진수 바이트 표기로 보이더라도 Hex+ASCII 줄 끝에 ASCII 표현의 시작점을 감지했을 때 추가 처리를 할지 여부입니다.&lt;/p&gt;&lt;p&gt;16진수 덤프가 ASCII를 포함하지 않는다면 사용하지 마십시오.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">ASCII 식별:</translation>
-    </message>
-    <message>
         <source>Regular Expression</source>
         <translation>정규 표현식</translation>
     </message>
@@ -5969,10 +5942,6 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">리틀 엔디언:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8309,6 +8278,18 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>%1 has unsaved changes, so the paused script may not match the editor. Save the file and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 was saved after the Lua plugins were last loaded, so the running script is out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editing is disabled while the debugger is paused in this file. Resume to edit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Running</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8692,6 +8673,12 @@ on an existing breakpoint, toggle its active state</source>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
         <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
@@ -10509,20 +10496,29 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile …</source>
-        <translation>프로필 찾기 …</translation>
+        <source>Search profiles…</source>
+        <oldsource>Search for profile …</oldsource>
+        <translation type="unfinished">프로필 찾기 …</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
         <translation>기본 설정을 사용하여 새로운 프로필을 만듭니다.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;이 프로필을 삭제하십시오. 시스템에서 제공한 프로필은 삭제할 수 없습니다. 삭제 후에 기본 프로필이 초기화됩니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;이 프로필을 삭제하십시오. 시스템에서 제공한 프로필은 삭제할 수 없습니다. 삭제 후에 기본 프로필이 초기화됩니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation>이 프로필을 복사합니다.</translation>
+        <translation type="vanished">이 프로필을 복사합니다.</translation>
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
@@ -10557,8 +10553,14 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)…</source>
-        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
+        <source>%Ln Personal Profile(s)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)…</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
@@ -10568,13 +10570,65 @@ on an existing breakpoint, toggle its active state</source>
         <oldsource>All Personal Profiles...</oldsource>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln personal profile(s) selected</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>New profile</source>
         <translation>새 프로필</translation>
     </message>
     <message>
+        <source>New sub-profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">초기화</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">삭제</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished">가져오기</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">내보내기</translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">Finder에 표시</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished">폴더 위치 표시</translation>
+    </message>
+    <message>
+        <source>The selected profiles cannot be exported. Global, default, deleted and not yet applied profiles are not exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Exporting profiles</source>
         <translation>프로필 내보내기</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>No profiles found for export</source>
@@ -10590,6 +10644,20 @@ on an existing breakpoint, toggle its active state</source>
             <numerusform>프로필 %Ln개 내보냄</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Select zip file for import</source>
         <translation>가져올 ZIP 파일 선택</translation>
@@ -10604,11 +10672,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Error</source>
-        <translation>오류</translation>
+        <translation type="vanished">오류</translation>
     </message>
     <message>
         <source>An error has occurred while exporting profiles</source>
-        <translation>프로필을 내보내는 중 오류가 발생했습니다</translation>
+        <translation type="vanished">프로필을 내보내는 중 오류가 발생했습니다</translation>
     </message>
     <message>
         <source>No profiles found for import in %1</source>
@@ -10622,7 +10690,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>, 프로필 %Ln개 건너뜀</numerusform>
         </translation>
     </message>
@@ -10660,10 +10728,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A profile change for this name is pending (See: %1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1 (originally %2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10674,6 +10738,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Created from default settings</source>
         <translation>기본 설정에서 생성됨</translation>
+    </message>
+    <message>
+        <source>Moved from: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>system provided</source>
@@ -10691,6 +10759,10 @@ on an existing breakpoint, toggle its active state</source>
         <source>copy</source>
         <comment>noun</comment>
         <translation>복사</translation>
+    </message>
+    <message>
+        <source>Several profiles named &quot;%1&quot; cannot be exported together. Export them separately.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No profiles found to export</source>
@@ -14642,19 +14714,19 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">다른 이름으로 통계 저장…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">일반 텍스트 파일 (*.txt);;쉼표로 구분된 값 (*.csv);;XML 문서 (*.xml);;YAML 문서 (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">일반 텍스트 파일 (*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">파일 저장 오류 %1</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15651,22 +15723,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Expand All</source>
         <translation>모두 펴기</translation>
-    </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">다른 이름으로 통계 저장…</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">일반 텍스트 파일 (*.txt);;쉼표로 구분된 값 (*.csv);;XML 문서 (*.xml);;YAML 문서 (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">일반 텍스트 파일 (*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">파일 저장 오류 %1</translation>
     </message>
 </context>
 <context>
@@ -17288,10 +17344,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>

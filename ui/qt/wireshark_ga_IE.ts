@@ -1316,11 +1316,11 @@ As = pointe loga amháin (meaitseálann sé an coinbhinsiún stairiúil &quot;n�
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation>Ní féidir an scagaire gabhála a sheiceáil</translation>
+        <translation type="vanished">Ní féidir an scagaire gabhála a sheiceáil</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation>Ní féidir an scagaire gabhála a sheiceáil (tá láimhseáil beo ag teastáil ó shíntí BPF)</translation>
+        <translation type="vanished">Ní féidir an scagaire gabhála a sheiceáil (tá láimhseáil beo ag teastáil ó shíntí BPF)</translation>
     </message>
 </context>
 <context>
@@ -3119,26 +3119,6 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
 <context>
     <name>DistributionDialog</name>
     <message>
-        <source>Field Values Distribution</source>
-        <translation type="vanished">Dáileadh Luachanna Réimse</translation>
-    </message>
-    <message>
-        <source>Field Value</source>
-        <translation type="vanished">Luach Réimse</translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation type="vanished">Tarluithe</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">Céatadán</translation>
-    </message>
-    <message>
-        <source>Distribution:</source>
-        <translation type="vanished">Dáileadh:</translation>
-    </message>
-    <message>
         <source>Dialog</source>
         <translation type="unfinished">Dialóg</translation>
     </message>
@@ -3259,7 +3239,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished">Céatadán</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Value</source>
@@ -4698,7 +4678,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic font only their colors mark them.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4749,18 +4729,6 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Show only &amp;monospaced fonts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Effects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stri&amp;keout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Underline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5957,10 +5925,6 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cibé an ndéanfaidh sé próiseáil bhreise ag brath ar thús ionadaíocht ASCII ag deireadh líne heicsidheachúlach + ASCII fiú má tá sé cosúil le bearta heicsidheachúlach.&lt;/p&gt;&lt;p&gt;Ná cumasaigh mura bhfuil ASCII sa dumpa heicsidheachúlach.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>ASCII identification:</source>
-        <translation type="vanished">Sainaithint ASCII:</translation>
-    </message>
-    <message>
         <source>Regular Expression</source>
         <translation>Slonn ionadaíochta</translation>
     </message>
@@ -6063,10 +6027,6 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cibé ar cheart caitheamh le grúpaí iolracha beart mar bheith in ord beart beag, in ionad an ord réamhshocraithe, líonra (mór-endian).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
-        <translation type="vanished">Beag-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8298,30 +8258,6 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <translation>Aschur soiléir</translation>
     </message>
     <message>
-        <source>Settings</source>
-        <translation type="vanished">Socruithe</translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="vanished">Uathoibríoch (lean an scéim dathanna)</translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="vanished">Dorcha</translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="vanished">Solas</translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="vanished">Téama datha don eagarthóir cóid</translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="vanished">Téama Radharc Cód:</translation>
-    </message>
-    <message>
         <source>Type: %1</source>
         <translation>Cineál: %1</translation>
     </message>
@@ -8440,6 +8376,18 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <message>
         <source>(runtime error)</source>
         <translation>(earráid rith-ama)</translation>
+    </message>
+    <message>
+        <source>%1 has unsaved changes, so the paused script may not match the editor. Save the file and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 was saved after the Lua plugins were last loaded, so the running script is out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editing is disabled while the debugger is paused in this file. Resume to edit.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Running</source>
@@ -8833,6 +8781,14 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
         <translation>Próifíl Phearsanta Roghnaithe…</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
@@ -10695,20 +10651,29 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile …</source>
-        <translation>Cuardaigh próifíl…</translation>
+        <source>Search profiles…</source>
+        <oldsource>Search for profile …</oldsource>
+        <translation type="unfinished">Cuardaigh próifíl…</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
         <translation>Cruthaigh próifíl nua ag baint úsáide as réamhshocruithe.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bain an phróifíl seo. Ní féidir próifílí córas a chuirtear ar fáil a bhaint. Athshocrófar an phróifíl réamhshocraithe nuair a scriosfar í.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bain an phróifíl seo. Ní féidir próifílí córas a chuirtear ar fáil a bhaint. Athshocrófar an phróifíl réamhshocraithe nuair a scriosfar í.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation>Cóipeáil an phróifíl seo.</translation>
+        <translation type="vanished">Cóipeáil an phróifíl seo.</translation>
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
@@ -10743,8 +10708,16 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <translation>Ón Eolaire…</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)…</source>
-        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
+        <source>%Ln Personal Profile(s)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)…</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -10756,13 +10729,69 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <oldsource>All Personal Profiles...</oldsource>
         <translation>Gach Próifíl Phearsanta…</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln personal profile(s) selected</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>New profile</source>
         <translation>Próifíl nua</translation>
     </message>
     <message>
+        <source>New sub-profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Athshocraigh</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Scrios</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished">Iompórtáil</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Easpórtáil</translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished">Taispeáin i bhFillteán</translation>
+    </message>
+    <message>
+        <source>The selected profiles cannot be exported. Global, default, deleted and not yet applied profiles are not exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Exporting profiles</source>
         <translation>Próifílí á n-easpórtáil</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>No profiles found for export</source>
@@ -10780,6 +10809,22 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
             <numerusform></numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Select zip file for import</source>
         <translation>Roghnaigh comhad zip le hiompórtáil</translation>
@@ -10794,11 +10839,11 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message>
         <source>Error</source>
-        <translation>Earráid</translation>
+        <translation type="vanished">Earráid</translation>
     </message>
     <message>
         <source>An error has occurred while exporting profiles</source>
-        <translation>Tharla earráid agus próifílí á n- easpórtáil</translation>
+        <translation type="vanished">Tharla earráid agus próifílí á n- easpórtáil</translation>
     </message>
     <message>
         <source>No profiles found for import in %1</source>
@@ -10806,14 +10851,6 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>, %Ln profile(s) skipped</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -10857,7 +10894,7 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message>
         <source>A profile change for this name is pending (See: %1)</source>
-        <translation>Tá athrú próifíle don ainm seo ar feitheamh (Féach: %1)</translation>
+        <translation type="vanished">Tá athrú próifíle don ainm seo ar feitheamh (Féach: %1)</translation>
     </message>
     <message>
         <source>%1 (originally %2)</source>
@@ -10870,6 +10907,10 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <message>
         <source>Created from default settings</source>
         <translation>Cruthaithe ó shocruithe réamhshocraithe</translation>
+    </message>
+    <message>
+        <source>Moved from: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>system provided</source>
@@ -10887,6 +10928,10 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <source>copy</source>
         <comment>noun</comment>
         <translation>cóip</translation>
+    </message>
+    <message>
+        <source>Several profiles named &quot;%1&quot; cannot be exported together. Export them separately.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No profiles found to export</source>
@@ -14864,19 +14909,19 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">Sábháil Staitisticí Mar…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">Gnáthchomhad téacs (*.txt);; Luachanna scartha camóg (*.csv);; Doiciméad XML (*.xml);; Doiciméad YAML (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">Gnáthchomhad téacs (*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">Earráid agus comhad %1 á shábháil</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15913,22 +15958,6 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     <message>
         <source>Expand All</source>
         <translation>Leathnaigh Gach Rud</translation>
-    </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">Sábháil Staitisticí Mar…</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">Gnáthchomhad téacs (*.txt);; Luachanna scartha camóg (*.csv);; Doiciméad XML (*.xml);; Doiciméad YAML (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">Gnáthchomhad téacs (*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">Earráid agus comhad %1 á shábháil</translation>
     </message>
 </context>
 <context>
@@ -17551,10 +17580,6 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
