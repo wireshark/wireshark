@@ -949,8 +949,7 @@ The font families are listed on the left, each drawn in its own typeface, the st
 Type in the field above the family list to show only the families whose name contains the text.
 _Show only monospaced fonts_ limits the family list to fixed-pitch fonts and is selected by default; a proportional font breaks the column alignment in the packet bytes pane.
 The size can also be typed, in steps of 0.5 points.
-_Strikeout_ and _Underline_ apply to all text in the packet panes.
-An italic or underlined font hides the italic and underline markers that the packet details use for disabled coloring rules and for links; only their colors mark them then.
+An italic font hides the italic marker that the packet details use for disabled coloring rules; only their color marks them then.
 The sample shows the font as it will be applied.
 Changes take effect once you accept the preferences dialog with btn:[OK].
 

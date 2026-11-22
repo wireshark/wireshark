@@ -144,7 +144,6 @@ FontSelectionWidget::FontSelectionWidget(QWidget *parent) :
     ZoomScaling::scaleSizeLimits(ui->styleListWidget);
     ZoomScaling::scaleSizeLimits(ui->sizeSpinBox);
     ZoomScaling::scaleSizeLimits(ui->sizeListWidget);
-    ZoomScaling::scaleSizeLimits(ui->effectsGroupBox);
     setFocusProxy(ui->familyListWidget);
 
     // The pangram spans the alphabet; the hex dump line shows how the packet
@@ -171,10 +170,6 @@ FontSelectionWidget::FontSelectionWidget(QWidget *parent) :
             this, &FontSelectionWidget::sizeSelectionChanged);
     connect(ui->sizeSpinBox, &QDoubleSpinBox::valueChanged,
             this, &FontSelectionWidget::sizeValueChanged);
-    connect(ui->strikeoutCheckBox, &QCheckBox::toggled,
-            this, &FontSelectionWidget::strikeOutToggled);
-    connect(ui->underlineCheckBox, &QCheckBox::toggled,
-            this, &FontSelectionWidget::underlineToggled);
 
     FontManager *fm = FontManager::instance();
     connect(fm, &FontManager::applicationFontChanged, this, &FontSelectionWidget::refreshSample);
@@ -219,7 +214,6 @@ void FontSelectionWidget::setFeatures(Features features)
     features_ = features;
     ui->styleLabel->setVisible(features_.testFlag(StyleFeature));
     ui->styleListWidget->setVisible(features_.testFlag(StyleFeature));
-    ui->effectsGroupBox->setVisible(features_.testFlag(EffectsFeature));
     ui->monospaceCheckBox->setVisible(features_.testFlag(FamilyFilterFeature));
 }
 
@@ -244,13 +238,9 @@ void FontSelectionWidget::resetTo(const QFont &font, const Selection &sel)
     base_ = font;
     sel_ = sel;
     style_ = QFontDatabase::styleString(font);
-    strikeOut_ = font.strikeOut();
-    underline_ = font.underline();
     familyEdited_ = false;
     styleEdited_ = false;
     sizeEdited_ = false;
-    strikeOutEdited_ = false;
-    underlineEdited_ = false;
     refreshAll();
 }
 
@@ -296,12 +286,6 @@ QFont FontSelectionWidget::selectedFont() const
     }
     if (sizeEdited_ && sel_.pointSize > 0) {
         font.setPointSizeF(sel_.pointSize);
-    }
-    if (strikeOutEdited_) {
-        font.setStrikeOut(strikeOut_);
-    }
-    if (underlineEdited_) {
-        font.setUnderline(underline_);
     }
     return font;
 }
@@ -558,20 +542,11 @@ void FontSelectionWidget::selectSizeRow()
     list->setCurrentItem(nullptr);
 }
 
-void FontSelectionWidget::updateEffects()
-{
-    QSignalBlocker strikeout_blocker(ui->strikeoutCheckBox);
-    QSignalBlocker underline_blocker(ui->underlineCheckBox);
-    ui->strikeoutCheckBox->setChecked(strikeOut_);
-    ui->underlineCheckBox->setChecked(underline_);
-}
-
 void FontSelectionWidget::refreshAll()
 {
     fillFamilyList();
     fillStyleList();
     fillSizeList();
-    updateEffects();
     refreshSample();
 }
 
@@ -628,22 +603,6 @@ void FontSelectionWidget::sizeValueChanged(double value)
     sel_.pointSize = value;
     sizeEdited_ = true;
     selectSizeRow();
-    refreshSample();
-    emit changed();
-}
-
-void FontSelectionWidget::strikeOutToggled(bool checked)
-{
-    strikeOut_ = checked;
-    strikeOutEdited_ = true;
-    refreshSample();
-    emit changed();
-}
-
-void FontSelectionWidget::underlineToggled(bool checked)
-{
-    underline_ = checked;
-    underlineEdited_ = true;
     refreshSample();
     emit changed();
 }

@@ -61,8 +61,7 @@ FontPreferencesFrame::~FontPreferencesFrame()
 
 void FontPreferencesFrame::updateHints()
 {
-    const QFont resolved = ui->fontSelectionWidget->resolvedFont();
-    const QFontInfo info(resolved);
+    const QFontInfo info(ui->fontSelectionWidget->resolvedFont());
 
     ui->proportionalHintLabel->setText(
         tr("%1 is not a monospaced font. Hex bytes and aligned columns will not line up.")
@@ -71,8 +70,8 @@ void FontPreferencesFrame::updateHints()
 
     ui->markerHintLabel->setText(
         tr("Packet Details underlines links and shows entries of disabled coloring rules in italic. "
-           "With an italic or underlined font only their colors mark them."));
-    ui->markerHintLabel->setVisible(info.style() != QFont::StyleNormal || resolved.underline());
+           "With an italic font only their colors mark them."));
+    ui->markerHintLabel->setVisible(info.style() != QFont::StyleNormal);
 }
 
 void FontPreferencesFrame::fontChanged()
