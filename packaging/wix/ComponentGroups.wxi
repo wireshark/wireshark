@@ -696,263 +696,264 @@
 
   <!-- File Associations -->
   <Fragment>
+    <!-- wiresharkdoc.ico is the second icon (index 1) in wireshark.rc -->
     <ComponentGroup Id="CG.WiresharkFileAssociations" Directory="INSTALLFOLDER">
       <Component Id="cmpFA5vw" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="5vw">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="5vw">
           <Extension Id="5vw">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="5vw" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAacp" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="acp">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="acp">
           <Extension Id="acp">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="acp" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAapc" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="apc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="apc">
           <Extension Id="apc">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="apc" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAatc" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="atc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="atc">
           <Extension Id="atc">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="atc" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAbfr" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="bfr">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="bfr">
           <Extension Id="bfr">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="bfr" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAcap" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="cap">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="cap">
           <Extension Id="cap">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="cap" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAems" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="ems">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="ems">
           <Extension Id="ems">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="ems" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAenc" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="enc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="enc">
           <Extension Id="enc">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="enc" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAerf" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="erf">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="erf">
           <Extension Id="erf">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="erf" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAfdc" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="fdc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="fdc">
           <Extension Id="fdc">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="fdc" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAipfix" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="ipfix">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="ipfix">
           <Extension Id="ipfix">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="ipfix" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAlcap" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="lcap">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="lcap">
           <Extension Id="lcap">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="lcap" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAmplog" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="mplog">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="mplog">
           <Extension Id="mplog">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="mplog" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAntar" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="ntar">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="ntar">
           <Extension Id="ntar">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="ntar" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAout" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="out">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="out">
           <Extension Id="out">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="out" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFApcap" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcap">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="pcap">
           <Extension Id="pcap">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pcap" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFApcapng" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcapng">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="pcapng">
           <Extension Id="pcapng">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pcapng" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFApklg" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pklg">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="pklg">
           <Extension Id="pklg">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pklg" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFApkt" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pkt">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="pkt">
           <Extension Id="pkt">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pkt" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFArf5" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="rf5">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="rf5">
           <Extension Id="rf5">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="rf5" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAsnoop" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="snoop">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="snoop">
           <Extension Id="snoop">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="snoop" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAsyc" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="syc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="syc">
           <Extension Id="syc">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="syc" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAtpc" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="tpc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="tpc">
           <Extension Id="tpc">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="tpc" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAtr1" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="tr1">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="tr1">
           <Extension Id="tr1">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="tr1" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAtrace" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="trace">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="trace">
           <Extension Id="trace">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="trace" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAtrc" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="trc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="trc">
           <Extension Id="trc">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="trc" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAvwr" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="vwr">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="vwr">
           <Extension Id="vwr">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="vwr" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAwpc" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="wpc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="wpc">
           <Extension Id="wpc">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="wpc" Type="integer" Value="1" KeyPath="yes" />
 
       </Component>
       <Component Id="cmpFAwpz" Condition="WIRESHARK_FILE_EXTENSIONS = &quot;1&quot;">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="wpz">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Icon="filWireshark_exe" IconIndex="1" Description="wpz">
           <Extension Id="wpz">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument='"%1"' />
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="wpz" Type="integer" Value="1" KeyPath="yes" />
