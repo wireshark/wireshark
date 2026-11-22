@@ -176377,3 +176377,36 @@ class TestDissectDhcpOpt140:
                 '-e', '_ws.expert.message',
             ), encoding='utf-8', env=test_env)
         assert 'IPv4 FQDN-MoS: sub-option length exceeds option' in stdout
+
+
+class TestDissectDhcpOpt139:
+    def test_mos_ip(self, cmd_tshark, capture_file, test_env):
+        '''DHCPv4 option 139 (IPv4 Address-MoS) sub-option codes and addresses are decoded correctly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv4_opt139.pcap'),
+                '-Tfields',
+                '-e', 'dhcp.option.mos_ip.subopt_code',
+                '-e', 'dhcp.option.mos_ip',
+            ), encoding='utf-8', env=test_env)
+        assert '1' in stdout            # IS sub-option code
+        assert '3' in stdout            # ES sub-option code
+        assert '192.0.2.1' in stdout
+        assert '192.0.2.3' in stdout
+
+    def test_mos_ip_empty(self, cmd_tshark, capture_file, test_env):
+        '''DHCPv4 option 139 with zero-length data produces an expert item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv4_opt139_empty.pcap'),
+                '-Tfields',
+                '-e', '_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'IPv4 Address-MoS: option is empty' in stdout
+
+    def test_mos_ip_subopt_overflow(self, cmd_tshark, capture_file, test_env):
+        '''DHCPv4 option 139 with a sub-option length that exceeds the option produces an expert item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv4_opt139_overflow.pcap'),
+                '-Tfields',
+                '-e', '_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'IPv4 Address-MoS: sub-option length exceeds option' in stdout

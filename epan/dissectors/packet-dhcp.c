@@ -628,6 +628,9 @@ static int hf_dhcp_option_subnet_selection_option;			/* 118 */
 static int hf_dhcp_option_pana_agent;				/* 136 */
 static int hf_dhcp_option_lost_server_domain_name;			/* 137 */
 static int hf_dhcp_option_capwap_access_controller;		/* 138 */
+static int hf_dhcp_option_mos_ip_subopt_code;			/* 139 */
+static int hf_dhcp_option_mos_ip_subopt_len;			/* 139 */
+static int hf_dhcp_option_mos_ip;				/* 139 */
 static int hf_dhcp_option_mos_fqdn_subopt_code;			/* 140 */
 static int hf_dhcp_option_mos_fqdn_subopt_len;				/* 140 */
 static int hf_dhcp_option_mos_fqdn;					/* 140 */
@@ -754,6 +757,7 @@ static expert_field ei_dhcp_option_sip_server_address_encoding;
 static expert_field ei_dhcp_option_classless_static_route;
 static expert_field ei_dhcp_option125_enterprise_malformed;
 static expert_field ei_dhcp_option109_bad_length;
+static expert_field ei_dhcp_option_mos_ip_bad_length;
 static expert_field ei_dhcp_option_mos_fqdn_bad_length;
 static expert_field ei_dhcp_option_6RD_malformed;
 static expert_field ei_dhcp_option82_vi_cl_tag_unknown;
@@ -1615,7 +1619,7 @@ static const struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 136 */ { "PANA Authentication Agent",		ipv4_list, &hf_dhcp_option_pana_agent },
 /* 137 */ { "LoST Server Domain Name",			string, &hf_dhcp_option_lost_server_domain_name },
 /* 138 */ { "CAPWAP Access Controllers",		ipv4_list, &hf_dhcp_option_capwap_access_controller },
-/* 139 */ { "IPv4 Address-MoS",				opaque, NULL },
+/* 139 */ { "IPv4 Address-MoS",				special, NULL },
 /* 140 */ { "IPv4 FQDN-MoS",				special, NULL },
 /* 141 */ { "SIP UA Configuration Domains",		opaque, NULL },
 /* 142 */ { "IPv4 Address ANDSF",			ipv4_list, &hf_dhcp_option_andsf_server },
@@ -3563,6 +3567,43 @@ dissect_dhcpopt_dhcp4o6_s46_saddr(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 	proto_tree_add_item(tree, hf_dhcp_option_dhcp4o6_s46_saddr, tvb, 0, 16, ENC_NA);
 	return 16;
+}
+
+static int
+dissect_dhcpopt_mos_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	unsigned offset = 0;
+	unsigned len    = tvb_reported_length(tvb);
+
+	if (len == 0) {
+		expert_add_info_format(pinfo, tree, &ei_dhcp_option_mos_ip_bad_length,
+			"IPv4 Address-MoS: option is empty");
+		return 0;
+	}
+
+	while (offset + 2 <= len) {
+		uint32_t subopt_len;
+		proto_tree_add_item(tree, hf_dhcp_option_mos_ip_subopt_code, tvb, offset,     1, ENC_BIG_ENDIAN);
+		proto_item *len_item = proto_tree_add_item_ret_uint(tree, hf_dhcp_option_mos_ip_subopt_len, tvb, offset + 1, 1, ENC_NA, &subopt_len);
+		offset += 2;
+		unsigned end = offset + subopt_len;
+		if (end > len) {
+			expert_add_info_format(pinfo, len_item, &ei_dhcp_option_mos_ip_bad_length,
+				"IPv4 Address-MoS: sub-option length exceeds option");
+			break;
+		}
+		if (subopt_len % 4 != 0) {
+			expert_add_info_format(pinfo, len_item, &ei_dhcp_option_mos_ip_bad_length,
+				"IPv4 Address-MoS: sub-option length must be a multiple of 4");
+			offset = end;
+			continue;
+		}
+		while (offset < end) {
+			proto_tree_add_item(tree, hf_dhcp_option_mos_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+		}
+	}
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -10299,6 +10340,21 @@ proto_register_dhcp(void)
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 138: CAPWAP Access Controllers", HFILL }},
 
+		{ &hf_dhcp_option_mos_ip_subopt_code,
+		  { "Sub-option Code", "dhcp.option.mos_ip.subopt_code",
+		    FT_UINT8, BASE_DEC, VALS(mos_fqdn_subopt_vals), 0x0,
+		    "Option 139: MoS IP sub-option code (RFC 5678)", HFILL }},
+
+		{ &hf_dhcp_option_mos_ip_subopt_len,
+		  { "Sub-option Length", "dhcp.option.mos_ip.subopt_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Option 139: MoS IP sub-option length (RFC 5678)", HFILL }},
+
+		{ &hf_dhcp_option_mos_ip,
+		  { "MoS IP Address", "dhcp.option.mos_ip",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    "Option 139: Mobility Services IPv4 address (RFC 5678)", HFILL }},
+
 		{ &hf_dhcp_option_mos_fqdn_subopt_code,
 		  { "Sub-option Code", "dhcp.option.mos_fqdn.subopt_code",
 		    FT_UINT8, BASE_DEC, VALS(mos_fqdn_subopt_vals), 0x0,
@@ -10817,6 +10873,7 @@ proto_register_dhcp(void)
 		{ &ei_dhcp_option125_enterprise_malformed, { "dhcp.option.enterprise.malformed", PI_PROTOCOL, PI_ERROR, "no room left in option for enterprise data", EXPFILL }},
 		{ &ei_dhcp_option109_bad_length, { "dhcp.option.dhcp4o6_s46_saddr.bad_length", PI_PROTOCOL, PI_WARN, "OPTION_DHCP4O6_S46_SADDR: length must be 16 bytes", EXPFILL }},
 		{ &ei_dhcp_option_mos_fqdn_bad_length, { "dhcp.option.mos_fqdn.bad_length", PI_PROTOCOL, PI_WARN, "IPv4 FQDN-MoS: malformed option", EXPFILL }},
+		{ &ei_dhcp_option_mos_ip_bad_length, { "dhcp.option.mos_ip.bad_length", PI_PROTOCOL, PI_WARN, "IPv4 Address-MoS: malformed option", EXPFILL }},
 		{ &ei_dhcp_option_6RD_malformed, { "dhcp.option.6RD.malformed", PI_PROTOCOL, PI_ERROR, "6RD: malformed option", EXPFILL }},
 		{ &ei_dhcp_option82_vi_cl_tag_unknown, { "dhcp.option.option.vi.cl.tag_unknown", PI_PROTOCOL, PI_ERROR, "Unknown tag", EXPFILL }},
 		{ &ei_dhcp_option_parse_err, { "dhcp.option.parse_err", PI_PROTOCOL, PI_ERROR, "Parse error", EXPFILL }},
@@ -10980,6 +11037,7 @@ proto_reg_handoff_dhcp(void)
 	dissector_add_uint("dhcp.option", 123, create_dissector_handle( dissect_dhcpopt_coordinate_based_location, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 124, create_dissector_handle( dissect_dhcpopt_vi_vendor_class, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 125, create_dissector_handle( dissect_dhcpopt_vi_vendor_specific_info, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 139, create_dissector_handle( dissect_dhcpopt_mos_ip, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 140, create_dissector_handle( dissect_dhcpopt_mos_fqdn, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 145, create_dissector_handle( dissect_dhcpopt_forcerenew_nonce, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 146, create_dissector_handle( dissect_dhcpopt_rdnss, proto_dhcp ));
