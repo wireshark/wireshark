@@ -1,4 +1,4 @@
-Reordercap (Wireshark) 5.1.0 (v5.1.0rc0-58-g5bd0fb4087a1)
+Reordercap (Wireshark) 5.1.0 (v5.1.0rc0-3553-g88941b628ff6)
 Reorder timestamps of input file frames into output file.
 See https://www.wireshark.org for more information.
 
@@ -6,5 +6,6 @@ Usage: reordercap [options] <infile> <outfile>
 
 Options:
   -n                don't write to output file if the input file is ordered.
+  -q                suppress non-error status messages to stderr.
   -h, --help        display this help and exit.
   -v, --version     print version information and exit.

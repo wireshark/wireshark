@@ -1331,11 +1331,11 @@ Av = endast loggpunkt (följer den historiska konventionen ”loggpunkter pausar
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation>Kan inte kontrollera fångstfiltret</translation>
+        <translation type="vanished">Kan inte kontrollera fångstfiltret</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation>Kan inte kontrollera fångstfiltret (BPF-utökningar kräver ett aktivt handtag)</translation>
+        <translation type="vanished">Kan inte kontrollera fångstfiltret (BPF-utökningar kräver ett aktivt handtag)</translation>
     </message>
 </context>
 <context>
@@ -4704,8 +4704,12 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>%1 är inte ett fastbreddsteckensnitt. Hexadecimala byte och justerade kolumner kommer inte att vara i linje.</translation>
     </message>
     <message>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic font only their colors mark them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
-        <translation>Paketdetaljer understryker länkar och visar poster med inaktiverade färgregler i kursiv stil. Med ett kursivt eller understruket teckensnitt är det endast deras färger som markerar dem.</translation>
+        <translation type="vanished">Paketdetaljer understryker länkar och visar poster med inaktiverade färgregler i kursiv stil. Med ett kursivt eller understruket teckensnitt är det endast deras färger som markerar dem.</translation>
     </message>
 </context>
 <context>
@@ -4759,15 +4763,15 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Effects</source>
-        <translation>Effekter</translation>
+        <translation type="vanished">Effekter</translation>
     </message>
     <message>
         <source>Stri&amp;keout</source>
-        <translation>Gen&amp;omstruken</translation>
+        <translation type="vanished">Gen&amp;omstruken</translation>
     </message>
     <message>
         <source>&amp;Underline</source>
-        <translation>&amp;Understruken</translation>
+        <translation type="vanished">&amp;Understruken</translation>
     </message>
     <message>
         <source>Sample</source>
@@ -8432,6 +8436,18 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <translation>(körningsfel)</translation>
     </message>
     <message>
+        <source>%1 has unsaved changes, so the paused script may not match the editor. Save the file and reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 was saved after the Lua plugins were last loaded, so the running script is out of date. Reload the Lua plugins (Ctrl+Shift+L) to apply the changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editing is disabled while the debugger is paused in this file. Resume to edit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Running</source>
         <translation>Kör</translation>
     </message>
@@ -8819,6 +8835,13 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
         <translation>Vald personlig profil…</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <translation type="unfinished">
+            <numerusform>%Ln vald personlig profil …</numerusform>
+            <numerusform>%Ln valda personliga profiler …</numerusform>
+        </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
@@ -10745,20 +10768,29 @@ växla aktivt läge på en befintlig brytpunkt</translation>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile …</source>
-        <translation>Sök efter profil …</translation>
+        <source>Search profiles…</source>
+        <oldsource>Search for profile …</oldsource>
+        <translation type="unfinished">Sök efter profil …</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
         <translation>Skapa en ny profil baserat på standardinställningarna.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete this profile. System provided profiles cannot be deleted. The default profile is reset instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta bort denna profil.  Profiler som tillhandahålls av systemet kan inte tas bort.  Standardprofilen kommer återställas vid radering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta bort denna profil.  Profiler som tillhandahålls av systemet kan inte tas bort.  Standardprofilen kommer återställas vid radering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation>Kopiera denna profil.</translation>
+        <translation type="vanished">Kopiera denna profil.</translation>
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
@@ -10793,9 +10825,16 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <translation>Från katalog…</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)…</source>
-        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation>
+        <source>%Ln Personal Profile(s)…</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Personal Profile(s) (including sub-profiles)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)…</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln vald personlig profil …</numerusform>
             <numerusform>%Ln valda personliga profiler …</numerusform>
         </translation>
@@ -10805,13 +10844,67 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <oldsource>All Personal Profiles...</oldsource>
         <translation>Alla personliga profiler…</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln personal profile(s) selected</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>New profile</source>
         <translation>Ny profil</translation>
     </message>
     <message>
+        <source>New sub-profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Återställ</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Ta bort</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected profiles cannot be exported. Global, default, deleted and not yet applied profiles are not exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Exporting profiles</source>
         <translation>Exporterar profiler</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>No profiles found for export</source>
@@ -10842,6 +10935,21 @@ växla aktivt läge på en befintlig brytpunkt</translation>
             <numerusform>%Ln profiler exporterade</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported (%1 skipped)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exporting profiles failed</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Select zip file for import</source>
         <translation>Välj zip-fil för importen</translation>
@@ -10856,11 +10964,11 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Fel</translation>
+        <translation type="vanished">Fel</translation>
     </message>
     <message>
         <source>An error has occurred while exporting profiles</source>
-        <translation>Ett fel uppstod vid export av profiler</translation>
+        <translation type="vanished">Ett fel uppstod vid export av profiler</translation>
     </message>
     <message>
         <source>No profiles found for import in %1</source>
@@ -10875,7 +10983,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>, %Ln profil skippad</numerusform>
             <numerusform>, %Ln profiler skippade</numerusform>
         </translation>
@@ -10916,7 +11024,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>A profile change for this name is pending (See: %1)</source>
-        <translation>En profiländring för detta namn väntar (se: %1)</translation>
+        <translation type="vanished">En profiländring för detta namn väntar (se: %1)</translation>
     </message>
     <message>
         <source>%1 (originally %2)</source>
@@ -10929,6 +11037,10 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>Created from default settings</source>
         <translation>Skapad från standardinställningarna</translation>
+    </message>
+    <message>
+        <source>Moved from: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>system provided</source>
@@ -10946,6 +11058,10 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <source>copy</source>
         <comment>noun</comment>
         <translation>kopia</translation>
+    </message>
+    <message>
+        <source>Several profiles named &quot;%1&quot; cannot be exported together. Export them separately.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No profiles found to export</source>
@@ -16156,10 +16272,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Diagrammets färgcykel. Färger från standardtemat fylls inte på i efterhand.</translation>
     </message>
     <message>
-        <source>Hairline dividers between cards and panes.</source>
-        <translation type="vanished">Tunna avdelare mellan kort och paneler.</translation>
-    </message>
-    <message>
         <source>color %1</source>
         <translation>färg %1</translation>
     </message>
@@ -17256,8 +17368,8 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Separator, kept at the divider ratio to CardBackground</source>
-        <translation type="vanished">Separator, hålls vid avdelarkvoten mot CardBackground</translation>
+        <source>border.separator, kept at the divider ratio to OverlayCardBackground</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SectionHeader, kept readable on CardBackground</source>
@@ -17282,10 +17394,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>the lighter of palette.base and CardBackground</source>
         <translation>den ljusare av palette.base och CardBackground</translation>
-    </message>
-    <message>
-        <source>border.separator, kept at the divider ratio to OverlayCardBackground</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>black or white on accent.success</source>
