@@ -60,7 +60,7 @@ capture file, *text2pcap -F* provides a list of the available output
 formats. By default, it writes the packets to __outfile__ in the *pcapng*
 file format. *Text2pcap* also supports compression formats, which can
 be specified with the *--compress* options. If that option is not given,
-the the desired compression method, if any, is deduced from the extension
+the desired compression method, if any, is deduced from the extension
 of __outfile__; e.g. if it has the extension '.gz', then the output file
 is compressed to a gzip archive.
 
@@ -199,7 +199,7 @@ the ASCII text dump and not include it in the packet even if it looks like HEX.
 This parameter has no effect in regex mode.
 
 *NOTE:* Do not enable it if the input file does not contain the ASCII text dump,
-or if the ASCII dump is separated from from the hex dump by a non-blank delimiter
+or if the ASCII dump is separated from the hex dump by a non-blank delimiter
 such as `|`.
 --
 

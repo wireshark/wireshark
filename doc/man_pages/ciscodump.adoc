@@ -185,7 +185,7 @@ Use e. g. `isakmp/decrypted---outside` to capture encrypted and decrypted isakmp
 --remote-password=<password>::
 The password to use (if not ssh-agent and pubkey are used). WARNING: the
 passwords are stored in plaintext and visible to all users on this system. It is
-recommended to use keyfiles with a SSH agent.
+recommended to use keyfiles with an SSH agent.
 
 --remote-port=<remote port>::
 The SSH port of the remote host.

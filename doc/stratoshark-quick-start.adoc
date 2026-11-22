@@ -10,7 +10,7 @@ This document provides brief instructions for obtaining, using, and building Str
 You can get Windows and macOS development packages from https://stratoshark.org/.
 Native system call captures aren't yet supported on those platforms, but they do come with the https://github.com/falcosecurity/plugins/blob/main/plugins/cloudtrail/README.md[CloudTrail plugin], which can pull AWS CloudTrail logs from an S3 bucket or SQS/SNS.
 
-If you wish to use Stratoshark on Linux you will have to built it yourself.
+If you wish to use Stratoshark on Linux you will have to build it yourself.
 Instructions for doing that can be found in the <<building_stratoshark,Building Stratoshark>> section below.
 
 == Using Stratoshark

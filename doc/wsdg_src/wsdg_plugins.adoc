@@ -3,7 +3,7 @@
 == Plugins
 
 There are a multitude of plugin options available in Wireshark that allow its
-its functionality to be extended without changing the source code itself.  Using the
+functionality to be extended without changing the source code itself.  Using the
 available APIs gives you the means to do this.
 
 Currently plugin APIs are available for dissectors (epan), capture file types

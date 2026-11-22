@@ -455,9 +455,9 @@ Playlist shows information about every stream:
 
 [NOTE]
 ====
-When rtp_udp is active, most of streams shows just RTP <number> even there is setup frame in capture.
+When rtp_udp is active, most of streams show just RTP <number> even if the setup frame is in capture.
 
-When RTP stream contains multiple codecs, SR and PR are based on first observed coded. Later codecs in stream are resampled to first one.
+When RTP stream contains multiple codecs, SR and PR are based on first observed codec. Later codecs in stream are resampled to first one.
 ====
 
 Controls allow a user to:
@@ -468,8 +468,8 @@ Controls allow a user to:
 * Select btn:[Output audio device] and btn:[Output audio rate]
 * Select btn:[Playback Timing]
 ** Jitter Buffer - Packets outside btn:[Jitter Buffer] size are discarded during decoding
-** RTP Timestamp - Packets are ordered and played by its Timestamp, no Jitter Buffer is used
-** Uninterrupted Mode - All gaps (e. g. Comfort Noise, lost packets) are discarded therefore audio is shorter than timespan
+** RTP Timestamp - Packets are ordered and played by their Timestamp, no Jitter Buffer is used
+** Uninterrupted Mode - All gaps (e. g. Comfort Noise, lost packets) are discarded, therefore audio is shorter than timespan
 * btn:[Time of Day] selects whether waveform timescale is shown in seconds from start of capture or in absolute time of received packets
 * btn:[Refresh streams] refreshes streams during live capture (see <<ChTelPlayingCallsLive>>). Button is disabled when no live capture is running.
 * Inaudible streams
@@ -532,7 +532,7 @@ User can use shortcuts:
 ====
 menu:Export[] was moved from menu:RTP Stream Analysis[] window to menu:RTP Player[] window in 3.5.0.
 
-Wireshark is able to export decoded audio in .au or .wav file format. Prior to version 3.2.0, Wireshark only supported exporting audio using the G.711 codec. From 3.2.0 it supports audio export using any codec with 8000 Hz sampling. From 3.5.0 is supported export of any codec, rate is defined by Output Audio Rate.
+Wireshark is able to export decoded audio in .au or .wav file format. Prior to version 3.2.0, Wireshark only supported exporting audio using the G.711 codec. From 3.2.0 it supports audio export using any codec with 8000 Hz sampling. From 3.5.0, export of any codec is supported, rate is defined by Output Audio Rate.
 ====
 
 Export options available:
@@ -542,7 +542,7 @@ Export options available:
 ** Stream Synchronized Audio - File starts at the begin of earliest stream in export, therefore there is no silence at beginning of exported file.
 ** File Synchronized Audio - Streams starts at beginning of file, therefore silence can be at start of file.
 * for just one selected stream
-** Payload - just payload with no information about coded is stored in the file
+** Payload - just payload with no information about codec is stored in the file
 
 Audio is exported as multi-channel file - one channel per RTP stream. One or two channels are equal to mono or stereo, but Wireshark can export e.g., 100 channels. For playing a tool with multi-channel support must be used (e.g., https://www.audacityteam.org/).
 

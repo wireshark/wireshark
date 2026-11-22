@@ -132,7 +132,7 @@ Most dissectors are written in C11, so a good knowledge of C will be sufficient 
 Dissectors can also be written in Lua, which might be more suitable for your specific needs.
 As noted above, if you’re going to modify Wireshark’s user interface you will need a knowledge of {cpp}.
 
-Modifying the build system and support tooling might requires knowledge of CMake, Python, PowerShell, Bash, or Perl.
+Modifying the build system and support tooling might require knowledge of CMake, Python, PowerShell, Bash, or Perl.
 Note that these are required to build Wireshark, but not to run it.
 If Wireshark is installed from a binary package, none of these helper tools are needed on the target system.
 

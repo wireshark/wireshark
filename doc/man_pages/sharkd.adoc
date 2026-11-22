@@ -36,7 +36,7 @@ It uses the same dissection engine as *Wireshark* and *TShark*, enabling program
 
 *Sharkd* can operate in two modes: *console mode* and *daemon mode*.
 
-In console mode, *sharkd* reads reads JSON-RPC requests from standard input and
+In console mode, *sharkd* reads JSON-RPC requests from standard input and
 writes responses to standard output.  This mode is activated by passing *-* as
 the argument or by running *sharkd* without the *-a* option.
 

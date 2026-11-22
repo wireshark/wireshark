@@ -26,7 +26,7 @@ udpdump - Provide a UDP receiver that gets packets from network devices (like Ar
 
 == DESCRIPTION
 
-*udpdump* is a extcap tool that provides a UDP receiver that listens for exported datagrams coming from
+*udpdump* is an extcap tool that provides a UDP receiver that listens for exported datagrams coming from
 any source (like Aruba routers) and exports them in PCAP format. This provides the user two basic
 functionalities: the first one is to have a listener that prevents the localhost to send back an ICMP
 port-unreachable packet. The second one is to strip out the lower layers (layer 2, IP, UDP) that are useless

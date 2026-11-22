@@ -578,7 +578,7 @@ This is particularly likely for very small intervals. For "counting" graphs
 plots, but shown in line graphs and bar charts. For the summary statistics SUM, MAX, and AVG,
 values are always omitted if the Y field was not present in the interval.
 For LOAD graphs, values are omitted if no field's time indicated that an event was
-was present in the interval.
+present in the interval.
 (Note for LOAD graphs that a response time can contribute to earlier intervals than
 the one containing the packet if the duration is longer than the interval.)
 

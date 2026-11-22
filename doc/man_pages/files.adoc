@@ -218,7 +218,7 @@ Name Resolution (manuf)::
 The __manuf__ file is used to match the 3-byte vendor portion of a 6-byte
 hardware address with the manufacturer's name; it can also contain well-known
 MAC addresses and address ranges specified with a netmask.  The format of the
-file is similar the __ethers__ files, except that entries such as:
+file is similar to the __ethers__ files, except that entries such as:
 
   00:00:0C      Cisco     Cisco Systems, Inc
 

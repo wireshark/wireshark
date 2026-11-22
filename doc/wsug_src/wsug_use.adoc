@@ -830,7 +830,7 @@ image::images/ws-help-menu.png[{screenshot-attrs}]
 |menu:Sample Captures[]|| This menu item starts a Web browser showing the sample captures from: link:{wireshark-wiki-url}SampleCaptures[].
 |menu:Release Notes[]|| This menu item starts a Web browser showing the Release Notes of the current version.
 |menu:About Wireshark[]|| This menu item brings up an information window that provides various detailed information items on Wireshark, such as how it’s built, the plugins loaded, the used folders, ...
-|menu:Check for Updates[...]|| This menu item starts the updater utility that checks whether there's an new version of Wireshark available. This item is only available on Windows and macOS.
+|menu:Check for Updates[...]|| This menu item starts the updater utility that checks whether there's a new version of Wireshark available. This item is only available on Windows and macOS.
 |===
 
 [NOTE]

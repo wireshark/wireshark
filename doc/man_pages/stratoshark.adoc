@@ -42,7 +42,7 @@ It lets you interactively browse system calls and log messages from a live syste
 
 *Stratoshark*'s main window shows 3 views of each event.
 It shows a summary line, briefly describing what the event is.
-An event details display is shown, allowing you to drill down to exact field that you interested in.
+An event details display is shown, allowing you to drill down to the exact field that you are interested in.
 Finally, a hex dump shows you exactly what the event data looks like on disk or over the wire.
 
 In addition, *Stratoshark* has some features that make it unique.
@@ -288,7 +288,7 @@ specify a user DLT from the command line, you would use
 +
 --
 Special path settings usually detected automatically.  This is used for
-special cases, e.g. starting Stratoshark from a known location on an USB stick.
+special cases, e.g. starting Stratoshark from a known location on a USB stick.
 
 The criterion is of the form __key:path__, where __key__ is one of:
 
@@ -343,7 +343,7 @@ Set the default capture file name, or '-' for standard output.
 -X <eXtension options>::
 +
 --
-Specify an option to be passed to an *Stratoshark* module.  The eXtension option
+Specify an option to be passed to a *Stratoshark* module.  The eXtension option
 is in the form __extension_key:value__, where __extension_key__ can be:
 
 *lua_script*:__lua_script_filename__ tells *Stratoshark* to load the given script in addition to the
@@ -470,7 +470,7 @@ will calculate the Service Response Time as the time delta between the
 First event of the exchange and the Last event of the exchange.
 
 The data will be presented as separate tables for all normal FC commands,
-Only those commands that are seen in the capture will have its stats
+Only those commands that are seen in the capture will have their stats
 displayed.
 
 This option can be used multiple times on the command line.
@@ -546,7 +546,7 @@ will calculate the Service Response Time as the time delta between the
 Request and the Response.
 
 The data will be presented as separate tables for all implemented LDAP commands,
-Only those commands that are seen in the capture will have its stats
+Only those commands that are seen in the capture will have their stats
 displayed.
 
 This option can be used multiple times on the command line.
@@ -554,7 +554,7 @@ This option can be used multiple times on the command line.
 If the optional __filter__ is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: use *-z "ldap,srt,ip.addr==10.1.1.1"* will collect stats only for
+Example: *-z "ldap,srt,ip.addr==10.1.1.1"* will collect stats only for
 LDAP events exchanged by the host at IP address 10.1.1.1 .
 
 The only LDAP commands that are currently implemented and for which the stats will be available are:

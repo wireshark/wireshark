@@ -50,7 +50,7 @@ so it may be preferred for that reason.
 [#ChTestsStructure]
 === Test suite structure
 
-The following sections describes how the test suite is organized.
+The following sections describe how the test suite is organized.
 
 [#TestCoverage]
 ==== Test Coverage And Availability

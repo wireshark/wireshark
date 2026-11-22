@@ -80,7 +80,7 @@ By default, it reads all packets from the __infile__ and writes them to the
 __outfile__ in pcapng file format.  Use '-' for __infile__ or __outfile__
 to read from standard input or write to standard output, respectively.
 
-The *-A* and *-B* option allow you to limit the time range from which packets
+The *-A* and *-B* options allow you to limit the time range from which packets
 are read from the __infile__.
 
 An optional list of packet numbers can be specified on the command tail;
@@ -315,8 +315,8 @@ whether *-L* is specified or not).  See also *-C <choplen*> and *-s <snaplen*>.
 --
 When used in conjunction with -E, skip some bytes from the beginning of the packet
 from being changed. In this way some headers don't get changed, and the fuzzer is
-more focused on a smaller part of the packet. Keeping a part of the packet fixed
-the same dissector is triggered, that make the fuzzing more precise.
+more focused on a smaller part of the packet. Keeping a part of the packet fixed,
+the same dissector is triggered, that makes the fuzzing more precise.
 --
 
 -r::
@@ -401,7 +401,7 @@ adjustment> value.
 
 If <strict time adjustment> value is 0 or greater (e.g. 0.000001)
 then *only* packets with a timestamp less than the previous packet
-will adjusted.  The adjusted timestamp value will be set to be
+will be adjusted.  The adjusted timestamp value will be set to be
 equal to the timestamp value of the previous packet plus the value
 of the <strict time adjustment> value.  A <strict time adjustment>
 value of 0 will adjust the minimum number of timestamp values
@@ -576,7 +576,7 @@ command line.
 --set-unused::
 +
 --
-Set the unused bytes (if any) to zero in SLL link type. Useful when when checking for duplicates.
+Set the unused bytes (if any) to zero in SLL link type. Useful when checking for duplicates.
 As the unused bytes can be anything. When the packet traverses the device stack
 for bonded interfaces on Linux for example.
 --
@@ -600,7 +600,7 @@ Without this option, any *-a* options will replace any and all pre-existing
 packet comments for the given frame number.
 
 This option does not allow for the *-a* option to add multiple packet comments
-for same frame number in the same command line`.
+for same frame number in the same command line.
 
 The *--discard-packet-comments* option takes precedence over this option.
 --

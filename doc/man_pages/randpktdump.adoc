@@ -30,7 +30,7 @@ randpktdump - Provide an interface to generate random captures using randpkt
 
 == DESCRIPTION
 
-*randpktdump* is a extcap tool that provides access to the random
+*randpktdump* is an extcap tool that provides access to the random
 packet generator (randpkt). It is mainly used for testing and
 educational purposes.
 

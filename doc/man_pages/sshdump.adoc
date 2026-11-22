@@ -148,7 +148,7 @@ filter (*--extcap-capture-filter*) will not be appended.
 --remote-capture-command-select=<capture command selection>::
 +
 --
-The selection of the build-in support for remote capture commands. Either *dumpcap* for a remote
+The selection of the built-in support for remote capture commands. Either *dumpcap* for a remote
 capture command using dumpcap, *tcpdump* for a remote capture command using tcpdump, or *other*,
 where the remote capture command is to be given with the *--remote-capture-command* option.
 
@@ -176,7 +176,7 @@ Don't use promiscuous mode on the remote machine.
 --remote-password=<password>::
 The password to use (if not ssh-agent and pubkey are used). WARNING: the
 passwords are stored in plaintext and visible to all users on this system. It is
-recommended to use keyfiles with a SSH agent.
+recommended to use keyfiles with an SSH agent.
 
 --remote-port=<remote port>::
 The SSH port of the remote host.

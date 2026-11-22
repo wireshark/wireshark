@@ -1681,7 +1681,7 @@ in the second column.
 
 Example: *-z h225,counter*.
 
-Example: use *-z "h225,counter,ip.addr==1.2.3.4"* to only collect stats for
+Example: *-z "h225,counter,ip.addr==1.2.3.4"* to only collect stats for
 H.225 packets exchanged by the host at IP address 1.2.3.4 .
 
 This option can be used multiple times on the command line.
@@ -2278,7 +2278,7 @@ Example: *-z smb,srt*
 
 The data will be presented as separate tables for all normal SMB commands,
 all Transaction2 commands and all NT Transaction commands.
-Only those commands that are seen in the capture will have its stats
+Only those commands that are seen in the capture will have their stats
 displayed.
 Only the first command in a xAndX command chain will be used in the
 calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,

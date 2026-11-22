@@ -56,7 +56,7 @@ androiddump - Provide interfaces to capture from Android devices
 
 == DESCRIPTION
 
-*Androiddump* is a extcap tool that provide interfaces to capture from
+*Androiddump* is an extcap tool that provides interfaces for capturing from
 an Android device. There are only two requirements:
 
 1. You must have the Android SDK and add it to your PATH environment variable.

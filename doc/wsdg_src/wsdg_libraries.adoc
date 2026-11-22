@@ -25,7 +25,7 @@ We provide several ways to install third party libraries:
 * CMake will automatically install library dependencies if you set the `WIRESHARK_BASE_DIR` CMake variable to a directory that is writable by you, such as _/opt/wireshark-third-party_ or _wireshark-libraries_ at the same level as your Wireshark source code directory.
 * `tools/os_setup/macos-setup-brew.sh` installs build dependencies (CMake, Ninja, and ccache) using Homebrew by default.
 * `tools/os_setup/macos-setup-brew.sh` can install third party libraries using Homebrew if you use the `--install-required` and `--install-optional` flags. These are not needed if you set `WIRESHARK_BASE_DIR`.
-* `tools/os_setup/macos-setup.sh` will will download, build, and install the tools required to build Wireshark (CMake, Ninja, and pkg-config).
+* `tools/os_setup/macos-setup.sh` will download, build, and install the tools required to build Wireshark (CMake, Ninja, and pkg-config).
    It installs into _/usr/local_ by default; you can change this with the `-p` flag.
    To install library dependencies, set `WIRESHARK_BASE_DIR`.
 

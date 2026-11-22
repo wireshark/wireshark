@@ -72,7 +72,7 @@ is useful for generating a report that can be easily imported into
 a spreadsheet or database.
 
 The user specifies what type of output (long or table) and which
-statistics to display by specifying flags (options) that corresponding
+statistics to display by specifying flags (options) that correspond
 to the report type and desired infos.  If no options are specified,
 *Capinfos* will report all statistics available in "long" format.
 

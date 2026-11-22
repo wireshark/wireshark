@@ -742,7 +742,7 @@ A running capture session can be restarted with the same capture options as the
 last time, this will remove all packets previously captured. This can be useful,
 if some uninteresting packets are captured and there’s no need to keep them.
 
-Restart is a convenience function and equivalent to a capture stop following by
+Restart is a convenience function and equivalent to a capture stop followed by
 an immediate capture start. A restart can be triggered in one of the following
 ways:
 

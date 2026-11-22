@@ -809,7 +809,7 @@ These preferences give you the option to control the makeup of the GUI.
 .The preferences dialog box
 image::images/ws-pref-appearance.png[{screenshot-attrs}]
 
-Selecting _Remember main window size and placement_ allow for a repeatable experience when restarting Wireshark.
+Selecting _Remember main window size and placement_ allows for a repeatable experience when restarting Wireshark.
 
 Selecting _Open files in_ allows you to determine where to start the file selection dialog when opening capture files.
 
@@ -888,7 +888,7 @@ The exact sizes of these panes can be changed as needed once a capture file is o
 
 Selecting _Show packet list separator_ causes the packet list entries to be slightly set apart, which may improve readability at the cost of the amount of packets shown in the packet list.
 
-Selecting _Show column definition in column context menu_ make the column context menu wider to show the currently configured field type for the column.
+Selecting _Show column definition in column context menu_ makes the column context menu wider to show the currently configured field type for the column.
 This may help identify the column to select or modify.
 
 Selecting _Allow the list to be sorted_ enables the sort operator on all the columns.
@@ -970,7 +970,7 @@ The default interface is the interface used for packet capture in case no other 
 Note that this can be multiple interfaces separated by a comma.
 
 Selecting _Capture packets in promiscuous mode_ causes the network interface(s) to capture on to be configured in promiscuous mode.
-This allows all (Ethernet) frames to be received by the network interface to be capture, not only those that are addressed to the capture interface.
+This allows all (Ethernet) frames to be received by the network interface to be captured, not only those that are addressed to the capture interface.
 
 Selecting _Capture packets in monitor mode on 802.11 devices_ causes the WiFi interface(s) to capture on to be configured in monitor mode.
 This allows all WiFi frames to be received by the WiFi interface to be captured, not only those that are addressed to the capture interface.
@@ -1122,7 +1122,7 @@ The _DNS Servers_ btn:[Edit...] button provides access to the dialog to manage t
 The _Maximum concurrent requests_ input field allows you to limit the amount of DNS queries made at the same time.
 
 Selecting _Resolve VLAN IDs_ causes the file "vlans" to be read and used to name VLANs.
-This file has the simple format of one line per VLAN, starting wit VLAN ID, a tab character, followed by the name of the VLAN.
+This file has the simple format of one line per VLAN, starting with VLAN ID, a tab character, followed by the name of the VLAN.
 
 Selecting _Resolve SS7 PCs_ causes the file "ss7pcs" to be read and used to name SS7 Point Codes.
 This file has the simple format of one line per Point Code, starting with Network Indicator, a dash, the Point Code in decimal, a tab character, followed by the name of the Point Code.
@@ -1155,7 +1155,7 @@ There are a few general protocol related preferences, listed below.
 
 Selecting _Display hidden protocol items_ influences what is shown in the packet details pane of the packet selected from the packet list.
 Some protocol dissectors add hidden protocol items that provide additional interpretations of the packet data, or with different display filter strings.
-These may or may not provide valuable information to the user and may clutter the output, therefor these items can be hidden.
+These may or may not provide valuable information to the user and may clutter the output, therefore these items can be hidden.
 
 Selecting _Display byte fields with a space character between bytes_ influences the way a byte field in shown in the packet details pane of the packet selected in the packet list, if the dissector creates a byte field that is.
 The bytes in the byte field are normally shown as a concatenated sequence of hexadecimals.
@@ -1205,7 +1205,7 @@ image::images/ws-pref-rsa-keys.png[{screenshot-attrs}]
 
 ==== Statistics
 
-These preference have influence on the Statistics Tree (stats_tree) based dialogs accessible via the _Statistics_ menu.
+These preferences have influence on the Statistics Tree (stats_tree) based dialogs accessible via the _Statistics_ menu.
 
 .Statistics preferences
 image::images/ws-pref-statistics.png[{screenshot-attrs}]
@@ -1226,11 +1226,11 @@ The preference _Burst rate window size (ms)_ sets the duration of the sliding wi
 Longer window relative to burst rate resolution increases processing overhead.
 This value will be truncated to a multiple of the _Burst rate resolution_ preference setting.
 
-The preference _Default sort column for stats_tree stats_ gives you to option to select one of the columns to sort on.
+The preference _Default sort column for stats_tree stats_ gives you the option to select one of the columns to sort on.
 
 Selecting _Default stats_tree sort order is descending_ causes a descending sort order based on the previously selected column.
 
-Selecting _Case sensitive sort of stats_tree item names_ causes a case sensitive sort based on the previous selected order and column.
+Selecting _Case sensitive sort of stats_tree item names_ causes a case sensitive sort based on the previously selected order and column.
 
 Selecting _Always sort 'range' nodes by name_ causes the sort to take place by name rather than values.
 
@@ -2451,8 +2451,8 @@ files, that may cause unnecessary memory use.
 
 === Protobuf UDP Message Types
 
-If the payload of UDP on certain ports is Protobuf encoding, Wireshark use this table
-to know which Protobuf message type should be used to parsing the data on the specified
+If the payload of UDP on certain ports is Protobuf encoding, Wireshark uses this table
+to know which Protobuf message type should be used to parse the data on the specified
 UDP port(s).
 
 The configuration for UDP Port(s) to Protobuf message type maps is a user table, as

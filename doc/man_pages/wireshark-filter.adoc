@@ -309,7 +309,7 @@ representation. Currently dec() and string() give same result for an unsigned
 integer, but it is possible that in the future string() will use the native
 base of the field.
 
-max() and min() take any number of arguments and returns one value, respectively
+max() and min() take any number of arguments and return one value, respectively
 the largest/smallest. The arguments must all have the same type.
 
 There is also a set of functions to test IP addresses:
@@ -328,7 +328,7 @@ There is also a set of functions to test IP addresses:
 
 === Macros
 
-It is possible to define display filter macros. Macro are names that are
+It is possible to define display filter macros. Macros are names that are
 replaced with the associated expression, possibly performing argument substitution.
 Macro expansions are purely textual replacements and performed recursively before compilation.
 They allow replacing long and often used expressions with easy to use names.
@@ -341,7 +341,7 @@ file. For example the definition
 creates a macro called `addplusone` that takes two arguments and expands to the given expression.
 Arguments in the replacement expression are given using the dollar sign.
 
-Macros are invoked like function but preceded with a dollar sign
+Macros are invoked like a function but preceded with a dollar sign
 (sometimes also called a sigil):
 
     $addplusone(udp.src_port,udp.dst_port)
@@ -358,7 +358,7 @@ or
 
     ${addplusone;udp.src_port;udp.dst_port}
 
-Both forms are equivalent and can be used interchangibly as a matter of
+Both forms are equivalent and can be used interchangeably as a matter of
 preference.
 
 === Protocol field types
@@ -512,7 +512,7 @@ and character constants:
 
 Paired directional ("smart" or "curly") double quotes can be used in lieu
 of straight double quotes. This is mostly to handle example filters copied from
-webpages that _helpfully_ replace straight quotes, but it possible to
+webpages that _helpfully_ replace straight quotes, but it is possible to
 include straight double quotes unescaped in directional double quote
 enclosed raw string literals. A right directional double quote can be
 escaped in a string literal opened by a left directional double quote.
@@ -569,7 +569,7 @@ can be convenient:
     frame[1:4] contains 0x02
 
 An integer or boolean field that has a value string can be compared to
-to one of the strings that corresponds with a value.
+one of the strings that corresponds with a value.
 As with stringlike fields and comparisons, it is possible to perform
 the comparison with an unquoted literal, though this is deprecated and
 will not work if the literal contains a space (as with "Modify Bearer
@@ -582,7 +582,7 @@ is not unique, then equality and inequality can be tested, but not the
 ordered comparisons.
 
 This is in contrast with the `string()` and `vals()` functions, which
-convert the field value to a string and applies string (lexicographic)
+convert the field value to a string and apply string (lexicographic)
 comparisons, as well as work with all operators that take strings.
 Therefore the following two filters give the same result:
 
@@ -745,7 +745,7 @@ a shorter way to write the first.
 == FILTER FIELD REFERENCE
 
 The entire list of display filters is too large to list here. You can
-can find references and examples at the following locations:
+find references and examples at the following locations:
 
 * The online Display Filter Reference: https://www.wireshark.org/docs/dfref/
 

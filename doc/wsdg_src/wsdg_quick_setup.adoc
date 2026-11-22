@@ -404,7 +404,7 @@ The main Wireshark application uses the Qt windowing toolkit.
 [TIP]
 .Qt’s LTS branch
 ====
-As of of Qt 6, the Qt Company does not provide binary packages of Long Term Support (LTS)
+As of Qt 6, the Qt Company does not provide binary packages of Long Term Support (LTS)
 releases for open source use, and source packages are provided at a one year delay from
 the commercial LTS release. Thus the LTS branch is likely not an available option.
 

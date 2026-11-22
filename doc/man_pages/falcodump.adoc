@@ -178,7 +178,7 @@ To see interface configuration options:
     falcodump --extcap-interface=cloudtrail --extcap-config
 
 .Example output
-    arg {number=0}{call=--plugin-source}{display=Plugin source}{type=string}{tooltip=The plugin data source. This us usually a URL.}{placeholder=Enter a source URL…}{required=true}{group=Capture}
+    arg {number=0}{call=--plugin-source}{display=Plugin source}{type=string}{tooltip=The plugin data source. This is usually a URL.}{placeholder=Enter a source URL…}{required=true}{group=Capture}
     arg {number=1}{call=cloudtrail-s3downloadconcurrency}{display=s3DownloadConcurrency}{type=integer}{default=1}{tooltip=Controls the number of background goroutines used to download S3 files (Default: 1)}{group=Capture}
     arg {number=2}{call=cloudtrail-sqsdelete}{display=sqsDelete}{type=boolean}{default=true}{tooltip=If true then the plugin will delete sqs messages from the queue immediately after receiving them (Default: true)}{group=Capture}
     arg {number=3}{call=cloudtrail-useasync}{display=useAsync}{type=boolean}{default=true}{tooltip=If true then async extraction optimization is enabled (Default: true)}{group=Capture}
