@@ -119,6 +119,15 @@ The following features are either new or have been significantly updated since v
   followed by the key. The keys are used without the Kerberos decrypt preference
   and without a keytab file.
 
+* SRTCP packets can be decrypted with SRTP master keys and salts entered in
+  the new "SRTP/SRTCP master keys" table of the SRTCP protocol preferences
+  (menu:Edit[Preferences,Protocols,SRTCP]). Each key can be bound to a sender
+  SSRC and an MKI. AES-CM-128/192/256 with HMAC-SHA1-80, HMAC-SHA1-32 or no
+  authentication, AES-GCM-128/256 and NULL encryption are supported, with a key
+  derivation rate of 0. The authentication tag is verified, and the decrypted
+  RTCP packets, such as MCPTT floor control messages, are dissected. SRTCP
+  packets found by the RTCP heuristic are decrypted too.
+
 * `reordercap` prints its informative status messages to standard error, not
   standard output (wsbuglink:21725[]), and those messages can be suppressed
   entirely with a `-q` option, similar to the other CLI tools.

@@ -1585,3 +1585,60 @@ class TestDecryptVNCExtendedClipboard:
         assert grep_output(stdout, '😀😃😄😁😆😅😂🤣😊😇')
         assert grep_output(stdout, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
         assert grep_output(stdout, 'абвгдежзийклмнопрстуфхцчшщъыьэюя')
+
+
+class TestDecryptSRTCP:
+    # srtcp-mcptt.pcap is synthetic (generated with libgcrypt; the key
+    # derivation and AES-GCM steps were checked against the test vectors of
+    # RFC 3711 B.3 and RFC 7714 section 17). It holds MCPTT floor control
+    # packets protected with these keys: AES-CM-128 with
+    # HMAC-SHA1-80 and an MKI, AES-GCM-128, AES-CM-256 with HMAC-SHA1-32 for
+    # any SSRC, and NULL encryption with HMAC-SHA1-80. Frame 5 has a bad tag.
+    keys = (
+        '-o', 'uat:srtcp_keys:"0x11223344",00000001,e1f97a0d3e018be0d64fa32c06de4139,0ec675ad498afeebb6960b3aabe6,"AES-CM-128","HMAC-SHA1-80","client"',
+        '-o', 'uat:srtcp_keys:"0x55667788","",101112131415161718191a1b1c1d1e1f,202122232425262728292a2b,"AES-GCM-128","HMAC-SHA1-80","server"',
+        '-o', 'uat:srtcp_keys:"","",303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f,505152535455565758595a5b5c5d,"AES-CM-256","HMAC-SHA1-32","any"',
+        '-o', 'uat:srtcp_keys:"0x99999999","",606162636465666768696a6b6c6d6e6f,707172737475767778797a7b7c7d,"NULL","HMAC-SHA1-80","null"',
+    )
+
+    def test_srtcp_mcptt(self, cmd_tshark, capture_file, test_env):
+        '''SRTCP decryption of MCPTT floor control with keys from the preferences'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srtcp-mcptt.pcap'),
+                *self.keys,
+                '-Tfields',
+                '-e', 'frame.number',
+                '-e', 'srtcp.key_entry',
+                '-e', 'srtcp.auth_tag.status',
+                '-e', 'rtcp.app_data.mcptt.duration',
+                '-e', '_ws.col.info',
+                '-E', 'separator=|',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.splitlines()]
+        assert lines[0] == '1|1|1||(MCPT) Floor Request'
+        assert lines[1] == '2|2|1|30|(MCPT) Floor Granted'
+        assert lines[2].startswith('3|2|1||Receiver Report')
+        assert lines[2].endswith('(MCPT) Floor Idle')
+        assert lines[3] == '4|3|1||(MCPT) Floor Release'
+        assert lines[4].startswith('5|||')
+        assert lines[5] == '6|4|1||(MCPT) Floor Taken'
+
+    def test_srtcp_no_keys(self, cmd_tshark, capture_file, test_env):
+        '''SRTCP is not decrypted without keys'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srtcp-mcptt.pcap'),
+                '-Y', 'srtcp.key_entry || rtcp.app.name == "MCPT"',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout, 'MCPT') == 0
+
+    def test_srtcp_bad_tag(self, cmd_tshark, capture_file, test_env):
+        '''SRTCP packet whose authentication tag does not match the key'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srtcp-mcptt.pcap'),
+                *self.keys,
+                '-d', 'udp.port==50000,srtcp',
+                '-Y', 'srtcp.auth_failed',
+                '-Tfields',
+                '-e', 'frame.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['5']

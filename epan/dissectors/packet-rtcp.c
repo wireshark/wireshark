@@ -68,8 +68,12 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
+#include <epan/uat.h>
 
 #include <wsutil/array.h>
+#include <wsutil/pint.h>
+#include <wsutil/strtoi.h>
+#include <wsutil/wsgcrypt.h>
 #include <wsutil/ws_roundup.h>
 #include <wsutil/ws_padding_to.h>
 
@@ -797,6 +801,8 @@ static int hf_srtcp_e;
 static int hf_srtcp_index;
 static int hf_srtcp_mki;
 static int hf_srtcp_auth_tag;
+static int hf_srtcp_key_entry;
+static int hf_srtcp_auth_tag_status;
 static int hf_rtcp_xr_btxnq_begseq;               /* added for BT XNQ block (RFC5093) */
 static int hf_rtcp_xr_btxnq_endseq;
 static int hf_rtcp_xr_btxnq_vmaxdiff;
@@ -1020,6 +1026,7 @@ static expert_field ei_rtcp_missing_sender_ssrc;
 static expert_field ei_rtcp_missing_block_header;
 static expert_field ei_rtcp_block_length;
 static expert_field ei_srtcp_encrypted_payload;
+static expert_field ei_srtcp_auth_failed;
 static expert_field ei_rtcp_rtpfb_transportcc_bad;
 static expert_field ei_rtcp_rtpfb_fmt_not_implemented;
 static expert_field ei_rtcp_rtpfb_ccfb_too_many_reports;
@@ -1080,6 +1087,495 @@ static const enum_val_t rtcp_application_specific_encoding_vals[] = {
 };
 
 static int preferences_application_specific_encoding = RTCP_APP_NONE;
+
+/*
+ * SRTCP decryption with master keys entered by the user in the
+ * "SRTP/SRTCP master keys" table (Edit > Preferences > Protocols > SRTCP).
+ *
+ * Supported transforms: AES-CM-128 (RFC 3711), AES-CM-192 and AES-CM-256
+ * (RFC 6188) with HMAC-SHA1 or no authentication, AES-GCM-128 and
+ * AES-GCM-256 (RFC 7714), and NULL encryption with HMAC-SHA1.
+ *
+ * Only a key derivation rate of 0 is supported. It is the default, and the
+ * one used with MIKEY (e.g. MIKEY-SAKKE for MCPTT, 3GPP TS 33.180). The
+ * session keys of a master key are then constant, so they are derived once
+ * when the table is loaded. As every SRTCP packet carries its own index,
+ * decryption needs no state kept across packets.
+ */
+
+enum srtcp_key_enc_alg {
+    SRTCP_KEY_ENC_AES_CM_128,
+    SRTCP_KEY_ENC_AES_CM_192,
+    SRTCP_KEY_ENC_AES_CM_256,
+    SRTCP_KEY_ENC_AES_GCM_128,
+    SRTCP_KEY_ENC_AES_GCM_256,
+    SRTCP_KEY_ENC_NULL
+};
+
+static const value_string srtcp_key_enc_alg_vals[] = {
+    { SRTCP_KEY_ENC_AES_CM_128,  "AES-CM-128" },
+    { SRTCP_KEY_ENC_AES_CM_192,  "AES-CM-192" },
+    { SRTCP_KEY_ENC_AES_CM_256,  "AES-CM-256" },
+    { SRTCP_KEY_ENC_AES_GCM_128, "AES-GCM-128" },
+    { SRTCP_KEY_ENC_AES_GCM_256, "AES-GCM-256" },
+    { SRTCP_KEY_ENC_NULL,        "NULL" },
+    { 0, NULL }
+};
+
+enum srtcp_key_auth_alg {
+    SRTCP_KEY_AUTH_HMAC_SHA1_80,
+    SRTCP_KEY_AUTH_HMAC_SHA1_32,
+    SRTCP_KEY_AUTH_NONE
+};
+
+static const value_string srtcp_key_auth_alg_vals[] = {
+    { SRTCP_KEY_AUTH_HMAC_SHA1_80, "HMAC-SHA1-80" },
+    { SRTCP_KEY_AUTH_HMAC_SHA1_32, "HMAC-SHA1-32" },
+    { SRTCP_KEY_AUTH_NONE,         "None" },
+    { 0, NULL }
+};
+
+enum srtcp_auth_tag_status {
+    SRTCP_AUTH_TAG_NOT_VERIFIED,
+    SRTCP_AUTH_TAG_GOOD
+};
+
+static const value_string srtcp_auth_tag_status_vals[] = {
+    { SRTCP_AUTH_TAG_NOT_VERIFIED, "Not verified (no authentication configured)" },
+    { SRTCP_AUTH_TAG_GOOD,         "Good" },
+    { 0, NULL }
+};
+
+#define SRTCP_MAX_MASTER_KEY_LEN 32
+#define SRTCP_CM_SALT_LEN        14     /* RFC 3711 */
+#define SRTCP_GCM_SALT_LEN       12     /* RFC 7714 */
+#define SRTCP_AUTH_KEY_LEN       20     /* HMAC-SHA1 */
+#define SRTCP_GCM_TAG_LEN        16     /* RFC 7714 */
+#define SRTCP_MAX_MKI_LEN        16
+#define SRTCP_HEADER_LEN         8      /* First header and sender SSRC, never encrypted */
+#define SRTCP_INDEX_LEN          4      /* E flag and SRTCP index */
+
+/* RFC 3711 section 4.3.2 */
+#define SRTCP_KDF_LABEL_ENC      0x03
+#define SRTCP_KDF_LABEL_AUTH     0x04
+#define SRTCP_KDF_LABEL_SALT     0x05
+
+typedef struct {
+    char          *ssrc;            /* Hexadecimal SSRC, or empty to match any SSRC */
+    unsigned char *mki;
+    unsigned       mki_len;
+    unsigned char *master_key;
+    unsigned       master_key_len;
+    unsigned char *master_salt;
+    unsigned       master_salt_len;
+    unsigned       enc_alg;         /* enum srtcp_key_enc_alg */
+    unsigned       auth_alg;        /* enum srtcp_key_auth_alg */
+    char          *comment;
+    /* Filled in by the update callback */
+    bool           any_ssrc;
+    uint32_t       ssrc_val;
+    uint8_t        session_key[SRTCP_MAX_MASTER_KEY_LEN];
+    uint8_t        session_salt[SRTCP_CM_SALT_LEN];
+    uint8_t        session_auth_key[SRTCP_AUTH_KEY_LEN];
+} srtcp_key_uat_record_t;
+
+static srtcp_key_uat_record_t *srtcp_key_records;
+static unsigned num_srtcp_key_records;
+
+/* Result of a successful decryption */
+typedef struct {
+    tvbuff_t *tvb;              /* RTCP packet(s), from the first header to the end of the encrypted portion */
+    unsigned  key_idx;          /* Index of the key in srtcp_key_records */
+    bool      encrypted;        /* E flag set and the key encrypts */
+    bool      authenticated;    /* Authentication tag checked and good */
+    unsigned  index_offset;     /* Offsets in the original tvb */
+    unsigned  mki_offset;
+    unsigned  mki_len;
+    unsigned  tag_offset;
+    unsigned  tag_len;
+    bool      auth_failed;      /* Set when nothing was decrypted: a key for the SSRC failed authentication */
+} srtcp_decrypt_info_t;
+
+static bool
+srtcp_key_is_gcm(const srtcp_key_uat_record_t *rec)
+{
+    return rec->enc_alg == SRTCP_KEY_ENC_AES_GCM_128 || rec->enc_alg == SRTCP_KEY_ENC_AES_GCM_256;
+}
+
+static unsigned
+srtcp_key_tag_len(const srtcp_key_uat_record_t *rec)
+{
+    if (srtcp_key_is_gcm(rec))
+        return SRTCP_GCM_TAG_LEN;
+    switch (rec->auth_alg) {
+    case SRTCP_KEY_AUTH_HMAC_SHA1_80:
+        return 10;
+    case SRTCP_KEY_AUTH_HMAC_SHA1_32:
+        return 4;
+    default:
+        return 0;
+    }
+}
+
+static int
+srtcp_aes_algo(unsigned key_len)
+{
+    switch (key_len) {
+    case 16:
+        return GCRY_CIPHER_AES128;
+    case 24:
+        return GCRY_CIPHER_AES192;
+    case 32:
+        return GCRY_CIPHER_AES256;
+    default:
+        return GCRY_CIPHER_NONE;
+    }
+}
+
+/* Parses an SSRC given in hexadecimal, with or without "0x". Empty or "*" means any SSRC. */
+static bool
+srtcp_parse_ssrc(const char *str, unsigned len, bool *any, uint32_t *val)
+{
+    char       *s = g_strstrip(g_strndup(str ? str : "", len));
+    const char *p = s;
+    const char *end;
+    bool        ok;
+
+    *any = false;
+    *val = 0;
+    if (*p == '\0' || strcmp(p, "*") == 0) {
+        *any = true;
+        g_free(s);
+        return true;
+    }
+    if (p[0] == '0' && (p[1] == 'x' || p[1] == 'X'))
+        p += 2;
+    ok = g_ascii_isxdigit(*p) && ws_hexstrtou32(p, &end, val) && *end == '\0';
+    g_free(s);
+    return ok;
+}
+
+static bool
+srtcp_key_uat_ssrc_chk_cb(void *r _U_, const char *str, unsigned len, const void *u1 _U_, const void *u2 _U_, char **err)
+{
+    bool     any;
+    uint32_t val;
+
+    if (!srtcp_parse_ssrc(str, len, &any, &val)) {
+        *err = g_strdup("Invalid SSRC: enter a hexadecimal value such as 0x1a2b3c4d, or leave it empty to match any SSRC");
+        return false;
+    }
+    *err = NULL;
+    return true;
+}
+
+/*
+ * AES-CM key derivation (RFC 3711 section 4.3.3, RFC 6188 section 7) with a
+ * key derivation rate of 0: x = (label << 48) XOR master salt, and the output
+ * is the AES-CM keystream with IV x * 2^16. A 12-byte AES-GCM master salt is
+ * padded with zeros to 14 bytes (RFC 7714 section 11, as libsrtp does).
+ */
+static bool
+srtcp_kdf(const srtcp_key_uat_record_t *rec, uint8_t label, uint8_t *out, unsigned out_len)
+{
+    gcry_cipher_hd_t h;
+    uint8_t          iv[16] = { 0 };
+    bool             ok;
+
+    memcpy(iv, rec->master_salt, MIN(rec->master_salt_len, SRTCP_CM_SALT_LEN));
+    iv[7] ^= label;
+    memset(out, 0, out_len);
+    if (gcry_cipher_open(&h, srtcp_aes_algo(rec->master_key_len), GCRY_CIPHER_MODE_CTR, 0) != 0)
+        return false;
+    ok = gcry_cipher_setkey(h, rec->master_key, rec->master_key_len) == 0 &&
+         gcry_cipher_setctr(h, iv, sizeof(iv)) == 0 &&
+         gcry_cipher_encrypt(h, out, out_len, NULL, 0) == 0;
+    gcry_cipher_close(h);
+    return ok;
+}
+
+static void *
+srtcp_key_uat_copy_cb(void *dest, const void *source, size_t len _U_)
+{
+    const srtcp_key_uat_record_t *o = (const srtcp_key_uat_record_t *)source;
+    srtcp_key_uat_record_t       *d = (srtcp_key_uat_record_t *)dest;
+
+    *d = *o;
+    d->ssrc = g_strdup(o->ssrc);
+    d->mki = o->mki_len ? (unsigned char *)g_memdup2(o->mki, o->mki_len) : NULL;
+    d->master_key = o->master_key_len ? (unsigned char *)g_memdup2(o->master_key, o->master_key_len) : NULL;
+    d->master_salt = o->master_salt_len ? (unsigned char *)g_memdup2(o->master_salt, o->master_salt_len) : NULL;
+    d->comment = g_strdup(o->comment);
+    return dest;
+}
+
+static bool
+srtcp_key_uat_update_cb(void *r, char **err)
+{
+    srtcp_key_uat_record_t *rec = (srtcp_key_uat_record_t *)r;
+    const char             *alg_name = val_to_str_const(rec->enc_alg, srtcp_key_enc_alg_vals, "?");
+    unsigned                key_len, salt_len;
+    bool                    ok = true;
+
+    if (!srtcp_parse_ssrc(rec->ssrc, rec->ssrc ? (unsigned)strlen(rec->ssrc) : 0, &rec->any_ssrc, &rec->ssrc_val)) {
+        *err = g_strdup("Invalid SSRC: enter a hexadecimal value such as 0x1a2b3c4d, or leave it empty to match any SSRC");
+        return false;
+    }
+
+    switch (rec->enc_alg) {
+    case SRTCP_KEY_ENC_AES_CM_128:  key_len = 16; salt_len = SRTCP_CM_SALT_LEN;  break;
+    case SRTCP_KEY_ENC_AES_CM_192:  key_len = 24; salt_len = SRTCP_CM_SALT_LEN;  break;
+    case SRTCP_KEY_ENC_AES_CM_256:  key_len = 32; salt_len = SRTCP_CM_SALT_LEN;  break;
+    case SRTCP_KEY_ENC_AES_GCM_128: key_len = 16; salt_len = SRTCP_GCM_SALT_LEN; break;
+    case SRTCP_KEY_ENC_AES_GCM_256: key_len = 32; salt_len = SRTCP_GCM_SALT_LEN; break;
+    case SRTCP_KEY_ENC_NULL:
+        /* The master key only derives the authentication key: accept any AES key length */
+        key_len = srtcp_aes_algo(rec->master_key_len) != GCRY_CIPHER_NONE ? rec->master_key_len : 16;
+        salt_len = SRTCP_CM_SALT_LEN;
+        break;
+    default:
+        *err = g_strdup("Unknown encryption algorithm");
+        return false;
+    }
+
+    if (rec->master_key_len != key_len) {
+        if (rec->enc_alg == SRTCP_KEY_ENC_NULL)
+            *err = ws_strdup_printf("The master key must be 16, 24 or 32 bytes long, not %u", rec->master_key_len);
+        else
+            *err = ws_strdup_printf("The %s master key must be %u bytes long, not %u", alg_name, key_len, rec->master_key_len);
+        return false;
+    }
+    if (rec->master_salt_len != salt_len) {
+        *err = ws_strdup_printf("The %s master salt must be %u bytes long, not %u", alg_name, salt_len, rec->master_salt_len);
+        return false;
+    }
+    if (rec->mki_len > SRTCP_MAX_MKI_LEN) {
+        *err = ws_strdup_printf("The MKI must be at most %u bytes long, not %u", SRTCP_MAX_MKI_LEN, rec->mki_len);
+        return false;
+    }
+
+    memset(rec->session_key, 0, sizeof(rec->session_key));
+    memset(rec->session_salt, 0, sizeof(rec->session_salt));
+    memset(rec->session_auth_key, 0, sizeof(rec->session_auth_key));
+    if (rec->enc_alg != SRTCP_KEY_ENC_NULL) {
+        ok = srtcp_kdf(rec, SRTCP_KDF_LABEL_ENC, rec->session_key, key_len) &&
+             srtcp_kdf(rec, SRTCP_KDF_LABEL_SALT, rec->session_salt, salt_len);
+    }
+    if (ok && !srtcp_key_is_gcm(rec) && rec->auth_alg != SRTCP_KEY_AUTH_NONE) {
+        ok = srtcp_kdf(rec, SRTCP_KDF_LABEL_AUTH, rec->session_auth_key, SRTCP_AUTH_KEY_LEN);
+    }
+    if (!ok) {
+        *err = g_strdup("Session key derivation failed");
+        return false;
+    }
+
+    *err = NULL;
+    return true;
+}
+
+static void
+srtcp_key_uat_free_cb(void *r)
+{
+    srtcp_key_uat_record_t *rec = (srtcp_key_uat_record_t *)r;
+
+    g_free(rec->ssrc);
+    g_free(rec->mki);
+    g_free(rec->master_key);
+    g_free(rec->master_salt);
+    g_free(rec->comment);
+}
+
+UAT_CSTRING_CB_DEF(srtcp_key_uat, ssrc, srtcp_key_uat_record_t)
+UAT_BUFFER_CB_DEF(srtcp_key_uat, mki, srtcp_key_uat_record_t, mki, mki_len)
+UAT_BUFFER_CB_DEF(srtcp_key_uat, master_key, srtcp_key_uat_record_t, master_key, master_key_len)
+UAT_BUFFER_CB_DEF(srtcp_key_uat, master_salt, srtcp_key_uat_record_t, master_salt, master_salt_len)
+UAT_VS_DEF(srtcp_key_uat, enc_alg, srtcp_key_uat_record_t, unsigned, SRTCP_KEY_ENC_AES_CM_128, "AES-CM-128")
+UAT_VS_DEF(srtcp_key_uat, auth_alg, srtcp_key_uat_record_t, unsigned, SRTCP_KEY_AUTH_HMAC_SHA1_80, "HMAC-SHA1-80")
+UAT_CSTRING_CB_DEF(srtcp_key_uat, comment, srtcp_key_uat_record_t)
+
+/*
+ * AES-CM decryption of the encrypted portion (RFC 3711 section 4.1.1):
+ * IV = (k_s * 2^16) XOR (SSRC * 2^64) XOR (SRTCP index * 2^16).
+ */
+static bool
+srtcp_decrypt_cm(const srtcp_key_uat_record_t *rec, const uint8_t *pkt, uint32_t ssrc, uint32_t srtcp_index,
+                 unsigned enc_len, uint8_t *out)
+{
+    gcry_cipher_hd_t h;
+    uint8_t          iv[16] = { 0 };
+    bool             ok;
+
+    memcpy(iv, rec->session_salt, SRTCP_CM_SALT_LEN);
+    iv[4]  ^= (uint8_t)(ssrc >> 24);
+    iv[5]  ^= (uint8_t)(ssrc >> 16);
+    iv[6]  ^= (uint8_t)(ssrc >> 8);
+    iv[7]  ^= (uint8_t)ssrc;
+    iv[10] ^= (uint8_t)(srtcp_index >> 24);
+    iv[11] ^= (uint8_t)(srtcp_index >> 16);
+    iv[12] ^= (uint8_t)(srtcp_index >> 8);
+    iv[13] ^= (uint8_t)srtcp_index;
+
+    if (enc_len == 0)
+        return true;
+    if (gcry_cipher_open(&h, srtcp_aes_algo(rec->master_key_len), GCRY_CIPHER_MODE_CTR, 0) != 0)
+        return false;
+    ok = gcry_cipher_setkey(h, rec->session_key, rec->master_key_len) == 0 &&
+         gcry_cipher_setctr(h, iv, sizeof(iv)) == 0 &&
+         gcry_cipher_decrypt(h, out, enc_len, pkt + SRTCP_HEADER_LEN, enc_len) == 0;
+    gcry_cipher_close(h);
+    return ok;
+}
+
+/*
+ * AES-GCM decryption and authentication (RFC 7714 sections 9 and 17).
+ * IV = (00 00 || SSRC || 00 00 || 0 || SRTCP index) XOR session salt.
+ * With the E flag set, the associated data is the first 8 octets and the
+ * E flag and index; with it clear, it is the whole RTCP packet followed by
+ * the E flag and index, and nothing is encrypted.
+ */
+static bool
+srtcp_decrypt_gcm(packet_info *pinfo, const srtcp_key_uat_record_t *rec, const uint8_t *pkt, bool e_flag,
+                  uint32_t ssrc, uint32_t srtcp_index, unsigned enc_len, unsigned tag_offset, unsigned index_offset,
+                  uint8_t *out)
+{
+    gcry_cipher_hd_t h;
+    uint8_t          iv[SRTCP_GCM_SALT_LEN] = { 0 };
+    uint8_t         *aad;
+    unsigned         aad_len;
+    bool             ok;
+
+    iv[2]  = (uint8_t)(ssrc >> 24);
+    iv[3]  = (uint8_t)(ssrc >> 16);
+    iv[4]  = (uint8_t)(ssrc >> 8);
+    iv[5]  = (uint8_t)ssrc;
+    iv[8]  = (uint8_t)(srtcp_index >> 24);
+    iv[9]  = (uint8_t)(srtcp_index >> 16);
+    iv[10] = (uint8_t)(srtcp_index >> 8);
+    iv[11] = (uint8_t)srtcp_index;
+    for (unsigned i = 0; i < SRTCP_GCM_SALT_LEN; i++)
+        iv[i] ^= rec->session_salt[i];
+
+    aad_len = (e_flag ? SRTCP_HEADER_LEN : tag_offset) + SRTCP_INDEX_LEN;
+    aad = (uint8_t *)wmem_alloc(pinfo->pool, aad_len);
+    memcpy(aad, pkt, aad_len - SRTCP_INDEX_LEN);
+    memcpy(aad + aad_len - SRTCP_INDEX_LEN, pkt + index_offset, SRTCP_INDEX_LEN);
+
+    if (gcry_cipher_open(&h, srtcp_aes_algo(rec->master_key_len), GCRY_CIPHER_MODE_GCM, 0) != 0)
+        return false;
+    ok = gcry_cipher_setkey(h, rec->session_key, rec->master_key_len) == 0 &&
+         gcry_cipher_setiv(h, iv, sizeof(iv)) == 0 &&
+         gcry_cipher_authenticate(h, aad, aad_len) == 0;
+    if (ok && e_flag && enc_len > 0)
+        ok = gcry_cipher_decrypt(h, out, enc_len, pkt + SRTCP_HEADER_LEN, enc_len) == 0;
+    if (ok)
+        ok = gcry_cipher_checktag(h, pkt + tag_offset, SRTCP_GCM_TAG_LEN) == 0;
+    gcry_cipher_close(h);
+    return ok;
+}
+
+/*
+ * Tries the configured keys on an SRTCP packet. A key is used when its SSRC
+ * and MKI match and its authentication tag is good. A key without
+ * authentication is used only if accept_unauthenticated is set, i.e. when
+ * the packet is known to be SRTCP.
+ */
+static bool
+srtcp_decrypt(tvbuff_t *tvb, packet_info *pinfo, bool accept_unauthenticated, srtcp_decrypt_info_t *info)
+{
+    unsigned       len = tvb_reported_length(tvb);
+    const uint8_t *pkt;
+    uint32_t       ssrc;
+
+    memset(info, 0, sizeof(*info));
+    if (num_srtcp_key_records == 0 || tvb_captured_length(tvb) != len ||
+        len < SRTCP_HEADER_LEN + SRTCP_INDEX_LEN)
+        return false;
+
+    pkt = tvb_get_ptr(tvb, 0, len);
+    ssrc = pntohu32(pkt + 4);
+
+    for (unsigned i = 0; i < num_srtcp_key_records; i++) {
+        const srtcp_key_uat_record_t *rec = &srtcp_key_records[i];
+        bool      gcm = srtcp_key_is_gcm(rec);
+        unsigned  tag_len = srtcp_key_tag_len(rec);
+        unsigned  index_offset, mki_offset, tag_offset, enc_len;
+        uint32_t  e_index, srtcp_index;
+        bool      e_flag, encrypted, authenticated, ok;
+        uint8_t  *plain;
+
+        if (!rec->any_ssrc && rec->ssrc_val != ssrc)
+            continue;
+        if (len < SRTCP_HEADER_LEN + SRTCP_INDEX_LEN + rec->mki_len + tag_len)
+            continue;
+        if (tag_len == 0 && !accept_unauthenticated)
+            continue;
+
+        /* RFC 3711: ... || E+index || MKI || tag; RFC 7714: ... || tag || E+index || MKI */
+        if (gcm) {
+            index_offset = len - rec->mki_len - SRTCP_INDEX_LEN;
+            tag_offset = index_offset - tag_len;
+            enc_len = tag_offset - SRTCP_HEADER_LEN;
+        } else {
+            index_offset = len - tag_len - rec->mki_len - SRTCP_INDEX_LEN;
+            tag_offset = len - tag_len;
+            enc_len = index_offset - SRTCP_HEADER_LEN;
+        }
+        mki_offset = index_offset + SRTCP_INDEX_LEN;
+        if (rec->mki_len && memcmp(pkt + mki_offset, rec->mki, rec->mki_len) != 0)
+            continue;
+
+        e_index = pntohu32(pkt + index_offset);
+        e_flag = (e_index & 0x80000000) != 0;
+        srtcp_index = e_index & 0x7fffffff;
+        encrypted = e_flag && rec->enc_alg != SRTCP_KEY_ENC_NULL;
+
+        plain = (uint8_t *)wmem_alloc(pinfo->pool, SRTCP_HEADER_LEN + enc_len);
+        memcpy(plain, pkt, SRTCP_HEADER_LEN + enc_len);
+
+        if (gcm) {
+            ok = srtcp_decrypt_gcm(pinfo, rec, pkt, e_flag, ssrc, srtcp_index, enc_len,
+                                   tag_offset, index_offset, plain + SRTCP_HEADER_LEN);
+            authenticated = ok;
+        } else {
+            authenticated = false;
+            ok = true;
+            if (tag_len) {
+                uint8_t digest[HASH_SHA1_LENGTH];
+                /* The authenticated portion is the RTCP packet(s), the E flag and the index */
+                ok = ws_hmac_buffer(GCRY_MD_SHA1, digest, pkt, mki_offset,
+                                    rec->session_auth_key, SRTCP_AUTH_KEY_LEN) == 0 &&
+                     memcmp(digest, pkt + tag_offset, tag_len) == 0;
+                authenticated = ok;
+            }
+            if (ok && encrypted)
+                ok = srtcp_decrypt_cm(rec, pkt, ssrc, srtcp_index, enc_len, plain + SRTCP_HEADER_LEN);
+        }
+
+        if (!ok) {
+            /* Only report keys that were meant for this packet */
+            if (accept_unauthenticated || !rec->any_ssrc)
+                info->auth_failed = true;
+            continue;
+        }
+
+        info->key_idx = i;
+        info->encrypted = encrypted;
+        info->authenticated = authenticated;
+        info->index_offset = index_offset;
+        info->mki_offset = mki_offset;
+        info->mki_len = rec->mki_len;
+        info->tag_offset = tag_offset;
+        info->tag_len = tag_len;
+        info->auth_failed = false;
+        if (encrypted) {
+            info->tvb = tvb_new_child_real_data(tvb, plain, SRTCP_HEADER_LEN + enc_len, SRTCP_HEADER_LEN + enc_len);
+        } else {
+            info->tvb = tvb_new_subset_length(tvb, 0, SRTCP_HEADER_LEN + enc_len);
+        }
+        return true;
+    }
+    return false;
+}
 
 
 /* Set up an RTCP conversation using the info given */
@@ -1196,10 +1692,17 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         return false;
     }
 
-    /* Overall length must be a multiple of 4 bytes */
+    /* Overall length must be a multiple of 4 bytes, except for SRTCP
+     * whose trailer (index, MKI and authentication tag) can have any
+     * length: accept the packet if one of the configured keys decrypts
+     * and authenticates it. */
+    bool srtcp_key_found = false;
     if (tvb_reported_length(tvb) % 4)
     {
-        return false;
+        srtcp_decrypt_info_t srtcp_dec;
+        if (!srtcp_decrypt(tvb, pinfo, false, &srtcp_dec))
+            return false;
+        srtcp_key_found = true;
     }
 
     /* Overall length must be at least as big as indicated in the header.
@@ -1218,7 +1721,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
      * but the last byte is inconsistent with padding, stepping through
      * compound packets and seeing if it looks encrypted at some point, etc.
      */
-    if (global_rtcp_default_protocol == RTCP_PROTO_RTCP) {
+    if (global_rtcp_default_protocol == RTCP_PROTO_RTCP && !srtcp_key_found) {
         dissect_rtcp(tvb, pinfo, tree, data);
     } else {
         dissect_srtcp(tvb, pinfo, tree, data);
@@ -4854,6 +5357,9 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     uint8_t           temp_byte;
     int proto_to_use = proto_rtcp;
     int rtcp_padding_set = 0;
+    tvbuff_t         *orig_tvb            = tvb;
+    srtcp_decrypt_info_t srtcp_dec        = { 0 };
+    bool              srtcp_decrypted     = false;
 
     temp_byte = tvb_get_uint8(tvb, offset);
     /* RFC 7983 gives current best practice in demultiplexing RT[C]P packets:
@@ -4917,6 +5423,19 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
          */
         srtcp_encrypted = true;
         proto_to_use = proto_srtcp;
+    }
+
+    /* Try the SRTCP keys from the preferences. Without authentication, a key
+     * is used only if the packet is known to be SRTCP. On success, dissect
+     * the RTCP packet(s) of the decrypted (or authenticated) portion. */
+    if (RTCP_VERSION(temp_byte) == 2 &&
+        srtcp_decrypt(tvb, pinfo, proto_to_use == proto_srtcp, &srtcp_dec)) {
+        srtcp_decrypted = true;
+        proto_to_use = proto_srtcp;
+        srtcp_encrypted = false;
+        tvb = srtcp_dec.tvb;
+        if (srtcp_dec.encrypted)
+            add_new_data_source(pinfo, tvb, "Decrypted SRTCP");
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, (proto_to_use == proto_srtcp) ? "SRTCP" : "RTCP");
@@ -5090,8 +5609,10 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                         col_add_fstr(pinfo->cinfo, COL_INFO, "(MCPT) %s", str);
                         proto_item_append_text(subtype_item, " %s", str);
                     }
+                    if (srtcp_dec.auth_failed)
+                        proto_tree_add_expert(rtcp_tree, pinfo, &ei_srtcp_auth_failed, tvb, 0, 0);
 
-                    return tvb_reported_length(tvb);
+                    return tvb_reported_length(orig_tvb);
                 }
                 offset = dissect_rtcp_app( tvb, pinfo, offset,rtcp_tree, packet_length - 8, subtype_item, rtcp_subtype, app_length);
             }
@@ -5190,6 +5711,27 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         }
     }
 
+    /* SRTCP fields after the decrypted (or authenticated) portion */
+    if (srtcp_decrypted) {
+        const srtcp_key_uat_record_t *rec = &srtcp_key_records[srtcp_dec.key_idx];
+
+        ti = proto_tree_add_uint(rtcp_tree, hf_srtcp_key_entry, orig_tvb, 0, 0, srtcp_dec.key_idx + 1);
+        proto_item_set_generated(ti);
+        if (rec->comment && rec->comment[0])
+            proto_item_append_text(ti, " (%s)", rec->comment);
+        proto_tree_add_item(rtcp_tree, hf_srtcp_e, orig_tvb, srtcp_dec.index_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rtcp_tree, hf_srtcp_index, orig_tvb, srtcp_dec.index_offset, 4, ENC_BIG_ENDIAN);
+        if (srtcp_dec.mki_len)
+            proto_tree_add_item(rtcp_tree, hf_srtcp_mki, orig_tvb, srtcp_dec.mki_offset, srtcp_dec.mki_len, ENC_NA);
+        if (srtcp_dec.tag_len)
+            proto_tree_add_item(rtcp_tree, hf_srtcp_auth_tag, orig_tvb, srtcp_dec.tag_offset, srtcp_dec.tag_len, ENC_NA);
+        ti = proto_tree_add_uint(rtcp_tree, hf_srtcp_auth_tag_status, orig_tvb, srtcp_dec.tag_offset, srtcp_dec.tag_len,
+                                 srtcp_dec.authenticated ? SRTCP_AUTH_TAG_GOOD : SRTCP_AUTH_TAG_NOT_VERIFIED);
+        proto_item_set_generated(ti);
+    } else if (srtcp_dec.auth_failed) {
+        proto_tree_add_expert(rtcp_tree, pinfo, &ei_srtcp_auth_failed, tvb, 0, 0);
+    }
+
     /* If the payload was encrypted, the main payload was not dissected.
      */
     if (srtcp_encrypted == true) {
@@ -5232,7 +5774,7 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
         expert_add_info_format(pinfo, ti, &ei_rtcp_length_check, "Incorrect RTCP packet length information (expected %u bytes, found %d)", total_packet_length, offset);
     }
-    return tvb_captured_length(tvb);
+    return tvb_captured_length(orig_tvb);
 }
 
 static int
@@ -7496,6 +8038,30 @@ proto_register_rtcp(void)
                 "SRTCP Authentication Tag", HFILL
             }
         },
+        {
+            &hf_srtcp_key_entry,
+            {
+                "SRTCP Decryption key",
+                "srtcp.key_entry",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "Entry of the SRTP/SRTCP master key table (SRTCP protocol preferences) used for this packet", HFILL
+            }
+        },
+        {
+            &hf_srtcp_auth_tag_status,
+            {
+                "SRTCP Auth Tag status",
+                "srtcp.auth_tag.status",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(srtcp_auth_tag_status_vals),
+                0x0,
+                "Whether the authentication tag was verified with the key", HFILL
+            }
+        },
         /* additions for BT XNQ block as defined in RFC5093 */
         {
             &hf_rtcp_xr_btxnq_begseq,
@@ -8836,6 +9402,7 @@ proto_register_rtcp(void)
         { &ei_rtcp_missing_block_header, { "rtcp.missing_block_header", PI_PROTOCOL, PI_WARN, "Missing Required Block Headers", EXPFILL }},
         { &ei_rtcp_block_length, { "rtcp.block_length.invalid", PI_PROTOCOL, PI_WARN, "Block length is greater than packet length", EXPFILL }},
         { &ei_srtcp_encrypted_payload, { "srtcp.encrypted_payload", PI_UNDECODED, PI_WARN, "Encrypted RTCP Payload - not dissected", EXPFILL }},
+        { &ei_srtcp_auth_failed, { "srtcp.auth_failed", PI_DECRYPTION, PI_WARN, "SRTCP authentication failed with every configured key for this SSRC and MKI", EXPFILL }},
         { &ei_rtcp_rtpfb_transportcc_bad, { "rtcp.rtpfb.transportcc_bad", PI_MALFORMED, PI_WARN, "Too many packet chunks (more than packet status count)", EXPFILL }},
         { &ei_rtcp_rtpfb_fmt_not_implemented, { "rtcp.rtpfb.fmt_not_implemented", PI_UNDECODED, PI_WARN, "RTPFB FMT not dissected, contact Wireshark developers if you want this to be supported", EXPFILL }},
         { &ei_rtcp_rtpfb_ccfb_too_many_reports, { "rtcp.mcptt.ccfb.invalid_pkt", PI_UNDECODED, PI_WARN, "RTPFB CCFB report block must not include more than 2^14 metric blocks", EXPFILL }},
@@ -8898,6 +9465,43 @@ proto_register_rtcp(void)
         "Decode Application subtype as",
         "Decode the subtype as this application",
         &preferences_application_specific_encoding, rtcp_application_specific_encoding_vals, false);
+
+    static uat_field_t srtcp_key_uat_fields[] = {
+        UAT_FLD_CSTRING_OTHER(srtcp_key_uat, ssrc, "SSRC", srtcp_key_uat_ssrc_chk_cb,
+            "Sender SSRC in hexadecimal (e.g. 0x1a2b3c4d), or empty to try the key on any SSRC"),
+        UAT_FLD_BUFFER(srtcp_key_uat, mki, "MKI",
+            "Master Key Identifier carried in the packets, in hexadecimal, or empty if the packets carry none"),
+        UAT_FLD_BUFFER(srtcp_key_uat, master_key, "Master key",
+            "SRTP master key in hexadecimal (16 bytes for AES-128, 24 for AES-192, 32 for AES-256)"),
+        UAT_FLD_BUFFER(srtcp_key_uat, master_salt, "Master salt",
+            "SRTP master salt in hexadecimal (14 bytes for AES-CM and NULL, 12 bytes for AES-GCM)"),
+        UAT_FLD_VS(srtcp_key_uat, enc_alg, "Encryption", srtcp_key_enc_alg_vals, "Encryption transform"),
+        UAT_FLD_VS(srtcp_key_uat, auth_alg, "Authentication", srtcp_key_auth_alg_vals,
+            "Authentication transform (ignored with AES-GCM, which always uses a 16-byte tag)"),
+        UAT_FLD_CSTRING(srtcp_key_uat, comment, "Comment", "Free text, shown in the packet details"),
+        UAT_END_FIELDS
+    };
+
+    uat_t *srtcp_keys_uat = uat_new("SRTP/SRTCP master keys",
+        sizeof(srtcp_key_uat_record_t),
+        "srtcp_keys",                   /* filename */
+        true,                           /* from_profile */
+        &srtcp_key_records,             /* data_ptr */
+        &num_srtcp_key_records,         /* numitems_ptr */
+        UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
+        NULL,                           /* help */
+        srtcp_key_uat_copy_cb,          /* copy_cb */
+        srtcp_key_uat_update_cb,        /* update_cb */
+        srtcp_key_uat_free_cb,          /* free_cb */
+        NULL,                           /* post_update_cb */
+        NULL,                           /* reset_cb */
+        srtcp_key_uat_fields);
+
+    prefs_register_uat_preference(srtcp_module, "keys",
+        "SRTP/SRTCP master keys",
+        "A table of SRTP master keys and salts used to decrypt and authenticate SRTCP packets, "
+        "for example MCPTT floor control (only a key derivation rate of 0 is supported)",
+        srtcp_keys_uat);
 
     prefs_register_bool_preference(rtcp_module, "non_final_padding",
         "Dissect padding in packets before the last in a compound packet",
