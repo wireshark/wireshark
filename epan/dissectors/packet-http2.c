@@ -3801,7 +3801,7 @@ typedef struct {
 
 typedef struct {
     wmem_array_t* sizes;
-    unsigned index;
+    unsigned idx;
 } packet_window_state;
 
 /* Increment or decrement the accumulated connection and/or stream window
@@ -3847,15 +3847,15 @@ adjust_window_size(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_ses
         if (max == 0) {
             return;
         }
-        if (window_state->index == max) {
-            window_state->index = 0;
+        if (window_state->idx == max) {
+            window_state->idx = 0;
         }
     } else {
         static const packet_window_sizes empty = {0};
         wmem_array_append(window_state->sizes, &empty, 1);
     }
-    packet_window_sizes* window_sizes_before = wmem_array_index(window_state->sizes, window_state->index);
-    window_state->index++;
+    packet_window_sizes* window_sizes_before = wmem_array_index(window_state->sizes, window_state->idx);
+    window_state->idx++;
 
     /* Always decrease the connection window after sending data,
      * but only increase the connection window for a WINDOW_UPDATE on stream 0 (the connection). */
@@ -4125,8 +4125,7 @@ dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h
 
         ti_settings = proto_tree_add_item(http2_tree, hf_http2_settings, tvb, offset, 6, ENC_NA);
         settings_tree = proto_item_add_subtree(ti_settings, ett_http2_settings);
-        proto_tree_add_item(settings_tree, hf_http2_settings_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
-        settingsid = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item_ret_uint(settings_tree, hf_http2_settings_identifier, tvb, offset, 2, ENC_BIG_ENDIAN, &settingsid);
         proto_item_append_text(ti_settings, " - %s",
                                val_to_str(pinfo->pool, settingsid, http2_settings_vals, "Unknown (%u)") );
         offset += 2;

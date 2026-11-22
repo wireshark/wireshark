@@ -1760,7 +1760,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     unsigned offset = 0;
     proto_tree *u3v_tree = NULL, *ccd_tree_flag, *u3v_telegram_tree = NULL, *ccd_tree = NULL;
     int data_length = 0;
-    int req_id = 0;
+    uint32_t req_id = 0;
     int command_id = -1;
     int status = 0;
     unsigned prefix = 0;
@@ -1885,8 +1885,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         offset += 2;
 
         /* Add the request ID */
-        proto_tree_add_item(ccd_tree, hf_u3v_request_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        req_id = tvb_get_letohs(tvb, offset);
+        proto_tree_add_item_ret_uint(ccd_tree, hf_u3v_request_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &req_id);
         offset += 2;
 
         /* Add telegram subtree */

@@ -282,8 +282,7 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
           case SSTP_ATTRIB_CRYPTO_BINDING:
             proto_tree_add_item(sstp_tree_attribute, hf_sstp_reserved, tvb, offset, SSTP_FSIZE_RESERVED2, ENC_NA);
             offset += SSTP_FSIZE_RESERVED2;
-            proto_tree_add_item(sstp_tree_attribute, hf_sstp_hash_protocol, tvb, offset, SSTP_FSIZE_HASH_PROTOCOL, ENC_BIG_ENDIAN);
-            hashproto = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(sstp_tree_attribute, hf_sstp_hash_protocol, tvb, offset, SSTP_FSIZE_HASH_PROTOCOL, ENC_BIG_ENDIAN, &hashproto);
             offset += SSTP_FSIZE_HASH_PROTOCOL;
             proto_tree_add_item(sstp_tree_attribute, hf_sstp_nonce, tvb, offset, SSTP_FSIZE_NONCE, ENC_NA);
             offset += SSTP_FSIZE_NONCE;

@@ -1127,8 +1127,7 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		offset += 1;
 
 		seg_tree = proto_item_add_subtree(seg_type, ett_4607_seg);
-		pi = proto_tree_add_item(seg_tree, hf_4607_segment_size, tvb, offset, 4, ENC_BIG_ENDIAN);
-		seg_size = tvb_get_ntohl(tvb, offset);
+		pi = proto_tree_add_item_ret_uint(seg_tree, hf_4607_segment_size, tvb, offset, 4, ENC_BIG_ENDIAN, &seg_size);
 		offset += 4;
 		if (seg_size < MINIMUM_SEGMENT_SIZE) {
 			seg_size = MINIMUM_SEGMENT_SIZE;

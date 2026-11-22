@@ -639,8 +639,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(pn532_tree, hf_pn532_direction, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(pn532_tree, hf_pn532_command, tvb, offset, 1, ENC_NA);
-    cmd = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(pn532_tree, hf_pn532_command, tvb, offset, 1, ENC_NA, &cmd);
     offset += 1;
 
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(cmd, &pn532_commands_ext, "Unknown command"));

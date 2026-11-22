@@ -10917,11 +10917,9 @@ static bool dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tree, 
       tvbuff_t *compressed_type_object_subset;
 
       ENSURE_LENGTH(8);
-      proto_tree_add_item(rtps_parameter_tree, hf_rtps_compression_plugin_class_id, tvb, offset, 4, encoding);
-      proto_tree_add_item(rtps_parameter_tree, hf_rtps_uncompressed_serialized_length, tvb, offset + 4, 4, encoding);
+      proto_tree_add_item_ret_uint(rtps_parameter_tree, hf_rtps_compression_plugin_class_id, tvb, offset, 4, encoding, &compression_plugin_class);
+      proto_tree_add_item_ret_uint(rtps_parameter_tree, hf_rtps_uncompressed_serialized_length, tvb, offset + 4, 4, encoding, &decompressed_size);
 
-      compression_plugin_class = tvb_get_uint32(tvb, offset, encoding);
-      decompressed_size = tvb_get_uint32(tvb, offset + 4, encoding);
       /* Get the number of bytes (elements) in the sequence */
       compressed_size = tvb_get_uint32(tvb, offset + 8, encoding);
 
@@ -13230,7 +13228,7 @@ static int dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbu
 
   proto_item *ti, *param_item, *param_len_item = NULL;
   proto_tree *rtps_parameter_sequence_tree, *rtps_parameter_tree;
-  uint32_t   parameter, param_length, param_length_length = 2;
+  uint32_t   parameter, param_length, param_length_length;
   int        original_offset = offset, initial_offset = offset;
   type_mapping * type_mapping_object = NULL;
   const char * param_name = NULL;
@@ -13892,7 +13890,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
   proto_tree *rtps_parameter_sequence_tree;
   uint16_t encapsulation_id;
   bool try_dissection_from_type_object = false;
-  unsigned encapsulation_encoding = ENC_BIG_ENDIAN;
+  unsigned encapsulation_encoding;
   rtps_dissector_data * data = wmem_new(pinfo->pool, rtps_dissector_data);
   tvbuff_t *data_holder_tvb = tvb;
   tvbuff_t *compressed_tvb = NULL;
@@ -16533,8 +16531,8 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, uint8
       || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER)
       || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER) ? true : false;
 
-    uint32_t frag_index_in_submessage = 0, this_frag_number = 0, this_frag_size = 0, fragment_offset = 0;
-    bool more_fragments = false;
+    uint32_t frag_index_in_submessage = 0, this_frag_number, this_frag_size, fragment_offset;
+    bool more_fragments;
     if (enable_rtps_reassembly) {
       tvbuff_t* new_tvb = NULL;
       fragment_head *frag_msg = NULL;
@@ -17402,9 +17400,9 @@ static int rtps_util_look_for_secure_tag(
     int offset)
 {
   int submessage_offset = offset;
-  uint8_t submessage_id = 0;
+  uint8_t submessage_id;
   int tvb_remaining_len = tvb_reported_length_remaining(tvb, offset);
-  int submessage_len = 0;
+  int submessage_len;
 
   while (tvb_remaining_len > 4) {
     submessage_id = tvb_get_uint8(tvb, submessage_offset);

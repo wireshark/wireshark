@@ -3364,8 +3364,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_
         uint8_t reason_code;
 
         /* Reason code */
-        reason_code = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_reason_code1, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(PoC1_tree, hf_rtcp_app_poc1_reason_code1, tvb, offset, 1, ENC_BIG_ENDIAN, &reason_code);
         offset++;
         packet_len--;
 
@@ -3390,8 +3389,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_
         /*uint16_t ignore_last_seq_no;*/
 
         /* Sequence number of last RTP packet in burst */
-        proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_last_pkt_seq_no, tvb, offset, 2, ENC_BIG_ENDIAN);
-        last_seq_no = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item_ret_uint16(PoC1_tree, hf_rtcp_app_poc1_last_pkt_seq_no, tvb, offset, 2, ENC_BIG_ENDIAN, &last_seq_no);
 
         /* Bit 16 is ignore flag */
         offset += 2;
@@ -5340,11 +5338,9 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, unsigned offset, proto_tree 
     int         sr_offset = offset;
 
     /* NTP timestamp */
-    ts_msw = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_rtcp_ntp_msw, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_rtcp_ntp_msw, tvb, offset, 4, ENC_BIG_ENDIAN, &ts_msw);
 
-    ts_lsw = tvb_get_ntohl(tvb, offset+4);
-    proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, ENC_BIG_ENDIAN, &ts_lsw);
 
     item = proto_tree_add_item(tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
     proto_item_set_generated(item);
@@ -7051,7 +7047,7 @@ proto_register_rtcp(void)
                 0x80,
                 NULL, HFILL
             }
-                },
+        },
         {
             &hf_rtcp_app_mux_cp,
             {
@@ -7076,8 +7072,8 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
-                {
-                    &hf_rtcp_app_mux_localmuxport,
+        {
+            &hf_rtcp_app_mux_localmuxport,
             {
                 "Local Mux Port",
                 "rtcp.app.mux.muxport",

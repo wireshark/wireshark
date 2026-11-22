@@ -425,16 +425,14 @@ rsip_parameter(tvbuff_t *tvb, packet_info* pinfo, proto_tree *rsip_tree, int off
 		break;
 	case 9:		/* Flow Policy */
 		/* XXX if paramlen != 2 we've got a protocol violation */
-		proto_tree_add_item(v_tree,
-		    hf_rsip_parameter_flow_policy_local, tvb, off + 3, 1, ENC_BIG_ENDIAN);
-		flowpolicy = tvb_get_uint8(tvb, off + 3);
+		proto_tree_add_item_ret_uint8(v_tree,
+			hf_rsip_parameter_flow_policy_local, tvb, off + 3, 1, ENC_BIG_ENDIAN, &flowpolicy);
 		proto_item_append_text(pti, ": %s",
 		    val_to_str(pinfo->pool, flowpolicy, lcl_flow_policy_vals,
 		    "Undefined Local Flow Policy (%d)"));
-		proto_tree_add_item(v_tree,
+		proto_tree_add_item_ret_uint8(v_tree,
 		    hf_rsip_parameter_flow_policy_remote, tvb, off + 4, 1,
-		    ENC_BIG_ENDIAN);
-		flowpolicy = tvb_get_uint8(tvb, off + 4);
+			ENC_BIG_ENDIAN, &flowpolicy);
 		proto_item_append_text(pti, "/%s",
 		    val_to_str(pinfo->pool, flowpolicy, rmt_flow_policy_vals,
 		    "Undefined Remote Flow Policy (%d)"));

@@ -1033,13 +1033,6 @@ static const value_string zbncp_deliv_mode[] =
     {0, NULL}
 };
 
-static const value_string zbncp_aps_key_src[] =
-{
-    {0, "Unknown"},
-    {1, "CBKE"},
-    {0, NULL}
-};
-
 static const value_string zbncp_aps_key_used[] =
 {
     {0, "Provisional TCLK"},
@@ -5948,7 +5941,7 @@ void proto_register_zbncp(void)
          {"APS key source & attr", "zbncp.data.aps_key_attr", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_aps_key_attr_key_src,
-         {"Key source", "zbncp.data.aps_key_attr.key_src", FT_UINT8, BASE_HEX, VALS(zbncp_aps_key_src),
+         {"Key source", "zbncp.data.aps_key_attr.key_src", FT_UINT8, BASE_HEX, VALS(zbncp_key_src),
           0x1, NULL, HFILL}},
 
         {&hf_zbncp_data_aps_key_attr_key_used,

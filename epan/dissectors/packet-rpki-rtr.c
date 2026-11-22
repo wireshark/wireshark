@@ -298,13 +298,11 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
                 /* TODO: Add check length ? */
                 offset += 4;
-                proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length_pdu,       tvb, offset, 4, ENC_BIG_ENDIAN);
-                len_pdu =                                                      tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(rpkirtr_tree, hf_rpkirtr_length_pdu, tvb, offset, 4, ENC_BIG_ENDIAN, &len_pdu);
                 offset += 4;
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_error_pdu,        tvb, offset, len_pdu, ENC_NA);
                 offset +=  len_pdu;
-                proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length_text,      tvb, offset, 4, ENC_BIG_ENDIAN);
-                len_text =                                                     tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(rpkirtr_tree, hf_rpkirtr_length_text, tvb, offset, 4, ENC_BIG_ENDIAN, &len_text);
                 offset += 4;
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_error_text,   tvb, offset, len_text, ENC_ASCII);
                 offset += len_text;

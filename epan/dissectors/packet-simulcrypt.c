@@ -1260,8 +1260,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		offset+=2;
 
 		/* Message Length 2 Bytes */
-		proto_tree_add_item(simulcrypt_header_tree, hf_simulcrypt_message_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-		msg_length = tvb_get_ntohs(tvb, offset); /* read 2 byte message length value */
+		proto_tree_add_item_ret_uint(simulcrypt_header_tree, hf_simulcrypt_message_length, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_length);
 		offset+=2;
 
 		/* ADD MESSAGE BRANCH */

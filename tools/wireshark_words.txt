@@ -76,6 +76,7 @@ adspec
 advatek
 advts
 adwin
+aeosi
 aes128
 aes256
 aethra
@@ -361,6 +362,8 @@ callid
 callout
 callsign
 calorific
+camel4cs
+camel4functionalities
 canceled
 canceling
 cancelled
@@ -800,6 +803,7 @@ devtype
 dfdpck
 dfilter
 dfilters
+dformat
 dfref
 dfsauth
 dftest
@@ -881,6 +885,7 @@ dot5stats
 dotall
 dotnet
 double
+downl
 downlink
 doxygen
 dpauxmon
@@ -951,6 +956,7 @@ ellipsoid
 elseif
 elsif
 emlmr
+emlpp
 emlsr
 emmitsburg
 emption
@@ -2108,6 +2114,7 @@ nrppa
 nrtcws
 nsapi
 nsdbg
+nsfeat
 nshds
 nssai
 nssrg
@@ -2563,6 +2570,7 @@ randomizer
 randpkt
 randr
 raster
+ratelim
 rawip
 raymond
 raytheon
@@ -2719,6 +2727,7 @@ resampled
 resampler
 rescan
 rescanning
+rescap
 resegment
 resegmentation
 resegmented
@@ -3350,6 +3359,7 @@ truncating
 truphone
 trustdom
 truthiness
+tsagent
 tshark
 tsname
 tsnnme
@@ -3716,6 +3726,7 @@ volser
 volsnap
 voltype
 vostro
+vplmn
 vport
 vrfid
 vserver

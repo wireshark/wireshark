@@ -1939,8 +1939,8 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     uint8_t       len, funccode, seq=0, rx_num_fc, tx_num_fc;
     uint8_t       seq_cnt=0, elmt_idx, fc_enable, soe_num_reg;
     uint8_t       *tag_name_ptr;
-    uint16_t      base_addr, num_addr, num_reg, addr1, addr2, crc16, crc16_calc, soe_num_blks;
-    uint32_t      tod_ms, elmt_status32, elmt_ts_offset;
+    uint16_t      num_addr, num_reg, addr1, addr2, crc16, crc16_calc, soe_num_blks;
+    uint32_t      base_addr, tod_ms, elmt_status32, elmt_ts_offset;
     static int * const seq_fields[] = {
         &hf_selfm_fastmsg_seq_fir,
         &hf_selfm_fastmsg_seq_fin,
@@ -2176,8 +2176,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
         case FAST_MSG_BITLABEL_REQ:  /* 0x33 - Bit Label Request */
 
-            base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(fastmsg_tree, hf_selfm_fastmsg_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN, &base_addr);
             offset += 4;
 
             /* Append Column Info w/ Base Address */
@@ -2238,8 +2237,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_MSG_SOE_STATE_RESP: /* 0x96 - (resp to 0x16) SOE Present State Response */
 
             /* 16-bit field with number of blocks of present state data */
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_numblks, tvb, offset, 2, ENC_BIG_ENDIAN);
-            soe_num_blks = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(fastmsg_tree, hf_selfm_fastmsg_soe_resp_numblks, tvb, offset, 2, ENC_BIG_ENDIAN, &soe_num_blks);
             offset += 2;
 
             /* Loop through each one of these block based on the num_blocks */
@@ -2334,10 +2332,8 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
         case FAST_MSG_DATAFMT_RESP: /* 0xB1 (resp to 0x31) - Data Format Response */
 
-            base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
-
-            /* Add Base Address to Tree */
-            pi_baseaddr = proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            /* Base Address */
+            pi_baseaddr = proto_tree_add_item_ret_uint(fastmsg_tree, hf_selfm_fastmsg_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN, &base_addr);
             proto_item_append_text(pi_baseaddr, " [%s]", region_lookup(pinfo, base_addr));
 
             offset += 4;
