@@ -17,8 +17,11 @@
 
 #ifdef _WIN32
 #include <io.h>		/* for _read(), _write(), etc. */
-#include <gmodule.h>
 #include <glib/gstdio.h>	/* for g_open(), g_fopen(), etc. */
+
+/* Incomplete type declaration from <gmodule.h>. Include that header to call
+ * g_module_*() functions on the return value of load_wpcap_module(). */
+typedef struct _GModule GModule;
 #endif
 
 #include <fcntl.h>	/* for open() */
