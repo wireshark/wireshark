@@ -150,6 +150,7 @@ static int hf_gsm_map_qos_guar_bitrate_downl_ext2;
 static int hf_gsm_map_earp_pci;
 static int hf_gsm_map_earp_pl;
 static int hf_gsm_map_earp_pvi;
+static int hf_gsm_map_ericsson_SRIResType2_item;
 
 
 /* --- Module MAP-ExtensionDataTypes --- --- ---                              */
@@ -2019,6 +2020,8 @@ static int hf_gsm_map_ericsson_privateFeatureWithdraw;  /* PrivateFeatureCode */
 static int hf_gsm_map_ericsson_SRIArgType_item;   /* SriArgData */
 static int hf_gsm_map_ericsson_extraNetworkInfo;  /* ExtraSignalInfo */
 static int hf_gsm_map_ericsson_SRIResType_item;   /* SriResData */
+static int hf_gsm_map_ericsson_msim_Indicator;    /* NULL */
+static int hf_gsm_map_ericsson_chargingCharacteristic;  /* ChargingCharacteristics */
 static int hf_gsm_map_ericsson_PrnArgType_item;   /* PrnArgData */
 static int hf_gsm_map_ericsson_UlArgType_item;    /* UlArgData */
 static int hf_gsm_map_ericsson_privateFeatureUlArgData;  /* PrivateFeatureUlArgData */
@@ -2867,6 +2870,7 @@ static int ett_gsm_map_ericsson_SRIArgType;
 static int ett_gsm_map_ericsson_SriArgData;
 static int ett_gsm_map_ericsson_SRIResType;
 static int ett_gsm_map_ericsson_SriResData;
+static int ett_gsm_map_ericsson_SriResData2;
 static int ett_gsm_map_ericsson_PrnArgType;
 static int ett_gsm_map_ericsson_PrnArgData;
 static int ett_gsm_map_ericsson_UlArgType;
@@ -2971,6 +2975,8 @@ static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned off
 static unsigned dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx);
 static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx);
 static const char* gsm_map_opr_code(uint32_t val, proto_item *item);
+static unsigned dissect_gsm_map_ericsson_SriResData2(bool implicit_tag _U_, tvbuff_t* tvb _U_, unsigned offset _U_, asn1_ctx_t* actx _U_, proto_tree* tree _U_, int hf_index _U_);
+
 
 typedef struct {
   struct tcap_private_t * tcap_private;
@@ -21629,8 +21635,20 @@ static const ber_sequence_t gsm_map_ericsson_SRIResType_sequence_of[1] = {
 
 static unsigned
 dissect_gsm_map_ericsson_SRIResType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+
+  int8_t data_class;
+  bool data_pc;
+  int32_t data_tag;
+
+  get_ber_identifier(tvb, offset, &data_class, &data_pc, &data_tag);
+  if(data_tag == 16) {
+     offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       gsm_map_ericsson_SRIResType_sequence_of, hf_index, ett_gsm_map_ericsson_SRIResType);
+
+  } else {
+    dissect_gsm_map_ericsson_SriResData2(true, tvb, 0, actx, tree, hf_gsm_map_ericsson_SRIResType2_item);
+  }
+
 
   return offset;
 }
@@ -21855,6 +21873,21 @@ dissect_gsm_map_ericsson_ExtensionType(bool implicit_tag _U_, tvbuff_t *tvb _U_,
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  gsm_map_ericsson_ExtensionType_choice, hf_index, ett_gsm_map_ericsson_ExtensionType,
                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_SriResData2_sequence[] = {
+  { &hf_gsm_map_ericsson_msim_Indicator, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_NULL },
+  { &hf_gsm_map_ericsson_chargingCharacteristic, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_ChargingCharacteristics },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static unsigned
+dissect_gsm_map_ericsson_SriResData2(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_SriResData2_sequence, hf_index, ett_gsm_map_ericsson_SriResData2);
 
   return offset;
 }
@@ -25857,7 +25890,10 @@ void proto_register_gsm_map(void) {
             FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
             NULL, HFILL }
     },
-
+      { &hf_gsm_map_ericsson_SRIResType2_item,
+        { "SriResData2", "gsm_map.ericsson.SriResData2_element",
+          FT_NONE, BASE_NONE, NULL, 0,
+          NULL, HFILL } },
 
 /* --- Module MAP-ExtensionDataTypes --- --- ---                              */
 
@@ -33176,6 +33212,14 @@ void proto_register_gsm_map(void) {
       { "SriResData", "gsm_map.ericsson.SriResData_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gsm_map_ericsson_msim_Indicator,
+      { "msim-Indicator", "gsm_map.ericsson.msim_Indicator_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_chargingCharacteristic,
+      { "chargingCharacteristic", "gsm_map.ericsson.chargingCharacteristic",
+        FT_UINT16, BASE_DEC, VALS(chargingcharacteristics_values), 0x0f00,
+        "ChargingCharacteristics", HFILL }},
     { &hf_gsm_map_ericsson_PrnArgType_item,
       { "PrnArgData", "gsm_map.ericsson.PrnArgData_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -34364,6 +34408,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ericsson_SriArgData,
     &ett_gsm_map_ericsson_SRIResType,
     &ett_gsm_map_ericsson_SriResData,
+    &ett_gsm_map_ericsson_SriResData2,
     &ett_gsm_map_ericsson_PrnArgType,
     &ett_gsm_map_ericsson_PrnArgData,
     &ett_gsm_map_ericsson_UlArgType,

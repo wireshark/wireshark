@@ -145,6 +145,7 @@ static int hf_gsm_map_qos_guar_bitrate_downl_ext2;
 static int hf_gsm_map_earp_pci;
 static int hf_gsm_map_earp_pl;
 static int hf_gsm_map_earp_pvi;
+static int hf_gsm_map_ericsson_SRIResType2_item;
 
 #include "packet-gsm_map-hf.c"
 
@@ -231,6 +232,8 @@ static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned off
 static unsigned dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx);
 static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx);
 static const char* gsm_map_opr_code(uint32_t val, proto_item *item);
+static unsigned dissect_gsm_map_ericsson_SriResData2(bool implicit_tag _U_, tvbuff_t* tvb _U_, unsigned offset _U_, asn1_ctx_t* actx _U_, proto_tree* tree _U_, int hf_index _U_);
+
 
 typedef struct {
   struct tcap_private_t * tcap_private;
@@ -3324,7 +3327,10 @@ void proto_register_gsm_map(void) {
             FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
             NULL, HFILL }
     },
-
+      { &hf_gsm_map_ericsson_SRIResType2_item,
+        { "SriResData2", "gsm_map.ericsson.SriResData2_element",
+          FT_NONE, BASE_NONE, NULL, 0,
+          NULL, HFILL } },
 #include "packet-gsm_map-hfarr.c"
   };
 

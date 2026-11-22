@@ -22,6 +22,7 @@ FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
 
+	ChargingCharacteristics,
 	RequestedEquipmentInfo
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
@@ -119,6 +120,11 @@ SriResData ::= SEQUENCE {
 	inCategoryKey          [2] INCategoryKey        OPTIONAL,
 	subscriptionType       [5] SubscriptionType     OPTIONAL,
 	... }
+
+SriResData2 ::= SEQUENCE {
+	msim-Indicator         [2] NULL OPTIONAL,
+	chargingCharacteristic [3] ChargingCharacteristics OPTIONAL
+}
 
 PrnArgType ::= SEQUENCE (SIZE(1..50)) OF
 	PrnArgData

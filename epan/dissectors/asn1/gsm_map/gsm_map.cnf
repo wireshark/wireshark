@@ -1192,6 +1192,19 @@ MAP interfaces
   subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GeodeticInformation);
   dissect_isup_calling_geodetic_location_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 
+#.FN_BODY SRIResType
+
+  int8_t data_class;
+  bool data_pc;
+  int32_t data_tag;
+
+  get_ber_identifier(tvb, offset, &data_class, &data_pc, &data_tag);
+  if(data_tag == 16) {
+   %(DEFAULT_BODY)s
+  } else {
+    dissect_gsm_map_ericsson_SriResData2(true, tvb, 0, actx, tree, hf_gsm_map_ericsson_SRIResType2_item);
+  }
+
 #.TYPE_ATTR
 LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
 #.FN_BODY LAC VAL_PTR = &parameter_tvb HF_INDEX = -1
