@@ -343,20 +343,20 @@
     <DirectoryRef Id="dirProfiles">
       <Directory Id="dirBluetooth" Name="Bluetooth">
         <Component Id="cmpBluetooth_coloring_rules">
-          <File Id="filBluetooth_coloring_rules" KeyPath="yes" Source="$(var.Profiles.Dir)\Bluetooth\coloring_rules.jsonc" />
+          <File Id="filBluetooth_coloring_rules" KeyPath="yes" Source="$(var.WiresharkProfiles.Dir)\Bluetooth\coloring_rules.jsonc" />
         </Component>
         <Component Id="cmpBluetooth_preferences">
-          <File Id="filBluetooth_preferences" KeyPath="yes" Source="$(var.Profiles.Dir)\Bluetooth\preferences" />
+          <File Id="filBluetooth_preferences" KeyPath="yes" Source="$(var.WiresharkProfiles.Dir)\Bluetooth\preferences" />
         </Component>
       </Directory>
       <Directory Id="dirClassic" Name="Classic">
         <Component Id="cmpClassic_coloring_rules">
-          <File Id="filClassic_coloring_rules" KeyPath="yes" Source="$(var.Profiles.Dir)\Classic\coloring_rules.jsonc" />
+          <File Id="filClassic_coloring_rules" KeyPath="yes" Source="$(var.WiresharkProfiles.Dir)\Classic\coloring_rules.jsonc" />
         </Component>
       </Directory>
       <Directory Id="dirNoReassembly" Name="No Reassembly">
         <Component Id="cmpNoReassembly_preferences">
-          <File Id="filNoReassembly_preferences" KeyPath="yes" Source="$(var.Profiles.Dir)\No Reassembly\preferences" />
+          <File Id="filNoReassembly_preferences" KeyPath="yes" Source="$(var.WiresharkProfiles.Dir)\No Reassembly\preferences" />
         </Component>
       </Directory>
     </DirectoryRef>
@@ -556,7 +556,7 @@
   <Fragment>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpAndroiddump_exe">
-        <File Id="filAndroiddump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\androiddump.exe" />
+        <File Id="filAndroiddump_exe" KeyPath="yes" Source="$(var.WiresharkExtcap.Dir)\androiddump.exe" />
       </Component>
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
@@ -576,7 +576,7 @@
   <Fragment>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpRandpktdump_exe">
-        <File Id="filRandpktdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\randpktdump.exe" />
+        <File Id="filRandpktdump_exe" KeyPath="yes" Source="$(var.WiresharkExtcap.Dir)\randpktdump.exe" />
       </Component>
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
@@ -596,7 +596,7 @@
   <Fragment>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpEtwdump_exe">
-        <File Id="filEtwdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\etwdump.exe" />
+        <File Id="filEtwdump_exe" KeyPath="yes" Source="$(var.WiresharkExtcap.Dir)\etwdump.exe" />
       </Component>
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
@@ -616,7 +616,7 @@
   <Fragment>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpSshdump_exe">
-        <File Id="filSshdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\sshdump.exe" />
+        <File Id="filSshdump_exe" KeyPath="yes" Source="$(var.WiresharkExtcap.Dir)\sshdump.exe" />
       </Component>
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
@@ -626,7 +626,7 @@
     </DirectoryRef>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpCiscodump_exe">
-        <File Id="filCiscodump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\Ciscodump.exe" />
+        <File Id="filCiscodump_exe" KeyPath="yes" Source="$(var.WiresharkExtcap.Dir)\Ciscodump.exe" />
       </Component>
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
@@ -636,7 +636,7 @@
     </DirectoryRef>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpWifidump_exe">
-        <File Id="filWifidump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\wifidump.exe" />
+        <File Id="filWifidump_exe" KeyPath="yes" Source="$(var.WiresharkExtcap.Dir)\wifidump.exe" />
       </Component>
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
@@ -660,7 +660,7 @@
   <Fragment>
     <DirectoryRef Id="dirExtcap">
       <Component Id="cmpUdpdump_exe">
-        <File Id="filUdpdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\Udpdump.exe" />
+        <File Id="filUdpdump_exe" KeyPath="yes" Source="$(var.WiresharkExtcap.Dir)\Udpdump.exe" />
       </Component>
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">

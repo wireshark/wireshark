@@ -8,9 +8,9 @@
 
   <?define Staging.Dir ="$(var.BuildOutputDir)" ?>
   <?define Staging.Datafile.Dir ="$(var.StagingDatafileDir)" ?>
-  <?define Plugins.Dir ="$(var.Staging.Dir)\plugins\wireshark" ?>
-  <?define Profiles.Dir ="$(var.Staging.Datafile.Dir)\profiles" ?>
-  <?define Extcap.Dir ="$(var.Staging.Dir)\extcap\wireshark" ?>
+  <?define WiresharkPlugins.Dir ="$(var.Staging.Dir)\plugins\wireshark" ?>
+  <?define WiresharkProfiles.Dir ="$(var.Staging.Datafile.Dir)\profiles" ?>
+  <?define WiresharkExtcap.Dir ="$(var.Staging.Dir)\extcap\wireshark" ?>
   <?define WiresharkQt.Dir ="$(var.Staging.Dir)" ?>
   <?define Dtds.Dir ="$(var.Staging.Datafile.Dir)\dtds" ?>
   <?define Tpncp.Dir ="$(var.Staging.Datafile.Dir)\tpncp" ?>
@@ -19,5 +19,11 @@
   <?define Protobuf.Dir ="$(var.Staging.Datafile.Dir)\protobuf" ?>
   <?define Help.Dir ="$(var.Staging.Dir)\help" ?>
   <?define Epan.Lua.Dir ="..\..\epan\wslua" ?>
+
+  <!-- Stratoshark-specific paths -->
+  <?define Stratoshark.Plugins.Dir ="$(var.Staging.Dir)\plugins\stratoshark" ?>
+  <?define Falco.Plugins.Dir ="$(var.Stratoshark.Plugins.Dir)\falco" ?>
+  <?define Stratoshark.Profiles.Dir ="$(var.Staging.Datafile.Dir)\profiles" ?>
+  <?define Stratoshark.Extcap.Dir ="$(var.Staging.Dir)\extcap\stratoshark" ?>
 
 </Include>

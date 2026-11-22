@@ -1,0 +1,30 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <UI>
+      <!-- See WiresharkOptionsDlg.wxs for the layout rules. -->
+      <Dialog Id="StratosharkOptionsDlg" Width="370" Height="270" Title="!(loc.LicenseAgreementDlg_Title)">
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.LicenseAgreementDlgBannerBitmap)" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="Title" Type="Text" X="14" Y="7" Width="350" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Additional tasks" />
+        <Control Id="Description" Type="Text" X="20" Y="26" Width="350" Height="15" Transparent="yes" NoPrefix="yes" Text="Create shortcuts and associate file extensions." />
+
+        <!-- BannerLine y = 44, 44 + 7 = 51 -->
+        <Control Id="Shortcuts" Type="Text" X="14" Y="51" Width="350" Height="11" Text="{\WixUI_Font_Bold}Create Shortcuts" />
+        <Control Id="StratosharkStartMenuCB" Type="CheckBox" X="20" Y="62" Width="350" Height="14" CheckBoxValue="1" Property="STRATOSHARK_START_MENU" Text="Stratoshark Start Menu Item" EnableCondition="&amp;Fe.Stratoshark = 3" DisableCondition="&amp;Fe.Stratoshark &lt;&gt; 3" />
+        <Control Id="StratosharkDesktopIconCB" Type="CheckBox" X="20" Y="76" Width="350" Height="14" CheckBoxValue="1" Property="STRATOSHARK_DESKTOP_ICON" Text="Stratoshark Desktop Icon" EnableCondition="&amp;Fe.Stratoshark = 3" DisableCondition="&amp;Fe.Stratoshark &lt;&gt; 3" />
+
+        <!-- StratosharkDesktopIconCB y = 76, 76 + 10 + 10 = 96 -->
+        <Control Id="FileExtensions" Type="Text" X="14" Y="96" Width="350" Height="11" Text="{\WixUI_Font_Bold}Associate File Extensions" />
+        <Control Id="FileExtensionsCB" Type="CheckBox" X="20" Y="107" Width="350" Height="14" CheckBoxValue="1" Property="STRATOSHARK_FILE_EXTENSIONS" Text="Associate trace file extensions with Stratoshark" EnableCondition="&amp;Fe.Stratoshark = 3" DisableCondition="&amp;Fe.Stratoshark &lt;&gt; 3" />
+        <Control Id="FileExtensionsText" Type="Text" X="20" Y="121" Width="350" Height="11" Transparent="yes" NoPrefix="yes" Text="The scap extension will be associated with Stratoshark." />
+
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+    </UI>
+  </Fragment>
+</Wix>

@@ -1,0 +1,566 @@
+<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <!-- Stratoshark -->
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpStratoshark_exe">
+          <File Id="filStratoshark_exe" KeyPath="yes" Source="$(var.Staging.Dir)\Stratoshark.exe" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.Stratoshark">
+        <ComponentRef Id="cmpStratoshark_exe" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- Strato -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpStrato_exe">
+        <File Id="filStrato_exe" KeyPath="yes" Source="$(var.Staging.Dir)\strato.exe" />
+      </Component>
+      <Component Id="cmpStrato_html">
+        <File Id="filStrato_html" KeyPath="yes" Source="$(var.Staging.Dir)\strato.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Strato">
+      <ComponentRef Id="cmpStrato_exe" />
+      <ComponentRef Id="cmpStrato_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Install for every user -->
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpWiretap_dll">
+          <File Id="filWiretap_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwiretap.dll" />
+        </Component>
+        <Component Id="cmpLibwireshark_dll">
+          <File Id="filLibwireshark_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwireshark.dll" />
+        </Component>
+        <Component Id="cmpLibwsutil_dll">
+          <File Id="filLibwsutil_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwsutil.dll" />
+        </Component>
+        <Component Id="cmpLibuiqt_plugin_dll">
+          <File Id="filLibuiqt_plugin_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libuiqt_plugin.dll" />
+        </Component>
+        <Component Id="cmpCOPYING_txt">
+          <File Id="filCOPYING_txt" KeyPath="yes" Source="$(var.Staging.Dir)\COPYING.txt" />
+        </Component>
+        <Component Id="cmpREADME_txt">
+          <File Id="filREADME_txt" KeyPath="yes" Source="$(var.Staging.Dir)\README.txt" />
+        </Component>
+        <Component Id="cmpWka">
+          <File Id="filWka" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\wka" />
+        </Component>
+        <Component Id="cmpPdml2html_xsl">
+          <File Id="filPdml2html_xsl" KeyPath="yes" Source="$(var.Staging.Dir)\pdml2html.xsl" />
+        </Component>
+        <Component Id="cmpWs_css">
+          <File Id="filWs_css" KeyPath="yes" Source="$(var.Staging.Dir)\ws.css" />
+        </Component>
+        <Component Id="cmpStratoshark_html">
+          <File Id="filStratoshark_html" KeyPath="yes" Source="$(var.Staging.Dir)\stratoshark.html" />
+        </Component>
+        <Component Id="cmpWireshark_filter_html">
+          <File Id="filWireshark_filter_html" KeyPath="yes" Source="$(var.Staging.Dir)\wireshark-filter.html" />
+        </Component>
+        <Component Id="cmpDumpcap_exe">
+          <File Id="filDumpcap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\dumpcap.exe" />
+        </Component>
+        <Component Id="cmpDumpcap_html">
+          <File Id="filDumpcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\dumpcap.html" />
+        </Component>
+        <Component Id="cmpExtcap_html">
+          <File Id="filExtcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\extcap.html" />
+        </Component>
+        <Component Id="cmpIpmap_html">
+          <File Id="filIpmap_html" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\ipmap.html" />
+        </Component>
+        <Component Id="cmpReleaseNotes_html">
+          <File Id="filReleaseNotes_html" KeyPath="yes" Source="$(var.Staging.Dir)\Stratoshark Release Notes.html" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.StratosharkRequired">
+        <ComponentRef Id="cmpWiretap_dll" />
+        <ComponentRef Id="cmpLibwireshark_dll" />
+        <ComponentRef Id="cmpLibwsutil_dll" />
+        <ComponentRef Id="cmpLibuiqt_plugin_dll" />
+        <ComponentRef Id="cmpCOPYING_txt" />
+        <ComponentRef Id="cmpREADME_txt" />
+        <ComponentRef Id="cmpWka" />
+        <ComponentRef Id="cmpPdml2html_xsl" />
+        <ComponentRef Id="cmpWs_css" />
+        <ComponentRef Id="cmpStratoshark_html" />
+        <ComponentRef Id="cmpWireshark_filter_html" />
+        <ComponentRef Id="cmpDumpcap_exe" />
+        <ComponentRef Id="cmpDumpcap_html" />
+        <ComponentRef Id="cmpExtcap_html" />
+        <ComponentRef Id="cmpIpmap_html" />
+        <ComponentRef Id="cmpReleaseNotes_html" />
+        <ComponentRef Id="cmpQuietUninstallString" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- Windows Installer writes UninstallString under Uninstall\[ProductCode].
+       Add QuietUninstallString next to it so that "msiexec" isn't required to
+       be typed by hand when scripting an uninstall. -->
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpQuietUninstallString">
+          <RegistryValue Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\[ProductCode]" Name="QuietUninstallString" Type="string" Value="MsiExec.exe /X[ProductCode] /qn /norestart" KeyPath="yes" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+
+
+  <!-- global config files By design these shouldn't be overwritten if they already exist -->
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpColoringRules">
+          <File Id="filColoringRules" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\coloring_rules.jsonc" />
+        </Component>
+        <Component Id="cmpDfilterButtons">
+          <File Id="filDfilterButtons" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\dfilter_buttons" />
+        </Component>
+        <Component Id="cmpSmi_modules">
+          <File Id="filSmi_modules" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\smi_modules" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.ColoringRules">
+        <ComponentRef Id="cmpColoringRules" />
+        <ComponentRef Id="cmpDfilterButtons" />
+        <ComponentRef Id="cmpSmi_modules" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- Dynamically harvested files -->
+  <Fragment>
+    <!-- Diameter XML dictionary files -->
+    <ComponentGroup Id="CG.Diameter" Directory="dirDiameter">
+      <Files Include="$(var.DiameterDir)\**" />
+    </ComponentGroup>
+    <!-- Qt translation files -->
+    <ComponentGroup Id="CG.QtTranslations" Directory="dirTranslations">
+      <Files Include="$(var.QtTranslationDir)\**" />
+    </ComponentGroup>
+    <!-- RADIUS dictionary files -->
+    <ComponentGroup Id="CG.RadiusDict" Directory="dirRadius">
+      <Files Include="$(var.RadiusDictDir)\**" />
+    </ComponentGroup>
+    <!-- MIBs -->
+    <ComponentGroup Id="CG.Plugins.SNMP" Directory="dirSnmpMibs">
+      <Files Include="$(var.SnmpMibDir)\**" />
+    </ComponentGroup>
+    <!-- Configuration profiles. The top-level dfilter_buttons file isn't
+         part of a profile. -->
+    <ComponentGroup Id="CG.Plugins.ConfigurationProfiles" Directory="dirProfiles">
+      <Files Include="$(var.Stratoshark.Profiles.Dir)\**">
+        <Exclude Files="$(var.Stratoshark.Profiles.Dir)\dfilter_buttons" />
+      </Files>
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- dtds -->
+    <Fragment>
+      <DirectoryRef Id="dirDtds">
+        <Component Id="cmpDc_dtd">
+          <File Id="filDc_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\dc.dtd" />
+        </Component>
+        <Component Id="cmpItunes_dtd">
+          <File Id="filItunes_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\itunes.dtd" />
+        </Component>
+        <Component Id="cmpMscml_dtd">
+          <File Id="filMscml_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\mscml.dtd" />
+        </Component>
+        <Component Id="cmpPocsettings_dtd">
+          <File Id="filPocsettings_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\pocsettings.dtd" />
+        </Component>
+        <Component Id="cmpPresence_dtd">
+          <File Id="filPresence_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\presence.dtd" />
+        </Component>
+        <Component Id="cmpReginfo_dtd">
+          <File Id="filReginfo_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\reginfo.dtd" />
+        </Component>
+        <Component Id="cmpRlmi_dtd">
+          <File Id="filRlmi_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\rlmi.dtd" />
+        </Component>
+        <Component Id="cmpRss_dtd">
+          <File Id="filRss_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\rss.dtd" />
+        </Component>
+        <Component Id="cmpSmil_dtd">
+          <File Id="filSmil_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\smil.dtd" />
+        </Component>
+        <Component Id="cmpXcap_caps_dtd">
+          <File Id="filXcap_caps_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\xcap-caps.dtd" />
+        </Component>
+        <Component Id="cmpXcap_error_dtd">
+          <File Id="filXcap_error_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\xcap-error.dtd" />
+        </Component>
+        <Component Id="cmpWatcherinfo_dtd">
+          <File Id="filWatcherinfo_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\watcherinfo.dtd" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.Dtds">
+        <ComponentRef Id="cmpDc_dtd" />
+        <ComponentRef Id="cmpItunes_dtd" />
+        <ComponentRef Id="cmpMscml_dtd" />
+        <ComponentRef Id="cmpPocsettings_dtd" />
+        <ComponentRef Id="cmpPresence_dtd" />
+        <ComponentRef Id="cmpReginfo_dtd" />
+        <ComponentRef Id="cmpRlmi_dtd" />
+        <ComponentRef Id="cmpRss_dtd" />
+        <ComponentRef Id="cmpSmil_dtd" />
+        <ComponentRef Id="cmpXcap_caps_dtd" />
+        <ComponentRef Id="cmpXcap_error_dtd" />
+        <ComponentRef Id="cmpWatcherinfo_dtd" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- TPNCP DAT file -->
+    <Fragment>
+        <DirectoryRef Id="dirTpncp">
+            <Component Id="cmpTpncp_dat">
+                <File Id="filTpncp_dat" KeyPath="yes" Source="$(var.Tpncp.Dir)\tpncp.dat" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="CG.Tpncp">
+            <ComponentRef Id="cmpTpncp_dat" />
+        </ComponentGroup>
+    </Fragment>
+
+  <!-- protobuf TLV definitions -->
+    <Fragment>
+      <DirectoryRef Id="dirProtobuf">
+        <Component Id="cmpProtobuf_sparkplug_b_proto">
+          <File Id="filProtobuf_sparkplug_b_proto" KeyPath="yes" Source="$(var.Protobuf.Dir)\sparkplug_b.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_main">
+          <File Id="filProtobuf_mysqlx" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_connection">
+          <File Id="filProtobuf_mysqlx_connection" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_connection.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_crud">
+          <File Id="filProtobuf_mysqlx_crud" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_crud.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_cursor">
+          <File Id="filProtobuf_mysqlx_cursor" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_cursor.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_datatypes">
+          <File Id="filProtobuf_mysqlx_datatypes" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_datatypes.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_expect">
+          <File Id="filProtobuf_mysqlx_expect" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_expect.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_expr">
+          <File Id="filProtobuf_mysqlx_expr" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_expr.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_notice">
+          <File Id="filProtobuf_mysqlx_notice" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_notice.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_prepare">
+          <File Id="filProtobuf_mysqlx_prepare" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_prepare.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_resultset">
+          <File Id="filProtobuf_mysqlx_resultset" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_resultset.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_session">
+          <File Id="filProtobuf_mysqlx_session" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_session.proto" />
+        </Component>
+        <Component Id="cmpProtobuf_mysqlx_sql">
+          <File Id="filProtobuf_mysqlx_sql" KeyPath="yes" Source="$(var.Protobuf.Dir)\mysqlx_sql.proto" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.Protobuf">
+        <ComponentRef Id="cmpProtobuf_sparkplug_b_proto" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_main" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_connection" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_crud" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_cursor" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_datatypes" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_expect" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_expr" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_notice" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_prepare" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_resultset" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_session" />
+        <ComponentRef Id="cmpProtobuf_mysqlx_sql" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- Editcap -->
+  <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+          <Component Id="cmpEditcap_exe">
+              <File Id="filEditcap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\editcap.exe" />
+          </Component>
+          <Component Id="cmpEditcap_html">
+              <File Id="filEditcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\editcap.html" />
+          </Component>
+      </DirectoryRef>
+  </Fragment>
+  <Fragment>
+      <ComponentGroup Id="CG.Tools.Editcap">
+          <ComponentRef Id="cmpEditcap_exe" />
+          <ComponentRef Id="cmpEditcap_html" />
+      </ComponentGroup>
+  </Fragment>
+
+  <!-- Text2Pcap -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpText2pcap_exe">
+        <File Id="filText2pcap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\text2pcap.exe" />
+      </Component>
+      <Component Id="cmpText2pcap_html">
+        <File Id="filText2pcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\text2pcap.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Text2Pcap">
+      <ComponentRef Id="cmpText2pcap_exe" />
+      <ComponentRef Id="cmpText2pcap_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Mergecap -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpMergecap_exe">
+        <File Id="filMergecap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\mergecap.exe" />
+      </Component>
+      <Component Id="cmpMergecap_html">
+        <File Id="filMergecap_html" KeyPath="yes" Source="$(var.Staging.Dir)\mergecap.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Mergecap">
+      <ComponentRef Id="cmpMergecap_exe" />
+      <ComponentRef Id="cmpMergecap_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Reordercap -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpReordercap_exe">
+        <File Id="filReordercap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\reordercap.exe" />
+      </Component>
+      <Component Id="cmpReordercap_html">
+        <File Id="filReordercap_html" KeyPath="yes" Source="$(var.Staging.Dir)\reordercap.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Reordercap">
+      <ComponentRef Id="cmpReordercap_exe" />
+      <ComponentRef Id="cmpReordercap_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Capinfos -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpCapinfos_exe">
+        <File Id="filCapinfos_exe" KeyPath="yes" Source="$(var.Staging.Dir)\capinfos.exe" />
+      </Component>
+      <Component Id="cmpCapinfos_html">
+        <File Id="filCapinfos_html" KeyPath="yes" Source="$(var.Staging.Dir)\capinfos.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Capinfos">
+      <ComponentRef Id="cmpCapinfos_exe" />
+      <ComponentRef Id="cmpCapinfos_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Captype -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpCaptype_exe">
+        <File Id="filCaptype_exe" KeyPath="yes" Source="$(var.Staging.Dir)\captype.exe" />
+      </Component>
+      <Component Id="cmpCaptype_html">
+        <File Id="filCaptype_html" KeyPath="yes" Source="$(var.Staging.Dir)\captype.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Captype">
+      <ComponentRef Id="cmpCaptype_exe" />
+      <ComponentRef Id="cmpCaptype_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Rawshark -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpRawshark_exe">
+        <File Id="filRawshark_exe" KeyPath="yes" Source="$(var.Staging.Dir)\rawshark.exe" />
+      </Component>
+      <Component Id="cmpRawshark_html">
+        <File Id="filRawshark_html" KeyPath="yes" Source="$(var.Staging.Dir)\rawshark.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Rawshark">
+      <ComponentRef Id="cmpRawshark_exe" />
+      <ComponentRef Id="cmpRawshark_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Randpkt -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpRandpkt_exe">
+        <File Id="filRandpkt_exe" KeyPath="yes" Source="$(var.Staging.Dir)\randpkt.exe" />
+      </Component>
+      <Component Id="cmpRandpkt_html">
+        <File Id="filRandpkt_html" KeyPath="yes" Source="$(var.Staging.Dir)\randpkt.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Randpkt">
+      <ComponentRef Id="cmpRandpkt_exe" />
+      <ComponentRef Id="cmpRandpkt_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Sharkd -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpSharkd_exe">
+        <File Id="filSharkd_exe" KeyPath="yes" Source="$(var.Staging.Dir)\sharkd.exe" />
+      </Component>
+      <Component Id="cmpSharkd_html">
+        <File Id="filSharkd_html" KeyPath="yes" Source="$(var.Staging.Dir)\sharkd.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Sharkd">
+      <ComponentRef Id="cmpSharkd_exe" />
+      <ComponentRef Id="cmpSharkd_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- MMDBResolve -->
+  <?ifdef MMDBRESOLVE_EXE?>
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpMmdbresolve_exe">
+        <File Id="filMmdbresolve_exe" KeyPath="yes" Source="$(var.Staging.Dir)\mmdbresolve.exe" />
+      </Component>
+      <Component Id="cmpMmdbresolve_html">
+        <File Id="filMmdbresolve_html" KeyPath="yes" Source="$(var.Staging.Dir)\mmdbresolve.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.MMDBResolve">
+      <ComponentRef Id="cmpMmdbresolve_exe" />
+      <ComponentRef Id="cmpMmdbresolve_html" />
+    </ComponentGroup>
+  </Fragment>
+  <?endif?>
+
+  <!-- Falcodump -->
+  <Fragment>
+    <DirectoryRef Id="dirExtcap">
+      <Component Id="cmpFalcodump_exe">
+        <File Id="filFalcodump_exe" KeyPath="yes" Source="$(var.Stratoshark.Extcap.Dir)\falcodump.exe" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpFalcodump_html">
+        <File Id="filFalcodump_html" KeyPath="yes" Source="$(var.Staging.Dir)\falcodump.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Extcap.Falcodump">
+      <ComponentRef Id="cmpFalcodump_exe" />
+      <ComponentRef Id="cmpFalcodump_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Sshdig -->
+  <?ifdef LIBSSH_FOUND?>
+  <Fragment>
+    <DirectoryRef Id="dirExtcap">
+      <Component Id="cmpSshdig_exe">
+        <File Id="filSshdig_exe" KeyPath="yes" Source="$(var.Stratoshark.Extcap.Dir)\sshdig.exe" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpSshdig_html">
+        <File Id="filSshdig_html" KeyPath="yes" Source="$(var.Staging.Dir)\sshdig.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Extcap.Sshdig">
+      <ComponentRef Id="cmpSshdig_exe" />
+      <ComponentRef Id="cmpSshdig_html" />
+    </ComponentGroup>
+  </Fragment>
+  <?endif?>
+
+  <!-- Shortcuts -->
+  <Fragment>
+    <ComponentGroup Id="CG.StratosharkStartMenu" Directory="ProgramMenuFolder">
+      <Component Id="cmpStratosharkShortcut" Condition="STRATOSHARK_START_MENU = &quot;1&quot;">
+        <Shortcut Id="scStratoshark" Name="$(var.StratosharkName)" Description="The $(var.StratosharkName) System Call and Log Analyzer" Target="[#filStratoshark_exe]" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\$(var.StratosharkName)" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+    <ComponentGroup Id="CG.StratosharkDesktopIcon" Directory="DesktopFolder">
+      <Component Id="cmpStratosharkDesktopIcon" Condition="STRATOSHARK_DESKTOP_ICON = &quot;1&quot;">
+        <Shortcut Id="scStratosharkDesktop" Name="$(var.StratosharkName)" Description="The $(var.StratosharkName) System Call and Log Analyzer" Target="[#filStratoshark_exe]" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\$(var.StratosharkName)" Name="DesktopIcon" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- File Associations -->
+  <Fragment>
+    <!-- The capture file icon is the second icon (index 1) in the executable. -->
+    <ComponentGroup Id="CG.StratosharkFileAssociations" Directory="INSTALLFOLDER">
+      <Component Id="cmpFAscap" Condition="STRATOSHARK_FILE_EXTENSIONS = &quot;1&quot;">
+        <ProgId Id="$(var.StratosharkFileAssociation)" Icon="filStratoshark_exe" IconIndex="1" Description="Stratoshark log file">
+          <Extension Id="scap">
+            <Verb Id="open" Command="open" TargetFile="filStratoshark_exe" Argument='"%1"' />
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.StratosharkName)" Name="scap" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- libgcrypt dummy configuration directory -->
+  <Fragment>
+    <ComponentGroup Id="CG.gcrypt">
+      <ComponentRef Id="gpg4win_etc_gcrypt" />
+    </ComponentGroup>
+  </Fragment>
+
+</Include>
