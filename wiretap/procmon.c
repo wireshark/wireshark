@@ -136,6 +136,7 @@ typedef struct {
     procmon_header_t header;
     uint32_t *event_offsets;
     uint32_t cur_event;
+    int64_t events_end;             /* End of the last event read sequentially */
     GStringChunk *string_chunk;     /* Storage for the strings */
     const char **string_array;      /* Index to the strings, which can be shared */
     size_t string_array_size;
@@ -457,6 +458,22 @@ static bool procmon_read(wtap *wth, wtap_rec *rec,
     *data_offset = file_info->event_offsets[file_info->cur_event];
     ws_noisy("file offset is %" PRId64 " array offset is %" PRId64, file_tell(wth->fh), *data_offset);
 
+    /*
+     * Process Monitor writes the events one after another, and the
+     * offsets in the array are in the same order. Reject an event that
+     * starts before the end of the previous one; otherwise, many entries
+     * pointing to the same large event would make us read and dissect
+     * it again and again, many more bytes than are in the file. (The
+     * extra details of an event can be elsewhere; the end of an event
+     * is the end of the details that immediately follow its header.)
+     */
+    if (*data_offset < file_info->events_end) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("procmon: event %u at offset %" PRId64 " overlaps the previous event",
+                                     file_info->cur_event, *data_offset);
+        return false;
+    }
+
     if (file_seek(wth->fh, *data_offset, SEEK_SET, err) == -1)
     {
         ws_debug("Failed to seek to event %u at offsets %" PRId64, file_info->cur_event, *data_offset);
@@ -471,7 +488,11 @@ static bool procmon_read(wtap *wth, wtap_rec *rec,
     //     return false;
     // }
 
-    return procmon_read_event(wth->fh, rec, file_info, err, err_info);
+    if (!procmon_read_event(wth->fh, rec, file_info, err, err_info)) {
+        return false;
+    }
+    file_info->events_end = file_tell(wth->fh);
+    return true;
 }
 
 static bool procmon_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
