@@ -224,6 +224,9 @@ The following features are either new or have been significantly updated since v
 * The Windows and macOS installers now ship with Qt 6.12.0.
   They previously shipped with Qt 6.9.3.
 
+* The MSI installer has been updated, and behaves more similar to the EXE installer.
+  It is now built using WiX 7.0.
+
 * The Help menu has a new menu:Help[Discord] entry, which opens the invitation to the Wireshark Discord server.
 
 // XXX This should just describe what changed.
