@@ -136,7 +136,8 @@ typedef struct {
     procmon_header_t header;
     uint32_t *event_offsets;
     uint32_t cur_event;
-    const char **string_array;
+    GStringChunk *string_chunk;     /* Storage for the strings */
+    const char **string_array;      /* Index to the strings, which can be shared */
     size_t string_array_size;
     uint32_t *process_index_map;    /* Map of process index to process array index */
     size_t process_index_map_size;
@@ -161,12 +162,10 @@ void register_procmon(void);
 static void file_info_cleanup(procmon_file_info_t* file_info)
 {
     g_free(file_info->event_offsets);
-    if (file_info->string_array) {
-        for (size_t idx = 0; idx < file_info->string_array_size; idx++) {
-            g_free((char *)file_info->string_array[idx]);
-        }
-        g_free(file_info->string_array);
+    if (file_info->string_chunk) {
+        g_string_chunk_free(file_info->string_chunk);
     }
+    g_free(file_info->string_array);
     g_free(file_info->process_index_map);
     if (file_info->process_array) {
         for (size_t idx = 0; idx < file_info->process_array_size; idx++) {
@@ -175,6 +174,22 @@ static void file_info_cleanup(procmon_file_info_t* file_info)
         g_free(file_info->process_array);
     }
     g_free(file_info);
+}
+
+typedef struct {
+    uint32_t offset;    /* Offset of the string, relative to the string array */
+    uint32_t idx;       /* Index of the string array entry */
+} procmon_string_ref_t;
+
+static int compare_string_refs(const void *a, const void *b)
+{
+    const procmon_string_ref_t *ref_a = (const procmon_string_ref_t *)a;
+    const procmon_string_ref_t *ref_b = (const procmon_string_ref_t *)b;
+
+    if (ref_a->offset != ref_b->offset) {
+        return ref_a->offset < ref_b->offset ? -1 : 1;
+    }
+    return 0;
 }
 
 static const char *procmon_string(procmon_file_info_t* file_info, uint32_t str_index)
@@ -628,31 +643,77 @@ wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info)
     }
 #endif
 
+    /*
+     * Several entries can point to the same string. Read each string
+     * only once, and have all the entries that point to it share it,
+     * rather than letting a small file make us spend a lot of memory and
+     * time on many copies of one long string. Read the strings in the
+     * order of their offsets, which also means we only seek forward, and
+     * reject a string that starts within the previous one, so that the
+     * strings we store take up no more memory than the file does (give
+     * or take conversion to UTF-8).
+     */
+    procmon_string_ref_t *str_refs = g_new(procmon_string_ref_t, num_strings);
+    for (unsigned idx = 0; idx < num_strings; idx++) {
+        str_refs[idx].offset = str_offsets[idx];
+        str_refs[idx].idx = idx;
+    }
+    g_free(str_offsets);
+    qsort(str_refs, num_strings, sizeof(*str_refs), compare_string_refs);
+
+    file_info->string_chunk = g_string_chunk_new(64 * 1024);
     file_info->string_array_size = num_strings;
     file_info->string_array = g_new0(const char *, num_strings);
     gunichar2 *str_buf = g_new(gunichar2, MAX_PROCMON_STRING_LENGTH);
-    for (unsigned idx = 0; idx < num_strings; idx++) {
-        if (file_seek(wth->fh, header->string_array_offset + str_offsets[idx], SEEK_SET, err) == -1)
+    const char *cur_str = NULL;
+    uint64_t str_end = 0;   // Relative offset of the end of the previous string
+    for (unsigned ref = 0; ref < num_strings; ref++) {
+        unsigned idx = str_refs[ref].idx;
+        uint32_t str_offset = str_refs[ref].offset;
+
+        if (cur_str != NULL && str_offset == str_refs[ref - 1].offset) {
+            file_info->string_array[idx] = cur_str;
+            continue;
+        }
+        if (str_offset < str_end) {
+            /* XXX - It seems unlikely that real procmon files would ever use a
+             * clever scheme of having a string stored within another string of
+             * which it is a suffix. It's hard to allow that without being
+             * vulnerable to amplification. */
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = ws_strdup_printf("procmon: string %u at offset %u overlaps the previous string",
+                                         idx, str_offset);
+            file_info_cleanup(file_info);
+            g_free(str_refs);
+            g_free(str_buf);
+            return WTAP_OPEN_ERROR;
+        }
+
+        if (file_seek(wth->fh, header->string_array_offset + str_offset, SEEK_SET, err) == -1)
         {
             file_info_cleanup(file_info);
-            g_free(str_offsets);
+            g_free(str_refs);
             g_free(str_buf);
             ws_debug("Failed to locate procmon string %u", idx);
             return WTAP_OPEN_NOT_MINE;
         }
 
-        const char *cur_str = procmon_read_string(wth->fh, str_buf, err, err_info);
-        if (!cur_str) {
+        char *utf8_str = procmon_read_string(wth->fh, str_buf, err, err_info);
+        if (!utf8_str) {
             file_info_cleanup(file_info);
-            g_free(str_offsets);
+            g_free(str_refs);
             g_free(str_buf);
             ws_debug("Failed to read procmon string %u", idx);
             return WTAP_OPEN_NOT_MINE;
         }
+        // procmon_read_string() skips any part of the string it doesn't read.
+        str_end = (uint64_t)(file_tell(wth->fh) - header->string_array_offset);
 
+        cur_str = g_string_chunk_insert(file_info->string_chunk, utf8_str);
+        g_free(utf8_str);
         file_info->string_array[idx] = cur_str;
     }
-    g_free(str_offsets);
+    g_free(str_refs);
     g_free(str_buf);
 
     if (file_seek(wth->fh, header->process_array_offset, SEEK_SET, err) == -1)
