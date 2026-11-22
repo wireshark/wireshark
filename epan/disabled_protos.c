@@ -215,8 +215,8 @@ save_protos_list(char **pref_path_return, int *errno_return, const char* filenam
      infer is the reason why the MSVC++ "rename()" doesn't do so.
      We must therefore remove the target file first, on Windows.
 
-     XXX - ws_rename() should be ws_stdio_rename() on Windows,
-     and ws_stdio_rename() uses MoveFileEx() with MOVEFILE_REPLACE_EXISTING,
+     XXX - ws_rename() is g_rename() on Windows, and g_rename()
+     uses MoveFileEx() with MOVEFILE_REPLACE_EXISTING,
      so it should remove the target if it exists, so this stuff
      shouldn't be necessary.  Perhaps it dates back to when we were
      calling rename(), with that being a wrapper around Microsoft's
@@ -823,8 +823,8 @@ save_disabled_heur_dissector_list(const char* app_env_var_prefix, char **pref_pa
      infer is the reason why the MSVC++ "rename()" doesn't do so.
      We must therefore remove the target file first, on Windows.
 
-     XXX - ws_rename() should be ws_stdio_rename() on Windows,
-     and ws_stdio_rename() uses MoveFileEx() with MOVEFILE_REPLACE_EXISTING,
+     XXX - ws_rename() is g_rename() on Windows, and g_rename()
+     uses MoveFileEx() with MOVEFILE_REPLACE_EXISTING,
      so it should remove the target if it exists, so this stuff
      shouldn't be necessary.  Perhaps it dates back to when we were
      calling rename(), with that being a wrapper around Microsoft's

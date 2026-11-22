@@ -474,8 +474,8 @@ ws_filter_list_write(filter_list_t *list, const char* app_env_var_prefix)
        infer is the reason why the MSVC++ "rename()" doesn't do so.
        We must therefore remove the target file first, on Windows.
 
-       XXX - ws_rename() should be ws_stdio_rename() on Windows,
-       and ws_stdio_rename() uses MoveFileEx() with MOVEFILE_REPLACE_EXISTING,
+       XXX - ws_rename() is g_rename() on Windows, and g_rename()
+       uses MoveFileEx() with MOVEFILE_REPLACE_EXISTING,
        so it should remove the target if it exists, so this stuff
        shouldn't be necessary.  Perhaps it dates back to when we were
        calling rename(), with that being a wrapper around Microsoft's
