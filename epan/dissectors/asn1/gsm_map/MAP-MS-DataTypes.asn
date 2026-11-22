@@ -19,6 +19,7 @@ EXPORTS
 	RequestedEquipmentInfo,
 	TripletList,
 	QuintupletList,
+	ChargingCharacteristics,
 -- End WS modification
 	-- location registration types
 	UpdateLocationArg,
