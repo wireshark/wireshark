@@ -9,32 +9,32 @@
 
 # We should use CPack to help generate a .msi using WIX.
 
-set(WIX_GENERATED_FILES
+set(WIRESHARK_WIX_GENERATED_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/DependentComponents.wxs
 	${CMAKE_CURRENT_BINARY_DIR}/QtDependentComponents.wxs
 )
-set(WIX_GENERATED_FILES ${WIX_GENERATED_FILES} PARENT_SCOPE)
+set(WIRESHARK_WIX_GENERATED_FILES ${WIRESHARK_WIX_GENERATED_FILES} PARENT_SCOPE)
 
-set(WIX_SOURCE_FILES
+set(WIRESHARK_WIX_SOURCE_FILES
 	${CMAKE_SOURCE_DIR}/packaging/wix/Wireshark.wxs
 	${CMAKE_SOURCE_DIR}/packaging/wix/WiresharkCertificationDlg.wxs
 	${CMAKE_SOURCE_DIR}/packaging/wix/WiresharkDonateDlg.wxs
 	${CMAKE_SOURCE_DIR}/packaging/wix/WiresharkOptionsDlg.wxs
 	${CMAKE_SOURCE_DIR}/packaging/wix/WiresharkWixUI.wxs
-	${WIX_GENERATED_FILES}
+	${WIRESHARK_WIX_GENERATED_FILES}
 )
-set(WIX_SOURCE_FILES ${WIX_SOURCE_FILES} PARENT_SCOPE)
+set(WIRESHARK_WIX_SOURCE_FILES ${WIRESHARK_WIX_SOURCE_FILES} PARENT_SCOPE)
 
-set(WIX_FILES
-	${CMAKE_CURRENT_SOURCE_DIR}/ComponentGroups.wxi
+set(WIRESHARK_WIX_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/WiresharkComponentGroups.wxi
 	${CMAKE_CURRENT_SOURCE_DIR}/COPYING.rtf
-	${CMAKE_CURRENT_SOURCE_DIR}/DirectoryStructure.wxi
-	${CMAKE_CURRENT_SOURCE_DIR}/Features.wxi
 	${CMAKE_CURRENT_SOURCE_DIR}/InputPaths.wxi
-	${CMAKE_CURRENT_SOURCE_DIR}/Plugins.wxi
-	${CMAKE_CURRENT_SOURCE_DIR}/Prerequisites.wxi
-	${CMAKE_CURRENT_SOURCE_DIR}/UserInterface.wxi
-	${WIX_SOURCE_FILES}
+	${CMAKE_CURRENT_SOURCE_DIR}/WiresharkDirectoryStructure.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/WiresharkFeatures.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/WiresharkPlugins.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/WiresharkPrerequisites.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/WiresharkUserInterface.wxi
+	${WIRESHARK_WIX_SOURCE_FILES}
 	PARENT_SCOPE
 )
 
@@ -197,7 +197,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# XXX Rename this to wireshark_wix_prep
 		add_custom_target(wireshark_wix_prep
 			DEPENDS
-				${WIX_FILES}
+				${WIRESHARK_WIX_FILES}
 				copy_data_files
 				user_guide_html
 				release_notes_html
@@ -213,7 +213,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		add_custom_target(wireshark_wix
 			COMMAND ${WIX_EXECUTABLE} build ${WIX_BUILD_FLAGS}
 				"$<$<CONFIG:Debug>:-d BUNDLE_DEBUG_DLLS>"
-				${WIX_SOURCE_FILES}
+				${WIRESHARK_WIX_SOURCE_FILES}
 			WORKING_DIRECTORY ${_wix_source_dir}
 		)
 		set_target_properties(wireshark_wix PROPERTIES
