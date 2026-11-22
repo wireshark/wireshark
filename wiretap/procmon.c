@@ -580,6 +580,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info)
 
     if (file_seek(wth->fh, header->string_array_offset, SEEK_SET, err) == -1)
     {
+        file_info_cleanup(file_info);
         ws_debug("Failed to locate procmon string data");
         return WTAP_OPEN_NOT_MINE;
     }
@@ -867,6 +868,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info)
 
     if (file_seek(wth->fh, header->start_events_offset, SEEK_SET, err) == -1)
     {
+        file_info_cleanup(file_info);
         ws_debug("Failed to locate procmon events data");
         return WTAP_OPEN_NOT_MINE;
     }
