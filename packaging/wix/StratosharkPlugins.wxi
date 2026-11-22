@@ -1,0 +1,33 @@
+<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <!-- Plugins -->
+  <Fragment>
+    <DirectoryRef Id="dirPluginsVersionEpan">
+      <Component Id="cmpFalcoEvents_dll">
+        <File Id="filFalcoEvents_dll" KeyPath="yes" Source="$(var.Stratoshark.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\falco-events.dll" />
+      </Component>
+      <!-- Stratoshark uses the Wireshark statistics tree and MATE plugins. -->
+      <Component Id="cmpStatsTree_dll">
+        <File Id="filStatsTree_dll" KeyPath="yes" Source="$(var.WiresharkPlugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\stats_tree.dll" />
+      </Component>
+      <Component Id="cmpMate_dll">
+        <File Id="filMate_dll" KeyPath="yes" Source="$(var.WiresharkPlugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\mate.dll" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Plugins.Epan">
+      <ComponentRef Id="cmpFalcoEvents_dll" />
+      <ComponentRef Id="cmpStatsTree_dll" />
+      <ComponentRef Id="cmpMate_dll" />
+      <!-- Add custom plugin ComponentRefs here -->
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Falco plugins. These are copied to plugins\falco by the copy_falco_plugins target. -->
+  <Fragment>
+    <ComponentGroup Id="CG.Plugins.Falco" Directory="dirPluginsFalco">
+      <Files Include="$(var.Falco.Plugins.Dir)\*.dll" />
+    </ComponentGroup>
+  </Fragment>
+</Include>

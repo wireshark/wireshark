@@ -1,0 +1,109 @@
+<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <!-- Check for required dependencies here -->
+  <!--
+    You can debug the logic below (and lots of other things) by running
+      msiexec /i packaging\wix\Stratoshark-xxx.msi /l*v msilog.txt
+  -->
+  <Fragment>
+
+    <!-- Do not remove: The contents of this "fragment" will not be included in the project,
+         unless we reference at least one item defined within it.
+         This "IncludePrerequisites" property is referenced in the "Product" element,
+         to ensure the entire fragment is included. -->
+    <Property Id="IncludePrerequisites" Value="1" />
+
+    <!-- The VersionNT variable was frozen. For later Windows versions, look
+         at the Build Number. Qt 6.2 and later are officially supported on
+         Windows 10, version 1809 (Build 17763) and later, which corresponds
+         with Server 2019. In practice, it seems that version 1607 (Build 14393)
+         & Server 2016 work on Qt versions before 6.8 but not on 6.8 and later.
+    -->
+
+    <Property Id="WINDOWSBUILDNUMBER" Secure="yes">
+      <RegistrySearch Id="WindowsBuildRegistrySearch" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\Windows NT\CurrentVersion" Name="CurrentBuildNumber">
+      </RegistrySearch>
+    </Property>
+
+    <!-- This should match the following:
+         - The NTDDI_VERSION and _WIN32_WINNT parts of cmakeconfig.h.in
+         - The <compatibility><application> section in resources\stratoshark.exe.manifest.in
+         - The WinVer parts of packaging\nsis\stratoshark.nsi
+    -->
+    <Launch Condition="Installed OR (WINDOWSBUILDNUMBER &gt;= 19044)" Message="$(var.StratosharkName) $(var.StratosharkVersion) is only supported on Windows 10, version 21H2 or Windows Server 2022, or higher." />
+
+<!--
+  NSIS package uninstallation. The NSIS installer writes a bunch of keys to
+  'HKEY_LOCAL_MACHINE\SOFTWARE\{Wow6432Node\,}Microsoft\Windows\CurrentVersion\Uninstall\Stratoshark'.
+  See the 'WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}"' statements
+  starting at around line 780 in nsis\stratoshark.nsi for a complete list.
+
+  For now look for 'InstallLocation' and cancel the installation if
+  it's defined and exists. Next steps:
+  - look for 'QuietUninstallString' and offer to run it.
+  - Show properties in condition messages as described below.
+-->
+
+    <Property Id="NSIS_INSTALL_LOCATION_32" Secure="yes">
+      <RegistrySearch Id="NsisInstallRegistrySearch32" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Stratoshark" Name="InstallLocation" Bitness="always32">
+        <DirectorySearch Id="NsisInstallDirectorySearch32" AssignToProperty="yes" />
+      </RegistrySearch>
+    </Property>
+
+    <Property Id="NSIS_DISPLAY_NAME_32" Value="Stratoshark" Secure="yes">
+      <RegistrySearch Id="NsisDisplayNameRegistrySearch32" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Stratoshark" Name="DisplayName" Bitness="always32" />
+    </Property>
+
+    <Launch Condition="Installed OR NOT NSIS_INSTALL_LOCATION_32" Message="[NSIS_DISPLAY_NAME_32] was installed in [NSIS_INSTALL_LOCATION_32] using the .exe installer. Please uninstall it using Programs and Features." />
+
+    <Property Id="NSIS_INSTALL_LOCATION_64" Secure="yes">
+      <RegistrySearch Id="NsisInstallRegistrySearch64" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Stratoshark" Name="InstallLocation" Bitness="always64">
+        <DirectorySearch Id="NsisInstallDirectorySearch64" AssignToProperty="yes" />
+      </RegistrySearch>
+    </Property>
+
+    <Property Id="NSIS_DISPLAY_NAME_64" Value="Stratoshark" Secure="yes">
+      <RegistrySearch Id="NsisDisplayNameRegistrySearch64" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Stratoshark" Name="DisplayName" Bitness="always64" />
+    </Property>
+
+    <Launch Condition="Installed OR NOT NSIS_INSTALL_LOCATION_64" Message="[NSIS_DISPLAY_NAME_64] was installed in [NSIS_INSTALL_LOCATION_64] using the .exe installer. Please uninstall it using Programs and Features." />
+
+<!--
+  Starting with Visual Studio 2019 the Visual C++ Redistributable merge
+  modules are deprecated and aren't available for Arm64:
+  https://docs.microsoft.com/en-us/visualstudio/releases/2019/release-notes#-deprecations
+
+  Additionally, https://learn.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017
+  says
+
+  "The Redistributable your app uses has a similar binary-compatibility
+  restriction. When you mix binaries built by different supported
+  versions of the build tools, the Redistributable version must be at
+  least as new as the latest build tools used by any app component."
+
+  Instead of bundling the runtime, check whether a minimum version of
+  the redistributable is already installed and abort with a helpful
+  message if it isn't.
+-->
+
+    <?if $(var.Platform) = x64 ?>
+    <?define VCRedistUpgradeCode = "{36F68A90-239C-34DF-B58C-64B30153CE35}" ?>
+    <?else?>
+    <?define VCRedistUpgradeCode = "{DC9BAE42-810B-423A-9E25-E4073F1C7B00}" ?>
+    <?endif?>
+
+    <Upgrade Id="$(var.VCRedistUpgradeCode)">
+      <UpgradeVersion OnlyDetect="yes" Property="VCREDIST_INSTALLED" Minimum="0.0.0" IncludeMinimum="yes" />
+      <?ifdef VCRedistMinVersion?>
+      <UpgradeVersion OnlyDetect="yes" Property="VCREDIST_MIN_VERSION_INSTALLED" Minimum="$(var.VCRedistMinVersion)" IncludeMinimum="yes" />
+      <?endif?>
+    </Upgrade>
+
+    <Launch Condition="Installed OR VCREDIST_INSTALLED" Message="The Microsoft Visual C++ Redistributable is required but wasn't found. Please download and install it from https://aka.ms/vs/17/release/vc_redist.$(var.Platform).exe before continuing." />
+
+    <?ifdef VCRedistMinVersion?>
+    <Launch Condition="Installed OR VCREDIST_MIN_VERSION_INSTALLED" Message="The installed Microsoft Visual C++ Redistributable is older than the version $(var.StratosharkName) was built with ($(var.VCRedistMinVersion)). Please update it from https://aka.ms/vs/17/release/vc_redist.$(var.Platform).exe before continuing." />
+    <?endif?>
+
+  </Fragment>
+</Include>

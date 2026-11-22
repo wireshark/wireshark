@@ -1,0 +1,60 @@
+<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <!-- User-selectable features -->
+  <Fragment>
+    <Feature Id="Fe.Stratoshark" Title="$(var.StratosharkName)" Level="1" AllowAdvertise="yes" Display="expand" Description="The main system call and log analyzer application.">
+      <ComponentGroupRef Id="CG.Stratoshark" />
+      <ComponentGroupRef Id="CG.QtDependencies" />
+      <ComponentGroupRef Id="CG.QtTranslations" />
+      <ComponentGroupRef Id="CG.StratosharkStartMenu" />
+      <ComponentGroupRef Id="CG.StratosharkDesktopIcon" />
+      <ComponentGroupRef Id="CG.StratosharkFileAssociations" />
+    </Feature>
+    <Feature Id="Fe.StratosharkRequired" Title="Required" Level="1" AllowAdvertise="yes" Display="hidden" Description="Install for every user">
+      <ComponentGroupRef Id="CG.StratosharkRequired" />
+      <ComponentGroupRef Id="CG.ColoringRules" />
+      <ComponentGroupRef Id="CG.Diameter" />
+      <ComponentGroupRef Id="CG.RadiusDict" />
+      <ComponentGroupRef Id="CG.Dtds" />
+      <ComponentGroupRef Id="CG.Tpncp" />
+      <ComponentGroupRef Id="CG.Protobuf" />
+      <ComponentGroupRef Id="CG.RequiredDependencies" />
+      <ComponentGroupRef Id="CG.gcrypt" />
+
+      <!-- Plugins -->
+      <ComponentGroupRef Id="CG.Plugins.Epan" />
+      <ComponentGroupRef Id="CG.Plugins.Falco" />
+      <!-- XXX - Cleanup configuration profiles directory on uninstall  -->
+      <ComponentGroupRef Id="CG.Plugins.ConfigurationProfiles" />
+      <?ifdef SMI_DIR?>
+        <ComponentGroupRef Id="CG.Plugins.SNMP" />
+      <?endif?>
+
+      <!-- Tools -->
+      <ComponentGroupRef Id="CG.Tools.Capinfos" />
+      <ComponentGroupRef Id="CG.Tools.Captype" />
+      <ComponentGroupRef Id="CG.Tools.Editcap" />
+      <ComponentGroupRef Id="CG.Tools.Mergecap" />
+      <ComponentGroupRef Id="CG.Tools.Randpkt" />
+      <ComponentGroupRef Id="CG.Tools.Rawshark" />
+      <ComponentGroupRef Id="CG.Tools.Reordercap" />
+      <ComponentGroupRef Id="CG.Tools.Sharkd" />
+      <ComponentGroupRef Id="CG.Tools.Text2Pcap" />
+      <?ifdef MMDBRESOLVE_EXE?>
+        <ComponentGroupRef Id="CG.Tools.MMDBResolve" />
+      <?endif?>
+    </Feature>
+    <Feature Id="Fe.Strato" Title="Strato" Level="1" AllowAdvertise="yes" Display="expand" Description="Text based system call and log analyzer.">
+      <ComponentGroupRef Id="CG.Strato" />
+    </Feature>
+    <Feature Id="Fe.Extcap" Title="External capture tools (extcap)" Level="1" AllowAdvertise="yes" Display="expand" Description="External Capture Interfaces">
+      <Feature Id="Fe.Extcap.Falcodump" Title="Falcodump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide capture interfaces for Falco plugins and system calls.">
+        <ComponentGroupRef Id="CG.Extcap.Falcodump" />
+      </Feature>
+      <?ifdef LIBSSH_FOUND?>
+      <Feature Id="Fe.Extcap.Sshdig" Title="Sshdig" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide remote system call capture through SSH.">
+        <ComponentGroupRef Id="CG.Extcap.Sshdig" />
+      </Feature>
+      <?endif?>
+    </Feature>
+  </Fragment>
+</Include>

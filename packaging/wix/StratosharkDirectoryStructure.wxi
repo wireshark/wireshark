@@ -1,0 +1,55 @@
+<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <!-- Basic directory structure -->
+  <Fragment><!-- "Special" directory, required for the root drive -->
+
+
+      <!-- "Special" directory for desktop -->
+      <StandardDirectory Id="DesktopFolder" />
+      <!-- "Special" directory, required for the Program Files folder -->
+      <StandardDirectory Id="$(var.PlatformProgramFilesFolder)">
+        <!-- These directories follow the typical hierarchical structure -->
+        <Directory Id="INSTALLFOLDER" Name="$(var.StratosharkName)">
+          <Directory Id="dirDtds" Name="dtds" />
+          <Directory Id="dirDiameter" Name="diameter" />
+          <Directory Id="dirExtcap" Name="extcap" />
+          <Directory Id="dirRadius" Name="radius" />
+          <Directory Id="dirPlugins" Name="plugins">
+            <Directory Id="dirPluginsVersion" Name="$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)">
+              <Directory Id="dirPluginsVersionEpan" Name="epan" />
+            </Directory>
+            <Directory Id="dirPluginsFalco" Name="falco" />
+          </Directory>
+          <Directory Id="dirProfiles" Name="profiles" />
+          <Directory Id="dirSnmp" Name="snmp">
+            <Directory Id="dirSnmpMibs" Name="mibs" />
+          </Directory>
+          <Directory Id="dirTpncp" Name="tpncp" />
+          <Directory Id="dirTranslations" Name="translations" />
+          <Directory Id="dirProtobuf" Name="protobuf" />
+        </Directory>
+      </StandardDirectory>
+
+      <!-- "Special" directory for the Start Menu -->
+      <StandardDirectory Id="ProgramMenuFolder">
+        <!-- Shortcuts directly in menu -->
+      </StandardDirectory>
+
+      <!-- Create a dummy configuraton directory for libgcrypt -->
+      <StandardDirectory Id="CommonAppDataFolder">
+        <Directory Id="GnuDataFolder" Name="GNU">
+          <Directory Id="GnuEtcFolder" Name="etc">
+            <Directory Id="GcryptDataFolder" Name="gcrypt">
+              <Component Id="gpg4win_etc_gcrypt" KeyPath="yes" Guid="7F122F29-AA33-4DE5-9DD2-0DAF1A24B630">
+                <CreateFolder>
+                  <Permission User="Administrators" GenericAll="yes" />
+                  <Permission User="Everyone" Read="yes" ReadAttributes="yes" ReadExtendedAttributes="yes" ReadPermission="yes" GenericExecute="yes" />
+                </CreateFolder>
+              </Component>
+            </Directory>
+          </Directory>
+        </Directory>
+      </StandardDirectory>
+
+    </Fragment>
+</Include>

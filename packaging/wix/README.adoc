@@ -20,6 +20,10 @@ modifying a file (custom_mibs.txt, etc) for inclusion
 > msbuild /m /p:Configuration=RelWithDebInfo wireshark_wix_prep.vcxproj
 > msbuild /m /p:Configuration=RelWithDebInfo wireshark_wix.vcxproj
 ----
++
+To build the Stratoshark installer, use the `stratoshark_wix_prep` and `stratoshark_wix` targets instead.
+Files that are specific to Stratoshark start with "Stratoshark", and files that are specific to Wireshark start with "Wireshark".
+The Stratoshark package doesn't include the User's Guide.
 
 == Known Issues
 

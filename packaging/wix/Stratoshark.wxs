@@ -1,0 +1,40 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <?define StratosharkFileAssociation = "stratoshark-log-file" ?>
+
+  <!-- The path to the installer's End-User License Agreement, displayed during installation -->
+  <?define EulaPath="$(var.AssetDir)\COPYING.rtf"?>
+  <?define BannerImagePath="$(var.AssetDir)\stratoshark-banner.png"?>
+  <?define DialogImagePath="$(var.AssetDir)\stratoshark-dialog.png"?>
+  <!-- Use the application icon in "Programs and Features" -->
+  <?define ProgramsFeaturesIconPath="$(var.IconDir)\stratoshark.ico"?>
+  <Package Name="$(var.StratosharkName)" Language="1033" Version="$(var.StratosharkVersion)" Manufacturer="The Stratoshark developer community, https://www.wireshark.org/" UpgradeCode="cef5f5c6-951f-4e33-b61e-f52921497682">
+
+    <!-- Values for Additional Tasks -->
+    <Property Id="STRATOSHARK_START_MENU" Value="1" Secure="yes" />
+    <Property Id="STRATOSHARK_DESKTOP_ICON" Secure="yes" />
+    <Property Id="STRATOSHARK_FILE_EXTENSIONS" Value="1" />
+
+    <!-- See Wireshark.wxs for a discussion of AllowSameVersionUpgrades. -->
+    <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.StratosharkName) is already installed." AllowSameVersionUpgrades="yes" />
+
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <!-- Include the prerequisites, by referencing the placeholder property -->
+    <PropertyRef Id="IncludePrerequisites" />
+
+    <!-- Include the top-most parent feature -->
+    <FeatureRef Id="Fe.Stratoshark" />
+
+    <!-- Include the installer UI definition -->
+    <UIRef Id="UI.Stratoshark" />
+  </Package>
+
+  <?include InputPaths.wxi ?>
+  <?include StratosharkDirectoryStructure.wxi ?>
+  <?include StratosharkPrerequisites.wxi ?>
+  <?include StratosharkComponentGroups.wxi ?>
+  <?include StratosharkPlugins.wxi ?>
+  <?include StratosharkFeatures.wxi ?>
+  <?include StratosharkUserInterface.wxi ?>
+</Wix>
