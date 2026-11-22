@@ -5646,6 +5646,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
     { 7072, "iba-cfg",          "iba Device Configuration Protocol" },
     { 7073, "martalk",          "MarTalk protocol" },
     { 7117, "rothaga",          "Encrypted chat and file transfer service" },
+    { 7151, "ambesasql",        "AmbesaSQL Database Server" },
     { 7167, "casrmagent",       "CA SRM Agent" },
     { 7168, "cnckadserver",     "cncKadServer DB & Inventory Services" },
     { 7172, "metalbend",        "Port used for MetalBend programmable interface" },

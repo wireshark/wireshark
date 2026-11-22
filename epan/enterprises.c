@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-11-13) */
+/* (last updated 2026-11-20) */
 
 #include "config.h"
 
@@ -38465,7 +38465,7 @@ static const char * const table[] =
     "OrbiConnect GmbH & Co. KG",                                                          // 38443
     "Holiday Extras Limited",                                                             // 38444
     "VMC",                                                                                // 38445
-    "Enlogic Systems, LLC",                                                               // 38446
+    "nVent Electric PLC",                                                                 // 38446
     "Ing. Viliam Oršula - iElectro",                                                      // 38447
     "NOLOGIN CONSULTING SL",                                                              // 38448
     "Nationwide Building Society",                                                        // 38449
@@ -56407,7 +56407,7 @@ static const char * const table[] =
     "LLC Lotsiya",                                                                        // 56385
     "Praxispunkt GmbH",                                                                   // 56386
     "DFINITY USA, LLC",                                                                   // 56387
-    "GTS Ground Transport Systems Austria GmbH",                                          // 56388
+    "Hitachi Rail Austria Gmbh",                                                          // 56388
     "The Munshi Group",                                                                   // 56389
     "Wuhan Yangtze Computing Technologies Co.,LTD",                                       // 56390
     "Digital Devices GmbH",                                                               // 56391
@@ -57942,7 +57942,7 @@ static const char * const table[] =
     "Berletex Aero Design",                                                               // 57920
     "Condition-ALPHA",                                                                    // 57921
     "Executive Health of Coral Gables",                                                   // 57922
-    "Open Physical Working Group",                                                        // 57923
+    "OpenPhysical Foundation",                                                            // 57923
     "Cobham SATCOM (Thrane & Thrane)",                                                    // 57924
     "Aston Martin Lagonda Ltd",                                                           // 57925
     "TownSuite Municipal Software Inc.",                                                  // 57926
@@ -58490,7 +58490,7 @@ static const char * const table[] =
     "Helmholtz-Zentrum fuer Infektionsforschung GmbH",                                    // 58468
     "Atom Computing, Inc.",                                                               // 58469
     "Elekto Produtos Financeiros",                                                        // 58470
-    "The Poor Man's Datacenter",                                                          // 58471
+    NULL,                                                                                 // 58471
     "ZPrAE Sp. z o.o.",                                                                   // 58472
     "Dominion Packaging",                                                                 // 58473
     "Leibniz Institute for Regional Geography (IfL)",                                     // 58474
@@ -66123,7 +66123,7 @@ static const char * const table[] =
     "WISTERIA LAB",                                                                       // 66101
     "Sky Guard Cyber",                                                                    // 66102
     "Parto Ertebat Saba",                                                                 // 66103
-    "Aragonese Institute of Health Sciences",                                             // 66104
+    "Aragon Health Sciences Institute",                                                   // 66104
     "LLC «INFOMAT»",                                                                      // 66105
     "iTEAM (Instituto de Telecomunicaciones y Aplicaciones Multimedia, Grupo MCG)",       // 66106
     "FEHC-HHCP",                                                                          // 66107
@@ -67701,7 +67701,81 @@ static const char * const table[] =
     "EDW TI Solucoes em Informatica",                                                     // 67679
     "Swiss Timing Ltd.",                                                                  // 67680
     "NibblePoker",                                                                        // 67681
-    "Kinective"                                                                           // 67682
+    "Kinective",                                                                          // 67682
+    "Torsten Dargers",                                                                    // 67683
+    "EPISCOPAL COMMUNITIES AND SERVICES FOR SENIORS",                                     // 67684
+    "MicroIDx",                                                                           // 67685
+    "Libre Systems",                                                                      // 67686
+    "Erasmushogeschool Brussel",                                                          // 67687
+    "Sebastian Llanos Arroyo",                                                            // 67688
+    "Next Networks Inc.",                                                                 // 67689
+    "LockWire Labs",                                                                      // 67690
+    "Uluka Systems Pvt Ltd",                                                              // 67691
+    "AOB (Autonomous Operations Bundle)",                                                 // 67692
+    "KGB (Knowledge Graph Bundle)",                                                       // 67693
+    "ELB (Executable Learning Bundle)",                                                   // 67694
+    "Coregate",                                                                           // 67695
+    "Invicta Trust Services",                                                             // 67696
+    "Kyndryl Deutschland Business & Technology Services GmbH",                            // 67697
+    "CCTSGlobal",                                                                         // 67698
+    "Lunsight, LLC",                                                                      // 67699
+    "NACVIEW Sp z o o",                                                                   // 67700
+    "Shield & Dagger s.r.o.",                                                             // 67701
+    "Proforge Ltd.",                                                                      // 67702
+    "Calibour Limited",                                                                   // 67703
+    "INFICARE (M) SDBN BHD",                                                              // 67704
+    "SupraNet Technology Co., Ltd.",                                                      // 67705
+    "Ondato, UAB",                                                                        // 67706
+    "Cintoo SAS",                                                                         // 67707
+    "Isaac Grannis",                                                                      // 67708
+    "VIRTUA-NETWORKS",                                                                    // 67709
+    "Wolferajd Entertainment LLC",                                                        // 67710
+    "Sedna Inc",                                                                          // 67711
+    "GSTAG",                                                                              // 67712
+    "Zentryx Global Systems Pvt. Ltd.",                                                   // 67713
+    "Wilhelm Integrated Solutions",                                                       // 67714
+    "Beijing InHand Networks Technology Co., Ltd.",                                       // 67715
+    "Sandor Kunyik",                                                                      // 67716
+    "CrushFTP, LLC",                                                                      // 67717
+    "Luo Lingyuan",                                                                       // 67718
+    "广东汉为信息技术有限公司 (Guangdong Hanwei Information Technology Co., Ltd.)",                   // 67719
+    "Pikotera, UAB",                                                                      // 67720
+    "University Hospital Dubrava",                                                        // 67721
+    "Structure Applied LLC",                                                              // 67722
+    "Nightingale Security",                                                               // 67723
+    "uwuWARE GmbH",                                                                       // 67724
+    "Keytos Security Inc",                                                                // 67725
+    "Steven Weiler",                                                                      // 67726
+    "Igor Castro",                                                                        // 67727
+    "Grandtec",                                                                           // 67728
+    "Earthbook Inc.",                                                                     // 67729
+    "Wevo System Sdn. Bhd.",                                                              // 67730
+    "Terto Networks Ltda",                                                                // 67731
+    "Thinkstratum Ltd",                                                                   // 67732
+    "Farhikhtegan",                                                                       // 67733
+    "Datis Pars",                                                                         // 67734
+    "Bornholms Regionskommune",                                                           // 67735
+    "Eurotherm Ltd",                                                                      // 67736
+    "Sogedin Spa",                                                                        // 67737
+    "SARP Systems",                                                                       // 67738
+    "Valid8.com, Inc.",                                                                   // 67739
+    "Randtronics Pty Ltd",                                                                // 67740
+    "Krasinform JSC",                                                                     // 67741
+    "Haute école pédagogique du Valais | HEP-VS",                                         // 67742
+    "Skelgard GmbH",                                                                      // 67743
+    "Adalvo Ltd",                                                                         // 67744
+    "Region Skåne",                                                                       // 67745
+    "Ariel OS",                                                                           // 67746
+    "eGov Foundation",                                                                    // 67747
+    "Pen-Link, LTD.",                                                                     // 67748
+    "Manuel Bergler",                                                                     // 67749
+    "M-Tec Systems, Inc",                                                                 // 67750
+    "Viakom GmbH",                                                                        // 67751
+    "TimberIT AB",                                                                        // 67752
+    "Kimbal Private Limited",                                                             // 67753
+    "OpenCloud Business",                                                                 // 67754
+    "Areca Embedded Systems Pvt. Ltd.",                                                   // 67755
+    "KANTEGA AS"                                                                          // 67756
 };
 
 const char* global_enterprises_lookup(uint32_t value)
