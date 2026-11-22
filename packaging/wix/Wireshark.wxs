@@ -4,9 +4,8 @@
 
   <!-- The path to the installer's End-User License Agreement, displayed during installation -->
   <?define EulaPath="$(var.AssetDir)\COPYING.rtf"?>
-  <!-- Windows 8 and later supports PNG. Until then we use cave paintings^W^W BMP. -->
-  <?define BannerImagePath="$(var.AssetDir)\banner.bmp"?>
-  <?define DialogImagePath="$(var.AssetDir)\dialog.bmp"?>
+  <?define BannerImagePath="$(var.AssetDir)\wireshark-banner.png"?>
+  <?define DialogImagePath="$(var.AssetDir)\wireshark-dialog.png"?>
   <!-- Use the application icon in "Programs and Features"
        This is apparently stored uncompressed, i.e. we should use a dedicated
        .ico file instead of pointing to wireshark.exe.
@@ -45,10 +44,10 @@
   </Package>
 
   <?include InputPaths.wxi ?>
-  <?include DirectoryStructure.wxi ?>
-  <?include Prerequisites.wxi ?>
-  <?include ComponentGroups.wxi ?>
-  <?include Plugins.wxi ?>
-  <?include Features.wxi ?>
-  <?include UserInterface.wxi ?>
+  <?include WiresharkDirectoryStructure.wxi ?>
+  <?include WiresharkPrerequisites.wxi ?>
+  <?include WiresharkComponentGroups.wxi ?>
+  <?include WiresharkPlugins.wxi ?>
+  <?include WiresharkFeatures.wxi ?>
+  <?include WiresharkUserInterface.wxi ?>
 </Wix>
