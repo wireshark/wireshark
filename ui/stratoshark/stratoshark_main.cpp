@@ -17,16 +17,17 @@
 #include <tchar.h>
 #include <wchar.h>
 #include <shellapi.h>
+#include <shobjidl.h>
 #include <wsutil/console_win32.h>
 #endif
 
 #include <ws_exit_codes.h>
-#include <app/application_flavor.h>     //Stratoshark only
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <ui/urls.h>
 #include <wsutil/time_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/ws_assert.h>
 #include <wsutil/privileges.h>
 #include <wsutil/socket.h>
 #include <wsutil/wslog.h>
@@ -36,6 +37,7 @@
 #include <wsutil/please_report_bug.h>
 #include <wsutil/unicode-utils.h>
 #include <wsutil/version_info.h>
+#include <app/application_flavor.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/ex-opt.h>
@@ -73,8 +75,10 @@
 #include "ui/dissect_opts.h"
 #include "ui/commandline.h"
 #include "ui/capture_ui_utils.h"
+#include "ui/capture_globals.h"
 #include "ui/preference_utils.h"
 #include "ui/taps.h"
+#include "ui/profile.h"
 #include "ui/plugins/include/uiqt_plugin.h"
 
 #include "ui/qt/conversation_dialog.h"
@@ -84,14 +88,15 @@
 #include "ui/qt/endpoint_dialog.h"
 #include "ui/qt/glib_mainloop_on_qeventloop.h"
 #include "ui/stratoshark/stratoshark_main_window.h"
-#include <ui/qt/manager/interface_list_manager.h>
-#include <wsutil/ws_assert.h>
+
+
 #include "ui/qt/simple_dialog.h"
 #include "ui/qt/simple_statistics_dialog.h"
 #include <ui/qt/widgets/splash_overlay.h>
 #include "ui/stratoshark/stratoshark_application.h"
 #include "ui/qt/utils/workspace_state.h"
 #include "ui/qt/utils/software_update.h"
+#include <ui/qt/manager/interface_list_manager.h>
 
 #include "capture/capture-pcap-util.h"
 
@@ -121,7 +126,18 @@ void main_window_update(void)
 }
 
 void exit_application(int status) {
+    // It's generally better to return from main. If the event loop is
+    // running (or has already stopped), ssApp->quit will cause the app
+    // to do so. (So we wouldn't need to call stdlib exit.) If it's not
+    // yet running, e.g., failure parsing options in ui/commandline.c,
+    // it's would be cleaner to return back to main and exit from there,
+    // especially if ssApp has been created.
     if (ssApp) {
+        // ssApp->quit() is a no-op if the event loop isn't running
+        // (That was not true in some earlier versions of Qt.)
+        // ssApp->exit(status) is not thread safe, though it may be possible to call
+        //QMetaObject::invokeMethod(wsApp, "exit", Qt::QueuedConnection, status);
+        // or similar, e.g. with a QTimer
         ssApp->quit();
     }
 
@@ -201,7 +217,7 @@ stratoshark_cmdarg_err_cont(const char *fmt, va_list ap)
 }
 
 void
-gather_wireshark_qt_compiled_info(feature_list l)
+gather_application_qt_compiled_info(feature_list l)
 {
 #ifdef QT_VERSION
     with_feature(l, "Qt %s", QT_VERSION_STR);
@@ -210,34 +226,33 @@ gather_wireshark_qt_compiled_info(feature_list l)
 #endif
     gather_caplibs_compile_info(l);
     epan_gather_compile_info(l);
-#ifdef QT_MULTIMEDIA_LIB
-    with_feature(l, "QtMultimedia");
-#else
-    without_feature(l, "QtMultimedia");
-#endif
-
-    QString update_info = SoftwareUpdate::info();
-    if (!update_info.isEmpty()) {
-        with_feature(l, "automatic updates using %s", update_info.toUtf8().constData());
-    } else {
-        without_feature(l, "automatic updates");
-    }
-
 #ifdef HAVE_MINIZIP
     with_feature(l, "Minizip");
 #else
     without_feature(l, "Minizip");
 #endif
-
+#ifdef QT_MULTIMEDIA_LIB
+    with_feature(l, "QtMultimedia");
+#else
+    without_feature(l, "QtMultimedia");
+#endif
 #ifdef HAVE_SINSP
     with_feature(l, "falcosecurity-libs sinsp/scap %d.%d.%d", SINSP_VERSION_MAJOR, SINSP_VERSION_MINOR, SINSP_VERSION_MICRO);
 #else
     without_feature(l, "falcosecurity-libs sinsp/scap");
 #endif
+
+    QString update_info = SoftwareUpdate::info();
+    if (!update_info.isEmpty()) {
+        with_feature(l, "automatic updates");
+        with_feature(l, "%s", update_info.toStdString().c_str());
+    } else {
+        without_feature(l, "automatic updates");
+    }
 }
 
 void
-gather_wireshark_runtime_info(feature_list l)
+gather_application_runtime_info(feature_list l)
 {
     with_feature(l, "Qt %s", qVersion());
 #ifdef HAVE_LIBPCAP
@@ -263,20 +278,41 @@ gather_wireshark_runtime_info(feature_list l)
         } else {
             without_feature(l, "HiDPI");
         }
+        QString session = qEnvironmentVariable("XDG_SESSION_TYPE");
+        if (!session.isEmpty()) {
+            if (session == "wayland") {
+                with_feature(l, "Wayland");
+            } else if (session == "x11") {
+                with_feature(l, "Xorg");
+            } else {
+                with_feature(l, "XDG_SESSION_TYPE=%s", qUtf8Printable(session));
+            }
+        }
+        QString platform = qApp->platformName();
+        if (!platform.isEmpty()) {
+            with_feature(l, "QPA plugin \"%s\"", qUtf8Printable(platform));
+        }
     }
 }
 
 static void
-qt_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString &msg)
+qt_log_message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    enum ws_log_level log_level = LOG_LEVEL_DEBUG;
+    enum ws_log_level log_level = LOG_LEVEL_NONE;
+
+    // QMessageLogContext may contain null/zero for release builds.
+    const char *file = context.file;
+    int line = context.line > 0 ? context.line : -1;
+    const char *func = context.function;
 
     switch (type) {
     case QtInfoMsg:
         log_level = LOG_LEVEL_INFO;
+        // Omit the file/line/function for this level.
+        file = nullptr;
+        line = -1;
+        func = nullptr;
         break;
-    // We want qDebug() messages to show up at our default log level.
-    case QtDebugMsg:
     case QtWarningMsg:
         log_level = LOG_LEVEL_WARNING;
         break;
@@ -286,10 +322,24 @@ qt_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString
     case QtFatalMsg:
         log_level = LOG_LEVEL_ERROR;
         break;
-    default:
+    // We want qDebug() messages to show up always for temporary print-outs.
+    case QtDebugMsg:
+        log_level = LOG_LEVEL_ECHO;
         break;
     }
-    ws_log(LOG_DOMAIN_QTUI, log_level, "%s", qUtf8Printable(msg));
+
+    // Qt gives the full method declaration as the function. Our convention
+    // (following the C/C++ standards) is to display only the function name.
+    // Hack the name into the message as a workaround to avoid formatting
+    // issues.
+    if (func != nullptr) {
+        ws_log_full(LOG_DOMAIN_QTUI, log_level, file, line, nullptr,
+                        "%s -- %s", func, qUtf8Printable(msg));
+    }
+    else {
+        ws_log_full(LOG_DOMAIN_QTUI, log_level, file, line, nullptr,
+                        "%s", qUtf8Printable(msg));
+    }
 }
 
 #ifdef HAVE_LIBPCAP
@@ -318,7 +368,7 @@ check_and_warn_user_startup()
 }
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
 // Try to avoid library search path collisions. QCoreApplication will
 // search QT_INSTALL_PREFIX/plugins for platform DLLs before searching
 // the application directory. If
@@ -336,6 +386,12 @@ check_and_warn_user_startup()
 // same path on the build machine. At any rate, loading DLLs from paths
 // you don't control is ill-advised. We work around this by removing every
 // path except our application directory.
+//
+// NOTE: This does not apply to MinGW-w64 using MSYS2. In that case we use
+// the system's Qt plugins with the default search paths.
+//
+// NOTE 2: When using MinGW-w64 without MSYS2 we also search for the system DLLS,
+// because our installer might not have deployed them.
 
 static inline void
 win32_reset_library_path(void)
@@ -432,6 +488,9 @@ int main(int argc, char *qt_argv[])
 
 #ifdef _WIN32
     restore_pipes();
+    // This lets us set our taskbar icon with setWindowIcon. (Is the version needed?)
+    // https://stackoverflow.com/a/1552105
+    SetCurrentProcessExplicitAppUserModelID(L"org.Wireshark.Stratoshark." VERSION);
 #endif
 
 #ifdef DEBUG_STARTUP_TIME
@@ -505,8 +564,8 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
 
     /* Get the compile-time version information string */
-    ws_init_version_info("Stratoshark", application_flavor_name_proper(), application_get_vcs_version_info, gather_wireshark_qt_compiled_info,
-                         gather_wireshark_runtime_info);
+    ws_init_version_info("Stratoshark", application_flavor_name_proper(), application_get_vcs_version_info,
+                         gather_application_qt_compiled_info, gather_application_runtime_info);
 
     init_report_alert_box("Stratoshark");
 
@@ -570,12 +629,28 @@ int main(int argc, char *qt_argv[])
     win32_reset_library_path();
 #endif
 
-    /* Set the desktop file name before creating the application; see
-     * ui/qt/main.cpp. */
+    /* The Qt Windows platform plugin provides the ability to detect the AltGr key.
+     * Without this, AltGr maps to Ctrl+Alt on Windows which may triggers shortcuts instead of
+     * entering special characters into text fields.
+     *
+     * Enabling the AltGr detection by setting the QT_QPA_PLATFORM environment variable.
+     * This setting can still be overridden by specifying the `-platform` command line parameter. */
+#ifdef _WIN32
+     g_setenv("QT_QPA_PLATFORM", "windows:altgr", 0);
+#endif
+
+    /* Set the desktop file name before creating the application. On Linux and
+     * other desktops with an XDG desktop portal, the theme manager makes a
+     * portal request when initialized in the MainApplication base class, so
+     * setting the name in the WiresharkApplication constructor is too late. */
     QGuiApplication::setDesktopFileName(QStringLiteral("org.wireshark.Stratoshark"));
 
     /* Create The Stratoshark app */
     StratosharkApplication ss_app(argc, qt_argv);
+
+    // Default value is 400ms = "quickly typing" when searching in Preferences->Protocols
+    // 1000ms allows a more "hunt/peck" typing speed. 2000ms tested - too long.
+    QApplication::setKeyboardInputInterval(1000);
 
     Dot11DecryptInitContext(&dot11decrypt_ctx);
 
@@ -731,8 +806,16 @@ int main(int argc, char *qt_argv[])
 
     /* Register the extcap preferences. We do this after seeing if the
      * capture_no_extcap preference is set in the configuration file
-     * or command line. This will load the extcap interface list and read
-     * the extcap specific preferences if the preference is not set.
+     * or command line. Unless that preference is set, this will load
+     * the extcap interface list and read the extcap specific preferences
+     * from "extcap.cfg".
+     *
+     * XXX - Note that even if prefs.capture_no_interface_load is set the
+     * extcaps are still loaded here, so long as capture_no_extcap isn't set.
+     * Maybe they shouldn't be? (Although we'd want to at least make sure
+     * that the configuration file is registered, so that it is properly
+     * copied if the profile is copied, at least so long as the extcap
+     * configuration file is per-profile.)
      */
 #ifdef DEBUG_STARTUP_TIME
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling extcap_register_preferences, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
@@ -741,7 +824,8 @@ int main(int argc, char *qt_argv[])
     extcap_register_preferences(splash_update, NULL);
 
     /* Apply the extcap command line options now that the extcap preferences
-     * are loaded.
+     * are loaded. (If they weren't loaded, there would be an error about
+     * unknown preferences.)
      */
     commandline_options_apply_extcap();
 
@@ -754,7 +838,31 @@ int main(int argc, char *qt_argv[])
     prefs_to_capture_opts(&global_capture_opts);
 
     /* Now get our remaining args */
+
+    /* XXX: Processing interface options on the command line might retrieve
+     * the interface list. We don't yet know if we will need to retrieve the
+     * interface capabilities as well (e.g. are we printing capabilities,
+     * or loading the interface list?) until we parse other options, like
+     * whether we have a capture file.
+     *
+     * We'd prefer to avoid firing up dumpcap twice (once for the list
+     * without the capabilities and once for capabilities), especially
+     * on Windows where that could mean two UAC prompts. However, getting
+     * the interface capabilities is a bit time-consuming so we don't want
+     * to do it if we don't need to.
+     */
+
     commandline_other_options(&global_capture_opts, argc, argv, &commandline_app_data, true);
+
+#ifdef HAVE_LIBPCAP
+    /*
+     * The preference for process information was applied before the
+     * command line, which may have asked for a pcap file, in which there is
+     * no room for it; a capture must not fail because of a preference.
+     */
+    //if (!global_capture_opts.use_pcapng)
+    //    global_capture_opts.process_info = PROCESS_INFO_NONE;
+#endif
 
     /* Convert some command-line parameters to QStrings */
     cf_name = QString(commandline_get_cf_name());
@@ -845,6 +953,9 @@ int main(int argc, char *qt_argv[])
         // Enumerate synchronously before the event loop (see Wireshark main()).
         InterfaceListManager *if_mgr = main_w->interfaceListManager();
         ws_assert(if_mgr);
+        // We just scanned the extcaps above when registering their prefs or
+        // if an interface option was on the command line; don't clear them
+        // and re-scan them, that's time-consuming, especially on Windows.
         if_mgr->refreshNow(false);
     }
 
@@ -858,6 +969,7 @@ int main(int argc, char *qt_argv[])
 #ifdef DEBUG_STARTUP_TIME
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling prefs_apply_all, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
 #endif
+    splash_update(RA_PREFERENCES_APPLY, NULL, NULL);
     prefs_apply_all();
     ssApp->emitAppSignal(StratosharkApplication::PreferencesChanged);
 
@@ -884,6 +996,14 @@ int main(int argc, char *qt_argv[])
 
     tag_rules_init();
 
+    /* allSystemsGo() emits appInitialized(), which signals the WelcomePage to
+     * delete the splash overlay. However, it doesn't get redrawn until
+     * processEvents() is called. If we're opening a capture file that happens
+     * either when we finish reading the file or when the progress bar appears.
+     * It's probably better to leave the splash overlay up until that happens
+     * rather than showing the user the welcome page, so we don't call
+     * processEvents() here.
+     */
     ssApp->allSystemsGo();
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Stratoshark is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
     SimpleDialog::displayQueuedMessages(main_w);
@@ -945,6 +1065,9 @@ int main(int argc, char *qt_argv[])
             /* If no user interfaces were specified on the command line,
                copy the list of selected interfaces to the set of interfaces
                to use for this capture. */
+            /* XXX: I don't think this can happen, because if start_capture is
+             * true then capture_opts_default_iface_if_necessary() was called
+             */
             if (global_capture_opts.ifaces->len == 0)
                 collect_ifaces(&global_capture_opts);
             CaptureFile::globalCapFile()->window = main_w;

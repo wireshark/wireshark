@@ -218,7 +218,7 @@ wireshark_cmdarg_err_cont(const char *fmt, va_list ap)
 }
 
 void
-gather_wireshark_qt_compiled_info(feature_list l)
+gather_application_qt_compiled_info(feature_list l)
 {
 #ifdef QT_VERSION
     with_feature(l, "Qt %s", QT_VERSION_STR);
@@ -259,7 +259,7 @@ gather_wireshark_qt_compiled_info(feature_list l)
 }
 
 void
-gather_wireshark_runtime_info(feature_list l)
+gather_application_runtime_info(feature_list l)
 {
     with_feature(l, "Qt %s", qVersion());
 #ifdef HAVE_LIBPCAP
@@ -573,8 +573,8 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
 
     /* Get the compile-time version information string */
-    ws_init_version_info("Wireshark", application_flavor_name_proper(), application_get_vcs_version_info, gather_wireshark_qt_compiled_info,
-                         gather_wireshark_runtime_info);
+    ws_init_version_info("Wireshark", application_flavor_name_proper(), application_get_vcs_version_info,
+                         gather_application_qt_compiled_info, gather_application_runtime_info);
 
     init_report_alert_box("Wireshark");
 
