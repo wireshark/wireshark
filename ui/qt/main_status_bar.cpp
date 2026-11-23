@@ -27,6 +27,7 @@
 #include "profile_dialog.h"
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/theme_styler.h>
 #include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/utils/themes/themed_icon.h>
@@ -188,6 +189,9 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     packet_status_.setAccessibleName(tr("Packet statistics"));
     packet_status_.setAccessibleDescription(tr("Shows the number of captured, displayed, and selected packets."));
     profile_status_.setStyleSheet(label_ss);
+    // The profile menus, created in the status bar, have many neighbouring
+    // submenus, which open as the mouse moves over them
+    ThemeStyler::setPlainSubMenus(this);
     profile_status_.setAccessibleName(tr("Configuration profile"));
     profile_status_.setAccessibleDescription(tr("Displays the current configuration profile and allows switching between profiles."));
 
