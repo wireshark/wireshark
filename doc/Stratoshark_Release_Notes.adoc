@@ -29,7 +29,7 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 1.0.0rc2:
 
-* Nothing of note.
+* The installer package for Windows now ships as a thin executable wrapper which includes the Visual C++ redistributable and the Stratoshark MSI package.
 
 The following changes have been made since version 1.0.0rc1:
 
