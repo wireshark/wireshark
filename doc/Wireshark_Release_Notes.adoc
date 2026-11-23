@@ -127,6 +127,13 @@ The following features are either new or have been significantly updated since v
   derivation rate of 0. The authentication tag is verified, and the decrypted
   RTCP packets, such as MCPTT floor control messages, are dissected. SRTCP
   packets found by the RTCP heuristic are decrypted too.
+  A second table, "CSK/SPK keys (3GPP TS 33.180)", takes the MCX Client-Server
+  Key (CSK) or Signalling Protection Key (SPK) with its key ID and RAND
+  instead: the SRTCP master key is derived from it as in 3GPP TS 33.180, and
+  floor, transmission and media control protected with AES-GCM-128 is
+  decrypted. The key of each packet is found from its MKI (the key ID), and
+  packets without an MKI are tried with every key. With the SSRC left empty, a
+  key decrypts every flow it protects.
 
 * `reordercap` prints its informative status messages to standard error, not
   standard output (wsbuglink:21725[]), and those messages can be suppressed

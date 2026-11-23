@@ -803,6 +803,10 @@ static int hf_srtcp_mki;
 static int hf_srtcp_auth_tag;
 static int hf_srtcp_key_entry;
 static int hf_srtcp_auth_tag_status;
+static int hf_srtcp_mcx_key_entry;
+static int hf_srtcp_mcx_cs_id;
+static int hf_srtcp_mcx_key_id;
+static int hf_srtcp_mcx_purpose_tag;
 static int hf_rtcp_xr_btxnq_begseq;               /* added for BT XNQ block (RFC5093) */
 static int hf_rtcp_xr_btxnq_endseq;
 static int hf_rtcp_xr_btxnq_vmaxdiff;
@@ -975,6 +979,7 @@ static int hf_rtcp_mcpc_pck_imessage;
 
 /* RTCP fields defining a sub tree */
 static int ett_rtcp;
+static int ett_srtcp_mcx_key_id;
 static int ett_rtcp_sr;
 static int ett_rtcp_rr;
 static int ett_rtcp_sdes;
@@ -1089,12 +1094,26 @@ static const enum_val_t rtcp_application_specific_encoding_vals[] = {
 static int preferences_application_specific_encoding = RTCP_APP_NONE;
 
 /*
- * SRTCP decryption with master keys entered by the user in the
- * "SRTP/SRTCP master keys" table (Edit > Preferences > Protocols > SRTCP).
+ * SRTCP decryption with keys entered by the user in the SRTCP protocol
+ * preferences (Edit > Preferences > Protocols > SRTCP):
  *
- * Supported transforms: AES-CM-128 (RFC 3711), AES-CM-192 and AES-CM-256
- * (RFC 6188) with HMAC-SHA1 or no authentication, AES-GCM-128 and
- * AES-GCM-256 (RFC 7714), and NULL encryption with HMAC-SHA1.
+ * - "SRTP/SRTCP master keys": SRTP master keys and salts. Supported
+ *   transforms: AES-CM-128 (RFC 3711), AES-CM-192 and AES-CM-256 (RFC 6188)
+ *   with HMAC-SHA1 or no authentication, AES-GCM-128 and AES-GCM-256
+ *   (RFC 7714), and NULL encryption with HMAC-SHA1.
+ *
+ * - "CSK/SPK keys (3GPP TS 33.180)": the Client-Server Key (CSK, between an
+ *   MC client and the MCX server) or Signalling Protection Key (SPK, between
+ *   MCX servers) that protects floor, transmission and media control. As in
+ *   TS 33.180 clause 9.4.6, the key is the MIKEY TGK, its key ID the CSB ID,
+ *   and the MIKEY RAND (SPK-RAND for an SPK) the RAND, from which the SRTCP
+ *   master key and salt are derived with the PRF of RFC 3830 section 4.1.2
+ *   based on HMAC-SHA-256 (RFC 6043 section 6.1). The packets carry the key
+ *   ID as MKI and use AES-GCM-128 with a 16-byte tag (default profile, TS
+ *   33.180 annex E.4.2).
+ *
+ * Every key applies to one sender SSRC or, with the SSRC left empty, to any
+ * SSRC: one entry then decrypts every flow protected by the key.
  *
  * Only a key derivation rate of 0 is supported. It is the default, and the
  * one used with MIKEY (e.g. MIKEY-SAKKE for MCPTT, 3GPP TS 33.180). The
@@ -1146,6 +1165,21 @@ static const value_string srtcp_auth_tag_status_vals[] = {
     { 0, NULL }
 };
 
+/* Purpose tag: the most significant 4 bits of a key ID (3GPP TS 33.180 annex G) */
+#define MCX_PURPOSE_TAG_CSK      2
+#define MCX_PURPOSE_TAG_SPK      3
+
+static const value_string srtcp_mcx_purpose_tag_vals[] = {
+    { 0,                   "GMK" },
+    { 1,                   "PCK" },
+    { MCX_PURPOSE_TAG_CSK, "CSK" },
+    { MCX_PURPOSE_TAG_SPK, "SPK" },
+    { 4,                   "MKFC" },
+    { 5,                   "MSCCK" },
+    { 6,                   "MuSiK" },
+    { 0, NULL }
+};
+
 #define SRTCP_MAX_MASTER_KEY_LEN 32
 #define SRTCP_CM_SALT_LEN        14     /* RFC 3711 */
 #define SRTCP_GCM_SALT_LEN       12     /* RFC 7714 */
@@ -1160,6 +1194,34 @@ static const value_string srtcp_auth_tag_status_vals[] = {
 #define SRTCP_KDF_LABEL_AUTH     0x04
 #define SRTCP_KDF_LABEL_SALT     0x05
 
+/* CSK and SPK (3GPP TS 33.180 clauses 5.5, 9.2.1 and 9.4.6) */
+#define SRTCP_MCX_KEY_ID_LEN     4      /* 32-bit key ID, also the MKI */
+#define SRTCP_MCX_KEY_LEN        16     /* 128-bit CSK or SPK */
+#define SRTCP_MCX_MIN_RAND_LEN   16     /* 128-bit RAND (RFC 3830 section 4.1.1) */
+#define SRTCP_MCX_MAX_RAND_LEN   64
+#define SRTCP_MCX_MAX_CS_IDS     2
+#define SRTCP_MCX_CS_ID_MCPTT    6      /* TS 33.180 table E.1.3-1: CSK SRTCP protection for MCPTT */
+#define SRTCP_MCX_CS_ID_MCVIDEO  8      /* CSK SRTCP protection for MCVideo */
+
+/* RFC 3830 section 4.1.3: constants of the TEK and salting key derivations */
+#define MIKEY_TEK_CONSTANT       0x2AD01C64
+#define MIKEY_SALT_CONSTANT      0x39A2C14B
+
+/* What decrypting with a key needs, filled when the key tables are loaded */
+typedef struct {
+    unsigned       enc_alg;         /* enum srtcp_key_enc_alg */
+    unsigned       auth_alg;        /* enum srtcp_key_auth_alg */
+    unsigned       key_len;         /* AES key length, the master key length */
+    uint8_t        mki[SRTCP_MAX_MKI_LEN];
+    unsigned       mki_len;
+    bool           any_ssrc;
+    uint32_t       ssrc_val;
+    uint8_t        session_key[SRTCP_MAX_MASTER_KEY_LEN];
+    uint8_t        session_salt[SRTCP_CM_SALT_LEN];
+    uint8_t        session_auth_key[SRTCP_AUTH_KEY_LEN];
+} srtcp_crypto_ctx_t;
+
+/* "SRTP/SRTCP master keys" table */
 typedef struct {
     char          *ssrc;            /* Hexadecimal SSRC, or empty to match any SSRC */
     unsigned char *mki;
@@ -1172,20 +1234,43 @@ typedef struct {
     unsigned       auth_alg;        /* enum srtcp_key_auth_alg */
     char          *comment;
     /* Filled in by the update callback */
-    bool           any_ssrc;
-    uint32_t       ssrc_val;
-    uint8_t        session_key[SRTCP_MAX_MASTER_KEY_LEN];
-    uint8_t        session_salt[SRTCP_CM_SALT_LEN];
-    uint8_t        session_auth_key[SRTCP_AUTH_KEY_LEN];
+    srtcp_crypto_ctx_t ctx;
 } srtcp_key_uat_record_t;
 
 static srtcp_key_uat_record_t *srtcp_key_records;
 static unsigned num_srtcp_key_records;
 
+/* "CSK/SPK keys (3GPP TS 33.180)" table */
+typedef struct {
+    unsigned char *key_id;          /* CSK-ID or SPK-ID */
+    unsigned       key_id_len;
+    unsigned char *kfc;             /* CSK or SPK */
+    unsigned       kfc_len;
+    unsigned char *kfc_rand;        /* MIKEY RAND or SPK-RAND */
+    unsigned       kfc_rand_len;
+    char          *cs_id;           /* Decimal CS-ID, or empty for the CSK CS-IDs */
+    char          *ssrc;            /* Hexadecimal SSRC, or empty to match any SSRC */
+    char          *comment;
+    /* Filled in by the update callback: one context per CS-ID to try */
+    unsigned       num_ctx;
+    uint8_t        cs_ids[SRTCP_MCX_MAX_CS_IDS];
+    srtcp_crypto_ctx_t ctx[SRTCP_MCX_MAX_CS_IDS];
+} srtcp_mcx_key_uat_record_t;
+
+static srtcp_mcx_key_uat_record_t *srtcp_mcx_key_records;
+static unsigned num_srtcp_mcx_key_records;
+
+enum srtcp_key_table {
+    SRTCP_KEY_TABLE_MASTER,         /* srtcp_key_records */
+    SRTCP_KEY_TABLE_MCX             /* srtcp_mcx_key_records */
+};
+
 /* Result of a successful decryption */
 typedef struct {
     tvbuff_t *tvb;              /* RTCP packet(s), from the first header to the end of the encrypted portion */
-    unsigned  key_idx;          /* Index of the key in srtcp_key_records */
+    unsigned  table;            /* enum srtcp_key_table */
+    unsigned  key_idx;          /* Index of the key in its table */
+    unsigned  cs_id;            /* CS-ID of the key derivation (CSK/SPK table) */
     bool      encrypted;        /* E flag set and the key encrypts */
     bool      authenticated;    /* Authentication tag checked and good */
     unsigned  index_offset;     /* Offsets in the original tvb */
@@ -1197,17 +1282,17 @@ typedef struct {
 } srtcp_decrypt_info_t;
 
 static bool
-srtcp_key_is_gcm(const srtcp_key_uat_record_t *rec)
+srtcp_key_is_gcm(const srtcp_crypto_ctx_t *ctx)
 {
-    return rec->enc_alg == SRTCP_KEY_ENC_AES_GCM_128 || rec->enc_alg == SRTCP_KEY_ENC_AES_GCM_256;
+    return ctx->enc_alg == SRTCP_KEY_ENC_AES_GCM_128 || ctx->enc_alg == SRTCP_KEY_ENC_AES_GCM_256;
 }
 
 static unsigned
-srtcp_key_tag_len(const srtcp_key_uat_record_t *rec)
+srtcp_key_tag_len(const srtcp_crypto_ctx_t *ctx)
 {
-    if (srtcp_key_is_gcm(rec))
+    if (srtcp_key_is_gcm(ctx))
         return SRTCP_GCM_TAG_LEN;
-    switch (rec->auth_alg) {
+    switch (ctx->auth_alg) {
     case SRTCP_KEY_AUTH_HMAC_SHA1_80:
         return 10;
     case SRTCP_KEY_AUTH_HMAC_SHA1_32:
@@ -1269,6 +1354,40 @@ srtcp_key_uat_ssrc_chk_cb(void *r _U_, const char *str, unsigned len, const void
     return true;
 }
 
+/* Parses a CS-ID given in decimal. Empty or "auto" means the CSK CS-IDs (MCPTT and MCVideo). */
+static bool
+srtcp_parse_cs_id(const char *str, unsigned len, bool *any, uint8_t *val)
+{
+    char       *s = g_strstrip(g_strndup(str ? str : "", len));
+    const char *end;
+    bool        ok;
+
+    *any = false;
+    *val = 0;
+    if (*s == '\0' || g_ascii_strcasecmp(s, "auto") == 0) {
+        *any = true;
+        g_free(s);
+        return true;
+    }
+    ok = g_ascii_isdigit(*s) && ws_strtou8(s, &end, val) && *end == '\0';
+    g_free(s);
+    return ok;
+}
+
+static bool
+srtcp_mcx_key_uat_cs_id_chk_cb(void *r _U_, const char *str, unsigned len, const void *u1 _U_, const void *u2 _U_, char **err)
+{
+    bool    any;
+    uint8_t val;
+
+    if (!srtcp_parse_cs_id(str, len, &any, &val)) {
+        *err = g_strdup("Invalid CS-ID: enter a number from 0 to 255, or leave it empty to try 6 (MCPTT) and 8 (MCVideo)");
+        return false;
+    }
+    *err = NULL;
+    return true;
+}
+
 /*
  * AES-CM key derivation (RFC 3711 section 4.3.3, RFC 6188 section 7) with a
  * key derivation rate of 0: x = (label << 48) XOR master salt, and the output
@@ -1276,21 +1395,51 @@ srtcp_key_uat_ssrc_chk_cb(void *r _U_, const char *str, unsigned len, const void
  * padded with zeros to 14 bytes (RFC 7714 section 11, as libsrtp does).
  */
 static bool
-srtcp_kdf(const srtcp_key_uat_record_t *rec, uint8_t label, uint8_t *out, unsigned out_len)
+srtcp_kdf(const uint8_t *master_key, unsigned key_len, const uint8_t *master_salt, unsigned salt_len,
+          uint8_t label, uint8_t *out, unsigned out_len)
 {
     gcry_cipher_hd_t h;
     uint8_t          iv[16] = { 0 };
     bool             ok;
 
-    memcpy(iv, rec->master_salt, MIN(rec->master_salt_len, SRTCP_CM_SALT_LEN));
+    memcpy(iv, master_salt, MIN(salt_len, SRTCP_CM_SALT_LEN));
     iv[7] ^= label;
     memset(out, 0, out_len);
-    if (gcry_cipher_open(&h, srtcp_aes_algo(rec->master_key_len), GCRY_CIPHER_MODE_CTR, 0) != 0)
+    if (gcry_cipher_open(&h, srtcp_aes_algo(key_len), GCRY_CIPHER_MODE_CTR, 0) != 0)
         return false;
-    ok = gcry_cipher_setkey(h, rec->master_key, rec->master_key_len) == 0 &&
+    ok = gcry_cipher_setkey(h, master_key, key_len) == 0 &&
          gcry_cipher_setctr(h, iv, sizeof(iv)) == 0 &&
          gcry_cipher_encrypt(h, out, out_len, NULL, 0) == 0;
     gcry_cipher_close(h);
+    return ok;
+}
+
+/*
+ * Sets the transform of a key context and derives its session keys from the
+ * master key and salt, whose lengths have been checked. The MKI and SSRC are
+ * left to the caller.
+ */
+static bool
+srtcp_ctx_init(srtcp_crypto_ctx_t *ctx, unsigned enc_alg, unsigned auth_alg,
+               const uint8_t *master_key, unsigned key_len, const uint8_t *master_salt, unsigned salt_len)
+{
+    bool ok = true;
+
+    ctx->enc_alg = enc_alg;
+    ctx->auth_alg = auth_alg;
+    ctx->key_len = key_len;
+    memset(ctx->session_key, 0, sizeof(ctx->session_key));
+    memset(ctx->session_salt, 0, sizeof(ctx->session_salt));
+    memset(ctx->session_auth_key, 0, sizeof(ctx->session_auth_key));
+    if (enc_alg != SRTCP_KEY_ENC_NULL) {
+        ok = srtcp_kdf(master_key, key_len, master_salt, salt_len, SRTCP_KDF_LABEL_ENC, ctx->session_key, key_len) &&
+             srtcp_kdf(master_key, key_len, master_salt, salt_len, SRTCP_KDF_LABEL_SALT, ctx->session_salt,
+                       srtcp_key_is_gcm(ctx) ? SRTCP_GCM_SALT_LEN : SRTCP_CM_SALT_LEN);
+    }
+    if (ok && !srtcp_key_is_gcm(ctx) && auth_alg != SRTCP_KEY_AUTH_NONE) {
+        ok = srtcp_kdf(master_key, key_len, master_salt, salt_len, SRTCP_KDF_LABEL_AUTH, ctx->session_auth_key,
+                       SRTCP_AUTH_KEY_LEN);
+    }
     return ok;
 }
 
@@ -1315,9 +1464,9 @@ srtcp_key_uat_update_cb(void *r, char **err)
     srtcp_key_uat_record_t *rec = (srtcp_key_uat_record_t *)r;
     const char             *alg_name = val_to_str_const(rec->enc_alg, srtcp_key_enc_alg_vals, "?");
     unsigned                key_len, salt_len;
-    bool                    ok = true;
 
-    if (!srtcp_parse_ssrc(rec->ssrc, rec->ssrc ? (unsigned)strlen(rec->ssrc) : 0, &rec->any_ssrc, &rec->ssrc_val)) {
+    memset(&rec->ctx, 0, sizeof(rec->ctx));
+    if (!srtcp_parse_ssrc(rec->ssrc, rec->ssrc ? (unsigned)strlen(rec->ssrc) : 0, &rec->ctx.any_ssrc, &rec->ctx.ssrc_val)) {
         *err = g_strdup("Invalid SSRC: enter a hexadecimal value such as 0x1a2b3c4d, or leave it empty to match any SSRC");
         return false;
     }
@@ -1354,17 +1503,10 @@ srtcp_key_uat_update_cb(void *r, char **err)
         return false;
     }
 
-    memset(rec->session_key, 0, sizeof(rec->session_key));
-    memset(rec->session_salt, 0, sizeof(rec->session_salt));
-    memset(rec->session_auth_key, 0, sizeof(rec->session_auth_key));
-    if (rec->enc_alg != SRTCP_KEY_ENC_NULL) {
-        ok = srtcp_kdf(rec, SRTCP_KDF_LABEL_ENC, rec->session_key, key_len) &&
-             srtcp_kdf(rec, SRTCP_KDF_LABEL_SALT, rec->session_salt, salt_len);
-    }
-    if (ok && !srtcp_key_is_gcm(rec) && rec->auth_alg != SRTCP_KEY_AUTH_NONE) {
-        ok = srtcp_kdf(rec, SRTCP_KDF_LABEL_AUTH, rec->session_auth_key, SRTCP_AUTH_KEY_LEN);
-    }
-    if (!ok) {
+    if (rec->mki_len)
+        memcpy(rec->ctx.mki, rec->mki, rec->mki_len);
+    rec->ctx.mki_len = rec->mki_len;
+    if (!srtcp_ctx_init(&rec->ctx, rec->enc_alg, rec->auth_alg, rec->master_key, key_len, rec->master_salt, salt_len)) {
         *err = g_strdup("Session key derivation failed");
         return false;
     }
@@ -1394,18 +1536,188 @@ UAT_VS_DEF(srtcp_key_uat, auth_alg, srtcp_key_uat_record_t, unsigned, SRTCP_KEY_
 UAT_CSTRING_CB_DEF(srtcp_key_uat, comment, srtcp_key_uat_record_t)
 
 /*
+ * MIKEY PRF (RFC 3830 section 4.1.2) with HMAC-SHA-256 and 256-bit output
+ * blocks, i.e. PRF-HMAC-SHA-256 (RFC 6043 section 6.1):
+ *   P(s, label, m) = HMAC(s, A_1 || label) || ... || HMAC(s, A_m || label),
+ *   A_0 = label, A_i = HMAC(s, A_(i-1)),
+ *   PRF(inkey, label) = P(s_1, label, m) XOR ... XOR P(s_n, label, m),
+ * where inkey = s_1 || ... || s_n in 256-bit blocks. The output is the
+ * out_len most significant bytes.
+ */
+static bool
+srtcp_mikey_prf(const uint8_t *inkey, unsigned inkey_len, const uint8_t *label, unsigned label_len,
+                uint8_t *out, unsigned out_len)
+{
+    uint8_t  a[HASH_SHA2_256_LENGTH];
+    uint8_t  block[HASH_SHA2_256_LENGTH];
+    uint8_t *a_label = (uint8_t *)g_malloc(HASH_SHA2_256_LENGTH + label_len);
+    bool     ok = true;
+
+    memset(out, 0, out_len);
+    memcpy(a_label + HASH_SHA2_256_LENGTH, label, label_len);
+    for (unsigned s_off = 0; ok && s_off < inkey_len; s_off += 32) {
+        const uint8_t *s = inkey + s_off;
+        unsigned       s_len = MIN(32, inkey_len - s_off);
+
+        /* A_1 = HMAC(s, label) */
+        ok = ws_hmac_buffer(GCRY_MD_SHA256, a, label, label_len, s, s_len) == 0;
+        for (unsigned out_off = 0; ok && out_off < out_len; out_off += HASH_SHA2_256_LENGTH) {
+            memcpy(a_label, a, HASH_SHA2_256_LENGTH);
+            ok = ws_hmac_buffer(GCRY_MD_SHA256, block, a_label, HASH_SHA2_256_LENGTH + label_len, s, s_len) == 0;
+            for (unsigned i = 0; ok && i < HASH_SHA2_256_LENGTH && out_off + i < out_len; i++)
+                out[out_off + i] ^= block[i];
+            /* A_(i+1) = HMAC(s, A_i) */
+            if (ok && out_off + HASH_SHA2_256_LENGTH < out_len)
+                ok = ws_hmac_buffer(GCRY_MD_SHA256, a, a, HASH_SHA2_256_LENGTH, s, s_len) == 0;
+        }
+    }
+    g_free(a_label);
+    return ok;
+}
+
+/*
+ * Derives the SRTCP master key and salt from a CSK or SPK for a CS-ID (3GPP
+ * TS 33.180 clause 9.4.6, RFC 3830 section 4.1.3), with the label
+ * constant || CS-ID || CSB ID (the key ID) || RAND, then the session keys of
+ * the AES-GCM-128 profile of TS 33.180 annex E.4.2. The MKI is the key ID.
+ */
+static bool
+srtcp_mcx_derive(const srtcp_mcx_key_uat_record_t *rec, uint8_t cs_id, srtcp_crypto_ctx_t *ctx)
+{
+    uint8_t  label[4 + 1 + SRTCP_MCX_KEY_ID_LEN + SRTCP_MCX_MAX_RAND_LEN];
+    unsigned label_len = 4 + 1 + SRTCP_MCX_KEY_ID_LEN + rec->kfc_rand_len;
+    uint8_t  master_key[SRTCP_MCX_KEY_LEN];
+    uint8_t  master_salt[SRTCP_GCM_SALT_LEN];
+    bool     ok;
+
+    label[4] = cs_id;
+    memcpy(label + 5, rec->key_id, SRTCP_MCX_KEY_ID_LEN);
+    memcpy(label + 5 + SRTCP_MCX_KEY_ID_LEN, rec->kfc_rand, rec->kfc_rand_len);
+    phtonu32(label, MIKEY_TEK_CONSTANT);
+    ok = srtcp_mikey_prf(rec->kfc, rec->kfc_len, label, label_len, master_key, sizeof(master_key));
+    phtonu32(label, MIKEY_SALT_CONSTANT);
+    ok = ok && srtcp_mikey_prf(rec->kfc, rec->kfc_len, label, label_len, master_salt, sizeof(master_salt));
+    ok = ok && srtcp_ctx_init(ctx, SRTCP_KEY_ENC_AES_GCM_128, SRTCP_KEY_AUTH_NONE,
+                              master_key, sizeof(master_key), master_salt, sizeof(master_salt));
+    memcpy(ctx->mki, rec->key_id, SRTCP_MCX_KEY_ID_LEN);
+    ctx->mki_len = SRTCP_MCX_KEY_ID_LEN;
+    return ok;
+}
+
+static void *
+srtcp_mcx_key_uat_copy_cb(void *dest, const void *source, size_t len _U_)
+{
+    const srtcp_mcx_key_uat_record_t *o = (const srtcp_mcx_key_uat_record_t *)source;
+    srtcp_mcx_key_uat_record_t       *d = (srtcp_mcx_key_uat_record_t *)dest;
+
+    *d = *o;
+    d->key_id = o->key_id_len ? (unsigned char *)g_memdup2(o->key_id, o->key_id_len) : NULL;
+    d->kfc = o->kfc_len ? (unsigned char *)g_memdup2(o->kfc, o->kfc_len) : NULL;
+    d->kfc_rand = o->kfc_rand_len ? (unsigned char *)g_memdup2(o->kfc_rand, o->kfc_rand_len) : NULL;
+    d->cs_id = g_strdup(o->cs_id);
+    d->ssrc = g_strdup(o->ssrc);
+    d->comment = g_strdup(o->comment);
+    return dest;
+}
+
+static bool
+srtcp_mcx_key_uat_update_cb(void *r, char **err)
+{
+    srtcp_mcx_key_uat_record_t *rec = (srtcp_mcx_key_uat_record_t *)r;
+    bool                        any_ssrc, auto_cs_id;
+    uint32_t                    ssrc;
+    uint8_t                     cs_id;
+    unsigned                    purpose_tag;
+
+    rec->num_ctx = 0;
+    memset(rec->ctx, 0, sizeof(rec->ctx));
+    if (rec->key_id_len != SRTCP_MCX_KEY_ID_LEN) {
+        *err = ws_strdup_printf("The key ID must be %u bytes long, not %u", SRTCP_MCX_KEY_ID_LEN, rec->key_id_len);
+        return false;
+    }
+    purpose_tag = rec->key_id[0] >> 4;
+    if (purpose_tag != MCX_PURPOSE_TAG_CSK && purpose_tag != MCX_PURPOSE_TAG_SPK) {
+        *err = ws_strdup_printf("The purpose tag of the key ID (its first hexadecimal digit) must be %u (CSK) or %u (SPK), not %u (%s)",
+                                MCX_PURPOSE_TAG_CSK, MCX_PURPOSE_TAG_SPK, purpose_tag,
+                                val_to_str_const(purpose_tag, srtcp_mcx_purpose_tag_vals, "undefined"));
+        return false;
+    }
+    if (rec->kfc_len != SRTCP_MCX_KEY_LEN) {
+        *err = ws_strdup_printf("The key must be %u bytes long, not %u", SRTCP_MCX_KEY_LEN, rec->kfc_len);
+        return false;
+    }
+    if (rec->kfc_rand_len < SRTCP_MCX_MIN_RAND_LEN || rec->kfc_rand_len > SRTCP_MCX_MAX_RAND_LEN) {
+        *err = ws_strdup_printf("The RAND must be %u to %u bytes long, not %u",
+                                SRTCP_MCX_MIN_RAND_LEN, SRTCP_MCX_MAX_RAND_LEN, rec->kfc_rand_len);
+        return false;
+    }
+    if (!srtcp_parse_cs_id(rec->cs_id, rec->cs_id ? (unsigned)strlen(rec->cs_id) : 0, &auto_cs_id, &cs_id)) {
+        *err = g_strdup("Invalid CS-ID: enter a number from 0 to 255, or leave it empty to try 6 (MCPTT) and 8 (MCVideo)");
+        return false;
+    }
+    if (!srtcp_parse_ssrc(rec->ssrc, rec->ssrc ? (unsigned)strlen(rec->ssrc) : 0, &any_ssrc, &ssrc)) {
+        *err = g_strdup("Invalid SSRC: enter a hexadecimal value such as 0x1a2b3c4d, or leave it empty to match any SSRC");
+        return false;
+    }
+
+    /* TS 33.180 assigns CS-IDs to the CSK (table E.1.3-1) but none to the
+     * SPK: by default, try the CSK ones for both. The authentication tag
+     * tells which one is right. */
+    if (auto_cs_id) {
+        rec->cs_ids[0] = SRTCP_MCX_CS_ID_MCPTT;
+        rec->cs_ids[1] = SRTCP_MCX_CS_ID_MCVIDEO;
+        rec->num_ctx = 2;
+    } else {
+        rec->cs_ids[0] = cs_id;
+        rec->num_ctx = 1;
+    }
+    for (unsigned i = 0; i < rec->num_ctx; i++) {
+        if (!srtcp_mcx_derive(rec, rec->cs_ids[i], &rec->ctx[i])) {
+            rec->num_ctx = 0;
+            *err = g_strdup("Key derivation failed");
+            return false;
+        }
+        rec->ctx[i].any_ssrc = any_ssrc;
+        rec->ctx[i].ssrc_val = ssrc;
+    }
+
+    *err = NULL;
+    return true;
+}
+
+static void
+srtcp_mcx_key_uat_free_cb(void *r)
+{
+    srtcp_mcx_key_uat_record_t *rec = (srtcp_mcx_key_uat_record_t *)r;
+
+    g_free(rec->key_id);
+    g_free(rec->kfc);
+    g_free(rec->kfc_rand);
+    g_free(rec->cs_id);
+    g_free(rec->ssrc);
+    g_free(rec->comment);
+}
+
+UAT_BUFFER_CB_DEF(srtcp_mcx_key_uat, key_id, srtcp_mcx_key_uat_record_t, key_id, key_id_len)
+UAT_BUFFER_CB_DEF(srtcp_mcx_key_uat, kfc, srtcp_mcx_key_uat_record_t, kfc, kfc_len)
+UAT_BUFFER_CB_DEF(srtcp_mcx_key_uat, kfc_rand, srtcp_mcx_key_uat_record_t, kfc_rand, kfc_rand_len)
+UAT_CSTRING_CB_DEF(srtcp_mcx_key_uat, cs_id, srtcp_mcx_key_uat_record_t)
+UAT_CSTRING_CB_DEF(srtcp_mcx_key_uat, ssrc, srtcp_mcx_key_uat_record_t)
+UAT_CSTRING_CB_DEF(srtcp_mcx_key_uat, comment, srtcp_mcx_key_uat_record_t)
+
+/*
  * AES-CM decryption of the encrypted portion (RFC 3711 section 4.1.1):
  * IV = (k_s * 2^16) XOR (SSRC * 2^64) XOR (SRTCP index * 2^16).
  */
 static bool
-srtcp_decrypt_cm(const srtcp_key_uat_record_t *rec, const uint8_t *pkt, uint32_t ssrc, uint32_t srtcp_index,
+srtcp_decrypt_cm(const srtcp_crypto_ctx_t *ctx, const uint8_t *pkt, uint32_t ssrc, uint32_t srtcp_index,
                  unsigned enc_len, uint8_t *out)
 {
     gcry_cipher_hd_t h;
     uint8_t          iv[16] = { 0 };
     bool             ok;
 
-    memcpy(iv, rec->session_salt, SRTCP_CM_SALT_LEN);
+    memcpy(iv, ctx->session_salt, SRTCP_CM_SALT_LEN);
     iv[4]  ^= (uint8_t)(ssrc >> 24);
     iv[5]  ^= (uint8_t)(ssrc >> 16);
     iv[6]  ^= (uint8_t)(ssrc >> 8);
@@ -1417,9 +1729,9 @@ srtcp_decrypt_cm(const srtcp_key_uat_record_t *rec, const uint8_t *pkt, uint32_t
 
     if (enc_len == 0)
         return true;
-    if (gcry_cipher_open(&h, srtcp_aes_algo(rec->master_key_len), GCRY_CIPHER_MODE_CTR, 0) != 0)
+    if (gcry_cipher_open(&h, srtcp_aes_algo(ctx->key_len), GCRY_CIPHER_MODE_CTR, 0) != 0)
         return false;
-    ok = gcry_cipher_setkey(h, rec->session_key, rec->master_key_len) == 0 &&
+    ok = gcry_cipher_setkey(h, ctx->session_key, ctx->key_len) == 0 &&
          gcry_cipher_setctr(h, iv, sizeof(iv)) == 0 &&
          gcry_cipher_decrypt(h, out, enc_len, pkt + SRTCP_HEADER_LEN, enc_len) == 0;
     gcry_cipher_close(h);
@@ -1434,7 +1746,7 @@ srtcp_decrypt_cm(const srtcp_key_uat_record_t *rec, const uint8_t *pkt, uint32_t
  * the E flag and index, and nothing is encrypted.
  */
 static bool
-srtcp_decrypt_gcm(packet_info *pinfo, const srtcp_key_uat_record_t *rec, const uint8_t *pkt, bool e_flag,
+srtcp_decrypt_gcm(packet_info *pinfo, const srtcp_crypto_ctx_t *ctx, const uint8_t *pkt, bool e_flag,
                   uint32_t ssrc, uint32_t srtcp_index, unsigned enc_len, unsigned tag_offset, unsigned index_offset,
                   uint8_t *out)
 {
@@ -1453,16 +1765,16 @@ srtcp_decrypt_gcm(packet_info *pinfo, const srtcp_key_uat_record_t *rec, const u
     iv[10] = (uint8_t)(srtcp_index >> 8);
     iv[11] = (uint8_t)srtcp_index;
     for (unsigned i = 0; i < SRTCP_GCM_SALT_LEN; i++)
-        iv[i] ^= rec->session_salt[i];
+        iv[i] ^= ctx->session_salt[i];
 
     aad_len = (e_flag ? SRTCP_HEADER_LEN : tag_offset) + SRTCP_INDEX_LEN;
     aad = (uint8_t *)wmem_alloc(pinfo->pool, aad_len);
     memcpy(aad, pkt, aad_len - SRTCP_INDEX_LEN);
     memcpy(aad + aad_len - SRTCP_INDEX_LEN, pkt + index_offset, SRTCP_INDEX_LEN);
 
-    if (gcry_cipher_open(&h, srtcp_aes_algo(rec->master_key_len), GCRY_CIPHER_MODE_GCM, 0) != 0)
+    if (gcry_cipher_open(&h, srtcp_aes_algo(ctx->key_len), GCRY_CIPHER_MODE_GCM, 0) != 0)
         return false;
-    ok = gcry_cipher_setkey(h, rec->session_key, rec->master_key_len) == 0 &&
+    ok = gcry_cipher_setkey(h, ctx->session_key, ctx->key_len) == 0 &&
          gcry_cipher_setiv(h, iv, sizeof(iv)) == 0 &&
          gcry_cipher_authenticate(h, aad, aad_len) == 0;
     if (ok && e_flag && enc_len > 0)
@@ -1473,21 +1785,124 @@ srtcp_decrypt_gcm(packet_info *pinfo, const srtcp_key_uat_record_t *rec, const u
     return ok;
 }
 
+enum srtcp_try_result {
+    SRTCP_TRY_NOT_APPLICABLE,       /* SSRC, MKI or length don't match the key */
+    SRTCP_TRY_AUTH_FAILED,
+    SRTCP_TRY_OK
+};
+
 /*
- * Tries the configured keys on an SRTCP packet. A key is used when its SSRC
- * and MKI match and its authentication tag is good. A key without
- * authentication is used only if accept_unauthenticated is set, i.e. when
- * the packet is known to be SRTCP.
+ * Tries one key on an SRTCP packet. The key is used when its SSRC and MKI
+ * match and its authentication tag is good. With without_mki set, the
+ * packet is taken to carry no MKI. A key without authentication is used
+ * only if accept_unauthenticated is set, i.e. when the packet is known to be
+ * SRTCP. On success, fills info except the key table and index.
+ */
+static enum srtcp_try_result
+srtcp_try_key(const srtcp_crypto_ctx_t *ctx, tvbuff_t *tvb, packet_info *pinfo, const uint8_t *pkt, unsigned len,
+              uint32_t ssrc, bool accept_unauthenticated, bool without_mki, srtcp_decrypt_info_t *info)
+{
+    bool      gcm = srtcp_key_is_gcm(ctx);
+    unsigned  tag_len = srtcp_key_tag_len(ctx);
+    unsigned  mki_len = without_mki ? 0 : ctx->mki_len;
+    unsigned  index_offset, mki_offset, tag_offset, enc_len;
+    uint32_t  e_index, srtcp_index;
+    bool      e_flag, encrypted, authenticated, ok;
+    uint8_t  *plain;
+
+    if (!ctx->any_ssrc && ctx->ssrc_val != ssrc)
+        return SRTCP_TRY_NOT_APPLICABLE;
+    if (len < SRTCP_HEADER_LEN + SRTCP_INDEX_LEN + mki_len + tag_len)
+        return SRTCP_TRY_NOT_APPLICABLE;
+    if (tag_len == 0 && !accept_unauthenticated)
+        return SRTCP_TRY_NOT_APPLICABLE;
+
+    /* RFC 3711: ... || E+index || MKI || tag; RFC 7714: ... || tag || E+index || MKI */
+    if (gcm) {
+        index_offset = len - mki_len - SRTCP_INDEX_LEN;
+        tag_offset = index_offset - tag_len;
+        enc_len = tag_offset - SRTCP_HEADER_LEN;
+    } else {
+        index_offset = len - tag_len - mki_len - SRTCP_INDEX_LEN;
+        tag_offset = len - tag_len;
+        enc_len = index_offset - SRTCP_HEADER_LEN;
+    }
+    mki_offset = index_offset + SRTCP_INDEX_LEN;
+    if (mki_len && memcmp(pkt + mki_offset, ctx->mki, mki_len) != 0)
+        return SRTCP_TRY_NOT_APPLICABLE;
+
+    e_index = pntohu32(pkt + index_offset);
+    e_flag = (e_index & 0x80000000) != 0;
+    srtcp_index = e_index & 0x7fffffff;
+    encrypted = e_flag && ctx->enc_alg != SRTCP_KEY_ENC_NULL;
+
+    plain = (uint8_t *)wmem_alloc(pinfo->pool, SRTCP_HEADER_LEN + enc_len);
+    memcpy(plain, pkt, SRTCP_HEADER_LEN + enc_len);
+
+    if (gcm) {
+        ok = srtcp_decrypt_gcm(pinfo, ctx, pkt, e_flag, ssrc, srtcp_index, enc_len,
+                               tag_offset, index_offset, plain + SRTCP_HEADER_LEN);
+        authenticated = ok;
+    } else {
+        authenticated = false;
+        ok = true;
+        if (tag_len) {
+            uint8_t digest[HASH_SHA1_LENGTH];
+            /* The authenticated portion is the RTCP packet(s), the E flag and the index */
+            ok = ws_hmac_buffer(GCRY_MD_SHA1, digest, pkt, mki_offset,
+                                ctx->session_auth_key, SRTCP_AUTH_KEY_LEN) == 0 &&
+                 memcmp(digest, pkt + tag_offset, tag_len) == 0;
+            authenticated = ok;
+        }
+        if (ok && encrypted)
+            ok = srtcp_decrypt_cm(ctx, pkt, ssrc, srtcp_index, enc_len, plain + SRTCP_HEADER_LEN);
+    }
+    if (!ok)
+        return SRTCP_TRY_AUTH_FAILED;
+
+    info->encrypted = encrypted;
+    info->authenticated = authenticated;
+    info->index_offset = index_offset;
+    info->mki_offset = mki_offset;
+    info->mki_len = mki_len;
+    info->tag_offset = tag_offset;
+    info->tag_len = tag_len;
+    info->auth_failed = false;
+    if (encrypted) {
+        info->tvb = tvb_new_child_real_data(tvb, plain, SRTCP_HEADER_LEN + enc_len, SRTCP_HEADER_LEN + enc_len);
+    } else {
+        info->tvb = tvb_new_subset_length(tvb, 0, SRTCP_HEADER_LEN + enc_len);
+    }
+    return SRTCP_TRY_OK;
+}
+
+/*
+ * A key that failed authentication is reported only if it was meant for the
+ * packet: the packet is known to be SRTCP, or the key is bound to its SSRC
+ * or to an MKI of at least 32 bits.
+ */
+static bool
+srtcp_key_meant_for_packet(const srtcp_crypto_ctx_t *ctx, bool accept_unauthenticated)
+{
+    return accept_unauthenticated || !ctx->any_ssrc || ctx->mki_len >= SRTCP_MCX_KEY_ID_LEN;
+}
+
+/*
+ * Tries the configured keys on an SRTCP packet: the master keys, then the
+ * CSKs and SPKs (with each of their CS-IDs). A CSK or SPK is found from the
+ * key ID carried as MKI; it is also tried on packets that carry no MKI, the
+ * AES-GCM tag telling whether it is the right key.
  */
 static bool
 srtcp_decrypt(tvbuff_t *tvb, packet_info *pinfo, bool accept_unauthenticated, srtcp_decrypt_info_t *info)
 {
-    unsigned       len = tvb_reported_length(tvb);
-    const uint8_t *pkt;
-    uint32_t       ssrc;
+    unsigned              len = tvb_reported_length(tvb);
+    const uint8_t        *pkt;
+    uint32_t              ssrc;
+    enum srtcp_try_result res;
 
     memset(info, 0, sizeof(*info));
-    if (num_srtcp_key_records == 0 || tvb_captured_length(tvb) != len ||
+    if ((num_srtcp_key_records == 0 && num_srtcp_mcx_key_records == 0) || tvb_captured_length(tvb) != len ||
         len < SRTCP_HEADER_LEN + SRTCP_INDEX_LEN)
         return false;
 
@@ -1495,84 +1910,36 @@ srtcp_decrypt(tvbuff_t *tvb, packet_info *pinfo, bool accept_unauthenticated, sr
     ssrc = pntohu32(pkt + 4);
 
     for (unsigned i = 0; i < num_srtcp_key_records; i++) {
-        const srtcp_key_uat_record_t *rec = &srtcp_key_records[i];
-        bool      gcm = srtcp_key_is_gcm(rec);
-        unsigned  tag_len = srtcp_key_tag_len(rec);
-        unsigned  index_offset, mki_offset, tag_offset, enc_len;
-        uint32_t  e_index, srtcp_index;
-        bool      e_flag, encrypted, authenticated, ok;
-        uint8_t  *plain;
+        const srtcp_crypto_ctx_t *ctx = &srtcp_key_records[i].ctx;
 
-        if (!rec->any_ssrc && rec->ssrc_val != ssrc)
-            continue;
-        if (len < SRTCP_HEADER_LEN + SRTCP_INDEX_LEN + rec->mki_len + tag_len)
-            continue;
-        if (tag_len == 0 && !accept_unauthenticated)
-            continue;
-
-        /* RFC 3711: ... || E+index || MKI || tag; RFC 7714: ... || tag || E+index || MKI */
-        if (gcm) {
-            index_offset = len - rec->mki_len - SRTCP_INDEX_LEN;
-            tag_offset = index_offset - tag_len;
-            enc_len = tag_offset - SRTCP_HEADER_LEN;
-        } else {
-            index_offset = len - tag_len - rec->mki_len - SRTCP_INDEX_LEN;
-            tag_offset = len - tag_len;
-            enc_len = index_offset - SRTCP_HEADER_LEN;
+        res = srtcp_try_key(ctx, tvb, pinfo, pkt, len, ssrc, accept_unauthenticated, false, info);
+        if (res == SRTCP_TRY_OK) {
+            info->table = SRTCP_KEY_TABLE_MASTER;
+            info->key_idx = i;
+            return true;
         }
-        mki_offset = index_offset + SRTCP_INDEX_LEN;
-        if (rec->mki_len && memcmp(pkt + mki_offset, rec->mki, rec->mki_len) != 0)
-            continue;
+        if (res == SRTCP_TRY_AUTH_FAILED && srtcp_key_meant_for_packet(ctx, accept_unauthenticated))
+            info->auth_failed = true;
+    }
 
-        e_index = pntohu32(pkt + index_offset);
-        e_flag = (e_index & 0x80000000) != 0;
-        srtcp_index = e_index & 0x7fffffff;
-        encrypted = e_flag && rec->enc_alg != SRTCP_KEY_ENC_NULL;
+    for (unsigned i = 0; i < num_srtcp_mcx_key_records; i++) {
+        const srtcp_mcx_key_uat_record_t *rec = &srtcp_mcx_key_records[i];
 
-        plain = (uint8_t *)wmem_alloc(pinfo->pool, SRTCP_HEADER_LEN + enc_len);
-        memcpy(plain, pkt, SRTCP_HEADER_LEN + enc_len);
-
-        if (gcm) {
-            ok = srtcp_decrypt_gcm(pinfo, rec, pkt, e_flag, ssrc, srtcp_index, enc_len,
-                                   tag_offset, index_offset, plain + SRTCP_HEADER_LEN);
-            authenticated = ok;
-        } else {
-            authenticated = false;
-            ok = true;
-            if (tag_len) {
-                uint8_t digest[HASH_SHA1_LENGTH];
-                /* The authenticated portion is the RTCP packet(s), the E flag and the index */
-                ok = ws_hmac_buffer(GCRY_MD_SHA1, digest, pkt, mki_offset,
-                                    rec->session_auth_key, SRTCP_AUTH_KEY_LEN) == 0 &&
-                     memcmp(digest, pkt + tag_offset, tag_len) == 0;
-                authenticated = ok;
-            }
-            if (ok && encrypted)
-                ok = srtcp_decrypt_cm(rec, pkt, ssrc, srtcp_index, enc_len, plain + SRTCP_HEADER_LEN);
-        }
-
-        if (!ok) {
-            /* Only report keys that were meant for this packet */
-            if (accept_unauthenticated || !rec->any_ssrc)
+        for (unsigned j = 0; j < rec->num_ctx; j++) {
+            res = srtcp_try_key(&rec->ctx[j], tvb, pinfo, pkt, len, ssrc, accept_unauthenticated, false, info);
+            if (res == SRTCP_TRY_AUTH_FAILED && srtcp_key_meant_for_packet(&rec->ctx[j], accept_unauthenticated))
                 info->auth_failed = true;
-            continue;
+            if (res != SRTCP_TRY_OK) {
+                /* Not reported when it fails: nothing tells that the key was meant for the packet */
+                res = srtcp_try_key(&rec->ctx[j], tvb, pinfo, pkt, len, ssrc, accept_unauthenticated, true, info);
+            }
+            if (res == SRTCP_TRY_OK) {
+                info->table = SRTCP_KEY_TABLE_MCX;
+                info->key_idx = i;
+                info->cs_id = rec->cs_ids[j];
+                return true;
+            }
         }
-
-        info->key_idx = i;
-        info->encrypted = encrypted;
-        info->authenticated = authenticated;
-        info->index_offset = index_offset;
-        info->mki_offset = mki_offset;
-        info->mki_len = rec->mki_len;
-        info->tag_offset = tag_offset;
-        info->tag_len = tag_len;
-        info->auth_failed = false;
-        if (encrypted) {
-            info->tvb = tvb_new_child_real_data(tvb, plain, SRTCP_HEADER_LEN + enc_len, SRTCP_HEADER_LEN + enc_len);
-        } else {
-            info->tvb = tvb_new_subset_length(tvb, 0, SRTCP_HEADER_LEN + enc_len);
-        }
-        return true;
     }
     return false;
 }
@@ -5713,16 +6080,34 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     /* SRTCP fields after the decrypted (or authenticated) portion */
     if (srtcp_decrypted) {
-        const srtcp_key_uat_record_t *rec = &srtcp_key_records[srtcp_dec.key_idx];
+        const char *comment;
 
-        ti = proto_tree_add_uint(rtcp_tree, hf_srtcp_key_entry, orig_tvb, 0, 0, srtcp_dec.key_idx + 1);
+        if (srtcp_dec.table == SRTCP_KEY_TABLE_MCX) {
+            comment = srtcp_mcx_key_records[srtcp_dec.key_idx].comment;
+            ti = proto_tree_add_uint(rtcp_tree, hf_srtcp_mcx_key_entry, orig_tvb, 0, 0, srtcp_dec.key_idx + 1);
+        } else {
+            comment = srtcp_key_records[srtcp_dec.key_idx].comment;
+            ti = proto_tree_add_uint(rtcp_tree, hf_srtcp_key_entry, orig_tvb, 0, 0, srtcp_dec.key_idx + 1);
+        }
         proto_item_set_generated(ti);
-        if (rec->comment && rec->comment[0])
-            proto_item_append_text(ti, " (%s)", rec->comment);
+        if (comment && comment[0])
+            proto_item_append_text(ti, " (%s)", comment);
+        if (srtcp_dec.table == SRTCP_KEY_TABLE_MCX) {
+            ti = proto_tree_add_uint(rtcp_tree, hf_srtcp_mcx_cs_id, orig_tvb, 0, 0, srtcp_dec.cs_id);
+            proto_item_set_generated(ti);
+        }
         proto_tree_add_item(rtcp_tree, hf_srtcp_e, orig_tvb, srtcp_dec.index_offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(rtcp_tree, hf_srtcp_index, orig_tvb, srtcp_dec.index_offset, 4, ENC_BIG_ENDIAN);
         if (srtcp_dec.mki_len)
             proto_tree_add_item(rtcp_tree, hf_srtcp_mki, orig_tvb, srtcp_dec.mki_offset, srtcp_dec.mki_len, ENC_NA);
+        if (srtcp_dec.table == SRTCP_KEY_TABLE_MCX && srtcp_dec.mki_len) {
+            /* The MKI is the CSK-ID or SPK-ID */
+            proto_tree *key_id_tree;
+
+            ti = proto_tree_add_item(rtcp_tree, hf_srtcp_mcx_key_id, orig_tvb, srtcp_dec.mki_offset, SRTCP_MCX_KEY_ID_LEN, ENC_BIG_ENDIAN);
+            key_id_tree = proto_item_add_subtree(ti, ett_srtcp_mcx_key_id);
+            proto_tree_add_item(key_id_tree, hf_srtcp_mcx_purpose_tag, orig_tvb, srtcp_dec.mki_offset, SRTCP_MCX_KEY_ID_LEN, ENC_BIG_ENDIAN);
+        }
         if (srtcp_dec.tag_len)
             proto_tree_add_item(rtcp_tree, hf_srtcp_auth_tag, orig_tvb, srtcp_dec.tag_offset, srtcp_dec.tag_len, ENC_NA);
         ti = proto_tree_add_uint(rtcp_tree, hf_srtcp_auth_tag_status, orig_tvb, srtcp_dec.tag_offset, srtcp_dec.tag_len,
@@ -8062,6 +8447,54 @@ proto_register_rtcp(void)
                 "Whether the authentication tag was verified with the key", HFILL
             }
         },
+        {
+            &hf_srtcp_mcx_key_entry,
+            {
+                "SRTCP Decryption CSK/SPK",
+                "srtcp.mcx.key_entry",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "Entry of the CSK/SPK key table (SRTCP protocol preferences) used for this packet", HFILL
+            }
+        },
+        {
+            &hf_srtcp_mcx_cs_id,
+            {
+                "MIKEY CS-ID",
+                "srtcp.mcx.cs_id",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "Crypto Session ID with which the SRTCP master key was derived from the CSK or SPK (3GPP TS 33.180 table E.1.3-1)", HFILL
+            }
+        },
+        {
+            &hf_srtcp_mcx_key_id,
+            {
+                "Key ID",
+                "srtcp.mcx.key_id",
+                FT_UINT32,
+                BASE_HEX,
+                NULL,
+                0x0,
+                "CSK-ID or SPK-ID, carried as the MKI (3GPP TS 33.180 clause 9.4.6)", HFILL
+            }
+        },
+        {
+            &hf_srtcp_mcx_purpose_tag,
+            {
+                "Purpose tag",
+                "srtcp.mcx.purpose_tag",
+                FT_UINT32,
+                BASE_DEC,
+                VALS(srtcp_mcx_purpose_tag_vals),
+                0xf0000000,
+                "Type of key (3GPP TS 33.180 annex G)", HFILL
+            }
+        },
         /* additions for BT XNQ block as defined in RFC5093 */
         {
             &hf_rtcp_xr_btxnq_begseq,
@@ -9349,6 +9782,7 @@ proto_register_rtcp(void)
     static int *ett[] =
     {
         &ett_rtcp,
+        &ett_srtcp_mcx_key_id,
         &ett_rtcp_sr,
         &ett_rtcp_rr,
         &ett_rtcp_sdes,
@@ -9502,6 +9936,46 @@ proto_register_rtcp(void)
         "A table of SRTP master keys and salts used to decrypt and authenticate SRTCP packets, "
         "for example MCPTT floor control (only a key derivation rate of 0 is supported)",
         srtcp_keys_uat);
+
+    static uat_field_t srtcp_mcx_key_uat_fields[] = {
+        UAT_FLD_BUFFER(srtcp_mcx_key_uat, key_id, "Key ID",
+            "CSK-ID or SPK-ID in hexadecimal (4 bytes), also the MKI of the packets (packets without an MKI "
+            "are tried with every key). Its first digit, the purpose tag, is 2 for a CSK and 3 for an SPK"),
+        UAT_FLD_BUFFER(srtcp_mcx_key_uat, kfc, "Key",
+            "Client-Server Key (CSK) or Signalling Protection Key (SPK) in hexadecimal (16 bytes)"),
+        UAT_FLD_BUFFER(srtcp_mcx_key_uat, kfc_rand, "RAND",
+            "For a CSK, the RAND of the MIKEY message that distributed it; for an SPK, the SPK-RAND "
+            "(in hexadecimal, at least 16 bytes)"),
+        UAT_FLD_CSTRING_OTHER(srtcp_mcx_key_uat, cs_id, "CS-ID", srtcp_mcx_key_uat_cs_id_chk_cb,
+            "MIKEY Crypto Session ID of the key derivation, or empty to try 6 (MCPTT) and 8 (MCVideo)"),
+        UAT_FLD_CSTRING_OTHER(srtcp_mcx_key_uat, ssrc, "SSRC", srtcp_key_uat_ssrc_chk_cb,
+            "Sender SSRC in hexadecimal (e.g. 0x1a2b3c4d), or empty to decrypt every flow protected by the key"),
+        UAT_FLD_CSTRING(srtcp_mcx_key_uat, comment, "Comment", "Free text, shown in the packet details"),
+        UAT_END_FIELDS
+    };
+
+    uat_t *srtcp_mcx_keys_uat = uat_new("CSK/SPK keys (3GPP TS 33.180)",
+        sizeof(srtcp_mcx_key_uat_record_t),
+        "srtcp_mcx_keys",               /* filename */
+        true,                           /* from_profile */
+        &srtcp_mcx_key_records,         /* data_ptr */
+        &num_srtcp_mcx_key_records,     /* numitems_ptr */
+        UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
+        NULL,                           /* help */
+        srtcp_mcx_key_uat_copy_cb,      /* copy_cb */
+        srtcp_mcx_key_uat_update_cb,    /* update_cb */
+        srtcp_mcx_key_uat_free_cb,      /* free_cb */
+        NULL,                           /* post_update_cb */
+        NULL,                           /* reset_cb */
+        srtcp_mcx_key_uat_fields);
+
+    prefs_register_uat_preference(srtcp_module, "mcx_keys",
+        "CSK/SPK keys (3GPP TS 33.180)",
+        "A table of MCX Client-Server Keys (CSK) and Signalling Protection Keys (SPK) from which the "
+        "SRTCP master keys are derived (3GPP TS 33.180 clause 9.4.6), to decrypt and authenticate "
+        "floor, transmission and media control protected with AES-GCM-128. The key of a packet is "
+        "found from its MKI, the key ID; packets without an MKI are tried with every key",
+        srtcp_mcx_keys_uat);
 
     prefs_register_bool_preference(rtcp_module, "non_final_padding",
         "Dissect padding in packets before the last in a compound packet",

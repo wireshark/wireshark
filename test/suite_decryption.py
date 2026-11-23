@@ -1642,3 +1642,77 @@ class TestDecryptSRTCP:
                 '-e', 'frame.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['5']
+
+
+class TestDecryptSRTCPMCX:
+    # srtcp-mcx.pcap is synthetic (generated with libgcrypt; the derived
+    # master keys and salts were checked against an independent
+    # implementation). It holds MCPTT floor control packets protected with
+    # AES-GCM-128 and keys derived from a CSK (frames 1-3, CS-ID 6 then 8,
+    # SSRCs 0x11111111 and 0x22222222) and from an SPK (frames 4-5, CS-ID 6,
+    # SSRCs 0x33333333 and 0x44444444) as in 3GPP TS 33.180 clause 9.4.6.
+    # Frame 6 carries the SPK-ID but was protected with another SPK-RAND.
+    # Frames 7 (SPK, SSRC 0x55555555) and 8 (CSK) carry no MKI.
+    keys = (
+        '-o', 'uat:srtcp_mcx_keys:20000001,000102030405060708090a0b0c0d0e0f,f0e1d2c3b4a5968778695a4b3c2d1e0f,"","","client-server"',
+        '-o', 'uat:srtcp_mcx_keys:30000abc,a0a1a2a3a4a5a6a7a8a9aaabacadaeaf,b0b1b2b3b4b5b6b7b8b9babbbcbdbebf,"6","","inter-server"',
+    )
+
+    def test_srtcp_csk_spk(self, cmd_tshark, capture_file, test_env):
+        '''SRTCP decryption with keys derived from a CSK and an SPK for any SSRC'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srtcp-mcx.pcap'),
+                *self.keys,
+                '-Tfields',
+                '-e', 'frame.number',
+                '-e', 'srtcp.mcx.key_entry',
+                '-e', 'srtcp.mcx.cs_id',
+                '-e', 'srtcp.mcx.key_id',
+                '-e', 'srtcp.mcx.purpose_tag',
+                '-e', 'srtcp.auth_tag.status',
+                '-e', '_ws.col.info',
+                '-E', 'separator=|',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.splitlines()]
+        assert lines[0] == '1|1|6|0x20000001|2|1|(MCPT) Floor Request'
+        assert lines[1] == '2|1|6|0x20000001|2|1|(MCPT) Floor Granted'
+        assert lines[2] == '3|1|8|0x20000001|2|1|(MCPT) Floor Idle'
+        assert lines[3] == '4|2|6|0x30000abc|3|1|(MCPT) Floor Taken'
+        assert lines[4] == '5|2|6|0x30000abc|3|1|(MCPT) Floor Release'
+        assert lines[5].startswith('6||||||')
+        assert lines[6] == '7|2|6|||1|(MCPT) Floor Taken'
+        assert lines[7] == '8|1|6|||1|(MCPT) Floor Revoke'
+
+    def test_srtcp_single_key(self, cmd_tshark, capture_file, test_env):
+        '''A single SPK decrypts its packets, with or without MKI, and leaves the others'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srtcp-mcx.pcap'),
+                '-o', 'uat:srtcp_mcx_keys:30000abc,a0a1a2a3a4a5a6a7a8a9aaabacadaeaf,b0b1b2b3b4b5b6b7b8b9babbbcbdbebf,"","",""',
+                '-Y', 'srtcp.mcx.key_entry || srtcp.auth_failed',
+                '-Tfields',
+                '-e', 'frame.number',
+                '-e', 'srtcp.mcx.key_entry',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['4', '1', '5', '1', '6', '7', '1']
+
+    def test_srtcp_spk_ssrc(self, cmd_tshark, capture_file, test_env):
+        '''An SPK bound to one SSRC decrypts only that flow'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srtcp-mcx.pcap'),
+                '-o', 'uat:srtcp_mcx_keys:30000abc,a0a1a2a3a4a5a6a7a8a9aaabacadaeaf,b0b1b2b3b4b5b6b7b8b9babbbcbdbebf,"","0x33333333",""',
+                '-Y', 'srtcp.mcx.key_entry',
+                '-Tfields',
+                '-e', 'frame.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['4']
+
+    def test_srtcp_spk_bad_rand(self, cmd_tshark, capture_file, test_env):
+        '''SRTCP packet protected with a key derived from another RAND'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srtcp-mcx.pcap'),
+                *self.keys,
+                '-Y', 'srtcp.auth_failed',
+                '-Tfields',
+                '-e', 'frame.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['6']
