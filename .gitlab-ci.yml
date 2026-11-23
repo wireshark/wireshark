@@ -605,7 +605,8 @@ Windows x64 Package:
     - cmake --build . --config RelWithDebInfo --target wireshark_nsis
     - cmake --build . --config RelWithDebInfo --target wireshark_wix
     - cmake --build . --config RelWithDebInfo --target stratoshark_wix
-    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\*shark-*.msi
+    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\Wireshark-*.msi
+    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\Stratoshark-*.msi
     - cmake --build . --config RelWithDebInfo --target stratoshark_nsis
     - cmake --build . --config RelWithDebInfo --target wireshark_portableapps
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\portableapps\WiresharkPortable*.exe
@@ -665,7 +666,7 @@ Windows Arm64 Package:
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
     - cmake --build . --config RelWithDebInfo --target wireshark_nsis
     - cmake --build . --config RelWithDebInfo --target stratoshark_wix
-    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\*shark-*.msi
+    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\Stratoshark-*.msi
     - cmake --build . --config RelWithDebInfo --target stratoshark_nsis
     - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-arm64.exe packaging\nsis\Stratoshark-*-arm64.exe packaging\wix\Stratoshark-*-arm64.msi
     - cmake --build . --config RelWithDebInfo --target pdb_zip_package
