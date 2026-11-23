@@ -4006,14 +4006,15 @@ if(WIN32)
 	find_package( MSVC_REDIST )
 
 	# Must come after executable targets are defined.
+	# The Stratoshark NSIS installer wraps the Stratoshark MSI, so look for
+	# WiX first.
+	find_package( WiX )
 	find_package( NSIS )
 
 	if(MAKENSIS_EXECUTABLE)
 		add_subdirectory( packaging/nsis EXCLUDE_FROM_ALL )
 		ADD_NSIS_PACKAGE_TARGETS()
 	endif()
-
-	find_package( WiX )
 
 	if(WIX_EXECUTABLE)
 		add_subdirectory( packaging/wix EXCLUDE_FROM_ALL )

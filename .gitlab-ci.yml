@@ -649,21 +649,22 @@ Windows x64 Package:
     - cmake --build . --config RelWithDebInfo
     - cmake --build . --config RelWithDebInfo --target test-programs
     - cmake --build . --config RelWithDebInfo --target wireshark_nsis_prep
-    - cmake --build . --config RelWithDebInfo --target stratoshark_nsis_prep
     - cmake --build . --config RelWithDebInfo --target wireshark_wix_prep
+    - cmake --build . --config RelWithDebInfo --target stratoshark_nsis_prep
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
     - cmake --build . --config RelWithDebInfo --target wireshark_nsis
-    - cmake --build . --config RelWithDebInfo --target stratoshark_nsis
     - cmake --build . --config RelWithDebInfo --target wireshark_wix
-    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\Wireshark-*.msi
+    - cmake --build . --config RelWithDebInfo --target stratoshark_wix
+    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\*shark-*.msi
+    - cmake --build . --config RelWithDebInfo --target stratoshark_nsis
     - cmake --build . --config RelWithDebInfo --target wireshark_portableapps
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\portableapps\WiresharkPortable*.exe
-    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-x64.exe packaging\nsis\Stratoshark-*-x64.exe packaging\wix\Wireshark-*-x64.msi packaging\portableapps\WiresharkPortable??_*.paf.exe
+    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-x64.exe packaging\nsis\Stratoshark-*-x64.exe packaging\wix\Wireshark-*-x64.msi packaging\wix\Stratoshark-*-x64.msi packaging\portableapps\WiresharkPortable??_*.paf.exe
     - cmake --build . --config RelWithDebInfo --target pdb_zip_package
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
     - rclone config create wireshark @(-split $env:WS_RCLONE_REMOTE_OPTS) --no-output
-    - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-x64.exe", "packaging\nsis\Stratoshark-*-x64.exe", "packaging\wix\Wireshark-*-x64.msi", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-*x64.zip"
+    - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-x64.exe", "packaging\nsis\Stratoshark-*-x64.exe", "packaging\wix\Wireshark-*-x64.msi", "packaging\wix\Stratoshark-*-x64.msi", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-*x64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash.ToLower() $package.length "bytes" }
     - if (Test-Path env:S3_DESTINATION_WINDOWS_X64) { foreach ($package in $packages) { rclone copyto $package "wireshark:$env:S3_DESTINATION_WINDOWS_X64/$($package.Name)" --missing-on-dst - } }
     - $wiresharkVersion = Get-Content .\wireshark_version.txt
@@ -699,6 +700,7 @@ Windows Arm64 Package:
     name: windows-package
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
+    - '& "C:\Program Files\WiX Toolset v7.0\bin\wix" eula accept wix7'
     # ccache trims the cache to CCACHE_MAXSIZE only as it adds to it, so
     # trim it before the build needs the space.
     - ccache --cleanup
@@ -719,13 +721,15 @@ Windows Arm64 Package:
     - cmake --build . --config RelWithDebInfo --target stratoshark_nsis_prep
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
     - cmake --build . --config RelWithDebInfo --target wireshark_nsis
+    - cmake --build . --config RelWithDebInfo --target stratoshark_wix
+    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\*shark-*.msi
     - cmake --build . --config RelWithDebInfo --target stratoshark_nsis
-    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-arm64.exe packaging\nsis\Stratoshark-*-arm64.exe
+    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-arm64.exe packaging\nsis\Stratoshark-*-arm64.exe packaging\wix\Stratoshark-*-arm64.msi
     - cmake --build . --config RelWithDebInfo --target pdb_zip_package
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
     - rclone config create wireshark @(-split $env:WS_RCLONE_REMOTE_OPTS) --no-output
-    - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "packaging\nsis\Stratoshark-*-arm64.exe", "Wireshark-pdb-*arm64.zip"
+    - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "packaging\nsis\Stratoshark-*-arm64.exe", "packaging\wix\Stratoshark-*-arm64.msi", "Wireshark-pdb-*arm64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash.ToLower() $package.length "bytes" }
     - if (Test-Path env:S3_DESTINATION_WINDOWS_ARM64) { foreach ($package in $packages) { rclone copyto $package "wireshark:$env:S3_DESTINATION_WINDOWS_ARM64/$($package.Name)" --missing-on-dst - } }
     - $wiresharkVersion = Get-Content .\wireshark_version.txt
