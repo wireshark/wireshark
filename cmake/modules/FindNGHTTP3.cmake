@@ -3,8 +3,8 @@
 #  NGHTTP3_INCLUDE_DIRS - where to find nghttp3.h
 #  NGHTTP3_LIBRARIES    - List of libraries when using nghttp3
 #  NGHTTP3_FOUND        - True if nghttp3 found
-#  NGHTTP3_DLL_DIR      - (Windows) Path to the Nghttp2 DLL
-#  NGHTTP3_DLL          - (Windows) Name of the Nghttp2 DLL
+#  NGHTTP3_DLL_DIR      - (Windows) Path to the Nghttp3 DLL
+#  NGHTTP3_DLLS         - (Windows) List of required Nghttp3 DLLs
 
 include( FindWSWinLibs )
 FindWSWinLibs( "nghttp3-.*" "NGHTTP3_HINTS" )
@@ -36,7 +36,7 @@ find_package_handle_standard_args( NGHTTP3 DEFAULT_MSG NGHTTP3_LIBRARY NGHTTP3_I
 if( NGHTTP3_FOUND )
   set( NGHTTP3_INCLUDE_DIRS ${NGHTTP3_INCLUDE_DIR} )
   set( NGHTTP3_LIBRARIES ${NGHTTP3_LIBRARY} )
-  AddWSWinDLL(NGHTTP3 NGHTTP3_HINTS "nghttp3")
+  AddWSWinDLLS(NGHTTP3 NGHTTP3_HINTS "nghttp3" "sfparse")
 else()
   set( NGHTTP3_INCLUDE_DIRS )
   set( NGHTTP3_LIBRARIES )
