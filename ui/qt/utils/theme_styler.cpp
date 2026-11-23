@@ -13,6 +13,7 @@
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/color_math.h>
 
+#include <QAbstractButton>
 #include <QColor>
 #include <QDebug>
 #include <QEvent>
@@ -25,6 +26,7 @@
 #include <QRectF>
 #include <QStyleOptionButton>
 #include <QStyleOptionToolBar>
+#include <QStyleOptionToolButton>
 #include <QStyleOptionViewItem>
 #include <QToolBar>
 
@@ -432,6 +434,31 @@ void ThemeStyler::drawControl(ControlElement element, const QStyleOption *option
     QPainter *painter, const QWidget *widget) const
 {
 #ifdef Q_OS_MACOS
+    // drawComplexControl() clears State_On on toolbar buttons so the
+    // macOS style skips its own checked background, but the label needs
+    // it (pressed look, icon state), so restore it for a checked button.
+    //
+    // The macOS style also draws the label of a pressed text-only tool
+    // button in a toolbar with a dark drop shadow, in the menu highlight
+    // text color and shifted down. drawComplexControl() already shows the
+    // press with a fill, so draw the label as for a released button.
+    const QStyleOptionToolButton *tb = qstyleoption_cast<const QStyleOptionToolButton *>(option);
+    if (element == CE_ToolButtonLabel && tb && painter && widget
+            && qobject_cast<const QToolBar *>(widget->parentWidget())
+            && baseStyleName() == QLatin1String("macos")) {
+        QStyleOptionToolButton labelOpt = *tb;
+        const QAbstractButton *button = qobject_cast<const QAbstractButton *>(widget);
+        if (button && button->isChecked()) {
+            labelOpt.state |= State_On;
+        }
+        if (!(tb->features & QStyleOptionToolButton::Arrow) && !tb->text.isEmpty()
+                && (tb->toolButtonStyle == Qt::ToolButtonTextOnly || tb->icon.isNull())) {
+            labelOpt.state &= ~State_Sunken;
+        }
+        QProxyStyle::drawControl(element, &labelOpt, painter, widget);
+        return;
+    }
+
     // The macOS style draws a push button taller than its native bezel
     // (zoomed fonts) as a flat square. Such buttons get AppKit's
     // flexible-height rounded push bezel instead. Only the bevel is
@@ -626,6 +653,61 @@ void ThemeStyler::drawWindows11DecorationSelection(const QStyleOptionViewItem *v
     painter->restore();
 }
 #endif // Q_OS_WIN
+
+void ThemeStyler::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
+    QPainter *painter, const QWidget *widget) const
+{
+#ifdef Q_OS_MACOS
+    // In a toolbar the macOS style draws a tool button's background only
+    // for the checked (State_On) state, so hovering or pressing a toolbar
+    // button gives no feedback, and it draws that background 4 px taller
+    // than the button, so its bottom corners are cut off square.
+    //
+    // Fill the button with a translucent window text color first, as a
+    // rect with all four corners rounded: lighter for a checked button,
+    // stronger for a hovered and then a pressed one. Then let the base
+    // style draw the label on top, with State_On cleared so it skips its
+    // own checked background (drawControl() restores it for the label).
+    const QStyleOptionToolButton *tb = qstyleoption_cast<const QStyleOptionToolButton *>(option);
+    if (control == CC_ToolButton && tb && painter && widget
+            && qobject_cast<const QToolBar *>(widget->parentWidget())
+            && baseStyleName() == QLatin1String("macos")) {
+        const bool checked = tb->state & State_On;
+        const bool active = (tb->state & State_Enabled)
+                && (tb->state & (State_MouseOver | State_Sunken));
+        if (checked || active) {
+            // Corner radius of the macOS style's checked background
+            // (QMacStyle CC_ToolButton, private in qmacstyle_mac.mm).
+            constexpr qreal macToolButtonRadius = 4.0;
+            const bool dark = ColorMath::isDark(tb->palette.color(QPalette::Window));
+            QColor fill = tb->palette.color(QPalette::WindowText);
+            if (checked) {
+                // About the macOS style's own checked fill
+                // (brushForToolButton() in qmacstyle_mac.mm), for the key
+                // window or not.
+                const bool key = widget->window()->isActiveWindow();
+                fill.setAlphaF(dark ? (key ? 0.06f : 0.04f) : (key ? 0.11f : 0.08f));
+            } else {
+                const bool pressed = tb->state & State_Sunken;
+                fill.setAlphaF(pressed ? (dark ? 0.20f : 0.16f) : (dark ? 0.10f : 0.08f));
+            }
+
+            painter->save();
+            painter->setRenderHint(QPainter::Antialiasing, true);
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(fill);
+            painter->drawRoundedRect(QRectF(tb->rect), macToolButtonRadius, macToolButtonRadius);
+            painter->restore();
+        }
+
+        QStyleOptionToolButton buttonOpt = *tb;
+        buttonOpt.state &= ~State_On;
+        QProxyStyle::drawComplexControl(control, &buttonOpt, painter, widget);
+        return;
+    }
+#endif
+    QProxyStyle::drawComplexControl(control, option, painter, widget);
+}
 
 void ThemeStyler::polish(QWidget *widget)
 {

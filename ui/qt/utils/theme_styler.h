@@ -104,6 +104,13 @@ public:
      * Draw a control through the base style, with adjustments on macOS
      * and for the windows11 style.
      *
+     * The native style draws the label of a pressed text-only tool button
+     * in a toolbar with a dark drop shadow and in the menu highlight text
+     * color. Those labels (CE_ToolButtonLabel) are drawn as for a
+     * released button; drawComplexControl() shows the press instead.
+     * drawComplexControl() clears State_On on toolbar buttons, so the
+     * label of a checked button gets State_On back.
+     *
      * The native style erases top toolbars in a main window's unified
      * title and toolbar area to transparent, so the system content
      * border shows instead of the palette. When the active theme sets
@@ -128,6 +135,19 @@ public:
      * Inactive group when the view doesn't have focus, as other styles do.
      */
     void drawControl(ControlElement element, const QStyleOption *option,
+        QPainter *painter, const QWidget *widget = nullptr) const override;
+
+    /**
+     * Draw a complex control through the base style. On macOS, the
+     * macOS style draws a tool button in a toolbar without background
+     * unless it is checked, so hover and press show nothing, and it cuts
+     * off the bottom corners of the checked background square. A checked
+     * toolbar button, and an enabled one that is hovered or pressed, is
+     * filled with a translucent window text color in a rect with all four
+     * corners rounded, before the base style draws it with State_On
+     * cleared, so it skips its own checked background.
+     */
+    void drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
         QPainter *painter, const QWidget *widget = nullptr) const override;
 
     /**
