@@ -85,7 +85,6 @@ struct sharkd_filter_item
 
 static GHashTable *filter_table;
 
-static int mode;
 static uint32_t rpcid;
 
 static json_dumper dumper;
@@ -6209,13 +6208,11 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
 }
 
 int
-sharkd_session_main(int mode_setting)
+sharkd_session_main(int mode_setting _U_)
 {
     char buf[8 * 1024];
     jsmntok_t *tokens = NULL;
     int tokens_max = -1;
-
-    mode = mode_setting;
 
     fprintf(stderr, "Hello in child.\n");
 

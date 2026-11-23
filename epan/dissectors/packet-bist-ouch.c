@@ -30,7 +30,7 @@
 /* -------------------- Prefs / globals -------------------- */
 
 static bool bist_ouch_show_decimal_price = false;
-static dissector_handle_t bist_ouch_handle;
+//static dissector_handle_t bist_ouch_handle;
 static bool bist_ouch_enable_orderbook_tracking = false;
 static bool bist_ouch_show_order_index_in_info = false;
 static bool bist_ouch_show_global_index_in_info = false;
@@ -952,7 +952,7 @@ proto_register_bist_ouch(void)
         "If enabled, appends the capture-wide group ordinal (OrderChainID#) to the Info column.",
         &bist_ouch_show_group_id_in_info);
 
-    bist_ouch_handle = register_dissector("bist-ouch", dissect_bist_ouch, proto_bist_ouch);
+    /* bist_ouch_handle = */ register_dissector("bist-ouch", dissect_bist_ouch, proto_bist_ouch);
 
     /* Create maps at registration time using autoreset so they clear per capture
      * automatically when file scope changes. */

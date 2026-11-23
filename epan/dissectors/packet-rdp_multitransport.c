@@ -22,7 +22,7 @@
 void proto_register_rdpmt(void);
 void proto_reg_handoff_rdpmt(void);
 
-static dissector_handle_t rdpmt_handle;
+//static dissector_handle_t rdpmt_handle;
 
 static int proto_rdpmt;
 
@@ -190,7 +190,7 @@ proto_register_rdpmt(void) {
 	proto_register_field_array(proto_rdpmt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	rdpmt_handle = register_dissector("rdpmt", dissect_rdpmt, proto_rdpmt);
+	/* rdpmt_handle = */ register_dissector("rdpmt", dissect_rdpmt, proto_rdpmt);
 }
 
 static bool

@@ -94,7 +94,7 @@ static char *version=NULL;
 static const char *pointer_default=NULL;
 static char *ifname=NULL;
 static char hf_status[BASE_BUFFER_SIZE];
-static int lineno,linepos;
+static int linepos;
 static char line[4 * BASE_BUFFER_SIZE];
 
 static void FPRINTF(FILE *fh, const char *format, ...)
@@ -1037,7 +1037,6 @@ static void tokenize(FILE *fh)
 			line[linepos]=0;
 
 			linepos=0;
-			lineno++;
 			break;
 		case '\t':
 		case ' ':
@@ -3250,7 +3249,6 @@ int main(int argc, const char *argv[])
 		Exit(0);
 	}
 
-	lineno=0;
 	linepos=0;
 	tokenize(fh);
 	prune_keyword_parameters("size_is");

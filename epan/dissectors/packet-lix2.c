@@ -35,7 +35,7 @@ void proto_register_lix2(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_lix2;
-static dissector_handle_t lix2_handle;
+//static dissector_handle_t lix2_handle;
 
 
 static int hf_lix2_XIRIPayload_PDU;               /* XIRIPayload */
@@ -30285,7 +30285,7 @@ void proto_register_lix2(void) {
   proto_register_field_array(proto_lix2, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  lix2_handle = register_dissector("xiri", dissect_XIRIPayload_PDU, proto_lix2);
+  /* lix2_handle = */ register_dissector("xiri", dissect_XIRIPayload_PDU, proto_lix2);
 
   /* Get rid of unused code warnings */
   (void)&dissect_lix2_MMSElementDescriptor;

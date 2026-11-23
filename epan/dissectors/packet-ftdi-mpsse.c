@@ -96,7 +96,7 @@ static expert_field ei_response_without_command;
 static expert_field ei_skipped_response_data;
 static expert_field ei_reassembly_unavailable;
 
-static dissector_handle_t ftdi_mpsse_handle;
+//static dissector_handle_t ftdi_mpsse_handle;
 
 /* Commands expecting response add command_data_t entry to a list. The list is created when first command
  * appears on MPSSE instance TX or when previously created list has matched responses to all entries.
@@ -1702,7 +1702,7 @@ proto_register_ftdi_mpsse(void)
     proto_ftdi_mpsse = proto_register_protocol("FTDI Multi-Protocol Synchronous Serial Engine", "FTDI MPSSE", "ftdi-mpsse");
     proto_register_field_array(proto_ftdi_mpsse, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    ftdi_mpsse_handle = register_dissector("ftdi-mpsse", dissect_ftdi_mpsse, proto_ftdi_mpsse);
+    /* ftdi_mpsse_handle = */ register_dissector("ftdi-mpsse", dissect_ftdi_mpsse, proto_ftdi_mpsse);
 
     expert_module = expert_register_protocol(proto_ftdi_mpsse);
     expert_register_field_array(expert_module, ei, array_length(ei));

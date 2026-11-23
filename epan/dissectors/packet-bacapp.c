@@ -5599,7 +5599,6 @@ static int32_t propertyArrayIndex = -1;
 static uint32_t object_type = 4096;
 
 static uint8_t bacapp_flags;
-static uint8_t bacapp_seq;
 
 /* Defined to allow vendor identifier registration of private transfer dissectors */
 static dissector_table_t bacapp_dissector_table;
@@ -5613,15 +5612,15 @@ static const char* st_str_packets_by_ip = "BACnet Packets by IP";
 static const char* st_str_packets_by_ip_dst = "By Destination";
 static const char* st_str_packets_by_ip_src = "By Source";
 static int st_node_packets_by_ip = -1;
-static int st_node_packets_by_ip_dst = -1;
-static int st_node_packets_by_ip_src = -1;
+//static int st_node_packets_by_ip_dst = -1;
+//static int st_node_packets_by_ip_src = -1;
 
 static void
 bacapp_packet_stats_tree_init(stats_tree* st)
 {
     st_node_packets_by_ip = stats_tree_create_pivot(st, st_str_packets_by_ip, 0);
-    st_node_packets_by_ip_src = stats_tree_create_node(st, st_str_packets_by_ip_src, st_node_packets_by_ip, STAT_DT_INT, true);
-    st_node_packets_by_ip_dst = stats_tree_create_node(st, st_str_packets_by_ip_dst, st_node_packets_by_ip, STAT_DT_INT, true);
+    /* st_node_packets_by_ip_src = */ stats_tree_create_node(st, st_str_packets_by_ip_src, st_node_packets_by_ip, STAT_DT_INT, true);
+    /* st_node_packets_by_ip_dst = */ stats_tree_create_node(st, st_str_packets_by_ip_dst, st_node_packets_by_ip, STAT_DT_INT, true);
 }
 
 static char *
@@ -15678,7 +15677,6 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
     int         tmp;
     unsigned    extra = 2;
 
-    bacapp_seq = 0;
     tmp = tvb_get_int8(tvb, offset);
     bacapp_flags = tmp & 0x0f;
 
@@ -15705,7 +15703,6 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
     offset++;
     proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb, offset++, 1, ENC_BIG_ENDIAN);
     if (bacapp_flags & 0x08) {
-        bacapp_seq = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(bacapp_tree, hf_bacapp_sequence_number, tvb,
             offset++, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(bacapp_tree, hf_bacapp_window_size, tvb,

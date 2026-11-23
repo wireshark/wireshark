@@ -60,7 +60,7 @@ enum{
 /* Global variables */
 static uint32_t ProcedureCode;
 static uint32_t ProtocolIE_ID;
-static uint32_t message_type;
+//static uint32_t message_type;
 static dissector_handle_t m2ap_handle;
 
 /* Dissector tables */

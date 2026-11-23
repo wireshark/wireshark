@@ -98,7 +98,7 @@ static int ett_mint_ctrl;
 static int ett_mint_data;
 
 static dissector_handle_t mint_control_handle;
-static dissector_handle_t mint_data_handle;
+//static dissector_handle_t mint_data_handle;
 static dissector_handle_t mint_eth_handle;
 
 /* Output of "service show mint ports" on controller */
@@ -882,7 +882,7 @@ proto_register_mint(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	mint_control_handle = register_dissector("mint_control", dissect_mint_control_static, proto_mint);
-	mint_data_handle = register_dissector("mint_data", dissect_mint_data_static, proto_mint_data);
+	/* mint_data_handle = */ register_dissector("mint_data", dissect_mint_data_static, proto_mint_data);
 	mint_eth_handle = register_dissector("mint_eth", dissect_mint_ethshim_static, proto_mint);
 }
 

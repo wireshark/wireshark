@@ -111,7 +111,7 @@ static heur_dissector_list_t heur_subdissector_list;
 static heur_dissector_list_t eth_trailer_subdissector_list;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t eth_maybefcs_handle;
-static dissector_handle_t eth_header_only_handle;
+//static dissector_handle_t eth_header_only_handle;
 
 
 static int eth_tap;
@@ -1289,7 +1289,7 @@ proto_register_eth(void)
                                  "Set the condition that must be true for the CCSDS dissector to be called",
                                  &ccsds_heuristic_bit);
 
-  eth_header_only_handle = register_dissector("eth_header", dissect_eth_header, proto_eth);
+  /* eth_header_only_handle = */ register_dissector("eth_header", dissect_eth_header, proto_eth);
   eth_withoutfcs_handle = register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
   register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
   eth_maybefcs_handle = register_dissector("eth_maybefcs", dissect_eth_maybefcs, proto_eth);

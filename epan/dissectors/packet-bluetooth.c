@@ -56,7 +56,7 @@ static dissector_handle_t btle_handle;
 static dissector_handle_t hci_usb_handle;
 
 static dissector_table_t bluetooth_table;
-static dissector_table_t hci_vendor_table;
+//static dissector_table_t hci_vendor_table;
 dissector_table_t        bluetooth_uuid_table;
 
 static wmem_tree_t *chandle_sessions;
@@ -1067,7 +1067,7 @@ proto_register_bluetooth(void)
     hci_vendors              = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     cs_configurations        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    hci_vendor_table = register_dissector_table("bluetooth.vendor", "HCI Vendor", proto_bluetooth, FT_UINT16, BASE_HEX);
+    /* hci_vendor_table = */ register_dissector_table("bluetooth.vendor", "HCI Vendor", proto_bluetooth, FT_UINT16, BASE_HEX);
     bluetooth_uuid_id = uuid_type_dissector_register("bluetooth", bluetooth_uuid_hash, bluetooth_uuid_equal, bluetooth_uuid_to_str);
 
     bluetooth_tap = register_tap("bluetooth");
@@ -1278,7 +1278,7 @@ static int ett_btad_apple_nearbyinfo_status;
 static int ett_btad_apple_nearbyinfo_data;
 
 static dissector_handle_t btad_apple_continuity;
-static dissector_handle_t btad_apple_ibeacon;
+//static dissector_handle_t btad_apple_ibeacon;
 
 void proto_register_btad_apple_continuity(void);
 void proto_reg_handoff_btad_apple_continuity(void);
@@ -2496,7 +2496,7 @@ proto_register_btad_apple_continuity(void)
     proto_register_field_array(proto_btad_apple_continuity, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     btad_apple_continuity = register_dissector("bluetooth.apple", dissect_btad_apple_continuity, proto_btad_apple_continuity);
-    btad_apple_ibeacon = register_dissector("bluetooth.apple.ibeacon", dissect_btad_apple_continuity, proto_btad_apple_continuity);
+    /* btad_apple_ibeacon = */ register_dissector("bluetooth.apple.ibeacon", dissect_btad_apple_continuity, proto_btad_apple_continuity);
 }
 
 

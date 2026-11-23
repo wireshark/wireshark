@@ -58,8 +58,8 @@ static wmem_map_t *oca_request_hash_map;
 void proto_register_ocp1(void);
 void proto_reg_handoff_ocp1(void);
 
-static dissector_handle_t ocp1_tcp_handle;
-static dissector_handle_t ocp1_udp_handle;
+//static dissector_handle_t ocp1_tcp_handle;
+//static dissector_handle_t ocp1_udp_handle;
 
 static int proto_ocp1;
 
@@ -3366,8 +3366,8 @@ proto_register_ocp1(void)
     expert_ocp1 = expert_register_protocol(proto_ocp1);
     expert_register_field_array(expert_ocp1, ei, array_length(ei));
 
-    ocp1_tcp_handle = register_dissector("ocp1.tcp", dissect_ocp1_tcp, proto_ocp1);
-    ocp1_udp_handle = register_dissector("ocp1.udp", dissect_ocp1, proto_ocp1);
+    /* ocp1_tcp_handle = */ register_dissector("ocp1.tcp", dissect_ocp1_tcp, proto_ocp1);
+    /* ocp1_udp_handle = */ register_dissector("ocp1.udp", dissect_ocp1, proto_ocp1);
 }
 
 void

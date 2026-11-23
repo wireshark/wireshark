@@ -44,7 +44,7 @@ static dissector_handle_t docsis_handle;
 static dissector_handle_t mpeg_pes_handle;
 static dissector_handle_t mpeg_sect_handle;
 
-static heur_dissector_list_t heur_subdissector_list;
+//static heur_dissector_list_t heur_subdissector_list;
 
 static int exported_pdu_tap;
 static int mp2t_follow_tap;
@@ -1981,7 +1981,7 @@ proto_register_mp2t(void)
     expert_mp2t = expert_register_protocol(proto_mp2t);
     expert_register_field_array(expert_mp2t, ei, array_length(ei));
 
-    heur_subdissector_list = register_heur_dissector_list_with_description("mp2t.pid", "Unused", proto_mp2t);
+    /* heur_subdissector_list = */ register_heur_dissector_list_with_description("mp2t.pid", "Unused", proto_mp2t);
     /* Register init of processing of fragmented DEPI packets */
     reassembly_table_register(&mp2t_reassembly_table,
         &mp2t_reassembly_table_functions);

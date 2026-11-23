@@ -34,7 +34,7 @@ void proto_reg_handoff_cotp(void);
 
 /* protocols and fields */
 
-static int  proto_clnp;
+//static int  proto_clnp;
 
 static int  proto_cotp;
 static int ett_cotp;
@@ -142,8 +142,8 @@ static const fragment_items cotp_frag_items = {
   "segments"
 };
 
-static dissector_handle_t rdp_cr_handle;
-static dissector_handle_t rdp_cc_handle;
+//static dissector_handle_t rdp_cr_handle;
+//static dissector_handle_t rdp_cc_handle;
 static dissector_handle_t ositp_handle;
 
 
@@ -2590,10 +2590,10 @@ proto_reg_handoff_cotp(void)
 {
   dissector_add_uint("ip.proto", IP_PROTO_TP, ositp_handle);
 
-  rdp_cr_handle = find_dissector("rdp_cr");
-  rdp_cc_handle = find_dissector("rdp_cc");
+  // rdp_cr_handle = find_dissector("rdp_cr");
+  // rdp_cc_handle = find_dissector("rdp_cc");
 
-  proto_clnp = proto_get_id_by_filter_name("clnp");
+  // proto_clnp = proto_get_id_by_filter_name("clnp");
 
   /* Actual implementations of R-GOOSE seem to use UDP port 102, registered
    * for ISO-TSAP, cf. TPKT. Perhaps we should just register ositp_handle

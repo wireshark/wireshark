@@ -41,7 +41,6 @@ void proto_reg_handoff_v5ua(void);
 
 static dissector_handle_t v5ua_handle;
 
-static int paddingl;
 static int dlci_efa = -1;
 
 /* Initialize the protocol and registered fields */
@@ -853,7 +852,6 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
          length = msg_length;
    }
    padding_length = tvb_reported_length(parameter_tvb) - length;
-   paddingl = padding_length;
 
    /* create proto_tree stuff */
    switch(iua_version){

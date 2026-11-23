@@ -67,7 +67,7 @@ static int hf_ilnp_stream;
 
 static int ett_ilnp;
 
-static dissector_handle_t ilnp_handle;
+//static dissector_handle_t ilnp_handle;
 
 // Global ILNP Stream counter
 static uint32_t ilnp_stream_count;
@@ -516,7 +516,7 @@ void proto_register_ilnp(void) {
 
     register_init_routine(ilnp_init);
 
-    ilnp_handle = register_dissector("ilnp", dissect_ilnp, proto_ilnp);
+    /* ilnp_handle = */ register_dissector("ilnp", dissect_ilnp, proto_ilnp);
 
     ilnp_tap = register_tap("ilnp");
 

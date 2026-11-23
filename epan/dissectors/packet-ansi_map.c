@@ -1134,8 +1134,6 @@ static packet_info *g_pinfo;
 static proto_tree *g_tree;
 static tvbuff_t *SMS_BearerData_tvb;
 static int32_t   ansi_map_sms_tele_id = -1;
-static bool is683_ota;
-static bool is801_pld;
 static bool ansi_map_is_invoke;
 static uint32_t OperationCode;
 static uint8_t ServiceIndicator;
@@ -15955,8 +15953,6 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     ansi_map_item = proto_tree_add_item(tree, proto_ansi_map, tvb, 0, -1, ENC_NA);
     ansi_map_tree = proto_item_add_subtree(ansi_map_item, ett_ansi_map);
     ansi_map_is_invoke = false;
-    is683_ota = false;
-    is801_pld = false;
     ServiceIndicator = 0;
 
     switch(p_private_tcap->d.pdu){

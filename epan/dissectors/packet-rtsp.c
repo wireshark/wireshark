@@ -148,7 +148,7 @@ static expert_field ei_rtsp_bad_client_ip_address;
 
 static dissector_handle_t rtsp_handle;
 static dissector_handle_t rtp_handle;
-static dissector_handle_t rtp_rfc4571_handle;
+//static dissector_handle_t rtp_rfc4571_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t rdt_handle;
 static dissector_table_t media_type_dissector_table;
@@ -174,7 +174,7 @@ static int st_node_resp_200 = -1;
 static int st_node_resp_300 = -1;
 static int st_node_resp_400 = -1;
 static int st_node_resp_500 = -1;
-static int st_node_other = -1;
+//static int st_node_other = -1;
 
 static void
 rtsp_stats_tree_init(stats_tree* st)
@@ -188,7 +188,7 @@ rtsp_stats_tree_init(stats_tree* st)
     st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, STAT_DT_INT, true);
     st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, STAT_DT_INT, true);
     st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, STAT_DT_INT, true);
-    st_node_other       = stats_tree_create_node(st, st_str_other, st_node_packets, STAT_DT_INT, false);
+    /* st_node_other = */ stats_tree_create_node(st, st_str_other, st_node_packets, STAT_DT_INT, false);
 }
 
 /* RTSP/Packet Counter stats packet function */
@@ -1778,7 +1778,7 @@ void
 proto_reg_handoff_rtsp(void)
 {
     rtp_handle = find_dissector_add_dependency("rtp", proto_rtsp);
-    rtp_rfc4571_handle = find_dissector_add_dependency("rtp.rfc4571", proto_rtsp);
+    /* rtp_rfc4571_handle = */ find_dissector_add_dependency("rtp.rfc4571", proto_rtsp);
     rtcp_handle = find_dissector_add_dependency("rtcp", proto_rtsp);
     rdt_handle = find_dissector_add_dependency("rdt", proto_rtsp);
     media_type_dissector_table = find_dissector_table("media_type");

@@ -438,7 +438,7 @@ static int hf_smcr_rmbe_ctrl_peer_abnormal_close;
 
 void proto_register_smcr(void);
 void proto_reg_handoff_smcr(void);
-static dissector_handle_t smc_tcp_handle;
+//static dissector_handle_t smc_tcp_handle;
 static dissector_handle_t smc_infiniband_handle;
 
 static void
@@ -2552,7 +2552,7 @@ proto_register_smcr(void)
 	proto_register_field_array(proto_smc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	smc_tcp_handle = register_dissector("smc", dissect_smc_tcp, proto_smc);
+	/* smc_tcp_handle = */ register_dissector("smc", dissect_smc_tcp, proto_smc);
 	smc_infiniband_handle = register_dissector("smc.infiniband", dissect_smcr_infiniband, proto_smc);
 }
 

@@ -926,7 +926,7 @@ static const true_false_string mip6_dmnp_v_flag_value = {
 
 #define MIP6_DMNP_MIN_LEN     6
 
-static dissector_table_t ip_dissector_table;
+//static dissector_table_t ip_dissector_table;
 
 /* Initialize the protocol and registered header fields */
 static int proto_mip6;
@@ -5222,7 +5222,7 @@ proto_reg_handoff_mip6(void)
 
     /* Add support for PMIPv6 control messages over IPV4 */
     dissector_add_uint_with_preference("udp.port", UDP_PORT_PMIP6_CNTL, mip6_handle);
-    ip_dissector_table = find_dissector_table("ip.proto");
+    // ip_dissector_table = find_dissector_table("ip.proto");
 
     dissector_add_uint("mip6.vsm", VENDOR_THE3GPP, create_dissector_handle(dissect_mip6_opt_vsm_3gpp, proto_mip6));
 

@@ -226,7 +226,7 @@ static expert_field ei_asphodel_bad_length;
 static expert_field ei_asphodel_cmd_error;
 static expert_field ei_asphodel_unknown_type;
 
-static dissector_handle_t asphodel_inquiry_handle;
+//static dissector_handle_t asphodel_inquiry_handle;
 static dissector_handle_t asphodel_response_handle;
 static dissector_handle_t asphodel_tcp_handle;
 
@@ -761,7 +761,7 @@ proto_register_asphodel(void)
     proto_asphodel = proto_register_protocol("Asphodel", "Asphodel", "asphodel");
 
     /* Register the dissectors */
-    asphodel_inquiry_handle = register_dissector("asphodel_inquiry", dissect_asphodel_inquiry, proto_asphodel);
+    /* asphodel_inquiry_handle = */ register_dissector("asphodel_inquiry", dissect_asphodel_inquiry, proto_asphodel);
     asphodel_response_handle = register_dissector("asphodel_response", dissect_asphodel_response, proto_asphodel);
     asphodel_tcp_handle = register_dissector("asphodel_tcp", dissect_asphodel_tcp, proto_asphodel);
 

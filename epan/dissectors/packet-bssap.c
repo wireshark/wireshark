@@ -351,8 +351,8 @@ static dissector_table_t bssap_dissector_table;
 static dissector_table_t bsap_dissector_table;
 static dissector_table_t bssap_le_dissector_table;
 
-static dissector_handle_t gsm_bssmap_le_dissector_handle;
-static dissector_handle_t gsm_a_bssmap_dissector_handle;
+//static dissector_handle_t gsm_bssmap_le_dissector_handle;
+//static dissector_handle_t gsm_a_bssmap_dissector_handle;
 
 
 typedef struct {
@@ -2623,8 +2623,8 @@ proto_reg_handoff_bssap(void)
     /* BSSAP+ */
 
     rrlp_handle = find_dissector_add_dependency("rrlp", proto_bssap_plus);
-    gsm_bssmap_le_dissector_handle = find_dissector_add_dependency("gsm_bssmap_le", proto_bssap);
-    gsm_a_bssmap_dissector_handle = find_dissector_add_dependency("gsm_a_bssmap", proto_bssap);
+    /* gsm_bssmap_le_dissector_handle = */ find_dissector_add_dependency("gsm_bssmap_le", proto_bssap);
+    /* gsm_a_bssmap_dissector_handle = */ find_dissector_add_dependency("gsm_a_bssmap", proto_bssap);
 
     dissector_add_for_decode_as("sccp.ssn", bssap_handle);
     dissector_add_for_decode_as("sccp.ssn", bsap_handle);

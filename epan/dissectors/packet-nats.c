@@ -30,7 +30,7 @@ static const int EOL_LEN = 2; // CRLF length
 
 static int proto_nats;
 static dissector_handle_t handle_nats;
-static dissector_table_t subject_table;
+//static dissector_table_t subject_table;
 
 static dissector_handle_t json_handle;
 
@@ -1386,7 +1386,7 @@ void proto_register_nats(void)
     proto_register_field_array(proto_nats, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    subject_table = register_dissector_table(
+    /* subject_table = */ register_dissector_table(
         "nats.subject", // table name
         "NATS Subject", // UI name
         proto_nats, // protocol id

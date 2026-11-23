@@ -67,7 +67,7 @@ static uint32_t ProcedureCode;
 static uint32_t ProtocolIE_ID;
 /*static uint32_t ProtocolExtensionID; */
 static int global_m3ap_port = M3AP_PORT;
-static uint32_t message_type;
+//static uint32_t message_type;
 
 /* Dissector tables */
 static dissector_table_t m3ap_ies_dissector_table;

@@ -4126,8 +4126,8 @@ static dissector_handle_t wassp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t eth_handle;
 static dissector_handle_t ip_handle;
-static dissector_handle_t ieee80211_handle;
-static dissector_handle_t snmp_handle;
+//static dissector_handle_t ieee80211_handle;
+//static dissector_handle_t snmp_handle;
 
 
 static const WASSP_SUBTLV_DECODER_INFO_t wassp_decr_info[TAB_MAX] =
@@ -7097,8 +7097,8 @@ proto_reg_handoff_wassp(void)
 	dissector_add_uint_range_with_preference("udp.port", PORT_WASSP_RANGE, wassp_handle);
 	heur_dissector_add("udp", dissect_wassp_heur, "WASSP over UDP", "wassp_udp", proto_wassp, HEURISTIC_DISABLE);
 
-	snmp_handle = find_dissector_add_dependency("snmp", proto_wassp);
-	ieee80211_handle = find_dissector_add_dependency("wlan_withoutfcs", proto_wassp);
+	/* snmp_handle = */ find_dissector_add_dependency("snmp", proto_wassp);
+	/* ieee80211_handle = */ find_dissector_add_dependency("wlan_withoutfcs", proto_wassp);
 	eth_handle = find_dissector("eth_withoutfcs");
 	data_handle = find_dissector("data");
 	ip_handle = find_dissector("ip");

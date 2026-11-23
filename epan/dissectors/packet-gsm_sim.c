@@ -564,7 +564,8 @@ static int ett_fcp_proprietary;
 static expert_field ei_unknown_bytes;
 
 static dissector_handle_t sub_handle_cap;
-static dissector_handle_t sim_handle, sim_part_handle;
+//static dissector_handle_t sim_handle;
+static dissector_handle_t sim_part_handle;
 
 /* The response contains no channel number to compare to and the spec explicitly
  * prohibits interleaving of command/response pairs, regardless of logical channels.
@@ -5584,7 +5585,7 @@ proto_register_gsm_sim(void)
 	 * & response APDUs into one packet before sending it to GSMTAP. Cf.
 	 * https://github.com/yarrick/scsniff/issues/1#issuecomment-2295835330
 	 */
-	sim_handle = register_dissector("gsm_sim", dissect_gsm_sim, proto_gsm_sim);
+	/* sim_handle = */ register_dissector("gsm_sim", dissect_gsm_sim, proto_gsm_sim);
 	register_dissector("gsm_sim.command", dissect_gsm_sim_command, proto_gsm_sim);
 	register_dissector("gsm_sim.response", dissect_gsm_sim_response, proto_gsm_sim);
 	register_dissector("gsm_sim.bertlv", dissect_bertlv, proto_gsm_sim);

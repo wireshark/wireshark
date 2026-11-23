@@ -196,7 +196,7 @@ static int ett_collectd_dispatch;
 static int ett_collectd_invalid_length;
 static int ett_collectd_unknown;
 
-static int st_collectd_packets = -1;
+//static int st_collectd_packets = -1;
 static int st_collectd_values  = -1;
 static int st_collectd_values_hosts   = -1;
 static int st_collectd_values_plugins = -1;
@@ -364,7 +364,7 @@ collectd_time_to_nstime (uint64_t t)
 static void
 collectd_stats_tree_init (stats_tree *st)
 {
-	st_collectd_packets = stats_tree_create_node (st, "Packets", 0, STAT_DT_INT, false);
+	/* st_collectd_packets = */ stats_tree_create_node (st, "Packets", 0, STAT_DT_INT, false);
 	st_collectd_values = stats_tree_create_node (st, "Values", 0, STAT_DT_INT, true);
 
 	st_collectd_values_hosts = stats_tree_create_pivot (st, "By host",

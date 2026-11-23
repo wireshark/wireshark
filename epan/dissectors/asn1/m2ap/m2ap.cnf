@@ -56,15 +56,15 @@ ProtocolIE-Field/value ie_field_value
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 #.FN_HDR InitiatingMessage/value
-  message_type = INITIATING_MESSAGE;
+  // message_type = INITIATING_MESSAGE;
 
 #.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
 #.FN_HDR SuccessfulOutcome/value
-  message_type = SUCCESSFUL_OUTCOME;
+  // message_type = SUCCESSFUL_OUTCOME;
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 #.FN_HDR UnsuccessfulOutcome/value
-  message_type = UNSUCCESSFUL_OUTCOME;
+  // message_type = UNSUCCESSFUL_OUTCOME;
 
 #.FN_BODY PLMN-Identity  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;

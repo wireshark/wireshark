@@ -47,7 +47,7 @@ static int ett_x75;
 static int ett_x75_control;
 
 static dissector_handle_t data_handle;
-static dissector_handle_t x75_handle;
+//static dissector_handle_t x75_handle;
 
 static const xdlc_cf_items x75_cf_items = {
     &hf_x75_n_r,
@@ -227,7 +227,7 @@ proto_register_x75(void)
     proto_register_field_array (proto_x75, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    x75_handle = register_dissector("x75", dissect_x75, proto_x75);
+    /* x75_handle = */ register_dissector("x75", dissect_x75, proto_x75);
 
     x75_subdissector_table =
 	    register_decode_as_next_proto(proto_x75,

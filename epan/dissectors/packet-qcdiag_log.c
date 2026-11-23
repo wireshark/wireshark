@@ -103,7 +103,7 @@
 void proto_register_qcdiag_log(void);
 void proto_reg_handoff_qcdiag_log(void);
 
-static dissector_handle_t data_handle;
+//static dissector_handle_t data_handle;
 static dissector_handle_t text_lines_handle;
 static dissector_handle_t udp_handle;
 static dissector_handle_t gsmtap_handle;
@@ -3410,7 +3410,7 @@ proto_reg_handoff_qcdiag_log(void)
     qcdiag_log_handle = create_dissector_handle(dissect_qcdiag_log, proto_qcdiag_log);
     dissector_add_uint("qcdiag.cmd", DIAG_LOG_F, qcdiag_log_handle);
 
-    data_handle = find_dissector("data");
+    // data_handle = find_dissector("data");
     text_lines_handle = find_dissector("data-text-lines");
     udp_handle = find_dissector("udp");
     gsmtap_handle = find_dissector("gsmtap");

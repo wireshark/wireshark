@@ -27,7 +27,7 @@ void proto_reg_handoff_nmf(void);
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
 
-static dissector_handle_t xml_handle;
+//static dissector_handle_t xml_handle;
 
 static int proto_nmf;
 
@@ -692,5 +692,5 @@ proto_reg_handoff_nmf(void)
 	gssapi_handle = find_dissector_add_dependency("gssapi", proto_nmf);
 	gssapi_wrap_handle = find_dissector_add_dependency("gssapi_verf", proto_nmf);
 
-	xml_handle = find_dissector_add_dependency("xml", proto_nmf);
+	/* xml_handle = */ find_dissector_add_dependency("xml", proto_nmf);
 }

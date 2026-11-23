@@ -136,7 +136,7 @@ static int st_node_qr_qt_packets = -1;   // qt = Query-Type
 static int st_node_qr_ql_packets = -1;   // ql = Query-Label
 static int st_node_qr_qp_packets = -1;   // qp = Query-Payload
 static int st_node_qr_qs_packets = -1;   // qs = Query-Servicing
-static int st_node_qr_qs_a_packets = -1;         // a = Answered (ms)
+//static int st_node_qr_qs_a_packets = -1;         // a = Answered (ms)
 static int st_node_qr_qs_u_packets = -1;         // u = Unanswered
 static int st_node_qr_qs_r_packets = -1;         // r = Retransmission
 static int st_node_qr_r_packets = -1;    // r  = Response
@@ -148,7 +148,7 @@ static int st_node_qr_ru_packets = -1;   // ru = Response-aUthority
 static int st_node_qr_rd_packets = -1;   // rd = Response-aDditional
 static int st_node_qr_rp_packets = -1;   // rp = Response-Payload
 static int st_node_qr_rs_packets = -1;   // rs = Response-Servicing
-static int st_node_qr_rs_a_packets = -1;         // a = Answered (ms)
+//static int st_node_qr_rs_a_packets = -1;         // a = Answered (ms)
 static int st_node_qr_rs_u_packets = -1;         // u = Unsolicited
 static int st_node_qr_rs_r_packets = -1;         // r = Retransmission
 static int st_node_qr_rt_packets = -1;   // rt = Response-TTL
@@ -246,24 +246,24 @@ static int st_node_packet_qnames = -1;
 static int st_node_packet_qclasses = -1;
 static int st_node_packet_rcodes = -1;
 static int st_node_packet_opcodes = -1;
-static int st_node_packets_avg_size = -1;
+//static int st_node_packets_avg_size = -1;
 static int st_node_query_stats = -1;
-static int st_node_query_qname_len = -1;
+//static int st_node_query_qname_len = -1;
 static int st_node_query_domains = -1;
-static int st_node_query_domains_l1 = -1;
-static int st_node_query_domains_l2 = -1;
-static int st_node_query_domains_l3 = -1;
-static int st_node_query_domains_lmore = -1;
+//static int st_node_query_domains_l1 = -1;
+//static int st_node_query_domains_l2 = -1;
+//static int st_node_query_domains_l3 = -1;
+//static int st_node_query_domains_lmore = -1;
 static int st_node_response_stats = -1;
 static int st_node_rr_types = -1;
-static int st_node_response_nquestions = -1;
-static int st_node_response_nanswers = -1;
-static int st_node_response_nauthorities = -1;
-static int st_node_response_nadditionals = -1;
+//static int st_node_response_nquestions = -1;
+//static int st_node_response_nanswers = -1;
+//static int st_node_response_nauthorities = -1;
+//static int st_node_response_nadditionals = -1;
 static int st_node_service_stats = -1;
-static int st_node_service_unsolicited = -1;
-static int st_node_service_retransmission = -1;
-static int st_node_service_rrt = -1;
+//static int st_node_service_unsolicited = -1;
+//static int st_node_service_retransmission = -1;
+//static int st_node_service_rrt = -1;
 
 static int proto_dns;
 static int proto_mdns;
@@ -5647,27 +5647,27 @@ static void dns_stats_tree_init(stats_tree* st)
   st_node_packet_qclasses = stats_tree_create_pivot(st, st_str_packet_qclasses, 0);
   st_node_packet_rcodes = stats_tree_create_pivot(st, st_str_packet_rcodes, 0);
   st_node_packet_opcodes = stats_tree_create_pivot(st, st_str_packet_opcodes, 0);
-  st_node_packets_avg_size = stats_tree_create_node(st, st_str_packets_avg_size, 0, STAT_DT_INT, false);
+  /* st_node_packets_avg_size = */ stats_tree_create_node(st, st_str_packets_avg_size, 0, STAT_DT_INT, false);
   st_node_query_stats = stats_tree_create_node(st, st_str_query_stats, 0, STAT_DT_INT, true);
-  st_node_query_qname_len = stats_tree_create_node(st, st_str_query_qname_len, st_node_query_stats, STAT_DT_INT, false);
+  /* st_node_query_qname_len = */ stats_tree_create_node(st, st_str_query_qname_len, st_node_query_stats, STAT_DT_INT, false);
   st_node_query_domains = stats_tree_create_node(st, st_str_query_domains, st_node_query_stats, STAT_DT_INT, true);
-  st_node_query_domains_l1 = stats_tree_create_node(st, st_str_query_domains_l1, st_node_query_domains, STAT_DT_INT, false);
-  st_node_query_domains_l2 = stats_tree_create_node(st, st_str_query_domains_l2, st_node_query_domains, STAT_DT_INT, false);
-  st_node_query_domains_l3 = stats_tree_create_node(st, st_str_query_domains_l3, st_node_query_domains, STAT_DT_INT, false);
-  st_node_query_domains_lmore = stats_tree_create_node(st, st_str_query_domains_lmore, st_node_query_domains, STAT_DT_INT, false);
+  /* st_node_query_domains_l1 = */ stats_tree_create_node(st, st_str_query_domains_l1, st_node_query_domains, STAT_DT_INT, false);
+  /* st_node_query_domains_l2 = */ stats_tree_create_node(st, st_str_query_domains_l2, st_node_query_domains, STAT_DT_INT, false);
+  /* st_node_query_domains_l3 = */ stats_tree_create_node(st, st_str_query_domains_l3, st_node_query_domains, STAT_DT_INT, false);
+  /* st_node_query_domains_lmore = */ stats_tree_create_node(st, st_str_query_domains_lmore, st_node_query_domains, STAT_DT_INT, false);
   st_node_response_stats = stats_tree_create_node(st, st_str_response_stats, 0, STAT_DT_INT, true);
-  st_node_response_nquestions = stats_tree_create_node(st, st_str_response_nquestions,
+  /* st_node_response_nquestions = */ stats_tree_create_node(st, st_str_response_nquestions,
     st_node_response_stats, STAT_DT_INT, false);
-  st_node_response_nanswers = stats_tree_create_node(st, st_str_response_nanswers,
+  /* st_node_response_nanswers = */ stats_tree_create_node(st, st_str_response_nanswers,
     st_node_response_stats, STAT_DT_INT, false);
-  st_node_response_nauthorities = stats_tree_create_node(st, st_str_response_nauthorities,
+  /* st_node_response_nauthorities = */ stats_tree_create_node(st, st_str_response_nauthorities,
     st_node_response_stats, STAT_DT_INT, false);
-  st_node_response_nadditionals = stats_tree_create_node(st, st_str_response_nadditionals,
+  /* st_node_response_nadditionals = */ stats_tree_create_node(st, st_str_response_nadditionals,
     st_node_response_stats, STAT_DT_INT, false);
   st_node_service_stats = stats_tree_create_node(st, st_str_service_stats, 0, STAT_DT_INT, true);
-  st_node_service_unsolicited = stats_tree_create_node(st, st_str_service_unsolicited, st_node_service_stats, STAT_DT_INT, false);
-  st_node_service_retransmission = stats_tree_create_node(st, st_str_service_retransmission, st_node_service_stats, STAT_DT_INT, false);
-  st_node_service_rrt = stats_tree_create_node(st, st_str_service_rrt, st_node_service_stats, STAT_DT_FLOAT, false);
+  /* st_node_service_unsolicited = */ stats_tree_create_node(st, st_str_service_unsolicited, st_node_service_stats, STAT_DT_INT, false);
+  /* st_node_service_retransmission = */ stats_tree_create_node(st, st_str_service_retransmission, st_node_service_stats, STAT_DT_INT, false);
+  /* st_node_service_rrt = */ stats_tree_create_node(st, st_str_service_rrt, st_node_service_stats, STAT_DT_FLOAT, false);
 }
 
 static tap_packet_status dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
@@ -5790,7 +5790,7 @@ static void dns_qr_stats_tree_init(stats_tree* st)
 
       // qs_a = Answered (ms)
       if (dns_qr_qs_a_statistics_enabled) {
-        st_node_qr_qs_a_packets = stats_tree_create_node(st, st_str_qr_qs_a_packets, st_node_qr_qs_packets, STAT_DT_FLOAT, true);
+        /* st_node_qr_qs_a_packets = */ stats_tree_create_node(st, st_str_qr_qs_a_packets, st_node_qr_qs_packets, STAT_DT_FLOAT, true);
       }
 
       // qs_u = Unanswered
@@ -5850,7 +5850,7 @@ static void dns_qr_stats_tree_init(stats_tree* st)
 
       // rs_a = Answered (ms)
       if (dns_qr_rs_a_statistics_enabled) {
-        st_node_qr_rs_a_packets = stats_tree_create_node(st, st_str_qr_rs_a_packets, st_node_qr_rs_packets, STAT_DT_FLOAT, true);
+        /* st_node_qr_rs_a_packets = */ stats_tree_create_node(st, st_str_qr_rs_a_packets, st_node_qr_rs_packets, STAT_DT_FLOAT, true);
       }
 
       // rs_n = Unsolicited

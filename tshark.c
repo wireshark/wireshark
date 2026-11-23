@@ -206,8 +206,6 @@ static const char *separator = "";
 /* Per-file comments to be added to the output file. */
 static GPtrArray *capture_comments;
 
-static bool prefs_loaded;
-
 #ifdef HAVE_LIBPCAP
 /*
  * true if we're to print packet counts to keep track of captured packets.
@@ -1425,7 +1423,6 @@ main(int argc, char *argv[])
 
     /* Load libwireshark settings from the current profile. */
     prefs_p = epan_load_settings();
-    prefs_loaded = true;
 
 #ifdef HAVE_LIBPCAP
     /* Pick up the temporary directory from the preferences. This has to

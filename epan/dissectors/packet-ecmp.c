@@ -36,7 +36,7 @@ static dissector_handle_t ecmp_tcp_handle, ecmp_udp_handle;
 static int proto_ecmp;
 
 /* Used to set Modbus protocol data */
-static int proto_modbus;
+//static int proto_modbus;
 
 /* These are the handles of our subdissectors */
 static dissector_handle_t modbus_handle;
@@ -3473,7 +3473,7 @@ void proto_reg_handoff_ecmp(void)
 
 	/* Modbus dissector hooks */
 	modbus_handle = find_dissector_add_dependency("modbus", proto_ecmp);
-	proto_modbus = proto_get_id_by_filter_name( "modbus" );
+	// proto_modbus = proto_get_id_by_filter_name( "modbus" );
 }
 
 

@@ -279,9 +279,9 @@ static const value_string hf_acdr_ext_direction_vals[] = {
 
 static int proto_acdr;
 static int proto_ac5xmii;
-static int proto_ac5x;
-static int proto_ac48x;
-static int proto_ac49x;
+//static int proto_ac5x;
+//static int proto_ac48x;
+//static int proto_ac49x;
 
 // Define headers for acdr
 static int hf_acdr_seq_num;
@@ -2019,12 +2019,12 @@ proto_reg_handoff_acdr(void)
     lix2x3_dissector_handle = find_dissector("lix2x3");
 
     dsp_49x_dissector_handle = find_dissector("ac49x");
-    proto_ac49x = proto_get_id_by_filter_name("ac49x");
+    // proto_ac49x = proto_get_id_by_filter_name("ac49x");
     dsp_48x_dissector_handle = find_dissector("ac48x");
-    proto_ac48x = proto_get_id_by_filter_name("ac48x");
+    // proto_ac48x = proto_get_id_by_filter_name("ac48x");
     dsp_45x_dissector_handle = find_dissector("AC45x");
     dsp_5x_dissector_handle = find_dissector("ac5x");
-    proto_ac5x = proto_get_id_by_filter_name("ac5x");
+    // proto_ac5x = proto_get_id_by_filter_name("ac5x");
     dsp_5x_MII_dissector_handle = find_dissector("ac5xmii");
     proto_ac5xmii = proto_get_id_by_filter_name("ac5xmii");
 

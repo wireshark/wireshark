@@ -2559,9 +2559,9 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
 
 static dissector_handle_t eth_handle;
-static dissector_handle_t ip_handle;
-static dissector_handle_t ipv6_handle;
-static dissector_handle_t ppp_handle;
+//static dissector_handle_t ip_handle;
+//static dissector_handle_t ipv6_handle;
+//static dissector_handle_t ppp_handle;
 static dissector_handle_t sync_handle;
 static dissector_handle_t gtpcdr_handle;
 static dissector_handle_t sndcpxid_handle;
@@ -2570,7 +2570,7 @@ static dissector_handle_t bssgp_handle;
 static dissector_handle_t pdcp_nr_handle;
 static dissector_handle_t pdcp_lte_handle;
 static dissector_handle_t gtp_tpdu_custom_handle;
-static dissector_table_t bssap_pdu_type_table;
+//static dissector_table_t bssap_pdu_type_table;
 
 static int proto_pdcp_lte;
 
@@ -13560,9 +13560,9 @@ proto_reg_handoff_gtp(void)
         radius_register_avp_dissector(VENDOR_THE3GPP, 12, dissect_radius_selection_mode);
 
         eth_handle           = find_dissector_add_dependency("eth_withoutfcs", proto_gtp);
-        ip_handle            = find_dissector_add_dependency("ip", proto_gtp);
-        ipv6_handle          = find_dissector_add_dependency("ipv6", proto_gtp);
-        ppp_handle           = find_dissector_add_dependency("ppp", proto_gtp);
+        /* ip_handle = */ find_dissector_add_dependency("ip", proto_gtp);
+        /* ipv6_handle = */ find_dissector_add_dependency("ipv6", proto_gtp);
+        /* ppp_handle = */ find_dissector_add_dependency("ppp", proto_gtp);
         sync_handle          = find_dissector_add_dependency("sync", proto_gtp);
         gtpcdr_handle        = find_dissector_add_dependency("gtpcdr", proto_gtp);
         sndcpxid_handle      = find_dissector_add_dependency("sndcpxid", proto_gtp);
@@ -13572,7 +13572,7 @@ proto_reg_handoff_gtp(void)
         pdcp_lte_handle      = find_dissector_add_dependency("pdcp-lte", proto_gtp);
         proto_pdcp_lte       = dissector_handle_get_protocol_index(pdcp_lte_handle);
 
-        bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
+        // bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
         dissector_add_uint("diameter.3gpp", 5, create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
         /* AVP Code: 903 MBMS-Service-Area */

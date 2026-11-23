@@ -648,8 +648,8 @@ f5_udp_conv_filter(packet_info *pinfo, void *user_data _U_)
 /*===============================================================================================*/
 /* Stats tree functions */
 
-static int st_node_tmmpktdist              = -1; /**< Tree for packet counts */
-static int st_node_tmmbytedist             = -1; /**< Tree for byte counts (excludes trailer) */
+//static int st_node_tmmpktdist              = -1; /**< Tree for packet counts */
+//static int st_node_tmmbytedist             = -1; /**< Tree for byte counts (excludes trailer) */
 static const char *st_str_tmmdist         = "F5" STATS_TREE_MENU_SEPARATOR "tmm Distribution";
 static const char *st_str_tmmdist_pkts    = "tmm Packet Distribution";
 static const char *st_str_tmmdist_bytes   = "tmm Byte Distribution (excludes trailer)";
@@ -679,9 +679,9 @@ static const char *st_str_virtdist_novirt = "Flow without virtual server name";
 static void
 f5eth_tmmdist_stats_tree_init(stats_tree *st)
 {
-    st_node_tmmpktdist = stats_tree_create_node(st, st_str_tmmdist_pkts, 0, STAT_DT_INT, true);
+    /* st_node_tmmpktdist = */ stats_tree_create_node(st, st_str_tmmdist_pkts, 0, STAT_DT_INT, true);
     stat_node_set_flags(st, st_str_tmmdist_pkts, 0, true, ST_FLG_SORT_TOP);
-    st_node_tmmbytedist = stats_tree_create_node(st, st_str_tmmdist_bytes, 0, STAT_DT_INT, true);
+    /* st_node_tmmbytedist = */ stats_tree_create_node(st, st_str_tmmdist_bytes, 0, STAT_DT_INT, true);
 } /* f5eth_tmmdist_stats_tree_init() */
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -948,8 +948,6 @@ typedef void (*f5eth_set_col_info_func)(packet_info *, unsigned, unsigned, unsig
 
 /** Preference for setting platform regex for which platforms to display slot information for. */
 static const char *pref_slots_regex;
-/** Whether or not to display slot information, set based on platform and regex preference. */
-static bool display_slot = true;
 
 /*-----------------------------------------------------------------------------------------------*/
 /**
@@ -1061,7 +1059,6 @@ f5eth_process_f5info(const char *platform)
      *  function if that is specified in the preference.*/
     if (platform == NULL || platform[0] == '\0' || pref_slots_regex == NULL
         || pref_slots_regex[0] == '\0') {
-        display_slot = true;
         if (pref_info_type == in_out_only || pref_info_type == brief_in_out_only) {
             f5eth_set_info_col = f5eth_set_info_col_inout;
         } else {
@@ -1074,7 +1071,6 @@ f5eth_process_f5info(const char *platform)
     if (g_regex_match_simple(pref_slots_regex, platform, G_REGEX_RAW, (GRegexMatchFlags)0)
         == true) {
         /** Then display the slot information (only if in/out only is not selected). */
-        display_slot = true;
         if (pref_info_type == in_out_only || pref_info_type == brief_in_out_only) {
             f5eth_set_info_col = f5eth_set_info_col_inout;
         } else {
@@ -1082,7 +1078,6 @@ f5eth_process_f5info(const char *platform)
         }
     } else {
         /** Else do not display the slot information (only if in/out only is not selected). */
-        display_slot = false;
         if (pref_info_type == in_out_only || pref_info_type == brief_in_out_only) {
             f5eth_set_info_col = f5eth_set_info_col_inout;
         } else {
@@ -3585,13 +3580,11 @@ dissect_dpt_trailer_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static void
 proto_init_f5ethtrailer(void)
 {
-    /** Need to set display_slot to true when initially reading a capture.  This covers the
+    /** Need to turn slot display back on when initially reading a capture.  This covers the
      *  situation when a user loads a capture that turns off slot display and then loads a
-     *  different capture that contains trailers, but does not have the F5INFO frame.  In this
-     *  case, we need to turn the slot display back on. */
-    display_slot = true;
-    /* Set the info column function to use based on whether or not an in/out only
-     * preference is chosen. */
+     *  different capture that contains trailers, but does not have the F5INFO frame.
+     *  Set the info column function to use based on whether or not an in/out only
+     *  preference is chosen. */
     switch (pref_info_type) {
     case in_out_only:
     case brief_in_out_only:

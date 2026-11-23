@@ -67,7 +67,7 @@ static int hf_ssh_lang_tag;
 static int ett_sftp;
 static int ett_sftp_attrs;
 
-static dissector_handle_t sftp_handle;
+//static dissector_handle_t sftp_handle;
 
 #define SSH_FXP_INIT                1
 #define SSH_FXP_VERSION             2
@@ -687,5 +687,5 @@ proto_register_sftp(void)
     proto_register_field_array(proto_sftp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    sftp_handle = register_dissector("sftp", dissect_sftp, proto_sftp);
+    /* sftp_handle = */ register_dissector("sftp", dissect_sftp, proto_sftp);
 }

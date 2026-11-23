@@ -24,7 +24,7 @@
 
 void proto_register_glow(void);
 
-static dissector_handle_t glow_handle;
+//static dissector_handle_t glow_handle;
 static int proto_glow;
 
 static int hf_glow_Root_PDU;                      /* Root */
@@ -1931,7 +1931,7 @@ void proto_register_glow(void) {
 
   /* Register protocol */
   proto_glow = proto_register_protocol("Glow", "GLOW", "glow");
-  glow_handle = register_dissector("glow", dissect_glow, proto_glow);
+  /* glow_handle = */ register_dissector("glow", dissect_glow, proto_glow);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_glow, hf, array_length(hf));

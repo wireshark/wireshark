@@ -1942,8 +1942,8 @@ static uint32_t ProtocolIE_ID;
 
 /* Dissector tables */
 static dissector_table_t pcap_ies_dissector_table;
-static dissector_table_t pcap_ies_p1_dissector_table;
-static dissector_table_t pcap_ies_p2_dissector_table;
+//static dissector_table_t pcap_ies_p1_dissector_table;
+//static dissector_table_t pcap_ies_p2_dissector_table;
 static dissector_table_t pcap_extension_dissector_table;
 static dissector_table_t pcap_proc_imsg_dissector_table;
 static dissector_table_t pcap_proc_sout_dissector_table;
@@ -20317,8 +20317,8 @@ void proto_register_pcap(void) {
 
   /* Register dissector tables */
   pcap_ies_dissector_table = register_dissector_table("pcap.ies", "PCAP-PROTOCOL-IES", proto_pcap, FT_UINT32, BASE_DEC);
-  pcap_ies_p1_dissector_table = register_dissector_table("pcap.ies.pair.first", "PCAP-PROTOCOL-IES-PAIR FirstValue", proto_pcap, FT_UINT32, BASE_DEC);
-  pcap_ies_p2_dissector_table = register_dissector_table("pcap.ies.pair.second", "PCAP-PROTOCOL-IES-PAIR SecondValue", proto_pcap, FT_UINT32, BASE_DEC);
+  /* pcap_ies_p1_dissector_table = */ register_dissector_table("pcap.ies.pair.first", "PCAP-PROTOCOL-IES-PAIR FirstValue", proto_pcap, FT_UINT32, BASE_DEC);
+  /* pcap_ies_p2_dissector_table = */ register_dissector_table("pcap.ies.pair.second", "PCAP-PROTOCOL-IES-PAIR SecondValue", proto_pcap, FT_UINT32, BASE_DEC);
   pcap_extension_dissector_table = register_dissector_table("pcap.extension", "PCAP-PROTOCOL-EXTENSION", proto_pcap, FT_UINT32, BASE_DEC);
   pcap_proc_imsg_dissector_table = register_dissector_table("pcap.proc.imsg", "PCAP-ELEMENTARY-PROCEDURE InitiatingMessage", proto_pcap, FT_UINT32, BASE_DEC);
   pcap_proc_sout_dissector_table = register_dissector_table("pcap.proc.sout", "PCAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_pcap, FT_UINT32, BASE_DEC);

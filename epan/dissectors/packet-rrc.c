@@ -18339,7 +18339,6 @@ static int ett_rrc_sib_data_var;
 static expert_field ei_rrc_no_hrnti;
 
 /* Global variables */
-static proto_tree *top_tree;
 
 static int hf_rrc_eutra_feat_group_ind_1;
 static int hf_rrc_eutra_feat_group_ind_2;
@@ -165175,7 +165174,6 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     struct rrc_info *rrcinf;
     fp_info *fpinf;
 
-    top_tree = tree;
     rrcinf = (struct rrc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rrc, 0);
     fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
 

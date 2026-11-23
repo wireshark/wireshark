@@ -87,7 +87,7 @@ static int ett_rtpsproc_advanced_frame0;
 static int ett_rtpsproc_advanced_frame1;
 
 /* Initialize the protocol and registered fields */
-static header_field_info *rtpsproc_hf;
+//static header_field_info *rtpsproc_hf;
 static int hf_rtpsproc_param_id;
 static int hf_rtpsproc_param_length;
 
@@ -428,7 +428,7 @@ proto_register_rtps_processed(void)
     rtpsproc_tree = proto_register_protocol("Real-Time Publish-Subscribe Wire Protocol (processed)", "RTPS-PROC", "rtpsproc");
 
     /* Required function calls to register the header fields and subtrees */
-    rtpsproc_hf = proto_registrar_get_nth(rtpsproc_tree);
+    // rtpsproc_hf = proto_registrar_get_nth(rtpsproc_tree);
     proto_register_field_array(rtpsproc_tree, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

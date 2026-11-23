@@ -54,7 +54,7 @@ static int ett_dect_dlc_address;
 static int ett_dect_dlc_control;
 static int ett_dect_dlc_length;
 
-static dissector_handle_t data_handle;
+//static dissector_handle_t data_handle;
 
 static dissector_table_t dlc_sapi_dissector_table;
 
@@ -448,7 +448,7 @@ void proto_register_dect_dlc(void)
 
 	dlc_sapi_dissector_table = register_dissector_table("dect_dlc.sapi", "DECT DLC SAPI", proto_dect_dlc, FT_UINT8, BASE_DEC);
 
-	data_handle = find_dissector("data");
+	// data_handle = find_dissector("data");
 
 	reassembly_table_register(&dect_dlc_reassembly_table,
                            &addresses_reassembly_table_functions);

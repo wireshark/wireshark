@@ -312,7 +312,7 @@ static int ett_cms_CMSAlgorithmProtection;
 
 static expert_field ei_cms_too_deep;
 
-static dissector_handle_t cms_handle;
+//static dissector_handle_t cms_handle;
 
 static unsigned dissect_cms_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
@@ -3572,7 +3572,7 @@ void proto_register_cms(void) {
   /* Register protocol */
   proto_cms = proto_register_protocol("Cryptographic Message Syntax", "CMS", "cms");
 
-  cms_handle = register_dissector("cms", dissect_cms, proto_cms);
+  /* cms_handle = */ register_dissector("cms", dissect_cms, proto_cms);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_cms, hf, array_length(hf));

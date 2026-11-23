@@ -165,8 +165,8 @@ typedef struct _spdy_stream_info_t {
 
 /* Handles for metadata population. */
 
-static int spdy_tap;
-static int spdy_eo_tap;
+//static int spdy_tap;
+//static int spdy_eo_tap;
 
 static int proto_spdy;
 static int hf_spdy_data;
@@ -1808,8 +1808,8 @@ void proto_register_spdy(void)
   /*
    * Register for tapping
    */
-  spdy_tap = register_tap("spdy"); /* SPDY statistics tap */
-  spdy_eo_tap = register_tap("spdy_eo"); /* SPDY Export Object tap */
+  /* spdy_tap = */ register_tap("spdy"); /* SPDY statistics tap */
+  /* spdy_eo_tap = */ register_tap("spdy_eo"); /* SPDY Export Object tap */
 }
 
 void proto_reg_handoff_spdy(void) {

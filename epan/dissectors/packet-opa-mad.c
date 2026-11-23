@@ -2692,7 +2692,7 @@ static void cf_opa_mad_computed_pct10(char *buf, uint16_t value)
 }
 
 /* Dissector Declarations */
-static dissector_handle_t opa_mad_handle;
+//static dissector_handle_t opa_mad_handle;
 static dissector_table_t ethertype_dissector_table;
 
 static reassembly_table opa_mad_rmpp_reassembly_table;
@@ -13649,7 +13649,7 @@ void proto_register_opa_mad(void)
     };
 
     proto_opa_mad = proto_register_protocol("Intel Omni-Path MAD", "OPA MAD", "opa.mad");
-    opa_mad_handle = register_dissector("opa.mad", dissect_opa_mad, proto_opa_mad);
+    /* opa_mad_handle = */ register_dissector("opa.mad", dissect_opa_mad, proto_opa_mad);
 
     proto_register_field_array(proto_opa_mad, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

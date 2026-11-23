@@ -220,9 +220,7 @@ static expert_field ei_ansi_tcap_no_parameters;
 static expert_field ei_ansi_tcap_too_many_components;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
-static bool tcap_subdissector_used=false;
-
-static struct tcaphash_context_t * gp_tcap_context;
+//static bool tcap_subdissector_used=false;
 
 /* Note the high bit should be masked off when registering in this table (0x7fff)*/
 static dissector_table_t  ansi_tcap_national_opcode_table; /* National Operation Codes */
@@ -252,9 +250,8 @@ static int ett_ansi_tcap_T_paramSet;
 
 #define MAX_SSN 254
 
-static dissector_table_t ber_oid_dissector_table;
-static const char * cur_oid;
-static const char * tcapext_oid;
+//static dissector_table_t ber_oid_dissector_table;
+//static const char * cur_oid;
 
 static dissector_handle_t ansi_map_handle;
 static dissector_handle_t ain_handle;
@@ -2155,12 +2152,10 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
       item = proto_tree_add_item(parent_tree, proto_ansi_tcap, tvb, 0, -1, ENC_NA);
       tree = proto_item_add_subtree(item, ett_tcap);
     }
-    cur_oid = NULL;
-    tcapext_oid = NULL;
+    // cur_oid = NULL;
 
     gp_tcapsrt_info=tcapsrt_razinfo();
-    tcap_subdissector_used=false;
-    gp_tcap_context=NULL;
+    // tcap_subdissector_used=false;
     dissect_ansi_tcap_PackageType(false, tvb, 0, &asn1_ctx, tree, -1);
 
 #if 0 /* Skip this part for now it will be rewritten */
@@ -2198,7 +2193,7 @@ proto_reg_handoff_ansi_tcap(void)
 {
     ansi_map_handle = find_dissector_add_dependency("ansi_map", proto_ansi_tcap);
     ain_handle = find_dissector_add_dependency("ain", proto_ansi_tcap);
-    ber_oid_dissector_table = find_dissector_table("ber.oid");
+    // ber_oid_dissector_table = find_dissector_table("ber.oid");
 }
 
 

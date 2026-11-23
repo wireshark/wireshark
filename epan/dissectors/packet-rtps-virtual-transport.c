@@ -127,7 +127,7 @@ static int ett_rtpsvt_monitoring_sn;
 static int ett_rtpsvt_frame;
 
 /* Initialize the protocol and registered fields */
-static header_field_info *rtpsvt_hf;
+//static header_field_info *rtpsvt_hf;
 static int hf_rtpsvt_version;
 static int hf_rtpsvt_version_major;
 static int hf_rtpsvt_version_minor;
@@ -1179,7 +1179,7 @@ proto_register_rtps_virtual_transport(void)
     proto_rtpsvt = proto_register_protocol("Real-Time Publish-Subscribe Virtual Transport", "RTPS-VT", "rtpsvt");
 
     /* Required function calls to register the header fields and subtrees */
-    rtpsvt_hf = proto_registrar_get_nth(proto_rtpsvt);
+    // rtpsvt_hf = proto_registrar_get_nth(proto_rtpsvt);
     proto_register_field_array(proto_rtpsvt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

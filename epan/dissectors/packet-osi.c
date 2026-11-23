@@ -420,7 +420,7 @@ const value_string nlpid_vals[] = {
 
 static dissector_table_t osinl_incl_subdissector_table;
 static dissector_table_t osinl_excl_subdissector_table;
-static dissector_handle_t ppp_handle;
+//static dissector_handle_t ppp_handle;
 
 /* Dissect OSI over TCP over TPKT */
 static int
@@ -511,7 +511,7 @@ proto_reg_handoff_osi(void)
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_CLNP, osi_juniper_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_CLNP, osi_juniper_handle);
 
-  ppp_handle  = find_dissector("ppp");
+  // ppp_handle  = find_dissector("ppp");
 
   dissector_add_for_decode_as_with_preference("tcp.port", osi_tpkt_handle);
 }

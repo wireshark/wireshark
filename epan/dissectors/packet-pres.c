@@ -43,7 +43,6 @@ static int proto_clpres;
 
 /*      pointers for acse dissector  */
 static proto_tree *global_tree;
-static packet_info *global_pinfo;
 
 static const char *abstract_syntax_name_oid;
 static uint32_t presentation_context_identifier;
@@ -1381,7 +1380,6 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 	/* save pointers for calling the acse dissector  */
 	global_tree = parent_tree;
-	global_pinfo = pinfo;
 
 	/* if the session unit-data packet then we process it */
 	/* as a connectionless presentation protocol unit data */

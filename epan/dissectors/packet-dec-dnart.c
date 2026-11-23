@@ -167,7 +167,6 @@ static int ett_dec_sess_contents;
 static expert_field ei_dec_rt_checksum;
 
 static int dec_dna_total_bytes_this_segment;
-static int dec_dna_previous_total;
 
 static const value_string rt_msg_type_vals[] = {
     { 0x0   , "Initialization message" },
@@ -879,7 +878,6 @@ handle_nsp_msg(
             /* Compute the number of bytes in this data segment */
             data_length =
                 tvb_reported_length_remaining(tvb, my_offset);
-            dec_dna_previous_total = dec_dna_total_bytes_this_segment;
             dec_dna_total_bytes_this_segment += data_length;
             col_append_fstr(pinfo->cinfo, COL_INFO,
                 ", bytes this segment: %d, total so far:%d",

@@ -343,7 +343,7 @@ static uint32_t get_CDR_typeCode_with_params(tvbuff_t *tvb, packet_info* pinfo, 
  * ------------------------------------------------------------------------------------------+
  */
 
-static int giop_tap;
+//static int giop_tap;
 static int proto_giop;
 static int hf_giop_message_magic;
 static int hf_giop_message_major_version;
@@ -6014,7 +6014,7 @@ proto_register_giop (void)
                         &addresses_reassembly_table_functions);
 
   /* Register for tapping */
-  giop_tap = register_tap(GIOP_TAP_NAME); /* GIOP statistics tap */
+  /* giop_tap = */ register_tap(GIOP_TAP_NAME); /* GIOP statistics tap */
 
 
   /* register preferences */

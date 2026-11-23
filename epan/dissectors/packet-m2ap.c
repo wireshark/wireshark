@@ -455,7 +455,7 @@ enum{
 /* Global variables */
 static uint32_t ProcedureCode;
 static uint32_t ProtocolIE_ID;
-static uint32_t message_type;
+//static uint32_t message_type;
 static dissector_handle_t m2ap_handle;
 
 /* Dissector tables */
@@ -3262,7 +3262,7 @@ static unsigned
 dissect_m2ap_InitiatingMessage_value(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // InitiatingMessage/value -> InitiatingMessage/value
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  message_type = INITIATING_MESSAGE;
+  // message_type = INITIATING_MESSAGE;
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
@@ -3292,7 +3292,7 @@ static unsigned
 dissect_m2ap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // SuccessfulOutcome/value -> SuccessfulOutcome/value
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  message_type = SUCCESSFUL_OUTCOME;
+  // message_type = SUCCESSFUL_OUTCOME;
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
@@ -3322,7 +3322,7 @@ static unsigned
 dissect_m2ap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // UnsuccessfulOutcome/value -> UnsuccessfulOutcome/value
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  message_type = UNSUCCESSFUL_OUTCOME;
+  // message_type = UNSUCCESSFUL_OUTCOME;
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 

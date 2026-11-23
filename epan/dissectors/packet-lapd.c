@@ -74,7 +74,7 @@ static expert_field ei_lapd_abort;
 static expert_field ei_lapd_checksum_bad;
 
 static dissector_handle_t lapd_handle;
-static dissector_handle_t lapd_phdr_handle;
+//static dissector_handle_t lapd_phdr_handle;
 static dissector_handle_t linux_lapd_handle;
 static dissector_handle_t lapd_bitstream_handle;
 
@@ -779,7 +779,7 @@ proto_register_lapd(void)
 	expert_register_field_array(expert_lapd, ei, array_length(ei));
 
 	lapd_handle = register_dissector("lapd", dissect_lapd, proto_lapd);
-	lapd_phdr_handle = register_dissector("lapd-phdr", dissect_lapd_phdr, proto_lapd);
+	/* lapd_phdr_handle = */ register_dissector("lapd-phdr", dissect_lapd_phdr, proto_lapd);
 	linux_lapd_handle = register_dissector("linux-lapd", dissect_linux_lapd, proto_lapd);
 	lapd_bitstream_handle = register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
 

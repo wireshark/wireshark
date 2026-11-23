@@ -122,7 +122,7 @@ static const value_string port_speed_str[] = {
     {0, NULL}
 };
 
-static dissector_handle_t lda_neo_trailer_handle;
+//static dissector_handle_t lda_neo_trailer_handle;
 
 static int ett_lda_neo_trailer;
 static int ett_lda_neo_trailer_pcs_code;
@@ -447,7 +447,7 @@ proto_register_lda_neo_trailer(void)
     expert_lda_neo_trailer = expert_register_protocol(proto_lda_neo_trailer);
     expert_register_field_array(expert_lda_neo_trailer, ei, array_length(ei));
 
-    lda_neo_trailer_handle = register_dissector("lda_neo_trailer", dissect_lda_neo_trailer, proto_lda_neo_trailer);
+    /* lda_neo_trailer_handle = */ register_dissector("lda_neo_trailer", dissect_lda_neo_trailer, proto_lda_neo_trailer);
 
     lda_neo_trailer_module = prefs_register_protocol(proto_lda_neo_trailer, NULL);
     prefs_register_bool_preference(lda_neo_trailer_module, "timestamp", "Enable time validation",

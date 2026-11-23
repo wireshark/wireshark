@@ -286,7 +286,7 @@ static tap_packet_status ipv6_src_ttl_stats_tree_packet(stats_tree* st, packet_i
 }
 
 /* packet length stats_tree -- test range node */
-static int st_node_plen = -1;
+//static int st_node_plen = -1;
 static const char *st_str_plen = "Packet Lengths";
 
 static void plen_stats_tree_init(stats_tree *st) {
@@ -300,7 +300,7 @@ static void plen_stats_tree_init(stats_tree *st) {
 	str_range_array[num_plen_uat - 1] = ws_strdup_printf("%u and greater",
 		uat_plen_records[num_plen_uat - 1].packet_range->ranges[0].low);
 
-	st_node_plen = stats_tree_create_range_node_string(st, st_str_plen, 0, num_plen_uat, str_range_array);
+	/* st_node_plen = */ stats_tree_create_range_node_string(st, st_str_plen, 0, num_plen_uat, str_range_array);
 	for (i = 0; i < num_plen_uat; i++) {
 		wmem_free(NULL, str_range_array[i]);
 	}

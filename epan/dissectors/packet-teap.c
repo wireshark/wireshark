@@ -29,7 +29,7 @@ static expert_field ei_teap_too_deep;
 
 #define TEAP_MAX_NESTING 16
 
-static dissector_handle_t teap_handle;
+//static dissector_handle_t teap_handle;
 
 static dissector_handle_t eap_handle;
 
@@ -775,7 +775,7 @@ proto_register_teap(void)
   expert_teap = expert_register_protocol(proto_teap);
   expert_register_field_array(expert_teap, ei, array_length(ei));
 
-  teap_handle = register_dissector("teap", dissect_teap, proto_teap);
+  /* teap_handle = */ register_dissector("teap", dissect_teap, proto_teap);
 }
 
 void

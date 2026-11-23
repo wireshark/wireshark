@@ -59,7 +59,7 @@
 void proto_register_celestron_aux(void);
 void proto_reg_handoff_celestron_aux(void);
 
-static dissector_handle_t celestron_aux_handle;
+//static dissector_handle_t celestron_aux_handle;
 static dissector_handle_t celestron_aux_tcp_handle;
 
 static int proto_celestron_aux;
@@ -1808,7 +1808,7 @@ proto_register_celestron_aux(void)
     expert_celestron_aux = expert_register_protocol(proto_celestron_aux);
     expert_register_field_array(expert_celestron_aux, ei, array_length(ei));
 
-    celestron_aux_handle = register_dissector("celestron_aux", dissect_celestron_aux, proto_celestron_aux);
+    /* celestron_aux_handle = */ register_dissector("celestron_aux", dissect_celestron_aux, proto_celestron_aux);
     celestron_aux_tcp_handle = register_dissector("celestron_aux.tcp", dissect_celestron_aux_tcp,
                                                   proto_celestron_aux);
 }

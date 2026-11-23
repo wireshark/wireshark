@@ -377,10 +377,7 @@ ldap_conv_info_t *ldap_info;
         if((sc = strchr(attr_type, ';')) != NULL) {
           if(!strcmp(sc, ";binary")) {
             *sc = '\0'; /* terminate the string */
-            is_binary_attr_type = true;
           }
-        } else {
-          is_binary_attr_type = false;
         }
     }
 

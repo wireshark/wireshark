@@ -167,7 +167,7 @@ static bool print_details;     /* true if we're to print packet details informat
 static bool print_hex;         /* true if we're to print hex/ascii information */
 static bool line_buffered;
 static bool quiet;
-static bool really_quiet;
+//static bool really_quiet;
 static char* delimiter_char = " ";
 static bool dissect_color;
 static unsigned hexdump_source_option = HEXDUMP_SOURCE_MULTI; /* Default - Enable legacy multi-source mode */
@@ -191,8 +191,6 @@ static const char *separator = "";
 
 /* Per-file comments to be added to the output file. */
 static GPtrArray *capture_comments;
-
-static bool prefs_loaded;
 
 static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, bool tree, bool visual);
 
@@ -1217,7 +1215,6 @@ main(int argc, char *argv[])
 
     /* Load libwireshark settings from the current profile. */
     prefs_p = epan_load_settings();
-    prefs_loaded = true;
 
     cap_file_init(&cfile);
 
@@ -1440,7 +1437,7 @@ main(int argc, char *argv[])
                 break;
             case 'Q':        /* Really quiet */
                 quiet = true;
-                really_quiet = true;
+                // really_quiet = true;
                 break;
             case 'r':
                 /* already processed; just ignore it now */

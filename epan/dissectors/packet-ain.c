@@ -46,7 +46,7 @@ void proto_reg_handoff_ain(void);
 /* Initialize the protocol and registered fields */
 static int proto_ain;
 
-static dissector_handle_t   ain_handle;
+//static dissector_handle_t   ain_handle;
 
 /* include constants */
 #define noInvokeId                     NULL
@@ -11509,7 +11509,7 @@ void proto_register_ain(void) {
 
     /* Register protocol */
     proto_ain = proto_register_protocol("Advanced Intelligent Network", "AIN", "ain");
-    ain_handle = register_dissector("ain", dissect_ain, proto_ain);
+    /* ain_handle = */ register_dissector("ain", dissect_ain, proto_ain);
     /* Register fields and subtrees */
     proto_register_field_array(proto_ain, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -102,7 +102,7 @@ static expert_field ei_dmx_sip_checksum;
 
 static dissector_table_t dmx_dissector_table;
 
-static dissector_handle_t dmx_text_handle;
+//static dissector_handle_t dmx_text_handle;
 
 /*
  * Here are the global variables associated with the preferences for DMX
@@ -650,7 +650,7 @@ proto_register_dmx_text(void)
 void
 proto_reg_handoff_dmx(void)
 {
-	dmx_text_handle = find_dissector("dmx-text");
+	// dmx_text_handle = find_dissector("dmx-text");
 
 	dissector_add_uint("dmx", DMX_SC_DMX, create_dissector_handle(dissect_dmx_chan, proto_dmx_chan));
 	dissector_add_uint("dmx", DMX_SC_SIP, create_dissector_handle(dissect_dmx_sip, proto_dmx_sip));

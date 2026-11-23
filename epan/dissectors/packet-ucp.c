@@ -94,7 +94,7 @@ static int st_ucp_messages       = -1;
 static int st_ucp_ops            = -1;
 static int st_ucp_res            = -1;
 static int st_ucp_results        = -1;
-static int st_ucp_results_pos    = -1;
+//static int st_ucp_results_pos    = -1;
 static int st_ucp_results_neg    = -1;
 
 static const char st_str_ucp[]     = "UCP Messages";
@@ -670,7 +670,7 @@ ucp_stats_tree_init(stats_tree* st)
     st_ucp_ops         = stats_tree_create_node(st, st_str_ops, st_ucp_messages, STAT_DT_INT, true);
     st_ucp_res         = stats_tree_create_node(st, st_str_res, st_ucp_messages, STAT_DT_INT, true);
     st_ucp_results     = stats_tree_create_node(st, st_str_ucp_res, 0, STAT_DT_INT, true);
-    st_ucp_results_pos = stats_tree_create_node(st, st_str_pos, st_ucp_results, STAT_DT_INT, true);
+    /* st_ucp_results_pos = */ stats_tree_create_node(st, st_str_pos, st_ucp_results, STAT_DT_INT, true);
     st_ucp_results_neg = stats_tree_create_node(st, st_str_neg, st_ucp_results, STAT_DT_INT, true);
 }
 

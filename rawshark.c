@@ -126,7 +126,6 @@ typedef enum {
 } output_action_e;
 
 static bool line_buffered;
-static print_format_e print_format = PR_FMT_TEXT;
 
 static bool want_pcap_pkthdr;
 
@@ -538,8 +537,6 @@ main(int argc, char *argv[])
 
     cap_file_init(&cfile);
 
-    /* Print format defaults to this. */
-    print_format = PR_FMT_TEXT;
 
     /* Initialize our encapsulation type */
     encap = WTAP_ENCAP_UNKNOWN;

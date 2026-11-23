@@ -104,7 +104,7 @@ static dissector_handle_t udpcp_handle;
 void proto_reg_handoff_udpcp (void);
 
 /* User definable values */
-static range_t *global_udpcp_port_range;
+//static range_t *global_udpcp_port_range;
 
 #define DATA_FORMAT 0x01
 #define ACK_FORMAT  0x02
@@ -686,7 +686,7 @@ proto_register_udpcp(void)
 static void
 apply_udpcp_prefs(void)
 {
-    global_udpcp_port_range = prefs_get_range_value("udpcp", "udp.port");
+    // global_udpcp_port_range = prefs_get_range_value("udpcp", "udp.port");
 }
 
 void

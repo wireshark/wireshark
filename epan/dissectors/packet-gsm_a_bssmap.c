@@ -807,9 +807,9 @@ static int ett_bss_to_bss_info;
 
 static dissector_handle_t gsm_bsslap_handle;
 static dissector_handle_t dtap_handle;
-static dissector_handle_t bssgp_handle;
-static dissector_handle_t rrc_handle;
-static dissector_handle_t bicc_mst_handle;
+//static dissector_handle_t bssgp_handle;
+//static dissector_handle_t rrc_handle;
+//static dissector_handle_t bicc_mst_handle;
 static dissector_handle_t bssmap_handle;
 
 static proto_tree *g_tree;
@@ -8540,9 +8540,9 @@ proto_reg_handoff_gsm_a_bssmap(void)
 
     dtap_handle       = find_dissector_add_dependency("gsm_a_dtap", proto_a_bssmap);
     gsm_bsslap_handle = find_dissector_add_dependency("gsm_bsslap", proto_a_bssmap);
-    bssgp_handle      = find_dissector_add_dependency("bssgp", proto_a_bssmap);
-    rrc_handle        = find_dissector_add_dependency("rrc", proto_a_bssmap);
-    bicc_mst_handle   = find_dissector_add_dependency("bicc_mst", proto_a_bssmap);
+    /* bssgp_handle = */ find_dissector_add_dependency("bssgp", proto_a_bssmap);
+    /* rrc_handle = */ find_dissector_add_dependency("rrc", proto_a_bssmap);
+    /* bicc_mst_handle = */ find_dissector_add_dependency("bicc_mst", proto_a_bssmap);
 }
 
 /*

@@ -314,7 +314,7 @@ static expert_field ei_mal_svalidator_timeout_multiplier;
 static expert_field ei_mal_svalidator_coordination_conn_inst;
 static expert_field ei_mal_svalidator_prod_cons_fault_count;
 
-static dissector_handle_t cipsafety_handle;
+//static dissector_handle_t cipsafety_handle;
 static dissector_handle_t cipsafety_base_data_handle;
 static dissector_handle_t cipsafety_extended_data_handle;
 static dissector_handle_t cipsafety_base_time_coord_handle;
@@ -3145,7 +3145,7 @@ proto_register_cipsafety(void)
    expert_cip_safety = expert_register_protocol(proto_cipsafety);
    expert_register_field_array(expert_cip_safety, ei, array_length(ei));
 
-   cipsafety_handle = register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
+   /* cipsafety_handle = */ register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
 
    // Register different protocols for "Decode As".
    proto_cipsafety_base_data = proto_register_protocol_in_name_only("Common Industrial Protocol, Safety - Base - Data",

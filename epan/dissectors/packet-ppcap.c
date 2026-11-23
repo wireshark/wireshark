@@ -24,7 +24,7 @@ void proto_register_ppcap(void);
 
 static uint8_t ssn;
 
-static dissector_handle_t ppcap_handle;
+//static dissector_handle_t ppcap_handle;
 static dissector_handle_t mtp3_handle;  /* MTP3 handle */
 static dissector_handle_t tcap_handle;  /* TCAP handle */
 static dissector_handle_t bssap_handle; /* BSSAP handle */
@@ -681,7 +681,7 @@ void proto_register_ppcap(void)
 
 void proto_reg_handoff_ppcap(void)
 {
-	ppcap_handle = find_dissector_add_dependency("ppcap", proto_ppcap);
+	/* ppcap_handle = */ find_dissector_add_dependency("ppcap", proto_ppcap);
 	mtp3_handle  = find_dissector_add_dependency("mtp3", proto_ppcap);  /* calling the protocol MTP3 */
 	tcap_handle  = find_dissector_add_dependency("tcap", proto_ppcap);  /* calling the protocol TCAP */
 	bssap_handle = find_dissector_add_dependency("bssap", proto_ppcap); /* calling the protocol BSSAP */

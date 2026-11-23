@@ -173,7 +173,7 @@ static int ett_rtitcp_message;
 static int ett_rtitcp_attributes_list;
 static int ett_rtitcp_attribute;
 
-static header_field_info *hfi_rtitcp;
+//static header_field_info *hfi_rtitcp;
 static heur_dissector_list_t heur_subdissector_list;
 
 static const value_string ctrl_message_types_vals[] = {
@@ -965,7 +965,7 @@ proto_register_rtitcp(void)
     proto_rtitcp = proto_register_protocol("RTI TCP Transport Protocol",
             "RTITCP", "rtitcp");
 
-    hfi_rtitcp = proto_registrar_get_nth(proto_rtitcp);
+    // hfi_rtitcp = proto_registrar_get_nth(proto_rtitcp);
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_rtitcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

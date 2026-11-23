@@ -28,7 +28,7 @@ static int ett_midi_sysex;
 
 static dissector_table_t sysex_manufacturer_dissector_table;
 
-static dissector_handle_t sysex_digitech_handle;
+//static dissector_handle_t sysex_digitech_handle;
 
 static expert_field ei_sysex_message_start_byte;
 static expert_field ei_sysex_message_end_byte;
@@ -178,7 +178,7 @@ proto_register_midi_sysex(void)
 void
 proto_reg_handoff_midi_sysex(void)
 {
-    sysex_digitech_handle = find_dissector_add_dependency("midi_sysex_digitech", proto_midi_sysex);
+    /* sysex_digitech_handle = */ find_dissector_add_dependency("midi_sysex_digitech", proto_midi_sysex);
 }
 
 /*

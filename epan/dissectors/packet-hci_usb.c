@@ -50,7 +50,7 @@ static wmem_tree_t *fragment_info_table;
 static reassembly_table hci_usb_reassembly_table;
 static uint32_t next_reassembly_id;
 
-static dissector_handle_t hci_usb_handle;
+//static dissector_handle_t hci_usb_handle;
 static dissector_handle_t bthci_cmd_handle;
 static dissector_handle_t bthci_evt_handle;
 static dissector_handle_t bthci_acl_handle;
@@ -384,7 +384,7 @@ proto_register_hci_usb(void)
     proto_hci_usb = proto_register_protocol("Bluetooth HCI USB Transport", "HCI_USB", "hci_usb");
     proto_register_field_array(proto_hci_usb, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    hci_usb_handle = register_dissector("hci_usb", dissect_hci_usb, proto_hci_usb);
+    /* hci_usb_handle = */ register_dissector("hci_usb", dissect_hci_usb, proto_hci_usb);
 
     module = prefs_register_protocol_subtree("Bluetooth", proto_hci_usb, NULL);
     prefs_register_static_text_preference(module, "bthci_usb.version",

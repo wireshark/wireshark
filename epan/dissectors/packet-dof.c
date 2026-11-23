@@ -1945,7 +1945,7 @@ static bool sgmp_validate_session_key(sgmp_packet_data *cmd_data, uint8_t *confi
 
 /* DOF SECURITY PROTOCOL */
 #define DOF_SECURITY_PROTOCOL "DOF Security Protocol"
-static dissector_table_t dof_sec_dissectors;
+//static dissector_table_t dof_sec_dissectors;
 #define AS_ASSIGNED_SSID 0x40000000
 
 /* DOFSEC Vxxxx (CCM - COUNTER WITH CBC-MAC PROTOCOL V1) */
@@ -10996,7 +10996,7 @@ static void dof_register(void)
     expert_module_t *expert_security;
 
     dsp_option_dissectors = register_dissector_table("dof.dsp.options", "DSP Protocol Options", proto_2008_1_dsp, FT_UINT32, BASE_DEC);
-    dof_sec_dissectors = register_dissector_table("dof.secmode", "DOF Security Mode of Operation", proto_2008_1_dof, FT_UINT16, BASE_DEC);
+    /* dof_sec_dissectors = */ register_dissector_table("dof.secmode", "DOF Security Mode of Operation", proto_2008_1_dof, FT_UINT16, BASE_DEC);
     register_dissector_table("dof.2008.1", "DOF Common PDU", proto_2008_1_dof, FT_STRING, BASE_DEC);
 
     proto_2008_1_dof = proto_register_protocol(DOF_PROTOCOL_STACK, "DOF", "dof");

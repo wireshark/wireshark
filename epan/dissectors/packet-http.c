@@ -312,8 +312,8 @@ static bool http_try_heuristic_first;
 
 static range_t *global_http_tls_range;
 
-static range_t *http_tcp_range;
-static range_t *http_sctp_range;
+//static range_t *http_tcp_range;
+//static range_t *http_sctp_range;
 static range_t *http_tls_range;
 
 typedef void (*ReqRespDissector)(packet_info*, tvbuff_t*, proto_tree*, unsigned, const unsigned char*,
@@ -740,7 +740,7 @@ static int st_node_resp_200 = -1;
 static int st_node_resp_300 = -1;
 static int st_node_resp_400 = -1;
 static int st_node_resp_500 = -1;
-static int st_node_other = -1;
+//static int st_node_other = -1;
 
 
 /* HTTP/Packet Counter stats init function */
@@ -756,7 +756,7 @@ http_stats_tree_init(stats_tree* st)
 	st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, STAT_DT_INT, true);
 	st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, STAT_DT_INT, true);
 	st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, STAT_DT_INT, true);
-	st_node_other = stats_tree_create_node(st, st_str_other, st_node_packets, STAT_DT_INT, false);
+	/* st_node_other = */ stats_tree_create_node(st, st_str_other, st_node_packets, STAT_DT_INT, false);
 }
 
 /* HTTP/Packet Counter stats packet function */
@@ -4785,9 +4785,9 @@ range_add_http_tls_callback(uint32_t port, void *ptr _U_) {
 }
 
 static void reinit_http(void) {
-	http_tcp_range = prefs_get_range_value("http", "tcp.port");
+	// http_tcp_range = prefs_get_range_value("http", "tcp.port");
 
-	http_sctp_range = prefs_get_range_value("http", "sctp.port");
+	// http_sctp_range = prefs_get_range_value("http", "sctp.port");
 
 	range_foreach(http_tls_range, range_delete_http_tls_callback, NULL);
 	wmem_free(wmem_epan_scope(), http_tls_range);

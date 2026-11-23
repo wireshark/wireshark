@@ -195,7 +195,7 @@ static dissector_handle_t z21_handle;
 
 /* Not IANA registered */
 #define Z21_UDP_PORTS "21105,21106"
-static range_t *udp_port_range;
+//static range_t *udp_port_range;
 
 /* Initialize the subtree pointers */
 static int ett_z21;
@@ -2414,5 +2414,5 @@ proto_reg_handoff_z21(void)
         dissector_add_uint_range_with_preference("udp.port", Z21_UDP_PORTS, z21_handle);
         initialized = true;
     }
-    udp_port_range = prefs_get_range_value("Z21", "udp.port");
+    // udp_port_range = prefs_get_range_value("Z21", "udp.port");
 }

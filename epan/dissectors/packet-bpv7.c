@@ -63,7 +63,7 @@ static bp_history_t *bp_history;
 static dissector_handle_t handle_admin;
 /// Dissect opaque CBOR data
 static dissector_handle_t handle_cbor;
-static dissector_handle_t handle_cborseq;
+//static dissector_handle_t handle_cborseq;
 /// Extension sub-dissectors
 static dissector_table_t eid_dissectors;
 static dissector_table_t block_dissectors;
@@ -2585,7 +2585,7 @@ void proto_reg_handoff_bpv7(void) {
     heur_dissector_add("bpv7.btsd", cbor_heuristic, "CBOR in Bundle BTSD", "cbor_bpv7", proto_cbor, HEURISTIC_ENABLE);
 
     handle_cbor = find_dissector("cbor");
-    handle_cborseq = find_dissector("cborseq");
+    // handle_cborseq = find_dissector("cborseq");
 
     stats_tree_register("bpv7", "bpv7", "DTN" STATS_TREE_MENU_SEPARATOR "BPv7", 0, bpv7_stats_tree_packet, bpv7_stats_tree_init, NULL);
 

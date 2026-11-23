@@ -84,7 +84,7 @@ static dissector_handle_t tr_handle;
 static dissector_handle_t turbo_handle;
 static dissector_handle_t mesh_handle;
 static dissector_handle_t llc_handle;
-static dissector_handle_t epd_llc_handle;
+//static dissector_handle_t epd_llc_handle;
 
 /*
  * Group/Individual bit, in the DSAP.
@@ -831,7 +831,7 @@ proto_register_llc(void)
 	register_capture_dissector_table("llc.dsap", "LLC");
 
 	llc_handle = register_dissector("llc", dissect_llc, proto_llc);
-	epd_llc_handle = register_dissector("epd_llc", dissect_epd_llc,
+	/* epd_llc_handle = */ register_dissector("epd_llc", dissect_epd_llc,
 	  proto_llc);
 
 	register_capture_dissector("llc", capture_llc, proto_llc);

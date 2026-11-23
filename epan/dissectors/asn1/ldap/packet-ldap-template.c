@@ -206,7 +206,6 @@ static const char *object_identifier_id; /* LDAP OID */
 
 static bool do_protocolop;
 static char     *attr_type;
-static bool is_binary_attr_type;
 static bool ldap_found_in_frame;
 
 #define TCP_PORT_RANGE_LDAP             "389,3268" /* 3268 is Windows 2000 Global Catalog */
@@ -222,7 +221,7 @@ static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t spnego_handle;
-static dissector_handle_t tls_handle;
+//static dissector_handle_t tls_handle;
 static dissector_handle_t ldap_handle;
 static dissector_handle_t cldap_handle;
 
@@ -2296,7 +2295,7 @@ proto_reg_handoff_ldap(void)
 
   ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_ldap);
 
-  tls_handle = find_dissector_add_dependency("tls", proto_ldap);
+  /* tls_handle = */ find_dissector_add_dependency("tls", proto_ldap);
 
   prefs_register_ldap();
 

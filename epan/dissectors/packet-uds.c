@@ -1166,9 +1166,9 @@ static int ett_uds_roe_localization;
 
 static int proto_uds;
 
-static dissector_handle_t uds_handle;
-static dissector_handle_t uds_handle_doip;
-static dissector_handle_t uds_handle_hsfz;
+//static dissector_handle_t uds_handle;
+//static dissector_handle_t uds_handle_doip;
+//static dissector_handle_t uds_handle_hsfz;
 static dissector_handle_t uds_handle_iso10681;
 static dissector_handle_t uds_handle_iso15765;
 static dissector_handle_t obd_ii_handle;
@@ -3938,9 +3938,9 @@ proto_register_uds(void) {
     uds_expert_module = expert_register_protocol(proto_uds);
     expert_register_field_array(uds_expert_module, ei, array_length(ei));
 
-    uds_handle = register_dissector("uds", dissect_uds_no_data, proto_uds);
-    uds_handle_doip = register_dissector("uds_over_doip", dissect_uds_doip, proto_uds);
-    uds_handle_hsfz = register_dissector("uds_over_hsfz", dissect_uds_hsfz, proto_uds);
+    /* uds_handle = */ register_dissector("uds", dissect_uds_no_data, proto_uds);
+    /* uds_handle_doip = */ register_dissector("uds_over_doip", dissect_uds_doip, proto_uds);
+    /* uds_handle_hsfz = */ register_dissector("uds_over_hsfz", dissect_uds_hsfz, proto_uds);
     uds_handle_iso10681 = register_dissector("uds_over_iso10681", dissect_uds_iso10681, proto_uds);
     uds_handle_iso15765 = register_dissector("uds_over_iso15765", dissect_uds_iso15765, proto_uds);
 

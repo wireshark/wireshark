@@ -48,9 +48,9 @@ static int ett_rf4ce_profile_action_records_sub;
 static int ett_rf4ce_profile_zrc10_supported_commands;
 static int ett_rf4ce_profile_zrc10_supported_commands_sub;
 
-static dissector_table_t rf4ce_profile_dissector_table;
+//static dissector_table_t rf4ce_profile_dissector_table;
 
-static dissector_handle_t rf4ce_profile_handle;
+//static dissector_handle_t rf4ce_profile_handle;
 
 /* RF4CE Profile header */
 static int hf_rf4ce_profile_fcf;
@@ -1541,8 +1541,8 @@ void proto_register_rf4ce_profile(void)
     proto_register_field_array(proto_rf4ce_profile, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    rf4ce_profile_dissector_table = register_dissector_table("rf4ce.profile", "RF4CE Profile", proto_rf4ce_profile, FT_NONE, BASE_NONE);
-    rf4ce_profile_handle = register_dissector("rf4ce_profile", dissect_rf4ce_profile_common, proto_rf4ce_profile);
+    /* rf4ce_profile_dissector_table = */ register_dissector_table("rf4ce.profile", "RF4CE Profile", proto_rf4ce_profile, FT_NONE, BASE_NONE);
+    /* rf4ce_profile_handle = */ register_dissector("rf4ce_profile", dissect_rf4ce_profile_common, proto_rf4ce_profile);
 }
 
 void proto_reg_handoff_rf4ce_profile(void)

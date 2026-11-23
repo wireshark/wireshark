@@ -25,7 +25,7 @@ void proto_reg_handoff_peap(void);
 static int proto_peap;
 static int proto_eap;
 
-static dissector_handle_t peap_handle;
+//static dissector_handle_t peap_handle;
 static dissector_handle_t eap_handle;
 
 /*
@@ -113,7 +113,7 @@ proto_register_peap(void)
 {
   proto_peap = proto_register_protocol("Protected Extensible Authentication Protocol",
                                        "PEAP", "peap");
-  peap_handle = register_dissector("peap", dissect_peap, proto_peap);
+  /* peap_handle = */ register_dissector("peap", dissect_peap, proto_peap);
 }
 
 void

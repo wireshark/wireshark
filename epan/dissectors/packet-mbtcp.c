@@ -174,7 +174,7 @@ static dissector_handle_t mbrtu_handle;
 
 static dissector_table_t   modbus_func_code_dissector_table;
 static dissector_table_t   modbus_data_dissector_table;
-static dissector_table_t   modbus_dissector_table;
+//static dissector_table_t   modbus_dissector_table;
 
 
 /* Globals for Modbus/TCP Preferences */
@@ -2199,7 +2199,7 @@ proto_register_modbus(void)
     /* Registering subdissectors table */
     modbus_func_code_dissector_table = register_dissector_table("modbus.func_code", "Modbus Function Code", proto_modbus, FT_UINT8, BASE_DEC);
     modbus_data_dissector_table = register_dissector_table("modbus.data", "Modbus Data", proto_modbus, FT_STRING, STRING_CASE_SENSITIVE);
-    modbus_dissector_table = register_dissector_table("mbtcp.prot_id", "Modbus/TCP protocol identifier", proto_mbtcp, FT_UINT16, BASE_DEC);
+    /* modbus_dissector_table = */ register_dissector_table("mbtcp.prot_id", "Modbus/TCP protocol identifier", proto_mbtcp, FT_UINT16, BASE_DEC);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mbtcp, mbtcp_hf, array_length(mbtcp_hf));

@@ -172,9 +172,9 @@ static expert_field ei_dlms_access_req_choice;
 static expert_field ei_dlms_planar_type;
 static expert_field ei_dlms_compact_array_bad;
 
-static dissector_handle_t cosem_handle;
+//static dissector_handle_t cosem_handle;
 static dissector_handle_t dlms_handle;
-static dissector_handle_t acse_handle;
+//static dissector_handle_t acse_handle;
 
 /* Choice values for the currently supported ACSE and xDLMS APDUs */
 #define DLMS_INITIATE_REQUEST 1
@@ -2305,7 +2305,7 @@ void proto_register_cosem(void) {
     proto_cosem = proto_register_protocol("DLMS/COSEM", "COSEM", "cosem");
     proto_dlms = proto_register_protocol("Device Language Message Specification", "DLMS", "dlms");
 
-    cosem_handle = register_dissector("cosem", dissect_cosem, proto_cosem);
+    /* cosem_handle = */ register_dissector("cosem", dissect_cosem, proto_cosem);
 
     proto_register_field_array(proto_cosem, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -2531,7 +2531,7 @@ void proto_reg_handoff_cosem(void) {
     dissector_add_uint_with_preference("udp.port", DLMS_PORT, dlms_handle);
     dissector_add_uint_with_preference("tcp.port", DLMS_PORT, dlms_handle);
 
-    acse_handle = find_dissector("acse");
+    // acse_handle = find_dissector("acse");
 
     oid_add_from_string("Logical Name Referencing, Without Ciphering", "2.16.756.5.8.1.1");
     oid_add_from_string("Short Name Referencing, Without Ciphering", "2.16.756.5.8.1.2");

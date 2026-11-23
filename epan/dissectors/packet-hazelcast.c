@@ -30,7 +30,7 @@ void proto_reg_handoff_hazelcast(void);
 static dissector_handle_t hazelcast_handle;
 
 static int proto_hazelcast;
-static int hazelcast_tap;
+//static int hazelcast_tap;
 
 static int hf_hazelcast_headerLength;
 static int hf_hazelcast_headerKeyLength;
@@ -552,7 +552,7 @@ void proto_register_hazelcast(void) {
                                    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &hazelcast_desegment);
 
-    hazelcast_tap = register_tap("hzlcst");
+    /* hazelcast_tap = */ register_tap("hzlcst");
 
     hazelcast_handle = register_dissector("hzlcst", dissect_hazelcast, proto_hazelcast);
 }

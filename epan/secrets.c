@@ -57,7 +57,7 @@ typedef struct {
     char *password;         /**< User-supplied PKCS #11 PIN or RSA private key file password. */
 } rsa_privkey_record_t;
 
-static uat_t *rsa_privkeys_uat;
+//static uat_t *rsa_privkeys_uat;
 static rsa_privkey_record_t *uat_rsa_privkeys;
 static unsigned uat_num_rsa_privkeys;
 
@@ -72,7 +72,7 @@ typedef struct {
     char *library_path;     /**< PKCS #11 library path. */
 } pkcs11_lib_record_t;
 
-static uat_t *pkcs11_libs_uat;
+//static uat_t *pkcs11_libs_uat;
 static pkcs11_lib_record_t *uat_pkcs11_libs;
 static unsigned uat_num_pkcs11_libs;
 #endif  /* HAVE_GNUTLS_PKCS11 */
@@ -673,7 +673,7 @@ register_rsa_uats(void)
         UAT_FLD_FILENAME_OTHER(pkcs11_libs_uats, library_path, "Library Path", NULL, "PKCS #11 provider library file"),
         UAT_END_FIELDS
     };
-    pkcs11_libs_uat = uat_new("PKCS #11 Provider Libraries",
+    /* pkcs11_libs_uat = */ uat_new("PKCS #11 Provider Libraries",
             sizeof(pkcs11_lib_record_t),
             "pkcs11_libs",                  /* filename */
             false,                          /* from_profile */
@@ -694,7 +694,7 @@ register_rsa_uats(void)
         UAT_FLD_FILENAME_OTHER(rsa_privkeys_uats, password, "Password", NULL, "RSA Key File password or PKCS #11 Token PIN"),
         UAT_END_FIELDS
     };
-    rsa_privkeys_uat = uat_new("RSA Private Keys",
+    /* rsa_privkeys_uat = */ uat_new("RSA Private Keys",
             sizeof(rsa_privkey_record_t),
             "rsa_keys",                     /* filename */
             false,                          /* from_profile */

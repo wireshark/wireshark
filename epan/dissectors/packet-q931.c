@@ -257,7 +257,7 @@ static bool q931_desegment = true;
 
 /* Subdissectors */
 static dissector_handle_t h225_handle;
-static dissector_handle_t q931_tpkt_handle;
+//static dissector_handle_t q931_tpkt_handle;
 static dissector_handle_t q931_tpkt_pdu_handle;
 
 static heur_dissector_list_t q931_user_heur_subdissector_list;
@@ -3937,7 +3937,7 @@ proto_register_q931(void)
                 &addresses_reassembly_table_functions);
 
     q931_handle = register_dissector("q931", dissect_q931, proto_q931);
-    q931_tpkt_handle = register_dissector("q931.tpkt", dissect_q931_tpkt, proto_q931);
+    /* q931_tpkt_handle = */ register_dissector("q931.tpkt", dissect_q931_tpkt, proto_q931);
     q931_tpkt_pdu_handle = create_dissector_handle(dissect_q931_tpkt_pdu,
         proto_q931);
     q931_over_ip_handle = register_dissector("q931.over_ip", dissect_q931_over_ip, proto_q931);

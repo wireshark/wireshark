@@ -84,7 +84,7 @@ static int ett_mac_data_pdu_decoder;
 static int hf_mac_header_generic_value_bytes;
 
 static unsigned frag_type, frag_len;
-static unsigned extended_type, arq_fb_payload, seq_number;
+static unsigned extended_type, arq_fb_payload;
 
 static unsigned cid_adjust[MAX_CID];  /* Must not start with 0 */
 static unsigned cid_vernier[MAX_CID];
@@ -652,8 +652,6 @@ static unsigned decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pin
 	if (arq_fb_payload)
 	{	/* get the frag length */
 		frag_len = ((tvb_get_ntohl(payload_tvb, payload_offset) & FRAG_LENGTH_MASK) >> 8);
-		/* get the sequence number */
-		seq_number = (tvb_get_ntohs(payload_tvb, payload_offset) & SEQ_NUMBER_MASK_11) >> 3;
 		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fc_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
 		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_bsn, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
 		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
@@ -666,8 +664,6 @@ static unsigned decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pin
 		if (extended_type)
 		{	/* get the frag length */
 			frag_len = ((tvb_get_ntohl(payload_tvb, payload_offset) & FRAG_LENGTH_MASK) >> 8);
-			/* get the sequence number */
-			seq_number = (tvb_get_ntohs(payload_tvb, payload_offset) & SEQ_NUMBER_MASK_11) >> 3;
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fc_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fsn_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
@@ -678,8 +674,6 @@ static unsigned decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pin
 		else
 		{	/* get the frag length */
 			frag_len = (tvb_get_ntohs(payload_tvb, payload_offset) & PACKING_SUBHEADER_LENGTH_MASK);
-			/* get the sequence number */
-			seq_number = (tvb_get_uint8(payload_tvb, payload_offset) & SEQ_NUMBER_MASK) >> 3;
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fc, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fsn, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
@@ -938,8 +932,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		/* Get the fragment type */
 		frag_type = (tvb_get_uint8(tvb, offset) & FRAGMENT_TYPE_MASK) >> 6;
 		if (arq_fb_payload)
-		{	/* get the sequence number */
-			seq_number = (tvb_get_ntohs(tvb, offset) & SEQ_NUMBER_MASK_11) >> 3;
+		{
 			/* decode and display the header */
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_bsn, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -951,8 +944,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		else
 		{
 			if (extended_type)
-			{	/* get the sequence number */
-				seq_number = (tvb_get_ntohs(tvb, offset) & SEQ_NUMBER_MASK_11) >> 3;
+			{
 				/* decode and display the header */
 				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
 				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -962,8 +954,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				offset += 2;
 			}
 			else
-			{	/* get the sequence number */
-				seq_number = (tvb_get_uint8(tvb, offset) & SEQ_NUMBER_MASK) >> 3;
+			{
 				/* decode and display the header */
 				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn, tvb, offset, 1, ENC_BIG_ENDIAN);
