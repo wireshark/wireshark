@@ -1057,7 +1057,7 @@ static void
 col_set_utc_ymd_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   set_abs_ymd_time(fd, cinfo->columns[col].col_buf, col_decimal_point, false);
-  cinfo->col_expr.col_expr[col] = "frame.time";
+  cinfo->col_expr.col_expr[col] = "frame.time_utc";
   (void) g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->columns[col].col_buf,COL_MAX_LEN);
 
   cinfo->columns[col].col_data = cinfo->columns[col].col_buf;
@@ -1158,7 +1158,7 @@ static void
 col_set_utc_ydoy_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   set_abs_ydoy_time(fd, cinfo->columns[col].col_buf, col_decimal_point, false);
-  cinfo->col_expr.col_expr[col] = "frame.time";
+  cinfo->col_expr.col_expr[col] = "frame.time_utc";
   (void) g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->columns[col].col_buf,COL_MAX_LEN);
 
   cinfo->columns[col].col_data = cinfo->columns[col].col_buf;
@@ -1504,7 +1504,7 @@ static void
 col_set_utc_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   set_abs_time(fd, cinfo->columns[col].col_buf, col_decimal_point, false);
-  cinfo->col_expr.col_expr[col] = "frame.time";
+  cinfo->col_expr.col_expr[col] = "frame.time_utc";
   (void) g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->columns[col].col_buf,COL_MAX_LEN);
 
   cinfo->columns[col].col_data = cinfo->columns[col].col_buf;
@@ -1525,7 +1525,7 @@ static void
 col_set_epoch_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   if (set_epoch_time(fd, cinfo->columns[col].col_buf)) {
-    cinfo->col_expr.col_expr[col] = "frame.time_delta";
+    cinfo->col_expr.col_expr[col] = "frame.time_epoch";
     (void) g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->columns[col].col_buf,COL_MAX_LEN);
   }
   cinfo->columns[col].col_data = cinfo->columns[col].col_buf;
