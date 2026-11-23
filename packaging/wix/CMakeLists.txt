@@ -193,6 +193,8 @@ set(_wix_common_flags
 	-d IconDir=${CMAKE_SOURCE_DIR}/resources/icons
 	-d QtTranslationDir=${DATAFILE_DIR}/translations
 	-d SnmpMibDir=${DATAFILE_DIR}/snmp/mibs
+	-d SnmpPibDir=${DATAFILE_DIR}/snmp/pibs
+	-d SnmpYangDir=${DATAFILE_DIR}/snmp/yang
 	${d_smi_dir}
 	${d_mmdbresolve_exe}
 	${d_vcredist_min_version}
@@ -209,6 +211,7 @@ set(WIRESHARK_WIX_BUILD_FLAGS
 	-d DiameterDir=${WIRESHARK_DATAFILE_DIR}/diameter
 	-d QualcommDir=${WIRESHARK_DATAFILE_DIR}/qualcomm
 	-d RadiusDictDir=${WIRESHARK_DATAFILE_DIR}/radius
+	-d JsonDir=${WIRESHARK_DATAFILE_DIR}/json
 	-d UsersGuideDir=${CMAKE_BINARY_DIR}/doc/wsug_html_chunked
 	# The NSIS CMakeFile sets the program name + version slightly differently.
 	-o ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}-${WIRESHARK_TARGET_PLATFORM}.msi
