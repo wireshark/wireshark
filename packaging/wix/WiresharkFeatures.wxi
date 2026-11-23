@@ -18,8 +18,10 @@
       <ComponentGroupRef Id="CG.Dtds" />
       <ComponentGroupRef Id="CG.Qualcomm" />
       <ComponentGroupRef Id="CG.Tpncp" />
+      <ComponentGroupRef Id="CG.Trdp" />
       <ComponentGroupRef Id="CG.Wimaxasncp" />
       <ComponentGroupRef Id="CG.Protobuf" />
+      <ComponentGroupRef Id="CG.Json" />
       <ComponentGroupRef Id="CG.RequiredDependencies" />
       <ComponentGroupRef Id="CG.gcrypt" />
 
@@ -35,6 +37,8 @@
       <ComponentGroupRef Id="CG.Plugins.ConfigurationProfiles" />
       <?ifdef SMI_DIR?>
         <ComponentGroupRef Id="CG.Plugins.SNMP" />
+        <ComponentGroupRef Id="CG.Plugins.SNMP.Pibs" />
+        <ComponentGroupRef Id="CG.Plugins.SNMP.Yang" />
       <?endif?>
 
       <!-- Tools -->
@@ -42,6 +46,7 @@
       <ComponentGroupRef Id="CG.Tools.Captype" />
       <ComponentGroupRef Id="CG.Tools.Editcap" />
       <ComponentGroupRef Id="CG.Tools.Mergecap" />
+      <ComponentGroupRef Id="CG.Tools.Randpkt" />
       <ComponentGroupRef Id="CG.Tools.Rawshark" />
       <ComponentGroupRef Id="CG.Tools.Reordercap" />
       <ComponentGroupRef Id="CG.Tools.Sharkd" />

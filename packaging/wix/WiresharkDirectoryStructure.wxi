@@ -14,6 +14,7 @@
           <Directory Id="dirDiameter" Name="diameter" />
           <Directory Id="dirExtcap" Name="extcap" />
           <Directory Id="dirHelp" Name="help" />
+          <Directory Id="dirJson" Name="json" />
           <Directory Id="dirRadius" Name="radius" />
           <Directory Id="dirPlugins" Name="plugins">
             <Directory Id="dirPluginsVersion" Name="$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)">
@@ -26,6 +27,8 @@
           <Directory Id="dirProfiles" Name="profiles" />
           <Directory Id="dirSnmp" Name="snmp">
             <Directory Id="dirSnmpMibs" Name="mibs" />
+            <Directory Id="dirSnmpPibs" Name="pibs" />
+            <Directory Id="dirSnmpYang" Name="yang" />
           </Directory>
           <Directory Id="dirTpncp" Name="tpncp" />
           <Directory Id="dirTranslations" Name="translations" />

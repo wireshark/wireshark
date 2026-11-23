@@ -144,9 +144,23 @@
     <ComponentGroup Id="CG.RadiusDict" Directory="dirRadius">
       <Files Include="$(var.RadiusDictDir)\**" />
     </ComponentGroup>
-    <!-- MIBs -->
+    <!-- MIBs, PIBs, and YANG modules -->
     <ComponentGroup Id="CG.Plugins.SNMP" Directory="dirSnmpMibs">
       <Files Include="$(var.SnmpMibDir)\**" />
+    </ComponentGroup>
+    <ComponentGroup Id="CG.Plugins.SNMP.Pibs" Directory="dirSnmpPibs">
+      <Files Include="$(var.SnmpPibDir)\**" />
+    </ComponentGroup>
+    <ComponentGroup Id="CG.Plugins.SNMP.Yang" Directory="dirSnmpYang">
+      <Files Include="$(var.SnmpYangDir)\**" />
+    </ComponentGroup>
+    <!-- JSON dictionary files -->
+    <ComponentGroup Id="CG.Json" Directory="dirJson">
+      <Files Include="$(var.JsonDir)\**" />
+    </ComponentGroup>
+    <!-- Configuration profiles -->
+    <ComponentGroup Id="CG.Plugins.ConfigurationProfiles" Directory="dirProfiles">
+      <Files Include="$(var.WiresharkProfiles.Dir)\**" />
     </ComponentGroup>
     <!-- The contents of wsug_html_chunked -->
     <ComponentGroup Id="CG.Documentation" Directory="dirUsersGuide">
@@ -337,38 +351,6 @@
             <ComponentRef Id="cmpTShark_html" />
         </ComponentGroup>
     </Fragment>
-
-  <!-- Configuration Profiles -->
-  <Fragment>
-    <DirectoryRef Id="dirProfiles">
-      <Directory Id="dirBluetooth" Name="Bluetooth">
-        <Component Id="cmpBluetooth_coloring_rules">
-          <File Id="filBluetooth_coloring_rules" KeyPath="yes" Source="$(var.WiresharkProfiles.Dir)\Bluetooth\coloring_rules.jsonc" />
-        </Component>
-        <Component Id="cmpBluetooth_preferences">
-          <File Id="filBluetooth_preferences" KeyPath="yes" Source="$(var.WiresharkProfiles.Dir)\Bluetooth\preferences" />
-        </Component>
-      </Directory>
-      <Directory Id="dirClassic" Name="Classic">
-        <Component Id="cmpClassic_coloring_rules">
-          <File Id="filClassic_coloring_rules" KeyPath="yes" Source="$(var.WiresharkProfiles.Dir)\Classic\coloring_rules.jsonc" />
-        </Component>
-      </Directory>
-      <Directory Id="dirNoReassembly" Name="No Reassembly">
-        <Component Id="cmpNoReassembly_preferences">
-          <File Id="filNoReassembly_preferences" KeyPath="yes" Source="$(var.WiresharkProfiles.Dir)\No Reassembly\preferences" />
-        </Component>
-      </Directory>
-    </DirectoryRef>
-  </Fragment>
-  <Fragment>
-    <ComponentGroup Id="CG.Plugins.ConfigurationProfiles">
-      <ComponentRef Id="cmpBluetooth_coloring_rules" />
-      <ComponentRef Id="cmpBluetooth_preferences" />
-      <ComponentRef Id="cmpClassic_coloring_rules" />
-      <ComponentRef Id="cmpNoReassembly_preferences" />
-    </ComponentGroup>
-  </Fragment>
 
   <!-- Editcap -->
   <Fragment>

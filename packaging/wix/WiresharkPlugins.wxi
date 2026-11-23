@@ -123,6 +123,9 @@
             <Component Id="cmpG729_dll">
                 <File Id="filG729_dll" KeyPath="yes" Source="$(var.WiresharkPlugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\g729.dll" />
             </Component>
+            <Component Id="cmpL24_dll">
+                <File Id="filL24_dll" KeyPath="yes" Source="$(var.WiresharkPlugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\l24.dll" />
+            </Component>
             <Component Id="cmpL16mono_dll">
                 <File Id="filL16mono_dll" KeyPath="yes" Source="$(var.WiresharkPlugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\l16mono.dll" />
             </Component>
@@ -150,6 +153,7 @@
             <ComponentRef Id="cmpG726_dll" />
             <ComponentRef Id="cmpG729_dll" />
             <ComponentRef Id="cmpL16mono_dll" />
+            <ComponentRef Id="cmpL24_dll" />
             <ComponentRef Id="cmpSBC_dll" />
             <ComponentRef Id="cmpILBC_dll" />
             <ComponentRef Id="cmpOPUS_dll" />
