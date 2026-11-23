@@ -40,7 +40,7 @@
  * decode a given capture..
  * TODO:
  * - Detect/indicate signs of application layer fragmentation?
- *      same eAxC in same symbol (same/different section ID?)
+ *   same eAxC in same symbol (same/different section ID?)
  * - Not handling M-plane setting for "little endian byte order" as applied to
  *   IQ samples and beam weights does anyone use this?
  * - for section extensions, check more constraints (which other extension types
@@ -629,7 +629,6 @@ static int hf_oran_reassembled_length;
 static int hf_oran_reassembled_data;
 
 static int hf_oran_payload;
-
 
 /* Subtrees */
 static int ett_oran;
@@ -2585,8 +2584,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
                                 uint32_t *exponent, bool *supported, unsigned *num_trx_entries, uint16_t **trx_entries)
 {
     if (*bfw_comp_method == COMP_NONE) {
-        /* Absent! */
-        *num_trx_entries = 0;
+        /* Header is absent */
         *supported = true;
         return offset;
     }
@@ -2844,6 +2842,7 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
     proto_tree_add_item_ret_uint(bundle_tree, hf_oran_beam_id, tvb, offset, 2, ENC_BIG_ENDIAN, &beam_id);
     proto_item_append_text(bundle_ti, " (beamId:%5u) ", beam_id);
     bit_offset += 16;
+    offset += 2;
     add_beam_id_to_tap(tap_info, beam_id);
 
     if (!PINFO_FD_VISITED(pinfo)) {
@@ -3778,8 +3777,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* bfwCompParam */
                 uint32_t exponent = 0;
                 bool compression_method_supported = false;
-                unsigned num_trx = 0;
-                uint16_t *trx;        /* ptr to array */
+                unsigned num_trx = pref_num_bf_antennas;
+                uint16_t *trx = NULL;        /* ptr to array */
                 offset = dissect_bfwCompParam(tvb, extension_tree, pinfo, offset, comp_meth_ti,
                                               &bfwcomphdr_comp_meth, &exponent, &compression_method_supported,
                                               &num_trx, &trx);
@@ -3789,27 +3788,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     break;
                 }
 
-                /* We know:
-                   - iq_width (above)
-                   - numBfWeights (taken from preference)
-                   - remaining bytes in extension
-                   We can therefore derive TRX (number of antennas).
-                 */
+                bool using_array = (trx != NULL);
 
-                bool using_array = false;
-
-                /* I & Q samples
-                   May know how many entries from activeBeamspaceCoefficientMask. */
-                if (num_trx == 0) {
-                    /* Don't know how many there will be, so just fill available bytes... */
-                    unsigned extension_end_offset = extension_start_offset + (extlen*4);
-                    unsigned weights_bytes = (offset < extension_end_offset) ? extension_end_offset - offset : 0;
-                    unsigned num_weights_pairs = (weights_bytes*8) / (bfwcomphdr_iq_width*2);
-                    num_trx = num_weights_pairs;
-                }
-                else {
-                    using_array = true;
-                }
+                /* I & Q samples */
 
                 bool non_zero_weights_seen = false;
                 int bit_offset = offset*8;
@@ -12220,7 +12201,7 @@ proto_register_oran(void)
 
         { &hf_oran_payload,
           { "Payload", "oran_fh_cus.payload", FT_BYTES, BASE_SHOW_ASCII_PRINTABLE,
-            NULL, 0x0, "Complete or reassembled payload", HFILL }},
+            NULL, 0x0, "Complete or reassembled payload", HFILL }}
     };
 
     /* Setup protocol subtree array */
