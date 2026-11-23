@@ -478,7 +478,7 @@ static bool global_saprfc_highlight_items = true;
 
 /* Protocol handles for both external and internal dissectors */
 static dissector_handle_t saprfc_handle;
-static dissector_handle_t saprfcinternal_handle;
+//static dissector_handle_t saprfcinternal_handle;
 
 /* Keeps track of table content items */
 static uint32_t global_saprfc_table_content_counter = 0;
@@ -1682,7 +1682,7 @@ proto_reg_handoff_saprfc(void)
 
 	if (!initialized) {
 		saprfc_handle = create_dissector_handle(dissect_saprfc, proto_saprfc);
-		saprfcinternal_handle = create_dissector_handle(dissect_saprfc_internal, proto_saprfc);
+		// saprfcinternal_handle = create_dissector_handle(dissect_saprfc_internal, proto_saprfc);
 		initialized = true;
 	}
 

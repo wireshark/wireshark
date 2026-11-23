@@ -51,7 +51,7 @@ void event_reg_handoff_frame(void);
 
 static int proto_frame;
 static int proto_pkt_comment;
-static int proto_syscall;
+//static int proto_syscall;
 static int proto_darwin;
 
 static int hf_frame_arrival_time_local;
@@ -2127,7 +2127,7 @@ static void common_register_frame(bool use_packets)
 		proto_pkt_comment = proto_register_protocol_in_name_only("Event comments", "Evt_Comment", "evt_comment", proto_frame, FT_PROTOCOL);
 		proto_register_alias(proto_pkt_comment, "pkt_comment");
 	}
-	proto_syscall = proto_register_protocol("System Call", "Syscall", "syscall");
+	/* proto_syscall = */ proto_register_protocol("System Call", "Syscall", "syscall");
 
 	proto_register_field_array(proto_frame, hf, array_length(hf));
 	proto_register_field_array(proto_frame, &hf_encap, 1);

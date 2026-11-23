@@ -28,8 +28,8 @@ static dissector_table_t osinl_excl_subdissector_table;
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t ethnofcs_handle;
-static dissector_handle_t clnp_handle;
-static dissector_handle_t arp_handle;
+//static dissector_handle_t clnp_handle;
+//static dissector_handle_t arp_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t ppphdlc_handle;
 
@@ -236,8 +236,8 @@ proto_reg_handoff_redback(void)
 	ipv4_handle = find_dissector_add_dependency("ip", proto_redback);
 	ipv6_handle = find_dissector_add_dependency("ipv6", proto_redback);
 	ethnofcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_redback);
-	clnp_handle = find_dissector_add_dependency("clnp", proto_redback);
-	arp_handle = find_dissector_add_dependency("arp", proto_redback);
+	/* clnp_handle = */ find_dissector_add_dependency("clnp", proto_redback);
+	/* arp_handle = */ find_dissector_add_dependency("arp", proto_redback);
 	ppp_handle = find_dissector_add_dependency("ppp", proto_redback);
 	ppphdlc_handle = find_dissector_add_dependency("ppp_hdlc", proto_redback);
 

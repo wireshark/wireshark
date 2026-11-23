@@ -28,7 +28,9 @@
 static uint32_t x; /* Used for universal integer hashing (see the HASH macro) */
 
 /* Used for the wmem_strong_hash() function */
+#ifndef HAVE_XXHASH
 static uint32_t preseed;
+#endif
 static uint32_t postseed;
 
 void
@@ -39,7 +41,9 @@ wmem_init_hashing(void)
     if ((x % 2) == 0)
         x += 1;
 
+#ifndef HAVE_XXHASH
     preseed  = g_random_int();
+#endif
     postseed = g_random_int();
 }
 

@@ -2144,7 +2144,7 @@ static wmem_tree_t *fragments;
 static wmem_tree_t *handle_to_uuid;
 
 static dissector_handle_t btatt_handle;
-static dissector_handle_t btgatt_handle;
+//static dissector_handle_t btgatt_handle;
 static dissector_handle_t http_handle;
 static dissector_handle_t usb_hid_boot_keyboard_input_report_handle;
 static dissector_handle_t usb_hid_boot_keyboard_output_report_handle;
@@ -18106,7 +18106,7 @@ proto_register_btgatt(void)
 
     proto_btgatt = proto_register_protocol("Bluetooth GATT Attribute Protocol", "BT GATT", "btgatt");
 
-    btgatt_handle = register_dissector_with_data("btgatt", dissect_btgatt, proto_btgatt, NULL);
+    /* btgatt_handle = */ register_dissector_with_data("btgatt", dissect_btgatt, proto_btgatt, NULL);
 
     proto_register_field_array(proto_btgatt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

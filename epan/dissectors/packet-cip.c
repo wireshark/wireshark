@@ -93,7 +93,7 @@ static int proto_cip_class_mb;
 static int proto_cip_class_cco;
 static int proto_cip_safety;
 static int proto_enip;
-static int proto_modbus;
+//static int proto_modbus;
 
 int hf_attr_class_revision;
 int hf_attr_class_max_instance;
@@ -12123,7 +12123,7 @@ proto_reg_handoff_cip(void)
    heur_dissector_add("cip.sc", dissect_class_cco_heur, "CIP Connection Configuration Object", "cco_cip", proto_cip_class_cco, HEURISTIC_ENABLE);
 
    proto_enip = proto_get_id_by_filter_name( "enip" );
-   proto_modbus = proto_get_id_by_filter_name( "modbus" );
+   // proto_modbus = proto_get_id_by_filter_name( "modbus" );
    proto_cip_safety = proto_get_id_by_filter_name("cipsafety");
 
 } /* end of proto_reg_handoff_cip() */

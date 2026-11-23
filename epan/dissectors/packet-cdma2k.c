@@ -19,7 +19,7 @@ void proto_reg_handoff_cdma2k(void);
 void proto_register_cdma2k(void);
 
 /* cdma2k Handle for the dissection */
-static dissector_handle_t cdma2k_handle;
+//static dissector_handle_t cdma2k_handle;
 
 /* Function handlers for each message/information fields */
 static void cdma2k_message_decode(proto_item *item,tvbuff_t *tvb, proto_tree *tree, unsigned *offset, proto_tree *mainTree, uint16_t *noerror, packet_info *pinfo);
@@ -5484,7 +5484,7 @@ void proto_register_cdma2k(void)
 
     proto_cdma2k = proto_register_protocol ("CDMA2K", "CDMA2K", "cdma2k");
 
-    cdma2k_handle = register_dissector("cdma2k", dissect_cdma2k, proto_cdma2k);
+    /* cdma2k_handle = */ register_dissector("cdma2k", dissect_cdma2k, proto_cdma2k);
 
     proto_register_field_array(proto_cdma2k, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

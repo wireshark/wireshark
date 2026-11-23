@@ -104,7 +104,6 @@ static uint32_t tcapsrt_global_SessionId=1;
 static dissector_handle_t tcap_handle;
 static dissector_table_t ber_oid_dissector_table;
 static const char * cur_oid;
-static const char * tcapext_oid;
 static proto_tree * tcap_top_tree;
 static proto_tree * tcap_stat_tree;
 
@@ -1757,7 +1756,6 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     tcap_stat_tree=tree;
   }
   cur_oid = NULL;
-  tcapext_oid = NULL;
 
   p_tcap_private = wmem_new0(pinfo->pool, struct tcap_private_t);
   asn1_ctx.value_ptr = p_tcap_private;

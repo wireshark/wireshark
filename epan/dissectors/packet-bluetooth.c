@@ -56,7 +56,7 @@ static dissector_handle_t btle_handle;
 static dissector_handle_t hci_usb_handle;
 
 static dissector_table_t bluetooth_table;
-static dissector_table_t hci_vendor_table;
+//static dissector_table_t hci_vendor_table;
 dissector_table_t        bluetooth_uuid_table;
 
 static wmem_tree_t *chandle_sessions;
@@ -1066,7 +1066,7 @@ proto_register_bluetooth(void)
     hci_vendors              = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     cs_configurations        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    hci_vendor_table = register_dissector_table("bluetooth.vendor", "HCI Vendor", proto_bluetooth, FT_UINT16, BASE_HEX);
+    /* hci_vendor_table = */ register_dissector_table("bluetooth.vendor", "HCI Vendor", proto_bluetooth, FT_UINT16, BASE_HEX);
     bluetooth_uuid_id = uuid_type_dissector_register("bluetooth", bluetooth_uuid_hash, bluetooth_uuid_equal, bluetooth_uuid_to_str);
 
     bluetooth_tap = register_tap("bluetooth");

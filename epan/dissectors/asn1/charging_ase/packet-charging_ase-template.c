@@ -31,7 +31,7 @@ static int ett_charging_ase;
 
 static expert_field ei_charging_ase_extensions_not_dissected;
 
-static dissector_handle_t charging_ase_handle;
+//static dissector_handle_t charging_ase_handle;
 
 #include "packet-charging_ase-fn.c"
 
@@ -78,7 +78,7 @@ proto_register_charging_ase(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_charging_ase = expert_register_protocol(proto_charging_ase);
   expert_register_field_array(expert_charging_ase, ei, array_length(ei));
-  charging_ase_handle = register_dissector("charging_ase", dissect_charging_ase, proto_charging_ase);
+  /* charging_ase_handle = */ register_dissector("charging_ase", dissect_charging_ase, proto_charging_ase);
 }
 
 /* The registration hand-off routine */

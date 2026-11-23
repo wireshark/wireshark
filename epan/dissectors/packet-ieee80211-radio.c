@@ -33,7 +33,7 @@ void proto_register_ieee80211_radio(void);
 void proto_reg_handoff_ieee80211_radio(void);
 
 static dissector_handle_t wlan_radio_handle;
-static dissector_handle_t wlan_noqos_radio_handle;
+//static dissector_handle_t wlan_noqos_radio_handle;
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_noqos_handle;
 
@@ -1994,7 +1994,7 @@ void proto_register_ieee80211_radio(void)
   expert_register_field_array(expert_wlan_radio, ei, array_length(ei));
 
   wlan_radio_handle = register_dissector("wlan_radio", dissect_wlan_radio, proto_wlan_radio);
-  wlan_noqos_radio_handle = register_dissector("wlan_noqos_radio", dissect_wlan_noqos_radio, proto_wlan_radio);
+  /* wlan_noqos_radio_handle = */ register_dissector("wlan_noqos_radio", dissect_wlan_noqos_radio, proto_wlan_radio);
 
   wlan_radio_module = prefs_register_protocol(proto_wlan_radio, NULL);
   prefs_register_bool_preference(wlan_radio_module, "always_short_preamble",

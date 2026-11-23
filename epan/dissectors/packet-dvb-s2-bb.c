@@ -105,7 +105,7 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t vlan_handle;
 static dissector_handle_t dvb_s2_table_handle;
-static dissector_handle_t data_handle;
+//static dissector_handle_t data_handle;
 static dissector_handle_t mp2t_handle;
 static dissector_handle_t dvb_s2_modeadapt_handle;
 
@@ -2593,7 +2593,7 @@ void proto_reg_handoff_dvb_s2_modeadapt(void)
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_dvb_s2_bb);
     dvb_s2_table_handle = find_dissector("dvb-s2_table");
     vlan_handle = find_dissector_add_dependency("vlan", proto_dvb_s2_bb);
-    data_handle = find_dissector("data");
+    // data_handle = find_dissector("data");
     mp2t_handle = find_dissector_add_dependency("mp2t", proto_dvb_s2_bb);
 
     dissector_add_string("rtp_dyn_payload_type","DVB-S2", dvb_s2_modeadapt_handle);

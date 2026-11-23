@@ -214,7 +214,6 @@ static int* const etw_schematl_flags[] = {
 
 #define ETW_HEADER_SIZE 0x5C
 
-static int etw_counter;
 
 typedef struct Property_Key_Value
 {
@@ -796,7 +795,6 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
         }
     }
 
-    etw_counter += 1;
     return tvb_captured_length(tvb);
 }
 

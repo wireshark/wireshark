@@ -159,9 +159,6 @@ static bool hdr_export_pdu;
 /* This is where we store the packet currently being built */
 static uint32_t max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 
-/* Time code of packet, derived from packet_preamble */
-static int      ts_fmt_iso;
-
 /* Input file */
 static char *input_filename;
 static FILE       *input_file;
@@ -622,8 +619,6 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
         case 't':
             info->timestamp_format = ws_optarg;
-            if (!strcmp(ws_optarg, "ISO"))
-              ts_fmt_iso = 1;
             break;
 
         case 'u':

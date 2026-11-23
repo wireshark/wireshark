@@ -80,8 +80,6 @@ static frame_data ref_frame;
 static frame_data prev_dis_frame;
 static frame_data prev_cap_frame;
 
-static bool prefs_loaded;
-
 static bool perform_two_pass_analysis;
 
 /*
@@ -101,7 +99,7 @@ static int print_summary = -1;    /* true if we're to print packet summary infor
 static bool print_details;     /* true if we're to print packet details information */
 static bool print_hex;         /* true if we're to print hex/ascii information */
 static bool line_buffered;
-static bool really_quiet;
+// static bool really_quiet;
 
 static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream;
@@ -537,7 +535,6 @@ main(int argc, char *argv[])
 
     /* Load libwireshark settings from the current profile. */
     prefs_p = epan_load_settings();
-    prefs_loaded = true;
 
     cap_file_init(&cfile);
 
@@ -647,7 +644,7 @@ main(int argc, char *argv[])
                 break;
             case 'Q':        /* Really quiet */
                 quiet = true;
-                really_quiet = true;
+                // really_quiet = true;
                 break;
             case 'r':        /* Read capture file x */
                 cf_name = g_strdup(ws_optarg);

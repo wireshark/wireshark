@@ -48,7 +48,7 @@ static int proto_cose_params;
 /// Dissect opaque CBOR data
 static dissector_handle_t handle_cbor;
 /// Dissector handles
-static dissector_handle_t handle_cose_msg_hdr;
+//static dissector_handle_t handle_cose_msg_hdr;
 static dissector_handle_t handle_cose_msg_tagged;
 static dissector_handle_t handle_cose_media_type;
 static dissector_handle_t handle_cose_sign;
@@ -1506,7 +1506,7 @@ void proto_register_cose(void) {
     expert_module_t *expert = expert_register_protocol(proto_cose);
     expert_register_field_array(expert, expertitems, array_length(expertitems));
 
-    handle_cose_msg_hdr = register_dissector("cose.msg.headers", dissect_cose_msg_header_map, proto_cose);
+    /* handle_cose_msg_hdr = */ register_dissector("cose.msg.headers", dissect_cose_msg_header_map, proto_cose);
 
     table_cose_msg_tag = register_custom_dissector_table("cose.msgtag", "COSE Message Tag", proto_cose, g_int64_hash, g_int64_equal, g_free);
     table_cose_media_subtype = register_dissector_table("cose.mediasub", "COSE Media Subtype", proto_cose, FT_STRINGZ, STRING_CASE_INSENSITIVE);

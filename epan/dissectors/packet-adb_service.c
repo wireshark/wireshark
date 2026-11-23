@@ -67,7 +67,7 @@ static int ett_version;
 static int ett_pixel;
 static int ett_data;
 
-static dissector_handle_t  adb_service_handle;
+//static dissector_handle_t  adb_service_handle;
 static dissector_handle_t  logcat_handle;
 
 static bool pref_dissect_more_detail_framebuffer;
@@ -766,7 +766,7 @@ proto_register_adb_service(void)
     continuation_infos = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_adb_service = proto_register_protocol("Android Debug Bridge Service", "ADB Service", "adb_service");
-    adb_service_handle = register_dissector("adb_service", dissect_adb_service, proto_adb_service);
+    /* adb_service_handle = */ register_dissector("adb_service", dissect_adb_service, proto_adb_service);
 
     proto_register_field_array(proto_adb_service, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

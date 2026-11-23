@@ -54,7 +54,7 @@ static int dissect_zb_direct_tunneling(tvbuff_t *tvb, packet_info *pinfo, proto_
 static int dissect_zb_direct_common(tvbuff_t **tvb, packet_info *pinfo, proto_tree **tree, void *data, unsigned offset, const uint8_t *serv_uuid, const uint8_t *char_uuid);
 
 /* Used dissectors */
-static dissector_handle_t zbee_nwk_handle;
+//static dissector_handle_t zbee_nwk_handle;
 
 /* TLV Node-elements */
 static int proto_zb_direct;
@@ -2224,7 +2224,7 @@ void proto_reg_handoff_zb_direct(void)
         dissector_add_string("bluetooth.uuid", services[i].uuid, handle);
     }
 
-    zbee_nwk_handle = find_dissector("zbee_nwk");
+    // zbee_nwk_handle = find_dissector("zbee_nwk");
 }
 
 /*

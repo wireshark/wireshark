@@ -239,8 +239,8 @@ static dissector_handle_t s1ap_handle;
 
 /* Dissector tables */
 static dissector_table_t s1ap_ies_dissector_table;
-static dissector_table_t s1ap_ies_p1_dissector_table;
-static dissector_table_t s1ap_ies_p2_dissector_table;
+//static dissector_table_t s1ap_ies_p1_dissector_table;
+//static dissector_table_t s1ap_ies_p2_dissector_table;
 static dissector_table_t s1ap_extension_dissector_table;
 static dissector_table_t s1ap_proc_imsg_dissector_table;
 static dissector_table_t s1ap_proc_sout_dissector_table;
@@ -830,8 +830,8 @@ void proto_register_s1ap(void) {
 
   /* Register dissector tables */
   s1ap_ies_dissector_table = register_dissector_table("s1ap.ies", "S1AP-PROTOCOL-IES", proto_s1ap, FT_UINT32, BASE_DEC);
-  s1ap_ies_p1_dissector_table = register_dissector_table("s1ap.ies.pair.first", "S1AP-PROTOCOL-IES-PAIR FirstValue", proto_s1ap, FT_UINT32, BASE_DEC);
-  s1ap_ies_p2_dissector_table = register_dissector_table("s1ap.ies.pair.second", "S1AP-PROTOCOL-IES-PAIR SecondValue", proto_s1ap, FT_UINT32, BASE_DEC);
+  /* s1ap_ies_p1_dissector_table = */ register_dissector_table("s1ap.ies.pair.first", "S1AP-PROTOCOL-IES-PAIR FirstValue", proto_s1ap, FT_UINT32, BASE_DEC);
+  /* s1ap_ies_p2_dissector_table = */ register_dissector_table("s1ap.ies.pair.second", "S1AP-PROTOCOL-IES-PAIR SecondValue", proto_s1ap, FT_UINT32, BASE_DEC);
   s1ap_extension_dissector_table = register_dissector_table("s1ap.extension", "S1AP-PROTOCOL-EXTENSION", proto_s1ap, FT_UINT32, BASE_DEC);
   s1ap_proc_imsg_dissector_table = register_dissector_table("s1ap.proc.imsg", "S1AP-ELEMENTARY-PROCEDURE InitiatingMessage", proto_s1ap, FT_UINT32, BASE_DEC);
   s1ap_proc_sout_dissector_table = register_dissector_table("s1ap.proc.sout", "S1AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_s1ap, FT_UINT32, BASE_DEC);

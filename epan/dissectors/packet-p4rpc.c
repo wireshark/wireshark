@@ -114,7 +114,7 @@ typedef struct pdu_info {
 static dissector_handle_t p4rpc_handle;
 
 // for tls
-static dissector_handle_t p4rpc_tls_handle;
+//static dissector_handle_t p4rpc_tls_handle;
 
 /*
 * If it is false then the parameters will be decoded
@@ -1483,7 +1483,7 @@ proto_register_p4rpc(void)
      * We probably could just register dissect_p4rpc
      * as the TLS dissector as well.
      */
-    p4rpc_tls_handle = register_dissector_with_description(
+    /* p4rpc_tls_handle = */ register_dissector_with_description(
         "p4rpc.tls",       // dissector name
         "P4RPC over TLS",  // dissector description
         dissect_tls_p4rpc, // dissector function

@@ -53,7 +53,7 @@ static int hf_nmea2000_ap_mode;
 static int hf_nmea2000_reserved8;
 static int hf_nmea2000_angle;
 
-static dissector_handle_t nmea2000_handle;
+//static dissector_handle_t nmea2000_handle;
 
 /* Initialize the subtree pointers */
 static int ett_nmea2000;
@@ -809,7 +809,7 @@ proto_register_nmea2000(void)
     proto_register_subtree_array(ett, array_length(ett));
 
 
-    nmea2000_handle = register_dissector("nmea2000", dissect_nmea2000, proto_nmea2000);
+    /* nmea2000_handle = */ register_dissector("nmea2000", dissect_nmea2000, proto_nmea2000);
 
 
 }

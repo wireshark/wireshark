@@ -894,12 +894,12 @@ static dissector_handle_t  zigbee_ie_handle;
 static dissector_handle_t  zigbee_nwk_handle;
 static dissector_handle_t  ieee802154_handle;
 static dissector_handle_t  ieee802154_nonask_phy_handle;
-static dissector_handle_t  ieee802154_fcs_handle;
+//static dissector_handle_t  ieee802154_fcs_handle;
 static dissector_handle_t  ieee802154_nofcs_handle;
 static dissector_handle_t  ieee802154_tap_handle;
 
 /* Thread 802.15.4 - 2015 */
-static dissector_handle_t thread_ie_handle;
+//static dissector_handle_t thread_ie_handle;
 
 static int ieee802154_tap;
 
@@ -7563,7 +7563,7 @@ void proto_register_ieee802154(void)
 
     /* Register dissectors with Wireshark */
     ieee802154_handle = register_dissector("wpan", dissect_ieee802154, proto_ieee802154);
-    ieee802154_fcs_handle = register_dissector("wpan_fcs", dissect_ieee802154_fcs, proto_ieee802154);
+    /* ieee802154_fcs_handle = */ register_dissector("wpan_fcs", dissect_ieee802154_fcs, proto_ieee802154);
     ieee802154_nofcs_handle = register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
     register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
     ieee802154_nonask_phy_handle = register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
@@ -7601,7 +7601,7 @@ void proto_reg_handoff_ieee802154(void)
         zigbee_ie_handle = find_dissector_add_dependency("zbee_ie", proto_ieee802154);
         zigbee_nwk_handle = find_dissector("zbee_nwk");
 
-        thread_ie_handle = find_dissector_add_dependency("thread_ie",proto_ieee802154);
+        /* thread_ie_handle = */ find_dissector_add_dependency("thread_ie",proto_ieee802154);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, ieee802154_nonask_phy_handle);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NOFCS, ieee802154_nofcs_handle);

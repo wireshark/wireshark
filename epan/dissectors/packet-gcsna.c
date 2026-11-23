@@ -19,7 +19,7 @@ void proto_reg_handoff_gcsna(void);
 void proto_register_gcsna(void);
 
  /* gcsna Handle for the dissection */
-static dissector_handle_t gcsna_handle;
+//static dissector_handle_t gcsna_handle;
 static dissector_handle_t cdma2k_handle;
 
 /* Function handlers for each message/information fields */
@@ -436,7 +436,7 @@ proto_register_gcsna(void)
 
     proto_gcsna = proto_register_protocol("GCSNA", "GCSNA", "gcsna");
 
-    gcsna_handle = register_dissector("gcsna", dissect_gcsna, proto_gcsna);
+    /* gcsna_handle = */ register_dissector("gcsna", dissect_gcsna, proto_gcsna);
 
     proto_register_field_array(proto_gcsna, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

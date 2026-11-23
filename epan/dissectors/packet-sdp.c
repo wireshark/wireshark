@@ -66,7 +66,7 @@ static dissector_handle_t mp4ves_config_handle;
 static int sdp_tap;
 
 static int proto_sdp;
-static int proto_sprt;
+//static int proto_sprt;
 
 static const char* UNKNOWN_ENCODING = "Unknown";
 static wmem_tree_t *sdp_transport_reqs;
@@ -3556,7 +3556,7 @@ proto_reg_handoff_sdp(void)
     h265_handle   = find_dissector_add_dependency("h265", proto_sdp);
     mp4ves_config_handle = find_dissector_add_dependency("mp4ves_config", proto_sdp);
 
-    proto_sprt    = dissector_handle_get_protocol_index(find_dissector("sprt"));
+    // proto_sprt    = dissector_handle_get_protocol_index(find_dissector("sprt"));
 
     dissector_add_string("media_type", "application/sdp", sdp_handle);
     dissector_add_uint("bctp.tpi", 0x20, sdp_handle);

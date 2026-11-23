@@ -921,7 +921,7 @@ static int ett_ubx_rxm_rawx_trkstat;
 static int ett_ubx_rxm_rawx_meas[255];
 static int ett_ubx_rxm_sfrbx;
 
-static dissector_handle_t ubx_handle;
+//static dissector_handle_t ubx_handle;
 
 /* compute the checksum for a UBX message (Fletcher 8-bit by RFC 1145 */
 static uint16_t chksum_fletcher_8(const uint8_t *data, const int len) {
@@ -3269,7 +3269,7 @@ void proto_register_ubx(void) {
 
     proto_ubx = proto_register_protocol("UBX Protocol", "UBX", "ubx");
 
-    ubx_handle = register_dissector("ubx", dissect_ubx, proto_ubx);
+    /* ubx_handle = */ register_dissector("ubx", dissect_ubx, proto_ubx);
 
     proto_register_field_array(proto_ubx, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

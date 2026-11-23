@@ -89,7 +89,7 @@ void proto_reg_handoff_zmtp(void);
 static dissector_table_t zmtp_port_dissector_table;
 
 /* User definable values */
-static range_t *global_zmtp_port_range = NULL;
+//static range_t *global_zmtp_port_range = NULL;
 
 
 /**************************************************************************/
@@ -716,7 +716,7 @@ dissect_zmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static void
 apply_zmtp_prefs(void)
 {
-    global_zmtp_port_range = prefs_get_range_value("zmtp", "tcp.port");
+    // global_zmtp_port_range = prefs_get_range_value("zmtp", "tcp.port");
 }
 
 void

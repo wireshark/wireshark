@@ -63,7 +63,7 @@ static void init_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type;
 static int hf_h245Manufacturer;
 static int hf_h245_subMessageIdentifier_standard;
-static int h245_tap;
+//static int h245_tap;
 static int h245dg_tap;
 static int hf_h245_debug_dissector_try_string;
 
@@ -20533,7 +20533,7 @@ void proto_register_h245(void) {
   gef_name_dissector_table = register_dissector_table("h245.gef.name", "H.245 Generic Extensible Framework Name", proto_h245, FT_STRING, STRING_CASE_SENSITIVE);
   gef_content_dissector_table = register_dissector_table("h245.gef.content", "H.245 Generic Extensible Framework Content", proto_h245, FT_STRING, STRING_CASE_SENSITIVE);
 
-  h245_tap = register_tap("h245");
+  /* h245_tap = */ register_tap("h245");
   h245dg_tap = register_tap("h245dg");
 
   oid_add_from_string("h239ControlCapability","0.0.8.239.1.1");

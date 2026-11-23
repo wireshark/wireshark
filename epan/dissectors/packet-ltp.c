@@ -1706,7 +1706,7 @@ static const char* st_str_engs = "Segment Addr (by Engine ID)";
 static const char* st_str_blks = "Block Size (by Engine ID)";
 static int st_node_segs = -1;
 static int st_node_red = -1;
-static int st_node_green = -1;
+//static int st_node_green = -1;
 static int st_node_rpt = -1;
 static int st_node_engs = -1;
 static int st_node_blks = -1;
@@ -1718,7 +1718,7 @@ ltp_stats_tree_init(stats_tree *st)
 	st_node_red = stats_tree_create_node(st, st_str_red, st_node_segs, STAT_DT_INT, true);
 	stats_tree_create_node(st, st_str_corr_orig, st_node_red, STAT_DT_INT, false);
 	stats_tree_create_node(st, st_str_corr_ret, st_node_red, STAT_DT_INT, false);
-	st_node_green = stats_tree_create_node(st, st_str_green, st_node_segs, STAT_DT_INT, false);
+	/* st_node_green = */ stats_tree_create_node(st, st_str_green, st_node_segs, STAT_DT_INT, false);
 	st_node_rpt = stats_tree_create_node(st, st_str_rpt, st_node_segs, STAT_DT_INT, true);
 	stats_tree_create_node(st, st_str_corr_orig, st_node_rpt, STAT_DT_INT, false);
 	stats_tree_create_node(st, st_str_corr_ret, st_node_rpt, STAT_DT_INT, false);

@@ -760,7 +760,7 @@ static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t flexray_handle;
 static dissector_handle_t ebhscr_user_handle;
 
-static dissector_table_t subdissector_table;
+//static dissector_table_t subdissector_table;
 
 static int dissect_ebhscr_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 								proto_tree *ebhscr_packet_header_tree, uint16_t ebhscr_status,
@@ -2832,7 +2832,7 @@ proto_register_ebhscr(void)
 	expert_register_field_array(expert_ebhscr, ei, array_length(ei));
 
 	ebhscr_handle = register_dissector("ebhscr", dissect_ebhscr, proto_ebhscr);
-	subdissector_table = register_decode_as_next_proto(proto_ebhscr, "ebhscr.subdissector",
+	/* subdissector_table = */ register_decode_as_next_proto(proto_ebhscr, "ebhscr.subdissector",
 														"ebhscr next level dissector", NULL);
 }
 

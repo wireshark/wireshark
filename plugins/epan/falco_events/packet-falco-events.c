@@ -181,7 +181,7 @@ sinsp_last_error_str(sinsp_source_info_t *ssi)
 
 static bool pref_show_internal;
 
-static dissector_table_t ptype_dissector_table;
+//static dissector_table_t ptype_dissector_table;
 static dissector_handle_t json_handle;
 
 static int fd_follow_tap;
@@ -1940,7 +1940,7 @@ proto_register_falcoplugin(void)
      * Create the dissector table that we will use to route the dissection to
      * the appropriate Falco plugin.
      */
-    ptype_dissector_table = register_dissector_table("falcoevents.id",
+    /* ptype_dissector_table = */ register_dissector_table("falcoevents.id",
                                                      "Falco Events Plugin ID", proto_falco_events, FT_UINT32, BASE_DEC);
 
     /*

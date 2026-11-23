@@ -32,7 +32,7 @@ static dissector_handle_t ipv6_handle;
 static dissector_handle_t ppp_hdlc_handle;
 
 static capture_dissector_handle_t ip_cap_handle;
-static capture_dissector_handle_t ipv6_cap_handle;
+//static capture_dissector_handle_t ipv6_cap_handle;
 static capture_dissector_handle_t ppp_hdlc_cap_handle;
 
 static bool
@@ -259,7 +259,7 @@ proto_reg_handoff_raw(void)
   capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP, raw_cap_handle);
 
   ip_cap_handle = find_capture_dissector("ip");
-  ipv6_cap_handle = find_capture_dissector("ipv6");
+  // ipv6_cap_handle = find_capture_dissector("ipv6");
   ppp_hdlc_cap_handle = find_capture_dissector("ppp_hdlc");
 }
 

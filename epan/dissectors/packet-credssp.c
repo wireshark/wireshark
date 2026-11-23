@@ -52,7 +52,7 @@ static int exported_pdu_tap = -1;
 static int proto_credssp;
 
 /* List of dissectors to call for negoToken data */
-static heur_dissector_list_t credssp_heur_subdissector_list;
+//static heur_dissector_list_t credssp_heur_subdissector_list;
 
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
@@ -741,7 +741,7 @@ void proto_register_credssp(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* heuristic dissectors for any preamble e.g. CredSSP before RDP */
-  credssp_heur_subdissector_list = register_heur_dissector_list_with_description("credssp", "Unused", proto_credssp);
+  /* credssp_heur_subdissector_list = */ register_heur_dissector_list_with_description("credssp", "Unused", proto_credssp);
 
 }
 

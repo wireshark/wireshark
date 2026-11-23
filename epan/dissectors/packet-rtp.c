@@ -187,8 +187,8 @@ static dissector_handle_t v150fw_handle;
 
 static dissector_handle_t bta2dp_content_protection_header_scms_t;
 static dissector_handle_t btvdp_content_protection_header_scms_t;
-static dissector_handle_t bta2dp_handle;
-static dissector_handle_t btvdp_handle;
+//static dissector_handle_t bta2dp_handle;
+//static dissector_handle_t btvdp_handle;
 static dissector_handle_t sbc_handle;
 
 static int rtp_tap;
@@ -3732,8 +3732,8 @@ proto_reg_handoff_rtp(void)
 
     bta2dp_content_protection_header_scms_t = find_dissector_add_dependency("bta2dp_content_protection_header_scms_t", proto_rtp);
     btvdp_content_protection_header_scms_t = find_dissector_add_dependency("btvdp_content_protection_header_scms_t", proto_rtp);
-    bta2dp_handle = find_dissector_add_dependency("bta2dp", proto_rtp);
-    btvdp_handle = find_dissector_add_dependency("btvdp", proto_rtp);
+    /* bta2dp_handle = */ find_dissector_add_dependency("bta2dp", proto_rtp);
+    /* btvdp_handle = */ find_dissector_add_dependency("btvdp", proto_rtp);
     sbc_handle = find_dissector_add_dependency("sbc", proto_rtp);
 
     dissector_add_string("rtp_dyn_payload_type", "v150fw", v150fw_handle);

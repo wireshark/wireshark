@@ -340,8 +340,8 @@ static const rtpproxy_counter_t rtpproxy_counters[] = {
 
 /* Default values */
 #define RTPPROXY_PORT "22222"  /* Not IANA registered */
-static range_t* rtpproxy_tcp_range;
-static range_t* rtpproxy_udp_range;
+//static range_t* rtpproxy_tcp_range;
+//static range_t* rtpproxy_udp_range;
 
 static bool rtpproxy_establish_conversation = true;
 /* See - https://www.opensips.org/html/docs/modules/1.10.x/rtpproxy.html#id293555 */
@@ -1547,8 +1547,8 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static void
 rtpproxy_prefs_apply(void) {
 
-    rtpproxy_tcp_range = prefs_get_range_value("rtpproxy", "tcp.port");
-    rtpproxy_udp_range = prefs_get_range_value("rtpproxy", "udp.port");
+    // rtpproxy_tcp_range = prefs_get_range_value("rtpproxy", "tcp.port");
+    // rtpproxy_udp_range = prefs_get_range_value("rtpproxy", "udp.port");
 }
 
 void

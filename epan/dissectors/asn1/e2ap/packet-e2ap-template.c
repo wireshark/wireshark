@@ -669,11 +669,11 @@ static int dissect_E2SM_NI_JSON_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 /* Dissector tables */
 static dissector_table_t e2ap_ies_dissector_table;
 
-static dissector_table_t e2ap_extension_dissector_table;
+//static dissector_table_t e2ap_extension_dissector_table;
 static dissector_table_t e2ap_proc_imsg_dissector_table;
 static dissector_table_t e2ap_proc_sout_dissector_table;
 static dissector_table_t e2ap_proc_uout_dissector_table;
-static dissector_table_t e2ap_n2_ie_type_dissector_table;
+//static dissector_table_t e2ap_n2_ie_type_dissector_table;
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
@@ -1112,11 +1112,11 @@ void proto_register_e2ap(void) {
 
   //  e2ap_ies_p1_dissector_table = register_dissector_table("e2ap.ies.pair.first", "E2AP-PROTOCOL-IES-PAIR FirstValue", proto_e2ap, FT_UINT32, BASE_DEC);
   //  e2ap_ies_p2_dissector_table = register_dissector_table("e2ap.ies.pair.second", "E2AP-PROTOCOL-IES-PAIR SecondValue", proto_e2ap, FT_UINT32, BASE_DEC);
-  e2ap_extension_dissector_table = register_dissector_table("e2ap.extension", "E2AP-PROTOCOL-EXTENSION", proto_e2ap, FT_UINT32, BASE_DEC);
+  /* e2ap_extension_dissector_table = */ register_dissector_table("e2ap.extension", "E2AP-PROTOCOL-EXTENSION", proto_e2ap, FT_UINT32, BASE_DEC);
   e2ap_proc_imsg_dissector_table = register_dissector_table("e2ap.proc.imsg", "E2AP-ELEMENTARY-PROCEDURE InitiatingMessage", proto_e2ap, FT_UINT32, BASE_DEC);
   e2ap_proc_sout_dissector_table = register_dissector_table("e2ap.proc.sout", "E2AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_e2ap, FT_UINT32, BASE_DEC);
   e2ap_proc_uout_dissector_table = register_dissector_table("e2ap.proc.uout", "E2AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_e2ap, FT_UINT32, BASE_DEC);
-  e2ap_n2_ie_type_dissector_table = register_dissector_table("e2ap.n2_ie_type", "E2AP N2 IE Type", proto_e2ap, FT_STRING, STRING_CASE_SENSITIVE);
+  /* e2ap_n2_ie_type_dissector_table = */ register_dissector_table("e2ap.n2_ie_type", "E2AP N2 IE Type", proto_e2ap, FT_STRING, STRING_CASE_SENSITIVE);
 
   /* Preference settings */
   e2ap_module = prefs_register_protocol(proto_e2ap, NULL);
