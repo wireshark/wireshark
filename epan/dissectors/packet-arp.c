@@ -372,6 +372,13 @@ tvb_arphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int ad
        address). */
     return tvb_ether_to_str(scope, tvb, offset);
   }
+  if (ARP_HW_IS_AX25(type, ad_len)) {
+    /* AX.25 address (callsign + SSID), e.g. "N0CALL-8" */
+    address addr;
+
+    set_address_tvb(&addr, AT_AX25, ad_len, tvb, offset);
+    return address_to_str(scope, &addr);
+  }
   return tvb_bytes_to_str(scope, tvb, offset, ad_len);
 }
 
