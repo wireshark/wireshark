@@ -143,6 +143,13 @@ Var OLD_INSTDIR
 Var OLD_DISPLAYNAME
 Var TMP_UNINSTALLER
 
+; WiX
+Var REGISTRY_BITS
+Var TMP_PRODUCT_GUID
+Var WIX_DISPLAYNAME
+Var WIX_DISPLAYVERSION
+Var WIX_UNINSTALLSTRING
+
 ; Used when building the msiexec command line.
 Var MSI_FEATURES
 Var MSI_PROPERTIES
@@ -387,24 +394,24 @@ Function .onInit
   ReadRegStr $OLD_UNINSTALLER HKLM \
     "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" \
     "UninstallString"
-  StrCmp $OLD_UNINSTALLER "" done
+  StrCmp $OLD_UNINSTALLER "" check_wix
 
   ReadRegStr $OLD_INSTDIR HKLM \
     "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME}.exe" \
     "Path"
-  StrCmp $OLD_INSTDIR "" done
+  StrCmp $OLD_INSTDIR "" check_wix
 
   ReadRegStr $OLD_DISPLAYNAME HKLM \
     "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" \
     "DisplayName"
-  StrCmp $OLD_DISPLAYNAME "" done
+  StrCmp $OLD_DISPLAYNAME "" check_wix
 
   MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
     "$OLD_DISPLAYNAME is already installed.\
      $\n$\nWould you like to uninstall it first?" \
       /SD IDYES \
       IDYES prep_nsis_uninstaller \
-      IDNO done
+      IDNO check_wix
   Abort
 
   ; Run the old uninstaller from a temporary location.
@@ -421,6 +428,58 @@ Function .onInit
 
     ExecWait "$TMP_UNINSTALLER /S _?=$OLD_INSTDIR"
     Delete "$TMP_UNINSTALLER"
+
+  ; Look for an MSI-installed package. Its DisplayName is exactly
+  ; "${PROGRAM_NAME}", unlike the NSIS-based installation.
+  check_wix:
+    StrCpy $REGISTRY_BITS 64
+    SetRegView 64
+    check_wix_restart:
+      StrCpy $0 0
+    wix_reg_enum_loop:
+      EnumRegKey $TMP_PRODUCT_GUID HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" $0
+      StrCmp $TMP_PRODUCT_GUID "" wix_enum_reg_done
+      IntOp $0 $0 + 1
+      ReadRegStr $WIX_DISPLAYNAME HKLM \
+        "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
+        "DisplayName"
+      StrCmp $WIX_DISPLAYNAME "${PROGRAM_NAME}" wix_found wix_reg_enum_loop
+
+      wix_found:
+        ReadRegStr $WIX_DISPLAYVERSION HKLM \
+          "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
+          "DisplayVersion"
+        ; Prefer QuietUninstallString and fall back to UninstallString.
+        ReadRegStr $WIX_UNINSTALLSTRING HKLM \
+          "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
+          "QuietUninstallString"
+        StrCmp $WIX_UNINSTALLSTRING "" 0 wix_have_uninstallstring
+        ReadRegStr $WIX_UNINSTALLSTRING HKLM \
+          "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
+          "UninstallString"
+
+        wix_have_uninstallstring:
+        StrCmp $WIX_UNINSTALLSTRING "" done
+        MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
+          "$WIX_DISPLAYNAME $WIX_DISPLAYVERSION (msi) is already installed.\
+           $\n$\nWould you like to uninstall it first?" \
+            /SD IDYES \
+            IDYES prep_wix_uninstaller \
+            IDNO done
+        Abort
+
+        ; Run the WiX-provided QuietUninstallString or UninstallString.
+        prep_wix_uninstaller:
+          ClearErrors
+          ExecWait "$WIX_UNINSTALLSTRING"
+
+        Goto done
+
+    wix_enum_reg_done:
+      IntCmp $REGISTRY_BITS 32 done
+      StrCpy $REGISTRY_BITS 32
+      SetRegView 32
+      Goto check_wix_restart
 
   done:
 
