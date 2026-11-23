@@ -557,8 +557,10 @@ static const value_string mausb_cancel_transfer_status_string[] = {
 };
 
 #define MAUSB_CANCEL_TRANSFER_STATUS_MASK 0x07
+#define MAUSB_CANCEL_TRANSFER_RSVD_MASK 0xfffff8
 
 #define MAUSB_CLEAR_TRANSFERS_RESP_NUM_MASK 0x1f
+#define MAUSB_CLEAR_TRANSFERS_RESP_RSVD_MASK 0xffffffe0
 #define MAUSB_CLEAR_TRANSFERS_STATUS_MASK 0x01
 #define MAUSB_CLEAR_TRANSFERS_PARTIAL_MASK 0x02
 #define MAUSB_CLEAR_TRANSFERS_RESP_BLOCK_RSVD_MASK 0xfffffffc
@@ -997,10 +999,10 @@ static uint16_t dissect_mausb_mgmt_pkt_clear_transfers(proto_tree *tree,
 
         /* Number of entries */
         proto_tree_add_item(tree, hf_mausb_clear_transfers_resp_num, tvb,
-                            offset, 1, ENC_LITTLE_ENDIAN);
+                            offset, 4, ENC_LITTLE_ENDIAN);
         /* Rsvd */
         proto_tree_add_item(tree, hf_mausb_clear_transfers_resp_rsvd, tvb,
-                            offset, 1, ENC_LITTLE_ENDIAN);
+                            offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
     }
 
@@ -2128,7 +2130,7 @@ proto_register_mausb(void)
         },
         { &hf_mausb_clear_transfers_resp_rsvd,
              { "Reserved", "mausb.clear_transfers_resp.rsvd", FT_UINT32, BASE_HEX,
-               NULL, ~MAUSB_CLEAR_TRANSFERS_RESP_NUM_MASK, NULL, HFILL
+               NULL, MAUSB_CLEAR_TRANSFERS_RESP_RSVD_MASK, NULL, HFILL
              }
         },
         { &hf_mausb_cancel_transfer_status,
@@ -2139,7 +2141,7 @@ proto_register_mausb(void)
         },
         { &hf_mausb_cancel_transfer_rsvd_2,
             { "Reserved", "mausb.cancel_transfer.rsvd_2", FT_UINT24, BASE_HEX,
-              NULL, ~MAUSB_CANCEL_TRANSFER_STATUS_MASK, NULL, HFILL
+              NULL, MAUSB_CANCEL_TRANSFER_RSVD_MASK, NULL, HFILL
             }
         },
         { &hf_mausb_clear_transfers_status,
