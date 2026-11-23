@@ -85,6 +85,16 @@ public:
     }
 
     /**
+     * @brief Removes the child item at the specified row without deleting it.
+     * @param row The row index of the child to take.
+     * @return Pointer to the child item, now owned by the caller.
+     */
+    Item* takeChild(int row)
+    {
+        return VariantPointer<Item>::asPtr(childItems_.takeAt(row));
+    }
+
+    /**
      * @brief Retrieves the child item at the specified row.
      * @param row The row index of the child to retrieve.
      * @return Pointer to the child item.

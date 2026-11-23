@@ -22,8 +22,8 @@
 #include <QSortFilterProxyModel>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/widgets/filter_edit.h>
+#include <ui/qt/widgets/list_edit_buttons.h>
 #include <ui/qt/models/capture_filter_validator.h>
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "main_application.h"
@@ -39,51 +39,61 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 2 / 3);
     setWindowIcon(mainApp->normalIcon());
 
-    ui->newToolButton->setIcon(ThemedIcon("list-add"));
-    ui->deleteToolButton->setIcon(ThemedIcon("list-remove"));
-    ui->copyToolButton->setIcon(ThemedIcon("list-copy"));
-
 #ifdef Q_OS_MACOS
-    ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-#if 0
-    ui->filterTreeWidget->setDragEnabled(true);
-    ui->filterTreeWidget->viewport()->setAcceptDrops(true);
-    ui->filterTreeWidget->setDropIndicatorShown(true);
-    ui->filterTreeWidget->setDragDropMode(QAbstractItemView::InternalMove);
-#endif
-    ui->filterTreeView->setDragEnabled(true);
-    ui->filterTreeView->setAcceptDrops(true);
-    ui->filterTreeView->setDropIndicatorShown(true);
-
     const char * filename = NULL;
     QString newFilterText;
+    ListEditButtons::ToolTips tool_tips;
     switch (filter_type) {
         case CaptureFilter:
             setWindowTitle(mainApp->windowTitleString(tr("Capture Filters")));
             filename = CFILTER_FILE_NAME;
             newFilterText = tr("New capture filter");
+            tool_tips.add = tr("Create a new filter.");
+            tool_tips.remove = tr("Remove the selected filters.");
+            tool_tips.copy = tr("Copy this filter.");
+            tool_tips.moveUp = tr("Move the selected filters up.");
+            tool_tips.moveDown = tr("Move the selected filters down.");
+            tool_tips.clear = tr("Clear all filters.");
             model_ = new FilterListModel(FilterListModel::Capture, this);
             break;
         case DisplayFilter:
             setWindowTitle(mainApp->windowTitleString(tr("Display Filters")));
             filename = DFILTER_FILE_NAME;
             newFilterText = tr("New display filter");
+            tool_tips.add = tr("Create a new filter.");
+            tool_tips.remove = tr("Remove the selected filters.");
+            tool_tips.copy = tr("Copy this filter.");
+            tool_tips.moveUp = tr("Move the selected filters up.");
+            tool_tips.moveDown = tr("Move the selected filters down.");
+            tool_tips.clear = tr("Clear all filters.");
             model_ = new FilterListModel(FilterListModel::Display, this);
             break;
         case DisplayMacro:
             setWindowTitle(mainApp->windowTitleString(tr("Display Filter Macros")));
             filename = DMACROS_FILE_NAME;
             newFilterText = tr("New macro");
+            tool_tips.add = tr("Create a new macro.");
+            tool_tips.remove = tr("Remove the selected macros.");
+            tool_tips.copy = tr("Copy this macro.");
+            tool_tips.moveUp = tr("Move the selected macros up.");
+            tool_tips.moveDown = tr("Move the selected macros down.");
+            tool_tips.clear = tr("Clear all macros.");
             model_ = new FilterListModel(FilterListModel::DisplayMacro, this);
             break;
         default:
             ws_assert_not_reached();
     }
+
+    ui->editButtons->setToolTips(tool_tips);
+    connect(ui->editButtons, &ListEditButtons::newClicked, this, &FilterDialog::newClicked);
+    connect(ui->editButtons, &ListEditButtons::deleteClicked, this, &FilterDialog::deleteClicked);
+    connect(ui->editButtons, &ListEditButtons::copyClicked, this, &FilterDialog::copyClicked);
+    connect(ui->editButtons, &ListEditButtons::clearClicked, this, &FilterDialog::clearClicked);
+    connect(ui->editButtons, &ListEditButtons::moveUpClicked, ui->filterTreeView, &RowMoveTreeView::moveSelectedRowsUp);
+    connect(ui->editButtons, &ListEditButtons::moveDownClicked, ui->filterTreeView, &RowMoveTreeView::moveSelectedRowsDown);
 
     ui->filterTreeView->setModel(model_);
 
@@ -95,6 +105,11 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     ui->filterTreeView->resizeColumnToContents(FilterListModel::ColumnName);
 
     connect(ui->filterTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FilterDialog::selectionChanged);
+    connect(model_, &FilterListModel::rowsInserted, this, &FilterDialog::updateWidgets);
+    connect(model_, &FilterListModel::rowsRemoved, this, &FilterDialog::updateWidgets);
+    connect(model_, &FilterListModel::rowsMoved, this, &FilterDialog::updateWidgets);
+    connect(model_, &FilterListModel::modelReset, this, &FilterDialog::updateWidgets);
+    updateWidgets();
 
     QString abs_path = gchar_free_to_qstring(get_persconffile_path(filename, true, application_configuration_environment_prefix()));
     if (file_exists(abs_path.toUtf8().constData())) {
@@ -128,10 +143,7 @@ void FilterDialog::updateWidgets()
     if (! ui->filterTreeView->selectionModel())
         return;
 
-    qsizetype num_selected = ui->filterTreeView->selectionModel()->selectedRows().count();
-
-    ui->copyToolButton->setEnabled(num_selected == 1);
-    ui->deleteToolButton->setEnabled(num_selected > 0);
+    ui->editButtons->setSelection(ui->filterTreeView->selectionModel()->selectedRows(), model_->rowCount());
 }
 
 void FilterDialog::selectionChanged(const QItemSelection &/*selected*/, const QItemSelection &/*deselected*/)
@@ -139,7 +151,7 @@ void FilterDialog::selectionChanged(const QItemSelection &/*selected*/, const QI
     updateWidgets();
 }
 
-void FilterDialog::on_newToolButton_clicked()
+void FilterDialog::newClicked()
 {
     QString name;
     QString filter;
@@ -167,21 +179,13 @@ void FilterDialog::on_newToolButton_clicked()
     addFilter(name, filter, true);
 }
 
-void FilterDialog::on_deleteToolButton_clicked()
+void FilterDialog::deleteClicked()
 {
-    QModelIndexList selected = ui->filterTreeView->selectionModel()->selectedRows();
-    QList<int> rows;
-    foreach (QModelIndex idx, selected)
-    {
-        if (idx.isValid() && ! rows.contains(idx.row()))
-        {
-            rows << idx.row();
-            model_->removeFilter(idx);
-        }
-    }
+    for (int row : rowsLastFirst(ui->filterTreeView->selectionModel()->selectedRows()))
+        model_->removeFilter(model_->index(row, 0));
 }
 
-void FilterDialog::on_copyToolButton_clicked()
+void FilterDialog::copyClicked()
 {
     QModelIndexList selected = ui->filterTreeView->selectionModel()->selectedRows();
     if (selected.count() <= 0)
@@ -191,6 +195,12 @@ void FilterDialog::on_copyToolButton_clicked()
     QModelIndex row = selected.at(0).sibling(rowNr, FilterListModel::ColumnName);
 
     addFilter(row.data().toString(), row.sibling(rowNr, FilterListModel::ColumnExpression).data().toString(), true);
+}
+
+void FilterDialog::clearClicked()
+{
+    for (int row = model_->rowCount() - 1; row >= 0; row--)
+        model_->removeFilter(model_->index(row, 0));
 }
 
 void FilterDialog::on_buttonBox_accepted()

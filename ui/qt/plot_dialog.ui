@@ -77,6 +77,9 @@
       </layout>
      </widget>
      <widget class="RowMoveTreeView" name="plotUat">
+      <property name="rootIsDecorated">
+       <bool>false</bool>
+      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -96,60 +99,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="newToolButton">
-       <property name="toolTip">
-        <string>Add a new plot.</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="deleteToolButton">
-       <property name="toolTip">
-        <string>Remove the selected plots.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="copyToolButton">
-       <property name="toolTip">
-        <string>Duplicate the selected plots.</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="moveUpwardsToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Move the selected plots upwards.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="moveDownwardsToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Move the selected plots downwards.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="clearToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Clear all plots.</string>
-       </property>
+      <widget class="ListEditButtons" name="editButtons">
       </widget>
      </item>
      <item>
@@ -543,6 +493,11 @@
   </action>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>ListEditButtons</class>
+   <extends>QWidget</extends>
+   <header>widgets/list_edit_buttons.h</header>
+  </customwidget>
   <customwidget>
    <class>ElidedLabel</class>
    <extends>QLabel</extends>

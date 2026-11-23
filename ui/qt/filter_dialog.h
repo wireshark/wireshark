@@ -91,17 +91,22 @@ private slots:
     /**
      * @brief Slot triggered when the "New" tool button is clicked.
      */
-    void on_newToolButton_clicked();
+    void newClicked();
 
     /**
      * @brief Slot triggered when the "Delete" tool button is clicked.
      */
-    void on_deleteToolButton_clicked();
+    void deleteClicked();
 
     /**
      * @brief Slot triggered when the "Copy" tool button is clicked.
      */
-    void on_copyToolButton_clicked();
+    void copyClicked();
+
+    /**
+     * @brief Slot triggered when the "Clear" tool button is clicked.
+     */
+    void clearClicked();
 
     /**
      * @brief Slot triggered when the dialog is accepted.

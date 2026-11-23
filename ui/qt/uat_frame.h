@@ -76,6 +76,9 @@ private:
     /** @brief Pointer to the underlying UAT structure. */
     struct epan_uat *uat_;
 
+    /** @brief Updates the buttons for the selected rows. */
+    void updateWidgets();
+
     /**
      * @brief Checks and displays an error hint based on item changes.
      * @param current The current model index.
@@ -146,32 +149,22 @@ private slots:
     /**
      * @brief Handles clicks on the "New" tool button.
      */
-    void on_newToolButton_clicked();
+    void newClicked();
 
     /**
      * @brief Handles clicks on the "Delete" tool button.
      */
-    void on_deleteToolButton_clicked();
+    void deleteClicked();
 
     /**
      * @brief Handles clicks on the "Copy" tool button.
      */
-    void on_copyToolButton_clicked();
-
-    /**
-     * @brief Handles clicks on the "Move Up" tool button.
-     */
-    void on_moveUpToolButton_clicked();
-
-    /**
-     * @brief Handles clicks on the "Move Down" tool button.
-     */
-    void on_moveDownToolButton_clicked();
+    void copyClicked();
 
     /**
      * @brief Handles clicks on the "Clear" tool button.
      */
-    void on_clearToolButton_clicked();
+    void clearClicked();
 };
 
 #endif // UAT_FRAME_H

@@ -458,6 +458,9 @@ private:
     Ui::IOGraphDialog *ui;
     CopyFromProfileButton *copy_profile_bt_; /**< Button that copies graph settings from another profile. */
 
+    /** @brief Enables the buttons editing the graphs for the selected rows. */
+    void updateEditButtons();
+
     // Model and delegate chosen over UatFrame to allow custom button layout.
     UatDelegate *uat_delegate_;     /**< Item delegate providing in-place editors for UAT fields. */
 
@@ -671,17 +674,13 @@ private slots:
     void on_automaticUpdateCheckBox_toggled(bool checked);
 
     /** @brief Add a new default graph row to the UAT. */
-    void on_newToolButton_clicked();
+    void newClicked();
     /** @brief Delete the currently selected graph row from the UAT. */
-    void on_deleteToolButton_clicked();
+    void deleteClicked();
     /** @brief Duplicate the currently selected graph row. */
-    void on_copyToolButton_clicked();
+    void copyClicked();
     /** @brief Remove all graph rows from the UAT. */
-    void on_clearToolButton_clicked();
-    /** @brief Move the selected graph row one position up in the UAT. */
-    void on_moveUpwardsToolButton_clicked();
-    /** @brief Move the selected graph row one position down in the UAT. */
-    void on_moveDownwardsToolButton_clicked();
+    void clearClicked();
 
     /**
      * @brief Switch the plot to drag/pan interaction mode.

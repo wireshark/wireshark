@@ -11,7 +11,6 @@
 #include <wsutil/filesystem.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/models/filter_list_model.h>
 #include <ui/qt/models/profile_model.h>
 #include <app/application_flavor.h>
@@ -20,7 +19,6 @@
 #include <QTextStream>
 #include <QRegularExpression>
 #include <QDir>
-#include <QMimeData>
 
 /*
  * Capture filter file name.
@@ -292,56 +290,26 @@ Qt::DropActions FilterListModel::supportedDropActions() const
     return Qt::MoveAction;
 }
 
-QStringList FilterListModel::mimeTypes() const
+bool FilterListModel::moveRows(const QModelIndex &, int sourceRow, int count,
+                              const QModelIndex &, int destinationChild)
 {
-    return QStringList() << WiresharkMimeData::FilterListMimeType;
-}
+    int row_count = rowCount();
+    if (count <= 0 || sourceRow < 0 || sourceRow + count > row_count ||
+        destinationChild < 0 || destinationChild >= row_count ||
+        (destinationChild >= sourceRow && destinationChild < sourceRow + count))
+        return false;
 
-QMimeData *FilterListModel::mimeData(const QModelIndexList &indexes) const
-{
-    QMimeData *mimeData = new QMimeData();
-    QStringList rows;
+    bool up = destinationChild < sourceRow;
+    if (!beginMoveRows(QModelIndex(), sourceRow, sourceRow + count - 1, QModelIndex(),
+                       up ? destinationChild : destinationChild + 1))
+        return false;
 
-    foreach (const QModelIndex &index, indexes)
-    {
-        if (! rows.contains(QString::number(index.row())))
-            rows << QString::number(index.row());
+    for (int i = 0; i < count; i++) {
+        if (up)
+            storage.move(sourceRow + i, destinationChild + i);
+        else
+            storage.move(sourceRow, destinationChild);
     }
-
-    mimeData->setData(WiresharkMimeData::FilterListMimeType, rows.join(",").toUtf8());
-    return mimeData;
-}
-
-bool FilterListModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int /* column */, const QModelIndex & parent)
-{
-    if (action != Qt::MoveAction)
-        return true;
-
-    if (! data->hasFormat(WiresharkMimeData::FilterListMimeType))
-        return true;
-
-    QStringList rows = QString(data->data(WiresharkMimeData::FilterListMimeType)).split(",");
-
-    int insertRow = parent.isValid() ? parent.row() : row;
-
-    /* for now, only single rows can be selected */
-    if (rows.count() > 0)
-    {
-        bool ok = false;
-        int strow = rows[0].toInt(&ok);
-        if (ok)
-        {
-            int storeTo = insertRow;
-            if (storeTo < 0 || storeTo >= storage.count())
-            {
-                storeTo = static_cast<int>(storage.count()) - 1;
-            }
-
-            beginResetModel();
-            storage.move(strow, storeTo);
-            endResetModel();
-        }
-    }
-
+    endMoveRows();
     return true;
 }

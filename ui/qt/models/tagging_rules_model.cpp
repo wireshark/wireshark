@@ -458,28 +458,27 @@ bool TaggingRulesModel::removeRows(int row, int count, const QModelIndex &parent
     return true;
 }
 
-bool TaggingRulesModel::moveRows(const QModelIndex &sourceParent, int sourceRow, int count,
-                                 const QModelIndex &destinationParent, int destinationChild)
+bool TaggingRulesModel::moveRows(const QModelIndex &, int sourceRow, int count,
+                                const QModelIndex &, int destinationChild)
 {
-    if (!beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1,
-                       destinationParent, destinationChild))
+    int row_count = rowCount();
+    if (count <= 0 || sourceRow < 0 || sourceRow + count > row_count ||
+        destinationChild < 0 || destinationChild >= row_count ||
+        (destinationChild >= sourceRow && destinationChild < sourceRow + count))
         return false;
 
-    // Because ModelHelperTreeItem::removeChild deletes the item, we copy then remove.
-    QList<TaggingRuleItem *> copies;
-    for (int i = 0; i < count; i++) {
-        TaggingRuleItem *src = root_->child(sourceRow + i);
-        copies.append(new TaggingRuleItem(*src));
-    }
+    bool up = destinationChild < sourceRow;
+    if (!beginMoveRows(QModelIndex(), sourceRow, sourceRow + count - 1, QModelIndex(),
+                       up ? destinationChild : destinationChild + 1))
+        return false;
 
-    int insertAt = (destinationChild > sourceRow) ? destinationChild - count : destinationChild;
-
+    // Move the items themselves, which the persistent indexes point to
+    QList<TaggingRuleItem *> rules;
     for (int i = 0; i < count; i++)
-        root_->removeChild(sourceRow);
-
+        rules << root_->takeChild(sourceRow);
+    int insert_at = up ? destinationChild : destinationChild - count + 1;
     for (int i = 0; i < count; i++)
-        root_->insertChild(insertAt + i, copies[i]);
-
+        root_->insertChild(insert_at + i, rules[i]);
     endMoveRows();
     return true;
 }

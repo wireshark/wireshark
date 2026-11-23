@@ -57,6 +57,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/pinned_row_view.h
 	widgets/path_selection_edit.h
 	widgets/pref_module_view.h
+	widgets/list_edit_buttons.h
 	widgets/profile_tree_view.h
 	widgets/qcp_axis_ticker_elided.h
 	widgets/qcp_axis_ticker_si.h
@@ -423,6 +424,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/pinned_row_view.cpp
 	widgets/path_selection_edit.cpp
 	widgets/pref_module_view.cpp
+	widgets/list_edit_buttons.cpp
 	widgets/profile_tree_view.cpp
 	widgets/qcp_axis_ticker_elided.cpp
 	widgets/qcp_axis_ticker_si.cpp

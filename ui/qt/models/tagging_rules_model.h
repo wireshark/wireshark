@@ -263,13 +263,14 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     /**
-     * @brief Moves rows from one location to another within the model.
-     * @param sourceParent The parent of the source rows.
-     * @param sourceRow The first source row.
-     * @param count The number of rows to move.
-     * @param destinationParent The parent of the destination.
-     * @param destinationChild The destination row index.
-     * @return True if the move was successful, false otherwise.
+     * @brief Moves rules, as RowMoveTreeView and the UAT model do.
+     * @param sourceParent Unused, the rules are a flat list.
+     * @param sourceRow The first rule to move.
+     * @param count The number of rules to move.
+     * @param destinationParent Unused, the rules are a flat list.
+     * @param destinationChild The row where the first rule moved up, or the
+     * last rule moved down, ends up.
+     * @return true if the rules were moved.
      */
     bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count,
                   const QModelIndex &destinationParent, int destinationChild) override;

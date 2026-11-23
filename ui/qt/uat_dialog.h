@@ -102,32 +102,22 @@ private slots:
     /**
      * @brief Handles the New button click, adding a blank record to the table.
      */
-    void on_newToolButton_clicked();
+    void newClicked();
 
     /**
      * @brief Handles the Delete button click, removing the selected record.
      */
-    void on_deleteToolButton_clicked();
+    void deleteClicked();
 
     /**
      * @brief Handles the Copy button click, duplicating the selected record.
      */
-    void on_copyToolButton_clicked();
-
-    /**
-     * @brief Handles the Move Up button click, shifting the selected record up one position.
-     */
-    void on_moveUpToolButton_clicked();
-
-    /**
-     * @brief Handles the Move Down button click, shifting the selected record down one position.
-     */
-    void on_moveDownToolButton_clicked();
+    void copyClicked();
 
     /**
      * @brief Handles the Clear button click, removing all records from the table.
      */
-    void on_clearToolButton_clicked();
+    void clearClicked();
 
     /**
      * @brief Opens the context-sensitive help page for the current UAT.
@@ -152,6 +142,9 @@ private:
 
     /** @brief The raw UAT structure being edited. */
     struct epan_uat *uat_;
+
+    /** @brief Enables the buttons editing the list for the selection. */
+    void updateWidgets();
 
     /**
      * @brief Updates the error hint area based on validation state of the current and previous items.
