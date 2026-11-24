@@ -80,9 +80,9 @@ profile_parent_name(const char *profile_name)
 }
 
 static char *
-profile_settings_path(const char *app_env_var_prefix, const char *profile_name)
+profile_settings_path(const char *app_env_var_prefix, const char *profile_name, bool is_global)
 {
-    char *profile_dir = get_profile_dir(app_env_var_prefix, profile_name, false);
+    char *profile_dir = get_profile_dir(app_env_var_prefix, profile_name, is_global);
     char *path = g_build_filename(profile_dir, PROFILE_SETTINGS_FILENAME, NULL);
     g_free(profile_dir);
     return path;
@@ -215,20 +215,26 @@ cached_profile_settings(const char *path)
     return settings;
 }
 
-profile_inherit_e
-profile_get_inherit(const char *app_env_var_prefix, const char *profile_name, const char *filename)
+/* The inherit mode of a file in a personal or global profile */
+static profile_inherit_e
+get_inherit(const char *app_env_var_prefix, const char *profile_name, bool is_global, const char *filename)
 {
-    profile_name = resolve_profile_name(profile_name);
     if (filename == NULL || is_default_profile_name(profile_name))
         return PROFILE_INHERIT_PROFILE_ONLY;
 
-    char *path = profile_settings_path(app_env_var_prefix, profile_name);
+    char *path = profile_settings_path(app_env_var_prefix, profile_name, is_global);
     GHashTable *settings = cached_profile_settings(path);
     profile_inherit_e mode = settings ? profile_inherit_mode_from_str((const char *)g_hash_table_lookup(settings, filename)) :
                                         PROFILE_INHERIT_PROFILE_ONLY;
     g_free(path);
 
     return mode;
+}
+
+profile_inherit_e
+profile_get_inherit(const char *app_env_var_prefix, const char *profile_name, const char *filename)
+{
+    return get_inherit(app_env_var_prefix, resolve_profile_name(profile_name), false, filename);
 }
 
 bool
@@ -249,7 +255,7 @@ profile_set_inherit(const char *app_env_var_prefix, const char *profile_name, co
         return false;
     }
 
-    char *path = profile_settings_path(app_env_var_prefix, profile_name);
+    char *path = profile_settings_path(app_env_var_prefix, profile_name, false);
     char *key = g_strconcat(PROFILE_INHERIT_KEY_PREFIX, filename, NULL);
     char *contents = NULL;
     GString *out = g_string_new(NULL);
@@ -348,32 +354,70 @@ free_layer(void *data)
     profile_inherit_layer_t *layer = (profile_inherit_layer_t *)data;
     g_free(layer->profile_name);
     g_free(layer->profile_dir);
+    g_free(layer->source);
     g_free(layer);
 }
 
-/* Add the effective entries of a profile: its own, then its parent's per its mode. */
-// NOLINTNEXTLINE(misc-no-recursion)
-static void
-add_effective_layers(const char *app_env_var_prefix, const char *profile_name, const char *filename, GPtrArray *layers, int depth)
+/* Whether there is a global profile behind the personal profile with the same name */
+static bool
+has_global_layer(const char *app_env_var_prefix, const char *profile_name)
 {
-    bool is_default = is_default_profile_name(profile_name);
+    return !is_default_profile_name(profile_name) &&
+           profile_exists(app_env_var_prefix, profile_name, true);
+}
+
+static char *
+layer_source(const char *profile_name, bool is_global)
+{
+    return is_global ? ws_strdup_printf("%s (global)", profile_name) : g_strdup(profile_name);
+}
+
+/* Add the layer of one profile per its mode; returns whether the layers continue behind it */
+static bool
+add_layer(const char *app_env_var_prefix, const char *profile_name, bool is_global, const char *filename, GPtrArray *layers)
+{
+    bool is_default = !is_global && is_default_profile_name(profile_name);
     profile_inherit_e mode = is_default ? PROFILE_INHERIT_PROFILE_ONLY :
-                             profile_get_inherit(app_env_var_prefix, profile_name, filename);
+                             get_inherit(app_env_var_prefix, profile_name, is_global, filename);
 
     if (mode != PROFILE_INHERIT_PARENT_ONLY) {
         profile_inherit_layer_t *layer = g_new0(profile_inherit_layer_t, 1);
         layer->profile_name = g_strdup(is_default ? DEFAULT_PROFILE : profile_name);
-        layer->profile_dir = get_profile_dir(app_env_var_prefix, is_default ? NULL : profile_name, false);
+        layer->profile_dir = get_profile_dir(app_env_var_prefix, is_default ? NULL : profile_name, is_global);
+        layer->source = layer_source(layer->profile_name, is_global);
+        layer->is_global = is_global;
         layer->mode = mode;
         g_ptr_array_add(layers, layer);
     }
 
-    if (mode == PROFILE_INHERIT_PROFILE_ONLY || depth >= PROFILE_INHERIT_MAX_DEPTH)
-        return;
+    return mode != PROFILE_INHERIT_PROFILE_ONLY;
+}
 
-    char *parent = profile_parent_name(profile_name);
-    add_effective_layers(app_env_var_prefix, parent, filename, layers, depth + 1);
-    g_free(parent);
+/*
+ * Add the layers behind a personal profile: the global profile with the
+ * same name, then the personal parent and the global profile with its name,
+ * and so on up to the Default profile, each per its own mode.
+ */
+static void
+add_effective_layers(const char *app_env_var_prefix, const char *profile_name, const char *filename, GPtrArray *layers)
+{
+    char *name = g_strdup(profile_name);
+    bool personal = false;  /* The entries of the profile itself are not a layer */
+
+    for (int depth = 0; name != NULL && depth < PROFILE_INHERIT_MAX_DEPTH; depth++) {
+        if (personal && !add_layer(app_env_var_prefix, name, false, filename, layers))
+            break;
+        personal = true;
+
+        if (has_global_layer(app_env_var_prefix, name) &&
+            !add_layer(app_env_var_prefix, name, true, filename, layers))
+            break;
+
+        char *parent = profile_parent_name(name);
+        g_free(name);
+        name = parent;
+    }
+    g_free(name);
 }
 
 GPtrArray *
@@ -385,11 +429,22 @@ profile_inherit_layers(const char *app_env_var_prefix, const char *profile_name,
     if (filename == NULL || mode == PROFILE_INHERIT_PROFILE_ONLY || !profile_can_inherit(profile_name))
         return layers;
 
-    char *parent = profile_parent_name(profile_name);
-    add_effective_layers(app_env_var_prefix, parent, filename, layers, 1);
-    g_free(parent);
+    add_effective_layers(app_env_var_prefix, profile_name, filename, layers);
 
     return layers;
+}
+
+char *
+profile_inherit_parent_source(const char *app_env_var_prefix, const char *profile_name)
+{
+    profile_name = resolve_profile_name(profile_name);
+    if (!profile_can_inherit(profile_name))
+        return NULL;
+
+    if (has_global_layer(app_env_var_prefix, profile_name))
+        return layer_source(profile_name, true);
+
+    return profile_parent_name(profile_name);
 }
 
 struct profile_inherit_seen {

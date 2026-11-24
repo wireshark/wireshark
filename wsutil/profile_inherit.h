@@ -28,9 +28,10 @@ extern "C" {
  * @brief Where the entries of a configuration file come from.
  *
  * Profiles are nested, and a top-level profile has the Default profile as
- * its parent. Entries from the profile itself always come first, and an
- * entry from a parent which duplicates an entry from a nearer profile is
- * ignored.
+ * its parent. A global profile with the same name as a personal profile
+ * comes right behind it, before the personal parent. Entries from the
+ * profile itself always come first, and an entry from a parent which
+ * duplicates an entry from a nearer profile is ignored.
  */
 typedef enum {
     PROFILE_INHERIT_PROFILE_ONLY = 0,   /**< Entries from the profile only. */
@@ -44,6 +45,8 @@ typedef enum {
 typedef struct {
     char *profile_name; /**< Name of the profile, "Default" for the Default profile. */
     char *profile_dir;  /**< Directory of the profile. */
+    char *source;       /**< Shown as where an entry comes from: the profile name, with " (global)" for a global profile. */
+    bool is_global;     /**< The profile is a global profile. */
     profile_inherit_e mode; /**< The inherit mode of this profile for the file; never PROFILE_INHERIT_PARENT_ONLY, and always PROFILE_INHERIT_PROFILE_ONLY for the Default profile. */
 } profile_inherit_layer_t;
 
@@ -80,6 +83,17 @@ WS_DLL_PUBLIC bool profile_can_inherit(const char *profile_name);
  * @return A g_malloc()'d name, "Default" for a top-level profile, or NULL for the Default profile.
  */
 WS_DLL_PUBLIC char *profile_parent_name(const char *profile_name);
+
+/**
+ * @brief Get the first profile behind a personal profile, as shown to the user.
+ *
+ * This is the global profile with the same name if there is one, else the parent profile.
+ *
+ * @param app_env_var_prefix The prefix for the application environment variable.
+ * @param profile_name The profile name, NULL for the current profile.
+ * @return A g_malloc()'d name as in profile_inherit_layer_t.source, or NULL for the Default profile.
+ */
+WS_DLL_PUBLIC char *profile_inherit_parent_source(const char *app_env_var_prefix, const char *profile_name);
 
 /**
  * @brief Get the inherit mode of a configuration file in a personal profile.
@@ -127,7 +141,9 @@ WS_DLL_PUBLIC GHashTable *profile_inherit_read_settings(const char *path, char *
 /**
  * @brief Get the parent profiles contributing entries to a configuration file.
  *
- * The layers are ordered nearest parent first. Each parent uses its own
+ * The layers are ordered nearest parent first, where the global profile
+ * with the same name as a personal profile, if any, comes right behind the
+ * personal profile. Each parent uses its own
  * inherit mode for the file: a parent using the parent's entries only is
  * skipped, and the layers end with the first parent using its own entries
  * only, at the latest with the Default profile. A layer is included even

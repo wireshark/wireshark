@@ -1754,13 +1754,39 @@ are kept, but not used.
 Changes to the entries of this profile that are not saved yet are discarded
 when switching to this setting. A question offers to save them first.
 
+Entries can also come from a global profile, which is placed right before
+the parent of the profile with its name. Selecting a global profile creates a
+profile with its name, so with “Parent only” it keeps following the global
+profile, also after a Wireshark update, and with “Profile and Parent” it adds
+the global entries it doesn't have.
+Entries from a global profile are shown with “(global)” after the profile
+name.
+
 The parent profile uses its own setting, so entries can come from several
-profiles up to the “Default” profile. Entries disabled in a parent profile
+profiles up to the “Default” profile. A global profile uses the setting in its
+own `profile_settings` file, if any. Entries disabled in a parent profile
 are not used, and still hide an entry with the same name in a profile further
 up. Entries from a parent profile are shown with a lock and can't be changed,
 but they can be copied into the profile's own entries. The
 setting is stored per configuration file in the profile's `profile_settings`
 file, and also applies to TShark.
+
+For example, with the personal profiles “Customers”, “Customers/ACME”,
+“Classic” and “Classic/Mine”, and the global “Classic” profile without a
+setting of its own, the entries come from these profiles, nearest first:
+
+[options="header",cols="3,3,3,5"]
+|===
+|Profile |Its setting |Setting of its parent |Entries come from
+|Customers/ACME |Profile only |Any |“Customers/ACME”
+|Customers/ACME |Profile and Parent |Profile only |“Customers/ACME”, “Customers”
+|Customers/ACME |Profile and Parent |Profile and Parent |“Customers/ACME”, “Customers”, “Default”
+|Customers/ACME |Parent only |Parent only |“Default”
+|Classic |Profile and Parent |– |“Classic”, global “Classic”
+|Classic |Parent only |– |global “Classic”
+|Classic/Mine |Profile and Parent |Profile and Parent |“Classic/Mine”, “Classic”, global “Classic”
+|Classic/Mine |Profile and Parent |Profile only |“Classic/Mine”, “Classic”
+|===
 
 The profile's own entries always come before the entries from the parent
 profiles. New entries are added among the profile's own entries, at the top

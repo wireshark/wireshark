@@ -427,7 +427,7 @@ read_layer_tagrules(const profile_inherit_layer_t *layer, const char *path, cons
             continue;
         }
         g_free(rule->source_profile);
-        rule->source_profile = g_strdup(layer->profile_name);
+        rule->source_profile = g_strdup(layer->source);
         *list = g_slist_append(*list, rule);
     }
     g_slist_free(layer_list);

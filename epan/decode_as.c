@@ -367,7 +367,7 @@ decode_as_entry_is_inherited(const char *table_name, const char *selector, const
 }
 
 typedef struct {
-    const char            *profile_name;      /* the profile being read, NULL for the own profile */
+    const char            *profile_name;      /* where the entries being read come from, NULL for the own profile */
     profile_inherit_seen_t *seen;             /* entries read from a nearer profile */
     GHashTable            *processed_entries; /* for read_set_decode_as_entries(), or NULL to not apply */
     decode_as_inherited_cb cb;                /* called for each new entry, or NULL */
@@ -426,7 +426,7 @@ read_layer_decode_as_entries(const profile_inherit_layer_t *layer, const char *p
         *err = ws_strdup_printf("Can't open decode_as_entries file\n\"%s\": %s.", path, g_strerror(errno));
         return false;
     }
-    layer_read->profile_name = layer->profile_name;
+    layer_read->profile_name = layer->source;
     read_prefs_file(path, daf, read_layer_decode_as_entry, layer_read);
     fclose(daf);
     return true;

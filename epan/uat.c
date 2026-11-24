@@ -871,7 +871,7 @@ static bool uat_read_layer(const profile_inherit_layer_t *layer, const char *pat
             continue;
         }
         g_free(g_ptr_array_index(uat->sources, idx));
-        g_ptr_array_index(uat->sources, idx) = g_strdup(layer->profile_name);
+        g_ptr_array_index(uat->sources, idx) = g_strdup(layer->source);
         idx++;
     }
     return ok;
