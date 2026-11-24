@@ -46,7 +46,9 @@ QSize UatDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInde
 {
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
-    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index));
+    uat_field_t *field = indexToField(index);
+    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
+                                                     field && field->mode == PT_TXTMOD_BOOL);
 }
 
 QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,

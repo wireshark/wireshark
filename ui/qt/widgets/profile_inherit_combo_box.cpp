@@ -266,7 +266,7 @@ QIcon ProfileInheritComboBox::inheritedPlaceholderIcon()
     return icons.value(size);
 }
 
-QSize ProfileInheritComboBox::inheritedSizeHint(QStyleOptionViewItem opt, QSize size)
+QSize ProfileInheritComboBox::inheritedSizeHint(QStyleOptionViewItem opt, QSize size, bool check_box)
 {
     if (!(opt.features & QStyleOptionViewItem::HasDecoration) ||
         opt.decorationSize.height() > inherited_icon_size()) {
@@ -274,8 +274,7 @@ QSize ProfileInheritComboBox::inheritedSizeHint(QStyleOptionViewItem opt, QSize 
     }
 
     opt.features &= ~QStyleOptionViewItem::HasDecoration;
-    // Own entries come first, so the first row tells if the column has check boxes
-    if (opt.index.siblingAtRow(0).data(Qt::CheckStateRole).isValid()) {
+    if (check_box) {
         opt.features |= QStyleOptionViewItem::HasCheckIndicator;
     }
     const QWidget *widget = opt.widget;
