@@ -24,7 +24,6 @@ namespace ThemeFormat {
 // Root keys that are not color sections.
 inline const QLatin1String Meta("meta");
 inline const QLatin1String Contrast("contrast");
-inline const QLatin1String Separator("separator");
 inline const QLatin1String Graphs("graphs");
 inline const QLatin1String Fonts("fonts");
 inline const QLatin1String Syntax("syntax"); ///< accepted, not read yet
@@ -32,7 +31,7 @@ inline const QLatin1String Images("images"); ///< accepted, not read yet
 
 /** Every root key besides the color sections. */
 inline const QLatin1String NonSectionRootKeys[] = {
-    Meta, Contrast, Separator, Graphs, Fonts, Syntax, Images
+    Meta, Contrast, Graphs, Fonts, Syntax, Images
 };
 
 /**

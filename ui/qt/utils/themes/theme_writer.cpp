@@ -159,6 +159,8 @@ const struct { ThemeManager::ThemeToken token; const char *text; } kDescriptions
 #if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
     { ThemeManager::PaletteAccent, QT_TRANSLATE_NOOP("ThemeWriter", "QPalette::Accent (Qt 6.6 and later). Auto: brand.primary.") },
 #endif
+    { ThemeManager::BorderField, QT_TRANSLATE_NOOP("ThemeWriter", "Frame of text fields. Auto: palette.mid, kept visible on palette.base.") },
+    { ThemeManager::BorderSeparator, QT_TRANSLATE_NOOP("ThemeWriter", "Hairline dividers between cards and panes. Auto: palette.base mixed toward palette.mid.") },
 };
 
 } // namespace
@@ -286,15 +288,6 @@ QByteArray ThemeWriter::toJsonc(const ThemeDraft &draft)
     }
     if (!fonts.isEmpty())
         blocks << fonts;
-
-    // separator: a single pair, not a section
-    auto sep = draft.colors.constFind(ThemeManager::Separator);
-    if (sep != draft.colors.constEnd()) {
-        if (sep.value().isValid())
-            blocks << QStringLiteral("\t%1: %2").arg(quoted(ThemeFormat::Separator), pairText(sep.value()));
-        else
-            Q_ASSERT_X(false, "ThemeWriter::toJsonc", "invalid separator in draft");
-    }
 
     // graphs
     QStringList graphLines;

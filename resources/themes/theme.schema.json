@@ -175,9 +175,14 @@
             }
         },
 
-        "separator": {
-            "description": "Optional hairline/divider color used between sections. When omitted, derived as a 53% mix of palette.base toward palette.mid, raised to at least 1.6:1 contrast against palette.base. Themes whose palette.mid doubles as muted text (e.g. Stratoshark) should set this explicitly to a softer value.",
-            "$ref": "#/$defs/colorPair"
+        "border": {
+            "description": "Optional border and divider colours. Every key is independently optional. `field` frames text fields, such as the display filter bar; when omitted, the same colour as other control borders: palette.mid, raised to the non-text contrast ratio against palette.base. `separator` is the hairline/divider colour used between sections; when omitted, derived as a 53% mix of palette.base toward palette.mid, raised to at least 1.6:1 contrast against palette.base. Themes whose palette.mid doubles as muted text (e.g. Stratoshark) should set `separator` explicitly to a softer value.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "field":     { "$ref": "#/$defs/colorPair" },
+                "separator": { "$ref": "#/$defs/colorPair" }
+            }
         },
 
         "graphs": {

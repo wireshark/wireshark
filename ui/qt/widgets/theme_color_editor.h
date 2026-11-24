@@ -37,7 +37,7 @@ class ThemeColorEditor;
 /**
  * Color list and detail panel of the Theme Designer.
  *
- * Lists every color a theme file can set, the separator, the graph color
+ * Lists every color a theme file can set, the graph color
  * cycle and, read-only, every derived color.  Each row is marked "edited"
  * when the draft input differs from the base theme, "changed" when only its
  * resolved value differs (a consequence of another edit), "required" for the

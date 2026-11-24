@@ -273,19 +273,6 @@ void ThemeColorEditor::rebuildTree()
         settable.insert(info.token);
     }
 
-    const QString separator_key = QString(ThemeFormat::Separator);
-    addGroup(groupTitle(separator_key));
-    {
-        Row row;
-        row.kind = RowKind::Color;
-        row.token = ThemeManager::Separator;
-        row.label = separator_key;
-        row.section = separator_key;
-        row.path = row.label;
-        row.description = tr("Hairline dividers between cards and panes.");
-        addRow(row);
-    }
-
     const QString graphs_key = QString(ThemeFormat::Graphs);
     addGroup(groupTitle(graphs_key));
     for (int i = 0; i < draft_.graphColors.size(); ++i) {
@@ -310,7 +297,7 @@ void ThemeColorEditor::rebuildTree()
     const QMetaEnum meta = QMetaEnum::fromType<ThemeManager::ThemeToken>();
     for (int i = 0; i < meta.keyCount(); ++i) {
         const ThemeManager::ThemeToken token = static_cast<ThemeManager::ThemeToken>(meta.value(i));
-        if (token == ThemeManager::NoRole || token == ThemeManager::Separator || settable.contains(token))
+        if (token == ThemeManager::NoRole || settable.contains(token))
             continue;
         Row row;
         row.kind = RowKind::Derived;
@@ -408,7 +395,7 @@ void ThemeColorEditor::refreshRows()
         }
 
         const QColor shown = shownColor(row, side);
-        item->setIcon(0, QIcon(swatchPixmap(shown, themeColor(ThemeManager::FieldBorder), dpr)));
+        item->setIcon(0, QIcon(swatchPixmap(shown, themeColor(ThemeManager::ControlBorder), dpr)));
 
         bool is_set = true;
         if (row.kind == RowKind::Color)
@@ -529,11 +516,11 @@ void ThemeColorEditor::updateDetail(bool force_fields)
         const auto pending = pending_.constFind(qMakePair(id, side));
         if (pending != pending_.constEnd()) {
             hex_edit_[side]->setSyntaxState(SyntaxLineEdit::Invalid);
-            swatch_label_[side]->setPixmap(swatchPixmap(QColor(), themeColor(ThemeManager::FieldBorder), devicePixelRatioF()));
+            swatch_label_[side]->setPixmap(swatchPixmap(QColor(), themeColor(ThemeManager::ControlBorder), devicePixelRatioF()));
             errors << tr("\"%1\" is not a color. Use #rrggbb.").arg(pending.value());
         } else {
             hex_edit_[side]->setSyntaxState(SyntaxLineEdit::Empty);
-            swatch_label_[side]->setPixmap(swatchPixmap(shownColor(*row, side), themeColor(ThemeManager::FieldBorder),
+            swatch_label_[side]->setPixmap(swatchPixmap(shownColor(*row, side), themeColor(ThemeManager::ControlBorder),
                                                         devicePixelRatioF()));
         }
 
@@ -978,7 +965,7 @@ QString ThemeColorEditor::tokenLabel(ThemeManager::ThemeToken token) const
 QIcon ThemeColorEditor::tokenSwatch(ThemeManager::ThemeToken token) const
 {
     return QIcon(swatchPixmap(draft_resolved_[dark_ ? 1 : 0].value(token),
-                              themeColor(ThemeManager::FieldBorder), devicePixelRatioF()));
+                              themeColor(ThemeManager::ControlBorder), devicePixelRatioF()));
 }
 
 bool ThemeColorEditor::offersSources(const Row &row) const

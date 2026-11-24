@@ -84,7 +84,9 @@
 		"mid":             { "light": "#000000", "dark": "#ffffff" },
 		"midlight":        { "light": "#ffffff", "dark": "#000000" }
 	},
-	"separator": { "light": "#000000", "dark": "#ffffff" },
+	"border": {
+		"separator": { "light": "#000000", "dark": "#ffffff" }
+	},
 	"graphs": [
 		{ "light": "#000000", "dark": "#ffffff" },
 		{ "light": "#0b3d91", "dark": "#7cc4ff" },

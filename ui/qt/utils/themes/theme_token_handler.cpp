@@ -465,22 +465,24 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     assign(ThemeManager::SectionHeaderHover,
            ThemeColorPair { sectionHeaderHoverLight, sectionHeaderHover }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "brand.primary, kept readable on palette.base"));
 
-    // Structural form chrome — FieldBorder frames interactive controls
+    // Structural form chrome — ControlBorder frames interactive controls
     // (the nonText ratio against base, the WCAG non-text minimum).
-    // Separator is a softer divider: a 53% mix of base toward mid,
+    // BorderSeparator is a softer divider: a 53% mix of base toward mid,
     // lifted to the divider ratio against base.  The lift matters where the
     // platform's Mid sits at or below Base (macOS dark mode), which left
     // the plain mix indistinguishable from the page.  Themes can pin
-    // Separator via the JSONC "separator" top-level key (Stratoshark
-    // does, since its palette.mid intentionally doubles as muted text);
-    // a pin is kept as authored.
+    // it via the JSONC "border.separator" key (Stratoshark does, since
+    // its palette.mid intentionally doubles as muted text), and the text
+    // field frame via "border.field"; a pin is kept as authored.
     const QColor fieldBorder = ColorMath::ensureContrast(mid, baseColor, ratios.nonText);
     const QColor separator   = ColorMath::ensureContrast(
             ColorMath::mix(baseColor, mid, 135.0 / 255.0),
             baseColor, ratios.divider);
-    assign(ThemeManager::FieldBorder,
+    assign(ThemeManager::ControlBorder,
            ThemeColorPair { fieldBorder, fieldBorder }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.mid, kept at the non-text ratio to palette.base"));
-    assign(ThemeManager::Separator,
+    assign(ThemeManager::BorderField,
+           ThemeColorPair { fieldBorder, fieldBorder }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "ControlBorder"));
+    assign(ThemeManager::BorderSeparator,
            ThemeColorPair { separator, separator }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 53% toward palette.mid, kept at the divider ratio to palette.base"));
 
     // Secondary text: Text faded 40 % toward Base, then lifted to
@@ -521,9 +523,9 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
             : cardSource;
 
     // The card border and the lines drawn on the card start from
-    // Separator (pinned or derived) and are kept the divider ratio apart from
+    // BorderSeparator (pinned or derived) and are kept the divider ratio apart from
     // the card: a pinned Separator can sit almost on the lifted card.
-    const ThemeColorPair separatorPair = tokens.value(ThemeManager::Separator);
+    const ThemeColorPair separatorPair = tokens.value(ThemeManager::BorderSeparator);
     const QColor separatorSide = separatorPair.forMode(isDarkMode);
     const QColor cardBorder = ColorMath::ensureContrast(separatorSide, cardBg, ratios.divider);
 
@@ -588,7 +590,7 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     assign(ThemeManager::CardBackground,         ThemeColorPair { cardBg,                 cardBg },
            QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.alternateBase when set, else palette.base; in dark mode kept at the dark card surface ratio to palette.base"));
     assign(ThemeManager::CardBorder,             ThemeColorPair { cardBorder,             cardBorder },
-           QT_TRANSLATE_NOOP("ThemeTokenHandler", "Separator, kept at the divider ratio to CardBackground"));
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "border.separator, kept at the divider ratio to CardBackground"));
     assign(ThemeManager::CardSectionHeader,      ThemeColorPair { cardSectionHeader,      cardSectionHeader },
            QT_TRANSLATE_NOOP("ThemeTokenHandler", "SectionHeader, kept readable on CardBackground"));
     assign(ThemeManager::CardSectionHeaderHover, ThemeColorPair { cardSectionHeaderHover, cardSectionHeaderHover },
@@ -602,7 +604,7 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     assign(ThemeManager::OverlayCardBackground,  ThemeColorPair { overlayCardBg,          overlayCardBg },
            QT_TRANSLATE_NOOP("ThemeTokenHandler", "the lighter of palette.base and CardBackground"));
     assign(ThemeManager::OverlayCardBorder,      ThemeColorPair { overlayCardBorder,      overlayCardBorder },
-           QT_TRANSLATE_NOOP("ThemeTokenHandler", "Separator, kept at the divider ratio to OverlayCardBackground"));
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "border.separator, kept at the divider ratio to OverlayCardBackground"));
 
     // Foregrounds for solid accent surfaces — auto-pick black or white
     // per contrastingText().  These give QSS rules a single token to

@@ -372,7 +372,7 @@ void ThemePreviewWidget::drawToolbar(QPainter &p, const Layout &layout)
 {
     const QPalette pal = QApplication::palette();
     const QColor window = c(ThemeManager::PaletteWindow, pal.color(QPalette::Window));
-    const QColor sep    = c(ThemeManager::Separator,     pal.color(QPalette::Mid));
+    const QColor sep    = c(ThemeManager::BorderSeparator,     pal.color(QPalette::Mid));
 
     p.fillRect(layout.toolbarRect, window);
     p.setPen(sep);
@@ -424,8 +424,8 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
     const QPalette pal = QApplication::palette();
     const QColor window     = c(ThemeManager::PaletteWindow,     pal.color(QPalette::Window));
     const QColor base       = c(ThemeManager::PaletteBase,       pal.color(QPalette::Base));
-    const QColor fieldBdr   = c(ThemeManager::FieldBorder,       pal.color(QPalette::Mid));
-    const QColor sep        = c(ThemeManager::Separator,         pal.color(QPalette::Mid));
+    const QColor fieldBdr   = c(ThemeManager::BorderField,       pal.color(QPalette::Mid));
+    const QColor sep        = c(ThemeManager::BorderSeparator,         pal.color(QPalette::Mid));
     // const QColor windowText = c(ThemeManager::PaletteWindowText, pal.color(QPalette::WindowText));
     const QColor validBg    = c(ThemeManager::FilterValid,       QColor("#296700"));
 
@@ -435,8 +435,8 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
     p.drawLine(layout.filterRect.bottomLeft(), layout.filterRect.bottomRight());
 
     // The filter combo, painted like FilterExpressionEdit: a 1px rounded
-    // FieldBorder frame around palette.base.  The FilterValid tint fills ONLY
-    // the text area between the two FieldBorder dividers; the bookmark (left)
+    // BorderField frame around palette.base.  The FilterValid tint fills ONLY
+    // the text area between the two BorderField dividers; the bookmark (left)
     // and clear/apply/history (right) sit on palette.base outside them.
     // Everything is filled inside the frame's inner rect, so the tint can't
     // reach past the frame at any device pixel ratio.
@@ -510,13 +510,13 @@ void ThemePreviewWidget::drawColumnHeader(QPainter &p, const Layout &layout)
 {
     const QPalette pal = QApplication::palette();
     const QColor window     = c(ThemeManager::PaletteWindow,     pal.color(QPalette::Window));
-    const QColor fieldBdr   = c(ThemeManager::FieldBorder,       pal.color(QPalette::Mid));
-    const QColor sep        = c(ThemeManager::Separator,         pal.color(QPalette::Mid));
+    const QColor fieldBdr   = c(ThemeManager::ControlBorder,       pal.color(QPalette::Mid));
+    const QColor sep        = c(ThemeManager::BorderSeparator,         pal.color(QPalette::Mid));
     const QColor windowText = c(ThemeManager::PaletteWindowText, pal.color(QPalette::WindowText));
 
     // Header background is the previewed window colour used verbatim — no
     // light/dark detection or shade derivation, so it always matches the mode
-    // ThemeManager handed us.  FieldBorder frames the header view; Separator
+    // ThemeManager handed us.  ControlBorder frames the header view; Separator
     // draws the lighter inter-column dividers.
     p.fillRect(layout.headerRect, window);
     p.setPen(fieldBdr);
@@ -642,8 +642,8 @@ void ThemePreviewWidget::drawDetailsPane(QPainter &p, const Layout &layout)
     const QPalette pal = QApplication::palette();
     const QColor base     = c(ThemeManager::PaletteBase, pal.color(QPalette::Base));
     const QColor text     = c(ThemeManager::PaletteText, pal.color(QPalette::Text));
-    const QColor fieldBdr = c(ThemeManager::FieldBorder, pal.color(QPalette::Mid));
-    const QColor sep      = c(ThemeManager::Separator,   pal.color(QPalette::Mid));
+    const QColor fieldBdr = c(ThemeManager::ControlBorder, pal.color(QPalette::Mid));
+    const QColor sep      = c(ThemeManager::BorderSeparator,   pal.color(QPalette::Mid));
 
     // Dense protocol tree.  Collapsed nodes get a right-pointing triangle, the
     // expanded node a down-pointing one; leaf fields indent a level with none.
@@ -733,8 +733,8 @@ void ThemePreviewWidget::drawBytesPane(QPainter &p, const Layout &layout)
     const QPalette pal = QApplication::palette();
     const QColor base     = c(ThemeManager::PaletteBase, pal.color(QPalette::Base));
     const QColor text     = c(ThemeManager::PaletteText, pal.color(QPalette::Text));
-    const QColor fieldBdr = c(ThemeManager::FieldBorder, pal.color(QPalette::Mid));
-    const QColor sep      = c(ThemeManager::Separator,   pal.color(QPalette::Mid));
+    const QColor fieldBdr = c(ThemeManager::ControlBorder, pal.color(QPalette::Mid));
+    const QColor sep      = c(ThemeManager::BorderSeparator,   pal.color(QPalette::Mid));
     // The real byte view is monochrome; its only colour is the highlight on the
     // bytes of the field selected in the tree.  We mirror that with the same
     // PacketsSelection tokens the packet list uses.
@@ -811,7 +811,7 @@ void ThemePreviewWidget::drawStatusBar(QPainter &p, const Layout &layout)
     const QPalette pal = QApplication::palette();
     const QColor window     = c(ThemeManager::PaletteWindow,     pal.color(QPalette::Window));
     const QColor mid        = c(ThemeManager::PaletteMid,        pal.color(QPalette::Mid));
-    const QColor sep        = c(ThemeManager::Separator,         pal.color(QPalette::Mid));
+    const QColor sep        = c(ThemeManager::BorderSeparator,         pal.color(QPalette::Mid));
     const QColor windowText = c(ThemeManager::PaletteWindowText, pal.color(QPalette::WindowText));
     const QRect &statusRect = layout.statusRect;
     p.fillRect(statusRect, window);

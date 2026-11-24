@@ -290,21 +290,26 @@ public:
         SectionHeaderHover,
 
         // Structural form chrome — borders, dividers, muted text.
-        // FieldBorder is the WCAG-enforced derivation of palette.mid
+        // ControlBorder is the WCAG-enforced derivation of palette.mid
         // against palette.base (the non-text ratio of the active
         // contrast set), used to frame interactive controls without
         // overshooting like palette.shadow does in light mode.
-        // Separator is a softer mix of base + mid, kept the divider
-        // ratio of the active contrast set apart from base, for
-        // hairlines between sections; themes can override it via the
-        // JSONC "separator" top-level key when the derived value is too
-        // pronounced (Stratoshark uses an explicit value matching its
-        // midlight).  MutedText is a derived de-emphasized text color
+        // MutedText is a derived de-emphasized text color
         // (palette text mixed toward base, contrast-adapted to base)
         // for secondary labels and plot reference lines.
-        FieldBorder,
-        Separator,
+        ControlBorder,
         MutedText,
+
+        // Theme border section, every key optional.
+        // BorderField frames text fields; when the theme does not set
+        // it, it is ControlBorder.
+        // BorderSeparator is a softer mix of base + mid, kept the divider
+        // ratio of the active contrast set apart from base, for
+        // hairlines between sections; themes set it when the derived
+        // value is too pronounced (Stratoshark uses an explicit value
+        // matching its midlight).
+        BorderField,
+        BorderSeparator,
 
         // Raised surfaces ("cards") on Base and the colors drawn on
         // them.  In dark mode CardBackground is kept the dark card
@@ -963,7 +968,7 @@ private:
 
 /**
  * An editable copy of a theme file.  Holds the inputs a theme file can
- * carry (including Separator), not derived tokens.
+ * carry, not derived tokens.
  */
 struct ThemeDraft {
     ThemeInfo info;                                            ///< Meta data and origin
@@ -992,7 +997,7 @@ struct ThemeDraft {
     bool sameColors(const ThemeDraft &other) const;
 
     /**
-     * Removes color entries (and Separator) and graph slots whose light or
+     * Removes color entries and graph slots whose light or
      * dark side is not a valid color.
      *
      * @return number of entries and slots removed.

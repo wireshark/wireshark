@@ -10,7 +10,8 @@
  * ThemeManager::styleSheet("widgets/accordion-frame"), so all
  * selectors target the frame and its descendants.
  *
- * Colour sourcing: the FieldBorder theme token — derived as
+ * Colour sourcing: the BorderField theme token, which defaults to
+ * ControlBorder — derived as
  * ensureContrast(palette.mid, palette.base, 3.0) so the border stays
  * readable across light/dark modes without overshooting the rest of
  * the UI like palette(shadow) does in light mode.
@@ -27,7 +28,7 @@ QLineEdit#goToLineEdit {
  * border inside our custom QFrame; kept universally for a consistent
  * look across platforms. */
 QLineEdit {
-    border: 1px solid wstheme(FieldBorder);
+    border: 1px solid wstheme(BorderField);
     border-radius: 3px;
     padding: 1px;
 }

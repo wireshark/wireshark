@@ -38,7 +38,7 @@ void PlotTheme::applyToAxis(QCPAxis *axis)
     ThemeManager *tm = ThemeManager::instance();
     const QColor base = tm->color(ThemeManager::PaletteBase);
     const QColor text = tm->color(ThemeManager::PaletteText);
-    const QColor border = tm->color(ThemeManager::FieldBorder);
+    const QColor border = tm->color(ThemeManager::ControlBorder);
     const QColor grid = ColorMath::mix(base, text, 0.22);
 
     axis->setBasePen(recolored(axis->basePen(), text));
@@ -64,7 +64,7 @@ void PlotTheme::apply(QCustomPlot *plot)
     ThemeManager *tm = ThemeManager::instance();
     const QColor base = tm->color(ThemeManager::PaletteBase);
     const QColor text = tm->color(ThemeManager::PaletteText);
-    const QColor border = tm->color(ThemeManager::FieldBorder);
+    const QColor border = tm->color(ThemeManager::ControlBorder);
 
     plot->setBackground(QBrush(base));
 

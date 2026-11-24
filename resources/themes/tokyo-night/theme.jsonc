@@ -127,12 +127,12 @@
 	},
 
 	// -----------------------------------------------------------------
-	// Separator: pinned to the panel border (palette.midlight), as
-	// the derived one would mix in the secondary tone.
+	// Border: the separator is pinned to the panel border
+	// (palette.midlight), as the derived one would mix in the
+	// secondary tone.
 	// -----------------------------------------------------------------
-	"separator": {
-		"light": "#c1c2c7",
-		"dark":  "#101014"
+	"border": {
+		"separator": { "light": "#c1c2c7", "dark": "#101014" }
 	},
 
 	// -----------------------------------------------------------------

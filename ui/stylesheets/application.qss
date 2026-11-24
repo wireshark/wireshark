@@ -64,7 +64,7 @@ QLabel[wsText="muted"] {
 
 /* Theme Designer code view. */
 QPlainTextEdit#themeCodeEdit {
-    border: 1px solid wstheme(FieldBorder);
+    border: 1px solid wstheme(ControlBorder);
     background-color: palette(base);
     color: palette(text);
 }
@@ -95,7 +95,7 @@ QFrame[wsNotice="error"] {
  * own `syntaxState` Q_PROPERTY.  Kept as a separate pass from
  * wsValidation because SyntaxLineEdit predates it.
  *
- * The base rule gives the field the same 1px rounded FieldBorder frame
+ * The base rule gives the field the same 1px rounded BorderField frame
  * as FilterEdit.  Without an explicit border, the style sheet style
  * fills the tint and then draws the native frame inset over it, which
  * shows up as a double frame.  Plain framed QLineEdits share the rule so
@@ -111,7 +111,7 @@ QFrame[wsNotice="error"] {
 
 QLineEdit[frame="true"],
 SyntaxLineEdit {
-    border: 1px solid wstheme(FieldBorder);
+    border: 1px solid wstheme(BorderField);
     border-radius: 3px;
     padding: 0px 1px;
 }
@@ -135,7 +135,7 @@ SyntaxLineEdit[syntaxState="3"] {   /* Deprecated */
  * (FilterExpressionEdit and its leaves), so the tints live in this one
  * global block.
  *
- * The base rule gives the field the 1px rounded FieldBorder frame.  The
+ * The base rule gives the field the 1px rounded BorderField frame.  The
  * state background-color fills the whole rounded rect; FilterExpressionEdit
  * then repaints its leading (bookmark) and trailing (clear/history/apply)
  * icon strips with the neutral field background in paintEvent(), so the
@@ -148,7 +148,7 @@ SyntaxLineEdit[syntaxState="3"] {   /* Deprecated */
  * ------------------------------------------------------------------- */
 
 FilterEdit {
-    border: 1px solid wstheme(FieldBorder);
+    border: 1px solid wstheme(BorderField);
     border-radius: 3px;
     padding: 0px 1px;
 }

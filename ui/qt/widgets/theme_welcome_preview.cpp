@@ -176,7 +176,7 @@ QString ThemeWelcomePreview::buildStyleSheet(
                             " border-top-left-radius: 2px; border-bottom-left-radius: 2px; }\n"
                             "QLabel#themePreviewFilterButtons { border-left: 1px solid %1;"
                             " border-top-right-radius: 2px; border-bottom-right-radius: 2px; }\n")
-                 .arg(tokens.value(ThemeManager::FieldBorder).forMode(dark).name());
+                 .arg(tokens.value(ThemeManager::BorderField).forMode(dark).name());
 
     return ThemeStyleSheetLoader::resolvePaletteRoles(sheet, palette);
 }
