@@ -1,0 +1,127 @@
+/* list_edit_buttons.cpp
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#include <ui/qt/widgets/list_edit_buttons.h>
+
+#include <ui/qt/utils/themes/themed_icon.h>
+
+#include <QHBoxLayout>
+
+ListEditButtons::ListEditButtons(QWidget *parent) :
+    QWidget(parent),
+    move_visible_(true),
+    copy_single_(false)
+{
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+
+    new_button_ = makeButton("list-add");
+    delete_button_ = makeButton("list-remove");
+    copy_button_ = makeButton("list-copy");
+    move_up_button_ = makeButton("list-move-up");
+    move_down_button_ = makeButton("list-move-down");
+    clear_button_ = makeButton("list-clear");
+
+    for (QToolButton *button : { new_button_, delete_button_, copy_button_,
+                                 move_up_button_, move_down_button_, clear_button_ }) {
+        layout->addWidget(button);
+    }
+
+    connect(new_button_, &QToolButton::clicked, this, &ListEditButtons::newClicked);
+    connect(delete_button_, &QToolButton::clicked, this, &ListEditButtons::deleteClicked);
+    connect(copy_button_, &QToolButton::clicked, this, &ListEditButtons::copyClicked);
+    connect(move_up_button_, &QToolButton::clicked, this, &ListEditButtons::moveUpClicked);
+    connect(move_down_button_, &QToolButton::clicked, this, &ListEditButtons::moveDownClicked);
+    connect(clear_button_, &QToolButton::clicked, this, &ListEditButtons::clearClicked);
+
+    // Nothing is selected, and nothing is there to clear, to begin with
+    delete_button_->setEnabled(false);
+    copy_button_->setEnabled(false);
+    move_up_button_->setEnabled(false);
+    move_down_button_->setEnabled(false);
+    clear_button_->setEnabled(false);
+
+    tool_tips_.add = tr("Add a new entry.");
+    tool_tips_.remove = tr("Remove the selected entries.");
+    tool_tips_.copy = tr("Duplicate the selected entries.");
+    tool_tips_.moveUp = tr("Move the selected entries up.");
+    tool_tips_.moveDown = tr("Move the selected entries down.");
+    tool_tips_.clear = tr("Clear all entries.");
+    setToolTips(tool_tips_);
+}
+
+QToolButton *ListEditButtons::makeButton(const char *icon)
+{
+    QToolButton *button = new QToolButton(this);
+    button->setIcon(ThemedIcon(icon));
+#ifdef Q_OS_MACOS
+    button->setAttribute(Qt::WA_MacSmallSize, true);
+#endif
+    return button;
+}
+
+void ListEditButtons::setMoveButtonsVisible(bool visible)
+{
+    move_visible_ = visible;
+    move_up_button_->setVisible(visible);
+    move_down_button_->setVisible(visible);
+}
+
+void ListEditButtons::setToolTips(const ToolTips &tool_tips)
+{
+    tool_tips_ = tool_tips;
+    new_button_->setToolTip(tool_tips_.add);
+    delete_button_->setToolTip(tool_tips_.remove);
+    copy_button_->setToolTip(tool_tips_.copy);
+    move_up_button_->setToolTip(tool_tips_.moveUp);
+    move_down_button_->setToolTip(tool_tips_.moveDown);
+    clear_button_->setToolTip(tool_tips_.clear);
+}
+
+void ListEditButtons::updateToolTip(QToolButton *button, const QString &base, const QString &reason)
+{
+    button->setToolTip(reason.isEmpty() ? base : QStringLiteral("%1\n%2").arg(base, reason));
+}
+
+void ListEditButtons::setSelection(const QModelIndexList &indexes, int row_count)
+{
+    const QString nothing_selected = tr("Select an entry first.");
+    const QList<int> rows = rowsLastFirst(indexes);
+    int selected_count = static_cast<int>(rows.count());
+    int first_row = rows.isEmpty() ? -1 : rows.last();
+    int last_row = rows.isEmpty() ? -1 : rows.first();
+    bool selected = selected_count > 0;
+
+    // Delete
+    delete_button_->setEnabled(selected);
+    updateToolTip(delete_button_, tool_tips_.remove, selected ? QString() : nothing_selected);
+
+    // Copy
+    QString reason;
+    bool copy_selection = selected && (!copy_single_ || selected_count == 1);
+    if (!selected)
+        reason = nothing_selected;
+    else if (!copy_selection)
+        reason = tr("Select a single entry to duplicate.");
+    copy_button_->setEnabled(copy_selection);
+    updateToolTip(copy_button_, tool_tips_.copy, reason);
+
+    // Move
+    bool contiguous = selected_count == last_row - first_row + 1;
+    bool can_move = selected && contiguous;
+    reason = !selected ? nothing_selected : !contiguous ? tr("Select adjacent entries to move them.") : QString();
+    move_up_button_->setEnabled(can_move && first_row > 0);
+    updateToolTip(move_up_button_, tool_tips_.moveUp, reason);
+    move_down_button_->setEnabled(can_move && last_row < row_count - 1);
+    updateToolTip(move_down_button_, tool_tips_.moveDown, reason);
+
+    // Clear
+    clear_button_->setEnabled(row_count != 0);
+    updateToolTip(clear_button_, tool_tips_.clear, row_count != 0 ? QString() : tr("There are no entries to clear."));
+}

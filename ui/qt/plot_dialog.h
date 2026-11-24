@@ -428,6 +428,9 @@ private:
     QPushButton *copy_bt_;                  /**< "Copy" button in the button box. */
     CopyFromProfileButton *copy_profile_bt_; /**< Button for copying settings from another profile. */
 
+    /** @brief Enables the buttons editing the plots for the selected rows. */
+    void updateEditButtons();
+
     // Model and delegate chosen over UatFrame to allow custom button layout.
     UatDelegate *uat_delegate_;     /**< Item delegate providing in-place editors for UAT fields. */
 
@@ -566,17 +569,13 @@ private slots:
     void on_actionGoToPacket_triggered();
 
     /** @brief Add a new default plot row to the UAT. */
-    void on_newToolButton_clicked();
+    void newClicked();
     /** @brief Delete the currently selected plot row from the UAT. */
-    void on_deleteToolButton_clicked();
+    void deleteClicked();
     /** @brief Duplicate the currently selected plot row. */
-    void on_copyToolButton_clicked();
+    void copyClicked();
     /** @brief Remove all plot rows from the UAT. */
-    void on_clearToolButton_clicked();
-    /** @brief Move the selected plot row one position up in the UAT. */
-    void on_moveUpwardsToolButton_clicked();
-    /** @brief Move the selected plot row one position down in the UAT. */
-    void on_moveDownwardsToolButton_clicked();
+    void clearClicked();
 
     /** @brief Open the dialog help page. */
     void on_leftButtonBox_helpRequested();

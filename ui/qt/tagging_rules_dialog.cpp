@@ -27,6 +27,7 @@
 #include "ui/qt/utils/qt_ui_utils.h"
 #include <ui/qt/utils/themes/themed_icon.h>
 #include "ui/qt/widgets/copy_from_profile_button.h"
+#include <ui/qt/widgets/list_edit_buttons.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QAbstractButton>
@@ -43,6 +44,21 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
     tagRuleDelegate_(this)
 {
     ui->setupUi(this);
+
+    ListEditButtons::ToolTips tool_tips;
+    tool_tips.add = tr("Add a new tagging rule.");
+    tool_tips.remove = tr("Delete the selected tagging rules.");
+    tool_tips.copy = tr("Duplicate this tagging rule.");
+    tool_tips.moveUp = tr("Move the selected tagging rules up.");
+    tool_tips.moveDown = tr("Move the selected tagging rules down.");
+    tool_tips.clear = tr("Clear all tagging rules.");
+    ui->editButtons->setToolTips(tool_tips);
+    connect(ui->editButtons, &ListEditButtons::newClicked, this, &TaggingRulesDialog::newClicked);
+    connect(ui->editButtons, &ListEditButtons::deleteClicked, this, &TaggingRulesDialog::deleteClicked);
+    connect(ui->editButtons, &ListEditButtons::copyClicked, this, &TaggingRulesDialog::copyClicked);
+    connect(ui->editButtons, &ListEditButtons::clearClicked, this, &TaggingRulesDialog::clearClicked);
+    connect(ui->editButtons, &ListEditButtons::moveUpClicked, ui->taggingRulesTreeView, &RowMoveTreeView::moveSelectedRowsUp);
+    connect(ui->editButtons, &ListEditButtons::moveDownClicked, ui->taggingRulesTreeView, &RowMoveTreeView::moveSelectedRowsDown);
     ui->buttonBox->button(QDialogButtonBox::Help)->setFocusPolicy(Qt::NoFocus);
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 4 / 5);
 
@@ -50,22 +66,12 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
 
     ui->taggingRulesTreeView->setModel(&tagRuleModel_);
     ui->taggingRulesTreeView->setItemDelegate(&tagRuleDelegate_);
-    ui->taggingRulesTreeView->viewport()->setAcceptDrops(true);
 
     for (int i = 0; i < tagRuleModel_.columnCount(); i++) {
         ui->taggingRulesTreeView->resizeColumnToContents(i);
     }
 
-    ui->newToolButton->setIcon(ThemedIcon("list-add"));
-    ui->deleteToolButton->setIcon(ThemedIcon("list-remove"));
-    ui->copyToolButton->setIcon(ThemedIcon("list-copy"));
-    ui->clearToolButton->setIcon(ThemedIcon("list-clear"));
-
 #ifdef Q_OS_MACOS
-    ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->clearToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
@@ -76,7 +82,8 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
     connect(ui->taggingRulesTreeView, &QTreeView::clicked, this, &TaggingRulesDialog::treeItemClicked);
     connect(&tagRuleModel_, &TaggingRulesModel::rowsInserted, this, &TaggingRulesDialog::rowCountChanged);
     connect(&tagRuleModel_, &TaggingRulesModel::rowsRemoved, this, &TaggingRulesDialog::rowCountChanged);
-    rowCountChanged();
+    connect(&tagRuleModel_, &TaggingRulesModel::rowsMoved, this, &TaggingRulesDialog::updateWidgets);
+    connect(&tagRuleModel_, &TaggingRulesModel::modelReset, this, &TaggingRulesDialog::rowCountChanged);
 
     // Load prefs and wire up the prefs widgets.
     originalPrefs_ = tag_rules_get_prefs();
@@ -144,6 +151,7 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
         ui->pathLabel->setText(tr("(no tagrules.jsonc file yet — will be created on save)"));
         ui->pathLabel->setEnabled(false);
     }
+    updateWidgets();
 
     ui->taggingRulesTreeView->setCurrentIndex(QModelIndex());
     updateHint();
@@ -174,24 +182,19 @@ void TaggingRulesDialog::copyFromProfile(QString filename)
 
 void TaggingRulesDialog::rowCountChanged()
 {
-    ui->clearToolButton->setEnabled(tagRuleModel_.rowCount() > 0);
+    updateWidgets();
+}
+
+void TaggingRulesDialog::updateWidgets()
+{
+    QModelIndexList selected = ui->taggingRulesTreeView->selectionModel()->selectedIndexes();
+    ui->editButtons->setSelection(selected, tagRuleModel_.rowCount());
+    ui->copyToColoringRuleButton->setEnabled(rowsLastFirst(selected).count() == 1);
 }
 
 void TaggingRulesDialog::tagRuleSelectionChanged(const QItemSelection &, const QItemSelection &)
 {
-    QModelIndexList selectedList = ui->taggingRulesTreeView->selectionModel()->selectedIndexes();
-
-    QHash<int, QModelIndex> selectedRows;
-    foreach (const QModelIndex &index, selectedList) {
-        selectedRows.insert(index.row(), index);
-    }
-
-    qsizetype num_selected = selectedRows.count();
-
-    ui->copyToolButton->setEnabled(num_selected == 1);
-    ui->deleteToolButton->setEnabled(num_selected > 0);
-
-    ui->copyToColoringRuleButton->setEnabled(num_selected == 1);
+    updateWidgets();
 }
 
 void TaggingRulesDialog::treeItemClicked(const QModelIndex &index)
@@ -309,32 +312,23 @@ void TaggingRulesDialog::addRule(bool copy_from_current)
     ui->taggingRulesTreeView->edit(tagRuleModel_.index(0, TaggingRulesModel::colFilter));
 }
 
-void TaggingRulesDialog::on_newToolButton_clicked()
+void TaggingRulesDialog::newClicked()
 {
     addRule(false);
 }
 
-void TaggingRulesDialog::on_deleteToolButton_clicked()
+void TaggingRulesDialog::deleteClicked()
 {
-    QModelIndexList selectedList = ui->taggingRulesTreeView->selectionModel()->selectedIndexes();
-    qsizetype num_selected = selectedList.count() / tagRuleModel_.columnCount();
-    if (num_selected > 0) {
-        std::sort(selectedList.begin(), selectedList.end());
-        for (int i = static_cast<int>(selectedList.count()) - 1; i >= 0; i--) {
-            QModelIndex deleteIndex = selectedList[i];
-            if (deleteIndex.isValid() && deleteIndex.column() == 0) {
-                tagRuleModel_.removeRows(deleteIndex.row(), 1);
-            }
-        }
-    }
+    for (int row : rowsLastFirst(ui->taggingRulesTreeView->selectionModel()->selectedRows()))
+        tagRuleModel_.removeRows(row, 1);
 }
 
-void TaggingRulesDialog::on_copyToolButton_clicked()
+void TaggingRulesDialog::copyClicked()
 {
     addRule(true);
 }
 
-void TaggingRulesDialog::on_clearToolButton_clicked()
+void TaggingRulesDialog::clearClicked()
 {
     tagRuleModel_.removeRows(0, tagRuleModel_.rowCount());
 }

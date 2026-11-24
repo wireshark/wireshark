@@ -13,50 +13,23 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="TabnavTreeView" name="decodeAsTreeView">
-     <property name="indentation">
-      <number>0</number>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <property name="rootIsDecorated">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,1">
      <item>
-      <widget class="QToolButton" name="newToolButton">
-       <property name="toolTip">
-        <string>Change the dissection behavior for a protocol.</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="deleteToolButton">
-       <property name="enabled">
+      <widget class="ListEditButtons" name="editButtons">
+       <property name="moveButtonsVisible">
         <bool>false</bool>
        </property>
-       <property name="toolTip">
-        <string>Remove this dissection behavior.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="copyToolButton">
-       <property name="toolTip">
-        <string>Copy this dissection behavior.</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="clearToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Clear all dissection behaviors.</string>
+       <property name="copyNeedsSingleSelection">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -107,6 +80,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>ListEditButtons</class>
+   <extends>QWidget</extends>
+   <header>widgets/list_edit_buttons.h</header>
+  </customwidget>
   <customwidget>
    <class>ElidedLabel</class>
    <extends>QLabel</extends>

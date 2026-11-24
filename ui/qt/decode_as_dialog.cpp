@@ -20,6 +20,7 @@
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
+#include <ui/qt/widgets/list_edit_buttons.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "main_application.h"
 
@@ -45,23 +46,26 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     delegate_(NULL)
 {
     ui->setupUi(this);
+
+    ListEditButtons::ToolTips tool_tips;
+    tool_tips.add = tr("Change the dissection behavior for a protocol.");
+    tool_tips.remove = tr("Remove this dissection behavior.");
+    tool_tips.copy = tr("Copy this dissection behavior.");
+    tool_tips.clear = tr("Clear all dissection behaviors.");
+    ui->editButtons->setToolTips(tool_tips);
+    connect(ui->editButtons, &ListEditButtons::newClicked, this, &DecodeAsDialog::newClicked);
+    connect(ui->editButtons, &ListEditButtons::deleteClicked, this, &DecodeAsDialog::deleteClicked);
+    connect(ui->editButtons, &ListEditButtons::copyClicked, this, &DecodeAsDialog::copyClicked);
+    connect(ui->editButtons, &ListEditButtons::clearClicked, this, &DecodeAsDialog::clearClicked);
     loadGeometry();
 
     delegate_ = new DecodeAsDelegate(ui->decodeAsTreeView, cf);
 
     ui->decodeAsTreeView->setModel(model_);
+    connect(ui->decodeAsTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DecodeAsDialog::updateWidgets);
     ui->decodeAsTreeView->setItemDelegate(delegate_);
 
-    ui->newToolButton->setIcon(ThemedIcon("list-add"));
-    ui->deleteToolButton->setIcon(ThemedIcon("list-remove"));
-    ui->copyToolButton->setIcon(ThemedIcon("list-copy"));
-    ui->clearToolButton->setIcon(ThemedIcon("list-clear"));
-
 #ifdef Q_OS_MACOS
-    ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->clearToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
@@ -82,10 +86,12 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     fillTable();
 
     connect(model_, &DecodeAsModel::modelReset, this, &DecodeAsDialog::modelRowsReset);
-    ui->clearToolButton->setEnabled(model_->rowCount() > 0);
+    connect(model_, &DecodeAsModel::rowsInserted, this, &DecodeAsDialog::modelRowsReset);
+    connect(model_, &DecodeAsModel::rowsRemoved, this, &DecodeAsDialog::modelRowsReset);
+    updateWidgets();
 
     if (create_new)
-        on_newToolButton_clicked();
+        newClicked();
 }
 
 DecodeAsDialog::~DecodeAsDialog()
@@ -119,22 +125,12 @@ void DecodeAsDialog::resizeColumns()
 
 void DecodeAsDialog::modelRowsReset()
 {
-    ui->deleteToolButton->setEnabled(false);
-    ui->copyToolButton->setEnabled(false);
-    ui->clearToolButton->setEnabled(false);
+    updateWidgets();
 }
 
-void DecodeAsDialog::on_decodeAsTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex&)
+void DecodeAsDialog::updateWidgets()
 {
-    if (current.isValid()) {
-        ui->deleteToolButton->setEnabled(true);
-        ui->copyToolButton->setEnabled(true);
-        ui->clearToolButton->setEnabled(true);
-    } else {
-        ui->deleteToolButton->setEnabled(false);
-        ui->copyToolButton->setEnabled(false);
-        ui->clearToolButton->setEnabled(false);
-    }
+    ui->editButtons->setSelection(ui->decodeAsTreeView->selectionModel()->selectedRows(), model_->rowCount());
 }
 
 void DecodeAsDialog::copyFromProfile(QString filename)
@@ -147,7 +143,7 @@ void DecodeAsDialog::copyFromProfile(QString filename)
 
     resizeColumns();
 
-    ui->clearToolButton->setEnabled(model_->rowCount() > 0);
+    updateWidgets();
 }
 
 void DecodeAsDialog::addRecord(bool copy_from_current)
@@ -174,27 +170,29 @@ void DecodeAsDialog::addRecord(bool copy_from_current)
     ui->decodeAsTreeView->setCurrentIndex(new_index);
 }
 
-void DecodeAsDialog::on_newToolButton_clicked()
+void DecodeAsDialog::newClicked()
 {
     addRecord();
 }
 
-void DecodeAsDialog::on_deleteToolButton_clicked()
+void DecodeAsDialog::deleteClicked()
 {
-    const QModelIndex &current = ui->decodeAsTreeView->currentIndex();
-    if (model_ && current.isValid()) {
-        if (!model_->removeRows(current.row(), 1)) {
-            qDebug() << "Failed to remove row";
+    if (!model_)
+        return;
+
+    for (int row : rowsLastFirst(ui->decodeAsTreeView->selectionModel()->selectedRows())) {
+        if (!model_->removeRows(row, 1)) {
+            qDebug() << "Failed to remove row" << row;
         }
     }
 }
 
-void DecodeAsDialog::on_copyToolButton_clicked()
+void DecodeAsDialog::copyClicked()
 {
     addRecord(true);
 }
 
-void DecodeAsDialog::on_clearToolButton_clicked()
+void DecodeAsDialog::clearClicked()
 {
     model_->clearAll();
 }

@@ -227,6 +227,31 @@ bool ColoringRulesModel::removeRows(int row, int count, const QModelIndex& paren
     return true;
 }
 
+bool ColoringRulesModel::moveRows(const QModelIndex &, int sourceRow, int count,
+                                 const QModelIndex &, int destinationChild)
+{
+    int row_count = rowCount();
+    if (count <= 0 || sourceRow < 0 || sourceRow + count > row_count ||
+        destinationChild < 0 || destinationChild >= row_count ||
+        (destinationChild >= sourceRow && destinationChild < sourceRow + count))
+        return false;
+
+    bool up = destinationChild < sourceRow;
+    if (!beginMoveRows(QModelIndex(), sourceRow, sourceRow + count - 1, QModelIndex(),
+                       up ? destinationChild : destinationChild + 1))
+        return false;
+
+    // Move the items themselves, which the persistent indexes point to
+    QList<ColoringRuleItem *> rules;
+    for (int i = 0; i < count; i++)
+        rules << root_->takeChild(sourceRow);
+    int insert_at = up ? destinationChild : destinationChild - count + 1;
+    for (int i = 0; i < count; i++)
+        root_->insertChild(insert_at + i, rules[i]);
+    endMoveRows();
+    return true;
+}
+
 bool ColoringRulesModel::copyRow(int dst_row, int src_row)
 {
     if (src_row < 0 || src_row >= rowCount() || dst_row < 0 || dst_row >= rowCount()) {

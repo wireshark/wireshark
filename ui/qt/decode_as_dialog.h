@@ -58,6 +58,11 @@ private:
     DecodeAsDelegate* delegate_;
 
     /**
+     * @brief Updates the buttons for the selected rows.
+     */
+    void updateWidgets();
+
+    /**
      * @brief Adds a new "Decode As" record to the model.
      * @param copy_from_current True to copy the currently selected record's values, false for a blank record.
      */
@@ -92,31 +97,24 @@ private slots:
     void copyFromProfile(QString filename);
 
     /**
-     * @brief Slot triggered when the current item in the tree view changes.
-     * @param current The newly selected model index.
-     * @param previous The previously selected model index.
-     */
-    void on_decodeAsTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
-
-    /**
      * @brief Slot triggered when the "New" tool button is clicked.
      */
-    void on_newToolButton_clicked();
+    void newClicked();
 
     /**
      * @brief Slot triggered when the "Delete" tool button is clicked.
      */
-    void on_deleteToolButton_clicked();
+    void deleteClicked();
 
     /**
      * @brief Slot triggered when the "Copy" tool button is clicked.
      */
-    void on_copyToolButton_clicked();
+    void copyClicked();
 
     /**
      * @brief Slot triggered when the "Clear" tool button is clicked.
      */
-    void on_clearToolButton_clicked();
+    void clearClicked();
 
     /**
      * @brief Slot triggered when a button in the dialog's button box is clicked.

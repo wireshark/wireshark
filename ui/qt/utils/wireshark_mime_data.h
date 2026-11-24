@@ -34,9 +34,6 @@ public:
     /** @brief MIME type string for column lists. */
     static const QString ColumnListMimeType;
 
-    /** @brief MIME type string for filter lists. */
-    static const QString FilterListMimeType;
-
     /** @brief MIME type string for display filters. */
     static const QString DisplayFilterMimeType;
 

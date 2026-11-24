@@ -99,22 +99,22 @@ private slots:
     /**
      * @brief Slot triggered when the new rule tool button is clicked.
      */
-    void on_newToolButton_clicked();
+    void newClicked();
 
     /**
      * @brief Slot triggered when the delete rule tool button is clicked.
      */
-    void on_deleteToolButton_clicked();
+    void deleteClicked();
 
     /**
      * @brief Slot triggered when the copy rule tool button is clicked.
      */
-    void on_copyToolButton_clicked();
+    void copyClicked();
 
     /**
      * @brief Slot triggered when the clear tool button is clicked.
      */
-    void on_clearToolButton_clicked();
+    void clearClicked();
 
     /**
      * @brief Slot triggered when a button in the button box is clicked.
@@ -165,6 +165,9 @@ private:
 
     /** Pointer to the export push button. */
     QPushButton *export_button_;
+
+    /** Updates the buttons for the selected rows. */
+    void updateWidgets();
 
     /** The model managing the coloring rules. */
     ColoringRulesModel colorRuleModel_;

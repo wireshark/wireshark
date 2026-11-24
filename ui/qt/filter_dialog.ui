@@ -15,9 +15,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeView" name="filterTreeView">
-     <property name="dragDropMode">
-      <enum>QAbstractItemView::DragDrop</enum>
+    <widget class="RowMoveTreeView" name="filterTreeView">
+     <property name="rootIsDecorated">
+      <bool>false</bool>
      </property>
      <property name="sortingEnabled">
       <bool>true</bool>
@@ -28,37 +28,11 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,1">
      <item>
-      <widget class="QToolButton" name="newToolButton">
-       <property name="toolTip">
-        <string>Create a new filter.</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="deleteToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Remove this filter.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="copyToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Copy this filter.</string>
-       </property>
-       <property name="text">
-        <string/>
+      <widget class="ListEditButtons" name="editButtons">
+       <property name="copyNeedsSingleSelection">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -113,6 +87,16 @@
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
    <header>widgets/elided_label.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ListEditButtons</class>
+   <extends>QWidget</extends>
+   <header>widgets/list_edit_buttons.h</header>
+  </customwidget>
+  <customwidget>
+   <class>RowMoveTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/rowmove_tree_view.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

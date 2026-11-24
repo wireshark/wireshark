@@ -170,28 +170,17 @@ public:
     virtual Qt::DropActions supportedDropActions() const override;
 
     /**
-     * @brief Retrieves the MIME types supported by the model for drag and drop operations.
-     * @return A list of supported MIME types.
+     * @brief Moves filters, as RowMoveTreeView and the UAT model do.
+     * @param sourceParent Unused, the filters are a flat list.
+     * @param sourceRow The first filter to move.
+     * @param count The number of filters to move.
+     * @param destinationParent Unused, the filters are a flat list.
+     * @param destinationChild The row where the first filter moved up, or the
+     * last filter moved down, ends up.
+     * @return true if the filters were moved.
      */
-    virtual QStringList mimeTypes() const override;
-
-    /**
-     * @brief Creates MIME data representing the given model indices.
-     * @param indexes The list of model indices to encode.
-     * @return A pointer to the created QMimeData.
-     */
-    virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
-
-    /**
-     * @brief Handles dropped MIME data to insert items into the model.
-     * @param data The MIME data dropped.
-     * @param action The drop action performed.
-     * @param row The row where the drop occurred.
-     * @param column The column where the drop occurred.
-     * @param parent The parent model index.
-     * @return True if the drop was successfully handled, false otherwise.
-     */
-    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+    virtual bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count,
+                  const QModelIndex &destinationParent, int destinationChild) override;
 
 private:
 

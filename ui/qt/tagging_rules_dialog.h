@@ -47,10 +47,10 @@ private slots:
     void tagRuleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void on_copyToColoringRuleButton_clicked();
 
-    void on_newToolButton_clicked();
-    void on_deleteToolButton_clicked();
-    void on_copyToolButton_clicked();
-    void on_clearToolButton_clicked();
+    void newClicked();
+    void deleteClicked();
+    void copyClicked();
+    void clearClicked();
 
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_accepted();
@@ -85,6 +85,7 @@ private:
     void updateHint(QModelIndex idx = QModelIndex());
     void addRule(bool copy_from_current);
     bool isValidFilter(QString filter, QString *error);
+    void updateWidgets();
 };
 
 #endif // TAGGING_RULES_DIALOG_H

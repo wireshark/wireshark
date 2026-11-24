@@ -56,6 +56,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pinned_overlay_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pinned_row_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pref_module_view.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/list_edit_buttons.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/profile_tree_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_axis_ticker_elided.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_axis_ticker_si.h
@@ -397,6 +398,7 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pinned_row_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/path_selection_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pref_module_view.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/list_edit_buttons.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/profile_tree_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_axis_ticker_elided.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_axis_ticker_si.cpp

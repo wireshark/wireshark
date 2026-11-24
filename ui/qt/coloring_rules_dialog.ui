@@ -15,16 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="TabnavTreeView" name="coloringRulesTreeView">
-     <property name="dragEnabled">
-      <bool>true</bool>
-     </property>
-     <property name="dragDropMode">
-      <enum>QAbstractItemView::InternalMove</enum>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::ExtendedSelection</enum>
-     </property>
+    <widget class="RowMoveTreeView" name="coloringRulesTreeView">
      <property name="textElideMode">
       <enum>Qt::ElideMiddle</enum>
      </property>
@@ -56,47 +47,11 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,1">
      <item>
-      <widget class="QToolButton" name="newToolButton">
-       <property name="toolTip">
-        <string>Add a new coloring rule.</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="deleteToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Delete this coloring rule.</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="copyToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Duplicate this coloring rule.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="clearToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Clear all coloring rules.</string>
+      <widget class="ListEditButtons" name="editButtons">
+       <property name="copyNeedsSingleSelection">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -208,14 +163,19 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>ListEditButtons</class>
+   <extends>QWidget</extends>
+   <header>widgets/list_edit_buttons.h</header>
+  </customwidget>
+  <customwidget>
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
    <header>widgets/elided_label.h</header>
   </customwidget>
   <customwidget>
-   <class>TabnavTreeView</class>
+   <class>RowMoveTreeView</class>
    <extends>QTreeView</extends>
-   <header>widgets/tabnav_tree_view.h</header>
+   <header>widgets/rowmove_tree_view.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
