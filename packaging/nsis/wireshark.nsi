@@ -1587,6 +1587,12 @@ Delete "$INSTDIR\init.lua"
 Delete "$INSTDIR\release-notes.html"
 Delete "$INSTDIR\Wireshark Release Notes.html"
 
+; The shortcuts that the installer created. .onInit checks whether they
+; exist, to keep the user's choices across upgrades, before it runs this
+; uninstaller.
+Delete "$SMPROGRAMS\${PROGRAM_NAME}.lnk"
+Delete "$DESKTOP\${PROGRAM_NAME}.lnk"
+
 RMDir "$INSTDIR\accessible"
 RMDir "$INSTDIR\audio"
 RMDir "$INSTDIR\bearer"
