@@ -31,6 +31,9 @@
 
 GPtrArray* lua_outstanding_FuncSavers;
 
+/* Handles of the Lua protocols registered as postdissectors. */
+static GPtrArray* lua_postdissector_handles;
+
 void wslua_func_saver_free(void *data) {
     struct _wslua_func_saver* fs = (struct _wslua_func_saver*)data;
     if (fs->state) {
@@ -193,6 +196,11 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
 
         register_postdissector(proto->handle);
         proto->is_postdissector = true;
+
+        if (!lua_postdissector_handles) {
+            lua_postdissector_handles = g_ptr_array_new();
+        }
+        g_ptr_array_add(lua_postdissector_handles, proto->handle);
     } else {
         luaL_argerror(L,1,"this protocol is already registered as postdissector");
     }
@@ -873,7 +881,25 @@ int wslua_deregister_protocols(lua_State* L) {
 
     lua_pop(L, 1); /* protocols_table_ref */
 
+    /* deregister_dissector() has already freed the wanted hfids */
+    if (lua_postdissector_handles) {
+        g_ptr_array_set_size(lua_postdissector_handles, 0);
+    }
+
     return 0;
+}
+
+void wslua_set_postdissector_wanted_hfids(const GArray* hfids) {
+    if (!lua_postdissector_handles || hfids->len == 0) {
+        return;
+    }
+
+    for (unsigned i = 0; i < lua_postdissector_handles->len; i++) {
+        /* set_postdissector_wanted_hfids() takes ownership, so each gets a copy */
+        GArray* wanted = g_array_sized_new(false, false, sizeof(int), hfids->len);
+        g_array_append_vals(wanted, hfids->data, hfids->len);
+        set_postdissector_wanted_hfids((dissector_handle_t)g_ptr_array_index(lua_postdissector_handles, i), wanted);
+    }
 }
 
 int Proto_commit(lua_State* L) {
