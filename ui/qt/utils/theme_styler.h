@@ -63,7 +63,10 @@ public:
      * bezel instead of the square one. The macOS style also gives OK and Cancel
      * buttons a fixed width whatever their font, so on the macOS base style a
      * non-flat push button is widened until its title rect holds the content.
-     * The limits are queried from the base style. On all other styles and
+     * A text-only toolbar button with a menu that does not pop up from a
+     * separate menu button is widened by the menu arrow that
+     * drawComplexControl() draws for it. The limits are queried from the
+     * base style. On all other styles and
      * controls the base result is returned unchanged.
      *
      * @param type The contents type.
@@ -145,7 +148,10 @@ public:
      * toolbar button, and an enabled one that is hovered or pressed, is
      * filled with a translucent window text color in a rect with all four
      * corners rounded, before the base style draws it with State_On
-     * cleared, so it skips its own checked background.
+     * cleared, so it skips its own checked background. The macOS style
+     * draws the menu arrow of a toolbar button only when the button shows
+     * an icon; for text-only buttons with a menu it is drawn here, in the
+     * same place.
      */
     void drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
         QPainter *painter, const QWidget *widget = nullptr) const override;
