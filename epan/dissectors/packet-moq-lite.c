@@ -12,7 +12,7 @@
  * moq-lite is a stripped down variant of Media over QUIC Transport designed to
  * fanout live media 1->N, using QUIC streams for prioritization.
  *
- * This dissector implements draft-lcurley-moq-lite-05:
+ * This dissector implements draft-lcurley-moq-lite-06 and -05:
  * https://datatracker.ietf.org/doc/draft-lcurley-moq-lite/
  *
  * Over bare QUIC the protocol is negotiated with the ALPN token "moq-lite-xx",
@@ -26,6 +26,13 @@
  * carry selects the layouts that changed since: the Session stream itself, the
  * subscriber properties of SUBSCRIBE, and the timestamp of a FRAME. Drafts 03
  * and 04 are dissected with the draft 05 layouts, which they mostly share.
+ *
+ * Draft 06 adds the Role, Cost and Hop setup parameters, splits announcements
+ * into typed ANNOUNCE_START, ANNOUNCE_END and ANNOUNCE_UPDATE messages with
+ * implicit Announce IDs and route costs, drops Ordered and Exclude Hop,
+ * renames Max Latency to Max Age, makes Group Start an absolute floor and the
+ * SUBSCRIBE_END group exclusive, and adds Frame Start/End to SUBSCRIBE,
+ * SUBSCRIBE_UPDATE, FETCH and GROUP.
  *
  * A session consists of:
  *  - one bidirectional stream per transaction (announce, subscribe, fetch,
@@ -80,6 +87,17 @@ void proto_reg_handoff_moq_lite(void);
 /* Setup parameters (draft-05, Section 7.3). */
 #define MOQL_SETUP_PARAM_PROBE      0x1
 #define MOQL_SETUP_PARAM_PATH       0x2
+#define MOQL_SETUP_PARAM_ROLE       0x3     /* Draft 06. */
+#define MOQL_SETUP_PARAM_COST       0x4     /* Draft 06. */
+#define MOQL_SETUP_PARAM_HOP        0x5     /* Draft 06. */
+
+/* Announce stream response types (draft-06, Sections 7.6 to 7.8). */
+#define MOQL_ANNOUNCE_START         0x0
+#define MOQL_ANNOUNCE_END           0x1
+#define MOQL_ANNOUNCE_UPDATE        0x2
+
+/* Maximum GOAWAY URI length (draft-06, Section 7.18). */
+#define MOQL_GOAWAY_URI_MAX         8192
 
 /* Sentinel for a stream whose leading stream type was not captured. */
 #define MOQL_STREAM_TYPE_UNKNOWN    UINT64_MAX
@@ -95,7 +113,7 @@ void proto_reg_handoff_moq_lite(void);
 #define MOQL_VERSION_MASK           UINT64_C(0xffffff00)
 
 /* The draft implemented here, assumed for sessions of an unknown version. */
-#define MOQL_VERSION_LATEST         5
+#define MOQL_VERSION_LATEST         6
 
 /*
  * The last draft with a Session stream; up to and including this version the
@@ -119,6 +137,16 @@ static int hf_moql_setup_parameter_id;
 static int hf_moql_setup_parameter_length;
 static int hf_moql_setup_parameter_value;
 static int hf_moql_setup_probe_level;
+static int hf_moql_setup_role;
+static int hf_moql_setup_cost;
+static int hf_moql_announce_type;
+static int hf_moql_announce_id;
+static int hf_moql_warm_route_cost;
+static int hf_moql_cold_route_cost;
+static int hf_moql_subscriber_max_age;
+static int hf_moql_publisher_max_age;
+static int hf_moql_frame_start;
+static int hf_moql_frame_end;
 static int hf_moql_session_parameter;
 static int hf_moql_session_parameter_count;
 static int hf_moql_session_parameter_id;
@@ -214,6 +242,24 @@ static const val64_string moql_subscribe_type_vals[] = {
 static const val64_string moql_setup_parameter_vals[] = {
     { MOQL_SETUP_PARAM_PROBE, "Probe" },
     { MOQL_SETUP_PARAM_PATH,  "Path" },
+    { MOQL_SETUP_PARAM_ROLE,  "Role" },
+    { MOQL_SETUP_PARAM_COST,  "Cost" },
+    { MOQL_SETUP_PARAM_HOP,   "Hop" },
+    { 0, NULL }
+};
+
+/* Unknown roles are treated as Both (draft-06, Section 7.3.3). */
+static const val64_string moql_role_vals[] = {
+    { 0, "Both" },
+    { 1, "Publisher" },
+    { 2, "Subscriber" },
+    { 0, NULL }
+};
+
+static const val64_string moql_announce_type_vals[] = {
+    { MOQL_ANNOUNCE_START,  "ANNOUNCE_START" },
+    { MOQL_ANNOUNCE_END,    "ANNOUNCE_END" },
+    { MOQL_ANNOUNCE_UPDATE, "ANNOUNCE_UPDATE" },
     { 0, NULL }
 };
 
@@ -237,6 +283,7 @@ static const val64_string moql_version_vals[] = {
     { MOQL_VERSION_BASE + 3, "moq-lite-03" },
     { MOQL_VERSION_BASE + 4, "moq-lite-04" },
     { MOQL_VERSION_BASE + 5, "moq-lite-05" },
+    { MOQL_VERSION_BASE + 6, "moq-lite-06" },
     { 0, NULL }
 };
 
@@ -276,6 +323,11 @@ typedef enum {
     MOQL_MSG_GOAWAY,
     MOQL_MSG_GROUP,
     MOQL_MSG_FRAME,
+    /* Draft 06; appended so that the values above stay stable. */
+    MOQL_MSG_ANNOUNCE_RESPONSE,     /* Resolved to _START/_END/_UPDATE on the wire. */
+    MOQL_MSG_ANNOUNCE_START,
+    MOQL_MSG_ANNOUNCE_END,
+    MOQL_MSG_ANNOUNCE_UPDATE,
 } moql_message_type_t;
 
 static const value_string moql_message_type_vals[] = {
@@ -289,6 +341,9 @@ static const value_string moql_message_type_vals[] = {
     { MOQL_MSG_ANNOUNCE_REQUEST,   "ANNOUNCE_REQUEST" },
     { MOQL_MSG_ANNOUNCE_OK,        "ANNOUNCE_OK" },
     { MOQL_MSG_ANNOUNCE_BROADCAST, "ANNOUNCE_BROADCAST" },
+    { MOQL_MSG_ANNOUNCE_START,     "ANNOUNCE_START" },
+    { MOQL_MSG_ANNOUNCE_END,       "ANNOUNCE_END" },
+    { MOQL_MSG_ANNOUNCE_UPDATE,    "ANNOUNCE_UPDATE" },
     { MOQL_MSG_SUBSCRIBE,          "SUBSCRIBE" },
     { MOQL_MSG_SUBSCRIBE_UPDATE,   "SUBSCRIBE_UPDATE" },
     { MOQL_MSG_SUBSCRIBE_OK,       "SUBSCRIBE_OK" },
@@ -359,6 +414,12 @@ typedef struct _moql_stream {
     /* Stream offset of the first FRAME, set on the first pass. */
     uint64_t    first_frame_offset;
     bool        first_frame_offset_known;
+    /*
+     * Draft 06 ANNOUNCE_START messages implicitly number themselves 0, 1, ...
+     * The assigned IDs are cached by stream offset on the first pass.
+     */
+    wmem_map_t *announce_ids;
+    uint64_t    next_announce_id;
 } moql_stream_t;
 
 static moql_session_t *
@@ -472,8 +533,11 @@ moql_zigzag_decode(uint64_t value)
  * for the first message sent in the given direction.
  */
 static moql_message_type_t
-moql_expected_bidi_message(uint64_t stream_type, bool from_opener, bool leading, bool legacy)
+moql_expected_bidi_message(uint64_t stream_type, bool from_opener, bool leading,
+                           unsigned version)
 {
+    bool legacy = version <= MOQL_VERSION_LEGACY_MAX;
+
     switch (stream_type) {
     case MOQL_BIDI_STREAM_SESSION:
         /* Only moq-lite-02 and earlier have a Session stream. */
@@ -492,7 +556,11 @@ moql_expected_bidi_message(uint64_t stream_type, bool from_opener, bool leading,
         if (legacy) {
             return leading ? MOQL_MSG_ANNOUNCE_INIT : MOQL_MSG_ANNOUNCE;
         }
-        return leading ? MOQL_MSG_ANNOUNCE_OK : MOQL_MSG_ANNOUNCE_BROADCAST;
+        if (leading) {
+            return MOQL_MSG_ANNOUNCE_OK;
+        }
+        /* Draft 06 replaced ANNOUNCE_BROADCAST with typed messages. */
+        return version >= 6 ? MOQL_MSG_ANNOUNCE_RESPONSE : MOQL_MSG_ANNOUNCE_BROADCAST;
 
     case MOQL_BIDI_STREAM_SUBSCRIBE:
         if (from_opener) {
@@ -557,7 +625,7 @@ moql_expected_uni_message(uint64_t stream_type, bool leading, bool legacy)
  */
 static int
 moql_dissect_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-                        uint64_t param_count, bool setup)
+                        uint64_t param_count, bool setup, unsigned version)
 {
     int start = offset;
 
@@ -620,10 +688,35 @@ moql_dissect_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                                                        (int)param_len, ENC_UTF_8, pinfo->pool,
                                                        &path);
                 proto_item_append_text(param_ti, " = %s", path);
-                if (param_len == 0) {
+                /* Draft 06 allows an empty Path (and a "?query" alone). */
+                if (param_len == 0 && version < 6) {
                     proto_tree_add_expert_format(param_tree, pinfo, &ei_moql_protocol_violation,
                                                  value_tvb, 0, 0,
                                                  "The Path Parameter must not be empty");
+                }
+                break;
+            }
+            case MOQL_SETUP_PARAM_ROLE:
+            case MOQL_SETUP_PARAM_COST:
+            case MOQL_SETUP_PARAM_HOP: {
+                uint64_t value;
+                int      hf = param_id == MOQL_SETUP_PARAM_ROLE ? hf_moql_setup_role :
+                              param_id == MOQL_SETUP_PARAM_COST ? hf_moql_setup_cost :
+                                                                  hf_moql_hop_id;
+
+                if (version < 6) {
+                    /* Unknown before draft 06, and ignored. */
+                    proto_tree_add_item(param_tree, hf_moql_setup_parameter_value, value_tvb, 0,
+                                        (int)param_len, ENC_NA);
+                    break;
+                }
+                proto_tree_add_item_ret_varint(param_tree, hf, value_tvb, 0, -1, ENC_VARINT_QUIC,
+                                               &value, &lenvar);
+                if (param_id == MOQL_SETUP_PARAM_ROLE) {
+                    proto_item_append_text(param_ti, " = %s",
+                                           val64_to_str_const(value, moql_role_vals, "Both"));
+                } else {
+                    proto_item_append_text(param_ti, " = %" PRIu64, value);
                 }
                 break;
             }
@@ -642,14 +735,14 @@ moql_dissect_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 }
 
 static void
-moql_dissect_setup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+moql_dissect_setup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned version)
 {
     uint64_t param_count;
     int      offset = 0;
 
     offset += moql_add_varint(tvb, tree, offset, hf_moql_setup_parameter_count, &param_count);
 
-    offset += moql_dissect_parameters(tvb, pinfo, tree, offset, param_count, true);
+    offset += moql_dissect_parameters(tvb, pinfo, tree, offset, param_count, true, version);
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_expert_remaining(tree, pinfo, &ei_moql_extra_data, tvb, offset);
@@ -710,9 +803,47 @@ moql_dissect_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 
     offset += moql_add_varint(tvb, tree, offset, hf_moql_session_parameter_count, &param_count);
 
-    offset += moql_dissect_parameters(tvb, pinfo, tree, offset, param_count, false);
+    offset += moql_dissect_parameters(tvb, pinfo, tree, offset, param_count, false,
+                                      session->version);
 
     return offset;
+}
+
+/*
+ * Hop Count followed by that many Hop IDs. From draft 06 a non-zero Hop ID
+ * must not repeat (0 means unknown and may).
+ */
+static int
+moql_dissect_hops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                  bool unique)
+{
+    wmem_map_t *seen = unique ? wmem_map_new(pinfo->pool, g_int64_hash, g_int64_equal) : NULL;
+    uint64_t    hop_count, hops_seen = 0;
+    int         start = offset;
+
+    offset += moql_add_varint(tvb, tree, offset, hf_moql_hop_count, &hop_count);
+    while (hops_seen < hop_count && tvb_reported_length_remaining(tvb, offset) > 0) {
+        uint64_t *hop_id = wmem_new(pinfo->pool, uint64_t);
+        int       hop_offset = offset;
+
+        offset += moql_add_varint(tvb, tree, offset, hf_moql_hop_id, hop_id);
+        if (seen != NULL && *hop_id != 0) {
+            if (wmem_map_contains(seen, hop_id)) {
+                proto_tree_add_expert_format(tree, pinfo, &ei_moql_protocol_violation, tvb,
+                                             hop_offset, offset - hop_offset,
+                                             "Hop ID %" PRIu64 " is repeated", *hop_id);
+            } else {
+                wmem_map_insert(seen, hop_id, hop_id);
+            }
+        }
+        hops_seen++;
+    }
+    if (hops_seen != hop_count) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_moql_protocol_violation, tvb, offset, 0,
+                                     "Hop Count (%" PRIu64 ") does not match the number of Hop ID "
+                                     "entries (%" PRIu64 ")", hop_count, hops_seen);
+    }
+    return offset - start;
 }
 
 static int
@@ -720,7 +851,7 @@ moql_dissect_announce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 proto_item *msg_ti, bool add_col_info, bool broadcast)
 {
     const char *suffix = NULL;
-    uint64_t    status, hop_count, hops_seen = 0;
+    uint64_t    status;
     int         offset = 0;
 
     offset += moql_add_varint(tvb, tree, offset, hf_moql_announce_status, &status);
@@ -728,17 +859,7 @@ moql_dissect_announce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += moql_add_string(tvb, pinfo, tree, offset, hf_moql_broadcast_path_suffix, &suffix);
 
     if (broadcast) {
-        offset += moql_add_varint(tvb, tree, offset, hf_moql_hop_count, &hop_count);
-
-        while (hops_seen < hop_count && tvb_reported_length_remaining(tvb, offset) > 0) {
-            offset += moql_add_varint(tvb, tree, offset, hf_moql_hop_id, NULL);
-            hops_seen++;
-        }
-        if (hops_seen != hop_count) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_moql_protocol_violation, tvb, offset, 0,
-                                         "Hop Count (%" PRIu64 ") does not match the number of Hop ID "
-                                         "entries (%" PRIu64 ")", hop_count, hops_seen);
-        }
+        offset += moql_dissect_hops(tvb, pinfo, tree, offset, false);
     }
 
     proto_item_append_text(msg_ti, ": %s %s",
@@ -776,14 +897,65 @@ moql_add_relative_group(tvbuff_t *tvb, proto_tree *tree, int offset, int hf, con
 }
 
 /* The subscriber properties shared by SUBSCRIBE and SUBSCRIBE_UPDATE. */
+/* Draft 06 Frame Start, then Frame End (the last frame plus one, 0 = all). */
 static int
-moql_dissect_subscribe_properties(tvbuff_t *tvb, proto_tree *tree, int offset, bool legacy)
+moql_dissect_frame_range(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+    int start = offset;
+
+    offset += moql_add_varint(tvb, tree, offset, hf_moql_frame_start, NULL);
+    offset += moql_add_relative_group(tvb, tree, offset, hf_moql_frame_end, "whole group");
+    return offset - start;
+}
+
+static int
+moql_dissect_subscribe_properties(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                  int offset, unsigned version)
 {
     int      start = offset;
 
     proto_tree_add_item(tree, hf_moql_subscriber_priority, tvb, offset, 1, ENC_NA);
     offset += 1;
-    if (legacy) {
+    if (version <= MOQL_VERSION_LEGACY_MAX) {
+        return offset - start;
+    }
+    if (version >= 6) {
+        proto_item *ti;
+        uint64_t    group_start, group_end, frame_end;
+        uint32_t    lenvar;
+        int         frame_offset;
+
+        offset += moql_add_varint(tvb, tree, offset, hf_moql_subscriber_max_age, NULL);
+        /* Group Start is a plain floor here; Group End is still plus one. */
+        ti = proto_tree_add_item_ret_varint(tree, hf_moql_group_start, tvb, offset, -1,
+                                           ENC_VARINT_QUIC, &group_start, &lenvar);
+        if (group_start == 0) {
+            proto_item_append_text(ti, " (no floor)");
+        }
+        offset += lenvar;
+        ti = proto_tree_add_item_ret_varint(tree, hf_moql_group_end, tvb, offset, -1,
+                                           ENC_VARINT_QUIC, &group_end, &lenvar);
+        if (group_end == 0) {
+            proto_item_append_text(ti, " (unbounded)");
+        } else {
+            proto_item_append_text(ti, " (group %" PRIu64 ")", group_end - 1);
+        }
+        offset += lenvar;
+        frame_offset = offset;
+        offset += moql_add_varint(tvb, tree, offset, hf_moql_frame_start, NULL);
+        ti = proto_tree_add_item_ret_varint(tree, hf_moql_frame_end, tvb, offset, -1,
+                                           ENC_VARINT_QUIC, &frame_end, &lenvar);
+        offset += lenvar;
+        if (frame_end == 0) {
+            proto_item_append_text(ti, " (whole group)");
+        } else {
+            proto_item_append_text(ti, " (frame %" PRIu64 ")", frame_end - 1);
+        }
+        if (frame_end != 0 && group_end == 0) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_moql_protocol_violation, tvb,
+                                         frame_offset, offset - frame_offset,
+                                         "A Frame End requires a Group End");
+        }
         return offset - start;
     }
     proto_tree_add_item(tree, hf_moql_subscriber_ordered, tvb, offset, 1, ENC_NA);
@@ -937,7 +1109,8 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     switch (QUIC_STREAM_TYPE(stream_info->stream_id)) {
     case QUIC_STREAM_CLIENT_BIDI:
     case QUIC_STREAM_SERVER_BIDI:
-        msg_type = moql_expected_bidi_message(stream->stream_type, from_opener, leading, legacy);
+        msg_type = moql_expected_bidi_message(stream->stream_type, from_opener, leading,
+                                              session->version);
         break;
     default:
         msg_type = moql_expected_uni_message(stream->stream_type, leading, legacy);
@@ -956,7 +1129,31 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
      * Messages on the publisher side of a Subscribe stream carry an explicit
      * type varint, and the timestamp delta of a FRAME precedes its length.
      */
-    if (msg_type == MOQL_MSG_SUBSCRIBE_RESPONSE) {
+    if (msg_type == MOQL_MSG_ANNOUNCE_RESPONSE) {
+        if (!moql_try_get_varint(tvb, cursor, &wire_type, &type_len)) {
+            goto desegment;
+        }
+        cursor += type_len;
+        switch (wire_type) {
+        case MOQL_ANNOUNCE_START:
+            msg_type = MOQL_MSG_ANNOUNCE_START;
+            break;
+        case MOQL_ANNOUNCE_END:
+            msg_type = MOQL_MSG_ANNOUNCE_END;
+            break;
+        case MOQL_ANNOUNCE_UPDATE:
+            msg_type = MOQL_MSG_ANNOUNCE_UPDATE;
+            break;
+        default:
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_moql_unexpected_message, tvb,
+                                                   offset, "Unknown Announce stream message type "
+                                                   "(0x%" PRIx64 ")", wire_type);
+            if (add_col_info) {
+                col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Unknown message type");
+            }
+            return 0;
+        }
+    } else if (msg_type == MOQL_MSG_SUBSCRIBE_RESPONSE) {
         if (!moql_try_get_varint(tvb, cursor, &wire_type, &type_len)) {
             goto desegment;
         }
@@ -1039,8 +1236,13 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     }
 
     if (type_len != 0) {
-        proto_tree_add_item_ret_varint(msg_tree, hf_moql_subscribe_type, tvb, offset, -1,
-                                       ENC_VARINT_QUIC, NULL, &lenvar);
+        bool announce = msg_type == MOQL_MSG_ANNOUNCE_START ||
+                        msg_type == MOQL_MSG_ANNOUNCE_END ||
+                        msg_type == MOQL_MSG_ANNOUNCE_UPDATE;
+
+        proto_tree_add_item_ret_varint(msg_tree,
+                                       announce ? hf_moql_announce_type : hf_moql_subscribe_type,
+                                       tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
     } else if (delta_len != 0) {
         proto_tree_add_int64(msg_tree, hf_moql_frame_timestamp_delta, tvb, offset,
                              (int)delta_len, delta);
@@ -1058,7 +1260,7 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     switch (msg_type) {
     case MOQL_MSG_SETUP:
-        moql_dissect_setup(body_tvb, pinfo, msg_tree);
+        moql_dissect_setup(body_tvb, pinfo, msg_tree, session->version);
         body_fully_used = true;
         break;
 
@@ -1093,8 +1295,9 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
         body_used += moql_add_string(body_tvb, pinfo, msg_tree, body_used,
                                      hf_moql_broadcast_path_prefix, &prefix);
-        /* Exclude Hop was added in draft 04. */
-        if (msg_type == MOQL_MSG_ANNOUNCE_REQUEST && session->version >= 4) {
+        /* Exclude Hop was added in draft 04 and replaced in draft 06. */
+        if (msg_type == MOQL_MSG_ANNOUNCE_REQUEST && session->version >= 4 &&
+            session->version < 6) {
             body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_exclude_hop, NULL);
         }
 
@@ -1122,6 +1325,68 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
                                          msg_type == MOQL_MSG_ANNOUNCE_BROADCAST);
         break;
 
+    case MOQL_MSG_ANNOUNCE_START:
+    case MOQL_MSG_ANNOUNCE_UPDATE: {
+        const char *suffix = NULL;
+        uint64_t    announce_id = 0, warm, cold;
+
+        if (msg_type == MOQL_MSG_ANNOUNCE_START) {
+            uint64_t *assigned;
+
+            body_used += moql_add_string(body_tvb, pinfo, msg_tree, body_used,
+                                         hf_moql_broadcast_path_suffix, &suffix);
+            /* Each ANNOUNCE_START takes the next Announce ID on the stream. */
+            if (stream->announce_ids == NULL) {
+                stream->announce_ids = wmem_map_new(wmem_file_scope(), g_int64_hash,
+                                                    g_int64_equal);
+            }
+            assigned = (uint64_t *)wmem_map_lookup(stream->announce_ids, &abs_offset);
+            if (assigned == NULL && !PINFO_FD_VISITED(pinfo)) {
+                uint64_t *key = wmem_new(wmem_file_scope(), uint64_t);
+
+                assigned = wmem_new(wmem_file_scope(), uint64_t);
+                *key = abs_offset;
+                *assigned = stream->next_announce_id++;
+                wmem_map_insert(stream->announce_ids, key, assigned);
+            }
+            if (assigned != NULL) {
+                announce_id = *assigned;
+                ti = proto_tree_add_uint64(msg_tree, hf_moql_announce_id, body_tvb, 0, 0,
+                                           announce_id);
+                proto_item_set_generated(ti);
+            }
+        } else {
+            body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_announce_id,
+                                         &announce_id);
+        }
+        body_used += moql_dissect_hops(body_tvb, pinfo, msg_tree, body_used, true);
+        body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_warm_route_cost, &warm);
+        body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_cold_route_cost, &cold);
+
+        if (suffix != NULL) {
+            proto_item_append_text(msg_ti, ": %s (Announce ID %" PRIu64 ")", suffix, announce_id);
+            if (add_col_info) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)", suffix);
+            }
+        } else {
+            proto_item_append_text(msg_ti, ": Announce ID %" PRIu64, announce_id);
+        }
+        proto_item_append_text(msg_ti, ", cost %" PRIu64 "/%" PRIu64, warm, cold);
+        break;
+    }
+
+    case MOQL_MSG_ANNOUNCE_END: {
+        uint64_t announce_id;
+
+        body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_announce_id,
+                                     &announce_id);
+        proto_item_append_text(msg_ti, ": Announce ID %" PRIu64, announce_id);
+        if (add_col_info) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(id=%" PRIu64 ")", announce_id);
+        }
+        break;
+    }
+
     case MOQL_MSG_SUBSCRIBE: {
         const char *path = NULL, *name = NULL;
         uint64_t    subscribe_id;
@@ -1131,7 +1396,8 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
                                     hf_moql_broadcast_path, &path);
         body_used += moql_add_string(body_tvb, pinfo, msg_tree, body_used,
                                     hf_moql_track_name, &name);
-        body_used += moql_dissect_subscribe_properties(body_tvb, msg_tree, body_used, legacy);
+        body_used += moql_dissect_subscribe_properties(body_tvb, pinfo, msg_tree, body_used,
+                                                       session->version);
 
         if (!PINFO_FD_VISITED(pinfo) &&
             wmem_map_lookup(session->subscriptions, &subscribe_id) == NULL) {
@@ -1155,7 +1421,8 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     }
 
     case MOQL_MSG_SUBSCRIBE_UPDATE:
-        body_used += moql_dissect_subscribe_properties(body_tvb, msg_tree, body_used, legacy);
+        body_used += moql_dissect_subscribe_properties(body_tvb, pinfo, msg_tree, body_used,
+                                                       session->version);
         break;
 
     case MOQL_MSG_SUBSCRIBE_OK:
@@ -1169,8 +1436,9 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         ti = proto_tree_add_item_ret_varint(msg_tree, hf_moql_group, body_tvb, body_used, -1,
                                            ENC_VARINT_QUIC, &group, &lenvar);
         body_used += lenvar;
-        proto_item_append_text(ti, msg_type == MOQL_MSG_SUBSCRIBE_OK ? " (first group)"
-                                                                     : " (last group)");
+        proto_item_append_text(ti, msg_type == MOQL_MSG_SUBSCRIBE_OK ? " (first group)" :
+                                   session->version >= 6 ? " (first group never delivered)" :
+                                                           " (last group)");
         proto_item_append_text(msg_ti, ": Group %" PRIu64, group);
         if (add_col_info) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "(group=%" PRIu64 ")", group);
@@ -1199,9 +1467,16 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
         proto_tree_add_item(msg_tree, hf_moql_publisher_priority, body_tvb, body_used, 1, ENC_NA);
         body_used += 1;
-        proto_tree_add_item(msg_tree, hf_moql_publisher_ordered, body_tvb, body_used, 1, ENC_NA);
-        body_used += 1;
-        body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_publisher_max_latency, NULL);
+        if (session->version >= 6) {
+            /* Draft 06 dropped Ordered and renamed Max Latency to Max Age. */
+            body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_publisher_max_age,
+                                         NULL);
+        } else {
+            proto_tree_add_item(msg_tree, hf_moql_publisher_ordered, body_tvb, body_used, 1, ENC_NA);
+            body_used += 1;
+            body_used += moql_add_varint(body_tvb, msg_tree, body_used,
+                                         hf_moql_publisher_max_latency, NULL);
+        }
         ti = proto_tree_add_item_ret_varint(msg_tree, hf_moql_timescale, body_tvb, body_used, -1,
                                            ENC_VARINT_QUIC, &timescale, &lenvar);
         body_used += lenvar;
@@ -1241,6 +1516,9 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         if (msg_type == MOQL_MSG_FETCH) {
             proto_tree_add_item(msg_tree, hf_moql_subscriber_priority, body_tvb, body_used++, 1, ENC_NA);
             body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_group_sequence, &group_sequence);
+            if (session->version >= 6) {
+                body_used += moql_dissect_frame_range(body_tvb, msg_tree, body_used);
+            }
         }
         if (!PINFO_FD_VISITED(pinfo)) {
             stream->broadcast_path = wmem_strdup(wmem_file_scope(), path);
@@ -1274,6 +1552,18 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         const char *uri = NULL;
 
         body_used += moql_add_string(body_tvb, pinfo, msg_tree, body_used, hf_moql_goaway_uri, &uri);
+        if (session->version >= 6) {
+            uint64_t uri_len;
+            uint32_t uri_lenvar;
+
+            if (moql_try_get_varint(body_tvb, 0, &uri_len, &uri_lenvar) &&
+                uri_len > MOQL_GOAWAY_URI_MAX) {
+                proto_tree_add_expert_format(msg_tree, pinfo, &ei_moql_protocol_violation,
+                                             body_tvb, 0, body_used,
+                                             "The GOAWAY URI exceeds %u bytes",
+                                             MOQL_GOAWAY_URI_MAX);
+            }
+        }
         if (uri != NULL && uri[0] != '\0') {
             proto_item_append_text(msg_ti, ": %s", uri);
             if (add_col_info) {
@@ -1288,6 +1578,9 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
         body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_subscribe_id, &subscribe_id);
         body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_group_sequence, &group_sequence);
+        if (session->version >= 6) {
+            body_used += moql_add_varint(body_tvb, msg_tree, body_used, hf_moql_frame_start, NULL);
+        }
 
         stream->subscription = (moql_subscription_t *)wmem_map_lookup(session->subscriptions,
                                                                      &subscribe_id);
@@ -1771,6 +2064,56 @@ proto_register_moq_lite(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "The last group to deliver: 0 is unbounded, otherwise the absolute "
             "group sequence plus one", HFILL }
+        },
+        { &hf_moql_subscriber_max_age,
+          { "Subscriber Max Age", "moql.subscriber_max_age",
+            FT_UINT64, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            "Draft 06: how old a non-latest group may be before it is dropped", HFILL }
+        },
+        { &hf_moql_publisher_max_age,
+          { "Publisher Max Age", "moql.publisher_max_age",
+            FT_UINT64, BASE_DEC | BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            "Draft 06: how long the publisher caches a non-latest group", HFILL }
+        },
+        { &hf_moql_frame_start,
+          { "Frame Start", "moql.frame_start",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Draft 06: index of the first frame to deliver", HFILL }
+        },
+        { &hf_moql_frame_end,
+          { "Frame End", "moql.frame_end",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Draft 06: 0 is the whole group, otherwise the last frame plus one", HFILL }
+        },
+        { &hf_moql_setup_role,
+          { "Role", "moql.setup.role",
+            FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(moql_role_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_moql_setup_cost,
+          { "Cost", "moql.setup.cost",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Draft 06: the cost of routing through this endpoint", HFILL }
+        },
+        { &hf_moql_announce_type,
+          { "Type", "moql.announce.type",
+            FT_UINT64, BASE_HEX | BASE_VAL64_STRING, VALS64(moql_announce_type_vals), 0x0,
+            "The message type, as sent by the publisher on a draft 06 Announce stream", HFILL }
+        },
+        { &hf_moql_announce_id,
+          { "Announce ID", "moql.announce_id",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Implicitly assigned by each ANNOUNCE_START, starting at 0", HFILL }
+        },
+        { &hf_moql_warm_route_cost,
+          { "Warm Route Cost", "moql.warm_route_cost",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_moql_cold_route_cost,
+          { "Cold Route Cost", "moql.cold_route_cost",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_moql_publisher_priority,
           { "Publisher Priority", "moql.publisher_priority",

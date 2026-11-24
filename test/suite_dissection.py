@@ -3075,6 +3075,81 @@ class TestDissectMoqLite:
 
 
 @pytest.mark.parametrize("pass_args", [(), ("-2",)], ids=["one-pass", "two-pass"])
+class TestDissectMoqLite06:
+    '''
+    moq-lite-06 over QUIC, generated with tools/generate-moq-lite-06-capture.py.
+    It holds every draft-06 message and two deliberate protocol violations: a
+    repeated Hop ID and a Frame End without a Group End.
+    '''
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, pass_args, display_filter, *fields):
+        command = [cmd_tshark, *pass_args, '-r', capture_file('moq-lite-06.pcapng.gz'),
+                   '-Y', display_filter, '-T', 'fields']
+        for field in fields:
+            command.extend(('-e', field))
+        stdout = subprocess.check_output(command, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_moq_lite_06_messages(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Announce responses are typed; the other messages keep their streams.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, pass_args, 'moql', '_ws.col.info')
+        assert [row[0] for row in rows] == [
+            'Setup stream, SETUP', 'Setup stream, SETUP',
+            'Announce stream, ANNOUNCE_REQUEST(live/)',
+            'Announce stream, ANNOUNCE_OK, ANNOUNCE_START(demo), ANNOUNCE_START(other)',
+            'Announce stream, ANNOUNCE_UPDATE, ANNOUNCE_END(id=1)',
+            'Track stream, TRACK(live/demo video)', 'Track stream, TRACK_INFO',
+            'Subscribe stream, SUBSCRIBE(id=0 live/demo video)',
+            'Subscribe stream, SUBSCRIBE_UPDATE', 'Subscribe stream, SUBSCRIBE_OK(group=3)',
+            'Group stream, GROUP(id=0 group=3), FRAME, FRAME',
+            'Subscribe stream, SUBSCRIBE_END(group=6)',
+            'Fetch stream, FETCH(live/demo video group=3)', 'Fetch stream, FRAME, FRAME',
+            'Goaway stream, GOAWAY(moql://relay.example/other)']
+
+    def test_moq_lite_06_setup(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Role, Cost and Hop are decoded; an empty Path is allowed.'''
+        assert self._fields(cmd_tshark, capture_file, test_env, pass_args,
+                            'moql.setup.role', 'moql.setup.path', 'moql.setup.role',
+                            'moql.setup.cost', 'moql.hop_id') == [
+            ['?room=demo', '2', '5', '7'], ['', '1', '', '9']]
+
+    def test_moq_lite_06_announcements(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''ANNOUNCE_START numbers itself; UPDATE and END refer to that number.'''
+        assert self._fields(cmd_tshark, capture_file, test_env, pass_args,
+                            'moql.announce.type', 'moql.announce.type', 'moql.announce_id',
+                            'moql.warm_route_cost', 'moql.cold_route_cost') == [
+            ['0x0000000000000000,0x0000000000000000', '0,1', '10,1', '20,2'],
+            ['0x0000000000000002,0x0000000000000001', '0,1', '11', '21']]
+        assert self._fields(cmd_tshark, capture_file, test_env, pass_args,
+                            'moql.announce_id', 'moql.exclude_hop') == [[''], ['']]
+
+    def test_moq_lite_06_delivery(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Max Age replaces Max Latency and Ordered; Frame Start/End are added.'''
+        assert self._fields(cmd_tshark, capture_file, test_env, pass_args,
+                            'moql.frame_start || moql.publisher_max_age',
+                            'moql.subscriber_max_age', 'moql.publisher_max_age',
+                            'moql.group_start', 'moql.group_end', 'moql.frame_start',
+                            'moql.frame_end', 'moql.subscriber_ordered',
+                            'moql.publisher_ordered') == [
+            ['', '5000', '', '', '', '', '', ''],
+            ['1000', '', '0', '6', '0', '0', '', ''],
+            ['2000', '', '3', '0', '1', '4', '', ''],
+            ['', '', '', '', '2', '', '', ''],
+            ['', '', '', '', '1', '3', '', '']]
+
+    def test_moq_lite_06_expert(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Only the two deliberate protocol violations are reported.'''
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-lite-06.pcapng.gz'),
+                '-q', '-zexpert,warn,moql',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'Hop ID 3 is repeated')
+        assert grep_output(stdout, 'A Frame End requires a Group End')
+        assert grep_output(stdout, r'Errors \(2\)')
+        assert not grep_output(stdout, 'Warnings')
+
+
+@pytest.mark.parametrize("pass_args", [(), ("-2",)], ids=["one-pass", "two-pass"])
 class TestDissectMoqHang:
     '''
     hang over moq-lite. The capture was generated with aioquic and holds one
