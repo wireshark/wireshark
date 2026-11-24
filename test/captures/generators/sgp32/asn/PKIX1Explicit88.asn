@@ -1,0 +1,43 @@
+PKIX1Explicit88 {iso(1) identified-organization(3) dod(6) internet(1) security(5) mechanisms(5) pkix(7) id-mod(0) id-pkix1-explicit(18)}
+DEFINITIONS EXPLICIT TAGS ::=
+BEGIN
+-- reduced stand-in for the module of RFC 3280: the types RSPDefinitions
+-- imports (Certificate, CertificateList, Time), without extension types
+Certificate ::= SEQUENCE {
+    tbsCertificate TBSCertificate,
+    signatureAlgorithm AlgorithmIdentifier,
+    signature BIT STRING }
+TBSCertificate ::= SEQUENCE {
+    version [0] INTEGER OPTIONAL,
+    serialNumber INTEGER,
+    signature AlgorithmIdentifier,
+    issuer Name,
+    validity Validity,
+    subject Name,
+    subjectPublicKeyInfo SubjectPublicKeyInfo,
+    issuerUniqueID [1] IMPLICIT BIT STRING OPTIONAL,
+    subjectUniqueID [2] IMPLICIT BIT STRING OPTIONAL,
+    extensions [3] Extensions OPTIONAL }
+Validity ::= SEQUENCE { notBefore Time, notAfter Time }
+SubjectPublicKeyInfo ::= SEQUENCE { algorithm AlgorithmIdentifier, subjectPublicKey BIT STRING }
+Extensions ::= SEQUENCE OF Extension
+Extension ::= SEQUENCE { extnID OBJECT IDENTIFIER, critical BOOLEAN DEFAULT FALSE, extnValue OCTET STRING }
+AlgorithmIdentifier ::= SEQUENCE { algorithm OBJECT IDENTIFIER, parameters NULL OPTIONAL }
+Name ::= CHOICE { rdnSequence RDNSequence }
+RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+RelativeDistinguishedName ::= SET OF AttributeTypeAndValue
+AttributeTypeAndValue ::= SEQUENCE { type OBJECT IDENTIFIER, value UTF8String }
+CertificateList ::= SEQUENCE {
+    tbsCertList TBSCertList,
+    signatureAlgorithm AlgorithmIdentifier,
+    signature BIT STRING }
+TBSCertList ::= SEQUENCE {
+    version INTEGER OPTIONAL,
+    signature AlgorithmIdentifier,
+    issuer Name,
+    thisUpdate Time,
+    nextUpdate Time OPTIONAL,
+    revokedCertificates SEQUENCE OF SEQUENCE { userCertificate INTEGER, revocationDate Time } OPTIONAL,
+    crlExtensions [0] Extensions OPTIONAL }
+Time ::= CHOICE { utcTime UTCTime, generalTime GeneralizedTime }
+END
