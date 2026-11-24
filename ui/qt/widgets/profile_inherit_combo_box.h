@@ -186,9 +186,10 @@ public:
      * For use in QStyledItemDelegate::sizeHint().
      * @param opt The style options of the item, set up by QStyledItemDelegate::initStyleOption().
      * @param size The size from QStyledItemDelegate::sizeHint().
+     * @param check_box True if the column has check boxes, also when no row shows one.
      * @return The size.
      */
-    static QSize inheritedSizeHint(QStyleOptionViewItem opt, QSize size);
+    static QSize inheritedSizeHint(QStyleOptionViewItem opt, QSize size, bool check_box);
 
     /**
      * @brief The description of an entry inherited from a parent profile, e.g. for its tool tip.

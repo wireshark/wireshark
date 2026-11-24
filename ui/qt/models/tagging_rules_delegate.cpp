@@ -56,7 +56,8 @@ QSize TaggingRulesDelegate::sizeHint(const QStyleOptionViewItem &option, const Q
 {
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
-    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index));
+    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
+                                                     index.column() == TaggingRulesModel::colName);
 }
 
 QWidget *TaggingRulesDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &,

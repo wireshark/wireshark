@@ -70,7 +70,8 @@ QSize ColoringRulesDelegate::sizeHint(const QStyleOptionViewItem &option, const 
 {
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
-    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index));
+    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
+                                                     index.column() == ColoringRulesModel::colName);
 }
 
 QWidget* ColoringRulesDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem&,
