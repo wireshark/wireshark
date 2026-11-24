@@ -275,6 +275,7 @@ void MainStatusBar::expertUpdate() {
 
     ContrastAdaptIcon expert_icon(QStringLiteral(":/svg_icons/") + stock_name.toLatin1() + QStringLiteral(".svg"),
                                   QPalette::Window);
+    applyIconSizes();
     expert_button_->setIcon(expert_icon);
     expert_button_->setToolTip(tt_text);
     expert_button_->show();
@@ -319,6 +320,9 @@ void MainStatusBar::changeEvent(QEvent *event)
         setStatusbarForCaptureFile();
         showCaptureStatistics();
         setProfileName();
+    }
+    if (event->type() == QEvent::FontChange || event->type() == QEvent::ApplicationFontChange) {
+        applyIconSizes();
     }
     QStatusBar::changeEvent(event);
 }
