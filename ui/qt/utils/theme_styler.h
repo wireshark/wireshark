@@ -147,6 +147,24 @@ public:
     static QString baseStyleName();
 
     /**
+     * Let the menus created in a widget switch submenus as the mouse moves.
+     *
+     * The macOS style keeps an open submenu while the mouse seems to head
+     * toward it, and ignores the other items meanwhile, so moving to a
+     * neighbouring item with a submenu can keep the old submenu for up to a
+     * second. Qt also assumes the submenu is on the trailing side, which makes
+     * this more frequent for a submenu opened on the other side. Menus whose
+     * parent is the widget, or a descendant of it, select the item under the
+     * mouse and open its submenu as on the other styles.
+     *
+     * Qt reads these style hints when a menu is created, so call this before
+     * creating the menus.
+     *
+     * @param widget The widget the menus are created in.
+     */
+    static void setPlainSubMenus(QWidget *widget);
+
+    /**
      * Style sheet for a filled push button.
      *
      * @param objectname Object name the rules are scoped to

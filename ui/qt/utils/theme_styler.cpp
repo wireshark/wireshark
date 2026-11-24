@@ -171,11 +171,32 @@ QString ThemeStyler::baseStyleName()
     return base_style_name_;
 }
 
+static const char *plain_submenus_property = "_ws_plain_submenus";
+
+void ThemeStyler::setPlainSubMenus(QWidget *widget)
+{
+    widget->setProperty(plain_submenus_property, true);
+}
+
+// Whether a menu is created in a widget given to setPlainSubMenus()
+static bool hasPlainSubMenus(const QWidget *widget)
+{
+    for (; widget != nullptr; widget = widget->parentWidget()) {
+        if (widget->property(plain_submenus_property).toBool())
+            return true;
+    }
+    return false;
+}
+
 int ThemeStyler::styleHint(StyleHint hint, const QStyleOption *option,
     const QWidget *widget, QStyleHintReturn *returnData) const
 {
     if (hint == QStyle::SH_MessageBox_TextInteractionFlags)
             return QProxyStyle::styleHint(hint, option, widget, returnData) | Qt::TextSelectableByMouse;
+    if (hint == QStyle::SH_Menu_SubMenuUniDirection && hasPlainSubMenus(widget))
+        return false;
+    if (hint == QStyle::SH_Menu_SubMenuSloppySelectOtherActions && hasPlainSubMenus(widget))
+        return true;
     return QProxyStyle::styleHint(hint, option, widget, returnData);
 }
 
