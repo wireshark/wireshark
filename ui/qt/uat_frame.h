@@ -11,14 +11,17 @@
 #define UAT_FRAME_H
 
 #include <QFrame>
+#include <QPointer>
 
 #include <wsutil/profile_inherit.h>
 
 #include <ui/qt/geometry_state_dialog.h>
+#include <ui/qt/preferences_page_buttons.h>
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/uat_delegate.h>
 
 class QItemSelection;
+class CopyFromProfileButton;
 
 namespace Ui {
 class UatFrame;
@@ -27,7 +30,7 @@ class UatFrame;
 /**
  * @brief UI frame for editing User Accessible Tables (UAT).
  */
-class UatFrame : public QFrame
+class UatFrame : public QFrame, public PreferencesPageButtons
 {
     Q_OBJECT
 
@@ -62,12 +65,6 @@ public:
      */
     void rejectChanges();
 
-protected:
-    /**
-     * @brief Handles the show event for the frame.
-     */
-    void showEvent(QShowEvent *) override;
-
 private:
     /** @brief Pointer to the UI object for this frame. */
     Ui::UatFrame *ui;
@@ -80,6 +77,9 @@ private:
 
     /** @brief Pointer to the underlying UAT structure. */
     struct epan_uat *uat_;
+
+    /** @brief Copies the entries from another profile, shown in the dialog's button bar. */
+    QPointer<CopyFromProfileButton> copy_button_;
 
     /** @brief Updates the path label for the selected source of the records. */
     void updatePathLabel();

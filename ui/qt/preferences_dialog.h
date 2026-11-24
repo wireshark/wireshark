@@ -19,6 +19,8 @@
 
 #include "geometry_state_dialog.h"
 
+#include <QPointer>
+
 class QComboBox;
 class QAbstractButton;
 
@@ -137,9 +139,19 @@ private:
      */
     void layoutDrawer();
 
+    /**
+     * @brief Shows the buttons of the current page in the button bar.
+     *
+     * A page that implements PreferencesPageButtons gets its buttons
+     * added to the button bar the first time it is shown. Only the
+     * buttons of the current page are visible.
+     */
+    void updatePageButtons();
+
     Ui::PreferencesDialog *pd_ui_; /**< Pointer to the user interface form elements. */
 
     QHash<QString, QWidget*> prefs_pane_to_item_; /**< Hash mapping preference pane names to their corresponding widgets. */
+    QHash<QWidget *, QList<QPointer<QAbstractButton>>> page_buttons_; /**< The button bar buttons of each page shown so far. */
 
     PrefsModel model_; /**< The base preferences model. */
     AdvancedPrefsModel advancedPrefsModel_; /**< The model for advanced preferences. */

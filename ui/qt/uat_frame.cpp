@@ -98,8 +98,13 @@ void UatFrame::setUat(epan_uat *uat)
         }
 
         if (uat->from_profile) {
-            ui->copyFromProfileButton->setFilename(uat->filename);
-            connect(ui->copyFromProfileButton, &CopyFromProfileButton::copyProfile, this, &UatFrame::copyFromProfile);
+            // The dialog shows the button while this page is current
+            if (!copy_button_) {
+                copy_button_ = new CopyFromProfileButton(this);
+                addPageButton(copy_button_);
+                connect(copy_button_, &CopyFromProfileButton::copyProfile, this, &UatFrame::copyFromProfile);
+            }
+            copy_button_->setFilename(uat->filename);
 
             // Where the records come from
             ui->inheritComboBox->setFilename(uat->filename);
@@ -161,9 +166,8 @@ void UatFrame::updateWidgets()
 
     // Inherited entries can be copied into the own entries, but not changed
     ui->editButtons->setSelection(sel);
-    if (true) {
-        ui->copyFromProfileButton->setEnabled(sel.own_used && ui->copyFromProfileButton->menu() != nullptr);
-        ProfileInheritComboBox::setOwnEntriesUsed(ui->copyFromProfileButton, sel.own_used);
+    if (copy_button_) {
+        copy_button_->setOwnEntriesUsed(sel.own_used);
     }
 }
 
@@ -195,13 +199,6 @@ void UatFrame::copyFromProfile(QString filename)
         // validation), so the model must follow the records.
         uat_model_->reloadUat();
     }
-}
-
-void UatFrame::showEvent(QShowEvent *)
-{
-#ifndef Q_OS_MACOS
-    ui->copyFromProfileButton->setFixedHeight(ui->editButtons->copyButton()->geometry().height());
-#endif
 }
 
 void UatFrame::applyChanges()
