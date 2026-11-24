@@ -332,6 +332,31 @@ WS_DLL_PUBLIC
 bool uat_load(uat_t* uat_in, const char *filename, const char* app_env_var_prefix, char** err);
 
 /**
+ * @brief Set the fields identifying a record of a UAT.
+ *
+ * A record inherited from a parent profile is ignored if a record from a
+ * nearer profile has the same values in these fields. Without key fields,
+ * a record is ignored only if all its fields are the same.
+ *
+ * @param uat The UAT.
+ * @param fields Indexes of the key fields.
+ * @param num_fields The number of key fields.
+ */
+WS_DLL_PUBLIC
+void uat_set_key_fields(uat_t *uat, const unsigned *fields, unsigned num_fields);
+
+/**
+ * @brief Set the bool field enabling a record of a UAT.
+ *
+ * A record disabled in a parent profile is not inherited.
+ *
+ * @param uat The UAT.
+ * @param field Index of the field, or -1 for none.
+ */
+WS_DLL_PUBLIC
+void uat_set_enabled_field(uat_t *uat, int field);
+
+/**
  * @brief Create or update a single UAT entry using a string.
  *
  * @param uat_in Pointer to a uat. Must not be NULL.

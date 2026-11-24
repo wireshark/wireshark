@@ -17,6 +17,7 @@
 #include <ui/qt/models/tagging_rules_model.h>
 #include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
 
 TaggingRulesDelegate::TaggingRulesDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
@@ -29,6 +30,9 @@ void TaggingRulesDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         QStyleOptionViewItem opt = option;
         const QWidget *widget = option.widget;
         initStyleOption(&opt, index);
+        // Inherited rules have no check box
+        if (!(opt.features & QStyleOptionViewItem::HasCheckIndicator))
+            return;
         QStyle *style = widget->style();
         opt.rect = style->subElementRect(QStyle::SE_ItemViewItemCheckIndicator, &opt, widget);
         switch (opt.checkState) {
@@ -46,6 +50,13 @@ void TaggingRulesDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         opt.palette = QApplication::palette();
         style->drawPrimitive(QStyle::PE_IndicatorItemViewItemCheck, &opt, painter, widget);
     }
+}
+
+QSize TaggingRulesDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index));
 }
 
 QWidget *TaggingRulesDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &,

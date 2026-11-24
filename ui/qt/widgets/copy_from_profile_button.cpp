@@ -8,6 +8,7 @@
  */
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
 #include <ui/qt/models/profile_model.h>
 #include <wsutil/filesystem.h>
 #include <app/application_flavor.h>
@@ -182,4 +183,10 @@ void CopyFromProfileButton::menuActionTriggered(QAction * action)
         if (QFileInfo::exists(filename))
             emit copyProfile(filename);
     }
+}
+
+void CopyFromProfileButton::setOwnEntriesUsed(bool own_used)
+{
+    setEnabled(own_used && menu() != nullptr);
+    ProfileInheritComboBox::setOwnEntriesUsed(this, own_used);
 }

@@ -89,6 +89,14 @@ uat_t* uat_new(const char* name,
     uat->user_data = g_array_new(false,false,(unsigned)uat->record_size);
     uat->raw_data = g_array_new(false,false,(unsigned)uat->record_size);
     uat->valid_data = g_array_new(false,false,sizeof(bool));
+    uat->sources = g_ptr_array_new_with_free_func(g_free);
+    uat->inherit_mode = PROFILE_INHERIT_PROFILE_ONLY;
+    uat->key_fields = g_array_new(false, false, sizeof(unsigned));
+    uat->enabled_field = -1;
+    uat->own_from_global = false;
+    uat->loading_inherited = false;
+    uat->override_keys = NULL;
+    uat->own_read = false;
     uat->changed = false;
     uat->loaded = false;
     uat->rep = NULL;
@@ -118,13 +126,42 @@ void* uat_add_record(uat_t* uat, const void* data, bool valid_rec) {
     void* rec;
     bool* valid;
 
-    uat_insert_record_idx(uat, uat->raw_data->len, data);
+    if (uat->loading_inherited) {
+        /* Records of a parent profile are checked, and exposed to the
+         * dissectors, once the duplicates of nearer records are dropped */
+        uat_insert_record_idx(uat, uat->raw_data->len, data);
+        g_array_index(uat->valid_data, bool, uat->valid_data->len - 1) = valid_rec;
+        return NULL;
+    }
+
+    /*
+     * Any other record is an own record of the profile, which comes before
+     * the records inherited from parent profiles, both in the table and
+     * for the dissectors. Without inherited records, this appends.
+     */
+    unsigned idx = uat->raw_data->len;
+    unsigned user_idx = uat->user_data->len;
+    if (idx > 0 && uat_record_is_inherited(uat, idx - 1)) {
+        /* Inherited records come last */
+        idx = uat_own_count(uat);
+        user_idx = 0;
+        for (unsigned i = 0; i < idx; i++) {
+            if (g_array_index(uat->valid_data, bool, i)) {
+                user_idx++;
+            }
+        }
+        if (user_idx > uat->user_data->len) {
+            user_idx = uat->user_data->len;
+        }
+    }
+
+    uat_insert_record_idx(uat, idx, data);
 
     if (valid_rec) {
         /* Add a "known good" record to the list to be used by the dissector */
-        g_array_append_vals (uat->user_data, data, 1);
+        g_array_insert_vals (uat->user_data, user_idx, data, 1);
 
-        rec = UAT_USER_INDEX_PTR(uat, uat->user_data->len - 1);
+        rec = UAT_USER_INDEX_PTR(uat, user_idx);
 
         if (uat->copy_cb) {
             uat->copy_cb(rec, data, (unsigned int) uat->record_size);
@@ -132,7 +169,7 @@ void* uat_add_record(uat_t* uat, const void* data, bool valid_rec) {
 
         UAT_UPDATE(uat);
 
-        valid = &g_array_index(uat->valid_data, bool, uat->valid_data->len-1);
+        valid = &g_array_index(uat->valid_data, bool, idx);
         *valid = valid_rec;
     } else {
         rec = NULL;
@@ -180,6 +217,10 @@ void uat_swap(uat_t* uat, unsigned a, unsigned b) {
     *(bool*)(uat->valid_data->data + (sizeof(bool) * (a))) = *(bool*)(uat->valid_data->data + (sizeof(bool) * (b)));
     *(bool*)(uat->valid_data->data + (sizeof(bool) * (b))) = tmp_bool;
 
+    void *tmp_source = g_ptr_array_index(uat->sources, a);
+    g_ptr_array_index(uat->sources, a) = g_ptr_array_index(uat->sources, b);
+    g_ptr_array_index(uat->sources, b) = tmp_source;
+
 
 }
 
@@ -200,6 +241,9 @@ void uat_insert_record_idx(uat_t* uat, unsigned idx, const void *src_record) {
      * user-visible records list. */
     bool valid_rec = false;
     g_array_insert_val(uat->valid_data, idx, valid_rec);
+
+    /* A new record is an own record of the profile */
+    g_ptr_array_insert(uat->sources, idx, NULL);
 }
 
 void uat_remove_record_idx(uat_t* uat, unsigned idx) {
@@ -212,6 +256,7 @@ void uat_remove_record_idx(uat_t* uat, unsigned idx) {
 
     g_array_remove_index(uat->raw_data, idx);
     g_array_remove_index(uat->valid_data, idx);
+    g_ptr_array_remove_index(uat->sources, idx);
 }
 
 void uat_remove_record_range(uat_t* uat, unsigned idx, unsigned count) {
@@ -230,6 +275,7 @@ void uat_remove_record_range(uat_t* uat, unsigned idx, unsigned count) {
 
     g_array_remove_range(uat->raw_data, idx, count);
     g_array_remove_range(uat->valid_data, idx, count);
+    g_ptr_array_remove_range(uat->sources, idx, count);
 }
 
 void uat_move_index(uat_t * uat, unsigned old_idx, unsigned new_idx)
@@ -393,11 +439,119 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
     g_free(fld_ptr);
 }
 
+static char *uat_record_key(uat_t *uat, void *rec);
+
+/* The keys of the own records, or NULL if no record is inherited */
+static GHashTable *uat_own_keys(uat_t *uat) {
+    bool inherited = false;
+
+    for (unsigned i = 0; i < uat->raw_data->len && !inherited; i++) {
+        inherited = uat_record_is_inherited(uat, i);
+    }
+    if (!inherited) {
+        return NULL;
+    }
+
+    GHashTable *keys = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+    for (unsigned i = 0; i < uat->raw_data->len; i++) {
+        if (!uat_record_is_inherited(uat, i)) {
+            g_hash_table_add(keys, uat_record_key(uat, UAT_INDEX_PTR(uat, i)));
+        }
+    }
+    return keys;
+}
+
+/*
+ * Expose the valid records, own and inherited, to the dissectors. With
+ * run_update_cb, the update callback sets up what the dissector derives
+ * from a record, as when loading it; an inherited record it rejects is not
+ * exposed. The own records were checked when read.
+ */
+static void uat_rebuild_user_data(uat_t* uat, bool run_update_cb) {
+    unsigned i;
+
+    /* Start by clearing current user_data */
+    for ( i = 0 ; i < uat->user_data->len ; i++ ) {
+        if (uat->free_cb) {
+            uat->free_cb(UAT_USER_INDEX_PTR(uat,i));
+        }
+    }
+    g_array_set_size(uat->user_data,0);
+
+    *((uat)->user_ptr) = NULL;
+    *((uat)->nrows_p) = 0;
+
+    /* An inherited record the profile overrides is shown while editing, but not used */
+    GHashTable *own_keys = uat_own_keys(uat);
+
+    /* Now copy "good" raw_data entries to user_data */
+    for ( i = 0 ; i < uat->raw_data->len ; i++ ) {
+        void *rec = UAT_INDEX_PTR(uat, i);
+        bool valid = g_array_index(uat->valid_data, bool, i);
+        if (valid && own_keys && uat_record_is_inherited(uat, i)) {
+            char *key = uat_record_key(uat, rec);
+            valid = !g_hash_table_contains(own_keys, key);
+            g_free(key);
+        }
+        if (valid) {
+            g_array_append_vals(uat->user_data, rec, 1);
+            void *user_rec = UAT_USER_INDEX_PTR(uat, uat->user_data->len - 1);
+            if (uat->copy_cb) {
+                uat->copy_cb(user_rec, rec, (unsigned int) uat->record_size);
+            }
+            /* The own records were checked when read, and a rejected one
+             * must not be dropped from the file when saved */
+            if (run_update_cb && uat->update_cb && uat_record_is_inherited(uat, i)) {
+                char *err = NULL;
+                if (!uat->update_cb(user_rec, &err)) {
+                    ws_warning("UAT %s: an inherited record from %s is not used: %s",
+                               uat->name, uat_record_source(uat, i),
+                               err ? err : "rejected");
+                    if (uat->free_cb) {
+                        uat->free_cb(user_rec);
+                    }
+                    g_array_set_size(uat->user_data, uat->user_data->len - 1);
+                    g_array_index(uat->valid_data, bool, i) = false;
+                }
+                g_free(err);
+            }
+        }
+    }
+
+    if (own_keys) {
+        g_hash_table_destroy(own_keys);
+    }
+
+    UAT_UPDATE(uat);
+    if (uat->user_data->len == 0) {
+        /* No records: keep the pointer NULL as before inheritance */
+        *((uat)->user_ptr) = NULL;
+    }
+}
+
 bool uat_save(uat_t* uat, const char* app_env_var_prefix, char** error) {
     unsigned i;
-    char* fname = uat_get_actual_filename(uat,true, app_env_var_prefix);
+    char* fname;
     FILE* fp;
 
+    /* The own records are not in memory while only the parent's records are used */
+    bool parent_only = uat->from_profile && uat->inherit_mode == PROFILE_INHERIT_PARENT_ONLY;
+
+    unsigned own_count = uat_own_count(uat);
+
+    /* The profile's own file is kept as is if the own records were not
+     * read, and a file without records is written only if the own records
+     * had records when read. Without a file the profile keeps using the
+     * global or inherited records. */
+    if (parent_only || (uat->from_profile && own_count == 0 && !uat->own_read)) {
+        *error = NULL;
+        /* Inherited records are only checked when exposed to the dissectors */
+        uat_rebuild_user_data(uat, uat_own_count(uat) < uat->raw_data->len);
+        uat->changed = false;
+        return true;
+    }
+
+    fname = uat_get_actual_filename(uat,true, app_env_var_prefix);
     if (! fname ) return false;
 
     fp = ws_fopen(fname,"w");
@@ -423,32 +577,8 @@ bool uat_save(uat_t* uat, const char* app_env_var_prefix, char** error) {
     g_free(fname);
 
     /* Ensure raw_data is synced with user_data and all "good" entries have been accounted for */
-
-    /* Start by clearing current user_data */
-    for ( i = 0 ; i < uat->user_data->len ; i++ ) {
-        if (uat->free_cb) {
-            uat->free_cb(UAT_USER_INDEX_PTR(uat,i));
-        }
-    }
-    g_array_set_size(uat->user_data,0);
-
-    *((uat)->user_ptr) = NULL;
-    *((uat)->nrows_p) = 0;
-
-    /* Now copy "good" raw_data entries to user_data */
-    for ( i = 0 ; i < uat->raw_data->len ; i++ ) {
-        void *rec = UAT_INDEX_PTR(uat, i);
-        bool valid = g_array_index(uat->valid_data, bool, i);
-        if (valid) {
-            g_array_append_vals(uat->user_data, rec, 1);
-            if (uat->copy_cb) {
-                uat->copy_cb(UAT_USER_INDEX_PTR(uat, uat->user_data->len - 1),
-                             rec, (unsigned int) uat->record_size);
-            }
-
-            UAT_UPDATE(uat);
-        }
-    }
+    /* Inherited records are only checked when exposed to the dissectors */
+    uat_rebuild_user_data(uat, uat_own_count(uat) < uat->raw_data->len);
 
 
     fprintf(fp,"# This file is automatically generated. BE CAREFUL MODIFYING.\n");
@@ -495,10 +625,15 @@ bool uat_save(uat_t* uat, const char* app_env_var_prefix, char** error) {
         fputs((i == uat->ncols - 1) ? "\n" : "," ,fp);
     }
 
-    for ( i = 0 ; i < uat->user_data->len ; i++ ) {
-        void* rec = uat->user_data->data + (uat->record_size * i);
+    /* Write the valid own records; inherited records belong to a parent profile */
+    for ( i = 0 ; i < uat->raw_data->len ; i++ ) {
+        void* rec = UAT_INDEX_PTR(uat, i);
         uat_field_t* f;
         unsigned j;
+
+        if (!g_array_index(uat->valid_data, bool, i) || uat_record_is_inherited(uat, i)) {
+            continue;
+        }
 
         f = uat->fields;
 
@@ -513,6 +648,8 @@ bool uat_save(uat_t* uat, const char* app_env_var_prefix, char** error) {
     fclose(fp);
 
     uat->changed = false;
+    uat->own_from_global = false;
+    uat->own_read = own_count > 0;
 
     return true;
 }
@@ -548,7 +685,7 @@ void uat_clear(uat_t* uat) {
     g_array_set_size(uat->raw_data,0);
     g_array_set_size(uat->user_data,0);
     g_array_set_size(uat->valid_data,0);
-
+    g_ptr_array_set_size(uat->sources,0);
     *((uat)->user_ptr) = NULL;
     *((uat)->nrows_p) = 0;
 
@@ -581,6 +718,8 @@ static void free_uat(uat_t *uat)
     g_array_free(uat->user_data, true);
     g_array_free(uat->raw_data, true);
     g_array_free(uat->valid_data, true);
+    g_ptr_array_free(uat->sources, true);
+    g_array_free(uat->key_fields, true);
     for (j = 0; uat->fields[j].title; j++)
         g_free(uat->fields[j].priv);
     g_free(uat);
@@ -610,6 +749,336 @@ void uat_foreach_table(uat_cb_t cb,void* user_data) {
     for (i=0; i < all_uats->len; i++)
         cb(g_ptr_array_index(all_uats,i), user_data);
 
+}
+
+void uat_set_key_fields(uat_t *uat, const unsigned *fields, unsigned num_fields) {
+    g_array_set_size(uat->key_fields, 0);
+    for (unsigned i = 0; i < num_fields; i++) {
+        if (fields[i] < uat->ncols) {
+            g_array_append_val(uat->key_fields, fields[i]);
+        }
+    }
+}
+
+void uat_set_enabled_field(uat_t *uat, int field) {
+    uat->enabled_field = (field >= 0 && (unsigned)field < uat->ncols) ? field : -1;
+}
+
+bool uat_record_is_inherited(uat_t *uat, unsigned idx) {
+    return idx < uat->sources->len && g_ptr_array_index(uat->sources, idx) != NULL;
+}
+
+const char *uat_record_source(uat_t *uat, unsigned idx) {
+    return idx < uat->sources->len ? (const char *)g_ptr_array_index(uat->sources, idx) : NULL;
+}
+
+unsigned uat_own_count(uat_t *uat) {
+    unsigned count = 0;
+    for (unsigned i = 0; i < uat->sources->len; i++) {
+        if (g_ptr_array_index(uat->sources, i) == NULL) {
+            count++;
+        }
+    }
+    return count;
+}
+
+profile_inherit_e uat_get_inherit_mode(uat_t *uat) {
+    return uat->inherit_mode;
+}
+
+/* A string identifying a record when ignoring duplicates from parent profiles */
+static char *uat_record_key(uat_t *uat, void *rec) {
+    GString *key = g_string_new(NULL);
+    unsigned nfields = uat->key_fields->len ? uat->key_fields->len : uat->ncols;
+
+    for (unsigned i = 0; i < nfields; i++) {
+        unsigned col = uat->key_fields->len ? g_array_index(uat->key_fields, unsigned, i) : i;
+        char *str = uat_fld_tostr(rec, &uat->fields[col]);
+        g_string_append(key, str);
+        g_string_append_c(key, '\x1f');
+        g_free(str);
+    }
+
+    return g_string_free(key, FALSE);
+}
+
+char *uat_record_key_string(uat_t *uat, unsigned idx) {
+    return uat_record_key(uat, UAT_INDEX_PTR(uat, idx));
+}
+
+static bool uat_record_is_enabled(uat_t *uat, void *rec) {
+    if (uat->enabled_field < 0) {
+        return true;
+    }
+
+    char *str = uat_fld_tostr(rec, &uat->fields[uat->enabled_field]);
+    /* The I/O Graphs write "Enabled" instead of "TRUE" */
+    bool enabled = g_ascii_strcasecmp(str, "TRUE") == 0 || g_strcmp0(str, "Enabled") == 0;
+    g_free(str);
+    return enabled;
+}
+
+/*
+ * Loading a file adds its valid records to the records exposed to the
+ * dissectors. Drop the ones added since, so that records shown while
+ * editing are only applied when the UAT is saved.
+ */
+static void uat_truncate_user_data(uat_t *uat, unsigned len) {
+    for (unsigned i = len; i < uat->user_data->len; i++) {
+        if (uat->free_cb) {
+            uat->free_cb(UAT_USER_INDEX_PTR(uat, i));
+        }
+    }
+    if (uat->user_data->len > len) {
+        g_array_set_size(uat->user_data, len);
+    }
+    UAT_UPDATE(uat);
+}
+
+/*
+ * Append the records inherited from the parent profiles, nearest parent
+ * first. A record is skipped if its key was seen in a nearer profile or if
+ * it is disabled; a disabled record still hides the same record from
+ * profiles further up. Records of one profile don't hide each other.
+ */
+/* Read the records of one parent profile, keeping the new ones it enables */
+static bool uat_read_layer(const profile_inherit_layer_t *layer, const char *path, const char *filename _U_,
+                           profile_inherit_seen_t *seen, void *user_data, char **errx) {
+    uat_t *uat = (uat_t *)user_data;
+    unsigned first = uat->raw_data->len;
+    char *err = NULL;
+
+    uat->loading_inherited = true;
+    bool ok = uat_load_file(uat, path, &err, NULL);
+    uat->loading_inherited = false;
+    if (!ok) {
+        *errx = ws_strdup_printf("%s: %s", path, err ? err : "error");
+    }
+    g_free(err);
+
+    unsigned idx = first;
+    while (idx < uat->raw_data->len) {
+        void *rec = UAT_INDEX_PTR(uat, idx);
+        char *key = uat_record_key(uat, rec);
+        bool duplicate = profile_inherit_seen_check(seen, key);
+        /* A duplicate of an own record is kept to be shown, but not used */
+        bool keep = (!duplicate || (uat->override_keys && g_hash_table_contains(uat->override_keys, key))) &&
+                    uat_record_is_enabled(uat, rec);
+
+        g_free(key);
+        if (!keep) {
+            uat_remove_record_idx(uat, idx);
+            continue;
+        }
+        g_free(g_ptr_array_index(uat->sources, idx));
+        g_ptr_array_index(uat->sources, idx) = g_strdup(layer->profile_name);
+        idx++;
+    }
+    return ok;
+}
+
+static bool uat_add_inherited(uat_t *uat, profile_inherit_e mode, bool keep_overridden, const char *app_env_var_prefix, char **errx) {
+    profile_inherit_seen_t *seen = profile_inherit_seen_new();
+    GHashTable *own_keys = keep_overridden ?
+        g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL) : NULL;
+
+    /* The records already in the table come first, and win over duplicates */
+    for (unsigned i = 0; i < uat->raw_data->len; i++) {
+        char *key = uat_record_key(uat, UAT_INDEX_PTR(uat, i));
+        profile_inherit_seen_check(seen, key);
+        if (own_keys) {
+            g_hash_table_add(own_keys, key);
+        } else {
+            g_free(key);
+        }
+    }
+    profile_inherit_seen_next(seen);
+    uat->override_keys = own_keys;
+
+    bool ok = profile_inherit_read_layers(app_env_var_prefix, uat->filename, NULL, true, mode, seen,
+                                          uat_read_layer, uat, errx);
+
+    uat->override_keys = NULL;
+    if (own_keys) {
+        g_hash_table_destroy(own_keys);
+    }
+    profile_inherit_seen_free(seen);
+    return ok;
+}
+
+bool uat_move_inherited_last(uat_t *uat) {
+    unsigned len = uat->raw_data->len;
+    unsigned pos = 0;
+    bool moved = false;
+
+    /* Nothing to do if no own record follows an inherited record */
+    bool grouped = true;
+    for (unsigned i = 1; i < len && grouped; i++) {
+        if (uat_record_is_inherited(uat, i - 1) && !uat_record_is_inherited(uat, i)) {
+            grouped = false;
+        }
+    }
+    if (grouped) {
+        return false;
+    }
+
+    /* Moving each inherited record to the end keeps their order */
+    for (unsigned k = 0; k < len && pos < len; k++) {
+        if (uat_record_is_inherited(uat, pos)) {
+            if (pos != len - 1) {
+                uat_move_index(uat, pos, len - 1);
+                moved = true;
+            } else {
+                pos++;
+            }
+        } else {
+            pos++;
+        }
+    }
+
+    if (moved) {
+        /* Own records come first for the dissectors as well */
+        uat_rebuild_user_data(uat, true);
+    }
+    return moved;
+}
+
+void uat_remove_inherited_records(uat_t *uat) {
+    unsigned i = 0;
+    while (i < uat->raw_data->len) {
+        if (uat_record_is_inherited(uat, i)) {
+            uat_remove_record_idx(uat, i);
+        } else {
+            i++;
+        }
+    }
+}
+
+bool uat_add_inherited_records(uat_t *uat, const char *app_env_var_prefix, char **errx) {
+    *errx = NULL;
+    if (!uat->from_profile || uat->inherit_mode == PROFILE_INHERIT_PROFILE_ONLY) {
+        return true;
+    }
+
+    unsigned user_len = uat->user_data->len;
+    bool ok = uat_add_inherited(uat, uat->inherit_mode, true, app_env_var_prefix, errx);
+    uat_truncate_user_data(uat, user_len);
+    return ok;
+}
+
+void uat_own_records_edited(uat_t *uat) {
+    /* Records from the global file that were changed are the profile's own */
+    uat->own_from_global = false;
+}
+
+/*
+ * Load the profile's own records. A profile using its own records only
+ * falls back to the global file, which is then marked as such.
+ */
+static bool uat_load_own(uat_t *uat, profile_inherit_e mode, const char *app_env_var_prefix, char **errx) {
+    bool ok = true;
+    char *fname = get_persconffile_path(uat->filename, true, app_env_var_prefix);
+
+    *errx = NULL;
+    uat->own_read = false;
+    if (mode == PROFILE_INHERIT_PARENT_ONLY) {
+        g_free(fname);
+        return true;
+    }
+    if (file_exists(fname)) {
+        ok = uat_load_file(uat, fname, errx, NULL);
+    } else if (mode == PROFILE_INHERIT_PROFILE_ONLY) {
+        g_free(fname);
+        fname = get_datafile_path(uat->filename, app_env_var_prefix);
+        if (file_exists(fname)) {
+            ok = uat_load_file(uat, fname, errx, NULL);
+            uat->own_from_global = true;
+        }
+    }
+    g_free(fname);
+    uat->own_read = uat_own_count(uat) > 0;
+    return ok;
+}
+
+bool uat_load_inherited(uat_t *uat, profile_inherit_e mode, const char *app_env_var_prefix, char **errx) {
+    char *err = NULL;
+
+    uat->inherit_mode = mode;
+    uat->own_from_global = false;
+
+    /* The profile's own records come first */
+    bool own_ok = uat_load_own(uat, mode, app_env_var_prefix, errx);
+    bool ok = own_ok;
+    if (!uat_add_inherited(uat, mode, false, app_env_var_prefix, ok ? errx : &err)) {
+        ok = false;
+    }
+    g_free(err);
+
+    uat->changed = false;
+    uat->loaded = true;
+    /* The inherited records are only checked now */
+    uat_rebuild_user_data(uat, true);
+
+    /* An error in a parent's file doesn't keep the own records from being used */
+    if (own_ok && uat->post_update_cb) {
+        uat->post_update_cb();
+    }
+
+    return ok;
+}
+
+bool uat_set_inherit_mode(uat_t *uat, profile_inherit_e mode, const char *app_env_var_prefix, char **errx) {
+    bool ok = true;
+    char *err = NULL;
+
+    *errx = NULL;
+    if (!uat->from_profile || mode == uat->inherit_mode) {
+        return true;
+    }
+
+    profile_inherit_e old_mode = uat->inherit_mode;
+    unsigned user_len = uat->user_data->len;
+    bool own_in_memory = old_mode != PROFILE_INHERIT_PARENT_ONLY;
+
+    uat_remove_inherited_records(uat);
+
+    if (uat->own_from_global) {
+        /* Unchanged records from the global file are defaults, not own records */
+        uat_remove_record_range(uat, 0, uat->raw_data->len);
+        uat->own_from_global = false;
+        uat->own_read = false;
+        own_in_memory = false;
+    }
+
+    if (mode == PROFILE_INHERIT_PARENT_ONLY) {
+        /* The own records are not used; the file is kept as it is, and read
+         * again for another mode, discarding changes not saved */
+        uat_remove_record_range(uat, 0, uat->raw_data->len);
+        uat->own_read = false;
+    } else if (!own_in_memory) {
+        /* Read the own records as a fresh load would, including the
+         * global file for a profile using its own records only */
+        ok = uat_load_own(uat, mode, app_env_var_prefix, errx);
+    } else if (mode == PROFILE_INHERIT_PROFILE_ONLY && uat->raw_data->len == 0) {
+        /* Without own records or a file, the global records are used, as
+         * a fresh load would; records deleted from a file stay deleted */
+        char *fname = get_persconffile_path(uat->filename, true, app_env_var_prefix);
+        if (!file_exists(fname)) {
+            ok = uat_load_own(uat, mode, app_env_var_prefix, errx);
+        }
+        g_free(fname);
+    }
+
+    uat->inherit_mode = mode;
+    if (!uat_add_inherited(uat, mode, true, app_env_var_prefix, ok ? errx : &err)) {
+        ok = false;
+    }
+    g_free(err);
+
+    /* The records shown are applied when the UAT is saved */
+    uat_truncate_user_data(uat, user_len);
+    uat->changed = true;
+    return ok;
 }
 
 void uat_load_all(const char* app_env_var_prefix) {

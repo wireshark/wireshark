@@ -131,6 +131,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	packet_endpoints.h
 	process_lookup.h
 	processes.h
+	profile_inherit.h
 	regex.h
 	report_message.h
 	saplzclzh.h
@@ -206,6 +207,7 @@ set(WSUTIL_COMMON_FILES
 	privileges.c
 	packet_endpoints.c
 	process_lookup.c
+	profile_inherit.c
 	regex.c
 	rsa.c
 	saplzclzh.c

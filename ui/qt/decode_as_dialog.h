@@ -21,6 +21,8 @@
 #include <QAbstractButton>
 
 class QComboBox;
+class CopyFromProfileButton;
+class ProfileInheritComboBox;
 
 namespace Ui {
 class DecodeAsDialog;
@@ -57,8 +59,19 @@ private:
     /** Delegate for rendering and editing rule entries in the view. */
     DecodeAsDelegate* delegate_;
 
+    /** Button copying entries from another profile. */
+    CopyFromProfileButton *copy_button_;
+
+    /** Selects where the entries come from. */
+    ProfileInheritComboBox *inherit_combo_;
+
     /**
-     * @brief Updates the buttons for the selected rows.
+     * @brief Updates the path label for the selected source of the entries.
+     */
+    void updatePathLabel();
+
+    /**
+     * @brief Updates the buttons for the current row and the source of the entries.
      */
     void updateWidgets();
 
@@ -72,6 +85,9 @@ private:
      * @brief Applies the changes made in the dialog to the underlying Wireshark core.
      */
     void applyChanges();
+
+    /** @brief Applies the entries and saves them in the profile, without closing the dialog. @return true on success. */
+    bool saveEntries();
 
     /**
      * @brief Fills the table model with the current "Decode As" rules.
@@ -95,6 +111,18 @@ private slots:
      * @param filename The path to the profile file.
      */
     void copyFromProfile(QString filename);
+
+    /**
+     * @brief Slot triggered when another source of the entries is selected.
+     * @param mode The inherit mode.
+     */
+    void inheritModeChanged(profile_inherit_e mode);
+
+    /**
+     * @brief Slot triggered when the current item in the tree view changes.
+     * @param current The newly selected model index.
+     * @param previous The previously selected model index.
+     */
 
     /**
      * @brief Slot triggered when the "New" tool button is clicked.

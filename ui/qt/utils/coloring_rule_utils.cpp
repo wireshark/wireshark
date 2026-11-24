@@ -119,6 +119,17 @@ bool findColoringRuleGroup(const ProtoNode *node, ColoringRuleGroup *group)
     return true;
 }
 
+// Rules are matched by name, and by filter text when the entry has one,
+// because names are not unique.
+bool entryMatchesRow(const ColoringRulesModel &model, int row, const ColoringRuleEntry &entry)
+{
+    if (model.index(row, ColoringRulesModel::colName).data(Qt::DisplayRole).toString() != entry.name) {
+        return false;
+    }
+    return entry.filter.isEmpty() ||
+           model.index(row, ColoringRulesModel::colFilter).data(Qt::DisplayRole).toString() == entry.filter;
+}
+
 } // namespace
 
 bool ColoringRuleUtils::entryForNode(const ProtoNode *node, ColoringRuleEntry *entry)
@@ -139,6 +150,19 @@ bool ColoringRuleUtils::isDisabledEntryItem(const ProtoNode *node)
     return findColoringRuleGroup(node, &group) && group.disabled;
 }
 
+QString ColoringRuleUtils::inheritedFrom(const ColoringRuleEntry &entry)
+{
+    ColoringRulesModel model(QApplication::palette().color(QPalette::Text),
+                             QApplication::palette().color(QPalette::Base), nullptr);
+    // Own rules come first and override inherited rules with their name
+    for (int row = 0; row < model.rowCount(); row++) {
+        if (entryMatchesRow(model, row, entry)) {
+            return model.sourceProfile(row);
+        }
+    }
+    return QString();
+}
+
 bool ColoringRuleUtils::setRuleEnabled(const ColoringRuleEntry &entry, bool enabled, QString *err)
 {
     // The default colors are only used for rows added to the model, which
@@ -147,15 +171,10 @@ bool ColoringRuleUtils::setRuleEnabled(const ColoringRuleEntry &entry, bool enab
                              QApplication::palette().color(QPalette::Base), nullptr);
     bool found = false;
     for (int row = 0; row < model.rowCount(); row++) {
+        if (!entryMatchesRow(model, row, entry)) {
+            continue;
+        }
         QModelIndex name_idx = model.index(row, ColoringRulesModel::colName);
-        QModelIndex filter_idx = model.index(row, ColoringRulesModel::colFilter);
-        if (name_idx.data(Qt::DisplayRole).toString() != entry.name) {
-            continue;
-        }
-        if (!entry.filter.isEmpty() &&
-            filter_idx.data(Qt::DisplayRole).toString() != entry.filter) {
-            continue;
-        }
         model.setData(name_idx, enabled ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
         found = true;
     }

@@ -60,8 +60,11 @@
  * such as #RRGGBB instead.
  */
 
-static int read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb, bool require_json);
-static int read_legacy_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb);
+static int read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb, bool require_json, bool keep_compiled);
+static int read_legacy_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb, bool keep_compiled);
+static struct epan_dfilter *color_filter_compile_read(const char *name, const char *text, bool *enabled,
+                                                      bool compile_disabled, const char *path,
+                                                      const char *file_kind);
 
 /* the currently active filters */
 static GSList *color_filter_list;
@@ -262,6 +265,7 @@ color_filter_delete(color_filter_t *colorf)
 {
     g_free(colorf->filter_name);
     g_free(colorf->filter_text);
+    g_free(colorf->source_profile);
     dfilter_free(colorf->c_colorfilter);
     g_free(colorf);
 }
@@ -295,6 +299,7 @@ color_filter_clone(color_filter_t *colorf)
     new_colorf->bg_color            = colorf->bg_color;
     new_colorf->fg_color            = colorf->fg_color;
     new_colorf->enabled             = colorf->enabled;
+    new_colorf->source_profile      = g_strdup(colorf->source_profile);
     new_colorf->c_colorfilter       = NULL;
 
     return new_colorf;
@@ -321,16 +326,19 @@ color_filter_list_clone(GSList *cfl)
     return new_list;
 }
 
+/*
+ * Read the personal rules of the current profile into the list used for
+ * matching. Without a personal file, the global rules are read if
+ * fallback_to_globals is set.
+ */
 static bool
-color_filters_get(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix)
+color_filters_get_own(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix,
+                      bool read_own, bool fallback_to_globals)
 {
     char     *path;
     char     *legacy_path;
     FILE     *f;
     int       ret;
-
-    /* start the list with the temporary colorizing rules */
-    color_filters_add_tmp(&color_filter_list);
 
     /*
      * Resolve both personal paths up front, although at most one file is
@@ -343,6 +351,13 @@ color_filters_get(char** err_msg, color_filter_add_cb_func add_cb, const char* a
     path = get_persconffile_path(COLORING_RULES_FILE_NAME, true, app_env_var_prefix);
     legacy_path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, app_env_var_prefix);
 
+    if (!read_own) {
+        /* Only entries from the parent profiles are used */
+        g_free(legacy_path);
+        g_free(path);
+        return true;
+    }
+
     /*
      * If the personal coloring_rules.jsonc exists, it is the user's rule
      * list and the only file read. A legacy colorfilters file next to it
@@ -350,7 +365,7 @@ color_filters_get(char** err_msg, color_filter_add_cb_func add_cb, const char* a
      * bring back rules the user has since deleted or changed.
      */
     if ((f = ws_fopen(path, "r")) != NULL) {
-        ret = read_filters_file(path, f, &color_filter_list, add_cb, true);
+        ret = read_filters_file(path, f, &color_filter_list, add_cb, true, false);
         fclose(f);
         if (ret != 0) {
             *err_msg = ws_strdup_printf("Error reading coloring rules file\n\"%s\": %s.",
@@ -379,7 +394,7 @@ color_filters_get(char** err_msg, color_filter_add_cb_func add_cb, const char* a
      * out as coloring_rules.jsonc.
      */
     if ((f = ws_fopen(legacy_path, "r")) != NULL) {
-        ret = read_legacy_filters_file(legacy_path, f, &color_filter_list, add_cb);
+        ret = read_legacy_filters_file(legacy_path, f, &color_filter_list, add_cb, false);
         fclose(f);
         if (ret != 0) {
             *err_msg = ws_strdup_printf("Error reading filter file\n\"%s\": %s.",
@@ -398,8 +413,140 @@ color_filters_get(char** err_msg, color_filter_add_cb_func add_cb, const char* a
     }
     g_free(legacy_path);
 
+    if (!fallback_to_globals) {
+        /* Rules are inherited from the parent profiles instead */
+        return true;
+    }
+
     /* They don't have any personal rules; try to read the global rules */
     return color_filters_read_globals(&color_filter_list, err_msg, add_cb, app_env_var_prefix);
+}
+
+/* Collect rules read from a parent profile, in file order */
+static void
+color_filters_collect_cb(color_filter_t *colorf, void *user_data)
+{
+    GSList **cfl = (GSList **)user_data;
+
+    *cfl = g_slist_append(*cfl, colorf);
+}
+
+typedef struct {
+    color_filter_add_cb_func add_cb;  /* called for each inherited rule */
+    void                    *user_data;
+    bool                     keep_compiled; /* the rules are used for matching, so they are compiled when read */
+} color_filters_layer_read_t;
+
+/*
+ * Read the rules of one parent profile. A rule is skipped if it is a
+ * conversation rule, if its name was seen in a nearer profile,
+ * or if it is disabled; a disabled rule still hides the same rule from
+ * profiles further up.
+ */
+static bool
+color_filters_read_layer(const profile_inherit_layer_t *layer, const char *path, const char *filename,
+                         profile_inherit_seen_t *seen, void *user_data, char **err)
+{
+    color_filters_layer_read_t *layer_read = (color_filters_layer_read_t *)user_data;
+    GSList *layer_list = NULL;
+    FILE *f;
+    int ret;
+
+    if ((f = ws_fopen(path, "r")) == NULL) {
+        *err = ws_strdup_printf("Could not open coloring rules file\n\"%s\": %s.", path, g_strerror(errno));
+        return false;
+    }
+    if (strcmp(filename, COLORFILTERS_FILE_NAME) == 0) {
+        ret = read_legacy_filters_file(path, f, &layer_list, color_filters_collect_cb, layer_read->keep_compiled);
+    } else {
+        ret = read_filters_file(path, f, &layer_list, color_filters_collect_cb, true, layer_read->keep_compiled);
+    }
+    fclose(f);
+    if (ret != 0) {
+        *err = ws_strdup_printf("Error reading coloring rules file\n\"%s\": %s.", path, g_strerror(ret));
+        color_filter_list_delete(&layer_list);
+        return false;
+    }
+
+    for (GSList *item = layer_list; item; item = g_slist_next(item)) {
+        color_filter_t *colorf = (color_filter_t *)item->data;
+        bool keep = !color_filter_is_tmp(colorf) &&
+                    !profile_inherit_seen_check(seen, colorf->filter_name) &&
+                    colorf->enabled;
+
+        if (!keep) {
+            color_filter_delete(colorf);
+            continue;
+        }
+        g_free(colorf->source_profile);
+        colorf->source_profile = g_strdup(layer->profile_name);
+        layer_read->add_cb(colorf, layer_read->user_data);
+    }
+    g_slist_free(layer_list);
+    return true;
+}
+
+/* Add an inherited rule, compiled when read, to the list used for matching */
+static void
+color_filters_add_inherited_cb(color_filter_t *colorf, void *user_data _U_)
+{
+    color_filter_list = g_slist_append(color_filter_list, colorf);
+}
+
+/*
+ * Read the inherited rules for a mode. Rules duplicating a rule in own_list,
+ * which may be NULL, are not inherited.
+ */
+static bool
+color_filters_add_inherited(profile_inherit_e mode, GSList *own_list, void *user_data, char **err_msg,
+                            color_filter_add_cb_func add_cb, const char *app_env_var_prefix)
+{
+    profile_inherit_seen_t *seen = profile_inherit_seen_new();
+    /* The rules read for matching are compiled once, when read */
+    color_filters_layer_read_t layer_read = { add_cb, user_data, add_cb == color_filters_add_inherited_cb };
+
+    /* The profile's own rules come first, and win over duplicates from parents */
+    for (GSList *item = own_list; item; item = g_slist_next(item)) {
+        color_filter_t *colorf = (color_filter_t *)item->data;
+        if (!color_filter_is_tmp(colorf))
+            profile_inherit_seen_check(seen, colorf->filter_name);
+    }
+    profile_inherit_seen_next(seen);
+
+    bool ret = profile_inherit_read_layers(app_env_var_prefix, COLORING_RULES_FILE_NAME, COLORFILTERS_FILE_NAME, true,
+                                           mode, seen, color_filters_read_layer, &layer_read, err_msg);
+
+    profile_inherit_seen_free(seen);
+    return ret;
+}
+
+bool
+color_filters_read_inherited(profile_inherit_e mode, void *user_data, char** err_msg,
+                             color_filter_add_cb_func add_cb, const char* app_env_var_prefix)
+{
+    return color_filters_add_inherited(mode, NULL, user_data, err_msg, add_cb, app_env_var_prefix);
+}
+
+static bool
+color_filters_get(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix)
+{
+    profile_inherit_e mode = profile_get_inherit(app_env_var_prefix, NULL, COLORING_RULES_FILE_NAME);
+
+    /* start the list with the temporary colorizing rules */
+    color_filters_add_tmp(&color_filter_list);
+
+    if (!color_filters_get_own(err_msg, add_cb, app_env_var_prefix,
+                               mode != PROFILE_INHERIT_PARENT_ONLY,
+                               mode == PROFILE_INHERIT_PROFILE_ONLY)) {
+        return false;
+    }
+
+    if (mode == PROFILE_INHERIT_PROFILE_ONLY) {
+        return true;
+    }
+
+    return color_filters_add_inherited(mode, color_filter_list, NULL, err_msg,
+                                       color_filters_add_inherited_cb, app_env_var_prefix);
 }
 
 /* Initialize the filter structures (reading from file) for general running, including app startup */
@@ -738,7 +885,7 @@ hex_str_to_color(const char *str, color_t *color)
 }
 
 static int
-read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb, bool require_json)
+read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb, bool require_json, bool keep_compiled)
 {
     long        size;
     char       *buf;
@@ -859,8 +1006,13 @@ read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_c
             *cfl = g_slist_append(*cfl, colorf);
         } else {
             /* external call */
-            /* just editing, don't need the compiled filter */
-            dfilter_free(temp_dfilter);
+            /* just editing, don't need the compiled filter, unless
+             * the caller adds the rule to the list used for matching */
+            if (keep_compiled) {
+                colorf->c_colorfilter = temp_dfilter;
+            } else {
+                dfilter_free(temp_dfilter);
+            }
             add_cb(colorf, user_data);
         }
     }
@@ -875,7 +1027,7 @@ read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_c
 /* XXX Would it make more sense to use GStrings here instead of reallocing
    our buffers? */
 static int
-read_legacy_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb)
+read_legacy_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb, bool keep_compiled)
 {
 #define INIT_BUF_SIZE 128
     char     *name;
@@ -1006,8 +1158,13 @@ read_legacy_filters_file(const char *path, FILE *f, void *user_data, color_filte
                 *cfl = g_slist_append(*cfl, colorf);
             } else {
                 /* external call */
-                /* just editing, don't need the compiled filter */
-                dfilter_free(temp_dfilter);
+                /* just editing, don't need the compiled filter, unless
+                 * the caller adds the rule to the list used for matching */
+                if (keep_compiled) {
+                    colorf->c_colorfilter = temp_dfilter;
+                } else {
+                    dfilter_free(temp_dfilter);
+                }
                 add_cb(colorf, user_data);
             }
         }    /* if sscanf */
@@ -1057,7 +1214,7 @@ color_filters_read_globals(void *user_data, char** err_msg, color_filter_add_cb_
 
     /* Don't try to read the legacy colorfilters file, unlike the personal config. */
 
-    ret = read_filters_file(path, f, user_data, add_cb, true);
+    ret = read_filters_file(path, f, user_data, add_cb, true, false);
     fclose(f);
     if (ret != 0) {
         *err_msg = ws_strdup_printf("Error reading global coloring rules file\n\"%s\": %s.",
@@ -1089,7 +1246,7 @@ color_filters_import(const char *path, void *user_data, char **err_msg, color_fi
      * then the JSONC format. Each parser simply finds no filters if
      * the file isn't in the expected format.
      */
-    ret = read_legacy_filters_file(path, f, user_data, add_cb);
+    ret = read_legacy_filters_file(path, f, user_data, add_cb, false);
     if (ret != 0) {
         *err_msg = ws_strdup_printf("Error reading filter file\n\"%s\": %s.",
                                    path, g_strerror(errno));
@@ -1098,7 +1255,7 @@ color_filters_import(const char *path, void *user_data, char **err_msg, color_fi
     }
 
     /* read_filters_file() seeks to the start of the file. */
-    ret = read_filters_file(path, f, user_data, add_cb, false);
+    ret = read_filters_file(path, f, user_data, add_cb, false, false);
     fclose(f);
     if (ret != 0) {
         *err_msg = ws_strdup_printf("Error reading filter file\n\"%s\": %s.",
@@ -1215,11 +1372,20 @@ write_filters_file(GSList *cfl, FILE *f, bool only_selected, const char* app_nam
 
 /* save filters in users filter file(s) */
 bool
-color_filters_write(GSList *cfl, const char* app_name, const char* app_env_var_prefix, char** err_msg)
+color_filters_write(GSList *cfl_all, const char* app_name, const char* app_env_var_prefix, char** err_msg)
 {
     char *pf_dir_path;
     char *path;
     FILE  *f;
+    GSList *cfl = NULL;
+
+    /* Rules inherited from parent profiles are not written to this profile */
+    for (GSList *item = cfl_all; item; item = g_slist_next(item)) {
+        color_filter_t *colorf = (color_filter_t *)item->data;
+        if (colorf->source_profile == NULL)
+            cfl = g_slist_prepend(cfl, colorf);
+    }
+    cfl = g_slist_reverse(cfl);
 
     /* Create the directory that holds personal configuration files,
        if necessary. */
@@ -1227,6 +1393,7 @@ color_filters_write(GSList *cfl, const char* app_name, const char* app_env_var_p
         *err_msg = ws_strdup_printf("Can't create directory\n\"%s\"\nfor color files: %s.",
                       pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
+        g_slist_free(cfl);
         return false;
     }
 
@@ -1240,6 +1407,7 @@ color_filters_write(GSList *cfl, const char* app_name, const char* app_env_var_p
             *err_msg = ws_strdup_printf("Could not open\n%s\nfor writing: %s.",
                           path, g_strerror(errno));
             g_free(path);
+            g_slist_free(cfl);
             return false;
         }
         write_legacy_filters_file(cfl, f, false, app_name);
@@ -1252,11 +1420,13 @@ color_filters_write(GSList *cfl, const char* app_name, const char* app_env_var_p
         *err_msg = ws_strdup_printf("Could not open\n%s\nfor writing: %s.",
                       path, g_strerror(errno));
         g_free(path);
+        g_slist_free(cfl);
         return false;
     }
     write_filters_file(cfl, f, false, app_name);
     fclose(f);
     g_free(path);
+    g_slist_free(cfl);
     return true;
 }
 

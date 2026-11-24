@@ -47,10 +47,13 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,1">
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,1">
         <item>
          <widget class="ListEditButtons" name="editButtons">
          </widget>
+        </item>
+        <item>
+         <widget class="ProfileInheritComboBox" name="inheritComboBox"/>
         </item>
         <item>
          <widget class="CopyFromProfileButton" name="copyFromProfileButton">
@@ -108,6 +111,11 @@
    <class>CopyFromProfileButton</class>
    <extends>QPushButton</extends>
    <header>widgets/copy_from_profile_button.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ProfileInheritComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets/profile_inherit_combo_box.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

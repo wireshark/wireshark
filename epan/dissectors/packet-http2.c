@@ -5502,6 +5502,8 @@ proto_register_http2(void)
         NULL,
         http2_fake_header_uat_fields
     );
+    /* A record disabled in a parent profile is not inherited */
+    uat_set_enabled_field(fake_headers_uat, 6);
 
     prefs_register_uat_preference(http2_module, "fake_headers", "HTTP2 Fake Headers",
         "A table to define HTTP2 fake headers for parsing a HTTP2 stream conversation that first HEADERS frame is missing.",

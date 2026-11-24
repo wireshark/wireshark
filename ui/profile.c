@@ -21,6 +21,7 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/profile_inherit.h>
 
 #include "profile.h"
 
@@ -302,7 +303,6 @@ void profile_empty_list(void)
 
 // Use a settings file in case we ever want to include an author, description,
 // URL, etc.
-#define PROFILE_SETTINGS_FILENAME "profile_settings"
 #define AUTO_SWITCH_FILTER_KEY "auto_switch_filter"
 
 static char *get_profile_settings_path(const char *profile_name, bool is_global, const char* app_env_var_prefix) {
@@ -361,8 +361,16 @@ bool profile_save_settings(const char* name, const char* app_env_var_prefix, con
     char *profile_settings_path = get_profile_settings_path(profile->name, false, app_env_var_prefix);
     FILE *fp;
 
+    /* Keep the inherit settings, which are written by profile_set_inherit() */
+    GHashTable *inherit_settings = profile_inherit_read_settings(profile_settings_path, err_info);
+    if (inherit_settings == NULL) {
+        /* Don't replace a file that could not be read, losing its settings */
+        g_free(profile_settings_path);
+        return false;
+    }
 
     if ((fp = ws_fopen(profile_settings_path, "w")) == NULL) {
+        g_hash_table_destroy(inherit_settings);
         *err_info = g_strdup_printf("Can't open recent file\n\"%s\": %s.", profile_settings_path,
             g_strerror(errno));
         g_free(profile_settings_path);
@@ -373,6 +381,19 @@ bool profile_save_settings(const char* name, const char* app_env_var_prefix, con
     fprintf(fp, "# profile settings file for %s " VERSION ". Edit with care.\n", app_name);
     fprintf(fp, "\n# Automatically switch to this profile if this display filter matches.\n");
     fprintf(fp, AUTO_SWITCH_FILTER_KEY ": %s\n", profile->auto_switch_filter);
+
+    GList *filenames = g_list_sort(g_hash_table_get_keys(inherit_settings), (GCompareFunc)g_strcmp0);
+    for (GList *item = filenames; item; item = g_list_next(item)) {
+        const char *filename = (const char *)item->data;
+        profile_inherit_e mode = profile_inherit_mode_from_str((const char *)g_hash_table_lookup(inherit_settings, filename));
+        if (mode == PROFILE_INHERIT_PROFILE_ONLY)
+            continue;
+        char *lines = profile_inherit_settings_lines(filename, mode);
+        fputs(lines, fp);
+        g_free(lines);
+    }
+    g_list_free(filenames);
+    g_hash_table_destroy(inherit_settings);
 
     fclose(fp);
     return true;

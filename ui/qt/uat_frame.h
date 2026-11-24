@@ -12,6 +12,8 @@
 
 #include <QFrame>
 
+#include <wsutil/profile_inherit.h>
+
 #include <ui/qt/geometry_state_dialog.h>
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/uat_delegate.h>
@@ -52,6 +54,9 @@ public:
      */
     void acceptChanges();
 
+    /** @brief Saves the records without closing the dialog. @return true on success. */
+    bool saveRecords();
+
     /**
      * @brief Rejects and discards the pending changes.
      */
@@ -76,7 +81,10 @@ private:
     /** @brief Pointer to the underlying UAT structure. */
     struct epan_uat *uat_;
 
-    /** @brief Updates the buttons for the selected rows. */
+    /** @brief Updates the path label for the selected source of the records. */
+    void updatePathLabel();
+
+    /** @brief Updates the buttons for the selected rows and the source of the records. */
     void updateWidgets();
 
     /**
@@ -165,6 +173,12 @@ private slots:
      * @brief Handles clicks on the "Clear" tool button.
      */
     void clearClicked();
+
+    /**
+     * @brief Slot triggered when another source of the records is selected.
+     * @param mode The inherit mode.
+     */
+    void inheritModeChanged(profile_inherit_e mode);
 };
 
 #endif // UAT_FRAME_H

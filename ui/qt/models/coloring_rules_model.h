@@ -15,8 +15,9 @@
 #include <config.h>
 
 #include <epan/color_filters.h>
+#include <wsutil/profile_inherit.h>
 
-#include <ui/qt/models/tree_model_helpers.h>
+#include <ui/qt/models/inherited_rules_model.h>
 
 #include <QList>
 #include <QColor>
@@ -73,6 +74,12 @@ public:
     /** @brief The background color applied by the rule. */
     QColor background_;
 
+    /** @brief The parent profile the rule is inherited from, empty for an own rule. */
+    QString source_profile_;
+
+    /** @brief Whether the rule comes from a parent profile; such a rule is read-only. @return true if inherited. */
+    bool isInherited() const { return !source_profile_.isEmpty(); }
+
     /**
      * @brief Assignment operator for ColoringRuleItem.
      * @param rhs The item to assign from.
@@ -85,7 +92,7 @@ public:
 /**
  * @brief A model managing the coloring rules for packet display.
  */
-class ColoringRulesModel : public QAbstractItemModel
+class ColoringRulesModel : public InheritedRulesModel<ColoringRuleItem>
 {
     Q_OBJECT
 
@@ -184,23 +191,6 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
 
-    /**
-     * @brief Generates an index for the specified row and column.
-     * @param row The row number.
-     * @param column The column number.
-     * @param parent The parent model index (defaults to an invalid QModelIndex).
-     * @return The generated model index.
-     */
-    QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const override;
-
-    /**
-     * @brief Retrieves the parent index of the specified index.
-     * @param indexItem The child model index.
-     * @return The parent model index.
-     */
-    QModelIndex parent(const QModelIndex &indexItem) const override;
-
     //Drag & drop functionality
     /**
      * @brief Specifies the supported drag and drop actions.
@@ -233,13 +223,6 @@ public:
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
     /**
-     * @brief Returns the number of rows under the given parent.
-     * @param parent The parent model index (defaults to an invalid QModelIndex).
-     * @return The number of rows in the model.
-     */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-
-    /**
      * @brief Returns the number of columns under the given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of columns in the model.
@@ -265,25 +248,19 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     /**
-     * @brief Moves rules, as RowMoveTreeView and the UAT model do.
-     * @param sourceParent Unused, the rules are a flat list.
-     * @param sourceRow The first rule to move.
-     * @param count The number of rules to move.
-     * @param destinationParent Unused, the rules are a flat list.
-     * @param destinationChild The row where the first rule moved up, or the
-     * last rule moved down, ends up.
-     * @return true if the rules were moved.
-     */
-    bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count,
-                  const QModelIndex &destinationParent, int destinationChild) override;
-
-    /**
      * @brief Copies a row from one index to another.
      * @param dst_row The destination row index.
      * @param src_row The source row index.
      * @return True if the copy was successful, false otherwise.
      */
     bool copyRow(int dst_row, int src_row);
+
+protected:
+    QList<ColoringRuleItem*> readInherited(profile_inherit_e mode) override;
+    void leavingInheritMode(profile_inherit_e mode) override;
+    QList<ColoringRuleItem *> readOwnRows() override;
+    QColor iconColor(const ColoringRuleItem *rule) const override { return rule->foreground_; }
+    void enteredInheritMode(profile_inherit_e mode) override;
 
 private:
     /**
@@ -297,8 +274,12 @@ private:
      */
     struct _GSList *createColorFilterList();
 
-    /** @brief Pointer to the root item of the coloring rules tree. */
-    ColoringRuleItem* root_;
+    /**
+     * @brief Creates a GSList of color filters from rule items.
+     * @param rules The rule items.
+     * @return A pointer to the created GSList structure.
+     */
+    struct _GSList *createColorFilterList(const QList<ColoringRuleItem*> &rules);
 
     //Save off the conversation colors, do not include in dialog
     /** @brief Saved list of conversation colors (excluded from dialog). */
@@ -312,6 +293,21 @@ private:
 
     /** @brief List of rows currently involved in a drag-and-drop operation. */
     QList<int> dragDropRows_;
+
+    /** @brief The profile's coloring rules file, or else its legacy colorfilters file. @return The path. */
+    QString ownFilePath() const;
+
+    /** @brief Whether the profile's file has rules, which an empty file may replace. @return true if so. */
+    bool ownFileHasRules() const;
+
+    /** @brief Set if the own rules are the default rules, read without a file of the profile. */
+    bool own_from_globals_;
+
+    /** @brief Set if the profile has a coloring rules file. */
+    bool own_file_exists_;
+
+    /** @brief The unchanged default rules, while the rules are inherited. */
+    QList<ColoringRuleItem*> default_rules_;
 };
 
 #endif // COLORING_RULES_MODEL_H

@@ -27,6 +27,7 @@
 #include <ui/qt/widgets/field_filter_edit.h>
 #include <ui/qt/widgets/editor_file_dialog.h>
 #include <ui/qt/widgets/path_selection_edit.h>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
 
 // The Qt docs suggest overriding updateEditorGeometry, but the
 // defaults seem sane.
@@ -39,6 +40,13 @@ uat_field_t *UatDelegate::indexToField(const QModelIndex &index) const
 {
     const QVariant v = index.model()->data(index, Qt::UserRole);
     return static_cast<uat_field_t *>(v.value<void *>());
+}
+
+QSize UatDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index));
 }
 
 QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,

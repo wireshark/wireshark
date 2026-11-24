@@ -19,6 +19,8 @@
 #include "uat.h"
 #include "ws_symbol_export.h"
 
+#include <wsutil/profile_inherit.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -66,6 +68,14 @@ struct epan_uat {
     uat_rep_t*           rep;              /**< Opaque GUI representation handle for the UAT table as a whole. */
     uat_rep_free_cb_t    free_rep;         /**< Callback used to release the UAT-level GUI representation handle. */
     bool                 loaded;           /**< True if the UAT has been successfully loaded from its backing file. */
+    GPtrArray*           sources;          /**< Parallel to raw_data: the parent profile a record is inherited from, or NULL for an own record. */
+    profile_inherit_e    inherit_mode;     /**< Where the records come from, for a UAT loaded from the profile. */
+    GArray*              key_fields;       /**< Indexes of the fields identifying a record when ignoring duplicates from parent profiles; empty for all fields. */
+    int                  enabled_field;    /**< Index of a bool field which, if false, keeps a record from being inherited; -1 for none. */
+    bool                 own_from_global;  /**< True if the own records were read from the global file, and are unchanged defaults. */
+    bool                 loading_inherited; /**< True while reading a parent profile's file; its records are not exposed to the dissectors yet. */
+    GHashTable*          override_keys;    /**< While adding inherited records for editing: the keys of the own records, which an inherited record with the same key is kept for, but not used; NULL otherwise. */
+    bool                 own_read;         /**< True if the own records had records when read: the profile's file, or the global records used without one. Only then is a file without records written. */
 };
 
 /**
@@ -164,6 +174,132 @@ void uat_clear(uat_t *uat);
  */
 WS_DLL_PUBLIC
 bool uat_save(uat_t *uat, const char* app_env_var_prefix, char **error);
+
+/**
+ * @brief Loads records from a file, appending them to the UAT.
+ *
+ * Unlike uat_load(), this does not call the post update callback. Valid
+ * records are appended to the records exposed to the dissectors as well,
+ * which the caller may drop again.
+ * @param uat The UAT.
+ * @param fname The file to read.
+ * @param errx Set to a g_malloc()'d error message on failure.
+ * @param opened Set to true if the file was opened, even if reading it failed; may be NULL.
+ * @return true on success.
+ */
+bool uat_load_file(uat_t *uat, const char *fname, char **errx, bool *opened);
+
+/**
+ * @brief Loads the records of a UAT from its profile file and the parent profiles.
+ *
+ * The profile's own records come first, then the records from the parent
+ * profiles, nearest parent first. Records from a parent duplicating a record
+ * from a nearer profile, or disabled in the parent, are not inherited.
+ * @param uat The UAT, which should be empty.
+ * @param mode The inherit mode.
+ * @param app_env_var_prefix The prefix for the application environment variable.
+ * @param errx Set to a g_malloc()'d error message on failure.
+ * @return true on success.
+ */
+bool uat_load_inherited(uat_t *uat, profile_inherit_e mode, const char *app_env_var_prefix, char **errx);
+
+/**
+ * @brief Whether a record is inherited from a parent profile.
+ * @param uat The UAT.
+ * @param idx The index of the record.
+ * @return true if inherited.
+ */
+WS_DLL_PUBLIC
+bool uat_record_is_inherited(uat_t *uat, unsigned idx);
+
+/**
+ * @brief The parent profile a record is inherited from.
+ * @param uat The UAT.
+ * @param idx The index of the record.
+ * @return The profile name, or NULL for an own record.
+ */
+WS_DLL_PUBLIC
+const char *uat_record_source(uat_t *uat, unsigned idx);
+
+/**
+ * @brief The number of the profile's own records, which come first.
+ * @param uat The UAT.
+ * @return The number of own records.
+ */
+WS_DLL_PUBLIC
+unsigned uat_own_count(uat_t *uat);
+
+/**
+ * @brief Selects where the records of a UAT come from, reloading the inherited records.
+ *
+ * In PROFILE_INHERIT_PARENT_ONLY mode the own records are removed, and the
+ * profile's file is not written by uat_save(); another mode reads them again.
+ * @param uat The UAT.
+ * @param mode The inherit mode.
+ * @param app_env_var_prefix The prefix for the application environment variable.
+ * @param errx Set to a g_malloc()'d error message on failure.
+ * @return true on success.
+ */
+WS_DLL_PUBLIC
+bool uat_set_inherit_mode(uat_t *uat, profile_inherit_e mode, const char *app_env_var_prefix, char **errx);
+
+/**
+ * @brief Moves the records inherited from parent profiles after the own records.
+ *
+ * Used after appending own records, e.g. when copying from another profile.
+ * The records exposed to the dissectors are updated if any moved.
+ * @param uat The UAT.
+ * @return true if any record moved.
+ */
+WS_DLL_PUBLIC
+bool uat_move_inherited_last(uat_t *uat);
+
+/**
+ * @brief The key identifying a record when ignoring duplicates from parent profiles.
+ * @param uat The UAT.
+ * @param idx The index of the record.
+ * @return A g_malloc()'d string.
+ */
+WS_DLL_PUBLIC
+char *uat_record_key_string(uat_t *uat, unsigned idx);
+
+/**
+ * @brief Marks the own records as changed by the user.
+ *
+ * Own records read from the global file are otherwise taken as defaults,
+ * which are dropped when the records are inherited from the parents.
+ * @param uat The UAT.
+ */
+WS_DLL_PUBLIC
+void uat_own_records_edited(uat_t *uat);
+
+/**
+ * @brief Removes the records inherited from parent profiles.
+ * @param uat The UAT.
+ */
+WS_DLL_PUBLIC
+void uat_remove_inherited_records(uat_t *uat);
+
+/**
+ * @brief Appends the records inherited from parent profiles for the selected mode.
+ *
+ * Records duplicating a record already in the UAT are not inherited, so
+ * this is used to refresh the inherited records after own records changed.
+ * @param uat The UAT, which should have no inherited records.
+ * @param app_env_var_prefix The prefix for the application environment variable.
+ * @param errx Set to a g_malloc()'d error message on failure.
+ * @return true on success.
+ */
+WS_DLL_PUBLIC
+bool uat_add_inherited_records(uat_t *uat, const char *app_env_var_prefix, char **errx);
+
+/**
+ * @brief Where the records of a UAT come from.
+ * @param uat The UAT.
+ * @return The inherit mode.
+ */
+WS_DLL_PUBLIC
+profile_inherit_e uat_get_inherit_mode(uat_t *uat);
 
 /**
  * @brief Loads the records for all registered UATs from file.

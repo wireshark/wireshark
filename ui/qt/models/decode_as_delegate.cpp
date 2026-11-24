@@ -19,6 +19,7 @@
 #include <QEvent>
 #include <QLineEdit>
 #include <QTreeView>
+#include <ui/qt/widgets/profile_inherit_combo_box.h>
 
 DecodeAsDelegate::DecodeAsDelegate(QObject *parent, capture_file *cf)
  : QStyledItemDelegate(parent),
@@ -135,6 +136,13 @@ void DecodeAsDelegate::decodeAddProtocol(const char *, const char *proto_name, v
     }
 
     proto_data->protocols.append(dissector_info);
+}
+
+QSize DecodeAsDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index));
 }
 
 QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptionViewItem &option,

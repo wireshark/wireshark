@@ -12,12 +12,16 @@
 
 #include <config.h>
 
+#include <wsutil/profile_inherit.h>
+
 #include "geometry_state_dialog.h"
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/uat_delegate.h>
 
 class QComboBox;
 class QPushButton;
+class CopyFromProfileButton;
+class ProfileInheritComboBox;
 class QItemSelection;
 
 struct epan_uat;
@@ -94,6 +98,9 @@ private slots:
      */
     void acceptChanges();
 
+    /** @brief Saves the records without closing the dialog. @return true on success. */
+    bool saveRecords();
+
     /**
      * @brief Discards all pending changes and closes the dialog.
      */
@@ -124,6 +131,8 @@ private slots:
      */
     void on_buttonBox_helpRequested();
 
+    void inheritModeChanged(profile_inherit_e mode);
+
 private:
     /** @brief Qt Designer-generated UI members. */
     Ui::UatDialog *ui;
@@ -143,7 +152,12 @@ private:
     /** @brief The raw UAT structure being edited. */
     struct epan_uat *uat_;
 
-    /** @brief Enables the buttons editing the list for the selection. */
+    CopyFromProfileButton *copy_button_;
+
+    ProfileInheritComboBox *inherit_combo_;
+
+    void updatePathLabel();
+
     void updateWidgets();
 
     /**
