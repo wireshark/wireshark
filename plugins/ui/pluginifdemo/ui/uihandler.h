@@ -72,11 +72,13 @@ extern "C" {
 extern void pluginifdemo_ui_about(ext_menubar_gui_type gui_type, void *gui_data);
 
 /**
- * @brief Registers a toolbar for the plugin.
+ * @brief Shows the plugin's main dialog.
  *
- * This function registers a new toolbar entry with the given name and associates it with a callback function that will be executed when the toolbar item is activated.
+ * Also registers a "frame" tap listener whose reset callback closes the
+ * dialog when the capture file is reloaded, e.g. when a filter is applied.
  *
- * @param toolbar A pointer to the ext_toolbar_t structure representing the toolbar to be registered.
+ * @param gui_type The type of GUI (e.g., Qt, GTK).
+ * @param gui_data Pointer to GUI-specific data.
  */
 extern void pluginifdemo_ui_main(ext_menubar_gui_type gui_type, void *gui_data);
 
@@ -88,11 +90,11 @@ extern void pluginifdemo_ui_main(ext_menubar_gui_type gui_type, void *gui_data);
 extern void pluginifdemo_toolbar_log(const char * message);
 
 /**
- * @brief Registers a toolbar for the plugin.
+ * @brief Registers the plugin's toolbar with the GUI handler.
  *
- * This function registers a new toolbar entry with the given name and associates it with a callback function that will be executed when the toolbar item is activated.
+ * The dialogs use the toolbar to read and update its items.
  *
- * @param toolbar A pointer to the ext_toolbar_t structure representing the toolbar to be registered.
+ * @param toolbar A pointer to the ext_toolbar_t structure representing the plugin's toolbar.
  */
 extern void pluginifdemo_toolbar_register(ext_toolbar_t * toolbar);
 
