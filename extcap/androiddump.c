@@ -684,7 +684,7 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
         return NULL;
     }
 
-    /* 8 bytes of hex length + terminating NUL */
+    /* 4 bytes of status, 4 bytes of hex length, and the terminating NUL */
     if (buffer_length < 9) {
         ws_warning("Buffer for response too short while sending <%s> to ADB daemon", adb_service);
         if (data_length)
@@ -707,9 +707,10 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
         return NULL;
     }
 
+    /* Leave room for the terminating NUL */
     used_buffer_length = 0;
     while (used_buffer_length < 8) {
-        bytes_to_read = buffer_length - used_buffer_length;
+        bytes_to_read = buffer_length - 1 - used_buffer_length;
         if (bytes_to_read > INT_MAX)
             bytes_to_read = INT_MAX;
         result = recv(sock, buffer + used_buffer_length,  (int)bytes_to_read, 0);
@@ -735,15 +736,15 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
     }
     buffer[8] = tmp_buffer;
 
-    if (buffer_length < length + 8) {
+    if ((size_t)length > buffer_length - 9) {
         ws_warning("Buffer for response too short while sending <%s> to ADB daemon", adb_service);
         if (data_length)
             *data_length = 0;
         return NULL;
     }
 
-    while (used_buffer_length < length + 8) {
-        bytes_to_read = buffer_length - used_buffer_length;
+    while (used_buffer_length < (size_t)length + 8) {
+        bytes_to_read = buffer_length - 1 - used_buffer_length;
         if (bytes_to_read > INT_MAX)
             bytes_to_read = INT_MAX;
         result = recv(sock, buffer + used_buffer_length,  (int)bytes_to_read, 0);
@@ -758,6 +759,7 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
         used_buffer_length += result;
     }
 
+    buffer[used_buffer_length] = '\0';
     if (data_length)
         *data_length = used_buffer_length - 8;
 
@@ -779,6 +781,9 @@ static char *adb_send_and_read(socket_handle_t sock, const char *adb_service, ch
     char      status[4];
     size_t    adb_service_length;
 
+    if (data_length)
+        *data_length = 0;
+
     adb_service_length = strlen(adb_service);
     snprintf(buffer, buffer_length, ADB_HEX4_FORMAT, adb_service_length);
 
@@ -796,9 +801,10 @@ static char *adb_send_and_read(socket_handle_t sock, const char *adb_service, ch
         return NULL;
     }
 
+    /* Leave room for the terminating NUL our callers add to the response */
     used_buffer_length = 0;
     while (used_buffer_length < 4) {
-        result = recv(sock, buffer + used_buffer_length,  (int)(buffer_length - used_buffer_length), 0);
+        result = recv(sock, buffer + used_buffer_length,  (int)(buffer_length - 1 - used_buffer_length), 0);
 
         if (result <= 0) {
             ws_warning("Broken socket connection while fetching reply status for <%s>", adb_service);
@@ -812,7 +818,7 @@ static char *adb_send_and_read(socket_handle_t sock, const char *adb_service, ch
     memcpy(status, buffer, 4);
 
     while (result > 0) {
-        result= recv(sock, buffer + used_buffer_length,  (int)(buffer_length - used_buffer_length), 0);
+        result= recv(sock, buffer + used_buffer_length,  (int)(buffer_length - 1 - used_buffer_length), 0);
 
         if (result < 0) {
             ws_warning("Broken socket connection while reading reply for <%s>", adb_service);
@@ -825,6 +831,7 @@ static char *adb_send_and_read(socket_handle_t sock, const char *adb_service, ch
         used_buffer_length += result;
     }
 
+    buffer[used_buffer_length] = '\0';
     if (data_length)
         *data_length = used_buffer_length - 4;
 
@@ -1070,11 +1077,25 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
     pos = (char *) device_list;
 
     while (pos < (char *) (device_list + device_length)) {
+        char *line_end;
+
+        /* Each line is "<serial> <state> <key>:<value>...", e.g.
+         * "SERIAL device usb:1-1 product:x model:y device:z transport_id:1". */
         prev_pos = pos;
-        pos = strchr(pos, ' ');
-        i_pos = pos;
-        result = (int) (pos - prev_pos);
-        pos = strchr(pos, '\n') + 1;
+        line_end = strchr(pos, '\n');
+        if (line_end) {
+            pos = line_end + 1;
+        } else {
+            line_end = device_list + device_length;
+            pos = line_end;
+        }
+
+        i_pos = (char *) memchr(prev_pos, ' ', line_end - prev_pos);
+        if (!i_pos) {
+            ws_warning("No serial number in device list line, ignore it");
+            continue;
+        }
+        result = (int) (i_pos - prev_pos);
         if (result >= (int) sizeof(serial_number)) {
             ws_warning("Serial number too long, ignore device");
             continue;
@@ -1082,13 +1103,21 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
         memcpy(serial_number, prev_pos, result);
         serial_number[result] = '\0';
 
+        /* The model name runs from after "model:" up to the space before
+         * the following "device:". */
         model_name[0] = '\0';
-        model_pos = g_strstr_len(i_pos, pos - i_pos, "model:");
+        model_pos = g_strstr_len(i_pos, line_end - i_pos, "model:");
         if (model_pos) {
-            device_pos = g_strstr_len(i_pos, pos - i_pos, "device:");
-            if (device_pos && device_pos - model_pos - 6 - 1 < MODEL_NAME_LENGTH_MAX) {
-                memcpy(model_name, model_pos + 6, device_pos - model_pos - 6 - 1);
-                model_name[device_pos - model_pos - 6 - 1] = '\0';
+            ptrdiff_t model_length;
+
+            model_pos += 6;
+            device_pos = g_strstr_len(model_pos, line_end - model_pos, "device:");
+            if (device_pos) {
+                model_length = device_pos - model_pos - 1;
+                if (model_length >= 0 && model_length < MODEL_NAME_LENGTH_MAX) {
+                    memcpy(model_name, model_pos, model_length);
+                    model_name[model_length] = '\0';
+                }
             }
         }
 
@@ -1358,10 +1387,23 @@ static int list_config(char *interface) {
 /* Android Bluetooth Hcidump */
 /*----------------------------------------------------------------------------*/
 
+/* The offset of the first byte in a "hcidump -R -t" record, after the
+ * timestamp and direction, e.g. "2026-11-24 12:00:00.000000 > " */
+#define HCIDUMP_DATA_OFFSET 29
+
+/* Parse a byte written in hex by hcidump, as g_ascii_strtoll() does, and
+ * check that there was one. */
+static bool
+hcidump_parse_byte(const char *hex_data, char **new_hex_data, int64_t *value)
+{
+    *value = g_ascii_strtoll(hex_data, new_hex_data, 16);
+    return *new_hex_data != hex_data && *value >= 0 && *value < 256;
+}
+
 static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
     struct extcap_dumper           extcap_dumper;
-    static char                    data[PACKET_LENGTH];
+    static char                    data[PACKET_LENGTH + 1];
     static char                    packet[PACKET_LENGTH];
     ssize_t                        length;
     ssize_t                        used_buffer_length = 0;
@@ -1417,6 +1459,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         }
 
         used_buffer_length += length;
+        data[used_buffer_length] = '\0';
         i_position =  (char *) memchr(data, '\n', used_buffer_length);
         if (i_position && i_position < data + used_buffer_length) {
             char *state_line_position = i_position + 1;
@@ -1427,7 +1470,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                 return EXIT_CODE_GENERIC;
             }
 
-            i_position =  (char *) memchr(i_position + 1, '\n', used_buffer_length);
+            i_position =  (char *) memchr(i_position + 1, '\n', used_buffer_length - (i_position + 1 - data));
             if (i_position) {
                 i_position += 1;
                 if (!strncmp(state_line_position, "Can't access device: Permission denied", 38)) {
@@ -1476,6 +1519,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
             }
 
             used_buffer_length += length;
+            data[used_buffer_length] = '\0';
             i_position =  (char *) memchr(data, '\n', used_buffer_length);
             if (i_position && i_position < data + used_buffer_length) {
                 if (!strncmp(data, "/system/bin/sh: su: not found", 29)) {
@@ -1484,7 +1528,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                     return EXIT_CODE_GENERIC;
                 }
 
-                i_position =  (char *) memchr(i_position + 1, '\n', used_buffer_length);
+                i_position =  (char *) memchr(i_position + 1, '\n', used_buffer_length - (i_position + 1 - data));
                 if (i_position) {
                     i_position += 1;
                     memmove(data, i_position, used_buffer_length - (i_position - data));
@@ -1511,91 +1555,81 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
             return EXIT_CODE_GENERIC;
         }
 
-        while (endless_loop) {
-            if (used_buffer_length + length >= 1) {
-                hex_data = data + 29;
-                hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
+        char *i_position;
 
-                if  ((hex == 0x01 && used_buffer_length + length >= 4) ||
-                        (hex == 0x02 && used_buffer_length + length >= 5) ||
-                        (hex == 0x04 && used_buffer_length + length >= 3)) {
+        used_buffer_length += length;
+        data[used_buffer_length] = '\0';
 
-                    if (hex == 0x01) {
-                        hex_data = new_hex_data;
-                        hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
-                        if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
-                            ws_warning("data format %s", strerror(errno));
-                            closesocket(sock);
-                            return EXIT_CODE_GENERIC;
-                        }
+        /*
+         * Each record starts with a line with the timestamp, the direction,
+         * and up to 20 bytes in hex, continued on further lines of 20 bytes.
+         * The first line has the packet type and the length.
+         */
+        while (endless_loop && (i_position = (char *) memchr(data, '\n', used_buffer_length)) != NULL) {
+            int64_t packet_type;
 
-                        hex_data = new_hex_data;
-                        hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
-                        if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
-                            ws_warning("data format %s", strerror(errno));
-                            closesocket(sock);
-                            return EXIT_CODE_GENERIC;
-                        }
+            if (i_position - data < HCIDUMP_DATA_OFFSET ||
+                    !hcidump_parse_byte(data + HCIDUMP_DATA_OFFSET, &new_hex_data, &packet_type)) {
+                ws_warning("bad raw stream");
+                closesocket(sock);
+                return EXIT_CODE_GENERIC;
+            }
 
-                        hex_data = new_hex_data;
-                        hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
-
-                        raw_length = hex + 4;
-                    } else if (hex == 0x04) {
-                        hex_data = new_hex_data;
-                        hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
-                        if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
-                            ws_warning("data format %s", strerror(errno));
-                            closesocket(sock);
-                            return EXIT_CODE_GENERIC;
-                        }
-
-                        hex_data = new_hex_data;
-                        hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
-
-                        raw_length = hex + 3;
-                    } else if (hex == 0x02) {
-                        hex_data = new_hex_data;
-                        hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
-                        if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
-                            ws_warning("data format %s", strerror(errno));
-                            closesocket(sock);
-                            return EXIT_CODE_GENERIC;
-                        }
-
-                        hex_data = new_hex_data;
-                        hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
-                        if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
-                            ws_warning("data format %s", strerror(errno));
-                            closesocket(sock);
-                            return EXIT_CODE_GENERIC;
-                        }
-
-                        hex_data = new_hex_data;
-                        hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
-                        raw_length = hex + 5;
-
-                        hex_data = new_hex_data;
-                        hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
-                        raw_length += hex << 8;
-                    }
-
-                } else {
+            switch (packet_type) {
+            case 0x01:
+                /* HCI command: 2 bytes of opcode, 1 byte of length */
+                if (!hcidump_parse_byte(new_hex_data, &new_hex_data, &hex) ||
+                        !hcidump_parse_byte(new_hex_data, &new_hex_data, &hex) ||
+                        !hcidump_parse_byte(new_hex_data, &new_hex_data, &hex)) {
                     ws_warning("bad raw stream");
                     closesocket(sock);
                     return EXIT_CODE_GENERIC;
                 }
-            } else {
-                used_buffer_length += length;
+                raw_length = hex + 4;
                 break;
+            case 0x02:
+                /* ACL data: 2 bytes of handle, 2 bytes of length */
+                if (!hcidump_parse_byte(new_hex_data, &new_hex_data, &hex) ||
+                        !hcidump_parse_byte(new_hex_data, &new_hex_data, &hex) ||
+                        !hcidump_parse_byte(new_hex_data, &new_hex_data, &hex)) {
+                    ws_warning("bad raw stream");
+                    closesocket(sock);
+                    return EXIT_CODE_GENERIC;
+                }
+                raw_length = hex + 5;
+                if (!hcidump_parse_byte(new_hex_data, &new_hex_data, &hex)) {
+                    ws_warning("bad raw stream");
+                    closesocket(sock);
+                    return EXIT_CODE_GENERIC;
+                }
+                raw_length += hex << 8;
+                break;
+            case 0x04:
+                /* HCI event: 1 byte of event code, 1 byte of length */
+                if (!hcidump_parse_byte(new_hex_data, &new_hex_data, &hex) ||
+                        !hcidump_parse_byte(new_hex_data, &new_hex_data, &hex)) {
+                    ws_warning("bad raw stream");
+                    closesocket(sock);
+                    return EXIT_CODE_GENERIC;
+                }
+                raw_length = hex + 3;
+                break;
+            default:
+                ws_warning("bad raw stream");
+                closesocket(sock);
+                return EXIT_CODE_GENERIC;
             }
 
-            frame_length = raw_length * 3 + (raw_length / 20) * 4 + ((raw_length % 20) ? 2 : -2) + 29;
+            frame_length = raw_length * 3 + (raw_length / 20) * 4 + ((raw_length % 20) ? 2 : -2) + HCIDUMP_DATA_OFFSET;
 
-            if ((used_buffer_length + length) < frame_length) {
-                used_buffer_length += length;
-                break;
+            if (frame_length > PACKET_LENGTH) {
+                ws_warning("hcidump record too long");
+                closesocket(sock);
+                return EXIT_CODE_GENERIC;
             }
+
+            if (used_buffer_length < frame_length)
+                break;
 
             if (8 == sscanf(data, "%04d-%02d-%02d %02d:%02d:%02d.%06d %c",
                     &date.tm_year, &date.tm_mon, &date.tm_mday, &date.tm_hour,
@@ -1608,15 +1642,20 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                 date.tm_year -= 1900;
                 date.tm_isdst = -1;
                 ts = mktime(&date);
-
-                new_hex_data = data + 29;
             }
 
+            /* Each byte takes at least one character, and the record fits in
+             * data, so this fits in packet. */
+            new_hex_data = data + HCIDUMP_DATA_OFFSET;
             captured_length = 0;
 
             while ((long)(new_hex_data - data + sizeof(own_pcap_bluetooth_h4_header)) < frame_length) {
                 hex_data = new_hex_data;
-                hex = g_ascii_strtoll(hex_data, &new_hex_data, 16);
+                if (!hcidump_parse_byte(hex_data, &new_hex_data, &hex)) {
+                    ws_warning("bad raw stream");
+                    closesocket(sock);
+                    return EXIT_CODE_GENERIC;
+                }
 
                 packet[sizeof(own_pcap_bluetooth_h4_header) + captured_length] = (char) hex;
                 captured_length += 1;
@@ -1630,9 +1669,9 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                     ts,
                     ms * 1000);
 
-            memmove(data, data + frame_length, (size_t)(used_buffer_length + length - frame_length));
-            used_buffer_length = (ssize_t)(used_buffer_length + length - frame_length);
-            length = 0;
+            memmove(data, data + frame_length, (size_t)(used_buffer_length - frame_length));
+            used_buffer_length -= frame_length;
+            data[used_buffer_length] = '\0';
         }
     }
 
@@ -2036,7 +2075,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
         const char *adb_server_ip, unsigned short *adb_server_tcp_port,
         int logcat_ignore_log_buffer, const char *logcat_custom_parameter) {
     struct extcap_dumper        extcap_dumper;
-    static char                 packet[PACKET_LENGTH];
+    static char                 packet[PACKET_LENGTH + 1];
     ssize_t                     length;
     size_t                      used_buffer_length = 0;
     socket_handle_t             sock;
@@ -2134,6 +2173,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
         }
 
         used_buffer_length += length;
+        packet[exported_pdu_headers_size + used_buffer_length] = '\0';
 
         while (used_buffer_length > 0 && (pos = (char *) memchr(packet + exported_pdu_headers_size, '\n', used_buffer_length))) {
             int        ms;
@@ -2165,6 +2205,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
 
             memmove(packet + exported_pdu_headers_size, packet + length, used_buffer_length + exported_pdu_headers_size - length);
             used_buffer_length -= length - exported_pdu_headers_size;
+            packet[exported_pdu_headers_size + used_buffer_length] = '\0';
         }
     }
 
@@ -2455,8 +2496,8 @@ static int capture_android_tcpdump(char *interface, char *fifo,
 
         used_buffer_length += length;
 
-        while ((used_buffer_length - offset) > PCAP_RECORD_HEADER_LENGTH) {
-            p_header = *((pcaprec_hdr_t*) (data + offset));
+        while ((used_buffer_length - offset) >= PCAP_RECORD_HEADER_LENGTH) {
+            memcpy(&p_header, data + offset, sizeof(p_header));
             if (swap_byte_order) {
                 p_header.ts_sec   = GUINT32_SWAP_LE_BE(p_header.ts_sec);
                 p_header.ts_usec  = GUINT32_SWAP_LE_BE(p_header.ts_usec);
@@ -2467,7 +2508,15 @@ static int capture_android_tcpdump(char *interface, char *fifo,
                 p_header.ts_usec = p_header.ts_usec * 1000;
             }
 
-            frame_length = p_header.incl_len + PCAP_RECORD_HEADER_LENGTH;
+            /* The record has to fit in our buffer. (This also keeps the
+             * addition from wrapping, as it would in 32 bits.) */
+            if (p_header.incl_len > PACKET_LENGTH - PCAP_RECORD_HEADER_LENGTH) {
+                ws_warning("Packet length %u too large", p_header.incl_len);
+                closesocket(sock);
+                return EXIT_CODE_GENERIC;
+            }
+
+            frame_length = (ssize_t)p_header.incl_len + PCAP_RECORD_HEADER_LENGTH;
             if ((used_buffer_length - offset) < frame_length) {
                 break; /* wait for complete packet */
             }
