@@ -1,0 +1,7714 @@
+{
+ "tables": {
+  "AFRecordInformation_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AFChargingIdentifier",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_Flows",
+    "tag": "2"
+   }
+  ],
+  "APNRateControlParameters_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AdditionalExceptionReports",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RateControlTimeUnit",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "3"
+   }
+  ],
+  "APNRateControl_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNRateControlParameters",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNRateControlParameters",
+    "tag": "1"
+   }
+  ],
+  "AccessLineIdentifier_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UTF8String",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "1"
+   }
+  ],
+  "CAMELInformationMM_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SCFAddress",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ms_ServiceKey",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ms_DefaultGPRS_Handling",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NumberOfDPEncountered",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LevelOfCAMELService",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FreeFormatData",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FFDAppendIndicator",
+    "tag": "7"
+   }
+  ],
+  "CAMELInformationPDP_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SCFAddress",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ms_ServiceKey",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ms_DefaultGPRS_Handling",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CAMELAccessPointNameNI",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CAMELAccessPointNameOI",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NumberOfDPEncountered",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LevelOfCAMELService",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FreeFormatData",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FFDAppendIndicator",
+    "tag": "9"
+   }
+  ],
+  "CAMELInformationSMS_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SCFAddress",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ms_ServiceKey",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ms_DefaultSMS_Handling",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallingNumber",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SmsTpDestinationNumber",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_AddressString",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FreeFormatData",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ch_CallReferenceNumber",
+    "tag": "8"
+   }
+  ],
+  "CalleePartyInformation_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_InvolvedParty",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_InvolvedParty",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_InvolvedParty",
+    "tag": "2"
+   }
+  ],
+  "ChangeLocation_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaCode",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CellId",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "4"
+   }
+  ],
+  "ChangeOfCharConditionV651_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_QoSInformation",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_QoSInformation",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChangeConditionV651",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FailureHandlingContinue",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_04",
+    "tag": "8"
+   }
+  ],
+  "ChangeOfCharCondition_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_QoSInformation",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_QoSInformation",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChangeCondition",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_08",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EPCQoSInformation",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PresenceReportingAreaStatus",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UserCSGInformation",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EnhancedDiagnostics",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessAvailabilityChangeReason",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UWANUserLocationInfo",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RelatedChangeOfCharCondition",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CPCIoTEPSOptimisationIndicator",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServingPLMNRateControl",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ThreeGPPPSDataOffStatus",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNRateControl",
+    "tag": "23"
+   }
+  ],
+  "ChangeOfMBMSCondition_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_QoSInformation",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_QoSInformation",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeMBMS",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeMBMS",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChangeCondition",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FailureHandlingContinue",
+    "tag": "7"
+   }
+  ],
+  "ChangeOfServiceConditionV651_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RatingGroupId",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingRuleBaseName",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ResultCode",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServiceConditionChangeV651",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_QoSInformation",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FailureHandlingContinue",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServiceIdentifier",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PSFurnishChargingInformation",
+    "tag": "18"
+   }
+  ],
+  "ChangeOfServiceConditionV750_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RatingGroupId",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingRuleBaseName",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ResultCode",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServiceConditionChangeV750",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_QoSInformation",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FailureHandlingContinue",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServiceIdentifier",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PSFurnishChargingInformation",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_AFRecordInformation",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_05",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EventBasedChargingInformation",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeQuotaMechanism",
+    "tag": "22"
+   }
+  ],
+  "ChangeOfServiceCondition_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RatingGroupId",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingRuleBaseName",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ResultCode",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServiceConditionChange",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EPCQoSInformation",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FailureHandlingContinue",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServiceIdentifier",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PSFurnishChargingInformation",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_AFRecordInformation",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_09",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EventBasedChargingInformation",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeQuotaMechanism",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ServiceSpecificInfo",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ADCRuleBaseName",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PresenceReportingAreaStatus",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UserCSGInformation",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UWANUserLocationInfo",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RelatedChangeOfServiceCondition",
+    "tag": "33"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServingPLMNRateControl",
+    "tag": "35"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNRateControl",
+    "tag": "36"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ThreeGPPPSDataOffStatus",
+    "tag": "37"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TrafficSteeringPolicyIDDownlink",
+    "tag": "38"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TrafficSteeringPolicyIDUplink",
+    "tag": "39"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TWANUserLocationInfo",
+    "tag": "40"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo",
+    "tag": "41"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_VoLTEInformation",
+    "tag": "42"
+   }
+  ],
+  "Diagnostics_choice": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtension",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtension",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_er_PositionMethodFailure_Diagnostic",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_er_UnauthorizedLCSClient_Diagnostic",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "7"
+   }
+  ],
+  "EGSNPDPRecordV750_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallEventRecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NetworkInitiatedPDPContext",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosingV651",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PSFurnishChargingInformation",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSTimeZone",
+    "tag": "31"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_03",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "33"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV750",
+    "tag": "34"
+   }
+  ],
+  "EGSNPDPRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallEventRecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NetworkInitiatedPDPContext",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosingV651",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PSFurnishChargingInformation",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSTimeZone",
+    "tag": "31"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_02",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "33"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV651",
+    "tag": "34"
+   }
+  ],
+  "EPCQoSInformation_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_aRP",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "14"
+   }
+  ],
+  "EPDGRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharCondition",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGWChange",
+    "tag": "34"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "36"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "37"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "38"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "39"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "40"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "43"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "47"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "48"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "50"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "51"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EnhancedDiagnostics",
+    "tag": "52"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UWANUserLocationInfo",
+    "tag": "53"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "54"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "55"
+   }
+  ],
+  "Ecgi_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EutraCellId",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_Nid",
+    "tag": "2"
+   }
+  ],
+  "EnhancedDiagnostics_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_RANNASCause",
+    "tag": "0"
+   }
+  ],
+  "EventBasedChargingInformation_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_TimeStamp",
+    "tag": "2"
+   }
+  ],
+  "FixedUserLocationInformation_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessLineIdentifier",
+    "tag": "2"
+   }
+  ],
+  "Flows_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_flowNumber",
+    "tag": "2"
+   }
+  ],
+  "GGSNMBMSRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MBMSInformation",
+    "tag": "15"
+   }
+  ],
+  "GGSNPDPRecordV750_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NetworkInitiatedPDPContext",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSTimeZone",
+    "tag": "31"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_01",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "33"
+   }
+  ],
+  "GGSNPDPRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallEventRecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NetworkInitiatedPDPContext",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosingV651",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSTimeZone",
+    "tag": "31"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "33"
+   }
+  ],
+  "GPRSCallEventRecord_choice": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNPDPRecordV651",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_GGSNPDPRecord",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNMMRecord",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNSMORecordV651",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNSMTRecordV651",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EGSNPDPRecord",
+    "tag": "28"
+   }
+  ],
+  "GPRSRecord_choice": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNPDPRecord",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_GGSNPDPRecordV750",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNMMRecord",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNSMORecord",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNSMTRecord",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNMTLCSRecord",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNMOLCSRecord",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNNILCSRecord",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EGSNPDPRecordV750",
+    "tag": "70"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNMBMSRecord",
+    "tag": "76"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_GGSNMBMSRecord",
+    "tag": "77"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGWRecord",
+    "tag": "78"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PGWRecord",
+    "tag": "79"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_GWMBMSRecord",
+    "tag": "86"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TDFRecord",
+    "tag": "92"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_IPERecord",
+    "tag": "95"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EPDGRecord",
+    "tag": "96"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TWAGRecord",
+    "tag": "97"
+   }
+  ],
+  "GWMBMSRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MBMSInformation",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CTEID",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "18"
+   }
+  ],
+  "IPAddress_choice": [
+   {
+    "cls": "BER_CLASS_ANY/*choice*/",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_IPBinaryAddress",
+    "tag": "-1/*choice*/"
+   },
+   {
+    "cls": "BER_CLASS_ANY/*choice*/",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_IPTextRepresentedAddress",
+    "tag": "-1/*choice*/"
+   }
+  ],
+  "IPBinV6AddressWithOrWithoutPrefixLength_choice": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_IPBinV6Address",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_IPBinV6AddressWithPrefixLength",
+    "tag": "4"
+   }
+  ],
+  "IPBinV6AddressWithPrefixLength_sequence": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_IPBinV6Address",
+    "tag": "BER_UNI_TAG_OCTETSTRING"
+   },
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_PDPAddressPrefixLength",
+    "tag": "BER_UNI_TAG_INTEGER"
+   }
+  ],
+  "IPBinaryAddress_choice": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_IPBinV4Address",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_ANY/*choice*/",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_IPBinV6AddressWithOrWithoutPrefixLength",
+    "tag": "-1/*choice*/"
+   }
+  ],
+  "IPERecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharCondition",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PSFurnishChargingInformation",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition",
+    "tag": "34"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SubscriptionID",
+    "tag": "36"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "37"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "38"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "39"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "45"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "47"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "50"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "52"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FixedSubsID",
+    "tag": "55"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessLineIdentifier",
+    "tag": "56"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FixedUserLocationInformation",
+    "tag": "57"
+   }
+  ],
+  "IPTextRepresentedAddress_choice": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_IA5String_SIZE_7_15",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_IA5String_SIZE_15_45",
+    "tag": "3"
+   }
+  ],
+  "InvolvedParty_choice": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_GraphicString",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_GraphicString",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_GraphicString",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_GraphicString",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UTF8String",
+    "tag": "4"
+   }
+  ],
+  "LCSClientIdentity_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_LCSClientExternalID",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_AddressString",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_LCSClientInternalID",
+    "tag": "2"
+   }
+  ],
+  "LocationAreaAndCell_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaCode",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CellId",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MCC_MNC",
+    "tag": "2"
+   }
+  ],
+  "MBMSInformation_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TMGI",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MBMSSessionIdentity",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MBMSServiceType",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MBMSUserServiceType",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MBMS2G3GIndicator",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_BOOLEAN",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MBMSServiceArea",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RequiredMBMSBearerCapabilities",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CNIPMulticastDistribution",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MBMSTime",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MBMSTime",
+    "tag": "13"
+   }
+  ],
+  "MOExceptionDataCounter_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "1"
+   }
+  ],
+  "ManagementExtension_sequence": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_T_identifier",
+    "tag": "BER_UNI_TAG_OID"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_BOOLEAN",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_information",
+    "tag": "2"
+   }
+  ],
+  "ManagementExtensions_set_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_ManagementExtension",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "Ncgi_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NrCellId",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_Nid",
+    "tag": "2"
+   }
+  ],
+  "PDPAddress_choice": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_IPAddress",
+    "tag": "0"
+   }
+  ],
+  "PGWRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharCondition",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PSFurnishChargingInformation",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSTimeZone",
+    "tag": "31"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_07",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "33"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition",
+    "tag": "34"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ServingNodeType",
+    "tag": "35"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SubscriptionID",
+    "tag": "36"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "37"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "38"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "39"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "40"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "41"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "42"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UserCSGInformation",
+    "tag": "43"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "44"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "45"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "46"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "47"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "49"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "50"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TWANUserLocationInfo",
+    "tag": "51"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "52"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "53"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CNOperatorSelectionEntity",
+    "tag": "54"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EPCQoSInformation",
+    "tag": "55"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PresenceReportingAreaInfo",
+    "tag": "56"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_lastUserLocationInformation_01",
+    "tag": "57"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSTimeZone",
+    "tag": "58"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EnhancedDiagnostics",
+    "tag": "59"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NBIFOMMode",
+    "tag": "60"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NBIFOMSupport",
+    "tag": "61"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UWANUserLocationInfo",
+    "tag": "62"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGiPtPTunnellingMethod",
+    "tag": "64"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UNIPDUCPOnlyFlag",
+    "tag": "65"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServingPLMNRateControl",
+    "tag": "66"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNRateControl",
+    "tag": "67"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPPDNTypeExtension",
+    "tag": "68"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MOExceptionDataCounter",
+    "tag": "69"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingPerIPCANSessionIndicator",
+    "tag": "70"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ThreeGPPPSDataOffStatus",
+    "tag": "71"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SCSASAddress",
+    "tag": "72"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_RANSecondaryRATUsageReport",
+    "tag": "73"
+   }
+  ],
+  "PSCellInformation_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_Ncgi",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_Ecgi",
+    "tag": "1"
+   }
+  ],
+  "PSFurnishChargingInformation_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FreeFormatData",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FFDAppendIndicator",
+    "tag": "2"
+   }
+  ],
+  "PresenceReportingAreaInfo_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PresenceReportingAreaStatus",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PresenceReportingAreaElementsList",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PresenceReportingAreaNode",
+    "tag": "3"
+   }
+  ],
+  "RANSecondaryRATUsageReport_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SecondaryRATType",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "6"
+   }
+  ],
+  "RelatedChangeOfCharCondition_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChangeCondition",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_10",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PresenceReportingAreaStatus",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UserCSGInformation",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UWANUserLocationInfo",
+    "tag": "17"
+   }
+  ],
+  "RelatedChangeOfServiceCondition_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_11",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PresenceReportingAreaStatus",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UserCSGInformation",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UWANUserLocationInfo",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServiceConditionChange",
+    "tag": "33"
+   }
+  ],
+  "SCSASAddress_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_IPAddress",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DiameterIdentity",
+    "tag": "2"
+   }
+  ],
+  "SEQUENCE_OF_AFRecordInformation_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_AFRecordInformation",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_ChangeLocation_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_ChangeLocation",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_ChangeOfCharConditionV651_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_ChangeOfCharConditionV651",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_ChangeOfCharCondition_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_ChangeOfCharCondition",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_ChangeOfMBMSCondition_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_ChangeOfMBMSCondition",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_ChangeOfServiceConditionV651_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_ChangeOfServiceConditionV651",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_ChangeOfServiceConditionV750_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_ChangeOfServiceConditionV750",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_ChangeOfServiceCondition_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_ChangeOfServiceCondition",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_GSNAddress_sequence_of": [
+   {
+    "cls": "BER_CLASS_ANY/*choice*/",
+    "flags": "BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "-1/*choice*/"
+   }
+  ],
+  "SEQUENCE_OF_InvolvedParty_sequence_of": [
+   {
+    "cls": "BER_CLASS_ANY/*choice*/",
+    "flags": "BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_InvolvedParty",
+    "tag": "-1/*choice*/"
+   }
+  ],
+  "SEQUENCE_OF_PresenceReportingAreaInfo_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_PresenceReportingAreaInfo",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_RAIdentity_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gsm_map_RAIdentity",
+    "tag": "BER_UNI_TAG_OCTETSTRING"
+   }
+  ],
+  "SEQUENCE_OF_RANNASCause_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_RANNASCause",
+    "tag": "BER_UNI_TAG_OCTETSTRING"
+   }
+  ],
+  "SEQUENCE_OF_RANSecondaryRATUsageReport_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_RANSecondaryRATUsageReport",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_ServiceSpecificInfo_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_ServiceSpecificInfo",
+    "tag": "BER_UNI_TAG_SEQUENCE"
+   }
+  ],
+  "SEQUENCE_OF_ServingNodeType_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_ServingNodeType",
+    "tag": "BER_UNI_TAG_ENUMERATED"
+   }
+  ],
+  "SEQUENCE_OF_TimeStamp_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "BER_UNI_TAG_OCTETSTRING"
+   }
+  ],
+  "SGSNMBMSRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_RAIdentity",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MBMSInformation",
+    "tag": "17"
+   }
+  ],
+  "SGSNMMRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSNetworkCapability",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaCode",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CellId",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeLocation",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNChange",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CAMELInformationMM",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CNOperatorSelectionEntity",
+    "tag": "25"
+   }
+  ],
+  "SGSNMOLCSRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordingEntity",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_lcs_LCSClientType",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LCSClientIdentity",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_ss_LocationMethod",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LCSQoSInfo",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_lcs_LCS_Priority",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ISDN_AddressString",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaAndCell",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_lcs_Ext_GeographicalInformation",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PositioningData",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LCSCause",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CNOperatorSelectionEntity",
+    "tag": "27"
+   }
+  ],
+  "SGSNMTLCSRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordingEntity",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_lcs_LCSClientType",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LCSClientIdentity",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_lcs_LocationType",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LCSQoSInfo",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_lcs_LCS_Priority",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ISDN_AddressString",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ms_NotificationToMSUser",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaAndCell",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_lcs_Ext_GeographicalInformation",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PositioningData",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LCSCause",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CNOperatorSelectionEntity",
+    "tag": "29"
+   }
+  ],
+  "SGSNNILCSRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordingEntity",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_lcs_LCSClientType",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LCSClientIdentity",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LCSQoSInfo",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_lcs_LCS_Priority",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_ISDN_AddressString",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaAndCell",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_lcs_Ext_GeographicalInformation",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PositioningData",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LCSCause",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CNOperatorSelectionEntity",
+    "tag": "27"
+   }
+  ],
+  "SGSNPDPRecordV651_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallEventRecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NetworkInitiatedPDPContext",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSNetworkCapability",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaCode",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CellId",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNChange",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosingV651",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameOI",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CAMELInformationPDP",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "31"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "33"
+   }
+  ],
+  "SGSNPDPRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NetworkInitiatedPDPContext",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSNetworkCapability",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaCode",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CellId",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharCondition",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGSNChange",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameOI",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CAMELInformationPDP",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DataVolumeGPRS",
+    "tag": "31"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "33"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "34"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UserCSGInformation",
+    "tag": "35"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "36"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "37"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "38"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CNOperatorSelectionEntity",
+    "tag": "39"
+   }
+  ],
+  "SGSNSMORecordV651_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallEventRecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSNetworkCapability",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_AddressString",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordingEntity",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaCode",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CellId",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MessageReference",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_SMSResult",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SmsTpDestinationNumber",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CAMELInformationSMS",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "20"
+   }
+  ],
+  "SGSNSMORecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSNetworkCapability",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_AddressString",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordingEntity",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaCode",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CellId",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MessageReference",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_SMSResult",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SmsTpDestinationNumber",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CAMELInformationSMS",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServingNodeType",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DiameterIdentity",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DiameterIdentity",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CNOperatorSelectionEntity",
+    "tag": "30"
+   }
+  ],
+  "SGSNSMTRecordV651_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallEventRecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSNetworkCapability",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_AddressString",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordingEntity",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaCode",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CellId",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_SMSResult",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CAMELInformationSMS",
+    "tag": "18"
+   }
+  ],
+  "SGSNSMTRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSNetworkCapability",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_AddressString",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordingEntity",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocationAreaCode",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RoutingAreaCode",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CellId",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "10"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_SMSResult",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CAMELInformationSMS",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_AddressString",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServingNodeType",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DiameterIdentity",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DiameterIdentity",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "26"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CNOperatorSelectionEntity",
+    "tag": "29"
+   }
+  ],
+  "SGWRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharCondition",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "25"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSTimeZone",
+    "tag": "31"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_userLocationInformation_06",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGWChange",
+    "tag": "34"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ServingNodeType",
+    "tag": "35"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "36"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "37"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "38"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "39"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "40"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "41"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UserCSGInformation",
+    "tag": "42"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "43"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "44"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "47"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "48"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "49"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "50"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "51"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "52"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CNOperatorSelectionEntity",
+    "tag": "53"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PresenceReportingAreaInfo",
+    "tag": "54"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_T_lastUserLocationInformation",
+    "tag": "55"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSTimeZone",
+    "tag": "56"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EnhancedDiagnostics",
+    "tag": "57"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CPCIoTEPSOptimisationIndicator",
+    "tag": "59"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UNIPDUCPOnlyFlag",
+    "tag": "60"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ServingPLMNRateControl",
+    "tag": "61"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPPDNTypeExtension",
+    "tag": "62"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MOExceptionDataCounter",
+    "tag": "63"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_RANSecondaryRATUsageReport",
+    "tag": "64"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PSCellInformation",
+    "tag": "65"
+   }
+  ],
+  "ServiceSpecificInfo_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_GraphicString",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "1"
+   }
+  ],
+  "ServingPLMNRateControl_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "1"
+   }
+  ],
+  "SubscriptionID_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SubscriptionIDType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UTF8String",
+    "tag": "1"
+   }
+  ],
+  "TDFRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "27"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PSFurnishChargingInformation",
+    "tag": "28"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSTimeZone",
+    "tag": "31"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "32"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition",
+    "tag": "34"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ServingNodeType",
+    "tag": "35"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SubscriptionID",
+    "tag": "36"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "37"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "38"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "39"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "40"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "41"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_UserCSGInformation",
+    "tag": "43"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "44"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "45"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "47"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_GSNAddress",
+    "tag": "49"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "50"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TWANUserLocationInfo",
+    "tag": "51"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "52"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "53"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "54"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "55"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FixedSubsID",
+    "tag": "56"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessLineIdentifier",
+    "tag": "57"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_FixedUserLocationInformation",
+    "tag": "59"
+   }
+  ],
+  "TWAGRecord_set": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RecordType",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMSI",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_AccessPointNameNI",
+    "tag": "7"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PDPType",
+    "tag": "8"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "9"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "11"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_ChangeOfCharCondition",
+    "tag": "12"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "13"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CallDuration",
+    "tag": "14"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CauseForRecClosing",
+    "tag": "15"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_Diagnostics",
+    "tag": "16"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "17"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NodeID",
+    "tag": "18"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ManagementExtensions",
+    "tag": "19"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_LocalSequenceNumber",
+    "tag": "20"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_APNSelectionMode",
+    "tag": "21"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_MSISDN",
+    "tag": "22"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingCharacteristics",
+    "tag": "23"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChChSelectionMode",
+    "tag": "24"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gsm_map_IMEI",
+    "tag": "29"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_RATType",
+    "tag": "30"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SGWChange",
+    "tag": "34"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "36"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "37"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "38"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeStamp",
+    "tag": "39"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_ChargingID",
+    "tag": "40"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_PDPAddress",
+    "tag": "43"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_DynamicAddressFlag",
+    "tag": "47"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "48"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_GSNAddress",
+    "tag": "50"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "51"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_EnhancedDiagnostics",
+    "tag": "52"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TWANUserLocationInfo",
+    "tag": "53"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "54"
+   }
+  ],
+  "TWANUserLocationInfo_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CivicAddressInformation",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_WLANOperatorId",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "4"
+   }
+  ],
+  "T_flowNumber_sequence_of": [
+   {
+    "cls": "BER_CLASS_UNI",
+    "flags": "BER_FLAGS_NOOWNTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "BER_UNI_TAG_INTEGER"
+   }
+  ],
+  "TimeQuotaMechanism_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_TimeQuotaType",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_INTEGER",
+    "tag": "2"
+   }
+  ],
+  "UWANUserLocationInfo_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG",
+    "fn": "dissect_gprscdr_IPAddress",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING_SIZE_2",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "2"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "3"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING_SIZE_2",
+    "tag": "4"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CivicAddressInformation",
+    "tag": "5"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_WLANOperatorId",
+    "tag": "6"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "7"
+   }
+  ],
+  "UserCSGInformation_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CSGId",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CSGAccessMode",
+    "tag": "1"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_NULL",
+    "tag": "2"
+   }
+  ],
+  "VoLTEInformation_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_SEQUENCE_OF_InvolvedParty",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_CalleePartyInformation",
+    "tag": "1"
+   }
+  ],
+  "WLANOperatorId_sequence": [
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_OCTET_STRING",
+    "tag": "0"
+   },
+   {
+    "cls": "BER_CLASS_CON",
+    "flags": "BER_FLAGS_IMPLTAG",
+    "fn": "dissect_gprscdr_PLMN_Id",
+    "tag": "1"
+   }
+  ]
+ },
+ "types": {
+  "ADCRuleBaseName": {
+   "kind": "restricted_string",
+   "tag": "IA5String"
+  },
+  "AFChargingIdentifier": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "AFRecordInformation": {
+   "kind": "sequence",
+   "table": "AFRecordInformation_sequence"
+  },
+  "APNRateControl": {
+   "kind": "sequence",
+   "table": "APNRateControl_sequence"
+  },
+  "APNRateControlParameters": {
+   "kind": "sequence",
+   "table": "APNRateControlParameters_sequence"
+  },
+  "APNSelectionMode": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "AccessAvailabilityChangeReason": {
+   "kind": "constrained_integer",
+   "range": [
+    0,
+    4294967295
+   ]
+  },
+  "AccessLineIdentifier": {
+   "kind": "sequence",
+   "table": "AccessLineIdentifier_sequence"
+  },
+  "AccessPointNameNI": {
+   "kind": "constrained_restricted_string",
+   "range": [
+    1,
+    63
+   ],
+   "tag": "IA5String"
+  },
+  "AccessPointNameOI": {
+   "kind": "constrained_restricted_string",
+   "range": [
+    1,
+    37
+   ],
+   "tag": "IA5String"
+  },
+  "AdditionalExceptionReports": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "BCDDirectoryNumber": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "BOOLEAN": {
+   "helpers": [],
+   "kind": "boolean"
+  },
+  "CAMELAccessPointNameNI": {
+   "alias": "dissect_gprscdr_AccessPointNameNI",
+   "helpers": [],
+   "kind": null
+  },
+  "CAMELAccessPointNameOI": {
+   "alias": "dissect_gprscdr_AccessPointNameOI",
+   "helpers": [],
+   "kind": null
+  },
+  "CAMELInformationMM": {
+   "kind": "set",
+   "table": "CAMELInformationMM_set"
+  },
+  "CAMELInformationPDP": {
+   "kind": "set",
+   "table": "CAMELInformationPDP_set"
+  },
+  "CAMELInformationSMS": {
+   "kind": "set",
+   "table": "CAMELInformationSMS_set"
+  },
+  "CNIPMulticastDistribution": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "CNOperatorSelectionEntity": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "CPCIoTEPSOptimisationIndicator": {
+   "helpers": [],
+   "kind": "boolean"
+  },
+  "CSGAccessMode": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "CSGId": {
+   "kind": "constrained_octet_string",
+   "range": [
+    4,
+    4
+   ]
+  },
+  "CTEID": {
+   "kind": "constrained_octet_string",
+   "range": [
+    4,
+    4
+   ]
+  },
+  "CallDuration": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "CallEventRecordType": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "CalleePartyInformation": {
+   "kind": "sequence",
+   "table": "CalleePartyInformation_sequence"
+  },
+  "CallingNumber": {
+   "alias": "dissect_gprscdr_BCDDirectoryNumber",
+   "helpers": [],
+   "kind": null
+  },
+  "CauseForRecClosing": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "CauseForRecClosingV651": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "CellId": {
+   "kind": "constrained_octet_string",
+   "range": [
+    2,
+    2
+   ]
+  },
+  "ChChSelectionMode": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "ChangeCondition": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "ChangeConditionV651": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "ChangeLocation": {
+   "kind": "sequence",
+   "table": "ChangeLocation_sequence"
+  },
+  "ChangeOfCharCondition": {
+   "kind": "sequence",
+   "table": "ChangeOfCharCondition_sequence"
+  },
+  "ChangeOfCharConditionV651": {
+   "kind": "sequence",
+   "table": "ChangeOfCharConditionV651_sequence"
+  },
+  "ChangeOfMBMSCondition": {
+   "kind": "sequence",
+   "table": "ChangeOfMBMSCondition_sequence"
+  },
+  "ChangeOfServiceCondition": {
+   "kind": "sequence",
+   "table": "ChangeOfServiceCondition_sequence"
+  },
+  "ChangeOfServiceConditionV651": {
+   "kind": "sequence",
+   "table": "ChangeOfServiceConditionV651_sequence"
+  },
+  "ChangeOfServiceConditionV750": {
+   "kind": "sequence",
+   "table": "ChangeOfServiceConditionV750_sequence"
+  },
+  "ChargingCharacteristics": {
+   "kind": "constrained_octet_string",
+   "range": [
+    2,
+    2
+   ]
+  },
+  "ChargingID": {
+   "kind": "constrained_integer",
+   "range": [
+    0,
+    4294967295
+   ]
+  },
+  "ChargingPerIPCANSessionIndicator": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "ChargingRuleBaseName": {
+   "kind": "restricted_string",
+   "tag": "IA5String"
+  },
+  "CivicAddressInformation": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "DataVolumeGPRS": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "DataVolumeMBMS": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "Diagnostics": {
+   "kind": "choice",
+   "table": "Diagnostics_choice"
+  },
+  "DiameterIdentity": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "DynamicAddressFlag": {
+   "helpers": [],
+   "kind": "boolean"
+  },
+  "EGSNPDPRecord": {
+   "kind": "set",
+   "table": "EGSNPDPRecord_set"
+  },
+  "EGSNPDPRecordV750": {
+   "kind": "set",
+   "table": "EGSNPDPRecordV750_set"
+  },
+  "EPCQoSInformation": {
+   "kind": "sequence",
+   "table": "EPCQoSInformation_sequence"
+  },
+  "EPDGRecord": {
+   "kind": "set",
+   "table": "EPDGRecord_set"
+  },
+  "Ecgi": {
+   "kind": "sequence",
+   "table": "Ecgi_sequence"
+  },
+  "EnhancedDiagnostics": {
+   "kind": "sequence",
+   "table": "EnhancedDiagnostics_sequence"
+  },
+  "EutraCellId": {
+   "kind": "restricted_string",
+   "tag": "UTF8String"
+  },
+  "EventBasedChargingInformation": {
+   "kind": "sequence",
+   "table": "EventBasedChargingInformation_sequence"
+  },
+  "FFDAppendIndicator": {
+   "helpers": [],
+   "kind": "boolean"
+  },
+  "FailureHandlingContinue": {
+   "helpers": [],
+   "kind": "boolean"
+  },
+  "FixedSubsID": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "FixedUserLocationInformation": {
+   "kind": "sequence",
+   "table": "FixedUserLocationInformation_sequence"
+  },
+  "Flows": {
+   "kind": "sequence",
+   "table": "Flows_sequence"
+  },
+  "FreeFormatData": {
+   "kind": "constrained_octet_string",
+   "range": [
+    1,
+    160
+   ]
+  },
+  "GGSNMBMSRecord": {
+   "kind": "set",
+   "table": "GGSNMBMSRecord_set"
+  },
+  "GGSNPDPRecord": {
+   "kind": "set",
+   "table": "GGSNPDPRecord_set"
+  },
+  "GGSNPDPRecordV750": {
+   "kind": "set",
+   "table": "GGSNPDPRecordV750_set"
+  },
+  "GPRSCallEventRecord": {
+   "kind": "choice",
+   "table": "GPRSCallEventRecord_choice"
+  },
+  "GPRSRecord": {
+   "kind": "choice",
+   "table": "GPRSRecord_choice"
+  },
+  "GSNAddress": {
+   "alias": "dissect_gprscdr_IPAddress",
+   "helpers": [],
+   "kind": null
+  },
+  "GWMBMSRecord": {
+   "kind": "set",
+   "table": "GWMBMSRecord_set"
+  },
+  "GraphicString": {
+   "kind": "restricted_string",
+   "tag": "GraphicString"
+  },
+  "IA5String_SIZE_15_45": {
+   "kind": "constrained_restricted_string",
+   "range": [
+    15,
+    45
+   ],
+   "tag": "IA5String"
+  },
+  "IA5String_SIZE_7_15": {
+   "kind": "constrained_restricted_string",
+   "range": [
+    7,
+    15
+   ],
+   "tag": "IA5String"
+  },
+  "INTEGER": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "IPAddress": {
+   "kind": "choice",
+   "table": "IPAddress_choice"
+  },
+  "IPBinV4Address": {
+   "kind": "constrained_octet_string",
+   "range": [
+    4,
+    4
+   ]
+  },
+  "IPBinV6Address": {
+   "kind": "constrained_octet_string",
+   "range": [
+    16,
+    16
+   ]
+  },
+  "IPBinV6AddressWithOrWithoutPrefixLength": {
+   "kind": "choice",
+   "table": "IPBinV6AddressWithOrWithoutPrefixLength_choice"
+  },
+  "IPBinV6AddressWithPrefixLength": {
+   "kind": "sequence",
+   "table": "IPBinV6AddressWithPrefixLength_sequence"
+  },
+  "IPBinaryAddress": {
+   "kind": "choice",
+   "table": "IPBinaryAddress_choice"
+  },
+  "IPERecord": {
+   "kind": "set",
+   "table": "IPERecord_set"
+  },
+  "IPTextRepresentedAddress": {
+   "kind": "choice",
+   "table": "IPTextRepresentedAddress_choice"
+  },
+  "InvolvedParty": {
+   "kind": "choice",
+   "table": "InvolvedParty_choice"
+  },
+  "LCSCause": {
+   "kind": "constrained_octet_string",
+   "range": [
+    1,
+    1
+   ]
+  },
+  "LCSClientIdentity": {
+   "kind": "sequence",
+   "table": "LCSClientIdentity_sequence"
+  },
+  "LCSQoSInfo": {
+   "kind": "constrained_octet_string",
+   "range": [
+    4,
+    4
+   ]
+  },
+  "LevelOfCAMELService": {
+   "kind": "bitstring",
+   "nbits": 3
+  },
+  "LocalSequenceNumber": {
+   "kind": "constrained_integer",
+   "range": [
+    0,
+    4294967295
+   ]
+  },
+  "LocationAreaAndCell": {
+   "kind": "sequence",
+   "table": "LocationAreaAndCell_sequence"
+  },
+  "LocationAreaCode": {
+   "kind": "constrained_octet_string",
+   "range": [
+    2,
+    2
+   ]
+  },
+  "MBMS2G3GIndicator": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "MBMSInformation": {
+   "kind": "set",
+   "table": "MBMSInformation_set"
+  },
+  "MBMSServiceArea": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "MBMSServiceType": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "MBMSSessionIdentity": {
+   "kind": "constrained_octet_string",
+   "range": [
+    1,
+    1
+   ]
+  },
+  "MBMSTime": {
+   "kind": "constrained_octet_string",
+   "range": [
+    8,
+    8
+   ]
+  },
+  "MBMSUserServiceType": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "MCC_MNC": {
+   "kind": "constrained_octet_string",
+   "range": [
+    3,
+    3
+   ]
+  },
+  "MOExceptionDataCounter": {
+   "kind": "sequence",
+   "table": "MOExceptionDataCounter_sequence"
+  },
+  "MSISDN": {
+   "alias": "dissect_gsm_map_ISDN_AddressString",
+   "helpers": [],
+   "kind": null
+  },
+  "MSNetworkCapability": {
+   "kind": "constrained_octet_string",
+   "range": [
+    1,
+    8
+   ]
+  },
+  "MSTimeZone": {
+   "kind": "constrained_octet_string",
+   "range": [
+    2,
+    2
+   ]
+  },
+  "ManagementExtension": {
+   "kind": "sequence",
+   "table": "ManagementExtension_sequence"
+  },
+  "ManagementExtensions": {
+   "kind": "set_of",
+   "table": "ManagementExtensions_set_of"
+  },
+  "MessageReference": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "NBIFOMMode": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "NBIFOMSupport": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "NULL": {
+   "helpers": [],
+   "kind": "null"
+  },
+  "Ncgi": {
+   "kind": "sequence",
+   "table": "Ncgi_sequence"
+  },
+  "NetworkInitiatedPDPContext": {
+   "helpers": [],
+   "kind": "boolean"
+  },
+  "Nid": {
+   "kind": "restricted_string",
+   "tag": "UTF8String"
+  },
+  "NodeID": {
+   "kind": "constrained_restricted_string",
+   "range": [
+    1,
+    20
+   ],
+   "tag": "IA5String"
+  },
+  "NrCellId": {
+   "kind": "restricted_string",
+   "tag": "UTF8String"
+  },
+  "NumberOfDPEncountered": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "OCTET_STRING": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "OCTET_STRING_SIZE_2": {
+   "kind": "constrained_octet_string",
+   "range": [
+    2,
+    2
+   ]
+  },
+  "PDPAddress": {
+   "kind": "choice",
+   "table": "PDPAddress_choice"
+  },
+  "PDPAddressPrefixLength": {
+   "kind": "constrained_integer",
+   "range": [
+    1,
+    64
+   ]
+  },
+  "PDPPDNTypeExtension": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "PDPType": {
+   "helpers": [
+    "dissect_gtpv2_pdn_type"
+   ],
+   "kind": null
+  },
+  "PGWRecord": {
+   "kind": "set",
+   "table": "PGWRecord_set"
+  },
+  "PLMN_Id": {
+   "kind": "constrained_octet_string",
+   "range": [
+    3,
+    3
+   ]
+  },
+  "PSCellInformation": {
+   "kind": "sequence",
+   "table": "PSCellInformation_sequence"
+  },
+  "PSFurnishChargingInformation": {
+   "kind": "sequence",
+   "table": "PSFurnishChargingInformation_sequence"
+  },
+  "PositioningData": {
+   "kind": "constrained_octet_string",
+   "range": [
+    1,
+    33
+   ]
+  },
+  "PresenceReportingAreaElementsList": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "PresenceReportingAreaInfo": {
+   "kind": "sequence",
+   "table": "PresenceReportingAreaInfo_sequence"
+  },
+  "PresenceReportingAreaNode": {
+   "kind": "bitstring",
+   "nbits": 2
+  },
+  "PresenceReportingAreaStatus": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "QoSInformation": {
+   "helpers": [],
+   "kind": null
+  },
+  "RANNASCause": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "RANSecondaryRATUsageReport": {
+   "kind": "sequence",
+   "table": "RANSecondaryRATUsageReport_sequence"
+  },
+  "RATType": {
+   "kind": "constrained_integer",
+   "range": [
+    0,
+    255
+   ]
+  },
+  "RateControlTimeUnit": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "RatingGroupId": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "RecordType": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "RecordingEntity": {
+   "alias": "dissect_gsm_map_AddressString",
+   "helpers": [],
+   "kind": null
+  },
+  "RelatedChangeOfCharCondition": {
+   "kind": "sequence",
+   "table": "RelatedChangeOfCharCondition_sequence"
+  },
+  "RelatedChangeOfServiceCondition": {
+   "kind": "sequence",
+   "table": "RelatedChangeOfServiceCondition_sequence"
+  },
+  "RequiredMBMSBearerCapabilities": {
+   "kind": "constrained_octet_string",
+   "range": [
+    3,
+    14
+   ]
+  },
+  "ResultCode": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "RoutingAreaCode": {
+   "kind": "constrained_octet_string",
+   "range": [
+    1,
+    1
+   ]
+  },
+  "SCFAddress": {
+   "alias": "dissect_gsm_map_AddressString",
+   "helpers": [],
+   "kind": null
+  },
+  "SCSASAddress": {
+   "kind": "set",
+   "table": "SCSASAddress_set"
+  },
+  "SEQUENCE_OF_AFRecordInformation": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_AFRecordInformation_sequence_of"
+  },
+  "SEQUENCE_OF_ChangeLocation": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_ChangeLocation_sequence_of"
+  },
+  "SEQUENCE_OF_ChangeOfCharCondition": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_ChangeOfCharCondition_sequence_of"
+  },
+  "SEQUENCE_OF_ChangeOfCharConditionV651": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_ChangeOfCharConditionV651_sequence_of"
+  },
+  "SEQUENCE_OF_ChangeOfMBMSCondition": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_ChangeOfMBMSCondition_sequence_of"
+  },
+  "SEQUENCE_OF_ChangeOfServiceCondition": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_ChangeOfServiceCondition_sequence_of"
+  },
+  "SEQUENCE_OF_ChangeOfServiceConditionV651": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_ChangeOfServiceConditionV651_sequence_of"
+  },
+  "SEQUENCE_OF_ChangeOfServiceConditionV750": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_ChangeOfServiceConditionV750_sequence_of"
+  },
+  "SEQUENCE_OF_GSNAddress": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_GSNAddress_sequence_of"
+  },
+  "SEQUENCE_OF_InvolvedParty": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_InvolvedParty_sequence_of"
+  },
+  "SEQUENCE_OF_PresenceReportingAreaInfo": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_PresenceReportingAreaInfo_sequence_of"
+  },
+  "SEQUENCE_OF_RAIdentity": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_RAIdentity_sequence_of"
+  },
+  "SEQUENCE_OF_RANNASCause": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_RANNASCause_sequence_of"
+  },
+  "SEQUENCE_OF_RANSecondaryRATUsageReport": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_RANSecondaryRATUsageReport_sequence_of"
+  },
+  "SEQUENCE_OF_ServiceSpecificInfo": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_ServiceSpecificInfo_sequence_of"
+  },
+  "SEQUENCE_OF_ServingNodeType": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_ServingNodeType_sequence_of"
+  },
+  "SEQUENCE_OF_TimeStamp": {
+   "kind": "sequence_of",
+   "table": "SEQUENCE_OF_TimeStamp_sequence_of"
+  },
+  "SGSNChange": {
+   "helpers": [],
+   "kind": "boolean"
+  },
+  "SGSNMBMSRecord": {
+   "kind": "set",
+   "table": "SGSNMBMSRecord_set"
+  },
+  "SGSNMMRecord": {
+   "kind": "set",
+   "table": "SGSNMMRecord_set"
+  },
+  "SGSNMOLCSRecord": {
+   "kind": "set",
+   "table": "SGSNMOLCSRecord_set"
+  },
+  "SGSNMTLCSRecord": {
+   "kind": "set",
+   "table": "SGSNMTLCSRecord_set"
+  },
+  "SGSNNILCSRecord": {
+   "kind": "set",
+   "table": "SGSNNILCSRecord_set"
+  },
+  "SGSNPDPRecord": {
+   "kind": "set",
+   "table": "SGSNPDPRecord_set"
+  },
+  "SGSNPDPRecordV651": {
+   "kind": "set",
+   "table": "SGSNPDPRecordV651_set"
+  },
+  "SGSNSMORecord": {
+   "kind": "set",
+   "table": "SGSNSMORecord_set"
+  },
+  "SGSNSMORecordV651": {
+   "kind": "set",
+   "table": "SGSNSMORecordV651_set"
+  },
+  "SGSNSMTRecord": {
+   "kind": "set",
+   "table": "SGSNSMTRecord_set"
+  },
+  "SGSNSMTRecordV651": {
+   "kind": "set",
+   "table": "SGSNSMTRecordV651_set"
+  },
+  "SGWChange": {
+   "helpers": [],
+   "kind": "boolean"
+  },
+  "SGWRecord": {
+   "kind": "set",
+   "table": "SGWRecord_set"
+  },
+  "SGiPtPTunnellingMethod": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "SMSResult": {
+   "alias": "dissect_gprscdr_Diagnostics",
+   "helpers": [],
+   "kind": null
+  },
+  "SecondaryRATType": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "ServiceConditionChange": {
+   "kind": "bitstring",
+   "nbits": 38
+  },
+  "ServiceConditionChangeV651": {
+   "kind": "bitstring",
+   "nbits": 21
+  },
+  "ServiceConditionChangeV750": {
+   "kind": "bitstring",
+   "nbits": 29
+  },
+  "ServiceIdentifier": {
+   "kind": "constrained_integer",
+   "range": [
+    0,
+    4294967295
+   ]
+  },
+  "ServiceSpecificInfo": {
+   "kind": "sequence",
+   "table": "ServiceSpecificInfo_sequence"
+  },
+  "ServingNodeType": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "ServingPLMNRateControl": {
+   "kind": "sequence",
+   "table": "ServingPLMNRateControl_sequence"
+  },
+  "SmsTpDestinationNumber": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "SubscriptionID": {
+   "kind": "set",
+   "table": "SubscriptionID_set"
+  },
+  "SubscriptionIDType": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "TDFRecord": {
+   "kind": "set",
+   "table": "TDFRecord_set"
+  },
+  "TMGI": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "TWAGRecord": {
+   "kind": "set",
+   "table": "TWAGRecord_set"
+  },
+  "TWANUserLocationInfo": {
+   "kind": "sequence",
+   "table": "TWANUserLocationInfo_sequence"
+  },
+  "T_aRP": {
+   "helpers": [
+    "dissect_gtpv2_arp"
+   ],
+   "kind": null
+  },
+  "T_flowNumber": {
+   "kind": "sequence_of",
+   "table": "T_flowNumber_sequence_of"
+  },
+  "T_identifier": {
+   "helpers": [],
+   "kind": "object_identifier_str"
+  },
+  "T_information": {
+   "helpers": [],
+   "kind": null
+  },
+  "T_lastUserLocationInformation": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli2"
+  },
+  "T_lastUserLocationInformation_01": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli2"
+  },
+  "T_userLocationInformation": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli1"
+  },
+  "T_userLocationInformation_01": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli1"
+  },
+  "T_userLocationInformation_02": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli1"
+  },
+  "T_userLocationInformation_03": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli1"
+  },
+  "T_userLocationInformation_04": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli1"
+  },
+  "T_userLocationInformation_05": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli1"
+  },
+  "T_userLocationInformation_06": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli2"
+  },
+  "T_userLocationInformation_07": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli2"
+  },
+  "T_userLocationInformation_08": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli2"
+  },
+  "T_userLocationInformation_09": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli2"
+  },
+  "T_userLocationInformation_10": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli2"
+  },
+  "T_userLocationInformation_11": {
+   "helpers": [],
+   "kind": null,
+   "special": "uli2"
+  },
+  "ThreeGPPPSDataOffStatus": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "TimeQuotaMechanism": {
+   "kind": "sequence",
+   "table": "TimeQuotaMechanism_sequence"
+  },
+  "TimeQuotaType": {
+   "helpers": [],
+   "kind": "integer"
+  },
+  "TimeStamp": {
+   "helpers": [],
+   "kind": null
+  },
+  "TrafficSteeringPolicyIDDownlink": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "TrafficSteeringPolicyIDUplink": {
+   "helpers": [],
+   "kind": "octet_string"
+  },
+  "UNIPDUCPOnlyFlag": {
+   "helpers": [],
+   "kind": "boolean"
+  },
+  "UTF8String": {
+   "kind": "restricted_string",
+   "tag": "UTF8String"
+  },
+  "UWANUserLocationInfo": {
+   "kind": "sequence",
+   "table": "UWANUserLocationInfo_sequence"
+  },
+  "UserCSGInformation": {
+   "kind": "sequence",
+   "table": "UserCSGInformation_sequence"
+  },
+  "VoLTEInformation": {
+   "kind": "sequence",
+   "table": "VoLTEInformation_sequence"
+  },
+  "WLANOperatorId": {
+   "kind": "sequence",
+   "table": "WLANOperatorId_sequence"
+  }
+ }
+}
