@@ -1,0 +1,15 @@
+GLC/0/full
+GLC/0/empty
+GLC/0/half
+GLC/0/nodata
+GLC/0/odd
+GLC/0/even
+GLC/1/full
+GLC/1/empty
+GLC/1/half
+GLC/1/odd
+GLC/1/even
+GLC/2/empty
+GLC/2/half
+GLC/2/odd
+GLC/2/even
