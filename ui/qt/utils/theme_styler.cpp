@@ -222,6 +222,24 @@ int ThemeStyler::pixelMetric(PixelMetric metric, const QStyleOption *option,
     return ZoomScaling::scaledPixels(base);
 }
 
+#ifdef Q_OS_MACOS
+// Size of the menu arrow the macOS style draws on a toolbar button and
+// its margin from the bottom right corner (toolButtonArrowSize and
+// toolButtonArrowMargin in qmacstyle_mac.mm).
+static const int macToolButtonArrowSize = 7;
+static const int macToolButtonArrowMargin = 2;
+
+// True for a toolbar button with an InstantPopup or DelayedPopup menu
+// that the macOS style draws without the menu arrow: it draws the arrow
+// only for buttons that show an icon.
+static bool macToolButtonLacksMenuArrow(const QStyleOptionToolButton *tb)
+{
+    return (tb->features & QStyleOptionToolButton::HasMenu)
+            && !(tb->features & QStyleOptionToolButton::MenuButtonPopup)
+            && (tb->toolButtonStyle == Qt::ToolButtonTextOnly || tb->icon.isNull());
+}
+#endif
+
 QSize ThemeStyler::sizeFromContents(ContentsType type, const QStyleOption *option,
     const QSize &contentsSize, const QWidget *widget) const
 {
@@ -253,6 +271,18 @@ QSize ThemeStyler::sizeFromContents(ContentsType type, const QStyleOption *optio
         const QRect title = QProxyStyle::subElementRect(SE_PushButtonContents, &probe, widget);
         if (title.width() < contentsSize.width())
             size.rwidth() += contentsSize.width() - title.width();
+    }
+
+    // drawComplexControl() draws the menu arrow the macOS style leaves
+    // out on text-only toolbar buttons. The macOS style gives a tool
+    // button only a narrow margin, so widen the button to keep the
+    // centered label clear of the arrow.
+    const QStyleOptionToolButton *tb = qstyleoption_cast<const QStyleOptionToolButton *>(option);
+    if (type == CT_ToolButton && tb && widget
+            && qobject_cast<const QToolBar *>(widget->parentWidget())
+            && baseStyleName() == QLatin1String("macos")
+            && macToolButtonLacksMenuArrow(tb)) {
+        size.rwidth() += macToolButtonArrowSize + macToolButtonArrowMargin;
     }
 #endif
     return size;
@@ -668,6 +698,11 @@ void ThemeStyler::drawComplexControl(ComplexControl control, const QStyleOptionC
     // stronger for a hovered and then a pressed one. Then let the base
     // style draw the label on top, with State_On cleared so it skips its
     // own checked background (drawControl() restores it for the label).
+    //
+    // The macOS style draws the menu arrow of a toolbar button only when
+    // the button shows an icon, so text-only buttons with a menu, such as
+    // display filter button groups, give no hint of it. Draw the arrow
+    // for those, where the macOS style puts it for icon buttons.
     const QStyleOptionToolButton *tb = qstyleoption_cast<const QStyleOptionToolButton *>(option);
     if (control == CC_ToolButton && tb && painter && widget
             && qobject_cast<const QToolBar *>(widget->parentWidget())
@@ -703,6 +738,13 @@ void ThemeStyler::drawComplexControl(ComplexControl control, const QStyleOptionC
         QStyleOptionToolButton buttonOpt = *tb;
         buttonOpt.state &= ~State_On;
         QProxyStyle::drawComplexControl(control, &buttonOpt, painter, widget);
+        if (macToolButtonLacksMenuArrow(tb)) {
+            QStyleOption arrowOpt = *tb;
+            arrowOpt.rect = QRect(tb->rect.right() - (macToolButtonArrowSize + macToolButtonArrowMargin),
+                                  tb->rect.bottom() - (macToolButtonArrowSize + macToolButtonArrowMargin),
+                                  macToolButtonArrowSize, macToolButtonArrowSize);
+            proxy()->drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, painter, widget);
+        }
         return;
     }
 #endif
