@@ -90,6 +90,11 @@ private slots:
      * @param checked The checked state associated with the triggering action, defaults to false.
      */
     void resetAction(bool checked = false);
+
+    /**
+     * @brief Replaces the columns with the default columns.
+     */
+    void restoreDefaultsClicked();
 };
 
 #endif // COLUMN_PREFERENCES_FRAME_H

@@ -95,6 +95,13 @@
      </layout>
     </widget>
    </item>
+   <item>
+    <widget class="QDialogButtonBox" name="restoreButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::StandardButton::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

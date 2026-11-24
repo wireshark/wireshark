@@ -30,12 +30,16 @@
 #include <QKeyEvent>
 #include <QMenu>
 #include <QAction>
+#include <QPushButton>
 
 ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::ColumnPreferencesFrame)
 {
     ui->setupUi(this);
+
+    ui->restoreButtonBox->button(QDialogButtonBox::RestoreDefaults)->setToolTip(tr("Replace the columns with the default columns. Applied with OK or Apply; Cancel keeps the current columns."));
+    connect(ui->restoreButtonBox, &QDialogButtonBox::clicked, this, &ColumnPreferencesFrame::restoreDefaultsClicked);
 
     model_ = new ColumnListModel();
     proxyModel_ = new ColumnProxyModel();
@@ -125,5 +129,10 @@ void ColumnPreferencesFrame::on_columnTreeView_customContextMenuRequested(const 
 
 void ColumnPreferencesFrame::resetAction(bool /*checked*/)
 {
-    model_->reset();
+    model_->reload();
+}
+
+void ColumnPreferencesFrame::restoreDefaultsClicked()
+{
+    model_->resetToDefaults();
 }
