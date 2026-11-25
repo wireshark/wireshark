@@ -71,6 +71,7 @@
         <file alias="nav-next.svg">svg_icons/nav-next.svg</file>
         <file alias="nav-previous.svg">svg_icons/nav-previous.svg</file>
         <file alias="overridden.svg">svg_icons/overridden.svg</file>
+        <file alias="profile-path.svg">svg_icons/profile-path.svg</file>
         <file alias="reset.svg">svg_icons/reset.svg</file>
         <file alias="section-collapsed.svg">svg_icons/section-collapsed.svg</file>
         <file alias="section-expanded.svg">svg_icons/section-expanded.svg</file>
