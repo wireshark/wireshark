@@ -85,9 +85,10 @@ int scaledSizeLimit(int design);
  * setupUi() or after the widget's own size limit calls), and updates the
  * limits on every zoom change for the widget's lifetime.  Later calls
  * only re-apply the stored values.  Each component goes through
- * scaledSizeLimit().  Do not use it on a widget that writes its own size
- * limits at runtime (an animated AccordionFrame), as the two writers
- * would overwrite each other.
+ * scaledSizeLimit().  With the macOS style push buttons and button boxes
+ * get no maximum height, so they keep the native bezel.  Do not use it on
+ * a widget that writes its own size limits at runtime (an animated
+ * AccordionFrame), as the two writers would overwrite each other.
  *
  * @param widget  the widget to scale; nullptr is ignored.
  */

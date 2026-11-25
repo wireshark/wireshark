@@ -19,8 +19,12 @@
 #include <QWidget>
 
 #ifdef Q_OS_MACOS
+#include <ui/qt/utils/theme_styler.h>
+
 #include <QComboBox>
+#include <QDialogButtonBox>
 #include <QFont>
+#include <QPushButton>
 #endif
 
 // Zoom level 0 side in pixels of the display filter toolbar and status bar
@@ -46,8 +50,15 @@ static void applyScaledSizeLimits(QWidget *widget)
     const QSize design_min = widget->property(design_min_size_property).toSize();
     const QSize design_max = widget->property(design_max_size_property).toSize();
 
-    widget->setMaximumSize(ZoomScaling::scaledSizeLimit(design_max.width()),
-                           ZoomScaling::scaledSizeLimit(design_max.height()));
+    int max_height = ZoomScaling::scaledSizeLimit(design_max.height());
+#ifdef Q_OS_MACOS
+    // The macOS style draws a push button lower than its native bezel
+    // as a flat square, so leave push buttons their native height.
+    if ((qobject_cast<QPushButton *>(widget) || qobject_cast<QDialogButtonBox *>(widget))
+            && ThemeStyler::baseStyleName() == QLatin1String("macos"))
+        max_height = QWIDGETSIZE_MAX;
+#endif
+    widget->setMaximumSize(ZoomScaling::scaledSizeLimit(design_max.width()), max_height);
     widget->setMinimumSize(ZoomScaling::scaledSizeLimit(design_min.width()),
                            ZoomScaling::scaledSizeLimit(design_min.height()));
 }

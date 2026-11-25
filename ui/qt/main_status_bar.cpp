@@ -143,8 +143,10 @@ public:
         // starts the text 18 pixels into the menu item, which ThemeStyler
         // widens with the zoom, and draws the text from the top of the menu
         // item
-        x = itemRect.left() + ZoomScaling::scaledPixels(18) / 2;
-        textTop = itemRect.top();
+        if (baseStyleName() == QLatin1String("macos")) {
+            x = itemRect.left() + ZoomScaling::scaledPixels(18) / 2;
+            textTop = itemRect.top();
+        }
 #endif
         QRect iconRect(0, 0, fm.height(), fm.height());
         iconRect.moveCenter(QPoint(x, textTop + fm.ascent() - fm.capHeight() / 2));
