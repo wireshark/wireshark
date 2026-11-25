@@ -21,15 +21,42 @@
 #include "packet-xmpp-utils.h"
 
 static void
-xmpp_copy_hash_table_func(void *key, void *value, void *user_data)
+xmpp_add_namespace_func(void *key, void *value, void *user_data)
 {
     GHashTable *dst = (GHashTable *)user_data;
-    g_hash_table_insert(dst, key, value);
+
+    /* A declaration nearer the element shadows one of the same prefix. */
+    if (!g_hash_table_contains(dst, key))
+        g_hash_table_insert(dst, key, value);
 }
 
-static void xmpp_copy_hash_table(GHashTable *src, GHashTable *dst)
+/* Returns a GHashTable mapping all the namespace abbrevs to fullnames in
+ * scope for an element. We only need the table for one element at a time,
+ * so this is created on demand rather than copying the values from the
+ * parent when the xmpp_element_t is created. The latter would take memory
+ * proportional to the number of namespaces times the number of elements.
+ * (Note that both of those can be arbitrarily large regardless of max depth.)
+ *
+ * N.B.: this should *not* be converted to use a wmem_map_t with
+ * pinfo->pool scope, as that would not be freed until the frame end.
+ * A custom allocator scope would work, but the current approach with a
+ * GHashTable with a cleanup callback is just as good.
+ */
+static GHashTable *
+xmpp_namespaces_in_scope(xmpp_element_t *element)
 {
-    g_hash_table_foreach(src, xmpp_copy_hash_table_func, dst);
+    GHashTable *namespaces = g_hash_table_new(g_str_hash, g_str_equal);
+
+    for (; element; element = element->parent)
+        g_hash_table_foreach(element->namespaces, xmpp_add_namespace_func, namespaces);
+
+    return namespaces;
+}
+
+static void
+cleanup_hash_table_cb(void *user_data)
+{
+    g_hash_table_destroy((GHashTable *)user_data);
 }
 
 static GList* xmpp_find_element_by_name(xmpp_element_t *packet,const char *name);
@@ -258,50 +285,39 @@ xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 }
 
 static void
-cleanup_glist_cb(void *user_data) {
-    GList *li = (GList*)user_data;
-
-    g_list_free(li);
-}
-
-static void
 xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *element, bool displ_short_list)
 {
     proto_item *item = proto_tree_get_parent(tree);
 
-    GList *keys = g_hash_table_get_keys(element->attrs);
-    GList *values = g_hash_table_get_values(element->attrs);
-
-    GList *keys_head = keys, *values_head = values;
-
-    CLEANUP_PUSH_PFX(k, cleanup_glist_cb, keys_head);
-    CLEANUP_PUSH_PFX(v, cleanup_glist_cb, values_head);
+    GHashTableIter attrs_iter;
+    void *key, *value;
 
     bool short_list_started = false;
 
-    while(keys && values)
+    g_hash_table_iter_init(&attrs_iter, element->attrs);
+    while(g_hash_table_iter_next(&attrs_iter, &key, &value))
     {
-        xmpp_attr_t *attr = (xmpp_attr_t*) values->data;
+        xmpp_attr_t *attr = (xmpp_attr_t*) value;
         if (!attr->was_read) {
             if (displ_short_list) {
                 if (!short_list_started)
                     proto_item_append_text(item, " [");
                 else
                     proto_item_append_text(item, " ");
-                proto_item_append_text(item, "%s=\"%s\"", (char*) keys->data, attr->value);
+                proto_item_append_text(item, "%s=\"%s\"", (char*) key, attr->value);
 
                 short_list_started = true;
             }
 
             /*If unknown element has xmlns attrib then header field hf_xmpp_xmlns is added to the tree.
              In other case only text.*/
-            if (strcmp((const char *)keys->data, "xmlns") == 0)
+            if (strcmp((const char *)key, "xmlns") == 0)
                 proto_tree_add_string(tree, hf_xmpp_xmlns, tvb, attr->offset, attr->length, attr->value);
             else {
                 /*xmlns may looks like xmlns:abbrev="sth"*/
-                const char *xmlns_needle = ws_ascii_strcasestr((const char *)keys->data, "xmlns:");
-                if (xmlns_needle && xmlns_needle == keys->data) {
-                    proto_tree_add_string_format(tree, hf_xmpp_xmlns, tvb, attr->offset, attr->length, attr->value,"%s: %s", (char*)keys->data, attr->value);
+                const char *xmlns_needle = ws_ascii_strcasestr((const char *)key, "xmlns:");
+                if (xmlns_needle && xmlns_needle == key) {
+                    proto_tree_add_string_format(tree, hf_xmpp_xmlns, tvb, attr->offset, attr->length, attr->value,"%s: %s", (char*)key, attr->value);
                 } else {
                     proto_item* unknown_attr_item;
                     unknown_attr_item = proto_tree_add_string_format(tree,
@@ -312,15 +328,10 @@ xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp
                 }
             }
         }
-        keys = keys->next;
-        values = values->next;
     }
 
     if(short_list_started && displ_short_list)
         proto_item_append_text(item, "]");
-
-    CLEANUP_CALL_AND_POP_PFX(v);
-    CLEANUP_CALL_AND_POP_PFX(k);
 }
 
 void
@@ -556,11 +567,9 @@ xmpp_xml_frame_to_element_t(packet_info *pinfo, xml_frame_t *xml_frame, xmpp_ele
     node->length = 0;
     node->depth = parent ? parent->depth + 1 : 0;
 
+    node->parent = parent;
     node->namespaces = g_hash_table_new(g_str_hash, g_str_equal);
-    if(parent)
-    {
-        xmpp_copy_hash_table(parent->namespaces, node->namespaces);
-    } else
+    if(!parent)
     {
         g_hash_table_insert(node->namespaces, (void *)"", (void *)"jabber:client");
     }
@@ -888,25 +897,25 @@ xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *p
     unsigned i;
     bool short_list_started = false;
 
-    GList *ns_abbrevs_head, *ns_abbrevs = g_hash_table_get_keys(element->namespaces);
-    GList *ns_fullnames_head, *ns_fullnames = g_hash_table_get_values(element->namespaces);
-    ns_abbrevs_head = ns_abbrevs;
-    ns_fullnames_head = ns_fullnames;
+    GHashTable *namespaces = xmpp_namespaces_in_scope(element);
+    GHashTableIter namespace_iter;
+    void *ns_abbrev, *ns_fullname;
 
-    CLEANUP_PUSH_PFX(k, cleanup_glist_cb, ns_abbrevs_head);
-    CLEANUP_PUSH_PFX(v, cleanup_glist_cb, ns_fullnames_head);
+    g_hash_table_iter_init(&namespace_iter, namespaces);
+
+    CLEANUP_PUSH_PFX(ns, cleanup_hash_table_cb, namespaces);
 
     if(element->default_ns_abbrev)
         proto_item_append_text(item, "(%s)",element->default_ns_abbrev);
 
     proto_item_append_text(item," [");
-    while(ns_abbrevs && ns_fullnames)
+    while(g_hash_table_iter_next(&namespace_iter, &ns_abbrev, &ns_fullname))
     {
         for (i = 0; i < n && attrs != NULL; i++) {
-            if(strcmp((const char *)(ns_fullnames->data), attrs[i].ns) == 0)
+            if(strcmp((const char *)ns_fullname, attrs[i].ns) == 0)
             {
-                attr = xmpp_get_attr_ext(pinfo, element, attrs[i].info.name, (const char *)(ns_abbrevs->data));
-                if(!attr && element->default_ns_abbrev && strcmp((const char *)ns_abbrevs->data, element->default_ns_abbrev)==0)
+                attr = xmpp_get_attr_ext(pinfo, element, attrs[i].info.name, (const char *)ns_abbrev);
+                if(!attr && element->default_ns_abbrev && strcmp((const char *)ns_abbrev, element->default_ns_abbrev)==0)
                     attr = xmpp_get_attr_ext(pinfo, element, attrs[i].info.name, "");
 
                 if (attr) {
@@ -940,16 +949,13 @@ xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *p
                 }
             }
         }
-        ns_abbrevs = ns_abbrevs->next;
-        ns_fullnames = ns_fullnames->next;
     }
     proto_item_append_text(item,"]");
 
     /*displays attributes that weren't recognized*/
     xmpp_unknown_attrs(tree, tvb, pinfo, element, false);
 
-    CLEANUP_CALL_AND_POP_PFX(v);
-    CLEANUP_CALL_AND_POP_PFX(k);
+    CLEANUP_CALL_AND_POP_PFX(ns);
 }
 
 typedef struct _name_attr_t
