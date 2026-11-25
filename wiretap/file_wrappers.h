@@ -72,6 +72,21 @@ WS_DLL_PUBLIC int64_t file_tell(FILE_T stream);
 extern int64_t file_tell_raw(FILE_T stream);
 
 /**
+ * @brief Get file input buffer size.
+ *
+ * Returns the size, in bytes, of the input buffer.
+ *
+ * @note When reading from a @ref wtap->ispipe "pipe", a heuristic open routine
+ * should read no farther than this into a stream before deciding whether to
+ * accept, so that the stream can seek back to the beginning for the next
+ * routine to try.
+ *
+ * @param stream File handle
+ * @return Current input buffer size
+ */
+WS_DLL_PUBLIC unsigned file_bufsize(FILE_T stream);
+
+/**
  * @brief Get file status information.
  *
  * @param stream File handle.
