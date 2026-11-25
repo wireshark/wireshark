@@ -668,13 +668,14 @@ xmpp_xml_frame_to_element_t(packet_info *pinfo, xml_frame_t *xml_frame, xmpp_ele
         } else
         {
             increment_dissection_depth(pinfo);
-            node->elements = g_list_append(node->elements,(void *)xmpp_xml_frame_to_element_t(pinfo, child, node,tvb));
+            node->elements = g_list_prepend(node->elements,(void *)xmpp_xml_frame_to_element_t(pinfo, child, node,tvb));
             decrement_dissection_depth(pinfo);
         }
 
         child = child->next_sibling;
     }
 
+    node->elements = g_list_reverse(node->elements);
     CLEANUP_POP;
 
     return node;
