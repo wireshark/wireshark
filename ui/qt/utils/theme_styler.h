@@ -87,6 +87,8 @@ public:
      * position there. The checkmark of a menu item that drawControl()
      * moved right is drawn at the left edge of the item.
      *
+     * In dark mode, toolbar separators are drawn in a lighter color.
+     *
      * At High contrast with the Fusion base style, push button, combo box
      * and line edit frames (PE_PanelButtonCommand, PE_FrameLineEdit) are
      * painted again in the ControlBorder color.  Fusion's own outline is
