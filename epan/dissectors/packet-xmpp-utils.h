@@ -48,8 +48,10 @@ typedef struct _xmpp_element_t{
     /*abbreviation that appears before tag name (<nos:x .../>)
      if abbrev doesn't appear then NULL*/
     char* default_ns_abbrev;
-    /*pair of namespace abbrev and namespace*/
+    /*pairs of namespace abbrev and namespace declared on this element;
+     the ones in scope also include those of its ancestors*/
     GHashTable *namespaces;
+    struct _xmpp_element_t *parent;
 
     GHashTable *attrs;
     GList *elements;
