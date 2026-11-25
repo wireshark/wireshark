@@ -14,6 +14,7 @@
 #define PINNED_ROWS_MODEL_H
 
 #include <QAbstractProxyModel>
+#include <QFont>
 #include <QList>
 
 class PacketListModel;
@@ -49,6 +50,14 @@ public:
      * order the pinned rows by frame number.
      */
     void setSortModel(PacketListProxyModel *sort_model);
+
+    /**
+     * @brief Sets the font the pinned rows are drawn in, from which the
+     * italic font for pinned packets without a row in the packet list is
+     * derived.
+     * @param font The packet list's font.
+     */
+    void setBaseFont(const QFont &font);
 
     /**
      * @brief Pins a packet, if not already pinned and under the
@@ -111,6 +120,13 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    /**
+     * Styles a pinned packet that has no row of its own in the packet list
+     * (greyed out and italic) and explains why in its tooltip: the display
+     * filter excludes it, or the aggregation view folded it into another
+     * packet's row.
+     */
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
 private slots:
     /**
@@ -137,6 +153,7 @@ private:
     QList<int> saved_frame_nums_;
     PacketListModel *packet_list_model_;
     PacketListProxyModel *sort_model_;
+    QFont base_font_;
 };
 
 #endif // PINNED_ROWS_MODEL_H

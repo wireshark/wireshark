@@ -822,3 +822,12 @@ int PacketListProxyModel::rowOfPacket(const frame_data *fdata) const
     int row = visibleIndexOf(fdata);
     return (row >= 0 && getRowFdata(row) == fdata) ? row : -1;
 }
+
+PacketListProxyModel::HiddenReason PacketListProxyModel::hiddenReason(const frame_data *fdata) const
+{
+    int row = visibleIndexOf(fdata);
+    if (row < 0) {
+        return HiddenReason::FilteredOut;
+    }
+    return getRowFdata(row) == fdata ? HiddenReason::Shown : HiddenReason::Aggregated;
+}
