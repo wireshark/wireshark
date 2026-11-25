@@ -14,6 +14,7 @@
 #include <ui/qt/utils/themes/color_math.h>
 
 #include <QAbstractButton>
+#include <QApplication>
 #include <QColor>
 #include <QDebug>
 #include <QEvent>
@@ -374,6 +375,20 @@ QRect ThemeStyler::flexibleBezelRect(const QStyleOptionButton *button, const QWi
 void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
     QPainter *painter, const QWidget *widget) const
 {
+    // The base styles draw toolbar separators too dark to see in dark mode.
+    if (element == PE_IndicatorToolBarSeparator && option && ThemeManager::isDark()) {
+        // A style sheet can pin the toolbar palette, so use the application one.
+        const QPalette pal = QApplication::palette(widget);
+        const QColor color = ColorMath::mix(pal.window().color(), pal.windowText().color());
+        QStyleOption opt(*option);
+        opt.palette.setColor(QPalette::Window, color);
+        opt.palette.setColor(QPalette::Light, color);
+        // macOS draws Dark made darker().
+        opt.palette.setColor(QPalette::Dark, baseStyleName() == QLatin1String("macos") ? color.lighter(200) : color);
+        QProxyStyle::drawPrimitive(element, &opt, painter, widget);
+        return;
+    }
+
 #ifdef Q_OS_MACOS
     // With the Liquid Glass appearance (macOS 26+ SDK and runtime), the
     // macOS style ignores the position of the indicator rect and draws the
