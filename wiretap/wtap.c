@@ -1999,6 +1999,17 @@ wtap_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *offset)
 
 	*err = 0;
 	*err_info = NULL;
+
+	/*
+	 * Let the read routine seek back to where it started, even on
+	 * a pipe, as long as it doesn't read more than file_bufsize()
+	 * bytes past that. A read routine that needs to seek back to an
+	 * earlier position (that it could seek back to before this) can
+	 * seek there and set the mark itself before reading further.
+	 */
+	if (wth->fh != NULL)
+		file_set_seek_mark(wth->fh);
+
 	if (!wth->subtype_read(wth, rec, err, err_info, offset)) {
 		/*
 		 * If we didn't get an error indication, we read

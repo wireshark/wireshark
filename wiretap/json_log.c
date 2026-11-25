@@ -277,11 +277,20 @@ static bool json_log_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, 
     // Read in small chunks until we find the end of the object. Entries
     // are usually much smaller than MAX_JSON_LOG_ENTRY_SIZE, and reading
     // (and then seeking back over) the maximum for each one is very slow.
+    //
+    // We seek back to the end of the object afterwards; on a pipe, that
+    // works as long as we haven't read more than file_bufsize() bytes
+    // past the mark.
+    file_set_seek_mark(fh);
+    unsigned max_read = MAX_JSON_LOG_ENTRY_SIZE;
+    if (wth->ispipe) {
+        max_read = MIN(max_read, file_bufsize(fh));
+    }
     json_object_scan_t scan = {0};
     unsigned bytes_avail = 0;
     size_t entry_size = 0;
-    while (entry_size == 0 && bytes_avail < MAX_JSON_LOG_ENTRY_SIZE) {
-        unsigned to_read = MIN(JSON_LOG_READ_CHUNK_SIZE, MAX_JSON_LOG_ENTRY_SIZE - bytes_avail);
+    while (entry_size == 0 && bytes_avail < max_read) {
+        unsigned to_read = MIN(JSON_LOG_READ_CHUNK_SIZE, max_read - bytes_avail);
         int bytes_read = file_read(log_data + bytes_avail, to_read, fh);
         if (bytes_read < 0) {
             *err = file_error(fh, err_info);

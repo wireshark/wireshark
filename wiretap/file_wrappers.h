@@ -87,6 +87,32 @@ extern int64_t file_tell_raw(FILE_T stream);
 WS_DLL_PUBLIC unsigned file_bufsize(FILE_T stream);
 
 /**
+ * @brief Mark the current position as one we'll seek back to.
+ *
+ * Until this is called again, the stream can seek back to the marked
+ * position, even when reading from a @ref wtap->ispipe "pipe", as long as
+ * nothing has read more than file_bufsize() bytes past it.
+ *
+ * Initially, the mark is at the beginning of the file; that's how a
+ * heuristic open routine, which shouldn't read more than file_bufsize()
+ * bytes on a pipe, can seek back to the beginning for the next routine.
+ *
+ * wtap_read() sets the mark before calling the read routine, so a
+ * sequential read routine can read past the end of its record and seek
+ * back. It needs to call this itself only to keep data from an earlier
+ * position, or to start the file_bufsize() bytes from a later one.
+ *
+ * A seek to a position before the mark isn't guaranteed to work on a pipe.
+ * Setting the mark is cheap: it only records the position. Data before
+ * it is discarded, and data after it moved, only when the I/O routines'
+ * buffer is next refilled, so a routine can still seek back to wherever
+ * it could before it set the mark, until it reads more.
+ *
+ * @param stream File handle
+ */
+WS_DLL_PUBLIC void file_set_seek_mark(FILE_T stream);
+
+/**
  * @brief Get file status information.
  *
  * @param stream File handle.

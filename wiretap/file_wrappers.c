@@ -59,13 +59,12 @@ wtap_get_compression_type(wtap *wth)
  *
  * Besides being the unit of I/O, the size determines how far back we're
  * guaranteed to be able to seek on a pipe (or other stream we can't
- * seek on): the first file_bufsize() bytes of uncompressed data, or of
- * decompressed data (as the first decompression fills the output buffer,
- * unless the compressed stream, e.g. a gzip member or zstd frame, ends
- * first), stay in the buffer until something reads past them. The open
- * routines tried while determining a file's type each start by seeking
- * back to the beginning, and some (e.g., JSON) read a fair amount of the
- * file before deciding, so make the minimum large enough for them.
+ * seek on): when the output buffer is full, we discard what's before the
+ * mark set by file_set_seek_mark() (initially, the beginning of the file),
+ * but keep up to file_bufsize() bytes from the mark on. The open routines
+ * tried while determining a file's type each start by seeking back to the
+ * beginning, and some (e.g., JSON) read a fair amount of the file before
+ * deciding, so make the minimum large enough for them.
  */
 #define GZBUFSIZE 65536
 #define LZ4BUFSIZE 4194304 // 4MiB, maximum block size
@@ -157,6 +156,9 @@ struct wtap_reader {
     /* fast seeking */
     GPtrArray *fast_seek;
     void *fast_seek_cur;
+
+    /* position we keep data from when making room in the output buffer */
+    int64_t mark;
 };
 
 /* Current read offset within a buffer. */
@@ -196,22 +198,21 @@ buf_reset(struct wtap_reader_buf *buf)
 }
 
 static int
-buf_read(FILE_T state, struct wtap_reader_buf *buf)
+buf_read(FILE_T state, struct wtap_reader_buf *buf, unsigned buf_size)
 {
     unsigned space_left, to_read;
     unsigned char *read_ptr;
     ssize_t ret;
 
-    /* How much space is left at the end of the buffer?
-       XXX - the output buffer actually has state->size * 2 bytes. */
-    space_left = state->size - bytes_in_buffer(buf);
+    /* How much space is left at the end of the buffer? */
+    space_left = buf_size - bytes_in_buffer(buf);
     if (space_left == 0) {
         /* There's no space left, so we start fresh at the beginning
            of the buffer. */
         buf_reset(buf);
 
         read_ptr = buf->buf;
-        to_read = state->size;
+        to_read = buf_size;
     } else {
         /* There's some space left; try to read as much data as we
            can into that space.  We may get less than that if we're
@@ -239,10 +240,41 @@ fill_in_buffer(FILE_T state)
     if (state->err != 0)
         return -1;
     if (!state->eof) {
-        if (buf_read(state, &state->in) < 0)
+        if (buf_read(state, &state->in, state->size) < 0)
             return -1;
     }
     return 0;
+}
+
+/*
+ * Make sure there's room for at least "needed" more bytes at the end of
+ * the output buffer, which must have no unread data. If there isn't,
+ * discard the data before the mark by moving the data from the mark on
+ * to the beginning of the buffer, so we can still seek back to the mark;
+ * or, if the mark is more than state->size bytes back (or isn't in the
+ * buffer), discard everything.
+ *
+ * As the buffer is twice state->size, that leaves room for at least
+ * state->size bytes, and, as we only do this when the buffer is full, we
+ * move no more data than we've read into the buffer since the last time.
+ */
+static void
+out_buf_make_room(FILE_T state, unsigned needed)
+{
+    unsigned in_buf = offset_in_buffer(&state->out);
+    unsigned keep = 0;
+
+    ws_assert(state->out.avail == 0);
+    ws_assert(needed <= state->size);
+    if ((state->size << 1) - in_buf >= needed)
+        return;
+
+    if (state->mark <= state->pos && state->pos - state->mark <= in_buf &&
+        state->pos - state->mark <= state->size) {
+        keep = (unsigned)(state->pos - state->mark);
+    }
+    memmove(state->out.buf, state->out.next - keep, keep);
+    state->out.next = state->out.buf + keep;
 }
 
 #define ZLIB_WINSIZE 32768
@@ -406,7 +438,7 @@ fast_seek_reset(FILE_T state)
 static bool
 uncompressed_fill_out_buffer(FILE_T state)
 {
-    if (buf_read(state, &state->out) < 0)
+    if (buf_read(state, &state->out, state->size << 1) < 0)
         return false;
     return true;
 }
@@ -605,8 +637,8 @@ zlib_fill_out_buffer(FILE_T state)
     int ret = 0;        /* XXX */
     uint32_t crc, len;
     zlib_streamp strm = &(state->strm);
-    unsigned char *buf = state->out.buf;
-    unsigned int count = state->size << 1;
+    unsigned char *buf = state->out.next;
+    unsigned int count = (state->size << 1) - offset_in_buffer(&state->out);
 
     unsigned char *buf2 = buf;
     unsigned int count2 = count;
@@ -911,7 +943,7 @@ zstd_fill_out_buffer(FILE_T state)
 {
     ws_assert(state->out.avail == 0);
 
-    ZSTD_outBuffer output = {state->out.buf, state->size << 1, 0};
+    ZSTD_outBuffer output = {state->out.next, (state->size << 1) - offset_in_buffer(&state->out), 0};
 
     /*
      * Fill the output buffer, as the other decompressors do, up to the
@@ -952,7 +984,6 @@ zstd_fill_out_buffer(FILE_T state)
      * with the other decompressors, file_read() returns the data before
      * reporting the error.
      */
-    state->out.next = state->out.buf;
     state->out.avail = (unsigned)output.pos;
     return state->err == 0 || output.pos != 0;
 }
@@ -1053,15 +1084,13 @@ lz4_fill_out_buffer(FILE_T state)
      * on a block end, add a fast seek point (but *before* the header.)
      */
 
-    unsigned count = state->size << 1;
+    unsigned count = (state->size << 1) - offset_in_buffer(&state->out);
     unsigned char *buf2;
     size_t outBufSize = 0; // Zero so we don't actually consume the block
     size_t inBufSize;
 
     size_t compressedSize = 0;
     size_t ret = SIZE_MAX; // 0 indicates end of frame, initialize to something else
-
-    state->out.next = state->out.buf;
 
     do {
         /* get more input for decompress() */
@@ -1111,7 +1140,7 @@ lz4_fill_out_buffer(FILE_T state)
         outBufSize = count - state->out.avail;
         inBufSize = MIN(state->in.avail, compressedSize);
 
-        buf2 = state->out.buf + state->out.avail;
+        buf2 = state->out.next + state->out.avail;
         ret = LZ4F_decompress(state->lz4_dctx, buf2, &outBufSize, state->in.next, &inBufSize, NULL);
 
         if (LZ4F_isError(ret)) {
@@ -1214,8 +1243,6 @@ lz4_fill_out_buffer(FILE_T state)
 
         outBufSize = count - state->out.avail;
     } while (ret != 0 && outBufSize);
-
-    state->out.next  = state->out.buf;
 
     if (ret == 0) {
         /* End of Frame */
@@ -1400,11 +1427,11 @@ check_for_compression(FILE_T state)
        input to output -- this assumes that the output buffer is larger than
        the input buffer, which also assures space for gzungetc() */
     state->raw = state->pos;
-    state->out.next = state->out.buf;
     /* not a compressed file -- copy everything we've read into the
        input buffer to the output buffer and fall to raw i/o */
     if (state->in.avail) {
-        memcpy(state->out.buf, state->in.next, state->in.avail);
+        out_buf_make_room(state, state->in.avail);
+        memcpy(state->out.next, state->in.next, state->in.avail);
         state->out.avail = state->in.avail;
 
         /* Now discard everything in the input buffer */
@@ -1420,6 +1447,8 @@ check_for_compression(FILE_T state)
 static int
 fill_out_buffer(FILE_T state)
 {
+    out_buf_make_room(state, 1);
+
     if (state->compression == UNKNOWN) {
         /*
          * We don't yet know whether the file is compressed,
@@ -1520,6 +1549,7 @@ gz_reset(FILE_T state)
     state->err = 0;               /* clear error */
     state->err_info = NULL;
     state->pos = 0;               /* no uncompressed data yet */
+    state->mark = 0;              /* keep data from the beginning */
     buf_reset(&state->in);        /* no input data yet */
 }
 
@@ -2182,6 +2212,12 @@ unsigned
 file_bufsize(FILE_T stream)
 {
     return stream->size;
+}
+
+void
+file_set_seek_mark(FILE_T stream)
+{
+    stream->mark = file_tell(stream);
 }
 
 bool

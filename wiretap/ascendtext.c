@@ -425,6 +425,7 @@ static bool ascend_read(wtap *wth, wtap_rec *rec, int *err,
 {
     ascend_t *ascend = (ascend_t *)wth->priv;
     int64_t offset;
+    unsigned max_read;
 
     /* parse_ascend() will advance the point at which to look for the next
         packet's header, to just after the last packet's header (ie. at the
@@ -434,7 +435,18 @@ static bool ascend_read(wtap *wth, wtap_rec *rec, int *err,
                     SEEK_SET, err) == -1)
         return false;
 
-    offset = ascend_find_next_packet(wth, ASCEND_MAX_SEARCH, err, err_info);
+    /* ascend_find_next_packet() seeks back to the start of the header it
+        finds, and the next call to us seeks back to the start of this
+        packet's data, both of which are after this point; make sure that
+        works on a pipe as long as we read no more than file_bufsize()
+        bytes past it. */
+    file_set_seek_mark(wth->fh);
+    max_read = ASCEND_MAX_SEARCH;
+    if (wth->ispipe) {
+        max_read = MIN(max_read, file_bufsize(wth->fh));
+    }
+
+    offset = ascend_find_next_packet(wth, max_read, err, err_info);
     if (offset == -1) {
         /* EOF or read error */
         return false;
