@@ -1507,6 +1507,7 @@ Visual Studio Code Analysis:
     - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 18 2026" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" -maxcpucount:2 Wireshark.slnx
     - $report = "visual-c++-analyze-" + (Get-Date -format "yyyy-MM-dd") + ".html"
+    - $env:PYTHONFAULTHANDLER = "1"
     - sarif-tools.venv\Scripts\sarif html --output $report
     - if (Test-Path env:MC_DESTINATION_ANALYSIS) { C:\mcli\mcli --quiet cp "$report" "$env:MC_DESTINATION_ANALYSIS/" }
 
