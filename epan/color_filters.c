@@ -479,7 +479,7 @@ color_filters_read_layer(const profile_inherit_layer_t *layer, const char *path,
             continue;
         }
         g_free(colorf->source_profile);
-        colorf->source_profile = g_strdup(layer->profile_name);
+        colorf->source_profile = g_strdup(layer->source);
         layer_read->add_cb(colorf, layer_read->user_data);
     }
     g_slist_free(layer_list);

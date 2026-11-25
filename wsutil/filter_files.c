@@ -387,7 +387,7 @@ read_layer_filters(const profile_inherit_layer_t *layer, const char *path, const
             free_filter_entry(filt);
             continue;
         }
-        filt->source_profile = g_strdup(layer->profile_name);
+        filt->source_profile = g_strdup(layer->source);
         data->entries = g_list_prepend(data->entries, filt);
     }
     g_list_free(layer_list);

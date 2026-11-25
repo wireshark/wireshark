@@ -203,7 +203,7 @@ filter_list_read_layer(const profile_inherit_layer_t *layer, const char *path, c
         // A macro is found by its name, a filter also by its expression
         if (profile_inherit_seen_check(seen, name.constData()))
             continue;
-        data->rules << new FilterListItem(value.name, value.expression, nullptr, QString::fromUtf8(layer->profile_name));
+        data->rules << new FilterListItem(value.name, value.expression, nullptr, QString::fromUtf8(layer->source));
     }
     return true;
 }

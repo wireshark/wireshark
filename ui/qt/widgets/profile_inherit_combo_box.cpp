@@ -305,7 +305,8 @@ void ProfileInheritComboBox::wheelEvent(QWheelEvent *event)
 
 void ProfileInheritComboBox::updateToolTips()
 {
-    char *parent_name = profile_parent_name(NULL);
+    // The global profile with the same name comes first, if there is one
+    char *parent_name = profile_inherit_parent_source(application_configuration_environment_prefix(), NULL);
     QString parent = parent_name ? QString::fromUtf8(parent_name) : QString();
     g_free(parent_name);
 

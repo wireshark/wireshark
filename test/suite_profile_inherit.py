@@ -145,3 +145,89 @@ class TestDecodeAsInherit:
         '''Without the inherit setting the entries of the parent are not used.'''
         protocols = run_child('decode_as_entries', parent=self.ENTRY, args=self.PROTOCOL_ARGS)
         assert 'Git' in protocols
+
+
+@pytest.fixture
+def run_global(cmd_tshark, capture_file, conf_path, test_env, tmp_path):
+    '''Returns a function writing the coloring rules of the personal Default
+    profile, a global profile and a personal profile with the same name, and
+    returning the names of the rules that colored packets.'''
+    def write_profile(directory, rules, mode):
+        os.makedirs(directory, exist_ok=True)
+        if rules is not None:
+            with open(os.path.join(directory, RULES_FILE), 'w') as f:
+                f.write(rules_file(*rules))
+        if mode is not None:
+            with open(os.path.join(directory, 'profile_settings'), 'w') as f:
+                f.write('inherit.%s: %s\n' % (RULES_FILE, mode))
+
+    def run_real(name='Child', default=None, global_name=None, global_rules=None, global_mode=None,
+                 personal=None, mode=None, personal_parent_mode=None):
+        if default is not None:
+            write_profile(conf_path, default, None)
+        data_dir = tmp_path / 'data'
+        write_profile(os.path.join(data_dir, 'profiles', global_name or name), global_rules, global_mode)
+        if personal_parent_mode is not None:
+            write_profile(os.path.join(conf_path, 'profiles', os.path.dirname(name)), None, personal_parent_mode)
+        write_profile(os.path.join(conf_path, 'profiles', name), personal, mode)
+        env = dict(test_env)
+        env['WIRESHARK_DATA_DIR'] = str(data_dir)
+        proc = subprocesstest.check_run(
+            (cmd_tshark, '-C', name, '--color', '-r', capture_file('gitOverTCP.pcap'),
+             '-T', 'fields', '-e', 'frame.coloring_rule.name'),
+            capture_output=True, env=env)
+        return {line.strip() for line in proc.stdout.splitlines() if line.strip()}
+    return run_real
+
+
+class TestGlobalProfileInherit:
+    def test_profile_only_ignores_global(self, run_global):
+        '''Without the inherit setting the entries of the global profile are not used.'''
+        names = run_global(global_rules=[('GlobalTCP', 'tcp', True)], personal=[('OwnUDP', 'udp', True)])
+        assert names == set()
+
+    def test_parent_only_uses_global(self, run_global):
+        '''The global profile with the same name is the parent, before the Default profile.'''
+        names = run_global(default=[('DefaultTCP', 'tcp', True)], global_rules=[('GlobalTCP', 'tcp', True)],
+                           personal=[('OwnTCP', 'tcp', True)], mode='parent_only')
+        assert names == {'GlobalTCP'}
+
+    def test_profile_and_parent_adds_global(self, run_global):
+        '''The entries of the global profile follow the entries of the profile.'''
+        names = run_global(global_rules=[('GlobalTCP', 'tcp', True)], personal=[('OwnUDP', 'udp', True)],
+                           mode='profile_and_parent')
+        assert names == {'GlobalTCP'}
+
+    def test_same_name_overrides_global(self, run_global):
+        '''An entry of the global profile with the name of an own entry is not used.'''
+        names = run_global(global_rules=[('Same', 'tcp', True)], personal=[('Same', 'udp', True)],
+                           mode='profile_and_parent')
+        assert names == set()
+
+    def test_global_profile_only_ends_layers(self, run_global):
+        '''A global profile without an inherit setting uses its own entries only.'''
+        names = run_global(default=[('DefaultTCP', 'tcp', True)], global_rules=[('GlobalUDP', 'udp', True)],
+                           personal=[('OwnUDP', 'udp', True)], mode='profile_and_parent')
+        assert names == set()
+
+    def test_global_setting_continues_to_parent(self, run_global):
+        '''A global profile uses the inherit setting in its own profile settings.'''
+        names = run_global(default=[('DefaultTCP', 'tcp', True)], global_rules=[('GlobalUDP', 'udp', True)],
+                           global_mode='profile_and_parent', personal=[('OwnUDP', 'udp', True)],
+                           mode='profile_and_parent')
+        assert names == {'DefaultTCP'}
+
+    def test_nested_profile_reaches_global_parent(self, run_global):
+        '''A sub-profile reaches the global profile with the name of its personal parent.'''
+        names = run_global(name='Parent/Child', default=[('DefaultTCP', 'tcp', True)],
+                           global_name='Parent', global_rules=[('GlobalTCP', 'tcp', True)],
+                           personal=[('OwnUDP', 'udp', True)], mode='profile_and_parent',
+                           personal_parent_mode='parent_only')
+        assert names == {'GlobalTCP'}
+
+    def test_nested_profile_stops_at_personal_parent(self, run_global):
+        '''The personal parent using its own entries only hides the global profile behind it.'''
+        names = run_global(name='Parent/Child', global_name='Parent', global_rules=[('GlobalTCP', 'tcp', True)],
+                           personal=[('OwnUDP', 'udp', True)], mode='profile_and_parent',
+                           personal_parent_mode='profile_only')
+        assert names == set()
