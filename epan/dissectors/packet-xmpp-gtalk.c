@@ -287,17 +287,14 @@ xmpp_gtalk_usersetting(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp
         {"xmlns", &hf_xmpp_xmlns, true, true, NULL, NULL}
     };
 
-    unsigned i;
-
     sett_item = proto_tree_add_item(tree, hf_xmpp_gtalk_setting, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     sett_tree = proto_item_add_subtree(sett_item, ett_xmpp_gtalk_setting);
 
     xmpp_display_attrs(sett_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
 
-    for(i = 0; i < g_list_length(element->elements); i++)
+    for(GList *elem_l = g_list_first(element->elements); elem_l; elem_l = g_list_next(elem_l))
     {
-        GList *elem_l = g_list_nth(element->elements,i);
-        xmpp_element_t *elem = (xmpp_element_t *)(elem_l?elem_l->data:NULL);
+        xmpp_element_t *elem = (xmpp_element_t *)elem_l->data;
 
         if(elem)
         {
