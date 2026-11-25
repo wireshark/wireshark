@@ -640,8 +640,12 @@ public slots:
     /** @brief Updates UI state when a capture file is first opened. */
     void captureFileOpened();
 
-    /** @brief Updates UI state after a capture file has been fully read. */
-    void captureFileReadFinished();
+    /**
+     * @brief Updates UI state after a capture file has been fully read.
+     * @param context CaptureEvent::File, CaptureEvent::Reload or
+     * CaptureEvent::Rescan.
+     */
+    void captureFileReadFinished(CaptureEvent::Context context);
 
     /** @brief Updates UI state while a capture file is being closed. */
     void captureFileClosing();
