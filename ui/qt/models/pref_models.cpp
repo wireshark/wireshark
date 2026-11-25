@@ -815,30 +815,20 @@ Qt::ItemFlags ModulePrefsModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::ItemFlags();
 
-    bool disable_capture = true;
-#ifdef HAVE_LIBPCAP
-#ifdef _WIN32
-    /* Is WPcap loaded? */
-    if (has_npcap) {
-#endif /* _WIN32 */
-        disable_capture = false;
-#ifdef _WIN32
-    }
-#endif /* _WIN32 */
-#endif /* HAVE_LIBPCAP */
 
     Qt::ItemFlags flags = QAbstractItemModel::flags(index);
-    if (disable_capture) {
-        QModelIndex modelIndex = mapToSource(index);
+#ifndef HAVE_LIBPCAP
+    QModelIndex modelIndex = mapToSource(index);
 
-        PrefsItem* item = static_cast<PrefsItem*>(modelIndex.internalPointer());
-        if (item == NULL)
-            return flags;
+    PrefsItem *item = static_cast<PrefsItem *>(modelIndex.internalPointer());
+    if (item == NULL)
+        return flags;
 
-        if (item->getName().compare(PrefsModel::typeToString(PrefsModel::Capture)) == 0) {
-            flags &= (~Qt::ItemIsEnabled);
-        }
+    if (item->getName().compare(PrefsModel::typeToString(PrefsModel::Capture)) == 0)
+    {
+        flags &= (~Qt::ItemIsEnabled);
     }
+#endif /* HAVE_LIBPCAP */
 
     return flags;
 }

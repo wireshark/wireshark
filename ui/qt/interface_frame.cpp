@@ -323,6 +323,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
     ui->warningLabel->hide();
     ui->warningLabel->clear();
 
+    // Same as capture_preferences_frame.cpp
     ui->warningLabel->setStyleSheet(QStringLiteral(
                 "QLabel {"
                 "  border-radius: 0.5em;"
