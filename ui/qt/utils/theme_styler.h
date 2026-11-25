@@ -65,8 +65,9 @@ public:
      * non-flat push button is widened until its title rect holds the content.
      * A text-only toolbar button with a menu that does not pop up from a
      * separate menu button is widened by the menu arrow that
-     * drawComplexControl() draws for it. The limits are queried from the
-     * base style. On all other styles and
+     * drawComplexControl() draws for it. A menu item is widened by the
+     * distance drawControl() moves its content right on a zoom. The limits
+     * are queried from the base style. On all other styles and
      * controls the base result is returned unchanged.
      *
      * @param type The contents type.
@@ -83,7 +84,8 @@ public:
      *
      * On macOS 26 and later, item view check boxes are drawn on a
      * translated painter, since the native style ignores the indicator
-     * position there.
+     * position there. The checkmark of a menu item that drawControl()
+     * moved right is drawn at the left edge of the item.
      *
      * At High contrast with the Fusion base style, push button, combo box
      * and line edit frames (PE_PanelButtonCommand, PE_FrameLineEdit) are
@@ -128,6 +130,12 @@ public:
      * bezel's accent state, and the keyboard focus ring (CE_FocusFrame)
      * is the native ring of that bezel. Buttons of the native bezel
      * height are left to the base style.
+     *
+     * The native style starts the text of a menu item (CE_MenuItem) a
+     * fixed distance in, and sizes its checkmark from the font, so a
+     * zoomed checkmark runs into the text. On a zoom, menu items are
+     * drawn moved right by what the zoom adds to that distance, with the
+     * checkmark at the left edge.
      *
      * The windows11 style fills a selected item view item
      * (CE_ItemViewItem) with a nearly transparent gray and draws its text
@@ -235,6 +243,11 @@ private:
 #endif
 
 #ifdef Q_OS_MACOS
+    // While drawControl() has the macOS base style draw a menu item moved
+    // right, the distance it is moved, for the checkmark drawn back at the
+    // left edge by drawPrimitive(). 0 otherwise.
+    mutable int menu_item_shift_ = 0;
+
     /**
      * Height of the native push button bezel for @p button, as the base
      * style reports it for empty content (32, 28 or 24 px depending on the

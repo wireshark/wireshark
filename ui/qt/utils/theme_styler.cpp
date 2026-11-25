@@ -25,6 +25,7 @@
 #include <QPen>
 #include <QRectF>
 #include <QStyleOptionButton>
+#include <QStyleOptionMenuItem>
 #include <QStyleOptionToolBar>
 #include <QStyleOptionToolButton>
 #include <QStyleOptionViewItem>
@@ -238,6 +239,20 @@ static bool macToolButtonLacksMenuArrow(const QStyleOptionToolButton *tb)
             && !(tb->features & QStyleOptionToolButton::MenuButtonPopup)
             && (tb->toolButtonStyle == Qt::ToolButtonTextOnly || tb->icon.isNull());
 }
+
+// Distance from the left edge of a menu item to its text in the macOS
+// style, whatever the font (CE_MenuItem in qmacstyle_mac.mm).
+static const int macMenuItemTextIndent = 18;
+
+// How far a menu item is moved right so its checkmark, which the macOS
+// style sizes from the font, stays clear of the text at the current zoom.
+static int macMenuItemShift(const QStyleOptionMenuItem *mi)
+{
+    if (mi->menuItemType != QStyleOptionMenuItem::Normal
+            && mi->menuItemType != QStyleOptionMenuItem::SubMenu)
+        return 0;
+    return ZoomScaling::scaledPixels(macMenuItemTextIndent) - macMenuItemTextIndent;
+}
 #endif
 
 QSize ThemeStyler::sizeFromContents(ContentsType type, const QStyleOption *option,
@@ -283,6 +298,13 @@ QSize ThemeStyler::sizeFromContents(ContentsType type, const QStyleOption *optio
             && baseStyleName() == QLatin1String("macos")
             && macToolButtonLacksMenuArrow(tb)) {
         size.rwidth() += macToolButtonArrowSize + macToolButtonArrowMargin;
+    }
+
+    // drawControl() moves the content of a menu item right on a zoom, so
+    // widen the item by the same distance.
+    const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(option);
+    if (type == CT_MenuItem && mi && baseStyleName() == QLatin1String("macos")) {
+        size.rwidth() += macMenuItemShift(mi);
     }
 #endif
     return size;
@@ -372,6 +394,15 @@ void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *op
         painter->translate(option->rect.topLeft());
         QProxyStyle::drawPrimitive(element, &opt, painter, widget);
         painter->restore();
+        return;
+    }
+
+    // drawControl() has the checkmark of a menu item drawn moved right
+    // with the rest of the item; draw it at the left edge of the item.
+    if (element == PE_IndicatorMenuCheckMark && menu_item_shift_ > 0 && option) {
+        QStyleOption opt(*option);
+        opt.rect.translate(-menu_item_shift_, 0);
+        QProxyStyle::drawPrimitive(element, &opt, painter, widget);
         return;
     }
 #endif
@@ -487,6 +518,27 @@ void ThemeStyler::drawControl(ControlElement element, const QStyleOption *option
         }
         QProxyStyle::drawControl(element, &labelOpt, painter, widget);
         return;
+    }
+
+    // The macOS style starts the text of a menu item a fixed distance in
+    // and sizes the checkmark from the font, so on a zoom the checkmark
+    // runs into the text. Draw the item moved right by what the zoom adds
+    // to that distance, with the selection filled under the whole item, and
+    // the checkmark back at the left edge (drawPrimitive()).
+    const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(option);
+    if (element == CE_MenuItem && mi && painter
+            && baseStyleName() == QLatin1String("macos")) {
+        const int shift = macMenuItemShift(mi);
+        if (shift > 0) {
+            if (mi->state & State_Selected)
+                painter->fillRect(mi->rect, mi->palette.highlight());
+            QStyleOptionMenuItem item = *mi;
+            item.rect.setLeft(mi->rect.left() + shift);
+            menu_item_shift_ = shift;
+            QProxyStyle::drawControl(element, &item, painter, widget);
+            menu_item_shift_ = 0;
+            return;
+        }
     }
 
     // The macOS style draws a push button taller than its native bezel
