@@ -8,6 +8,7 @@
  */
 
 #include "config.h"
+#include <ui_capture_preferences_frame.h>
 #include <app/application_flavor.h>
 
 #include <wireshark.h>
@@ -16,11 +17,15 @@
 #include "ui/capture_globals.h"
 #endif
 
+#ifdef Q_OS_WIN
+#include "capture/capture-wpcap.h"
+#endif
+
 #include "capture_preferences_frame.h"
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
-#include <ui_capture_preferences_frame.h>
 #include "main_application.h"
 #include <ui/qt/main_window.h>
 #include <ui/qt/manager/interface_list_manager.h>
@@ -40,6 +45,30 @@ CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
     ui(new Ui::CapturePreferencesFrame)
 {
     ui->setupUi(this);
+
+#ifdef Q_OS_WIN
+    // Same as interface_frame.cpp
+    ui->warningLabel->setStyleSheet(QStringLiteral(
+        "QLabel {"
+        "  border-radius: 0.5em;"
+        "  padding: 0.33em;"
+        "  margin-bottom: 0.25em;"
+        // We might want to transition this to normal colors this after a timeout.
+        "  background-color: %2;"
+        "}")
+        .arg(ColorUtils::warningBackground().name()));
+    if (!has_npcap) {
+        ui->warningLabel->setText(tr(
+            "<p>"
+            "Local interfaces are unavailable because no packet capture driver is installed."
+            "</p><p>"
+            "You can fix this by installing <a href=\"https://npcap.com/\">Npcap</a>."
+            "</p>"));
+    }
+    ui->warningLabel->setVisible(!has_npcap);
+#else
+    ui->warningLabel->hide();
+#endif
 
     pref_device_ = prefFromPrefPtr(&prefs.capture_device);
     pref_prom_mode_ = prefFromPrefPtr(&prefs.capture_prom_mode);
