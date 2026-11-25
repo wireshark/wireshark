@@ -690,9 +690,6 @@ Windows Arm64 Package:
     AQT_ARCH: "msvc2022_arm64"
     VCVARS_ARCH: "arm64"
     FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/wireshark-arm64-libs/falcosecurity-plugins-2026-03-16-2-arm64-ws"
-    # XXX The Arm64 runner is out of disk space. Keep the cache smaller
-    # until it has more; one build adds about 0.75 GB.
-    CCACHE_MAXSIZE: "1.5G"
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
