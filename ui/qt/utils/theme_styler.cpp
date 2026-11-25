@@ -370,6 +370,20 @@ QRect ThemeStyler::flexibleBezelRect(const QStyleOptionButton *button, const QWi
     return QRect(bevel.left(), rect.top() + topInset, bevel.width(),
                  rect.height() - topInset - bottomInset);
 }
+
+void ThemeStyler::drawPushButtonMenuArrow(const QStyleOptionButton *button, QPainter *painter,
+    const QWidget *widget) const
+{
+    // Menu arrow placement of QMacStyle's CE_PushButtonBevel for square
+    // buttons (private, no API exposes it). For a square button the base
+    // SE_PushButtonBevel is the frame rect that code places the arrow in.
+    const QRect ir = QProxyStyle::subElementRect(SE_PushButtonBevel, button, widget);
+    const int mbi = proxy()->pixelMetric(PM_MenuButtonIndicator, button, widget);
+    QStyleOption arrowOpt = *button;
+    arrowOpt.rect = visualRect(button->direction, ir,
+                               QRect(ir.right() - mbi - 6, ir.height() / 2, mbi, mbi));
+    proxy()->drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, painter, widget);
+}
 #endif
 
 void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
@@ -567,20 +581,24 @@ void ThemeStyler::drawControl(ControlElement element, const QStyleOption *option
         if (btn && takesFlexibleBezel(btn, widget)) {
             if (NativePushButton::drawFlexibleBezel(painter, flexibleBezelRect(btn, widget),
                                                     flexibleBezelState(btn), widget)) {
-                if (btn->features & QStyleOptionButton::HasMenu) {
-                    // Menu arrow placement of QMacStyle's CE_PushButtonBevel
-                    // for square buttons (private, no API exposes it). For
-                    // a square button the base SE_PushButtonBevel is the
-                    // frame rect that code places the arrow in.
-                    const QRect ir = QProxyStyle::subElementRect(SE_PushButtonBevel, btn, widget);
-                    const int mbi = proxy()->pixelMetric(PM_MenuButtonIndicator, btn, widget);
-                    QStyleOption arrowOpt = *option;
-                    arrowOpt.rect = visualRect(btn->direction, ir,
-                                               QRect(ir.right() - mbi - 6, ir.height() / 2, mbi, mbi));
-                    proxy()->drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, painter, widget);
-                }
+                if (btn->features & QStyleOptionButton::HasMenu)
+                    drawPushButtonMenuArrow(btn, painter, widget);
                 return;
             }
+        }
+
+        // At the bezel height the macOS style draws a push button with a
+        // menu as a pull-down button, whose bezel is shaped differently
+        // from the other push buttons. Draw the push bezel and the arrow.
+        if (btn && (btn->features & QStyleOptionButton::HasMenu)
+                && !(btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::CommandLinkButton))
+                && baseStyleName() == QLatin1String("macos")
+                && btn->rect.height() == pushButtonBezelHeight(btn, btn->rect.width(), widget)) {
+            QStyleOptionButton pushOpt = *btn;
+            pushOpt.features &= ~QStyleOptionButton::HasMenu;
+            QProxyStyle::drawControl(element, &pushOpt, painter, widget);
+            drawPushButtonMenuArrow(&pushOpt, painter, widget);
+            return;
         }
     }
 

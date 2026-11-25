@@ -307,6 +307,17 @@ private:
      * @return The visible bezel rect in the option's coordinates.
      */
     QRect flexibleBezelRect(const QStyleOptionButton *button, const QWidget *widget) const;
+
+    /**
+     * Draws the menu arrow of a push button with a menu, placed as the
+     * macOS style places it on a square button.
+     *
+     * @param button  The option with the button's own rect.
+     * @param painter The painter.
+     * @param widget  The QPushButton.
+     */
+    void drawPushButtonMenuArrow(const QStyleOptionButton *button, QPainter *painter,
+        const QWidget *widget) const;
 #endif
 };
 
