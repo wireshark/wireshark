@@ -38,8 +38,11 @@
 #include <QAction>
 #include <QHBoxLayout>
 #include <QMenu>
+#include <QPainter>
 #include <QScreen>
 #include <QSplitter>
+#include <QStyle>
+#include <QStyleOption>
 #include <QToolButton>
 #include <QLatin1Char>
 
@@ -80,6 +83,81 @@ protected:
     }
 };
 
+// Menu actions with this property set are drawn with a double chevron
+// instead of a checkmark.
+static const char *profile_path_property_ = "profile_path";
+
+// The profile menu marks the current profile with a checkmark, and the
+// submenus on the path to it with a right-pointing double chevron icon. The
+// double chevron is drawn where the style draws a checkmark.
+class ProfileMenuStyle : public ThemeStyler
+{
+public:
+    ProfileMenuStyle() :
+        ThemeStyler(ThemeStyler::baseStyleName()),
+        chevron_icon_(QStringLiteral(":/svg_icons/profile-path.svg"),
+            ThemeManager::PaletteText, ThemeManager::PaletteHighlightedText)
+    {}
+
+    void drawControl(ControlElement element, const QStyleOption *option,
+        QPainter *painter, const QWidget *widget) const override
+    {
+        const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option);
+        const QMenu *menu = qobject_cast<const QMenu *>(widget);
+        QAction *action = (element == CE_MenuItem && menuItem && menu) ?
+            menu->actionAt(menuItem->rect.center()) : Q_NULLPTR;
+        if (!action || !action->property(profile_path_property_).toBool()) {
+            ThemeStyler::drawControl(element, option, painter, widget);
+            return;
+        }
+
+        // Draw the item as checked, and the double chevron in place of the checkmark
+        QStyleOptionMenuItem pathItem(*menuItem);
+        pathItem.checkType = QStyleOptionMenuItem::NonExclusive;
+        pathItem.checked = true;
+        chevron_item_ = &pathItem;
+        ThemeStyler::drawControl(element, &pathItem, painter, widget);
+        chevron_item_ = Q_NULLPTR;
+    }
+
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
+        QPainter *painter, const QWidget *widget) const override
+    {
+        // The checkmark is drawn as PE_IndicatorMenuCheckMark, or as
+        // PE_IndicatorCheckBox by Fusion
+        if (!chevron_item_ ||
+            (element != PE_IndicatorMenuCheckMark && element != PE_IndicatorCheckBox)) {
+            ThemeStyler::drawPrimitive(element, option, painter, widget);
+            return;
+        }
+
+        // The double chevron, as tall as a line of the menu item text so it
+        // follows the zoom, centered where the checkmark goes and on the
+        // capital letters of the vertically centered text
+        const QRect &itemRect = chevron_item_->rect;
+        QFontMetrics fm(chevron_item_->font);
+        int x = option->rect.center().x();
+        int textTop = itemRect.top() + (itemRect.height() - fm.height()) / 2;
+#ifdef Q_OS_MACOS
+        // The macOS style gives a check area narrower than the checkmark,
+        // starts the text 18 pixels into the menu item, which ThemeStyler
+        // widens with the zoom, and draws the text from the top of the menu
+        // item
+        x = itemRect.left() + ZoomScaling::scaledPixels(18) / 2;
+        textTop = itemRect.top();
+#endif
+        QRect iconRect(0, 0, fm.height(), fm.height());
+        iconRect.moveCenter(QPoint(x, textTop + fm.ascent() - fm.capHeight() / 2));
+        QIcon::Mode mode = (chevron_item_->state & State_Selected) ? QIcon::Selected : QIcon::Normal;
+        chevron_icon_.paint(painter, iconRect, Qt::AlignCenter, mode);
+    }
+
+private:
+    ThemedIcon chevron_icon_;
+    // The menu item being drawn with a double chevron, null otherwise
+    mutable const QStyleOptionMenuItem *chevron_item_ = Q_NULLPTR;
+};
+
 // If we ever add support for multiple windows this will need to be replaced.
 // See also: main_window.cpp
 static MainStatusBar *cur_main_status_bar_;
@@ -117,8 +195,10 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent),
     cap_file_(NULL),
     cs_fixed_(false),
-    cs_count_(0)
+    cs_count_(0),
+    profile_menu_style_(new ProfileMenuStyle)
 {
+    profile_menu_style_->setParent(this);
     QSplitter *splitter = new QSplitter(this);
     QWidget *info_progress = new QWidget(this);
     info_progress_hb_ = new QHBoxLayout(info_progress);
@@ -667,15 +747,29 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 
             if (hasChildren)
             {
-                QFont subMenuFont = subMenu->menuAction()->font();
+                QAction *subMenuAction = subMenu->menuAction();
+                QFont subMenuFont = subMenuAction->font();
                 subMenuFont.setItalic(profile->isGlobal());
-                // Show the path to the current profile in bold, including the current profile itself
-                if ((currentProfile != Q_NULLPTR) &&
-                    (currentProfile->getName().compare(profile->getName()) == 0 ||
-                     currentProfile->getName().startsWith(profile->getName() + "/")) &&
-                    profile->isGlobal() == currentProfile->isGlobal())
+                bool sameScope = (currentProfile != Q_NULLPTR) &&
+                                 profile->isGlobal() == currentProfile->isGlobal();
+                bool isCurrent = sameScope &&
+                                 currentProfile->getName().compare(profile->getName()) == 0;
+                bool isAncestor = sameScope &&
+                                  currentProfile->getName().startsWith(profile->getName() + "/");
+                // Show the path to the current profile in bold, with a checkmark
+                // on the current profile and a double chevron on its ancestors
+                if (isCurrent)
+                {
                     subMenuFont.setBold(true);
-                subMenu->menuAction()->setFont(subMenuFont);
+                    subMenuAction->setCheckable(true);
+                    subMenuAction->setChecked(true);
+                }
+                else if (isAncestor)
+                {
+                    subMenuFont.setBold(true);
+                    subMenuAction->setProperty(profile_path_property_, true);
+                }
+                subMenuAction->setFont(subMenuFont);
             }
             if (!hidden)
             {
@@ -717,8 +811,12 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
     addProfiles(profile_menu, QModelIndex(), true);
 
     SubMenuPlacer *placer = new SubMenuPlacer(profile_menu);
+    profile_menu->setStyle(profile_menu_style_);
     for (QMenu *subMenu : profile_menu->findChildren<QMenu *>())
+    {
         subMenu->installEventFilter(placer);
+        subMenu->setStyle(profile_menu_style_);
+    }
 
     if (button == Qt::LeftButton) {
         profile_menu->popup(global_pos);

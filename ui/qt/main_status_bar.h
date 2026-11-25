@@ -28,6 +28,7 @@
 
 class CaptureFile;
 class QHBoxLayout;
+class QStyle;
 class QToolButton;
 
 /**
@@ -156,6 +157,9 @@ private:
 
     /** Label for the current profile status. */
     ClickableLabel profile_status_;
+
+    /** Style of the profile menus, marking the path to the current profile. */
+    QStyle *profile_menu_style_;
 
     /** Selected-field text for STATUS_CTX_FIELD. */
     QString field_status_base_;
