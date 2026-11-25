@@ -29,6 +29,12 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 1.0.0rc2:
 
+* Configuration profiles can now be organized hierarchically, with profiles inside other profiles.
+
+* A profile can inherit entries from its parent profile, and from the global profile with the same name.
+  Coloring rules, Decode As entries and UAT records such as filter buttons, filter macros and Plots can be taken from the profile only, the profile and its parent, or the parent only.
+  Inherited entries are shown read-only and can be copied into the profile.
+
 * The installer package for Windows now ships as a thin executable wrapper which includes the Visual C++ redistributable and the Stratoshark MSI package.
 
 The following changes have been made since version 1.0.0rc1:

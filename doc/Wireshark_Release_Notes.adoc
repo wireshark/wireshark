@@ -25,7 +25,11 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 5.0.0rc2:
 
-* Nothing of note.
+* Configuration profiles can now be organized hierarchically, with profiles inside other profiles.
+
+* A profile can inherit entries from its parent profile, and from the global profile with the same name.
+  Coloring rules, tagging rules, Decode As entries and UAT records such as filter buttons, filter macros, I/O Graphs and Plots can be taken from the profile only, the profile and its parent, or the parent only.
+  Inherited entries are shown read-only and can be copied into the profile.
 
 The following changes have been made since version 5.0.0rc1:
 
