@@ -40,6 +40,7 @@ struct FamilyEntry {
     QString family;
     bool fixedPitch;
     bool symbol;
+    bool scalable;
 };
 
 struct FamilyCache {
@@ -87,21 +88,42 @@ void ensureFamilyCache()
         const QString name = normalizedFamily(raw);
         const bool fixed = QFontDatabase::isFixedPitch(raw);
         const bool symbol = QFontDatabase::writingSystems(raw).contains(QFontDatabase::Symbol);
+        const bool scalable = QFontDatabase::isSmoothlyScalable(raw);
         bool found = false;
         for (FamilyEntry &entry : cache.entries) {
             if (entry.family == name) {
                 entry.fixedPitch = entry.fixedPitch || fixed;
                 entry.symbol = entry.symbol || symbol;
+                entry.scalable = entry.scalable || scalable;
                 found = true;
                 break;
             }
         }
         if (!found) {
-            cache.entries.append({name, fixed, symbol});
+            cache.entries.append({name, fixed, symbol, scalable});
         }
     }
     cache.filled = true;
     QApplication::restoreOverrideCursor();
+}
+
+// Whether a family is offered in the list. On Windows, the bitmap (raster)
+// fonts such as 8514oem, Fixedsys, Terminal or MS Sans Serif only exist in a
+// few pixel sizes, look blocky when scaled by the zoom or a high DPI display,
+// and only cover a single legacy code page, so that for example the ellipsis
+// of elided text is drawn as a different character. Qt also tries to draw
+// them with DirectWrite on a scaled display, which can't load them, logs a
+// warning for each, and then falls back to GDI. They aren't offered. Bitmap
+// fonts elsewhere, such as Terminus on Linux, are chosen on purpose for
+// the packet panes and stay.
+bool offeredFamily(const FamilyEntry &entry)
+{
+#ifdef Q_OS_WIN
+    return entry.scalable;
+#else
+    Q_UNUSED(entry);
+    return true;
+#endif
 }
 
 const FamilyEntry *findCached(const QString &normalized)
@@ -373,6 +395,9 @@ void FontSelectionWidget::fillFamilyList()
             if (filter_ == FamilyFilter::FixedPitchOnly && !entry.fixedPitch) {
                 continue;
             }
+            if (!offeredFamily(entry)) {
+                continue;
+            }
             // Symbol fonts would draw their own name as symbols.
             addFamily(list->count(), entry.family, entry.family, !entry.symbol);
         }
@@ -391,8 +416,10 @@ void FontSelectionWidget::fillFamilyList()
             if (currentRow < 0) {
                 currentRow = defaultAllowed_ ? 1 : 0;
                 if (const FamilyEntry *entry = findCached(normalized)) {
-                    // Installed, but not offered by the filter.
-                    addFamily(currentRow, current, current, !entry->symbol);
+                    // Installed, but not offered by the filter or at all.
+                    // The name of a family that isn't offered is drawn in
+                    // the list's font, not its own.
+                    addFamily(currentRow, current, current, !entry->symbol && offeredFamily(*entry));
                 } else {
                     addFamily(currentRow, tr("%1 (not installed)").arg(current), current, false);
                 }
