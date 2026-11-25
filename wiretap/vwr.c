@@ -970,7 +970,6 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
     uint8_t *s_510024_ptr = NULL;
     uint8_t *s_510012_ptr = NULL; /* stats pointers */
     int64_t  filePos      = -1;
-    uint64_t bytes_read   = 0;
     uint32_t frame_type   = 0;
     int      f_len, v_type;
     uint16_t data_length  = 0;
@@ -980,10 +979,10 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
      * Bytes read in total. On a pipe, we (and the open routines tried
      * after us, which start by seeking back to the beginning) can seek
      * back only over what the I/O routines buffer, so read no more than
-     * that looking for a frame.
+     * that looking for a frame. Otherwise use a per-format limit.
      */
     uint64_t total_read   = 0;
-    uint64_t max_read     = wth->ispipe ? file_bufsize(wth->fh) : UINT64_MAX;
+    uint64_t max_read     = wth->ispipe ? file_bufsize(wth->fh) : VW_BYTES_TO_CHECK;
 
     filePos = file_tell(wth->fh);
     if (filePos == -1) {
@@ -1124,16 +1123,10 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
                 }
             }
         }
-        bytes_read += VW_RECORD_HEADER_LENGTH;
-        if (bytes_read > VW_BYTES_TO_CHECK) {
-            /* no frame found in VW_BYTES_TO_CHECK - not a vwr file */
-            g_free(rec);
-            return UNKNOWN_FPGA;
-        }
     }
 
     if (total_read + VW_RECORD_HEADER_LENGTH > max_read) {
-        /* No frame found in what we can read on a pipe */
+        /* No frame found in what we are willing to or can read */
         g_free(rec);
         return UNKNOWN_FPGA;
     }
