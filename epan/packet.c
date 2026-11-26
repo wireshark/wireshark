@@ -3133,6 +3133,16 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	unsigned           saved_desegment_len;
 	unsigned           saved_tree_count = tree ? tree->tree_data->count : 0;
 
+	if (G_UNLIKELY(wmem_list_count(pinfo->layers) >= prefs.gui_max_tree_depth)) {
+		/*
+		 * Bad packet data, not a dissector bug: see call_dissector_work().
+		 */
+		THROW_MESSAGE(DissectorError,
+		    wmem_strdup_printf(pinfo->pool,
+		        "Maximum protocol layer depth %u exceeded for heuristic dissectors (Maximum depth can be increased in advanced preferences)",
+		        prefs.gui_max_tree_depth));
+	}
+
 	/* can_desegment is set to 2 by anyone which offers this api/service.
 	   then every time a subdissector is called it is decremented by one.
 	   thus only the subdissector immediately on top of whoever offers this
@@ -3153,8 +3163,6 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 
 	saved_layers_len = wmem_list_count(pinfo->layers);
 	*heur_dtbl_entry = NULL;
-
-	DISSECTOR_ASSERT(saved_layers_len < prefs.gui_max_tree_depth);
 
 	for (entry = sub_dissectors->dissectors; entry != NULL;
 	    entry = g_slist_next(entry)) {
