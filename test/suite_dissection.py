@@ -181220,6 +181220,37 @@ class TestDissectAmt:
             assert types[61] == '1'
 
 
+    def test_amt_heuristic_layer_limit(self, cmd_tshark, capture_file, test_env):
+        '''A packet nested so that the UDP payload (unknown ports, so the
+        heuristic dissectors are tried) is reached at exactly the default
+        limit of 500 protocol layers gets the "Maximum protocol layer depth"
+        dissector error for the heuristic dissectors, instead of failing an
+        assertion (before the fix tshark aborted here when dissector bugs
+        are fatal). The control frame with 3 levels dissects to the end.'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        for passes in ((), ('-2',)):
+            proc = subprocess.run((cmd_tshark, *passes,
+                    '-r', capture_file('amt-layer-limit.pcap'), '-V'),
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                encoding='utf-8', env=env)
+            assert proc.returncode == 0
+            assert 'Maximum protocol layer depth 500 exceeded for heuristic dissectors' in proc.stdout
+            assert 'assert' not in proc.stdout.lower()
+            assert 'assert' not in proc.stderr.lower()
+            assert 'Frame 2:' in proc.stdout
+        proc = subprocess.run((cmd_tshark,
+                '-r', capture_file('amt-layer-limit.pcap'),
+                '-Tfields', '-eframe.number', '-e_ws.expert.message'),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            encoding='utf-8', env=env)
+        assert proc.returncode == 0
+        rows = [line.split('\t') for line in proc.stdout.splitlines()]
+        assert rows[0][0] == '1'
+        assert rows[0][1].startswith('Maximum protocol layer depth 500 exceeded for heuristic dissectors')
+        assert rows[1] == ['2', '']
+
+
 class TestDissectAncp:
     CAPTURE = 'ancp_coverage.pcap.gz'
 
