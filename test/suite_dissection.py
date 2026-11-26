@@ -179592,3 +179592,126 @@ class TestDissectAgentx:
             assert [(f[0], f[1]) for f in frames][:6] == [
                 ('98', '11,12'), ('101', '13'), ('103', '11'), ('104', '12'),
                 ('108', '3'), ('109', '3')]
+
+
+class TestDissectAkp:
+    CAPTURE = 'akp_coverage.pcap.gz'
+    # Frames whose protocol column is AKP (the body's dissector sets it)
+    AKP_FRAMES = [2, 3, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 37, 46, 48]
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectAkp.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def rows(stdout):
+        return {int(line.split('\t')[0]): line.split('\t')[1:] for line in stdout.splitlines()}
+
+    def fields(self, cmd_tshark, capture_file, test_env, dfilter, *fields):
+        args = []
+        for field in fields:
+            args += ['-e', field]
+        return self.rows(self.run(cmd_tshark, capture_file, test_env,
+                '-Y', dfilter, '-Tfields', '-E', 'occurrence=a', '-E', 'aggregator=,',
+                '-eframe.number', *args))
+
+    def test_akp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The registered AKP dissectors set the protocol column of the HTTP
+        frame they are called from (it used to stay HTTP), and nothing is
+        malformed or an error in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+            protocols = {int(n): p for n, p in (line.split('\t') for line in stdout.splitlines())}
+            assert len(protocols) == 48
+            assert [n for n, p in protocols.items() if p == 'AKP'] == self.AKP_FRAMES
+            assert {p for p in protocols.values()} == {'AKP', 'HTTP'}
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_akp_private_key_info(self, cmd_tshark, capture_file, test_env):
+        '''PrivateKeyInfo with its algorithm, version, attributes and
+        public key (a OneAsymmetricKey).'''
+        frames = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {2, 3, 6, 8, 10, 12, 14, 16}',
+                             'x509af.algorithm.id', 'akp.version', 'akp.attributes', 'akp.publicKey')
+        assert frames[2][:2] == ['1.2.840.113549.1.1.1', '0']
+        assert frames[3][:2] == ['1.2.840.10045.2.1', '0']
+        assert frames[6][:2] == ['1.3.101.112', '0']
+        # v2 with a public key, and with two attributes
+        assert frames[8][:2] == ['1.3.101.112', '1']
+        assert len(frames[8][3].split(',')[0]) == 64
+        assert frames[10][:3] == ['1.2.840.113549.1.1.1', '1', '2']
+        # empty attribute set, unknown version, empty private key
+        assert frames[12][:3] == ['1.2.840.113549.1.1.1', '0', '0']
+        assert frames[14][1] == '5'
+        assert frames[16][:2] == ['1.3.101.112', '0']
+
+    def test_akp_attributes_carry_keys(self, cmd_tshark, capture_file, test_env):
+        '''The attributes id-ct-privateKeyInfo, id-ct-encrPrivateKeyInfo and
+        pkcs-9-at-encryptedPrivateKeyInfo hand their value to AKP: a
+        second PrivateKeyInfo, and two EncryptedPrivateKeyInfo (PBES2 and
+        a PKCS#12 algorithm).'''
+        frames = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {18, 20, 22, 24, 26}',
+                             'akp.version', 'x509af.algorithm.id', 'akp.encryptedData')
+        assert frames[18][0] == '0,0'
+        assert frames[20][1].split(',')[1:3] == ['1.2.840.113549.1.5.13', '1.2.840.113549.1.5.12']
+        assert frames[20][2] != ''
+        assert frames[22][1].split(',')[1] == '1.2.840.113549.1.12.1.3'
+        # nested 10 and 5 levels: 11 and 6 PrivateKeyInfo
+        assert len(frames[24][0].split(',')) == 11
+        assert len(frames[26][0].split(',')) == 6
+
+    def test_akp_encrypted_private_key_info(self, cmd_tshark, capture_file, test_env):
+        '''EncryptedPrivateKeyInfo for PBES2 (with and without a PRF), a
+        PKCS#12 algorithm and an unknown algorithm; the encrypted data is
+        not decrypted (no password).'''
+        frames = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {28, 30, 32, 34, 36, 37}',
+                             'x509af.algorithm.id', 'akp.encryptedData')
+        assert frames[28][0] == '1.2.840.113549.1.5.13,1.2.840.113549.1.5.12,1.2.840.113549.2.9,2.16.840.1.101.3.4.1.42'
+        assert frames[30][0] == '1.2.840.113549.1.5.13,1.2.840.113549.1.5.12,2.16.840.1.101.3.4.1.42'
+        assert frames[32][0] == '1.2.840.113549.1.12.1.3'
+        assert frames[34][0] == '1.2.3.4.5'
+        assert len(frames[28][1]) == 128 and len(frames[34][1]) == 32
+        # the POST request carries the body
+        assert frames[37][0].startswith('1.2.840.113549.1.5.13')
+
+    def test_akp_cms_content_types(self, cmd_tshark, capture_file, test_env):
+        '''A CMS ContentInfo hands id-ct-KP-aKeyPackage (two keys),
+        id-ct-privateKeyInfo and id-ct-encrPrivateKeyInfo to AKP by OID.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {40, 42, 44}',
+                             'cms.contentType', 'akp.privateKey', 'akp.encryptedData', 'x509af.algorithm.id')
+        assert frames[40][0] == '2.16.840.1.101.2.1.2.78.5'
+        assert len(frames[40][1].split(',')) == 2
+        assert frames[40][3] == '1.2.840.113549.1.1.1,1.3.101.112'
+        assert frames[42][0] == '1.2.840.113549.1.9.16.1.52'
+        assert frames[42][3] == '1.2.840.10045.2.1'
+        assert frames[44][0] == '1.2.840.113549.1.9.16.1.53'
+        assert frames[44][2] != ''
+
+    def test_akp_nested_attributes(self, cmd_tshark, capture_file, test_env):
+        '''A PrivateKeyInfo nested through attributes (frame 46: 40 levels,
+        frame 48: the 400 level reproducer) stops at the BER callback nesting
+        limit with an expert info instead of recursing, and the whole
+        capture takes the same two passes.'''
+        for passes in ((), ('-2',)):
+            frames = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {46, 48}',
+                                 'akp.version', '_ws.expert.message')
+            for number in (46, 48):
+                # the limit is 32 callbacks, so 33 PrivateKeyInfo are dissected
+                assert len(frames[number][0].split(',')) == 33
+                assert 'BER: OID callbacks nested too deeply' in frames[number][1]
+        assert frames[46][1].count('nested too deeply') == 1
+
+    def test_akp_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''Two passes give the same AKP, CMS, X.509 and PKCS#12 output as
+        one (the TCP tree is left out: a capture without TCP handshakes
+        has different conversation state in the two passes).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-O', 'akp,cms,x509af,pkcs12'))
+        assert outputs[0] == outputs[1]
