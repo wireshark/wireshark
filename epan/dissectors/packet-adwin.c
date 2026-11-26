@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/proto_data.h>
 void proto_reg_handoff_adwin(void);
 void proto_register_adwin(void);
 static dissector_handle_t adwin_handle;
@@ -543,8 +544,13 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 				adwin_trans->rep_frame = pinfo->num;
 			}
 		}
+		/* Sequence numbers can be reused; remember which transaction
+		 * this frame belongs to for later passes. */
+		if (adwin_trans) {
+			p_add_proto_data(wmem_file_scope(), pinfo, proto_adwin, 0, adwin_trans);
+		}
 	} else {
-		adwin_trans = (adwin_transaction_t *)wmem_map_lookup(adwin_info->pdus, GUINT_TO_POINTER(seq_num));
+		adwin_trans = (adwin_transaction_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_adwin, 0);
 	}
 	if (!adwin_trans) {
 		/* create a "fake" adwin_trans structure */
