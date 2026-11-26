@@ -13,6 +13,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/tfs.h>
 #include "packet-tcp.h"
 
@@ -129,6 +130,8 @@ static int hf_adwin_config_xilinx_version;
 static int ett_adwin_config;
 static int ett_adwin_config_status;
 static int ett_adwin_config_debug;
+
+static expert_field ei_adwin_config_unterminated;
 
 static void
 dissect_UDPStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
@@ -312,7 +315,7 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, voi
 {
 	proto_tree *adwin_tree;
 	proto_item *ti;
-	int length, offset;
+	int length, offset, strlen_nul;
 	char *filename;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADwin Config");
@@ -323,7 +326,12 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, voi
 
 	proto_tree_add_item(adwin_tree, hf_adwin_config_stream_length, tvb, 0, 4, ENC_BIG_ENDIAN);
 	offset = 4;
-	length = tvb_strnlen(tvb, offset, -1) + 1;
+	strlen_nul = tvb_strnlen(tvb, offset, -1);
+	if (strlen_nul < 0) {
+		proto_tree_add_expert_remaining(adwin_tree, pinfo, &ei_adwin_config_unterminated, tvb, offset);
+		return tvb_captured_length(tvb);
+	}
+	length = strlen_nul + 1;
 	filename = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII|ENC_NA);
 	if (strncmp(filename, "eeprom_on", length) == 0) {
 		proto_tree_add_boolean(adwin_tree, hf_adwin_config_eeprom_support, tvb, offset, length, true);
@@ -335,7 +343,12 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, voi
 	}
 	proto_tree_add_item(adwin_tree, hf_adwin_config_filename, tvb, 4, length, ENC_ASCII);
 	offset += length;
-	length = tvb_strnlen(tvb, 4 + length, -1) + 1;
+	strlen_nul = tvb_strnlen(tvb, offset, -1);
+	if (strlen_nul < 0) {
+		proto_tree_add_expert_remaining(adwin_tree, pinfo, &ei_adwin_config_unterminated, tvb, offset);
+		return tvb_captured_length(tvb);
+	}
+	length = strlen_nul + 1;
 	proto_tree_add_item(adwin_tree, hf_adwin_config_path, tvb, offset, length, ENC_ASCII);
 	offset += length;
 	proto_tree_add_item(adwin_tree, hf_adwin_config_filesize, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -744,6 +757,14 @@ proto_register_adwin_config(void)
 		},
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_adwin_config_unterminated,
+		  { "adwin_config.unterminated", PI_MALFORMED, PI_ERROR,
+		    "String is not NUL-terminated", EXPFILL }
+		},
+	};
+	expert_module_t *expert_adwin_config;
+
 	/* Setup protocol subtree array */
 	static int *ett[] = {
 		&ett_adwin_config,
@@ -760,6 +781,8 @@ proto_register_adwin_config(void)
 	   subtrees used */
 	proto_register_field_array(proto_adwin_config, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_adwin_config = expert_register_protocol(proto_adwin_config);
+	expert_register_field_array(expert_adwin_config, ei, array_length(ei));
 }
 
 void
