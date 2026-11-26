@@ -211,9 +211,12 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
             offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_length, ett_length, hf_length, tvb, offset, &data_length);
 
-            sub_item = proto_tree_add_item(main_tree, hf_devices, tvb, offset, -1, ENC_ASCII);
-            if ((int64_t) data_length < tvb_reported_length_remaining(tvb, offset)) {
-                expert_add_info(pinfo, sub_item, &ei_incomplete_message);
+            /* An empty list is sent as just "0000" */
+            if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                sub_item = proto_tree_add_item(main_tree, hf_devices, tvb, offset, -1, ENC_ASCII);
+                if ((int64_t) data_length < tvb_reported_length_remaining(tvb, offset)) {
+                    expert_add_info(pinfo, sub_item, &ei_incomplete_message);
+                }
             }
         } else if (g_strcmp0(service, "host:get-state") == 0 ||
                 g_strcmp0(service, "host:get-serialno") == 0 ||
@@ -224,9 +227,11 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
             offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_length, ett_length, hf_length, tvb, offset, &data_length);
 
-            sub_item = proto_tree_add_item(main_tree, hf_result, tvb, offset, -1, ENC_ASCII);
-            if ((int64_t) data_length < tvb_reported_length_remaining(tvb, offset)) {
-                expert_add_info(pinfo, sub_item, &ei_incomplete_message);
+            if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                sub_item = proto_tree_add_item(main_tree, hf_result, tvb, offset, -1, ENC_ASCII);
+                if ((int64_t) data_length < tvb_reported_length_remaining(tvb, offset)) {
+                    expert_add_info(pinfo, sub_item, &ei_incomplete_message);
+                }
             }
         } else if (g_str_has_prefix(service, "framebuffer:")) {
             framebuffer_data_t  *framebuffer_data = NULL;
@@ -244,7 +249,10 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             if (framebuffer_data && framebuffer_data->completed_in_frame < pinfo->num)
                 framebuffer_data = NULL;
 
-            if (!pinfo->fd->visited && !framebuffer_data) {
+            /* The header is 13 words; shorter data (or data the client sends after
+             * the screenshot) is not a header. */
+            if (!pinfo->fd->visited && !framebuffer_data &&
+                    tvb_captured_length_remaining(tvb, offset) >= 4 * 13) {
                 key[i_key].length = 1;
                 key[i_key++].key = &pinfo->num;
                 key[i_key].length = 0;
@@ -257,10 +265,10 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 framebuffer_data->size         = tvb_get_letohl(tvb, offset + 4 * 2);
                 framebuffer_data->red_offset   = tvb_get_letohl(tvb, offset + 4 * 5);
                 framebuffer_data->red_length   = tvb_get_letohl(tvb, offset + 4 * 6);
-                framebuffer_data->green_offset = tvb_get_letohl(tvb, offset + 4 * 7);
-                framebuffer_data->green_length = tvb_get_letohl(tvb, offset + 4 * 8);
-                framebuffer_data->blue_offset  = tvb_get_letohl(tvb, offset + 4 * 9);
-                framebuffer_data->blue_length  = tvb_get_letohl(tvb, offset + 4 * 10);
+                framebuffer_data->green_offset = tvb_get_letohl(tvb, offset + 4 * 9);
+                framebuffer_data->green_length = tvb_get_letohl(tvb, offset + 4 * 10);
+                framebuffer_data->blue_offset  = tvb_get_letohl(tvb, offset + 4 * 7);
+                framebuffer_data->blue_length  = tvb_get_letohl(tvb, offset + 4 * 8);
                 framebuffer_data->alpha_offset = tvb_get_letohl(tvb, offset + 4 * 11);
                 framebuffer_data->alpha_length = tvb_get_letohl(tvb, offset + 4 * 12);
 
@@ -332,7 +340,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                         while (tvb_reported_length_remaining(tvb, offset) > 0) {
                             if (tvb_reported_length_remaining(tvb, offset) < 2) {
                                 proto_tree_add_item(main_tree, hf_fragment, tvb, offset, -1, ENC_NA);
-                                offset += 1;
+                                break;
                             }
 
                             pixel_item = proto_tree_add_item(sub_tree, hf_framebuffer_pixel, tvb, offset, 2, ENC_NA);
@@ -439,38 +447,41 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                     i_offset += 1;
                 }
 
-                c1 = tvb_get_uint8(tvb, i_offset);
-                i_offset += 1;
-                old_offset = i_offset;
+                /* The segment may have been just the LF after a CR */
+                if (tvb_reported_length_remaining(tvb, i_offset) > 0) {
+                    c1 = tvb_get_uint8(tvb, i_offset);
+                    i_offset += 1;
+                    old_offset = i_offset;
 
-                while (tvb_reported_length_remaining(tvb, i_offset) > 0) {
-                    c2 = tvb_get_uint8(tvb, i_offset);
+                    while (tvb_reported_length_remaining(tvb, i_offset) > 0) {
+                        c2 = tvb_get_uint8(tvb, i_offset);
 
-                    if (c1 == '\r' && c2 == '\n') {
-                        buffer[i_char] = c2;
-                        if (tvb_reported_length_remaining(tvb, i_offset) > 1) {
-                            c1 = tvb_get_uint8(tvb, i_offset + 1);
-                            i_offset += 2;
-                            i_char += 1;
-                        } else {
-                            i_offset += 1;
+                        if (c1 == '\r' && c2 == '\n') {
+                            buffer[i_char] = c2;
+                            if (tvb_reported_length_remaining(tvb, i_offset) > 1) {
+                                c1 = tvb_get_uint8(tvb, i_offset + 1);
+                                i_offset += 2;
+                                i_char += 1;
+                            } else {
+                                i_offset += 1;
+                            }
+
+                            continue;
                         }
 
-                        continue;
+                        buffer[i_char] = c1;
+                        c1 = c2;
+                        i_char += 1;
+                        i_offset += 1;
                     }
 
-                    buffer[i_char] = c1;
-                    c1 = c2;
-                    i_char += 1;
-                    i_offset += 1;
-                }
-
-                if (tvb_reported_length_remaining(tvb, old_offset) == 0) {
-                    buffer[i_char] = c1;
-                    i_char += 1;
-                } else if (tvb_reported_length_remaining(tvb, old_offset) > 0) {
-                    buffer[i_char] = c2;
-                    i_char += 1;
+                    if (tvb_reported_length_remaining(tvb, old_offset) == 0) {
+                        buffer[i_char] = c1;
+                        i_char += 1;
+                    } else if (tvb_reported_length_remaining(tvb, old_offset) > 0) {
+                        buffer[i_char] = c2;
+                        i_char += 1;
+                    }
                 }
 
                 next_tvb = tvb_new_child_real_data(tvb, buffer, i_char, i_char);
@@ -682,18 +693,18 @@ proto_register_adb_service(void)
             NULL, HFILL }
         },
         { &hf_framebuffer_blue_5,
-            { "Blue",                            "adb_service.framebuffer.pixel.blue",
-            FT_UINT16, BASE_DEC, NULL, 0xF800,
+            { "Blue",                            "adb_service.framebuffer.pixel.blue_5",
+            FT_UINT16, BASE_DEC, NULL, 0x001F,
             NULL, HFILL }
         },
         { &hf_framebuffer_green_6,
-            { "Green",                           "adb_service.framebuffer.pixel.green",
+            { "Green",                           "adb_service.framebuffer.pixel.green_6",
             FT_UINT16, BASE_DEC, NULL, 0x07E0,
             NULL, HFILL }
         },
         { &hf_framebuffer_red_5,
-            { "Red",                             "adb_service.framebuffer.pixel.red",
-            FT_UINT16, BASE_DEC, NULL, 0x001F,
+            { "Red",                             "adb_service.framebuffer.pixel.red_5",
+            FT_UINT16, BASE_DEC, NULL, 0xF800,
             NULL, HFILL }
         },
         { &hf_framebuffer_blue,
