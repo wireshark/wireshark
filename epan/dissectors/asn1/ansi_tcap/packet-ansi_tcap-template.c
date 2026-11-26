@@ -574,16 +574,17 @@ static unsigned char swap_nibbles(unsigned char x){
     return (x & 0x0F)<<4 | (x & 0xF0)>>4;
 }
 
-static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_parameter_type)
+static unsigned parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_parameter_type)
 {
   proto_tree *subtree;
   proto_item *ti, *subitem;
   uint8_t param_value = tvb_get_uint8(tvb, offset_parameter_type);
   uint32_t parameter, parameter_length;
+  unsigned parameter_end;
 
   /* A general parameter decoding looks like: Identifier -> Length -> Value
    There is another case statement to account for the 'F' bit */
-  if ((param_value & 0x0F) == 0x0F)
+  if ((param_value & 0x1F) == 0x1F)
   {
       ti = proto_tree_add_item_ret_uint(tree, hf_ansi_tcap_parameter, tvb, offset_parameter_type, 2, ENC_BIG_ENDIAN, &parameter);
       offset_parameter_type += 2;
@@ -593,10 +594,16 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
       ti = proto_tree_add_item_ret_uint(tree, hf_ansi_tcap_parameter, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN, &parameter);
       offset_parameter_type += 1;
   }
-  offset_parameter_type += 1;
 
-  proto_tree_add_item_ret_uint(tree, hf_ansi_tcap_parameter_length, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN, &parameter_length);
-  offset_parameter_type += 1;
+  {
+    unsigned length_offset = offset_parameter_type;
+    offset_parameter_type = get_ber_length(tvb, offset_parameter_type, &parameter_length, NULL);
+    proto_tree_add_uint(tree, hf_ansi_tcap_parameter_length, tvb, length_offset, offset_parameter_type - length_offset, parameter_length);
+  }
+  /* Keep the end of the parameter inside the data so that offsets cannot wrap */
+  if (parameter_length > tvb_reported_length_remaining(tvb, offset_parameter_type))
+    parameter_length = tvb_reported_length_remaining(tvb, offset_parameter_type);
+  parameter_end = offset_parameter_type + parameter_length;
   if (parameter_length == 0)
   {
     proto_item_append_text(ti, " (This parameter is asking to be returned)");
@@ -625,7 +632,6 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
       proto_tree_add_item_ret_int(subtree, hf_ansi_tcap_parameter_timestamp_local_hour, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN, &local_hour);
       offset_parameter_type += 1;
       proto_tree_add_item_ret_int(subtree, hf_ansi_tcap_parameter_timestamp_local_minute, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN, &local_minute);
-      offset_parameter_type += 1;
       proto_item_append_text(subitem, " (%02d/%02d/%02d %02d:%02d, diff=%d, local time=%02d:%02d)", day, month, year, hour, minute, difference, local_hour, local_minute);
     }
     break;
@@ -635,15 +641,12 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_acg_duration_field, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       offset_parameter_type += 1;
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_acg_gap, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-      offset_parameter_type += 1;
     break;
     case STANDARD_ANNOUNCEMENT:
         proto_tree_add_item(tree, hf_ansi_tcap_parameter_standard_announcement, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case CUSTOMIZED_ANNOUNCEMENT:
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_customized_announcement, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-      offset_parameter_type += (1 + tvb_get_uint8(tvb, offset_parameter_type));
       break;
     case DIGITS:
     {
@@ -658,7 +661,8 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
         offset_parameter_type += 1;
         proto_tree_add_item_ret_uint(tree, hf_ansi_tcap_parameter_digits_number_of_digits, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN, &num_digits);
         offset_parameter_type += 1;
-        for (uint32_t i = 0; i < num_digits; i++)
+        /* Two BCD digits per octet */
+        for (uint32_t i = 0; i < (num_digits + 1) / 2; i++)
         {
             proto_tree_add_item(tree, hf_ansi_tcap_parameter_digits, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
             offset_parameter_type += 1;
@@ -667,19 +671,15 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
     break;
     case STANDARD_USER_ERROR_CODE:
         proto_tree_add_item(tree, hf_ansi_tcap_standard_user_error_code, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case SCCP_CALLING_PARTY_ADDRESS:
         proto_tree_add_item(tree, hf_ansi_tcap_sccp_calling_party_address, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case TRANSACTION_ID:
         proto_tree_add_item(tree, hf_ansi_tcap_transaction_id, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case PACKAGE_TYPE:
         proto_tree_add_item(tree, hf_ansi_tcap_package_type, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     /* extra case to account for form bit (F bit)*/
     case SERVICE_KEY: case 0xaa:
@@ -720,31 +720,25 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
 
       proto_tree_add_bytes_format_value(tree, hf_ansi_tcap_return_phone_number, tvb, offset_parameter_type, 5, phoneNumberReturn,
           "%x%x%x-%x%x", phoneNumberReturn[0], phoneNumberReturn[1], phoneNumberReturn[2], phoneNumberReturn[3], phoneNumberReturn[4]);
-      offset_parameter_type += 5;
     }
     break;
     case BUSY_IDLE_STATUS:
         proto_tree_add_item(tree, hf_ansi_tcap_busy_idle_status, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case CALL_FORWARDING_STATUS:
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_call_forwarding_on_busy, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_call_forwarding_dont_answer, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_selective_forwarding, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-      offset_parameter_type += 1;
     break;
     case ORIGINATING_RESTRICTIONS:
         proto_tree_add_item(tree, hf_ansi_tcap_originating_restrictions, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case TERMINATING_RESTRICTIONS:
         proto_tree_add_item(tree, hf_ansi_tcap_terminating_restrictions, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case DN_TO_LINE_SERVICE_TYPE_MAPPING:
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_dn_match, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_dn_line_service, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-      offset_parameter_type += 1;
       break;
     case DURATION:
     {
@@ -756,13 +750,11 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
         proto_tree_add_item_ret_int(subtree, hf_ansi_tcap_duration_minute, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN, &minute);
         offset_parameter_type += 1;
         proto_tree_add_item_ret_int(subtree, hf_ansi_tcap_duration_second, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN, &second);
-        offset_parameter_type += 1;
         proto_item_append_text(subitem, " (%02d:%02d:%02d)", hour, minute, second);
     }
     break;
     case RETURNED_DATA:
         proto_tree_add_item(tree, hf_ansi_tcap_returned_data, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case BEARER_CAPABILITY_REQUESTED:
     // TODO finishing out bearer capability, look into ansi_map
@@ -777,15 +769,12 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_bearer_capability_requested3, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       offset_parameter_type +=1;
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_bearer_capability_requested3a, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-      offset_parameter_type += 1;
       break;
     case BEARER_CAPABILITY_SUPPORTED:
         proto_tree_add_item(tree, hf_ansi_tcap_bearer_capability_supported, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case REFERENCE_ID:
         proto_tree_add_item(tree, hf_ansi_tcap_reference_id, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case BUSINESS_GROUP:
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_business_group_length_spare, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
@@ -799,41 +788,35 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_business_group_subgroup_id, tvb, offset_parameter_type, 2, ENC_BIG_ENDIAN);
       offset_parameter_type +=2;
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_business_group_line_privileges, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-      offset_parameter_type +=1;
       break;
     case SIGNALLING_NETWORKS_IDENTIFIER:
         proto_tree_add_item(tree, hf_ansi_tcap_parameter_signalling_networks_id, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += (1+tvb_get_uint8(tvb, offset_parameter_type));
     break;
     case GENERIC_NAME:
     {
-      uint8_t character_number = tvb_get_uint8(tvb, offset_parameter_type);
-      offset_parameter_type +=1;
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_generic_name_type_name, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_generic_name_availability, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_generic_name_spare, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_generic_name_presentation, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       offset_parameter_type += 1;
-      proto_tree_add_item(tree, hf_ansi_tcap_parameter_generic_name_characters, tvb, offset_parameter_type, character_number, ENC_ASCII);
-      offset_parameter_type += character_number;
+      /* The name is the rest of the parameter after the first octet */
+      if (parameter_length > 1)
+        proto_tree_add_item(tree, hf_ansi_tcap_parameter_generic_name_characters, tvb, offset_parameter_type, parameter_length - 1, ENC_ASCII);
     }
     break;
     case MESSAGE_WAITING_INDICATOR_TYPE:
       proto_tree_add_uint(tree, hf_ansi_tcap_message_waiting_indicator_type, tvb, offset_parameter_type, 1, swap_nibbles(tvb_get_uint8(tvb, offset_parameter_type)));
-      offset_parameter_type += 1;
     break;
     case LOOK_AHEAD_FOR_BUSY:
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_look_ahead_for_busy_ack_type, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_look_ahead_for_busy_spare, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_look_ahead_for_busy_location_field, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-      offset_parameter_type += 1;
     break;
     case CIRCUIT_IDENTIFICATION_CODE:
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_CIC_lsb, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       offset_parameter_type +=1;
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_CIC_spare, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_CIC_msb, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-      offset_parameter_type += 1;
       break;
     case PRECEDENCE_IDENTIFIER:
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_precedence_level_spare, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
@@ -846,17 +829,14 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_precedence_id4, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
       offset_parameter_type += 1;
       proto_tree_add_item(tree, hf_ansi_tcap_parameter_precedence_mlpp_service_domain, tvb, offset_parameter_type, 3, ENC_NA);
-      offset_parameter_type += 3;
     break;
     case CALL_REFERENCE_IDENTIFIER:
         proto_tree_add_item(tree, hf_ansi_tcap_reference_id_call_identify, tvb, offset_parameter_type, 3, ENC_NA);
         offset_parameter_type += 3;
         proto_tree_add_item(tree, hf_ansi_tcap_reference_id_point_code, tvb, offset_parameter_type, 3, ENC_NA);
-        offset_parameter_type += 3;
     break;
     case AUTHORIZATION:
         proto_tree_add_item(tree, hf_ansi_tcap_parameter_authorization, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += 1;
     break;
     case INTEGRITY:
         proto_tree_add_item(tree, hf_ansi_tcap_integrity_algid_id, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
@@ -866,21 +846,17 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
         proto_tree_add_item(tree, hf_ansi_tcap_integrity_value_id, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
         offset_parameter_type += 1;
         proto_tree_add_item(tree, hf_ansi_tcap_integrity_value, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += (1+ tvb_get_uint8(tvb, offset_parameter_type));
     break;
 
     /* 2 octet length parameters identifiers */
     case SEQUENCE_NUMBER:
       proto_tree_add_item(tree, hf_ansi_tcap_sequence_number, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-      offset_parameter_type += (1 + tvb_get_uint8(tvb, offset_parameter_type));
     break;
     case NUMBER_OF_MESSAGES:
         proto_tree_add_item(tree, hf_ansi_tcap_num_messages, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-        offset_parameter_type += (1 + tvb_get_uint8(tvb, offset_parameter_type));
         break;
       case DISPLAY_TEXT:
           proto_tree_add_item(tree, hf_ansi_tcap_display_text, tvb, offset_parameter_type, 1, ENC_ASCII|ENC_BIG_ENDIAN);
-          offset_parameter_type += (1 + tvb_get_uint8(tvb, offset_parameter_type));
         break;
 
       case KEY_EXCHANGE:
@@ -891,7 +867,6 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
           proto_tree_add_item(tree, hf_ansi_tcap_key_exchange_value_id, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
           offset_parameter_type += 1;
           proto_tree_add_item(tree, hf_ansi_tcap_key_exchange_value, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
-          offset_parameter_type += (1 + tvb_get_uint8(tvb, offset_parameter_type));
         break;
 
       case SCCP_CALLED_PARTY_ADDRESS:
@@ -901,7 +876,8 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
     default:
     break;
   }
-  return offset_parameter_type;
+  /* The length field delimits the parameter, whatever the cases above consumed */
+  return parameter_end;
 }
 
 /* Store Invoke information needed for the corresponding reply */
@@ -1053,19 +1029,24 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                                         ansi_tcap_private.d.OperationCode_national, family, specifier);
                         item2 = proto_tree_add_item(tree, hf_ansi_tcap_parameter_set, tvb, 0, 1, ENC_NA);
                         tree2 = proto_item_add_subtree(item2, ett_tcap);
-                        int offset_parameter = 0;
+                        unsigned offset_parameter = 0;
                         proto_tree_add_item(tree2, hf_ansi_tcap_parameter_set_start, tvb, 0, 1, ENC_BIG_ENDIAN);
 
                         if(((tvb_get_uint8(tvb, 0)) & 0xff) == 0xf2) {
+                            uint32_t parameter_length;
+                            unsigned length_offset, parameter_set_end;
                             offset_parameter += 1;
-                            int parameter_length = tvb_get_uint8(tvb, offset_parameter);
-                            proto_tree_add_item(tree2, hf_ansi_tcap_parameter_length, tvb, offset_parameter, 1, ENC_BIG_ENDIAN);
-                            proto_item_set_len(item2, parameter_length + 2);
-                            offset_parameter += 1;
-                            while (offset_parameter <= parameter_length)
+                            length_offset = offset_parameter;
+                            offset_parameter = get_ber_length(tvb, offset_parameter, &parameter_length, NULL);
+                            proto_tree_add_uint(tree2, hf_ansi_tcap_parameter_length, tvb, length_offset, offset_parameter - length_offset, parameter_length);
+                            if (parameter_length > tvb_reported_length_remaining(tvb, offset_parameter))
+                                parameter_length = tvb_reported_length_remaining(tvb, offset_parameter);
+                            parameter_set_end = offset_parameter + parameter_length;
+                            proto_item_set_len(item2, parameter_set_end);
+                            /* Each parameter is Identifier, Length, Contents */
+                            while (offset_parameter < parameter_set_end)
                             {
                                 offset_parameter = parameter_type(tree2, tvb, offset_parameter);
-                                offset_parameter +=1;
                             }
                         }else{
                             expert_add_info(actx->pinfo, item2, &ei_ansi_tcap_no_parameters);
@@ -1535,7 +1516,7 @@ proto_register_ansi_tcap(void)
         { &hf_ansi_tcap_parameter_generic_name_type_name,
           { "Generic Name Type",
             "ansi_tcap.generic_name.type_name",
-            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_generic_name_type_of_name), 0xD0,
+            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_generic_name_type_of_name), 0xE0,
             NULL, HFILL }
         },
         { &hf_ansi_tcap_parameter_generic_name_availability,
