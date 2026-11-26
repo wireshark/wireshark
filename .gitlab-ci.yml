@@ -1492,6 +1492,9 @@ Visual Studio Code Analysis:
   rules:
     # The wireshark-windows-* tags are only available in wireshark/wireshark.
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+  variables:
+    # sarif-tools uses matplotlib, force the headless backend instead of Tcl/Tk
+    MPLBACKEND: "Agg"
   script:
     - py -m venv sarif-tools.venv
     - sarif-tools.venv\Scripts\pip.exe install sarif-tools
