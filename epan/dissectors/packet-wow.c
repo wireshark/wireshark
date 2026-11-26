@@ -16,11 +16,12 @@
 #include "config.h"
 
 #include "packet-tcp.h"
-#include <epan/charsets.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/wmem_scopes.h>
+#include <wsutil/array.h>
 #include <ptvcursor.h>
+#include "dissectors.h"
 
 void proto_register_wow(void);
 void proto_reg_handoff_wow(void);
@@ -1386,7 +1387,7 @@ proto_register_wow(void)
         &ett_message,
 	};
 
-	proto_wow = proto_register_protocol_and_group("World of Warcraft", "WOW", "wow", PROTOCOL_GROUP_GAMES);
+	proto_wow = proto_register_protocol("World of Warcraft", "WOW", "wow");
 
 	proto_register_field_array(proto_wow, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -1397,6 +1398,13 @@ proto_register_wow(void)
 
 	prefs_register_bool_preference(wow_module, "desegment", "Reassemble wow messages spanning multiple TCP segments.", "Whether the wow dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &wow_preference_desegment);
 
+}
+
+dissector_group_info_t proto_reg_group_wow(void)
+{
+	dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "wow" };
+
+	return group_info;
 }
 
 void

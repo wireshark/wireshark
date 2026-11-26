@@ -24,6 +24,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <wsutil/array.h>
+#include "dissectors.h"
 
 void proto_register_dpnet(void);
 void proto_reg_handoff_dpnet(void);
@@ -874,7 +876,7 @@ proto_register_dpnet(void)
 
     expert_module_t *expert_dpnet;
 
-    proto_dpnet = proto_register_protocol_and_group("DirectPlay 8 protocol", "DPNET", "dpnet", PROTOCOL_GROUP_GAMES);
+    proto_dpnet = proto_register_protocol("DirectPlay 8 protocol", "DPNET", "dpnet");
 
     proto_register_field_array(proto_dpnet, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -882,6 +884,13 @@ proto_register_dpnet(void)
     expert_register_field_array(expert_dpnet, ei, array_length(ei));
 
     dpnet_handle = register_dissector("dpnet", dissect_dpnet, proto_dpnet);
+}
+
+dissector_group_info_t proto_reg_group_dpnet(void)
+{
+    dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "dpnet" };
+
+    return group_info;
 }
 
 void

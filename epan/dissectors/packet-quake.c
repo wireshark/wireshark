@@ -19,7 +19,7 @@
 #include <epan/conversation.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
-
+#include "dissectors.h"
 void proto_register_quake(void);
 
 static int proto_quake;
@@ -570,11 +570,18 @@ proto_register_quake(void)
 		&ett_quake_flags,
 	};
 
-	proto_quake = proto_register_protocol_and_group("Quake Network Protocol", "QUAKE", "quake", PROTOCOL_GROUP_GAMES);
+	proto_quake = proto_register_protocol("Quake Network Protocol", "QUAKE", "quake");
 	proto_register_field_array(proto_quake, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	quake_handle = register_dissector("quake", dissect_quake, proto_quake);
+}
+
+dissector_group_info_t proto_reg_group_quake(void)
+{
+	dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "quake" };
+
+	return group_info;
 }
 
 

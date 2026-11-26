@@ -25,6 +25,7 @@
 #include <epan/wmem_scopes.h>
 #include <wsutil/array.h>
 
+#include "dissectors.h"
 #include "packet-raknet.h"
 
 /*
@@ -1966,7 +1967,7 @@ proto_register_raknet(void)
     /*
      * Register the protocol with Wireshark.
      */
-    proto_raknet = proto_register_protocol_and_group("RakNet game networking protocol", "RakNet", "raknet", PROTOCOL_GROUP_GAMES);
+    proto_raknet = proto_register_protocol("RakNet game networking protocol", "RakNet", "raknet");
 
     /*
      * Register expert support.
@@ -2013,6 +2014,13 @@ proto_register_raknet(void)
      */
     raknet_heur_subdissectors =
         register_heur_dissector_list_with_description("raknet", "RakNet fallback", proto_raknet);
+}
+
+dissector_group_info_t proto_reg_group_raknet(void)
+{
+    dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "raknet" };
+
+    return group_info;
 }
 
 void

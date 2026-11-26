@@ -60,6 +60,9 @@
 #include <epan/conversation.h>
 #include <epan/wmem_scopes.h>
 #include <ptvcursor.h>
+#include <wsutil/array.h>
+
+#include "dissectors.h"
 
 void proto_reg_handoff_woww(void);
 void proto_register_woww(void);
@@ -23877,7 +23880,7 @@ proto_register_woww(void)
         &ett_character
     };
 
-    proto_woww = proto_register_protocol_and_group("World of Warcraft World", "WOWW", "woww", PROTOCOL_GROUP_GAMES);
+    proto_woww = proto_register_protocol("World of Warcraft World", "WOWW", "woww");
     woww_handle = register_dissector("woww", dissect_woww, proto_woww);
 
     proto_register_field_array(proto_woww, hf, array_length(hf));
@@ -23885,6 +23888,13 @@ proto_register_woww(void)
 
     prefs_register_protocol(proto_woww, NULL);
 
+}
+
+dissector_group_info_t proto_reg_group_woww(void)
+{
+    dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "woww" };
+
+    return group_info;
 }
 
 void

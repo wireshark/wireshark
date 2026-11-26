@@ -24,11 +24,25 @@ def gen_prototypes(funcs):
         output += f"void {f}(void);\n"
     return output
 
+def gen_group_prototypes(funcs):
+    output = ""
+    for f in funcs:
+        output += f"dissector_group_info_t {f}(void);\n"
+    return output
+
 def gen_array(funcs, name):
     output = f"{name}[] = {{\n"
     for f in funcs:
         output += f"    {{ \"{f}\", {f} }},\n"
     output += "    { NULL, NULL }\n};\n"
+    return output
+
+def gen_array_name_state(funcs, name):
+    output = f"{name}[] = {{\n"
+    for f in funcs:
+        output += f"    {{ \"{f}\", {f}, \"not_set\", 0, true }},\n"
+    output += "    { NULL, NULL, NULL, 0, false }\n};\n"
+
     return output
 
 def scan_files(infiles, regs):
@@ -44,14 +58,17 @@ def make_dissectors(outfile, infiles):
     protos_regex = r"void\s+(proto_register_[\w]+)\s*\(\s*void\s*\)\s*{"
     handoffs = []
     handoffs_regex = r"void\s+(proto_reg_handoff_[\w]+)\s*\(\s*void\s*\)\s*{"
+    groups = []
+    groups_regex = r"dissector_group_info_t\s+(proto_reg_group_[\w]+)\s*\(\s*void\s*\)\s*{"
 
-    scan_files(infiles, [(protos, protos_regex), (handoffs, handoffs_regex)])
+    scan_files(infiles, [(protos, protos_regex), (handoffs, handoffs_regex), (groups, groups_regex)])
 
     if len(protos) < 1:
         sys.exit("No protocol registrations found.")
 
     protos.sort()
     handoffs.sort()
+    groups.sort()
 
     output = preamble
     output += f"""\
@@ -59,21 +76,28 @@ def make_dissectors(outfile, infiles):
 
 const unsigned long dissector_reg_proto_count = {len(protos)};
 const unsigned long dissector_reg_handoff_count = {len(handoffs)};
+const unsigned long dissector_reg_group_count = {len(groups)};
 
 """
 
     output += gen_prototypes(protos)
     output += "\n"
-    output += gen_array(protos, "dissector_reg_t const dissector_reg_proto")
+    output += "/* Register routine name, Register routine callback, filtername, group, enabled/dissabled */"
+    output += "\n"
+    output += gen_array_name_state(protos, "dissector_reg_t dissector_reg_proto")
     output += "\n"
     output += gen_prototypes(handoffs)
     output += "\n"
-    output += gen_array(handoffs, "dissector_reg_t const dissector_reg_handoff")
+    output += gen_array(handoffs, "dissector_reg_hf_t const dissector_reg_handoff")
+    output += "\n"
+    output += gen_group_prototypes(groups)
+    output += "\n"
+    output += gen_array(groups, "dissector_group_t const dissector_reg_group")
 
     with open(outfile, "w") as f:
         f.write(output)
 
-    print(f"Found {len(protos)} registrations and {len(handoffs)} handoffs.")
+    print(f"Found {len(protos)} registrations,{len(handoffs)} handoffs. and {len(groups)} groups.")
 
 def make_event_dissectors(outfile, infiles):
     protos = []
@@ -100,11 +124,11 @@ const unsigned long event_dissector_reg_handoff_count = {len(handoffs)};
 
     output += gen_prototypes(protos)
     output += "\n"
-    output += gen_array(protos, "dissector_reg_t const event_dissector_reg_proto")
+    output += gen_array_name_state(protos, "dissector_reg_t const event_dissector_reg_proto")
     output += "\n"
     output += gen_prototypes(handoffs)
     output += "\n"
-    output += gen_array(handoffs, "dissector_reg_t const event_dissector_reg_handoff")
+    output += gen_array(handoffs, "dissector_reg_hf_t const event_dissector_reg_handoff")
 
     with open(outfile, "w") as f:
         f.write(output)

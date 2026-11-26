@@ -18,6 +18,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wsutil/array.h>
+#include "dissectors.h"
+
 void proto_register_armagetronad(void);
 void proto_reg_handoff_armagetronad(void);
 
@@ -294,11 +297,18 @@ void proto_register_armagetronad(void)
 		&ett_message
 	};
 
-	proto_armagetronad = proto_register_protocol_and_group("The Armagetron Advanced OpenGL Tron clone", "Armagetronad", "armagetronad", PROTOCOL_GROUP_GAMES);
+	proto_armagetronad = proto_register_protocol("The Armagetron Advanced OpenGL Tron clone", "Armagetronad", "armagetronad");
 
 	proto_register_field_array(proto_armagetronad, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	armagetronad_handle = register_dissector("armagetronad", dissect_armagetronad, proto_armagetronad);
+}
+
+dissector_group_info_t proto_reg_group_armagetronad(void)
+{
+	dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "armagetronad" };
+
+	return group_info;
 }
 
 void proto_reg_handoff_armagetronad(void)

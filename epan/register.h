@@ -39,6 +39,23 @@ typedef enum {
 typedef void (*register_cb)(register_action_e action, const char *message, void *client_data);
 typedef void (*register_entity_func)(register_cb cb, void* client_data);
 
+/**
+ * Protocol group enum used to group protoclols with a similar purpose together.
+ * Primary usage to be able to dissable/enable a group of protocols
+ * as not beeing relevant for a type of trace. E.g game protocol is of no use to you
+ * in a production network. Unless looking for gamers...
+ */
+
+typedef enum {
+    PROTOCOL_GROUP_NONE = 0,     /**< Not grouped*/
+    PROTOCOL_GROUP_GAMES,        /**< Protocols used by games */
+    PROTOCOL_GROUP_BITTORRENT,   /**< Protocols used by BitTorrent */
+    PROTOCOL_GROUP_BLUETOOTH,    /**< Protocols used by bluetooth */
+    PROTOCOL_GROUP_ZIGBEE,       /**< Protocols used by Zigbee */
+    PROTOCOL_GROUP_MAX,
+} protocol_group_t;
+
+WS_DLL_PUBLIC int register_get_group_from_filter_name(const char* filter_name);
 
 /** Call each dissector's protocol registration routine.
  *

@@ -28,6 +28,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
+#include <wsutil/array.h>
+
+#include "dissectors.h"
 
 void proto_register_quake3(void);
 static dissector_handle_t quake3_handle;
@@ -541,7 +544,7 @@ proto_register_quake3(void)
 	};
 	module_t *quake3_module;
 
-	proto_quake3 = proto_register_protocol_and_group("Quake III Arena Network Protocol", "QUAKE3", "quake3", PROTOCOL_GROUP_GAMES);
+	proto_quake3 = proto_register_protocol("Quake III Arena Network Protocol", "QUAKE3", "quake3");
 	proto_register_field_array(proto_quake3, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -560,6 +563,12 @@ proto_register_quake3(void)
 					10, &gbl_quake3_master_port);
 }
 
+dissector_group_info_t proto_reg_group_quake3(void)
+{
+	dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "quake3" };
+
+	return group_info;
+}
 
 void
 proto_reg_handoff_quake3(void)

@@ -27,20 +27,70 @@ static GAsyncQueue *register_cb_done_q;
 
 #define CB_WAIT_TIME (150 * 1000) // microseconds
 
+/* List with all dissector names */
+static GList* disector_names_list;
+
+static bool groups_loded = false;
+
+/** Structure for information about a dissector and its associated protocol */
+typedef struct _dissector_names {
+    const char* dissector_name;      /**< Name of the dissector register routine excluding "proto_reg_" */
+    const char* prot_filter_name;    /**< Name of the protocol filter used in proto_register_protocol*/
+    int group;                       /**< Group to which the dissector belongs */
+} dissector_names_t;
+
 static void set_cb_name(const char *proto) {
     g_mutex_lock(&cur_cb_name_mtx);
     cur_cb_name = proto;
     g_mutex_unlock(&cur_cb_name_mtx);
 }
 
+int
+register_get_group_from_filter_name(const char* filter_name)
+{
+
+    if (groups_loded == false) {
+        for (unsigned long i = 0; i < dissector_reg_group_count; i++) {
+            dissector_group_info_t group_info = dissector_reg_group[i].cb_func();
+            unsigned long idx = 0;
+            while (dissector_reg_proto[idx].cb_name) {
+                if (strcmp(dissector_reg_proto[idx].cb_name + strlen("proto_register_"), dissector_reg_group[i].cb_name + strlen("proto_reg_group_")) == 0) {
+                    dissector_reg_proto[idx].filter_name = group_info.filter_name;
+                    dissector_reg_proto[idx].group = group_info.group;
+                    break;
+                }
+                idx = idx + 1;
+            }
+        }
+        groups_loded = true;
+    }
+    if (filter_name) {
+        unsigned long idx = 0;
+        while (dissector_reg_proto[idx].filter_name) {
+            if (g_ascii_strncasecmp(dissector_reg_proto[idx].filter_name, filter_name, strlen(filter_name)) == 0) {
+                return dissector_reg_proto[idx].group;
+            }
+            idx = idx + 1;
+        }
+    }
+    return PROTOCOL_GROUP_NONE;
+}
+
 static void *
 register_all_protocols_worker(void *arg _U_)
 {
     void *volatile error_message = NULL;
+    dissector_names_t* disector_names_rec;
+
 
     TRY {
         for (unsigned long i = 0; i < dissector_reg_proto_count; i++) {
             set_cb_name(dissector_reg_proto[i].cb_name);
+            disector_names_rec = g_new0(dissector_names_t, 1);
+            disector_names_rec->dissector_name = dissector_reg_proto[i].cb_name;
+            /* List will be sorted later by name, when all dissectors completed registering */
+            disector_names_list = g_list_prepend(disector_names_list, disector_names_rec);
+
             dissector_reg_proto[i].cb_func();
         }
     }
@@ -132,7 +182,7 @@ register_all_protocol_handoffs_worker(void *arg _U_)
 }
 
 static void
-common_register_all_handoffs(dissector_reg_t const reg_handoff[], unsigned long handoff_count, GThreadFunc worker_func, register_cb cb, void *cb_data)
+common_register_all_handoffs(dissector_reg_hf_t const reg_handoff[], unsigned long handoff_count, GThreadFunc worker_func, register_cb cb, void *cb_data)
 {
     if (!cb) {
         for (unsigned long i = 0; i < handoff_count; i++) {

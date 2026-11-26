@@ -25,6 +25,8 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <wsutil/array.h>
+#include "dissectors.h"
 #include "packet-smb-common.h"
 
 /* function declarations */
@@ -1645,11 +1647,18 @@ void proto_register_dplay(void)
 
     expert_module_t *expert_dplay;
 
-    proto_dplay = proto_register_protocol_and_group("DirectPlay Protocol", "DPLAY", "dplay", PROTOCOL_GROUP_GAMES);
+    proto_dplay = proto_register_protocol("DirectPlay Protocol", "DPLAY", "dplay");
     proto_register_field_array(proto_dplay, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_dplay = expert_register_protocol(proto_dplay);
     expert_register_field_array(expert_dplay, ei, array_length(ei));
+}
+
+dissector_group_info_t proto_reg_group_dplay(void)
+{
+    dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "dplay" };
+
+    return group_info;
 }
 
 void proto_reg_handoff_dplay(void)

@@ -21,6 +21,9 @@
 #include <epan/expert.h>
 
 #include <wsutil/strtoi.h>
+#include <wsutil/array.h>
+
+#include "dissectors.h"
 
 void proto_register_quakeworld(void);
 void proto_reg_handoff_quakeworld(void);
@@ -806,7 +809,7 @@ proto_register_quakeworld(void)
 			PI_MALFORMED, PI_ERROR, "Invalid connectionless command", EXPFILL }}
 	};
 
-	proto_quakeworld = proto_register_protocol_and_group("QuakeWorld Network Protocol", "QUAKEWORLD", "quakeworld", PROTOCOL_GROUP_GAMES);
+	proto_quakeworld = proto_register_protocol("QuakeWorld Network Protocol", "QUAKEWORLD", "quakeworld");
 	proto_register_field_array(proto_quakeworld, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -820,6 +823,12 @@ proto_register_quakeworld(void)
 	expert_register_field_array(expert_quakeworld, ei, array_length(ei));
 }
 
+dissector_group_info_t proto_reg_group_quakeworld(void)
+{
+	dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "quakeworld" };
+
+	return group_info;
+}
 
 void
 proto_reg_handoff_quakeworld(void)

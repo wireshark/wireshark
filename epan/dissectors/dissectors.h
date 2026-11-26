@@ -15,19 +15,41 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include <stdbool.h>
+
 #ifndef NULL
 #define NULL ((void*)0)
 #endif
 typedef struct _dissector_reg {
     const char *cb_name;
     void (*cb_func)(void);
+    const char* filter_name;
+    int group;
+    bool do_register; /* whether to call the registration callback */
 } dissector_reg_t;
 
-extern dissector_reg_t const dissector_reg_proto[];
-extern dissector_reg_t const dissector_reg_handoff[];
+typedef struct _dissector_reg_hf {
+    const char* cb_name;
+    void (*cb_func)(void);
+} dissector_reg_hf_t;
+
+typedef struct _dissector_group_info {
+    int group;
+    const char* filter_name;
+} dissector_group_info_t;
+
+typedef struct _group_reg {
+    const char* cb_name;
+    dissector_group_info_t (*cb_func)(void);
+} dissector_group_t;
+
+extern dissector_reg_t dissector_reg_proto[];
+extern dissector_reg_hf_t const dissector_reg_handoff[];
+extern dissector_group_t const dissector_reg_group[];
 
 extern const unsigned long dissector_reg_proto_count;
 extern const unsigned long dissector_reg_handoff_count;
+extern const unsigned long dissector_reg_group_count;
 
 #ifdef __cplusplus
 }

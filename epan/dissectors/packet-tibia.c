@@ -105,6 +105,7 @@
 #include <wsutil/rsa.h>
 #include <errno.h>
 #include <epan/ptvcursor.h>
+#include "dissectors.h"
 
 void proto_register_tibia(void);
 void proto_reg_handoff_tibia(void);
@@ -2602,7 +2603,7 @@ proto_register_tibia(void)
         },
     };
 
-    proto_tibia = proto_register_protocol_and_group("Tibia Protocol", "Tibia", "tibia", PROTOCOL_GROUP_GAMES);
+    proto_tibia = proto_register_protocol("Tibia Protocol", "Tibia", "tibia");
     proto_register_field_array(proto_tibia, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     tibia_handle = register_dissector("tibia", dissect_tibia_tcp, proto_tibia);
@@ -2729,6 +2730,13 @@ dissect_tibia_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     tcp_dissect_pdus(tvb, pinfo, tree, reassemble_tcp_segments, 2,
                get_dissect_tibia_len, dissect_tibia, GUINT_TO_POINTER(fragment_num));
     return tvb_reported_length(tvb);
+}
+
+dissector_group_info_t proto_reg_group_tibia(void)
+{
+    dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "tibia" };
+
+    return group_info;
 }
 
 void

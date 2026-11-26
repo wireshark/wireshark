@@ -30,6 +30,7 @@
 
 #include <wsutil/array.h>
 
+#include "dissectors.h"
 #include "packet-raknet.h"
 
 /* Minecraft Pocket Edition Protocol
@@ -690,7 +691,7 @@ proto_register_mcpe(void)
     /*
      * Register the protocol with wireshark.
      */
-    proto_mcpe = proto_register_protocol_and_group("Minecraft Pocket Edition", "MCPE", "mcpe", PROTOCOL_GROUP_GAMES);
+    proto_mcpe = proto_register_protocol("Minecraft Pocket Edition", "MCPE", "mcpe");
 
     /*
      * Register expert support.
@@ -719,6 +720,13 @@ proto_register_mcpe(void)
             "MCPE Server UDP Port",
             "Set the UDP port for the MCPE Server",
             10, &mcpe_udp_port_requested);
+}
+
+dissector_group_info_t proto_reg_group_mcpe(void)
+{
+    dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "mcpe" };
+
+    return group_info;
 }
 
 void

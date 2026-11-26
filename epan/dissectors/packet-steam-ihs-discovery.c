@@ -23,7 +23,9 @@
 
 #include <epan/packet.h>   /* Should be first Wireshark include (other than config.h) */
 #include <epan/expert.h>   /* Include only as needed */
-#include <epan/prefs.h>    /* Include only as needed */
+
+#include <wsutil/array.h>
+#include "dissectors.h"
 
 /* Prototypes */
 /* (Required to prevent [-Wmissing-prototypes] warnings */
@@ -1603,8 +1605,8 @@ proto_register_steam_ihs_discovery(void)
     };
 
     /* Register the protocol name and description */
-    proto_steam_ihs_discovery = proto_register_protocol_and_group("Steam In-Home Streaming Discovery Protocol",
-            "Steam IHS Discovery", "steam_ihs_discovery", PROTOCOL_GROUP_GAMES);
+    proto_steam_ihs_discovery = proto_register_protocol("Steam In-Home Streaming Discovery Protocol",
+            "Steam IHS Discovery", "steam_ihs_discovery");
 
     /* Register the dissector handle */
     steam_ihs_discovery_handle = register_dissector("steam_ihs_discovery", dissect_steam_ihs_discovery, proto_steam_ihs_discovery);
@@ -1619,6 +1621,13 @@ proto_register_steam_ihs_discovery(void)
 
     /* Register a preferences module - handled by Decode As. */
     /* steam_ihs_discovery_module = prefs_register_protocol(proto_steam_ihs_discovery, NULL); */
+}
+
+dissector_group_info_t proto_reg_group_steam_ihs_discovery(void)
+{
+    dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "steam_ihs_discovery" };
+
+    return group_info;
 }
 
 void

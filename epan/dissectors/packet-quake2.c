@@ -20,6 +20,9 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wsutil/array.h>
+
+#include "dissectors.h"
 
 void proto_register_quake2(void);
 void proto_reg_handoff_quake2(void);
@@ -818,7 +821,7 @@ proto_register_quake2(void)
         &ett_quake2_game_clc_cmd_move_bitfield
     };
 
-    proto_quake2 = proto_register_protocol_and_group("Quake II Network Protocol", "QUAKE2", "quake2", PROTOCOL_GROUP_GAMES);
+    proto_quake2 = proto_register_protocol("Quake II Network Protocol", "QUAKE2", "quake2");
     proto_register_field_array(proto_quake2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -827,6 +830,13 @@ proto_register_quake2(void)
 
     /* Register a configuration option for port */
     prefs_register_protocol(proto_quake2, apply_quake2_prefs);
+}
+
+dissector_group_info_t proto_reg_group_quake2(void)
+{
+    dissector_group_info_t group_info = { PROTOCOL_GROUP_GAMES, "quake2" };
+
+    return group_info;
 }
 
 void

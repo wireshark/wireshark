@@ -17,8 +17,13 @@
 extern "C" {
 #endif /* __cplusplus */
 
+    typedef struct _event_dissector_reg {
+        const char* cb_name;
+        void (*cb_func)(void);
+    } event_dissector_reg_t;
+
 extern dissector_reg_t const event_dissector_reg_proto[];
-extern dissector_reg_t const event_dissector_reg_handoff[];
+extern dissector_reg_hf_t const event_dissector_reg_handoff[];
 
 extern const unsigned long event_dissector_reg_proto_count;
 extern const unsigned long event_dissector_reg_handoff_count;

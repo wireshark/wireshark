@@ -60,6 +60,10 @@
 static const value_string prot_group_vals[] = {
     { PROTOCOL_GROUP_NONE,       "" }, /* Not in a group - empty string */
     { PROTOCOL_GROUP_GAMES,      "Games" },
+    { PROTOCOL_GROUP_BITTORRENT, "BitTorrent" },
+    { PROTOCOL_GROUP_BLUETOOTH,  "Bluetooth" },
+    { PROTOCOL_GROUP_ZIGBEE, "Zigbee " },
+
     { 0, NULL },
 };
 
@@ -418,7 +422,6 @@ struct _protocol {
 	const char *filter_name;        /**< name of this protocol in filters */
 	GPtrArray  *fields;             /**< fields for this protocol */
 	int         proto_id;           /**< field ID for this protocol */
-	protocol_group_t group; /**< group of this protocol*/
 	bool        is_enabled;         /**< true if protocol is enabled */
 	bool        enabled_by_default; /**< true if protocol is enabled by default */
 	bool        can_toggle;         /**< true if is_enabled can be changed */
@@ -8612,7 +8615,7 @@ check_protocol_filter_name_or_fail(const char *filter_name)
 }
 
 int
-proto_register_protocol_and_group(const char *name, const char *short_name, const char *filter_name, protocol_group_t group)
+proto_register_protocol(const char *name, const char *short_name, const char *filter_name)
 {
 	protocol_t *protocol;
 	header_field_info *hfinfo;
@@ -8627,12 +8630,6 @@ proto_register_protocol_and_group(const char *name, const char *short_name, cons
 	protocol->name = name;
 	protocol->short_name = short_name;
 	protocol->filter_name = filter_name;
-	if (group < PROTOCOL_GROUP_MAX) {
-		protocol->group = group;
-	} else {
-		protocol->group = PROTOCOL_GROUP_NONE;
-		REPORT_DISSECTOR_BUG("Protocol Group is not defined %u", group);
-	}
 	protocol->fields = NULL; /* Delegate until actually needed */
 	protocol->is_enabled = true; /* protocol is enabled by default */
 	protocol->enabled_by_default = true; /* see previous comment */
@@ -8679,12 +8676,6 @@ proto_register_protocol_and_group(const char *name, const char *short_name, cons
 	return protocol->proto_id;
 }
 
-int
-proto_register_protocol(const char* name, const char* short_name,
-	const char* filter_name)
-{
-	return proto_register_protocol_and_group(name, short_name, filter_name, PROTOCOL_GROUP_NONE);
-}
 int
 proto_register_protocol_in_name_only(const char *name, const char *short_name, const char *filter_name, int parent_proto, enum ftenum field_type)
 {
@@ -9093,21 +9084,13 @@ proto_is_pino(const protocol_t *protocol)
 	return (protocol->parent_proto_id != -1);
 }
 
-int
-proto_get_group(const protocol_t* protocol)
-{
-	if (protocol == NULL)
-		return 0;
-	return protocol->group;
-}
-
-
 const char*
 proto_get_group_name(const protocol_t* protocol)
 {
 	if (protocol == NULL)
 		return 0;
-	return val_to_str_const(protocol->group, prot_group_vals, "Unknown");
+	int group = register_get_group_from_filter_name(protocol->filter_name);
+	return val_to_str_const(group, prot_group_vals, "Unknown");
 }
 
 bool
