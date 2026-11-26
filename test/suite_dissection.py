@@ -180689,3 +180689,203 @@ class TestDissectAmt:
             assert len(types) == 62
             assert types[:61] == ['6'] * 61
             assert types[61] == '1'
+
+
+class TestDissectAncp:
+    CAPTURE = 'ancp_coverage.pcap.gz'
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectAncp.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def rows(stdout):
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ancp_coverage_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every ANCP message type, in one and two passes. A frame that
+        holds two messages shows the last one in the Info column.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'ancp', '-Tfields', '-eframe.number', '-e_ws.col.info')
+            rows = self.rows(stdout)
+            assert len(rows) == 44
+            assert rows[:6] == [
+                ['4', 'Adjacency Message (Syn)'],
+                ['5', 'Adjacency Message (SynAck)'],
+                ['6', 'Adjacency Message (Ack)'],
+                ['7', 'Adjacency Message (Rstack)'],
+                ['8', 'Adjacency Message (Unknown (0x09))'],
+                ['9', 'Adjacency Message (Ack)'],
+            ]
+            infos = {r[0]: r[1] for r in rows}
+            assert infos['10'] == 'Port-Up Message'
+            assert infos['12'] == 'Port-Down Message'
+            assert infos['16'] == 'Port-Management Message'
+            assert infos['19'] == 'Provisioning Message'
+            assert infos['20'] == 'Generic Response Message'
+            assert infos['21'] == 'Adjacency Update Message'
+            assert infos['22'] == 'Unknown (0xc8) Message'
+            for frame, name in zip(range(23, 30), (
+                    'Multicast Replication Control', 'Multicast Admission Control',
+                    'Bandwidth Reallocation Request', 'Bandwidth Transfer',
+                    'Delegated Bandwidth Query', 'Multicast Flow Query',
+                    'Committed Bandwidth Report')):
+                assert infos[str(frame)] == name + ' Message'
+
+    def test_ancp_coverage_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no warnings, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_ancp_coverage_adjacency(self, cmd_tshark, capture_file, test_env):
+        '''The adjacency timer, code and capabilities.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ancp.adjcode', '-Tfields', '-E', 'aggregator=,',
+                '-eframe.number', '-eancp.timer', '-eancp.adjcode', '-eancp.capability',
+                '-eancp.sender_name', '-eancp.receiver_name')
+        rows = self.rows(stdout)
+        assert rows[0] == ['4', '250', '1', '1,2,3,4', '02:00:00:00:0a:01', '02:00:00:00:0a:02']
+        assert rows[1][:4] == ['5', '100', '2', '1,2,3,4']
+        assert rows[1][4:] == ['02:00:00:00:0a:02', '02:00:00:00:0a:01']
+        assert rows[2][:4] == ['6', '250', '3', '1,2']
+        assert rows[3][:4] == ['7', '250', '4', '4']
+        assert rows[4][:4] == ['8', '250', '9', '85']
+        assert rows[5][:4] == ['9', '250', '3', '']
+
+    def test_ancp_coverage_dsl_attributes(self, cmd_tshark, capture_file, test_env):
+        '''A Port-Up with the rate and delay sub-TLVs and DSL types.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 10', '-Tfields', '-E', 'aggregator=,',
+                '-eancp.tech_type', '-eancp.result', '-eancp.code', '-eancp.transaction_id',
+                '-eancp.i_flag', '-eancp.ext_tlvs.count', '-eancp.ext_tlv.value',
+                '-eancp.sub_tlv_type', '-eancp.dsl_line_param')
+        assert self.rows(stdout) == [['5', '3', '0x0503', '66051', 'True', '4',
+                'dslam1 atm 1/1/01/01:8.35,subscriber-0815',
+                '0x0081,0x0082,0x0083,0x0084,0x0085,0x0086,0x0087,0x0088,0x0089,0x008a,'
+                '0x008b,0x008c,0x008d,0x008e,0x0091,0x0091',
+                '1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,5,6,7,8,1,2']]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 11', '-Tfields', '-E', 'aggregator=,',
+                '-eancp.dsl_line_param', '-eancp.dsl_line_param_bytes', '-eancp.ext_tlv.value')
+        assert self.rows(stdout) == [['3,4,5,6,9,1,2,3,7,4294967294', '030102',
+                'profile-gold,target']]
+
+    def test_ancp_coverage_dsl_value_text(self, cmd_tshark, capture_file, test_env):
+        '''The value of a DSL-Type or DSL-Line-State sub-TLV is named and
+        the others get their unit.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 10 || frame.number == 11', '-V')
+        for text in ('Value: 1000 Kb/sec', 'Value: 5 msec', 'Value: 1 (ADSL1)',
+                     'Value: 2 (ADSL2)', 'Value: 3 (ADSL2+)', 'Value: 4 (VDSL1)',
+                     'Value: 5 (VDSL2)', 'Value: 6 (SDSL)', 'Value: 9 (Unknown (0x09))',
+                     'Value: 1 (Showtime)', 'Value: 2 (Idle)', 'Value: 3 (Silent)',
+                     'Value: 7 (Unknown (0x07))', 'Sub-TLV: Access Loop Encapsulation (0x0090)',
+                     'Sub-TLV: Unknown (0x0077)'):
+            assert text in stdout
+
+    def test_ancp_coverage_other_tech_types(self, cmd_tshark, capture_file, test_env):
+        '''PON TLVs are decoded, other technology types are not.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 12 && frame.number <= 15', '-Tfields',
+                '-eframe.number', '-eancp.tech_type', '-eancp.ext_tlvs.count',
+                '-eancp.ext_tlv.type', '-eancp.result', '-eancp.code')
+        assert self.rows(stdout) == [
+            ['12', '5', '2', '1,4', '4', '0x0504'],
+            ['13', '1', '2', '1,2', '1', '0x0013'],
+            ['14', '255', '1', '', '2', '0x0500'],
+            ['15', '0', '0', '', '3', '0x0505'],
+        ]
+
+    def test_ancp_coverage_port_management(self, cmd_tshark, capture_file, test_env):
+        '''The function and X-function of Port-Management messages.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ancp.function', '-Tfields', '-eframe.number', '-eancp.function',
+                '-eancp.x_function', '-eancp.code')
+        assert self.rows(stdout) == [
+            ['16', '9', '17', '0x0000'],
+            ['17', '8', '0', '0x0506'],
+            ['18', '0', '3', '0x0507'],
+        ]
+
+    def test_ancp_coverage_oam_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''OAM loopback parameters, opaque data and the response string of
+        a Provisioning message.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ancp.oam.opaque', '-Tfields', '-E', 'aggregator=,',
+                '-eframe.number', '-eancp.oam.opaque', '-eancp.oam.loopback_count',
+                '-eancp.oam.timeout', '-eancp.ext_tlv.value')
+        assert self.rows(stdout) == [
+            ['19', '287454020,1432778632', '5', '3', 'Loopback test passed in 12 ms,circuit'],
+            ['20', '287454020,1432778632', '5', '3', 'Loopback test passed in 12 ms,circuit'],
+            ['49', '1,2', '2', '9', 'abcde,xy,abcd'],
+        ]
+
+    def test_ancp_coverage_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message in three TCP segments, two messages in one segment and
+        a message followed by the start of the next one.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 39 && frame.number <= 44 && ancp', '-Tfields', '-E', 'aggregator=,',
+                    '-eframe.number', '-etcp.reassembled.length', '-eancp.len', '-eancp.mtype')
+            assert self.rows(stdout) == [
+                ['41', '180', '176', '80,80'],
+                ['42', '', '52,72', '10,81,81'],
+                ['43', '', '60', '80,80'],
+                ['44', '56', '52', '10'],
+            ]
+
+    def test_ancp_coverage_tlv_skipping(self, cmd_tshark, capture_file, test_env):
+        '''A TLV always occupies its length rounded up to 4 bytes: the next
+        TLV and capability is decoded from the right place.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 45', '-Tfields', '-E', 'aggregator=,',
+                '-eancp.ext_tlv.type', '-eancp.ext_tlv.len', '-eancp.ext_tlv.value',
+                '-eancp.sub_tlv_len', '-eancp.dsl_line_param')
+        assert self.rows(stdout) == [['4,1', '4,4', 'abcd', '', '']]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 46', '-Tfields', '-E', 'aggregator=,',
+                '-eancp.capability')
+        assert self.rows(stdout) == [['1,2']]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 47', '-Tfields', '-E', 'aggregator=,',
+                '-eancp.ext_tlv.type', '-eancp.sub_tlv_len')
+        assert self.rows(stdout) == [['4', '0']]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 48', '-Tfields', '-E', 'aggregator=,',
+                '-eancp.ext_tlv.type', '-eancp.sub_tlv_len', '-eancp.dsl_line_param_bytes',
+                '-eancp.dsl_line_param', '-eancp.ext_tlv.value')
+        assert self.rows(stdout) == [['4,1', '8,4', '0102030405060708', '1', 'abcd']]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 49', '-Tfields', '-E', 'aggregator=,',
+                '-eancp.ext_tlv.type', '-eancp.ext_tlv.len', '-eancp.ext_tlv.value')
+        assert self.rows(stdout) == [['1,153,7,8,1', '5,2,4,8,4', 'abcde,xy,abcd']]
+
+    def test_ancp_coverage_stats_tree(self, cmd_tshark, capture_file, test_env):
+        '''The ANCP statistics tree counts message types and adjacency
+        codes.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-q', '-z', 'ancp,tree')
+        import re
+        counts = {}
+        for line in stdout.splitlines():
+            m = re.match(r'^\s*(\S.*?)\s{2,}(\d+)\s', line)
+            if m:
+                counts[m.group(1)] = int(m.group(2))
+        assert counts['Total Packets'] == 45
+        assert counts['Port-Up'] == 11
+        assert counts['Adjacency Update'] == 10
+        assert counts['Adjacency'] == 9
+        assert counts['Port-Management'] == 3
+        assert counts['Port-Down'] == 2
+        assert counts['Unknown packet type (200)'] == 1
+        assert counts['ANCP Adjacency Packet Types'] == 9
+        assert counts['Syn'] == 4
+        assert counts['Ack'] == 2
+        assert counts['SynAck'] == 1
+        assert counts['Rstack'] == 1
+        assert counts['Unknown Adjacency packet (9)'] == 1
