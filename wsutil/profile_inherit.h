@@ -160,6 +160,20 @@ WS_DLL_PUBLIC GHashTable *profile_inherit_read_settings(const char *path, char *
 WS_DLL_PUBLIC GPtrArray *profile_inherit_layers(const char *app_env_var_prefix, const char *profile_name, const char *filename, profile_inherit_e mode);
 
 /**
+ * @brief Get the directories of all profiles behind a personal profile.
+ *
+ * The directories are ordered nearest first, up to the Default profile,
+ * with the global profile with the same name as a personal profile, if any,
+ * right behind it. The inherit modes of the profiles are not used.
+ *
+ * @param app_env_var_prefix The prefix for the application environment variable.
+ * @param profile_name The profile name, NULL for the current profile.
+ * @return A GPtrArray of g_malloc()'d directory names, empty for the Default
+ * profile. Free with g_ptr_array_unref().
+ */
+WS_DLL_PUBLIC GPtrArray *profile_inherit_parent_dirs(const char *app_env_var_prefix, const char *profile_name);
+
+/**
  * @brief Keys of the entries read from the profiles nearer than the one being read.
  *
  * An entry is identified by one or two keys, e.g. a coloring rule by its

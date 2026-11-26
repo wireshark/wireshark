@@ -88,6 +88,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/file_util.h>
 #include <wsutil/pint.h>
+#include <wsutil/profile_inherit.h>
 #include <wsutil/inet_cidr.h>
 
 #include <epan/strutil.h>
@@ -358,18 +359,16 @@ static bool resolve_synchronously;
  */
 
 static char *g_ethers_path;     /* global ethers file     */
-static char *g_pethers_path;     /* personal ethers file   */
 static char *g_wka_path;     /* global well-known-addresses file */
 static char *g_manuf_path;     /* global manuf file      */
-static char *g_pmanuf_path;     /* personal manuf file      */
 static char *g_ipxnets_path;     /* global ipxnets file    */
-static char *g_pipxnets_path;     /* personal ipxnets file  */
+static GPtrArray *g_pipxnets_paths; /* personal ipxnets files, farthest profile first */
 static char *g_services_path;     /* global services file   */
-static char *g_pservices_path;     /* personal services file */
-static char *g_pvlan_path;     /* personal vlans file    */
+static GPtrArray *g_pvlan_paths;  /* personal vlans files, farthest profile first */
 static char *g_enterprises_path;   /* global enterprises file   */
-static char *g_penterprises_path;  /* personal enterprises file */
-                                    /* first resolving call   */
+
+/* Use the name resolution files of the parent profiles */
+static bool include_parent = true;
 
 /*
  * Submitted asynchronous queries trigger a callback (c_ares_ghba_cb()).
@@ -806,6 +805,54 @@ fgetline(char *buf, int size, FILE *fp)
 
 
 /*
+ * The personal files with a name resolution file name, farthest profile
+ * first, so that the entries of a nearer profile are read last and win:
+ * the files of the parent profiles up to the Default profile, if they are
+ * used, and then the file of the profile itself. The files may not exist.
+ */
+static GPtrArray *
+personal_files(const char *filename, const char *app_env_var_prefix)
+{
+    GPtrArray *paths = g_ptr_array_new_with_free_func(g_free);
+
+    if (include_parent) {
+        GPtrArray *dirs = profile_inherit_parent_dirs(app_env_var_prefix, NULL);
+        for (unsigned i = dirs->len; i-- > 0; ) {
+            g_ptr_array_add(paths, g_build_filename((const char *)g_ptr_array_index(dirs, i), filename, NULL));
+        }
+        g_ptr_array_unref(dirs);
+    }
+    g_ptr_array_add(paths, get_persconffile_path(filename, true, app_env_var_prefix));
+
+    return paths;
+}
+
+/*
+ * The global name resolution files come behind the Default profile, so
+ * they are read only with the parent profiles, or in the Default profile.
+ */
+static bool
+use_global_files(void)
+{
+    return include_parent || !profile_can_inherit(NULL);
+}
+
+/* Read the personal files with a name resolution file name, farthest profile first */
+static void
+read_personal_files(const char *filename, bool (*read_file)(const char *path), const char *app_env_var_prefix)
+{
+    GPtrArray *paths = personal_files(filename, app_env_var_prefix);
+
+    for (unsigned i = 0; i < paths->len; i++) {
+        const char *path = (const char *)g_ptr_array_index(paths, i);
+        if (!read_file(path) && errno != ENOENT) {
+            report_open_failure(path, errno, false);
+        }
+    }
+    g_ptr_array_unref(paths);
+}
+
+/*
  *  Local function definitions
  */
 static subnet_entry_t subnet_lookup(const uint32_t addr);
@@ -1038,18 +1085,12 @@ initialize_services(const char* app_env_var_prefix)
     if (g_services_path == NULL) {
         g_services_path = get_datafile_path(ENAME_SERVICES, app_env_var_prefix);
     }
-    parse_services_file(g_services_path);
-
-    /* Compute the pathname of the personal services file */
-    if (g_pservices_path == NULL) {
-        /* Check profile directory before personal configuration */
-        g_pservices_path = get_persconffile_path(ENAME_SERVICES, true, app_env_var_prefix);
-        if (!parse_services_file(g_pservices_path)) {
-            g_free(g_pservices_path);
-            g_pservices_path = get_persconffile_path(ENAME_SERVICES, false, app_env_var_prefix);
-            parse_services_file(g_pservices_path);
-        }
+    if (use_global_files()) {
+        parse_services_file(g_services_path);
     }
+
+    /* Read the personal services files */
+    read_personal_files(ENAME_SERVICES, parse_services_file, app_env_var_prefix);
 }
 
 static void
@@ -1059,8 +1100,6 @@ service_name_lookup_cleanup(void)
     serv_port_custom_hashtable = NULL;
     g_free(g_services_path);
     g_services_path = NULL;
-    g_free(g_pservices_path);
-    g_pservices_path = NULL;
 }
 
 static void
@@ -1122,19 +1161,12 @@ initialize_enterprises(const char* app_env_var_prefix)
     if (g_enterprises_path == NULL) {
         g_enterprises_path = get_datafile_path(ENAME_ENTERPRISES, app_env_var_prefix);
     }
-    parse_enterprises_file(g_enterprises_path);
-
-    /* Populate entries from profile or personal */
-    if (g_penterprises_path == NULL) {
-        /* Check profile directory before personal configuration */
-        g_penterprises_path = get_persconffile_path(ENAME_ENTERPRISES, true, app_env_var_prefix);
-        if (!file_exists(g_penterprises_path)) {
-            g_free(g_penterprises_path);
-            g_penterprises_path = get_persconffile_path(ENAME_ENTERPRISES, false, app_env_var_prefix);
-        }
+    if (use_global_files()) {
+        parse_enterprises_file(g_enterprises_path);
     }
-    /* Parse personal file (if present) */
-    parse_enterprises_file(g_penterprises_path);
+
+    /* Read the personal enterprises files */
+    read_personal_files(ENAME_ENTERPRISES, parse_enterprises_file, app_env_var_prefix);
 }
 
 const char *
@@ -1179,8 +1211,6 @@ enterprises_cleanup(void)
     enterprises_hashtable = NULL;
     g_free(g_enterprises_path);
     g_enterprises_path = NULL;
-    g_free(g_penterprises_path);
-    g_penterprises_path = NULL;
 }
 
 /* Fill in an IP4 structure with info from subnets file or just with the
@@ -2062,6 +2092,44 @@ eui64_addr_cmp(const void *a, const void *b)
     return (memcmp(a, b, EUI64_ADDR_LEN) == 0);
 }
 
+/* Read a manuf file; returns false if it can't be opened */
+static bool
+read_manuf_file(const char *path)
+{
+    ether_t *eth;
+    unsigned mask = 0;
+
+    set_ethent((char *)path);
+    if (eth_p == NULL)
+        return false;
+    while ((eth = get_ethent(&mask, true))) {
+        add_manuf_name(eth->addr, mask, eth->name, eth->longname);
+    }
+    end_ethent();
+    return true;
+}
+
+/* Read an ethers file; returns false if it can't be opened */
+static bool
+read_ethers_file(const char *path)
+{
+    ether_t *eth;
+    unsigned mask = 0;
+
+    set_ethent((char *)path);
+    if (eth_p == NULL)
+        return false;
+    while ((eth = get_ethent(&mask, false))) {
+        if (mask == 48) {
+            add_eth_name(eth->addr, eth->name, true);
+        } else if (mask == 64) {
+            add_eui64_name(eth->addr, eth->name, true);
+        }
+    }
+    end_ethent();
+    return true;
+}
+
 static void
 initialize_ethers(const char* app_env_var_prefix)
 {
@@ -2083,21 +2151,11 @@ initialize_ethers(const char* app_env_var_prefix)
         g_ethers_path = g_build_filename(get_systemfile_dir(app_env_var_prefix), ENAME_ETHERS, NULL);
     }
 
-    /* Compute the pathname of the personal ethers file. */
-    if (g_pethers_path == NULL) {
-        /* Check profile directory before personal configuration */
-        g_pethers_path = get_persconffile_path(ENAME_ETHERS, true, app_env_var_prefix);
-        if (!file_exists(g_pethers_path)) {
-            g_free(g_pethers_path);
-            g_pethers_path = get_persconffile_path(ENAME_ETHERS, false, app_env_var_prefix);
-        }
-    }
-
     /* Compute the pathname of the global manuf file */
     if (g_manuf_path == NULL)
         g_manuf_path = get_datafile_path(ENAME_MANUF, app_env_var_prefix);
     /* Read it and initialize the hash table */
-    if (file_exists(g_manuf_path)) {
+    if (use_global_files() && file_exists(g_manuf_path)) {
         set_ethent(g_manuf_path);
         while ((eth = get_ethent(&mask, true))) {
             add_manuf_name(eth->addr, mask, eth->name, eth->longname);
@@ -2105,23 +2163,8 @@ initialize_ethers(const char* app_env_var_prefix)
         end_ethent();
     }
 
-    /* Compute the pathname of the personal manuf file */
-    if (g_pmanuf_path == NULL) {
-        /* Check profile directory before personal configuration */
-        g_pmanuf_path = get_persconffile_path(ENAME_MANUF, true, app_env_var_prefix);
-        if (!file_exists(g_pmanuf_path)) {
-            g_free(g_pmanuf_path);
-            g_pmanuf_path = get_persconffile_path(ENAME_MANUF, false, app_env_var_prefix);
-        }
-    }
-    /* Read it and initialize the hash table */
-    if (file_exists(g_pmanuf_path)) {
-        set_ethent(g_pmanuf_path);
-        while ((eth = get_ethent(&mask, true))) {
-            add_manuf_name(eth->addr, mask, eth->name, eth->longname);
-        }
-        end_ethent();
-    }
+    /* Read the personal manuf files */
+    read_personal_files(ENAME_MANUF, read_manuf_file, app_env_var_prefix);
 
     /* Compute the pathname of the wka file */
     if (g_wka_path == NULL)
@@ -2143,18 +2186,8 @@ initialize_ethers(const char* app_env_var_prefix)
      * EUI-48 in NRBs), etc.
      * XXX: What _is_ the proper order of precedence, and should it
      * be configurable? (cf. #18075) */
-    set_ethent(g_ethers_path);
-    while ((eth = get_ethent(&mask, false))) {
-        if (mask == 48) {
-            add_eth_name(eth->addr, eth->name, true);
-        } else if (mask == 64) {
-            add_eui64_name(eth->addr, eth->name, true);
-        }
-    }
-    end_ethent();
-
-    if (file_exists(g_pethers_path)) {
-        set_ethent(g_pethers_path);
+    if (use_global_files()) {
+        set_ethent(g_ethers_path);
         while ((eth = get_ethent(&mask, false))) {
             if (mask == 48) {
                 add_eth_name(eth->addr, eth->name, true);
@@ -2164,6 +2197,9 @@ initialize_ethers(const char* app_env_var_prefix)
         }
         end_ethent();
     }
+
+    /* Read the personal ethers files */
+    read_personal_files(ENAME_ETHERS, read_ethers_file, app_env_var_prefix);
 
 } /* initialize_ethers */
 
@@ -2176,12 +2212,8 @@ ethers_cleanup(void)
     eui64_hashtable = NULL;
     g_free(g_ethers_path);
     g_ethers_path = NULL;
-    g_free(g_pethers_path);
-    g_pethers_path = NULL;
     g_free(g_manuf_path);
     g_manuf_path = NULL;
-    g_free(g_pmanuf_path);
-    g_pmanuf_path = NULL;
     g_free(g_wka_path);
     g_wka_path = NULL;
 }
@@ -2625,7 +2657,7 @@ parse_ipxnets_line(char *line, ipxnet_t *ipxnet)
 static FILE *ipxnet_p;
 
 static void
-set_ipxnetent(char *path)
+set_ipxnetent(const char *path)
 {
     if (ipxnet_p)
         rewind(ipxnet_p);
@@ -2662,24 +2694,33 @@ get_ipxnetent(void)
 
 } /* get_ipxnetent */
 
+/* Find an address in one ipxnets file */
 static ipxnet_t *
-get_ipxnetbyaddr(uint32_t addr)
+get_ipxnetbyaddr_in(const char *path, uint32_t addr)
 {
     ipxnet_t *ipxnet;
 
-    set_ipxnetent(g_ipxnets_path);
+    set_ipxnetent(path);
 
     while (((ipxnet = get_ipxnetent()) != NULL) && (addr != ipxnet->addr) ) ;
 
-    if (ipxnet == NULL) {
-        end_ipxnetent();
+    end_ipxnetent();
 
-        set_ipxnetent(g_pipxnets_path);
+    return ipxnet;
+}
 
-        while (((ipxnet = get_ipxnetent()) != NULL) && (addr != ipxnet->addr) )
-            ;
+static ipxnet_t *
+get_ipxnetbyaddr(uint32_t addr)
+{
+    ipxnet_t *ipxnet = NULL;
 
-        end_ipxnetent();
+    /* The nearest profile first, then the global file */
+    for (unsigned i = g_pipxnets_paths->len; ipxnet == NULL && i-- > 0; ) {
+        ipxnet = get_ipxnetbyaddr_in((const char *)g_ptr_array_index(g_pipxnets_paths, i), addr);
+    }
+
+    if (ipxnet == NULL && use_global_files()) {
+        ipxnet = get_ipxnetbyaddr_in(g_ipxnets_path, addr);
     }
 
     return ipxnet;
@@ -2701,16 +2742,11 @@ initialize_ipxnets(const char* app_env_var_prefix)
                 get_systemfile_dir(app_env_var_prefix), ENAME_IPXNETS);
     }
 
-    /* Set g_pipxnets_path here, but don't actually do anything
-     * with it. It's used in get_ipxnetbyaddr().
+    /* Set g_pipxnets_paths here, but don't actually do anything
+     * with them. They're used in get_ipxnetbyaddr().
      */
-    if (g_pipxnets_path == NULL) {
-        /* Check profile directory before personal configuration */
-        g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, true, app_env_var_prefix);
-        if (!file_exists(g_pipxnets_path)) {
-            g_free(g_pipxnets_path);
-            g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, false, app_env_var_prefix);
-        }
+    if (g_pipxnets_paths == NULL) {
+        g_pipxnets_paths = personal_files(ENAME_IPXNETS, app_env_var_prefix);
     }
 
 } /* initialize_ipxnets */
@@ -2719,8 +2755,10 @@ static void
 ipx_name_lookup_cleanup(void)
 {
     g_ipxnets_path = NULL;
-    g_free(g_pipxnets_path);
-    g_pipxnets_path = NULL;
+    if (g_pipxnets_paths) {
+        g_ptr_array_unref(g_pipxnets_paths);
+        g_pipxnets_paths = NULL;
+    }
 }
 
 static char *
@@ -2785,7 +2823,7 @@ parse_vlan_line(char *line, vlan_t *vlan)
 static FILE *vlan_p;
 
 static void
-set_vlanent(char *path)
+set_vlanent(const char *path)
 {
     if (vlan_p)
         rewind(vlan_p);
@@ -2825,15 +2863,15 @@ get_vlanent(void)
 static vlan_t *
 get_vlannamebyid(uint16_t id)
 {
-    vlan_t *vlan;
+    vlan_t *vlan = NULL;
 
-    set_vlanent(g_pvlan_path);
+    /* The nearest profile first */
+    for (unsigned i = g_pvlan_paths->len; vlan == NULL && i-- > 0; ) {
+        set_vlanent((const char *)g_ptr_array_index(g_pvlan_paths, i));
 
-    while (((vlan = get_vlanent()) != NULL) && (id != vlan->id) ) ;
+        while (((vlan = get_vlanent()) != NULL) && (id != vlan->id) ) ;
 
-    if (vlan == NULL) {
         end_vlanent();
-
     }
 
     return vlan;
@@ -2846,16 +2884,11 @@ initialize_vlans(const char* app_env_var_prefix)
     ws_assert(vlan_hash_table == NULL);
     vlan_hash_table = wmem_map_new(addr_resolv_scope, g_direct_hash, g_direct_equal);
 
-    /* Set g_pvlan_path here, but don't actually do anything
-     * with it. It's used in get_vlannamebyid()
+    /* Set g_pvlan_paths here, but don't actually do anything
+     * with them. They're used in get_vlannamebyid()
      */
-    if (g_pvlan_path == NULL) {
-        /* Check profile directory before personal configuration */
-        g_pvlan_path = get_persconffile_path(ENAME_VLANS, true, app_env_var_prefix);
-        if (!file_exists(g_pvlan_path)) {
-            g_free(g_pvlan_path);
-            g_pvlan_path = get_persconffile_path(ENAME_VLANS, false, app_env_var_prefix);
-        }
+    if (g_pvlan_paths == NULL) {
+        g_pvlan_paths = personal_files(ENAME_VLANS, app_env_var_prefix);
     }
 } /* initialize_vlans */
 
@@ -2864,8 +2897,10 @@ vlan_name_lookup_cleanup(void)
 {
     end_vlanent();
     vlan_hash_table = NULL;
-    g_free(g_pvlan_path);
-    g_pvlan_path = NULL;
+    if (g_pvlan_paths) {
+        g_ptr_array_unref(g_pvlan_paths);
+        g_pvlan_paths = NULL;
+    }
 }
 
 static const char *
@@ -2951,6 +2986,13 @@ read_hosts_file (const char *hostspath, bool store_entries)
     fclose(hf);
     return entry_found ? true : false;
 } /* read_hosts_file */
+
+/* Read the entries of a hosts file; returns false if it can't be opened or has no entries */
+static bool
+read_hosts_file_entries(const char *hostspath)
+{
+    return read_hosts_file(hostspath, true);
+}
 
 bool
 add_hosts_file (const char *hosts_file)
@@ -3268,35 +3310,19 @@ subnet_name_lookup_init(const char* app_env_var_prefix)
     /*
      * Load the global subnets file, if we have one.
      */
-    subnetspath = get_datafile_path(ENAME_SUBNETS, app_env_var_prefix);
-    if (!read_subnets_file(subnetspath) && errno != ENOENT) {
-        report_open_failure(subnetspath, errno, false);
+    if (use_global_files()) {
+        subnetspath = get_datafile_path(ENAME_SUBNETS, app_env_var_prefix);
+        if (!read_subnets_file(subnetspath) && errno != ENOENT) {
+            report_open_failure(subnetspath, errno, false);
+        }
+        g_free(subnetspath);
     }
-    g_free(subnetspath);
 
     /*
-     * Load the base personal subnets file, if we have one.  This is in the
-     * root of the personal configuration directory, not in a profile
-     * subdirectory, so it survives upgrades and applies across all
-     * profiles.  It is loaded after the global file so that personal
-     * entries take precedence over global ones.
+     * Load the personal subnets files after the global file, so that
+     * personal entries take precedence over global ones.
      */
-    subnetspath = get_persconffile_path(ENAME_SUBNETS, false, app_env_var_prefix);
-    if (!read_subnets_file(subnetspath) && errno != ENOENT) {
-        report_open_failure(subnetspath, errno, false);
-    }
-    g_free(subnetspath);
-
-    /*
-     * Load the profile subnets file, if we have one.  This is loaded last
-     * so that profile entries take precedence over both the global and
-     * base personal subnets files.
-     */
-    subnetspath = get_persconffile_path(ENAME_SUBNETS, true, app_env_var_prefix);
-    if (!read_subnets_file(subnetspath) && errno != ENOENT) {
-        report_open_failure(subnetspath, errno, false);
-    }
-    g_free(subnetspath);
+    read_personal_files(ENAME_SUBNETS, read_subnets_file, app_env_var_prefix);
 }
 
 /* IPv6 Subnet Name Resolution */
@@ -3459,32 +3485,18 @@ subnet6_name_lookup_init(const char *app_env_var_prefix)
     /*
      * Load the global IPv6 subnets file, if we have one.
      */
-    subnetspath = get_datafile_path(ENAME_SUBNETS_V6, app_env_var_prefix);
-    if (!read_subnets_ipv6_file(subnetspath) && errno != ENOENT)
-        report_open_failure(subnetspath, errno, false);
-    g_free(subnetspath);
+    if (use_global_files()) {
+        subnetspath = get_datafile_path(ENAME_SUBNETS_V6, app_env_var_prefix);
+        if (!read_subnets_ipv6_file(subnetspath) && errno != ENOENT)
+            report_open_failure(subnetspath, errno, false);
+        g_free(subnetspath);
+    }
 
     /*
-     * Load the base personal IPv6 subnets file, if we have one.  This is in
-     * the root of the personal configuration directory, not in a profile
-     * subdirectory, so it survives upgrades and applies across all
-     * profiles.  It is loaded after the global file so that personal
-     * entries take precedence over global ones.
+     * Load the personal IPv6 subnets files after the global file, so that
+     * personal entries take precedence over global ones.
      */
-    subnetspath = get_persconffile_path(ENAME_SUBNETS_V6, false, app_env_var_prefix);
-    if (!read_subnets_ipv6_file(subnetspath) && errno != ENOENT)
-        report_open_failure(subnetspath, errno, false);
-    g_free(subnetspath);
-
-    /*
-     * Load the profile IPv6 subnets file, if we have one.  This is loaded
-     * last so that profile entries take precedence over both the global
-     * and base personal IPv6 subnets files.
-     */
-    subnetspath = get_persconffile_path(ENAME_SUBNETS_V6, true, app_env_var_prefix);
-    if (!read_subnets_ipv6_file(subnetspath) && errno != ENOENT)
-        report_open_failure(subnetspath, errno, false);
-    g_free(subnetspath);
+    read_personal_files(ENAME_SUBNETS_V6, read_subnets_ipv6_file, app_env_var_prefix);
 }
 
 /* SS7 PC Name Resolution Portion */
@@ -3611,20 +3623,14 @@ read_ss7pcs_file(const char *ss7pcspath)
 static void
 ss7pc_name_lookup_init(const char* app_env_var_prefix)
 {
-    char *ss7pcspath;
-
     ws_assert(ss7pc_hash_table == NULL);
 
     ss7pc_hash_table = wmem_map_new(addr_resolv_scope, g_direct_hash, g_direct_equal);
 
     /*
-     * Load the user's ss7pcs file
+     * Load the user's ss7pcs files
      */
-    ss7pcspath = get_persconffile_path(ENAME_SS7PCS, true, app_env_var_prefix);
-    if (!read_ss7pcs_file(ss7pcspath) && errno != ENOENT) {
-        report_open_failure(ss7pcspath, errno, false);
-    }
-    g_free(ss7pcspath);
+    read_personal_files(ENAME_SS7PCS, read_ss7pcs_file, app_env_var_prefix);
 }
 
 /* SS7PC Name Resolution End*/
@@ -3661,10 +3667,9 @@ read_tacs_file(const char *tacspath)
         if ((cp = strtok(NULL, " \t\n")) == NULL)
             continue; /* no TAC name */
 
-        if (!wmem_map_lookup(tac_hash_table, GUINT_TO_POINTER(id))) {
-            char *buf = wmem_strdup(addr_resolv_scope, cp);
-            wmem_map_insert(tac_hash_table, GUINT_TO_POINTER(id), (void *)buf);
-        }
+        /* The last entry read wins, as in the other files */
+        char *buf = wmem_strdup(addr_resolv_scope, cp);
+        wmem_map_insert(tac_hash_table, GUINT_TO_POINTER(id), (void *)buf);
     }
 
     fclose(hf);
@@ -3674,15 +3679,10 @@ read_tacs_file(const char *tacspath)
 static void
 initialize_tacs(const char* app_env_var_prefix)
 {
-    char *tacspath;
     ws_assert(tac_hash_table == NULL);
     tac_hash_table = wmem_map_new(addr_resolv_scope, g_direct_hash, g_direct_equal);
 
-    tacspath = get_persconffile_path(ENAME_TACS, true, app_env_var_prefix);
-    if (!read_tacs_file(tacspath) && errno != ENOENT) {
-        report_open_failure(tacspath, errno, false);
-    }
-    g_free(tacspath);
+    read_personal_files(ENAME_TACS, read_tacs_file, app_env_var_prefix);
 }
 
 static void
@@ -3705,6 +3705,14 @@ tac_name_lookup(const unsigned id)
 void
 addr_resolve_pref_init(module_t *nameres)
 {
+    prefs_register_bool_preference(nameres, "include_parent",
+            "Use name resolution entries from parent profiles",
+            "Use the entries of the hosts, subnets, subnetsipv6, ethers, manuf, services,"
+            " ipxnets, vlans, ss7pcs, tacs and enterprises files of the parent profiles"
+            " up to the Default profile and of the global files, after the entries of"
+            " this profile's own files. When off, only this profile's own files are read.",
+            &include_parent);
+
     prefs_register_bool_preference(nameres, "mac_name",
             "Resolve MAC addresses",
             "Resolve Ethernet MAC addresses to host names from the preferences"
@@ -4067,33 +4075,18 @@ host_name_lookup_init(const char* app_env_var_prefix)
     /*
      * Load the global hosts file, if we have one.
      */
-    hostspath = get_datafile_path(ENAME_HOSTS, app_env_var_prefix);
-    if (!read_hosts_file(hostspath, true) && errno != ENOENT) {
-        report_open_failure(hostspath, errno, false);
+    if (use_global_files()) {
+        hostspath = get_datafile_path(ENAME_HOSTS, app_env_var_prefix);
+        if (!read_hosts_file(hostspath, true) && errno != ENOENT) {
+            report_open_failure(hostspath, errno, false);
+        }
+        g_free(hostspath);
     }
-    g_free(hostspath);
     /*
-     * Load the base personal hosts file, if we have one.  This is in the
-     * root of the personal configuration directory (e.g. %APPDATA%\Wireshark\hosts
-     * on Windows), not in a profile subdirectory, so it survives upgrades and
-     * applies across all profiles.  It is loaded after the global file so that
+     * Load the personal hosts files after the global file, so that
      * personal entries take precedence over global ones.
      */
-    hostspath = get_persconffile_path(ENAME_HOSTS, false, app_env_var_prefix);
-    if (!read_hosts_file(hostspath, true) && errno != ENOENT) {
-        report_open_failure(hostspath, errno, false);
-    }
-    g_free(hostspath);
-    /*
-     * Load the profile hosts file, if we have one.  This is loaded last so
-     * that profile entries take precedence over both the global and base
-     * personal hosts files.
-     */
-    hostspath = get_persconffile_path(ENAME_HOSTS, true, app_env_var_prefix);
-    if (!read_hosts_file(hostspath, true) && errno != ENOENT) {
-        report_open_failure(hostspath, errno, false);
-    }
-    g_free(hostspath);
+    read_personal_files(ENAME_HOSTS, read_hosts_file_entries, app_env_var_prefix);
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
     if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
 #endif
