@@ -181322,3 +181322,113 @@ class TestDissectAns:
                 'frame.len', 'ans.seq_num')
         assert lines[12] == '13\t30\t500'
         assert lines[13] == '14\t130\t501'
+
+
+class TestDissectAoe:
+    CAPTURE = 'aoe_coverage.pcap.gz'
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectAoe.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def rows(stdout):
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_aoe_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 104 frames are AoE and none is malformed or an error, in one
+        and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Tfields', '-e_ws.col.protocol')
+            assert stdout.split() == ['AoE'] * 104
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_aoe_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Responses point at their request in one pass; the requests learn
+        their response in the second pass. The unmatched response (13), the
+        request that was never answered (14), the replaced duplicate (17)
+        and the second response to a tag (20) have no partner.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'aoe.response_to', '-Tfields', '-eframe.number', '-eaoe.response_to')
+        assert self.rows(stdout) == [
+            ['2', '1'], ['4', '3'], ['6', '5'], ['8', '7'], ['10', '9'], ['12', '11'],
+            ['16', '15'], ['19', '18'], ['22', '21'], ['96', '38'], ['97', '45'],
+            ['98', '52'], ['99', '59'], ['100', '66'], ['101', '73'], ['102', '80'],
+            ['103', '87'], ['104', '94'],
+        ]
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'aoe.response_in', '-Tfields', '-eframe.number', '-eaoe.response_in')
+        assert self.rows(stdout) == [
+            ['1', '2'], ['3', '4'], ['5', '6'], ['7', '8'], ['9', '10'], ['11', '12'],
+            ['15', '16'], ['18', '19'], ['21', '22'], ['38', '96'], ['45', '97'],
+            ['52', '98'], ['59', '99'], ['66', '100'], ['73', '101'], ['80', '102'],
+            ['87', '103'], ['94', '104'],
+        ]
+        # The same tag (1) in another conversation matches its own request
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'aoe.tag == 0x01000000 && aoe.response_to',
+                '-Tfields', '-eframe.number', '-eaoe.response_to', '-eaoe.major')
+        assert self.rows(stdout) == [['2', '1', '0x0001'], ['16', '15', '0x0002']]
+        # The matched response carries the request's command and a time
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 4', '-Tfields', '-eaoe.ata.cmd', '-eaoe.time')
+        assert stdout.split('\t')[0] == '0x24'
+        assert stdout.split('\t')[1].strip() != ''
+
+    def test_aoe_ata(self, cmd_tshark, capture_file, test_env):
+        '''ATA flags, the 48 bit LBA and the command names.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {3,5,7,9,21}', '-Tfields', '-eframe.number',
+                '-eaoe.aflags.e', '-eaoe.aflags.d', '-eaoe.aflags.a', '-eaoe.aflags.w',
+                '-eaoe.lba', '-eaoe.sector_count', '-e_ws.col.info')
+        assert self.rows(stdout) == [
+            ['3', 'True', 'True', '', 'False', '0x000000123456789a', '2',
+             'Issue ATA Command Request ATA:Read ext'],
+            ['5', 'True', 'False', 'True', 'True', '0x0000000000000100', '1',
+             'Issue ATA Command Request ATA:Write ext'],
+            ['7', 'False', '', 'False', 'True', '0x0000ffffffffffff', '1',
+             'Issue ATA Command Request ATA:Read sectors (with retry)'],
+            ['9', 'False', '', '', 'False', '0x0000000000000001', '8',
+             'Issue ATA Command Request ATA:Write sectors (with retry)'],
+            ['21', 'False', '', '', 'False', '0x0000000000000000', '1',
+             'Issue ATA Command Request ATA: Unknown ATA<0xff>'],
+        ]
+        # The response of an unknown command shows it too
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {13,22,95}', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert self.rows(stdout) == [
+            ['13', 'Issue ATA Command Response'],
+            ['22', 'Issue ATA Command Response ATA: Unknown ATA<0xff>'],
+            ['95', 'Issue ATA Command Request ATA:Security disable password'],
+        ]
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'aoe.ata.cmd',
+                '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 87
+
+    def test_aoe_errors_and_config(self, cmd_tshark, capture_file, test_env):
+        '''Error codes, configuration queries and other versions.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'aoe.error',
+                '-Tfields', '-eframe.number', '-eaoe.error', '-e_ws.col.info')
+        assert self.rows(stdout) == [
+            ['12', '3', 'Error:Device unavailable Issue ATA Command Response ATA:Read dma (with retry)'],
+            ['26', '4', 'Error:Config string present Query Config Information Response'],
+            ['27', '1', 'Error:Unrecognized command code Issue ATA Command Response'],
+            ['28', '2', 'Error:Bad argument parameter Unknown command<7> Response'],
+            ['29', '5', 'Error:Unsupported version Query Config Information Response'],
+            ['30', '9', 'Error:Unknown error<9> Query Config Information Response'],
+            ['37', '3', 'Error:Device unavailable Query Config Information Response'],
+        ]
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'aoe.cmd == 1',
+                '-Tfields', '-eframe.number', '-eaoe.major', '-eaoe.minor')
+        assert self.rows(stdout)[:3] == [
+            ['23', '0xffff', '0xff'], ['24', '0x0001', '0x01'], ['25', '0x0001', '0x01']]
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'aoe.version != 1',
+                '-Tfields', '-eframe.number', '-eaoe.version', '-eaoe.cmd')
+        # Only version 1 PDUs are decoded further
+        assert self.rows(stdout) == [['33', '2', ''], ['34', '0', ''], ['35', '2', '']]
