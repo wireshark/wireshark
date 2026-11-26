@@ -1885,8 +1885,12 @@ void PacketList::setColumnDelegate()
     }
 
     auto row_height = [this]() { return pinnedRowHeight(); };
+    // Clear every column that has a wrapper, including ones beyond a reduced
+    // column count, before deleting the wrappers below. Qt keeps a deleted
+    // delegate as a null entry that a later reset can't remove.
+    const unsigned overlay_cols = std::max(prefs.num_cols, overlay_delegate_cols_);
     for (QTreeView *view : pinnedOverlayViews()) {
-        for (unsigned i = 0; i < prefs.num_cols; i++) {
+        for (unsigned i = 0; i < overlay_cols; i++) {
             view->setItemDelegateForColumn(i, nullptr);
         }
         QList<QObject *> old_wrappers;
@@ -1904,6 +1908,7 @@ void PacketList::setColumnDelegate()
             }
         }
     }
+    overlay_delegate_cols_ = prefs.num_cols;
 }
 
 void PacketList::setRecentColumnWidth(int col)

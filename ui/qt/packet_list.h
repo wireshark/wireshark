@@ -958,6 +958,9 @@ private:
     // Overlay view showing the pinned row's frozen columns (the "corner").
     PinnedRowView *pinned_row_corner_view_;
 
+    // Number of columns setColumnDelegate() installed overlay delegates for.
+    unsigned overlay_delegate_cols_ = 0;
+
     // Cached selection stylesheet for the overlay views when this window is active.
     QString overlay_active_flat_style_;
 
