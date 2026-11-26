@@ -11106,8 +11106,9 @@ class TestDissectArmagetronad:
         assert protocols.count('Armagetronad') == 17
         # Turned down: no payload, one octet, a DataLen past the end, one
         # octet or none after the last message, data cut by the snapshot
-        # length
-        assert protocols.count('UDP') == 6
+        # length, and three to five octets where a message header (six
+        # octets) should start
+        assert protocols.count('UDP') == 12
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *passes,
                     '-r', capture_file('armagetronad_coverage.pcap.gz'),
@@ -11146,6 +11147,20 @@ class TestDissectArmagetronad:
         info = ''.join(frames[n][0] for n in range(7, 12))
         assert info.count(', ') + 5 == 47
         assert 'Unknown' not in info
+
+    def test_armagetronad_short_remainder(self, cmd_tshark, capture_file, test_env):
+        '''Three to five octets where a message header should start are not
+        Armagetronad: the packet stays plain UDP. The check read the DataLen
+        past the end and the packet was shown as a malformed Armagetronad
+        packet (frame 24 is the five octet reproducer, 27 to 29 follow a
+        message).'''
+        frames = self.armagetronad_fields(cmd_tshark, capture_file, test_env,
+                                          '_ws.col.protocol', '_ws.malformed',
+                                          'armagetronad.message')
+        for n in range(24, 30):
+            assert frames[n] == ['UDP', '', ''], n
+        # The same message with the SenderID instead is Armagetronad
+        assert frames[23][0] == 'Armagetronad'
 
 
 ARP_STORM_OPTS = ('-o', 'arp.detect_request_storms:TRUE',

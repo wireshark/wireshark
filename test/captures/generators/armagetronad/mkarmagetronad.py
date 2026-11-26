@@ -20,7 +20,9 @@ Writes:
   armagetronad-coverage.pcap            every descriptor, ACKs, unknown
                                         descriptors, empty messages, the
                                         "No message" reproducer, packets
-                                        the dissector turns down
+                                        the dissector turns down (among
+                                        them three to five octets where a
+                                        message header should start)
   armagetronad-coverage-malformed.pcap  packets that end in an exception
 """
 
@@ -145,6 +147,15 @@ def main_capture():
     p.udp(40000, 4534, packet(0x0003, msg(200, 0x0306, b'x' * 40)), caplen=20)
     # 23: logout
     p.udp(40000, 4534, packet(0x0003, msg(7, 0x0307)))
+    # 24-29: three to five octets left where a message header (six octets)
+    # should start: the check read the DataLen past the end and the packet
+    # showed as malformed; now it is turned down. 24 is the reproducer
+    # (armagetronad_short.py), 25-26 are shorter, 27-29 follow a message.
+    p.udp(40002, 4534, b'\x00\x01\x00\x02\x00')
+    p.udp(40000, 4534, b'\x00\x06\x00')
+    p.udp(40000, 4534, b'\x00\x06\x00\x01')
+    for n in (3, 4, 5):
+        p.udp(40000, 4534, msg(6, 0x0005, b'\x00\x01') + b'\x00\x03\x00\x00\x00'[:n])
     return p
 
 
