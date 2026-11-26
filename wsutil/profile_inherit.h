@@ -184,12 +184,13 @@ WS_DLL_PUBLIC void profile_inherit_seen_free(profile_inherit_seen_t *seen);
 /**
  * @brief Check whether an entry duplicates an entry from a nearer profile, and remember its keys.
  *
- * The key is remembered for the profiles further up, once profile_inherit_seen_next() is called.
+ * The keys are remembered for the profiles further up, once profile_inherit_seen_next() is called.
  * @param seen The set.
- * @param key The key, e.g. the name of the entry.
- * @return true if the key was seen in a nearer profile.
+ * @param key1 The first key, e.g. the name of the entry.
+ * @param key2 The second key, e.g. the filter of the entry, or NULL.
+ * @return true if any key was seen in a nearer profile.
  */
-WS_DLL_PUBLIC bool profile_inherit_seen_check(profile_inherit_seen_t *seen, const char *key);
+WS_DLL_PUBLIC bool profile_inherit_seen_check(profile_inherit_seen_t *seen, const char *key1, const char *key2);
 
 /**
  * @brief Done with the entries of a profile; its keys hide the same entries from the next profiles.
@@ -200,7 +201,7 @@ WS_DLL_PUBLIC void profile_inherit_seen_next(profile_inherit_seen_t *seen);
 /**
  * @brief Reads the entries of one parent profile.
  *
- * For each entry, call profile_inherit_seen_check() with its key: an entry
+ * For each entry, call profile_inherit_seen_check() with its keys: an entry
  * duplicating one from a nearer profile, or disabled, is not inherited.
  *
  * @param layer The parent profile.

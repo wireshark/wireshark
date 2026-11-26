@@ -918,7 +918,7 @@ static bool uat_read_layer(const profile_inherit_layer_t *layer, const char *pat
     while (idx < uat->raw_data->len) {
         void *rec = UAT_INDEX_PTR(uat, idx);
         char *key = uat_record_key(uat, rec);
-        bool duplicate = profile_inherit_seen_check(seen, key);
+        bool duplicate = profile_inherit_seen_check(seen, key, NULL);
         /* A duplicate of an own record is kept to be shown, but not used */
         bool keep = (!duplicate || (uat->override_keys && g_hash_table_contains(uat->override_keys, key))) &&
                     uat_record_is_enabled(uat, rec);
@@ -943,7 +943,7 @@ static bool uat_add_inherited(uat_t *uat, profile_inherit_e mode, bool keep_over
     /* The records already in the table come first, and win over duplicates */
     for (unsigned i = 0; i < uat->raw_data->len; i++) {
         char *key = uat_record_key(uat, UAT_INDEX_PTR(uat, i));
-        profile_inherit_seen_check(seen, key);
+        profile_inherit_seen_check(seen, key, NULL);
         if (own_keys) {
             g_hash_table_add(own_keys, key);
         } else {

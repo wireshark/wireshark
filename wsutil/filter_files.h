@@ -74,8 +74,9 @@ typedef struct {
  * Loads the specified type of filter list (e.g., display, capture) from disk or configuration.
  * The profile's own filters come first, followed by the filters inherited from
  * its parent profiles, which have source_profile set, as the inherit setting
- * of the file selects. A filter of a parent with the name of a filter
- * of a nearer profile is not inherited. On error, a message is reported via the UI.
+ * of the file selects. A filter of a parent with the name, or for filters
+ * other than macros the expression, of a filter of a nearer profile is not
+ * inherited. On error, a message is reported via the UI.
  *
  * @param list_type The type of filter list to read.
  * @param app_env_var_prefix The prefix for the application environment variable used to get the personal config directory.

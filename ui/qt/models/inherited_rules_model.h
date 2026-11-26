@@ -32,8 +32,9 @@
  * @brief A flat list of rules, the profile's own rules first, then the rules inherited from parent profiles.
  *
  * Shared by the coloring rules, the tagging rules and the filter lists. A
- * rule is identified by its name: an inherited rule with the name of an own
- * rule is overridden. Inherited rules are read-only, and the own
+ * rule is identified by its name and its filter, unless keyedByFilter() says
+ * otherwise: an inherited rule with the name or the filter of an own rule is
+ * overridden. Inherited rules are read-only, and the own
  * rules are kept, but not shown, when only the parent's rules are used.
  *
  * New rules go at the top of the own rules, as the first matching rule is
@@ -256,9 +257,17 @@ protected:
     virtual void enteredInheritMode(profile_inherit_e mode) { Q_UNUSED(mode) }
 
     /**
+     * @brief Whether a rule is also identified by its filter, besides its name.
+     *
+     * An inherited rule with the filter of an own rule is then overridden.
+     * @return true by default.
+     */
+    virtual bool keyedByFilter() const { return true; }
+
+    /**
      * @brief Reads the inherited rules and shows them; call once root_ holds the own rules.
      *
-     * An own rule overrides an inherited rule with the same name,
+     * An own rule overrides an inherited rule with the same name or filter,
      * which is then shown struck out, also after editing, adding or removing rules.
      */
     void initInherited()
@@ -300,7 +309,7 @@ protected:
     }
 
     /**
-     * @brief Whether an own rule has the name of a rule.
+     * @brief Whether an own rule has the name or the filter of a rule.
      *
      * An inherited rule overridden by an own rule is not used.
      * @param rule The rule.
@@ -311,7 +320,7 @@ protected:
         int own_count = ownRowCount();
         for (int row = 0; row < own_count; row++) {
             const Item *own = root_->child(row);
-            if (own->name_ == rule->name_)
+            if (own->name_ == rule->name_ || (keyedByFilter() && own->filter_ == rule->filter_))
                 return true;
         }
         return false;

@@ -471,13 +471,24 @@ profile_inherit_seen_free(profile_inherit_seen_t *seen)
     g_free(seen);
 }
 
-bool
-profile_inherit_seen_check(profile_inherit_seen_t *seen, const char *key)
+/* The two keys are kept apart, e.g. a rule named like another rule's filter */
+static char *
+seen_key(char kind, const char *key)
 {
-    char *k = g_strdup(key ? key : "");
-    bool found = g_hash_table_contains(seen->seen, k);
+    return g_strdup_printf("%c%s", kind, key);
+}
 
-    g_hash_table_add(seen->pending, k);
+bool
+profile_inherit_seen_check(profile_inherit_seen_t *seen, const char *key1, const char *key2)
+{
+    char *k1 = seen_key('1', key1 ? key1 : "");
+    char *k2 = key2 ? seen_key('2', key2) : NULL;
+    bool found = g_hash_table_contains(seen->seen, k1) ||
+                 (k2 && g_hash_table_contains(seen->seen, k2));
+
+    g_hash_table_add(seen->pending, k1);
+    if (k2)
+        g_hash_table_add(seen->pending, k2);
     return found;
 }
 

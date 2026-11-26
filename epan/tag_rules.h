@@ -166,8 +166,8 @@ WS_DLL_PUBLIC void tag_rules_set_prefs(const tag_prefs_t *prefs);
  * @brief Read the tag rules inherited from the parent profiles.
  *
  * Reads the rules of the parent profile and up, nearest parent first, as
- * given by the mode. Rules disabled in a parent and rules with the name
- * of a rule from a nearer parent are skipped. Each rule
+ * given by the mode. Rules disabled in a parent and rules duplicating the
+ * name or filter of a rule from a nearer parent are skipped. Each rule
  * has inherited and source_profile set.
  *
  * @param mode The inherit mode of the current profile, e.g. one not yet saved.

@@ -185,6 +185,7 @@ FilterListModel::FilterListType FilterListModel::filterType() const
 
 /* The data of profile_inherit_read_layers() reading the filters of the parent profiles */
 struct FilterListReadLayer {
+    bool macros;
     QList<FilterListItem *> rules;
 };
 
@@ -202,8 +203,9 @@ filter_list_read_layer(const profile_inherit_layer_t *layer, const char *path, c
 
     for (const FilterListModel::FilterListValue &value : values) {
         QByteArray name = value.name.toUtf8();
+        QByteArray expression = value.expression.toUtf8();
         // A macro is found by its name, a filter also by its expression
-        if (profile_inherit_seen_check(seen, name.constData()))
+        if (profile_inherit_seen_check(seen, name.constData(), data->macros ? NULL : expression.constData()))
             continue;
         data->rules << new FilterListItem(value.name, value.expression, nullptr, QString::fromUtf8(layer->source));
     }
@@ -215,6 +217,7 @@ QList<FilterListItem *> FilterListModel::readInherited(profile_inherit_e mode)
     // The own filters are not seen here: an own filter hides an inherited
     // filter only while it is there, see refreshInherited()
     FilterListReadLayer data;
+    data.macros = type_ == DisplayMacro;
     profile_inherit_seen_t *seen = profile_inherit_seen_new();
     char *err = NULL;
     if (!profile_inherit_read_layers(application_configuration_environment_prefix(), fileName(type_), NULL, true,
@@ -244,6 +247,12 @@ void FilterListModel::enteredInheritMode(profile_inherit_e mode)
         own_from_globals_ = true;
         own_edited_ = false;
     }
+}
+
+bool FilterListModel::keyedByFilter() const
+{
+    // Macros are found by their names only
+    return type_ != DisplayMacro;
 }
 
 int FilterListModel::columnCount(const QModelIndex &/* parent */) const
