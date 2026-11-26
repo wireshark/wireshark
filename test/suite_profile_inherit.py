@@ -76,6 +76,12 @@ class TestProfileInherit:
                             mode='profile_and_parent')
         assert names == set()
 
+    def test_same_filter_overrides_parent(self, run_inherit):
+        '''A parent entry with the filter of an own entry is not used, even if its name differs.'''
+        names = run_inherit(parent=[('ParentTCP', 'tcp', True)], child=[('OwnTCP', 'tcp', False)],
+                            mode='profile_and_parent')
+        assert names == set()
+
     def test_disabled_parent_entry_not_inherited(self, run_inherit):
         '''A parent entry which is disabled is not used.'''
         names = run_inherit(parent=[('ParentTCP', 'tcp', False)], child=[('OwnUDP', 'udp', True)],

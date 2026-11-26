@@ -439,7 +439,7 @@ typedef struct {
 
 /*
  * Read the rules of one parent profile. A rule is skipped if it is a
- * conversation rule, if its name was seen in a nearer profile,
+ * conversation rule, if its name or filter was seen in a nearer profile,
  * or if it is disabled; a disabled rule still hides the same rule from
  * profiles further up.
  */
@@ -471,7 +471,7 @@ color_filters_read_layer(const profile_inherit_layer_t *layer, const char *path,
     for (GSList *item = layer_list; item; item = g_slist_next(item)) {
         color_filter_t *colorf = (color_filter_t *)item->data;
         bool keep = !color_filter_is_tmp(colorf) &&
-                    !profile_inherit_seen_check(seen, colorf->filter_name) &&
+                    !profile_inherit_seen_check(seen, colorf->filter_name, colorf->filter_text) &&
                     colorf->enabled;
 
         if (!keep) {
@@ -509,7 +509,7 @@ color_filters_add_inherited(profile_inherit_e mode, GSList *own_list, void *user
     for (GSList *item = own_list; item; item = g_slist_next(item)) {
         color_filter_t *colorf = (color_filter_t *)item->data;
         if (!color_filter_is_tmp(colorf))
-            profile_inherit_seen_check(seen, colorf->filter_name);
+            profile_inherit_seen_check(seen, colorf->filter_name, colorf->filter_text);
     }
     profile_inherit_seen_next(seen);
 

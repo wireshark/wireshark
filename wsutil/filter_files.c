@@ -363,6 +363,13 @@ typedef struct {
     GList *entries;     /* The inherited filters, in reverse order */
 } read_layer_data_t;
 
+/* A macro is found by its name, a filter also by its expression */
+static const char *
+filter_list_key2(filter_list_type_t list_type, const filter_def *filt)
+{
+    return list_type == DMACROS_LIST ? NULL : filt->strval;
+}
+
 /* Read the filters of one parent profile */
 static bool
 read_layer_filters(const profile_inherit_layer_t *layer, const char *path, const char *filename _U_,
@@ -383,7 +390,7 @@ read_layer_filters(const profile_inherit_layer_t *layer, const char *path, const
     for (GList *item = layer_list; item; item = g_list_next(item)) {
         filter_def *filt = (filter_def *)item->data;
 
-        if (profile_inherit_seen_check(seen, filt->name)) {
+        if (profile_inherit_seen_check(seen, filt->name, filter_list_key2(data->type, filt))) {
             free_filter_entry(filt);
             continue;
         }
@@ -410,7 +417,7 @@ ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix
     profile_inherit_seen_t *seen = profile_inherit_seen_new();
     for (GList *item = list->list; item; item = g_list_next(item)) {
         const filter_def *filt = (const filter_def *)item->data;
-        profile_inherit_seen_check(seen, filt->name);
+        profile_inherit_seen_check(seen, filt->name, filter_list_key2(list_type, filt));
     }
     profile_inherit_seen_next(seen);
 

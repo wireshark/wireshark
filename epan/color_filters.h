@@ -219,7 +219,7 @@ WS_DLL_PUBLIC bool color_filters_import(const char *path, void *user_data, char 
  *
  * Reads the rules of the parent profile and up, nearest parent first, as
  * given by the mode. Rules disabled in a parent, conversation rules and
- * rules with the name of a rule from a nearer parent are
+ * rules duplicating the name or filter of a rule from a nearer parent are
  * skipped. A parent using its own rules only without a coloring rules file,
  * like the Default profile, contributes the global rules. Each rule passed
  * to add_cb has inherited and source_profile set.

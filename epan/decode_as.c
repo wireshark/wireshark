@@ -392,7 +392,7 @@ read_layer_decode_as_entry(char *key, const char *value, void *user_data, bool r
         return PREFS_SET_SYNTAX_ERR;
     }
     /* The nearer profile wins; within a profile, the last entry wins as before */
-    if (profile_inherit_seen_check(layer_read->seen, id)) {
+    if (profile_inherit_seen_check(layer_read->seen, id, NULL)) {
         g_free(id);
         g_free(current);
         return PREFS_SET_OK;

@@ -1740,10 +1740,11 @@ Only the entries of this profile are used. This is the default.
 
 Profile and Parent::
 The entries of this profile come first, then the entries of the parent
-profile. An entry of the parent with the same name as an entry of this
-profile is not used, and is shown struck out. For a “Decode As” entry, which
-has no name, the table, the field value and the protocol are compared, and for
-a User Accessible Table without a name field the values of all fields. The
+profile. An entry of the parent with the same name or filter as an entry of
+this profile is not used, and is shown struck out. A display filter macro is
+compared by its name only. For a “Decode As” entry, which has no name, the
+table, the field value and the protocol are compared, and for a User
+Accessible Table without a name field the values of all fields. The
 “Hide unused” check box, shown while there are such entries, hides them and,
 where entries have a check box, the unchecked entries of this profile. It is
 not saved.
@@ -1763,8 +1764,8 @@ name.
 The parent profile uses its own setting, so entries can come from several
 profiles up to the “Default” profile. A global profile uses the setting in its
 own `profile_settings` file, if any. Entries disabled in a parent profile
-are not used, and still hide an entry with the same name in a profile further
-up. Entries from a parent profile are shown with a lock and can't be changed,
+are not used, and still hide an entry with the same name or filter in a
+profile further up. Entries from a parent profile are shown with a lock and can't be changed,
 but they can be copied into the profile's own entries. The
 setting is stored per configuration file in the profile's `profile_settings`
 file, and also applies to TShark.
