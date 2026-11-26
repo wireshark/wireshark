@@ -7168,10 +7168,10 @@ class TestDissectAfs:
 
 
 # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
-AIN_OPTS = ('-o', 'mtp3.standard:ANSI')
-
-
 class TestDissectAin:
+    # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
+    OPTS = ('-o', 'mtp3.standard:ANSI')
+
     def test_ain_needs_ansi_mtp3(self, cmd_tshark, capture_file, test_env):
         '''With the default (ITU) MTP3 standard the ANSI SCCP addresses do
         not route to TCAP, so nothing is dissected as AIN.'''
@@ -7185,16 +7185,16 @@ class TestDissectAin:
     def test_ain_protocols(self, cmd_tshark, capture_file, test_env):
         '''Every operation is dissected, with no malformed packets and no
         warning or error expert infos.'''
-        stdout = subprocess.check_output((cmd_tshark, *AIN_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ain_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.splitlines()
-        assert len(protocols) == 131
-        assert protocols.count('AIN') == 130
-        # the Reject is not passed to AIN
-        assert protocols.count('ANSI TCAP') == 1
-        stdout = subprocess.check_output((cmd_tshark, *AIN_OPTS,
+        assert len(protocols) == 136
+        assert protocols.count('AIN') == 133
+        # the three Rejects are not passed to AIN
+        assert protocols.count('ANSI TCAP') == 3
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ain_coverage.pcap.gz'),
                 '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
                 '-Tfields', '-eframe.number',
@@ -7205,12 +7205,12 @@ class TestDissectAin:
         '''The hand-written AINDigits, CarrierFormat and AMAslpID bodies and
         the ExtensionParameter OID callback decode their values.'''
         for dfilter, frames in (
-                ('ain.bcd_digits == "9085551212"', 47),
-                ('ain.carrier_bcd_digits == "0288"', 17),
+                ('ain.bcd_digits == "9085551212"', 49),
+                ('ain.carrier_bcd_digits == "0288"', 19),
                 ('ain.amaslpid == "123456789"', 29),
-                ('ain.ext_type_oid == "2.5.4.3" && x509sat.printableString == "AIN synthetic extension"', 121),
+                ('ain.ext_type_oid == "2.5.4.3" && x509sat.printableString == "AIN synthetic extension"', 123),
                 ):
-            stdout = subprocess.check_output((cmd_tshark, *AIN_OPTS,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                     '-r', capture_file('ain_coverage.pcap.gz'),
                     '-Y', dfilter,
                     '-Tfields', '-eframe.number',
@@ -7221,7 +7221,7 @@ class TestDissectAin:
         '''An Invoke and its ReturnResult in one package (it used to hit
         DISSECTOR_ASSERT_NOT_REACHED in dissect_ain()) decodes the result
         of the invoked operation.'''
-        stdout = subprocess.check_output((cmd_tshark, *AIN_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ain_coverage.pcap.gz'),
                 '-Y', 'frame.number == 1',
                 '-Tfields', '-e_ws.col.info', '-eain.actResult', '-e_ws.malformed',
@@ -7229,7 +7229,7 @@ class TestDissectAin:
         assert stdout == 'activityTest ReturnResult \t0\t\n'
         # Every ReturnResult (one for each of the 12 operations with a
         # result, more for those sent several times) gets its operation
-        stdout = subprocess.check_output((cmd_tshark, *AIN_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ain_coverage.pcap.gz'),
                 '-Y', '_ws.col.info contains "ReturnResult"',
                 '-Tfields', '-e_ws.col.info',
@@ -7241,11 +7241,29 @@ class TestDissectAin:
         '''Two passes give the same AIN output as one.'''
         outputs = []
         for passes in ((), ('-2',)):
-            outputs.append(subprocess.check_output((cmd_tshark, *AIN_OPTS, *passes,
+            outputs.append(subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
                     '-r', capture_file('ain_coverage.pcap.gz'),
                     '-O', 'ain', '-V',
                 ), encoding='utf-8', env=test_env))
         assert outputs[0] == outputs[1]
+
+    def test_ain_return_error_operation(self, cmd_tshark, capture_file, test_env):
+        '''A ReturnError names the operation of its own transaction (the
+        operation code ANSI TCAP matched), not the one of the AIN Invoke
+        dissected last: frame 134 answers the infoAnalyzed Invoke of
+        frame 132, and the infoCollected Invoke of frame 133 comes between
+        them. One pass and two give the same result.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('ain_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 132 && frame.number <= 134',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '132\tinfoAnalyzed Invoke ',
+                '133\tinfoCollected Invoke ',
+                '134\tinfoAnalyzed ReturnError ',
+            ]
 
 
 # AMP is reached by default from BPv6 bundles on UDP port 4556; frames

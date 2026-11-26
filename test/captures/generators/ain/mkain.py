@@ -540,6 +540,23 @@ def build():
     short = enc.seq_with('AnalyzeRouteArg', {'carrier': tlv(CON, False, 41, b'\x01')})
     add(malformed, SSP, SCP, package(2, t, [invoke(1, 25857, short)]), 'analyzeRoute, 1 octet carrier')
 
+    # ReturnError (and Reject) of a transaction other than the last Invoke
+    # dissected ("AIN: Use the ANSI TCAP operation code for ReturnError and
+    # Reject"): the Info column names the operation of its own Invoke, not
+    # the one last dissected.  Reproducer ain_stale_opcode.py, here with
+    # valid arguments.
+    tA, tB = tid(), tid()
+    add(clean, SSP, SCP, package(2, tA, [invoke(1, 25603, enc.full('InfoAnalyzedArg'))]),
+        'stale opcode: infoAnalyzed Invoke, transaction A')
+    add(clean, SSP, SCP, package(2, tB, [invoke(1, 25602, enc.full('InfoCollectedArg'))]),
+        'stale opcode: infoCollected Invoke, transaction B')
+    add(clean, SCP, SSP, package(4, tA, [return_error(1, 1, enc.full('PAR_applicationError'))]),
+        'stale opcode: ReturnError of transaction A (infoAnalyzed)')
+    add(clean, SCP, SSP, package(4, tB, [reject(1, 515)]),
+        'stale opcode: Reject of transaction B (infoCollected)')
+    add(clean, SCP, SSP, package(4, tA, [reject(1, 257)]),
+        'stale opcode: Reject of transaction A (infoAnalyzed)')
+
     return clean, malformed, enc
 
 
