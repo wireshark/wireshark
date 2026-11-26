@@ -453,11 +453,15 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     is_service = true;
                 }
             }
+        } else {
+            /* A command that was completed before this frame is not this
+             * frame's, in the first pass as in the later ones. */
+            command_data = NULL;
         }
     }
 
 /* Simple heuristics to check if packet is command or data */
-    if ((command_data && command_data->completed_in_frame <= frame_number) || !command_data) {
+    if ((command_data && command_data->completed_in_frame < frame_number) || !command_data) {
         if (tvb_reported_length(tvb) < 24) {
             is_command = false;
         } else if (tvb_reported_length(tvb) >= 24) {
@@ -608,7 +612,9 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_item_set_generated(crc_item);
     }
 
-    if (command_data && command_data->completed_in_frame != frame_number) {
+    /* The first pass does not know yet where a message will be completed */
+    if (command_data && command_data->completed_in_frame != frame_number &&
+            command_data->completed_in_frame != UINT32_MAX) {
         sub_item = proto_tree_add_uint(main_tree, hf_completed_in_frame, tvb, offset, 0, command_data->completed_in_frame);
         proto_item_set_generated(sub_item);
     }
