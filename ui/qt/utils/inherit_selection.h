@@ -10,8 +10,6 @@
 #ifndef INHERIT_SELECTION_H
 #define INHERIT_SELECTION_H
 
-#include <wsutil/profile_inherit.h>
-
 #include <QAbstractItemModel>
 #include <QModelIndexList>
 #include <QSet>
@@ -27,7 +25,6 @@
  * after them.
  */
 struct InheritSelection {
-    bool own_used = true;           /**< The entries of the profile are used. */
     int own_count = 0;              /**< The number of own entries. */
     int own_visible = 0;            /**< The number of own entries shown, not hidden in the view. */
     int selected_count = 0;         /**< The number of rows selected. */
@@ -45,7 +42,7 @@ struct InheritSelection {
 
 /**
  * @brief Works out what the rows selected allow.
- * @param model A model with inheritMode(), ownRowCount() and isInherited(row).
+ * @param model A model with ownRowCount() and isInherited(row).
  * @param indexes The selected indexes, which may hold several columns of a row.
  * @param view The view of the model, if rows may be hidden in it.
  * @return What the selection allows.
@@ -55,7 +52,6 @@ InheritSelection inheritSelection(const Model *model, const QModelIndexList &ind
 {
     InheritSelection sel;
 
-    sel.own_used = model->inheritMode() != PROFILE_INHERIT_PARENT_ONLY;
     sel.own_count = model->ownRowCount();
     sel.own_visible = sel.own_count;
     for (int row = 0; view && row < sel.own_count; row++) {

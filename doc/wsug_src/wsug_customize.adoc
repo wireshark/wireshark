@@ -1737,63 +1737,56 @@ A profile can use the entries of its parent profile, where a top-level
 profile has the “Default” profile as its parent. This applies to the
 configuration files holding a list of entries, such as the coloring rules,
 tagging rules, “Decode As” entries, saved filters, display filter macros and
-most User Accessible Tables. The dialog editing such a list has a selector
-for where its entries come from:
+most User Accessible Tables. The dialog editing such a list has an
+_Include parent_ check box, which is not shown in the “Default” profile. Its
+tool tip names the profiles the entries are included from.
 
-Profile only::
-Only the entries of this profile are used. This is the default.
+When _Include parent_ is unchecked, which is the default, only the entries of
+this profile are used.
 
-Profile and Parent::
-The entries of this profile come first, then the entries of the parent
-profile. An entry of the parent with the same name or filter as an entry of
-this profile is not used, and is shown struck out. A display filter macro is
-compared by its name only. For a “Decode As” entry, which has no name, the
-table, the field value and the protocol are compared, and for a User
-Accessible Table without a name field the values of all fields. The
-“Hide unused” check box, shown while there are such entries, hides them and,
-where entries have a check box, the unchecked entries of this profile. It is
-not saved.
-
-Parent only::
-Only the entries of the parent profile are used. The entries of this profile
-are kept, but not used.
+When _Include parent_ is checked, the entries of this profile come first, then
+the entries of the parent profile. An entry of the parent with the same name or
+filter as an entry of this profile is not used, and is shown struck out. A
+display filter macro is compared by its name only. For a “Decode As” entry,
+which has no name, the table, the field value and the protocol are compared,
+and for a User Accessible Table without a name field the values of all
+fields. The “Hide unused” check box, shown while there are such entries,
+hides them and, where entries have a check box, the unchecked entries of this
+profile. It is not saved.
 
 Entries can also come from a global profile, which is placed right before
 the parent of the profile with its name. Selecting a global profile creates a
-profile with its name, so with “Parent only” it keeps following the global
-profile, also after a Wireshark update, and with “Profile and Parent” it adds
-the global entries it doesn't have.
-Entries from a global profile are shown with “(global)” after the profile
-name.
+profile with its name, which with _Include parent_ checked adds the global
+entries it doesn't have, also after a Wireshark update. Entries from a global
+profile are shown with “(global)” after the profile name.
 
-The parent profile uses its own setting, so entries can come from several
-profiles up to the “Default” profile. A global profile uses the setting in its
-own `profile_settings` file, if any. Entries disabled in a parent profile
-are not used, and still hide an entry with the same name or filter in a
-profile further up. Entries from a parent profile are shown with a lock and can't be changed,
-but they can be copied into the profile's own entries. The
-setting is stored per configuration file in the profile's `profile_settings`
-file, and also applies to TShark.
+Whether the parent profile includes its own parent is up to its own
+setting, so entries can come from several profiles up to the “Default”
+profile. A global profile uses the setting in its own `profile_settings`
+file, if any. Entries disabled in a parent profile are not used, and still
+hide an entry with the same name or filter in a profile further up. Entries
+from a parent profile are shown with a lock and can't be changed, but they
+can be copied into the profile's own entries. The setting is stored per
+configuration file in the profile's `profile_settings` file, and also
+applies to TShark.
 
 For example, with the personal profiles “Customers”, “Customers/ACME”,
 “Classic” and “Classic/Mine”, and the global “Classic” profile without a
 setting of its own, the entries come from these profiles, nearest first:
 
-[options="header",cols="3,3,3,5"]
+[options="header",cols="3,2,2,5"]
 |===
-|Profile |Its setting |Setting of its parent |Entries come from
-|Customers/ACME |Profile only |Any |“Customers/ACME”
-|Customers/ACME |Profile and Parent |Profile only |“Customers/ACME”, “Customers”
-|Customers/ACME |Profile and Parent |Profile and Parent |“Customers/ACME”, “Customers”, “Default”
-|Customers/ACME |Parent only |Parent only |“Default”
-|Classic |Profile and Parent |– |“Classic”, global “Classic”
-|Classic |Parent only |– |global “Classic”
-|Classic/Mine |Profile and Parent |Profile and Parent |“Classic/Mine”, “Classic”, global “Classic”
-|Classic/Mine |Profile and Parent |Profile only |“Classic/Mine”, “Classic”
+|Profile |Includes parent |Its parent includes parent |Entries come from
+|Customers/ACME |No |Any |“Customers/ACME”
+|Customers/ACME |Yes |No |“Customers/ACME”, “Customers”
+|Customers/ACME |Yes |Yes |“Customers/ACME”, “Customers”, “Default”
+|Classic |Yes |– |“Classic”, global “Classic”
+|Classic/Mine |Yes |Yes |“Classic/Mine”, “Classic”, global “Classic”
+|Classic/Mine |Yes |No |“Classic/Mine”, “Classic”
 |===
 
 The name resolution files, such as _hosts_ and _subnets_, have no such
-selector. They are read from all parent profiles up to the “Default” profile
+check box. They are read from all parent profiles up to the “Default” profile
 unless the preference _Use name resolution entries from parent profiles_ is
 turned off, see <<ChAppFilesNameResolution>>.
 

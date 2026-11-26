@@ -169,36 +169,6 @@ extern void load_decode_as_entries(const char* app_env_var_prefix);
 WS_DLL_PUBLIC int save_decode_as_entries(const char* app_name, const char* app_env_var_prefix, char** err);
 
 /**
- * @brief Save the "Decode As" entries of the current profile for a given inherit mode.
- *
- * Like save_decode_as_entries(), using the mode instead of the saved one,
- * e.g. to save the own entries before the mode changes.
- *
- * @param app_name The application name, for the file header.
- * @param app_env_var_prefix The prefix for the application environment variable.
- * @param mode The inherit mode; nothing is written for PROFILE_INHERIT_PARENT_ONLY.
- * @param err Set to a g_malloc()'d error message on failure.
- * @return 0 on success, -1 on failure.
- */
-WS_DLL_PUBLIC int save_decode_as_entries_for_mode(const char* app_name, const char* app_env_var_prefix,
-                                                  profile_inherit_e mode, char** err);
-
-/**
- * @brief Save the given "Decode As" entries as the entries of the current profile.
- *
- * Used for the own entries, which are not in the dissector tables while
- * only the parent profiles' entries are used.
- *
- * @param app_name The application name, for the file header.
- * @param app_env_var_prefix The prefix for the application environment variable.
- * @param values The entries, each "table,selector,initial,current" as in the file.
- * @param err Set to a g_malloc()'d error message on failure.
- * @return 0 on success, -1 on failure.
- */
-WS_DLL_PUBLIC int save_decode_as_entry_values(const char* app_name, const char* app_env_var_prefix,
-                                              GSList *values, char** err);
-
-/**
  * @brief Callback for an entry inherited from a parent profile.
  *
  * @param profile_name The parent profile the entry comes from.
@@ -210,16 +180,15 @@ typedef void (*decode_as_inherited_cb)(const char *profile_name, const char *val
 /**
  * @brief Calls a function for each Decode As entry inherited from the parent profiles.
  *
- * The entries of the parent profile and up are read, nearest parent first,
- * as given by the mode. An entry for a table and selector already read from
+ * The entries of the parent profile and up are read, nearest parent first.
+ * An entry for a table and selector already read from
  * a nearer parent is skipped. Nothing is applied to the dissector tables.
  *
- * @param mode The inherit mode of the current profile, e.g. one not yet saved.
  * @param app_env_var_prefix The prefix for the application environment variable.
  * @param cb The function to call.
  * @param user_data Data passed to the function.
  */
-WS_DLL_PUBLIC void decode_as_foreach_inherited(profile_inherit_e mode, const char* app_env_var_prefix,
+WS_DLL_PUBLIC void decode_as_foreach_inherited(const char* app_env_var_prefix,
                                                decode_as_inherited_cb cb, void *user_data);
 
 /**

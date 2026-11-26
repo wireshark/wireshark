@@ -53,7 +53,7 @@
          </widget>
         </item>
         <item>
-         <widget class="ProfileInheritComboBox" name="inheritComboBox"/>
+         <widget class="IncludeParentCheckBox" name="includeParentCheckBox"/>
         </item>
         <item>
          <widget class="ElidedLabel" name="pathLabel">
@@ -98,9 +98,9 @@
    <header>widgets/rowmove_tree_view.h</header>
   </customwidget>
   <customwidget>
-   <class>ProfileInheritComboBox</class>
-   <extends>QComboBox</extends>
-   <header>widgets/profile_inherit_combo_box.h</header>
+   <class>IncludeParentCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>widgets/include_parent_check_box.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

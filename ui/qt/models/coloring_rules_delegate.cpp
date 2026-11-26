@@ -13,7 +13,7 @@
 #include <ui/qt/models/coloring_rules_delegate.h>
 #include <ui/qt/models/coloring_rules_model.h>
 #include <ui/qt/widgets/display_filter_edit.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 
 ColoringRulesDelegate::ColoringRulesDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
@@ -70,8 +70,8 @@ QSize ColoringRulesDelegate::sizeHint(const QStyleOptionViewItem &option, const 
 {
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
-    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
-                                                     index.column() == ColoringRulesModel::colName);
+    return IncludeParentCheckBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
+                                                    index.column() == ColoringRulesModel::colName);
 }
 
 QWidget* ColoringRulesDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem&,

@@ -20,30 +20,17 @@
 /* The profile dialog limits the nesting to PROFILE_MAX_DEPTH; this is only a guard. */
 #define PROFILE_INHERIT_MAX_DEPTH 16
 
-const char *
-profile_inherit_mode_to_str(profile_inherit_e mode)
+/* The comment written before an include parent setting */
+static char *
+settings_comment(const char *filename)
 {
-    switch (mode) {
-    case PROFILE_INHERIT_PROFILE_AND_PARENT:
-        return "profile_and_parent";
-    case PROFILE_INHERIT_PARENT_ONLY:
-        return "parent_only";
-    case PROFILE_INHERIT_PROFILE_ONLY:
-    default:
-        return "profile_only";
-    }
+    return ws_strdup_printf("\n# Include the entries of %s from the parent profiles: TRUE or FALSE.\n", filename);
 }
 
-profile_inherit_e
-profile_inherit_mode_from_str(const char *str)
+bool
+profile_include_parent_from_str(const char *str)
 {
-    if (str == NULL)
-        return PROFILE_INHERIT_PROFILE_ONLY;
-    if (g_ascii_strcasecmp(str, "profile_and_parent") == 0)
-        return PROFILE_INHERIT_PROFILE_AND_PARENT;
-    if (g_ascii_strcasecmp(str, "parent_only") == 0)
-        return PROFILE_INHERIT_PARENT_ONLY;
-    return PROFILE_INHERIT_PROFILE_ONLY;
+    return str != NULL && g_ascii_strcasecmp(str, "TRUE") == 0;
 }
 
 static bool
@@ -60,7 +47,7 @@ resolve_profile_name(const char *profile_name)
 }
 
 bool
-profile_can_inherit(const char *profile_name)
+profile_has_parent(const char *profile_name)
 {
     return !is_default_profile_name(resolve_profile_name(profile_name));
 }
@@ -112,15 +99,17 @@ parse_settings_line(char *line, char **key, char **value)
 }
 
 char *
-profile_inherit_settings_lines(const char *filename, profile_inherit_e mode)
+profile_include_parent_settings_lines(const char *filename, bool include_parent)
 {
-    return ws_strdup_printf("\n# Where the entries of %s come from: profile_only, profile_and_parent or parent_only.\n"
-                            PROFILE_INHERIT_KEY_PREFIX "%s: %s\n",
-                            filename, filename, profile_inherit_mode_to_str(mode));
+    char *comment = settings_comment(filename);
+    char *lines = ws_strdup_printf("%s" PROFILE_INCLUDE_PARENT_KEY_PREFIX "%s: %s\n",
+                                   comment, filename, include_parent ? "TRUE" : "FALSE");
+    g_free(comment);
+    return lines;
 }
 
 GHashTable *
-profile_inherit_read_settings(const char *path, char **err_info)
+profile_include_parent_read_settings(const char *path, char **err_info)
 {
     GHashTable *settings = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
     char *contents = NULL;
@@ -145,9 +134,9 @@ profile_inherit_read_settings(const char *path, char **err_info)
         char *key, *value;
         if (!parse_settings_line(*line, &key, &value))
             continue;
-        if (!g_str_has_prefix(key, PROFILE_INHERIT_KEY_PREFIX))
+        if (!g_str_has_prefix(key, PROFILE_INCLUDE_PARENT_KEY_PREFIX))
             continue;
-        const char *filename = key + strlen(PROFILE_INHERIT_KEY_PREFIX);
+        const char *filename = key + strlen(PROFILE_INCLUDE_PARENT_KEY_PREFIX);
         if (*filename == '\0')
             continue;
         g_hash_table_replace(settings, g_strdup(filename), g_strdup(value));
@@ -160,7 +149,7 @@ profile_inherit_read_settings(const char *path, char **err_info)
 
 /*
  * The settings of the profiles read so far, by the path of the settings
- * file. Every list asks for its mode when loaded, so a file is parsed again
+ * file. Every list asks for its include parent setting when loaded, so a file is parsed again
  * only if it changed.
  */
 typedef struct {
@@ -203,7 +192,7 @@ cached_profile_settings(const char *path)
     if (cached && cached->mtime == st.st_mtime && cached->size == (int64_t)st.st_size)
         return cached->settings;
 
-    GHashTable *settings = profile_inherit_read_settings(path, NULL);
+    GHashTable *settings = profile_include_parent_read_settings(path, NULL);
     if (settings == NULL)
         return NULL;
 
@@ -215,30 +204,29 @@ cached_profile_settings(const char *path)
     return settings;
 }
 
-/* The inherit mode of a file in a personal or global profile */
-static profile_inherit_e
-get_inherit(const char *app_env_var_prefix, const char *profile_name, bool is_global, const char *filename)
+/* Whether a personal or global profile includes its parent profiles for a file */
+static bool
+get_include_parent(const char *app_env_var_prefix, const char *profile_name, bool is_global, const char *filename)
 {
     if (filename == NULL || is_default_profile_name(profile_name))
-        return PROFILE_INHERIT_PROFILE_ONLY;
+        return false;
 
     char *path = profile_settings_path(app_env_var_prefix, profile_name, is_global);
     GHashTable *settings = cached_profile_settings(path);
-    profile_inherit_e mode = settings ? profile_inherit_mode_from_str((const char *)g_hash_table_lookup(settings, filename)) :
-                                        PROFILE_INHERIT_PROFILE_ONLY;
+    bool include_parent = settings && profile_include_parent_from_str((const char *)g_hash_table_lookup(settings, filename));
     g_free(path);
 
-    return mode;
-}
-
-profile_inherit_e
-profile_get_inherit(const char *app_env_var_prefix, const char *profile_name, const char *filename)
-{
-    return get_inherit(app_env_var_prefix, resolve_profile_name(profile_name), false, filename);
+    return include_parent;
 }
 
 bool
-profile_set_inherit(const char *app_env_var_prefix, const char *profile_name, const char *filename, profile_inherit_e mode, char **err_info)
+profile_get_include_parent(const char *app_env_var_prefix, const char *profile_name, const char *filename)
+{
+    return get_include_parent(app_env_var_prefix, resolve_profile_name(profile_name), false, filename);
+}
+
+bool
+profile_set_include_parent(const char *app_env_var_prefix, const char *profile_name, const char *filename, bool include_parent, char **err_info)
 {
     /* The file is about to change, also within the same second */
     clear_settings_cache();
@@ -251,12 +239,12 @@ profile_set_inherit(const char *app_env_var_prefix, const char *profile_name, co
     }
     if (is_default_profile_name(profile_name)) {
         if (err_info)
-            *err_info = g_strdup("The Default profile cannot inherit.");
+            *err_info = g_strdup("The Default profile has no parent profile to include.");
         return false;
     }
 
     char *path = profile_settings_path(app_env_var_prefix, profile_name, false);
-    char *key = g_strconcat(PROFILE_INHERIT_KEY_PREFIX, filename, NULL);
+    char *key = g_strconcat(PROFILE_INCLUDE_PARENT_KEY_PREFIX, filename, NULL);
     char *contents = NULL;
     GString *out = g_string_new(NULL);
     bool found = false;
@@ -286,11 +274,11 @@ profile_set_inherit(const char *app_env_var_prefix, const char *profile_name, co
             g_free(copy);
             if (is_key) {
                 /* Replace the first occurrence, drop any later ones */
-                if (!found && mode != PROFILE_INHERIT_PROFILE_ONLY) {
-                    g_string_append_printf(out, "%s: %s\n", key, profile_inherit_mode_to_str(mode));
+                if (!found && include_parent) {
+                    g_string_append_printf(out, "%s: TRUE\n", key);
                 } else {
                     /* Drop the comment written with the key as well, and its blank line */
-                    char *comment = ws_strdup_printf("\n# Where the entries of %s come from: profile_only, profile_and_parent or parent_only.\n", filename);
+                    char *comment = settings_comment(filename);
                     if (out->len >= strlen(comment) &&
                         strcmp(out->str + out->len - strlen(comment), comment) == 0)
                         g_string_truncate(out, out->len - strlen(comment));
@@ -306,7 +294,7 @@ profile_set_inherit(const char *app_env_var_prefix, const char *profile_name, co
         }
         g_strfreev(lines);
         g_free(contents);
-    } else if (mode == PROFILE_INHERIT_PROFILE_ONLY) {
+    } else if (!include_parent) {
         /* Nothing to remove */
         g_string_free(out, TRUE);
         g_free(key);
@@ -314,8 +302,8 @@ profile_set_inherit(const char *app_env_var_prefix, const char *profile_name, co
         return true;
     }
 
-    if (!found && mode != PROFILE_INHERIT_PROFILE_ONLY) {
-        char *lines = profile_inherit_settings_lines(filename, mode);
+    if (!found && include_parent) {
+        char *lines = profile_include_parent_settings_lines(filename, true);
         g_string_append(out, lines);
         g_free(lines);
     }
@@ -372,31 +360,27 @@ layer_source(const char *profile_name, bool is_global)
     return is_global ? ws_strdup_printf("%s (global)", profile_name) : g_strdup(profile_name);
 }
 
-/* Add the layer of one profile per its mode; returns whether the layers continue behind it */
+/* Add the layer of one profile; returns whether the layers continue behind it */
 static bool
 add_layer(const char *app_env_var_prefix, const char *profile_name, bool is_global, const char *filename, GPtrArray *layers)
 {
     bool is_default = !is_global && is_default_profile_name(profile_name);
-    profile_inherit_e mode = is_default ? PROFILE_INHERIT_PROFILE_ONLY :
-                             get_inherit(app_env_var_prefix, profile_name, is_global, filename);
+    profile_inherit_layer_t *layer = g_new0(profile_inherit_layer_t, 1);
 
-    if (mode != PROFILE_INHERIT_PARENT_ONLY) {
-        profile_inherit_layer_t *layer = g_new0(profile_inherit_layer_t, 1);
-        layer->profile_name = g_strdup(is_default ? DEFAULT_PROFILE : profile_name);
-        layer->profile_dir = get_profile_dir(app_env_var_prefix, is_default ? NULL : profile_name, is_global);
-        layer->source = layer_source(layer->profile_name, is_global);
-        layer->is_global = is_global;
-        layer->mode = mode;
-        g_ptr_array_add(layers, layer);
-    }
+    layer->profile_name = g_strdup(is_default ? DEFAULT_PROFILE : profile_name);
+    layer->profile_dir = get_profile_dir(app_env_var_prefix, is_default ? NULL : profile_name, is_global);
+    layer->source = layer_source(layer->profile_name, is_global);
+    layer->is_global = is_global;
+    layer->include_parent = !is_default && get_include_parent(app_env_var_prefix, profile_name, is_global, filename);
+    g_ptr_array_add(layers, layer);
 
-    return mode != PROFILE_INHERIT_PROFILE_ONLY;
+    return layer->include_parent;
 }
 
 /*
  * Add the layers behind a personal profile: the global profile with the
  * same name, then the personal parent and the global profile with its name,
- * and so on up to the Default profile, each per its own mode.
+ * and so on up to the first profile that does not include its parent profiles for the file.
  */
 static void
 add_effective_layers(const char *app_env_var_prefix, const char *profile_name, const char *filename, GPtrArray *layers)
@@ -421,12 +405,12 @@ add_effective_layers(const char *app_env_var_prefix, const char *profile_name, c
 }
 
 GPtrArray *
-profile_inherit_layers(const char *app_env_var_prefix, const char *profile_name, const char *filename, profile_inherit_e mode)
+profile_inherit_layers(const char *app_env_var_prefix, const char *profile_name, const char *filename, bool include_parent)
 {
     GPtrArray *layers = g_ptr_array_new_with_free_func(free_layer);
 
     profile_name = resolve_profile_name(profile_name);
-    if (filename == NULL || mode == PROFILE_INHERIT_PROFILE_ONLY || !profile_can_inherit(profile_name))
+    if (filename == NULL || !include_parent || !profile_has_parent(profile_name))
         return layers;
 
     add_effective_layers(app_env_var_prefix, profile_name, filename, layers);
@@ -438,7 +422,7 @@ char *
 profile_inherit_parent_source(const char *app_env_var_prefix, const char *profile_name)
 {
     profile_name = resolve_profile_name(profile_name);
-    if (!profile_can_inherit(profile_name))
+    if (!profile_has_parent(profile_name))
         return NULL;
 
     if (has_global_layer(app_env_var_prefix, profile_name))
@@ -453,7 +437,7 @@ profile_inherit_parent_dirs(const char *app_env_var_prefix, const char *profile_
     GPtrArray *dirs = g_ptr_array_new_with_free_func(g_free);
 
     profile_name = resolve_profile_name(profile_name);
-    if (!profile_can_inherit(profile_name))
+    if (!profile_has_parent(profile_name))
         return dirs;
 
     char *name = g_strdup(profile_name);
@@ -541,10 +525,10 @@ profile_inherit_layer_path(const profile_inherit_layer_t *layer, const char *fil
 bool
 profile_inherit_read_layers(const char *app_env_var_prefix, const char *filename,
                             const char *legacy_filename, bool global_defaults,
-                            profile_inherit_e mode, profile_inherit_seen_t *seen,
+                            bool include_parent, profile_inherit_seen_t *seen,
                             profile_inherit_read_layer_cb read, void *user_data, char **err)
 {
-    GPtrArray *layers = profile_inherit_layers(app_env_var_prefix, NULL, filename, mode);
+    GPtrArray *layers = profile_inherit_layers(app_env_var_prefix, NULL, filename, include_parent);
     bool ok = true;
 
     for (unsigned i = 0; i < layers->len; i++) {
@@ -562,9 +546,9 @@ profile_inherit_read_layers(const char *app_env_var_prefix, const char *filename
         if (!file_exists(path)) {
             g_free(path);
             path = NULL;
-            /* As when it is the current profile, a profile using its own
-             * entries only falls back to the global file */
-            if (global_defaults && layer->mode == PROFILE_INHERIT_PROFILE_ONLY) {
+            /* As when it is the current profile, a profile that does not
+             * inherit falls back to the global file */
+            if (global_defaults && !layer->include_parent) {
                 found_name = filename;
                 path = get_datafile_path(filename, app_env_var_prefix);
                 if (!file_exists(path)) {

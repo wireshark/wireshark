@@ -172,10 +172,10 @@ private slots:
     void clearClicked();
 
     /**
-     * @brief Slot triggered when another source of the records is selected.
-     * @param mode The inherit mode.
+     * @brief Slot triggered when including the parent profiles is turned on or off.
+     * @param include_parent Whether the parent profiles are included.
      */
-    void inheritModeChanged(profile_inherit_e mode);
+    void includeParentChanged(bool include_parent);
 };
 
 #endif // UAT_FRAME_H

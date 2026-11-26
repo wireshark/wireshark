@@ -16,7 +16,7 @@
 #include <epan/uat-int.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/color_utils.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 #include <app/application_flavor.h>
 #include <QFont>
 #include <QSet>
@@ -90,9 +90,9 @@ void UatModel::reloadUat()
     refreshInherited();
 }
 
-profile_inherit_e UatModel::inheritMode() const
+bool UatModel::includesParent() const
 {
-    return uat_get_inherit_mode(uat_);
+    return uat_get_include_parent(uat_);
 }
 
 int UatModel::ownRowCount() const
@@ -142,26 +142,16 @@ void UatModel::ownEdited()
     uat_own_records_edited(uat_);
 }
 
-bool UatModel::setInheritMode(profile_inherit_e mode, QString &error)
+bool UatModel::setIncludeParent(bool include_parent, QString &error)
 {
-    if (mode == inheritMode())
+    if (include_parent == includesParent())
         return true;
 
     char *err = NULL;
-    profile_inherit_e old_mode = inheritMode();
-    int own_count = ownRowCount();
-    QVector<bool> own_dirty = dirty_records.mid(0, own_count);
-
-    // The own records are hidden, kept, while only the parent's records are
-    // used; keep their edit state with them, so that invalid records keep OK
-    // disabled once shown again
-    if (mode == PROFILE_INHERIT_PARENT_ONLY)
-        hidden_dirty_ = own_dirty;
-    else if (old_mode == PROFILE_INHERIT_PARENT_ONLY)
-        own_dirty = hidden_dirty_;
+    QVector<bool> own_dirty = dirty_records.mid(0, ownRowCount());
 
     beginResetModel();
-    bool ok = uat_set_inherit_mode(uat_, mode, application_configuration_environment_prefix(), &err);
+    bool ok = uat_set_include_parent(uat_, include_parent, application_configuration_environment_prefix(), &err);
     record_errors.clear();
     dirty_records.clear();
     loadUat(uat_);
@@ -191,7 +181,7 @@ QSet<QString> UatModel::ownKeys() const
 
 void UatModel::refreshInherited()
 {
-    if (!uat_->from_profile || inheritMode() == PROFILE_INHERIT_PROFILE_ONLY)
+    if (!uat_->from_profile || !includesParent())
         return;
 
     // Not while a view is committing an edit; the rows may be replaced
@@ -204,7 +194,7 @@ void UatModel::refreshInherited()
 void UatModel::doRefreshInherited()
 {
     refresh_pending_ = false;
-    if (!uat_->from_profile || inheritMode() == PROFILE_INHERIT_PROFILE_ONLY)
+    if (!uat_->from_profile || !includesParent())
         return;
 
     // Only the keys of the own records decide which records are inherited
@@ -276,7 +266,6 @@ bool UatModel::revertChanges(QString &error)
     // Ideally this model should remember the changes made and try to undo them
     // to avoid calling post_update_cb. Calling uat_clear + uat_load is a lazy
     // option and might fail (e.g. when the UAT file is removed).
-    hidden_dirty_.clear();
     if (uat_->changed) {
         char *err = NULL;
         uat_clear(uat_);
@@ -430,15 +419,15 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::ForegroundRole && inherited) {
-        return ProfileInheritComboBox::inheritedData(role, QString());
+        return IncludeParentCheckBox::inheritedData(role, QString());
     }
 
     if ((role == Qt::ToolTipRole || role == Qt::AccessibleDescriptionRole) && overridden) {
-        return ProfileInheritComboBox::notUsedText(QString::fromUtf8(uat_record_source(uat_, index.row())));
+        return IncludeParentCheckBox::notUsedText(QString::fromUtf8(uat_record_source(uat_, index.row())));
     }
 
     if ((role == Qt::ToolTipRole || role == Qt::AccessibleDescriptionRole) && inherited) {
-        return ProfileInheritComboBox::inheritedData(role, QString::fromUtf8(uat_record_source(uat_, index.row())));
+        return IncludeParentCheckBox::inheritedData(role, QString::fromUtf8(uat_record_source(uat_, index.row())));
     }
 
     // A lock marks the inherited records. It replaces the check box of the
@@ -448,11 +437,11 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
     const int lock_column = uat_->enabled_field >= 0 ? uat_->enabled_field : 0;
     if (role == Qt::DecorationRole && index.column() == lock_column && field->mode != PT_TXTMOD_COLOR) {
         if (inherited) {
-            return overridden ? ProfileInheritComboBox::overriddenIcon() : ProfileInheritComboBox::inheritedIcon();
+            return overridden ? IncludeParentCheckBox::overriddenIcon() : IncludeParentCheckBox::inheritedIcon();
         }
         // Inherited records come last
         if (uat_->enabled_field < 0 && isInherited(rowCount() - 1)) {
-            return ProfileInheritComboBox::inheritedPlaceholderIcon();
+            return IncludeParentCheckBox::inheritedPlaceholderIcon();
         }
         return QVariant();
     }
@@ -536,8 +525,6 @@ QModelIndex UatModel::appendEntry(QVariantList rowData)
         return QModelIndex();
 
     QModelIndex newIndex;
-    if (inheritMode() == PROFILE_INHERIT_PARENT_ONLY)
-        return QModelIndex();
 
     // New records are own records, which come before the inherited records
     int row = ownRowCount();
@@ -671,7 +658,7 @@ bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role
 bool UatModel::insertRows(int row, int count, const QModelIndex &/*parent*/)
 {
     // support insertion of just one item for now.
-    if (count != 1 || row < 0 || row > rowCount() || inheritMode() == PROFILE_INHERIT_PARENT_ONLY)
+    if (count != 1 || row < 0 || row > rowCount())
         return false;
 
     // New records are own records, which come before the inherited records
@@ -727,7 +714,7 @@ bool UatModel::removeRows(int row, int count, const QModelIndex &/*parent*/)
 
 QModelIndex UatModel::copyRow(QModelIndex original)
 {
-    if (! original.isValid() || inheritMode() == PROFILE_INHERIT_PARENT_ONLY)
+    if (! original.isValid())
         return QModelIndex();
 
     // The copy is an own record, which comes before the inherited records

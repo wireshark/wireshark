@@ -50,23 +50,6 @@ filter_expression_new(const char *label, const char *expr,
 	return (filter_expression_t*)uat_add_record(display_filter_macro_uat, &expression, true);
 }
 
-void
-filter_expressions_use_own(const char *app_env_var_prefix)
-{
-	char *err = NULL;
-
-	if (uat_get_inherit_mode(display_filter_macro_uat) != PROFILE_INHERIT_PARENT_ONLY)
-		return;
-
-	/* A new button is an own record, which is not used with the parent's records only */
-	uat_set_inherit_mode(display_filter_macro_uat, PROFILE_INHERIT_PROFILE_AND_PARENT, app_env_var_prefix, &err);
-	g_free(err);
-	err = NULL;
-	profile_set_inherit(app_env_var_prefix, NULL, display_filter_macro_uat->filename,
-	                    PROFILE_INHERIT_PROFILE_AND_PARENT, &err);
-	g_free(err);
-}
-
 void filter_expression_iterate_expressions(wmem_foreach_func func, void* user_data)
 {
 	unsigned i;

@@ -22,7 +22,7 @@
 
 class QComboBox;
 class CopyFromProfileButton;
-class ProfileInheritComboBox;
+class IncludeParentCheckBox;
 
 namespace Ui {
 class DecodeAsDialog;
@@ -63,7 +63,7 @@ private:
     CopyFromProfileButton *copy_button_;
 
     /** Selects where the entries come from. */
-    ProfileInheritComboBox *inherit_combo_;
+    IncludeParentCheckBox *include_parent_check_box_;
 
     /**
      * @brief Updates the path label for the selected source of the entries.
@@ -110,10 +110,10 @@ private slots:
     void copyFromProfile(QString filename);
 
     /**
-     * @brief Slot triggered when another source of the entries is selected.
-     * @param mode The inherit mode.
+     * @brief Slot triggered when including the parent profiles is turned on or off.
+     * @param include_parent Whether the parent profiles are included.
      */
-    void inheritModeChanged(profile_inherit_e mode);
+    void includeParentChanged(bool include_parent);
 
     /**
      * @brief Slot triggered when the current item in the tree view changes.

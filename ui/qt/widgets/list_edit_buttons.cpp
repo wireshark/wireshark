@@ -10,7 +10,6 @@
 #include <ui/qt/widgets/list_edit_buttons.h>
 
 #include <ui/qt/utils/themes/themed_icon.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
 
 #include <QHBoxLayout>
 
@@ -92,15 +91,10 @@ void ListEditButtons::updateToolTip(QToolButton *button, const QString &base, co
 
 void ListEditButtons::setSelection(const InheritSelection &sel)
 {
-    const QString parent_only = ProfileInheritComboBox::ownEntriesNotUsedText();
     const QString nothing_selected = tr("Select an entry first.");
-    const QString inherited_read_only = tr("Inherited entries are read-only. Change them in the parent profile, "
+    const QString inherited_read_only = tr("Included entries are read-only. Change them in the parent profile, "
                                            "or copy them to this profile first.");
-    const QString inherited_move = tr("Inherited entries cannot be moved. They always come after the entries of this profile.");
-
-    // New
-    new_button_->setEnabled(sel.own_used);
-    updateToolTip(new_button_, tool_tips_.add, sel.own_used ? QString() : parent_only);
+    const QString inherited_move = tr("Included entries cannot be moved. They always come after the entries of this profile.");
 
     // Delete
     QString reason;
@@ -114,13 +108,11 @@ void ListEditButtons::setSelection(const InheritSelection &sel)
     // Copy; an inherited entry is copied into the entries of this profile
     reason.clear();
     bool copy_selection = sel.selected() && (!copy_single_ || sel.selected_count == 1);
-    if (!sel.own_used)
-        reason = parent_only;
-    else if (!sel.selected())
+    if (!sel.selected())
         reason = nothing_selected;
     else if (!copy_selection)
         reason = tr("Select a single entry to duplicate.");
-    copy_button_->setEnabled(sel.own_used && copy_selection);
+    copy_button_->setEnabled(copy_selection);
     updateToolTip(copy_button_, tool_tips_.copy, reason);
 
     // Move
@@ -139,7 +131,7 @@ void ListEditButtons::setSelection(const InheritSelection &sel)
     else if (sel.own_visible == 0)
         reason = tr("The entries of this profile are hidden.");
     else if (sel.has_inherited)
-        reason = tr("Inherited entries are kept.");
+        reason = tr("Included entries are kept.");
     clear_button_->setEnabled(sel.own_visible != 0);
     updateToolTip(clear_button_, tool_tips_.clear, reason);
 }

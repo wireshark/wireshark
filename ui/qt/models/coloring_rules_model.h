@@ -256,10 +256,10 @@ public:
     bool copyRow(int dst_row, int src_row);
 
 protected:
-    QList<ColoringRuleItem*> readInherited(profile_inherit_e mode) override;
-    void leavingInheritMode(profile_inherit_e mode) override;
+    QList<ColoringRuleItem*> readInherited() override;
+    void includeParentAboutToChange() override;
     QColor iconColor(const ColoringRuleItem *rule) const override { return rule->foreground_; }
-    void enteredInheritMode(profile_inherit_e mode) override;
+    void includeParentChanged() override;
 
 private:
     /**
@@ -272,13 +272,6 @@ private:
      * @return A pointer to the created GSList structure.
      */
     struct _GSList *createColorFilterList();
-
-    /**
-     * @brief Creates a GSList of color filters from rule items.
-     * @param rules The rule items.
-     * @return A pointer to the created GSList structure.
-     */
-    struct _GSList *createColorFilterList(const QList<ColoringRuleItem*> &rules);
 
     //Save off the conversation colors, do not include in dialog
     /** @brief Saved list of conversation colors (excluded from dialog). */
@@ -305,7 +298,7 @@ private:
     /** @brief Set if the profile has a coloring rules file. */
     bool own_file_exists_;
 
-    /** @brief The unchanged default rules, while the rules are inherited. */
+    /** @brief The unchanged default rules, while the parent profiles are included. */
     QList<ColoringRuleItem*> default_rules_;
 };
 

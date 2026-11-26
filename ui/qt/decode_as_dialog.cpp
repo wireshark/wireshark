@@ -21,7 +21,7 @@
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/hide_overridden_rows.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 #include <ui/qt/utils/inherit_selection.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -48,7 +48,7 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     model_(new DecodeAsModel(this, cf)),
     delegate_(NULL),
     copy_button_(NULL),
-    inherit_combo_(NULL)
+    include_parent_check_box_(NULL)
 {
     ui->setupUi(this);
 
@@ -80,12 +80,12 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     ui->buttonBox->addButton(copy_button_, QDialogButtonBox::ActionRole);
     connect(copy_button_, &CopyFromProfileButton::copyProfile, this, &DecodeAsDialog::copyFromProfile);
 
-    // Where the entries come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, DECODE_AS_ENTRIES_FILE_NAME);
-    connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &DecodeAsDialog::inheritModeChanged);
+    // Whether the parent profiles are included, next to the button clearing them
+    include_parent_check_box_ = IncludeParentCheckBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, DECODE_AS_ENTRIES_FILE_NAME);
+    connect(include_parent_check_box_, &IncludeParentCheckBox::includeParentChanged, this, &DecodeAsDialog::includeParentChanged);
 
     // Not used entries can be hidden, which is not stored
-    addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->decodeAsTreeView, model_, -1);
+    addHideNotUsedCheckBox(this, ui->horizontalLayout, include_parent_check_box_, ui->decodeAsTreeView, model_, -1);
 
     fillTable();
     updatePathLabel();
@@ -96,11 +96,8 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     connect(model_, &DecodeAsModel::rowsRemoved, this, &DecodeAsDialog::modelRowsReset);
     updateWidgets();
 
-    if (create_new) {
-        // A new entry is an own entry, which needs the own entries in use
-        inherit_combo_->useOwnEntries();
+    if (create_new)
         newClicked();
-    }
 }
 
 DecodeAsDialog::~DecodeAsDialog()
@@ -139,27 +136,23 @@ void DecodeAsDialog::modelRowsReset()
 
 void DecodeAsDialog::updatePathLabel()
 {
-    inherit_combo_->updatePathLabel(ui->pathLabel, inheritedProfiles(model_));
+    include_parent_check_box_->updatePathLabel(ui->pathLabel, inheritedProfiles(model_));
 }
 
 void DecodeAsDialog::updateWidgets()
 {
-    if (!inherit_combo_)
+    if (!include_parent_check_box_)
         return;
 
     InheritSelection sel = inheritSelection(model_, ui->decodeAsTreeView->selectionModel()->selectedRows());
 
     // Inherited entries can be copied into the own entries, but not changed
     ui->editButtons->setSelection(sel);
-    if (copy_button_) {
-        copy_button_->setOwnEntriesUsed(sel.own_used);
-    }
 }
 
-void DecodeAsDialog::inheritModeChanged(profile_inherit_e mode)
+void DecodeAsDialog::includeParentChanged(bool include_parent)
 {
-    // The own entries are kept while hidden, and saved from there
-    model_->setInheritMode(mode);
+    model_->setIncludeParent(include_parent);
     resizeColumns();
     updatePathLabel();
     updateWidgets();
@@ -245,33 +238,27 @@ void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
     switch (ui->buttonBox->standardButton(button)) {
     case QDialogButtonBox::Ok:
         {
-        // The entries applied follow the selected mode, so it is kept as well;
-        // otherwise the next Decode As would take inherited entries as own
-        QString inherit_err;
+        // The entries applied follow the include parent setting, so it is kept as
+        // well; otherwise the next Decode As would take inherited entries as own
+        QString include_parent_err;
         applyChanges();
-        if (!inherit_combo_->saveMode(inherit_err)) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", inherit_err.toUtf8().constData());
+        if (!include_parent_check_box_->saveIncludeParent(include_parent_err)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", include_parent_err.toUtf8().constData());
         }
         }
         break;
     case QDialogButtonBox::Save:
         {
         char* err = NULL;
-        QString inherit_err;
+        QString include_parent_err;
 
         applyChanges();
-        if (save_decode_as_entries_for_mode(application_flavor_name_proper(), application_configuration_environment_prefix(),
-                                            inherit_combo_->mode(), &err) < 0) {
+        if (save_decode_as_entries(application_flavor_name_proper(), application_configuration_environment_prefix(), &err) < 0) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
             g_free(err);
         }
-        // The own entries hidden while only the parent's are used aren't in the tables
-        if (inherit_combo_->mode() == PROFILE_INHERIT_PARENT_ONLY && !model_->saveHiddenOwn(inherit_err)) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", inherit_err.toUtf8().constData());
-            inherit_err.clear();
-        }
-        if (!inherit_combo_->saveMode(inherit_err)) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", inherit_err.toUtf8().constData());
+        if (!include_parent_check_box_->saveIncludeParent(include_parent_err)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", include_parent_err.toUtf8().constData());
         }
         }
         break;

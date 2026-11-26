@@ -31,7 +31,7 @@
 #include <vector>
 
 class CopyFromProfileButton;
-class ProfileInheritComboBox;
+class IncludeParentCheckBox;
 class QAbstractButton;
 class QCPAxisRect;
 class QCPGraph;
@@ -430,7 +430,7 @@ private:
     Ui::PlotDialog *ui;                     /**< UI elements generated from the .ui file. */
     QPushButton *copy_bt_;                  /**< "Copy" button in the button box. */
     CopyFromProfileButton *copy_profile_bt_; /**< Button for copying settings from another profile. */
-    ProfileInheritComboBox *inherit_combo_ = nullptr; /**< Selects where the plots come from. */
+    IncludeParentCheckBox *include_parent_check_box_ = nullptr; /**< Selects where the plots come from. */
 
     /** @brief Updates the buttons for the selected rows and the source of the plots. */
     void updateInheritWidgets();
@@ -481,10 +481,10 @@ private slots:
     void copyFromProfile(const QString &filename);
 
     /**
-     * @brief Selects where the plots come from, and saves the selection.
-     * @param mode The inherit mode.
+     * @brief Selects whether the parent profiles are included, and saves the selection.
+     * @param include_parent Whether the parent profiles are included.
      */
-    void inheritModeChanged(profile_inherit_e mode);
+    void includeParentChanged(bool include_parent);
 
     /** @brief Copy all plot data to the clipboard as CSV text. */
     void copyAsCsvClicked();

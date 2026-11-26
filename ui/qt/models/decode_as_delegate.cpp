@@ -19,7 +19,7 @@
 #include <QEvent>
 #include <QLineEdit>
 #include <QTreeView>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 
 DecodeAsDelegate::DecodeAsDelegate(QObject *parent, capture_file *cf)
  : QStyledItemDelegate(parent),
@@ -142,8 +142,8 @@ QSize DecodeAsDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
 {
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
-    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
-                                                     false);
+    return IncludeParentCheckBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
+                                                    false);
 }
 
 QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptionViewItem &option,

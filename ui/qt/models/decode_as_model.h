@@ -303,14 +303,14 @@ public:
     void applyChanges();
 
     /**
-     * @brief Selects where the entries come from, reloading the inherited entries.
-     * @param mode The inherit mode.
+     * @brief Selects whether the parent profiles are included, reloading the inherited entries.
+     * @param include_parent Whether the parent profiles are included.
      */
-    void setInheritMode(profile_inherit_e mode);
+    void setIncludeParent(bool include_parent);
 
-    /** @brief The selected inherit mode.
-     *  @return The mode. */
-    profile_inherit_e inheritMode() const { return inherit_mode_; }
+    /** @brief Whether the parent profiles are included.
+     *  @return true if inherited. */
+    bool includesParent() const { return include_parent_; }
 
     /** @brief The number of the profile's own entries shown, which come first.
      *  @return The number of own rows. */
@@ -330,11 +330,6 @@ public:
      *  @param row The row.
      *  @return true if overridden. */
     bool isOverridden(int row) const;
-
-    /** @brief Saves the own entries hidden in PROFILE_INHERIT_PARENT_ONLY mode, if they were shown before.
-     *  @param err Set to an error message on failure.
-     *  @return true on success. */
-    bool saveHiddenOwn(QString &err);
 
 protected:
     /** @brief Callback to record a changed uint or string dissector table entry.
@@ -377,12 +372,10 @@ private:
     QList<DecodeAsItem *> decode_as_items_;                           /**< The list of decode-as entries. */
     QList<UIntEntry> changed_uint_entries_;                           /**< Pending changes to uint-keyed tables. */
     QList<QPair<const char *, const char *> > changed_string_entries_; /**< Pending changes to string-keyed tables. */
-    QList<DecodeAsItem *> inherited_items_;                           /**< The inherited entries, including the ones hidden by own entries. */
-    QList<DecodeAsItem *> hidden_own_items_;                          /**< The own entries, while hidden in PROFILE_INHERIT_PARENT_ONLY mode. */
-    profile_inherit_e inherit_mode_;                                  /**< Where the entries come from. */
-    bool own_hidden_;                                                 /**< Set if hidden_own_items_ holds the own entries, which are then saved from there. */
+    QList<DecodeAsItem *> inherited_items_;                           /**< The inherited entries, including the ones overridden by own entries. */
+    bool include_parent_;                                             /**< Whether the parent profiles are included. */
 
-    /** @brief Reads the inherited entries for the selected mode. */
+    /** @brief Reads the inherited entries, if the parent profiles are included. */
     void loadInherited();
 
     /** @brief Shows the inherited entries not duplicated by an own entry, after the own entries. */

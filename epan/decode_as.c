@@ -434,12 +434,11 @@ read_layer_decode_as_entries(const profile_inherit_layer_t *layer, const char *p
 
 /* Read the entries of the parent profiles, nearest parent first */
 static void
-read_inherited_decode_as_entries(profile_inherit_e mode, const char *app_env_var_prefix,
-                                 decode_as_layer_read_t *layer_read)
+read_inherited_decode_as_entries(const char *app_env_var_prefix, decode_as_layer_read_t *layer_read)
 {
     char *err = NULL;
 
-    if (!profile_inherit_read_layers(app_env_var_prefix, DECODE_AS_ENTRIES_FILE_NAME, NULL, false, mode,
+    if (!profile_inherit_read_layers(app_env_var_prefix, DECODE_AS_ENTRIES_FILE_NAME, NULL, false, true,
                                      layer_read->seen, read_layer_decode_as_entries, layer_read, &err)) {
         report_warning("%s", err);
     }
@@ -447,8 +446,7 @@ read_inherited_decode_as_entries(profile_inherit_e mode, const char *app_env_var
 }
 
 void
-decode_as_foreach_inherited(profile_inherit_e mode, const char* app_env_var_prefix,
-                            decode_as_inherited_cb cb, void *user_data)
+decode_as_foreach_inherited(const char* app_env_var_prefix, decode_as_inherited_cb cb, void *user_data)
 {
     decode_as_layer_read_t layer_read = {
         .profile_name = NULL,
@@ -458,7 +456,7 @@ decode_as_foreach_inherited(profile_inherit_e mode, const char* app_env_var_pref
         .cb_data = user_data,
     };
 
-    read_inherited_decode_as_entries(mode, app_env_var_prefix, &layer_read);
+    read_inherited_decode_as_entries(app_env_var_prefix, &layer_read);
 
     profile_inherit_seen_free(layer_read.seen);
 }
@@ -468,8 +466,6 @@ load_decode_as_entries(const char* app_env_var_prefix)
 {
     char   *daf_path;
     FILE   *daf;
-    profile_inherit_e mode = profile_get_inherit(app_env_var_prefix, NULL, DECODE_AS_ENTRIES_FILE_NAME);
-
     decode_clear_all();
     decode_as_clear_inherited_entries();
 
@@ -485,15 +481,15 @@ load_decode_as_entries(const char* app_env_var_prefix)
 
     /* The profile's own entries come first, and win over the parent's entries */
     daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, app_env_var_prefix);
-    if (mode != PROFILE_INHERIT_PARENT_ONLY && (daf = ws_fopen(daf_path, "r")) != NULL) {
+    if ((daf = ws_fopen(daf_path, "r")) != NULL) {
         read_prefs_file(daf_path, daf, read_layer_decode_as_entry, &layer_read);
         fclose(daf);
     }
     g_free(daf_path);
     profile_inherit_seen_next(layer_read.seen);
 
-    if (mode != PROFILE_INHERIT_PROFILE_ONLY)
-        read_inherited_decode_as_entries(mode, app_env_var_prefix, &layer_read);
+    if (profile_get_include_parent(app_env_var_prefix, NULL, DECODE_AS_ENTRIES_FILE_NAME))
+        read_inherited_decode_as_entries(app_env_var_prefix, &layer_read);
 
     profile_inherit_seen_free(layer_read.seen);
     g_hash_table_destroy(processed_entries);
@@ -597,14 +593,6 @@ decode_as_print_rows(void *data, void *user_data)
     fprintf(da_file, "%s",decode_as_row);
 
 }
-int
-save_decode_as_entries(const char* app_name, const char* app_env_var_prefix, char** err)
-{
-    return save_decode_as_entries_for_mode(app_name, app_env_var_prefix,
-                                           profile_get_inherit(app_env_var_prefix, NULL, DECODE_AS_ENTRIES_FILE_NAME),
-                                           err);
-}
-
 /* Note that a "decode as" entries file has an entry */
 static prefs_set_pref_e
 find_decode_as_entry(char *key, const char *value _U_, void *user_data, bool return_range_errors _U_)
@@ -680,34 +668,13 @@ write_decode_as_rows(const char* app_name, const char* app_env_var_prefix, GList
 }
 
 int
-save_decode_as_entries_for_mode(const char* app_name, const char* app_env_var_prefix,
-                                profile_inherit_e mode, char** err)
+save_decode_as_entries(const char* app_name, const char* app_env_var_prefix, char** err)
 {
     GList *decode_as_rows_list = NULL;
-
-    if (mode == PROFILE_INHERIT_PARENT_ONLY) {
-        /* Only the parent's entries are in the tables; the own entries are
-         * saved with save_decode_as_entry_values() */
-        return 0;
-    }
 
     dissector_all_tables_foreach_changed(decode_as_write_entry, &decode_as_rows_list);
     int ret = write_decode_as_rows(app_name, app_env_var_prefix, decode_as_rows_list, err);
     g_list_free_full(decode_as_rows_list, g_free);
-    return ret;
-}
-
-int
-save_decode_as_entry_values(const char* app_name, const char* app_env_var_prefix, GSList *values, char** err)
-{
-    GList *rows = NULL;
-
-    for (GSList *item = values; item; item = g_slist_next(item)) {
-        char *row = ws_strdup_printf(DECODE_AS_ENTRY ": %s\n", (const char *)item->data);
-        rows = g_list_insert_sorted(rows, row, (GCompareFunc)g_ascii_strcasecmp);
-    }
-    int ret = write_decode_as_rows(app_name, app_env_var_prefix, rows, err);
-    g_list_free_full(rows, g_free);
     return ret;
 }
 

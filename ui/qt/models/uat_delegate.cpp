@@ -27,7 +27,7 @@
 #include <ui/qt/widgets/field_filter_edit.h>
 #include <ui/qt/widgets/editor_file_dialog.h>
 #include <ui/qt/widgets/path_selection_edit.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 
 // The Qt docs suggest overriding updateEditorGeometry, but the
 // defaults seem sane.
@@ -47,8 +47,8 @@ QSize UatDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInde
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
     uat_field_t *field = indexToField(index);
-    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
-                                                     field && field->mode == PT_TXTMOD_BOOL);
+    return IncludeParentCheckBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
+                                                    field && field->mode == PT_TXTMOD_BOOL);
 }
 
 QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,

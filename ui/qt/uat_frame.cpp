@@ -106,12 +106,12 @@ void UatFrame::setUat(epan_uat *uat)
             }
             copy_button_->setFilename(uat->filename);
 
-            // Where the records come from
-            ui->inheritComboBox->setFilename(uat->filename);
-            ui->inheritComboBox->syncMode(uat_get_inherit_mode(uat_));
-            connect(ui->inheritComboBox, &ProfileInheritComboBox::modeChanged, this, &UatFrame::inheritModeChanged);
+            // Whether the parent profiles are included
+            ui->includeParentCheckBox->setFilename(uat->filename);
+            ui->includeParentCheckBox->syncIncludeParent(uat_get_include_parent(uat_));
+            connect(ui->includeParentCheckBox, &IncludeParentCheckBox::includeParentChanged, this, &UatFrame::includeParentChanged);
         } else {
-            ui->inheritComboBox->setFilename(QString());
+            ui->includeParentCheckBox->setFilename(QString());
         }
 
         uat_model_ = new UatModel(NULL, uat);
@@ -121,7 +121,7 @@ void UatFrame::setUat(epan_uat *uat)
 
         if (uat->from_profile) {
             // Not used records can be hidden, which is not stored
-            addHideNotUsedCheckBox(this, ui->horizontalLayout, ui->inheritComboBox, ui->uatTreeView, uat_model_, uat->enabled_field);
+            addHideNotUsedCheckBox(this, ui->horizontalLayout, ui->includeParentCheckBox, ui->uatTreeView, uat_model_, uat->enabled_field);
         }
         resizeColumns();
         updatePathLabel();
@@ -143,14 +143,13 @@ void UatFrame::setUat(epan_uat *uat)
 
 void UatFrame::updatePathLabel()
 {
-    bool own_used =  ui->inheritComboBox->mode() != PROFILE_INHERIT_PARENT_ONLY;
-    QString abs_path = own_used ? gchar_free_to_qstring(uat_get_actual_filename(uat_, false, application_configuration_environment_prefix())) : QString();
-    QString own_text = !own_used ? QString() : abs_path.length() > 0 ? abs_path : QString(uat_->filename);
+    QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, false, application_configuration_environment_prefix()));
+    QString own_text = abs_path.length() > 0 ? abs_path : QString(uat_->filename);
 
-    ui->inheritComboBox->setPathText(ui->pathLabel, own_text, inheritedProfiles(uat_model_));
+    ui->includeParentCheckBox->setPathText(ui->pathLabel, own_text, inheritedProfiles(uat_model_));
     ui->pathLabel->setUrl(abs_path.length() > 0 ? QUrl::fromLocalFile(abs_path).toString() : QString());
     ui->pathLabel->setToolTip(abs_path.length() > 0 ? tr("Open ") + uat_->filename : QString());
-    ui->pathLabel->setEnabled(own_used);
+    ui->pathLabel->setEnabled(true);
 }
 
 void UatFrame::updateWidgets()
@@ -164,18 +163,15 @@ void UatFrame::updateWidgets()
 
     // Inherited entries can be copied into the own entries, but not changed
     ui->editButtons->setSelection(sel);
-    if (copy_button_) {
-        copy_button_->setOwnEntriesUsed(sel.own_used);
-    }
 }
 
-void UatFrame::inheritModeChanged(profile_inherit_e mode)
+void UatFrame::includeParentChanged(bool include_parent)
 {
     if (!uat_model_)
         return;
 
     QString error;
-    if (!uat_model_->setInheritMode(mode, error)) {
+    if (!uat_model_->setIncludeParent(include_parent, error)) {
         report_failure("%s", qPrintable(error));
     }
     resizeColumns();
@@ -222,10 +218,10 @@ void UatFrame::acceptChanges()
     if (!error.isEmpty()) {
         report_failure("%s", qPrintable(error));
     } else {
-        // The mode is only kept with the records saved for it
-        QString mode_error;
-        if (!ui->inheritComboBox->saveMode(mode_error)) {
-            report_failure("%s", qPrintable(mode_error));
+        // The include parent setting is only kept with the records saved for it
+        QString include_parent_error;
+        if (!ui->includeParentCheckBox->saveIncludeParent(include_parent_error)) {
+            report_failure("%s", qPrintable(include_parent_error));
         }
     }
     if (applied) {

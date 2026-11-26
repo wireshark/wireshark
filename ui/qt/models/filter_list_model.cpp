@@ -129,8 +129,8 @@ void FilterListModel::loadOwn()
     QString path = gchar_free_to_qstring(get_persconffile_path(fileName(type_), true, application_configuration_environment_prefix()));
     own_file_exists_ = path.length() > 0 && QFileInfo::exists(path);
 
-    // Without a file, a profile using its own filters only uses the global filters
-    own_from_globals_ = inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY && !own_file_exists_;
+    // Without a file, a profile that does not inherit uses the global filters
+    own_from_globals_ = !include_parent_ && !own_file_exists_;
 
     QList<FilterListItem *> rules;
     if (own_file_exists_) {
@@ -140,14 +140,9 @@ void FilterListModel::loadOwn()
         rules = readGlobals();
     }
 
-    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
-        // The own filters are not in use, but are kept and written as they are
-        hidden_own_rules_ << rules;
-    } else {
-        for (FilterListItem *rule : rules) {
-            rule->setParentItem(root_);
-            root_->appendChild(rule);
-        }
+    for (FilterListItem *rule : rules) {
+        rule->setParentItem(root_);
+        root_->appendChild(rule);
     }
 
     own_edited_ = false;
@@ -159,8 +154,6 @@ void FilterListModel::reload()
     beginResetModel();
     delete root_;
     root_ = new FilterListItem(QString(), QString(), nullptr);
-    qDeleteAll(hidden_own_rules_);
-    hidden_own_rules_.clear();
     qDeleteAll(default_rules_);
     default_rules_.clear();
     loadOwn();
@@ -174,7 +167,7 @@ void FilterListModel::reload()
 void FilterListModel::setFilterType(FilterListModel::FilterListType type)
 {
     type_ = type;
-    inherit_mode_ = profile_get_inherit(application_configuration_environment_prefix(), NULL, fileName(type_));
+    include_parent_ = profile_get_include_parent(application_configuration_environment_prefix(), NULL, fileName(type_));
     reload();
 }
 
@@ -212,7 +205,7 @@ filter_list_read_layer(const profile_inherit_layer_t *layer, const char *path, c
     return true;
 }
 
-QList<FilterListItem *> FilterListModel::readInherited(profile_inherit_e mode)
+QList<FilterListItem *> FilterListModel::readInherited()
 {
     // The own filters are not seen here: an own filter hides an inherited
     // filter only while it is there, see refreshInherited()
@@ -221,24 +214,24 @@ QList<FilterListItem *> FilterListModel::readInherited(profile_inherit_e mode)
     profile_inherit_seen_t *seen = profile_inherit_seen_new();
     char *err = NULL;
     if (!profile_inherit_read_layers(application_configuration_environment_prefix(), fileName(type_), NULL, true,
-                                     mode, seen, filter_list_read_layer, &data, &err)) {
+                                     true, seen, filter_list_read_layer, &data, &err)) {
         g_free(err);
     }
     profile_inherit_seen_free(seen);
     return data.rules;
 }
 
-void FilterListModel::leavingInheritMode(profile_inherit_e mode)
+void FilterListModel::includeParentAboutToChange()
 {
-    if (mode == PROFILE_INHERIT_PROFILE_ONLY && own_from_globals_ && !own_edited_) {
+    if (!include_parent_ && own_from_globals_ && !own_edited_) {
         // Unchanged global filters are not the profile's own; inherit instead
         default_rules_ << takeOwnRows();
     }
 }
 
-void FilterListModel::enteredInheritMode(profile_inherit_e mode)
+void FilterListModel::includeParentChanged()
 {
-    if (mode == PROFILE_INHERIT_PROFILE_ONLY && ownRowCount() == 0 && !own_file_exists_) {
+    if (!include_parent_ && ownRowCount() == 0 && !own_file_exists_) {
         // Without own filters or a file, the profile uses the global filters,
         // as when loading them
         if (default_rules_.isEmpty())
@@ -315,13 +308,13 @@ QVariant FilterListModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::ForegroundRole:
         if (row->isInherited())
-            return ProfileInheritComboBox::inheritedData(role, row->source_profile_);
+            return IncludeParentCheckBox::inheritedData(role, row->source_profile_);
         break;
     case Qt::DecorationRole:
         // Own filters get room for the lock only when inherited filters are
         // shown, so the first column lines up
         if (index.column() == ColumnName && ownRowCount() < rowCount())
-            return ProfileInheritComboBox::inheritedPlaceholderIcon();
+            return IncludeParentCheckBox::inheritedPlaceholderIcon();
         break;
     default:
         break;
@@ -374,10 +367,6 @@ Qt::ItemFlags FilterListModel::flags(const QModelIndex &index) const
 QModelIndex FilterListModel::addFilter(QString name, QString expression)
 {
     if (name.length() == 0 || expression.length() == 0)
-        return QModelIndex();
-
-    // New filters go into the own filters, which are not used with the parent's filters only
-    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
         return QModelIndex();
 
     // After the own filters, before the inherited filters
@@ -474,22 +463,17 @@ QString FilterListModel::ownFilePath() const
 
 void FilterListModel::saveList()
 {
-    // The profile's own filters are kept, but not used, when only the
-    // parent's filters are used. Inherited filters are not written.
+    // Inherited filters are not written
     QList<FilterListItem *> rules;
-    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
-        rules = hidden_own_rules_;
-    } else {
-        for (int row = 0; row < ownRowCount(); row++)
-            rules << root_->child(row);
-    }
+    for (int row = 0; row < ownRowCount(); row++)
+        rules << root_->child(row);
 
     QString filename = ownFilePath();
 
     // A file without filters is written only if the filters it replaces had
     // filters: the file, or the global filters used without a file. A
     // profile without a file keeps using the global or inherited filters.
-    if (rules.isEmpty() && !(own_from_globals_ && inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY)) {
+    if (rules.isEmpty() && !(own_from_globals_ && !include_parent_)) {
         if (!QFileInfo::exists(filename) || readFile(filename).isEmpty())
             return;
     }

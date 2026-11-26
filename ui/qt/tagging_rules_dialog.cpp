@@ -27,7 +27,7 @@
 #include "ui/qt/utils/qt_ui_utils.h"
 #include <ui/qt/utils/themes/themed_icon.h>
 #include "ui/qt/widgets/copy_from_profile_button.h"
-#include "ui/qt/widgets/profile_inherit_combo_box.h"
+#include "ui/qt/widgets/include_parent_check_box.h"
 #include "ui/qt/utils/inherit_selection.h"
 #include <ui/qt/utils/hide_overridden_rows.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
@@ -44,7 +44,7 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
     import_button_(nullptr),
     export_button_(nullptr),
     copy_button_(nullptr),
-    inherit_combo_(nullptr),
+    include_parent_check_box_(nullptr),
     profilePath_(),
     tagRuleModel_(this),
     tagRuleDelegate_(this)
@@ -91,12 +91,12 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
     connect(&tagRuleModel_, &TaggingRulesModel::rowsMoved, this, &TaggingRulesDialog::updateWidgets);
     connect(&tagRuleModel_, &TaggingRulesModel::modelReset, this, &TaggingRulesDialog::rowCountChanged);
 
-    // Where the rules come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, TAGRULES_FILE_NAME);
-    connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &TaggingRulesDialog::inheritModeChanged);
+    // Whether the parent profiles are included, next to the button clearing them
+    include_parent_check_box_ = IncludeParentCheckBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, TAGRULES_FILE_NAME);
+    connect(include_parent_check_box_, &IncludeParentCheckBox::includeParentChanged, this, &TaggingRulesDialog::includeParentChanged);
 
     // Not used entries can be hidden, which is not stored
-    addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->taggingRulesTreeView, &tagRuleModel_);
+    addHideNotUsedCheckBox(this, ui->horizontalLayout, include_parent_check_box_, ui->taggingRulesTreeView, &tagRuleModel_);
 
     // Load prefs and wire up the prefs widgets.
     originalPrefs_ = tag_rules_get_prefs();
@@ -193,14 +193,13 @@ void TaggingRulesDialog::rowCountChanged()
 
 void TaggingRulesDialog::updatePathLabel()
 {
-    bool own_used = inherit_combo_->mode() != PROFILE_INHERIT_PARENT_ONLY;
-    bool exists = own_used && file_exists(profilePath_.toUtf8().constData());
-    // The hint about a missing file only matters when using the own rules only
+    bool exists = file_exists(profilePath_.toUtf8().constData());
+    // The hint about a missing file only matters when not including the parent profiles
     QString own_text = exists ? profilePath_ :
-                       inherit_combo_->mode() == PROFILE_INHERIT_PROFILE_ONLY ?
+                       !include_parent_check_box_->includesParent() ?
                        tr("(no tagrules.jsonc file yet — will be created on save)") : QString();
 
-    inherit_combo_->setPathText(ui->pathLabel, own_text, inheritedProfiles(&tagRuleModel_));
+    include_parent_check_box_->setPathText(ui->pathLabel, own_text, inheritedProfiles(&tagRuleModel_));
     ui->pathLabel->setUrl(exists ? QUrl::fromLocalFile(profilePath_).toString() : QString());
     ui->pathLabel->setToolTip(exists ? tr("Open ") + TAGRULES_FILE_NAME : QString());
     ui->pathLabel->setEnabled(exists);
@@ -208,26 +207,20 @@ void TaggingRulesDialog::updatePathLabel()
 
 void TaggingRulesDialog::updateWidgets()
 {
-    if (!inherit_combo_)
+    if (!include_parent_check_box_)
         return;
 
     InheritSelection sel = inheritSelection(&tagRuleModel_, ui->taggingRulesTreeView->selectionModel()->selectedIndexes(), ui->taggingRulesTreeView);
 
     // Inherited rules can be copied into the own rules, but not changed
     ui->editButtons->setSelection(sel);
-    if (copy_button_) {
-        copy_button_->setOwnEntriesUsed(sel.own_used);
-    }
 
     ui->copyToColoringRuleButton->setEnabled(sel.selected_count == 1);
-    ProfileInheritComboBox::setOwnEntriesUsed(import_button_, sel.own_used);
-    if (import_button_)
-        import_button_->setEnabled(sel.own_used);
 }
 
-void TaggingRulesDialog::inheritModeChanged(profile_inherit_e mode)
+void TaggingRulesDialog::includeParentChanged(bool include_parent)
 {
-    tagRuleModel_.setInheritMode(mode);
+    tagRuleModel_.setIncludeParent(include_parent);
     for (int i = 0; i < tagRuleModel_.columnCount(); i++) {
         ui->taggingRulesTreeView->resizeColumnToContents(i);
     }
@@ -430,8 +423,8 @@ void TaggingRulesDialog::on_buttonBox_accepted()
         return;
     }
 
-    // The mode is only kept with the rules written for it, and before reloading them
-    if (!inherit_combo_->saveMode(err)) {
+    // The include parent setting is only kept with the rules written for it, and before reloading them
+    if (!include_parent_check_box_->saveIncludeParent(err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
     }
 
@@ -480,14 +473,14 @@ void TaggingRulesDialog::on_copyToColoringRuleButton_clicked()
     QString name   = tagRuleModel_.data(nameIdx,   Qt::DisplayRole).toString();
     QString filter = tagRuleModel_.data(filterIdx, Qt::DisplayRole).toString();
 
-    // Save tagging rules (same as clicking OK), for the mode selected here
+    // Save tagging rules (same as clicking OK), with the include parent setting selected here
     QString err;
     tag_prefs_t p = tag_rules_get_prefs();
     if (!tagRuleModel_.writeToPath(profilePath_, &p, prefsChanged(p), err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
         return;
     }
-    if (!inherit_combo_->saveMode(err)) {
+    if (!include_parent_check_box_->saveIncludeParent(err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
     }
     tag_rules_reload();

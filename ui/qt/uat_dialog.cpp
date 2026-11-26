@@ -20,7 +20,7 @@
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
 #include <ui/qt/utils/hide_overridden_rows.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 #include <ui/qt/utils/inherit_selection.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/theme_manager.h>
@@ -41,7 +41,7 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     uat_delegate_(NULL),
     uat_(uat),
     copy_button_(NULL),
-    inherit_combo_(NULL)
+    include_parent_check_box_(NULL)
 {
     ui->setupUi(this);
 
@@ -112,10 +112,10 @@ void UatDialog::setUat(epan_uat *uat)
             ui->buttonBox->addButton(copy_button_, QDialogButtonBox::ActionRole);
             connect(copy_button_, &CopyFromProfileButton::copyProfile, this, &UatDialog::copyFromProfile);
 
-            // Where the records come from, next to the button clearing them
-            inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, uat->filename);
-            inherit_combo_->syncMode(uat_get_inherit_mode(uat_));
-            connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &UatDialog::inheritModeChanged);
+            // Whether the parent profiles are included, next to the button clearing them
+            include_parent_check_box_ = IncludeParentCheckBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, uat->filename);
+            include_parent_check_box_->syncIncludeParent(uat_get_include_parent(uat_));
+            connect(include_parent_check_box_, &IncludeParentCheckBox::includeParentChanged, this, &UatDialog::includeParentChanged);
         }
 
         uat_model_ = new UatModel(NULL, uat);
@@ -123,9 +123,9 @@ void UatDialog::setUat(epan_uat *uat)
         ui->uatTreeView->setModel(uat_model_);
         ui->uatTreeView->setItemDelegate(uat_delegate_);
 
-        if (inherit_combo_) {
+        if (include_parent_check_box_) {
             // Not used records can be hidden, which is not stored
-            addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->uatTreeView, uat_model_, uat->enabled_field);
+            addHideNotUsedCheckBox(this, ui->horizontalLayout, include_parent_check_box_, ui->uatTreeView, uat_model_, uat->enabled_field);
         }
         resizeColumns();
         updatePathLabel();
@@ -157,18 +157,17 @@ void UatDialog::setUat(epan_uat *uat)
 
 void UatDialog::updatePathLabel()
 {
-    bool own_used = !inherit_combo_ || inherit_combo_->mode() != PROFILE_INHERIT_PARENT_ONLY;
-    QString abs_path = own_used ? gchar_free_to_qstring(uat_get_actual_filename(uat_, false, application_configuration_environment_prefix())) : QString();
-    QString own_text = !own_used ? QString() : abs_path.length() > 0 ? abs_path : QString(uat_->filename);
+    QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, false, application_configuration_environment_prefix()));
+    QString own_text = abs_path.length() > 0 ? abs_path : QString(uat_->filename);
 
-    if (inherit_combo_) {
-        inherit_combo_->setPathText(ui->pathLabel, own_text, inheritedProfiles(uat_model_));
+    if (include_parent_check_box_) {
+        include_parent_check_box_->setPathText(ui->pathLabel, own_text, inheritedProfiles(uat_model_));
     } else {
         ui->pathLabel->setText(own_text);
     }
     ui->pathLabel->setUrl(abs_path.length() > 0 ? QUrl::fromLocalFile(abs_path).toString() : QString());
     ui->pathLabel->setToolTip(abs_path.length() > 0 ? tr("Open ") + uat_->filename : QString());
-    ui->pathLabel->setEnabled(own_used);
+    ui->pathLabel->setEnabled(true);
 }
 
 void UatDialog::updateWidgets()
@@ -182,18 +181,15 @@ void UatDialog::updateWidgets()
 
     // Inherited entries can be copied into the own entries, but not changed
     ui->editButtons->setSelection(sel);
-    if (copy_button_) {
-        copy_button_->setOwnEntriesUsed(sel.own_used);
-    }
 }
 
-void UatDialog::inheritModeChanged(profile_inherit_e mode)
+void UatDialog::includeParentChanged(bool include_parent)
 {
     if (!uat_model_)
         return;
 
     QString error;
-    if (!uat_model_->setInheritMode(mode, error)) {
+    if (!uat_model_->setIncludeParent(include_parent, error)) {
         report_failure("%s", qPrintable(error));
     }
     resizeColumns();
@@ -408,10 +404,10 @@ void UatDialog::acceptChanges()
     if (!error.isEmpty()) {
         report_failure("%s", qPrintable(error));
     } else {
-        // The mode is only kept with the records saved for it
-        QString mode_error;
-        if (inherit_combo_ && !inherit_combo_->saveMode(mode_error)) {
-            report_failure("%s", qPrintable(mode_error));
+        // The include parent setting is only kept with the records saved for it
+        QString include_parent_error;
+        if (include_parent_check_box_ && !include_parent_check_box_->saveIncludeParent(include_parent_error)) {
+            report_failure("%s", qPrintable(include_parent_error));
         }
     }
     if (applied) {

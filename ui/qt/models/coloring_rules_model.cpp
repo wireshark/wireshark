@@ -90,7 +90,7 @@ color_filter_add_cb(color_filter_t *colorf, void *user_data)
 }
 
 // Appends a rule to a QList<ColoringRuleItem*>, e.g. when reading the
-// inherited, the hidden own or the default rules.
+// inherited or the default rules.
 static void
 color_filter_append_item_cb(color_filter_t *colorf, void *user_data)
 {
@@ -111,21 +111,10 @@ ColoringRulesModel::ColoringRulesModel(QColor defaultForeground, QColor defaultB
     root_ = new ColoringRuleItem(true, "", "", QColor(), QColor(), NULL);
     color_filters_clone(this, color_filter_add_cb);
 
-    QByteArray path = ownFilePath().toUtf8();
-    own_file_exists_ = file_exists(path.constData());
+    own_file_exists_ = file_exists(ownFilePath().toUtf8().constData());
 
-    // Without a file, a profile using its own rules only uses the default rules
-    own_from_globals_ = inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY && !own_file_exists_;
-
-    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
-        // The own rules are not in use, but are kept and written as they are
-        if (own_file_exists_) {
-            char *err_msg = NULL;
-            if (!color_filters_import(path.constData(), &hidden_own_rules_, &err_msg, color_filter_append_item_cb)) {
-                g_free(err_msg);
-            }
-        }
-    }
+    // Without a file, a profile that does not inherit uses the default rules
+    own_from_globals_ = !include_parent_ && !own_file_exists_;
 
     initInherited();
     own_edited_ = false;
@@ -165,28 +154,28 @@ bool ColoringRulesModel::ownFileHasRules() const
     return has_rules;
 }
 
-QList<ColoringRuleItem*> ColoringRulesModel::readInherited(profile_inherit_e mode)
+QList<ColoringRuleItem*> ColoringRulesModel::readInherited()
 {
     QList<ColoringRuleItem*> rules;
     char *err_msg = NULL;
-    if (!color_filters_read_inherited(mode, &rules, &err_msg, color_filter_append_item_cb,
+    if (!color_filters_read_inherited(&rules, &err_msg, color_filter_append_item_cb,
                                       application_configuration_environment_prefix())) {
         g_free(err_msg);
     }
     return rules;
 }
 
-void ColoringRulesModel::leavingInheritMode(profile_inherit_e mode)
+void ColoringRulesModel::includeParentAboutToChange()
 {
-    if (mode == PROFILE_INHERIT_PROFILE_ONLY && own_from_globals_ && !own_edited_) {
+    if (!include_parent_ && own_from_globals_ && !own_edited_) {
         // Unchanged default rules are not the profile's own; inherit instead
         default_rules_ << takeOwnRows();
     }
 }
 
-void ColoringRulesModel::enteredInheritMode(profile_inherit_e mode)
+void ColoringRulesModel::includeParentChanged()
 {
-    if (mode == PROFILE_INHERIT_PROFILE_ONLY && ownRowCount() == 0 && !own_file_exists_) {
+    if (!include_parent_ && ownRowCount() == 0 && !own_file_exists_) {
         // Without own rules or a file, the profile uses the default rules,
         // as when loading them
         if (default_rules_.isEmpty()) {
@@ -204,17 +193,10 @@ void ColoringRulesModel::enteredInheritMode(profile_inherit_e mode)
 
 GSList *ColoringRulesModel::createColorFilterList()
 {
-    QList<ColoringRuleItem*> rules;
-    for (int row = 0; row < root_->childCount(); row++)
-        rules << root_->child(row);
-    return createColorFilterList(rules);
-}
-
-GSList *ColoringRulesModel::createColorFilterList(const QList<ColoringRuleItem*> &rules)
-{
     GSList *cfl = NULL;
-    for (ColoringRuleItem *rule : rules)
+    for (int row = 0; row < root_->childCount(); row++)
     {
+        ColoringRuleItem *rule = root_->child(row);
         if (rule == NULL)
             continue;
 
@@ -302,28 +284,20 @@ bool ColoringRulesModel::writeColors(QString& err)
         err = gchar_free_to_qstring(err_msg);
         success = false;
     }
-    // The profile's own rules are not used, but kept, when only the parent's rules are used
-    GSList *write_cfl = cfl;
-    GSList *hidden_cfl = NULL;
-    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
-        hidden_cfl = createColorFilterList(hidden_own_rules_);
-        write_cfl = hidden_cfl;
-    }
     // An own file without rules is written only if the rules it replaces
     // had rules: the file, or the default rules used without a file. A
     // profile without a file keeps using the default or inherited rules.
     bool has_own_rules = false;
-    for (GSList *item = write_cfl; item; item = g_slist_next(item)) {
+    for (GSList *item = cfl; item; item = g_slist_next(item)) {
         if (((color_filter_t *)item->data)->source_profile == NULL) {
             has_own_rules = true;
             break;
         }
     }
     bool written = true;
-    if (has_own_rules || (own_from_globals_ && inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY) || ownFileHasRules()) {
-        written = color_filters_write(write_cfl, application_flavor_name_proper(), application_configuration_environment_prefix(), &err_msg);
+    if (has_own_rules || (own_from_globals_ && !include_parent_) || ownFileHasRules()) {
+        written = color_filters_write(cfl, application_flavor_name_proper(), application_configuration_environment_prefix(), &err_msg);
     }
-    color_filter_list_delete(&hidden_cfl);
     if (!written) {
         err = tr("Unable to save coloring rules: %1").arg(g_strerror(errno));
         success = false;
@@ -337,7 +311,7 @@ bool ColoringRulesModel::writeColors(QString& err)
 bool ColoringRulesModel::insertRows(int row, int count, const QModelIndex& parent)
 {
     // sanity check insertion; new rules go into the own rules, before the inherited rules
-    if (row < 0 || inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
+    if (row < 0)
         return false;
     row = qMin(row, ownRowCount());
 
@@ -389,9 +363,6 @@ bool ColoringRulesModel::copyRow(int dst_row, int src_row)
 
     ColoringRuleItem* src_item = root_->child(src_row);
     if (src_item == NULL)
-        return false;
-
-    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
         return false;
 
     ColoringRuleItem* dst_item = new ColoringRuleItem(*src_item);
@@ -668,7 +639,7 @@ bool ColoringRulesModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     }
 
     if (!insertRows(beginRow, static_cast<int>(rules.count()), QModelIndex())) {
-        // Not while only the parent's rules are used
+        // The rules were not inserted, so they are not owned by the model
         for (const QVariant &rule : rules)
             delete VariantPointer<ColoringRuleItem>::asPtr(rule);
         return false;

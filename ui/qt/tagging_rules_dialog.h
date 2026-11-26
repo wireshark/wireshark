@@ -27,7 +27,7 @@ class ColoringRulesDialog;
 
 class QAbstractButton;
 class CopyFromProfileButton;
-class ProfileInheritComboBox;
+class IncludeParentCheckBox;
 
 namespace Ui {
 class TaggingRulesDialog;
@@ -66,7 +66,7 @@ private slots:
     void fontSizeChanged(int idx);
     void separatorChanged(const QString &text);
     void linkClickChanged(int idx);
-    void inheritModeChanged(profile_inherit_e mode);
+    void includeParentChanged(bool include_parent);
 
 private:
     Ui::TaggingRulesDialog *ui;
@@ -74,7 +74,7 @@ private:
     QPushButton *import_button_;
     QPushButton *export_button_;
     CopyFromProfileButton *copy_button_;     // copies rules from another profile
-    ProfileInheritComboBox *inherit_combo_;  // selects where the rules come from
+    IncludeParentCheckBox *include_parent_check_box_;  // selects where the rules come from
 
     tag_prefs_t originalPrefs_; // saved at open; restored if user cancels
     tag_prefs_t pendingPrefs_;

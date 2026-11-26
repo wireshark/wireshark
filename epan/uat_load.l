@@ -458,11 +458,10 @@ uat_load(uat_t *uat, const char *filename, const char* app_env_var_prefix, char 
 
 	if (!filename && uat->from_profile) {
 		/* The records may come from the parent profiles as well */
-		profile_inherit_e mode = profile_get_inherit(app_env_var_prefix, NULL, uat->filename);
-		if (mode != PROFILE_INHERIT_PROFILE_ONLY) {
-			return uat_load_inherited(uat, mode, app_env_var_prefix, errx);
+		if (profile_get_include_parent(app_env_var_prefix, NULL, uat->filename)) {
+			return uat_load_inherited(uat, app_env_var_prefix, errx);
 		}
-		uat->inherit_mode = PROFILE_INHERIT_PROFILE_ONLY;
+		uat->include_parent = false;
 	}
 
 	if (filename) {

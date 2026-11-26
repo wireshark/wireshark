@@ -277,7 +277,7 @@ public:
                       const QModelIndex &parent) override;
 
 protected:
-    QList<TaggingRuleItem*> readInherited(profile_inherit_e mode) override;
+    QList<TaggingRuleItem*> readInherited() override;
 
 private:
     /**
@@ -295,13 +295,6 @@ private:
      * @return Newly allocated GSList of tag_rule_t*; caller takes ownership.
      */
     GSList *createTagRuleList();
-
-    /**
-     * @brief Creates a GSList of tag rules from rule items.
-     * @param rules The rule items.
-     * @return Newly allocated GSList of tag_rule_t*; caller takes ownership.
-     */
-    GSList *createTagRuleList(const QList<TaggingRuleItem *> &rules);
 
     /** @brief List of rows currently involved in a drag-and-drop operation. */
 };

@@ -459,7 +459,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
                     remove_action_->setData(text());
                     bool inherited = model.isInherited(idx.row());
                     remove_action_->setEnabled(!inherited);
-                    remove_action_->setToolTip(inherited ? tr("This filter is inherited from the parent profile. Remove it there.") : QString());
+                    remove_action_->setToolTip(inherited ? tr("This filter is included from the parent profile. Remove it there.") : QString());
                 }
             } else {
                 bookmark_button_->setIcon(ContrastAdaptIcon("bookmark-display"));

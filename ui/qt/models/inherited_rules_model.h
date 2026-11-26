@@ -20,7 +20,7 @@
 
 #include <ui/qt/models/tree_model_helpers.h>
 #include <ui/qt/utils/color_utils.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 
 #include <QAbstractItemModel>
 #include <QFont>
@@ -34,8 +34,7 @@
  * Shared by the coloring rules, the tagging rules and the filter lists. A
  * rule is identified by its name and its filter, unless keyedByFilter() says
  * otherwise: an inherited rule with the name or the filter of an own rule is
- * overridden. Inherited rules are read-only, and the own
- * rules are kept, but not shown, when only the parent's rules are used.
+ * overridden. Inherited rules are read-only.
  *
  * New rules go at the top of the own rules, as the first matching rule is
  * used. The UAT, Decode As and filter list models, whose entries have no
@@ -51,13 +50,13 @@ class InheritedRulesModel : public QAbstractItemModel
 public:
     /**
      * @brief Constructs the model.
-     * @param filename The configuration file name, naming the inherit setting.
+     * @param filename The configuration file name, naming the include parent setting.
      * @param parent The parent object.
      */
     InheritedRulesModel(const char *filename, QObject *parent) :
         QAbstractItemModel(parent),
         root_(nullptr),
-        inherit_mode_(profile_get_inherit(application_configuration_environment_prefix(), NULL, filename)),
+        include_parent_(profile_get_include_parent(application_configuration_environment_prefix(), NULL, filename)),
         refreshing_inherited_(false),
         refresh_pending_(false),
         own_edited_(false)
@@ -68,14 +67,13 @@ public:
     {
         delete root_;
         qDeleteAll(inherited_rules_);
-        qDeleteAll(hidden_own_rules_);
     }
 
     /**
-     * @brief The selected inherit mode.
-     * @return The mode.
+     * @brief Whether the parent profiles are included.
+     * @return true if inherited.
      */
-    profile_inherit_e inheritMode() const { return inherit_mode_; }
+    bool includesParent() const { return include_parent_; }
 
     /**
      * @brief The number of the profile's own rules shown, which come first.
@@ -125,31 +123,22 @@ public:
     }
 
     /**
-     * @brief Selects where the rules come from, reloading the inherited rules.
-     *
-     * The own rules are kept while hidden in PROFILE_INHERIT_PARENT_ONLY mode.
-     * @param mode The inherit mode.
+     * @brief Selects whether the parent profiles are included, reloading the inherited rules.
+     * @param include_parent Whether the parent profiles are included.
      */
-    void setInheritMode(profile_inherit_e mode)
+    void setIncludeParent(bool include_parent)
     {
-        if (mode == inherit_mode_)
+        if (include_parent == include_parent_)
             return;
 
         refreshing_inherited_ = true;
 
-        // Drop the inherited rows; they are read again for the new mode
+        // Drop the inherited rows; they are read again if the parent profiles are included
         removeInheritedRows();
-        leavingInheritMode(inherit_mode_);
+        includeParentAboutToChange();
 
-        if (mode == PROFILE_INHERIT_PARENT_ONLY) {
-            // Keep the own rules, so another mode can show them again
-            hidden_own_rules_ << takeOwnRows();
-        } else if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
-            insertOwnRows(hidden_own_rules_);
-        }
-
-        inherit_mode_ = mode;
-        enteredInheritMode(mode);
+        include_parent_ = include_parent;
+        includeParentChanged();
         refreshing_inherited_ = false;
 
         loadInherited();
@@ -232,16 +221,14 @@ public:
 protected:
     /**
      * @brief Reads the rules inherited from the parent profiles.
-     * @param mode The inherit mode, not PROFILE_INHERIT_PROFILE_ONLY.
      * @return New rules with source_profile_ set, nearest parent first.
      */
-    virtual QList<Item *> readInherited(profile_inherit_e mode) = 0;
+    virtual QList<Item *> readInherited() = 0;
 
     /**
-     * @brief Called when switching mode, after the inherited rows are dropped.
-     * @param mode The mode in use until now.
+     * @brief Called before include_parent_ changes, after the inherited rows are dropped.
      */
-    virtual void leavingInheritMode(profile_inherit_e mode) { Q_UNUSED(mode) }
+    virtual void includeParentAboutToChange() {}
 
     /**
      * @brief The color of the lock or the icon of a rule not used.
@@ -251,10 +238,9 @@ protected:
     virtual QColor iconColor(const Item *rule) const { Q_UNUSED(rule) return QColor(); }
 
     /**
-     * @brief Called when switching mode, once the own rows for the new mode are shown.
-     * @param mode The new mode.
+     * @brief Called once include_parent_ has changed, before the inherited rows are read.
      */
-    virtual void enteredInheritMode(profile_inherit_e mode) { Q_UNUSED(mode) }
+    virtual void includeParentChanged() {}
 
     /**
      * @brief Whether a rule is also identified by its filter, besides its name.
@@ -298,14 +284,14 @@ protected:
         });
     }
 
-    /** @brief Reads the inherited rules for the selected mode. */
+    /** @brief Reads the inherited rules, if the parent profiles are included. */
     void loadInherited()
     {
         qDeleteAll(inherited_rules_);
         inherited_rules_.clear();
 
-        if (inherit_mode_ != PROFILE_INHERIT_PROFILE_ONLY)
-            inherited_rules_ = readInherited(inherit_mode_);
+        if (include_parent_)
+            inherited_rules_ = readInherited();
     }
 
     /**
@@ -456,7 +442,7 @@ protected:
             }
             case Qt::ToolTipRole:
             case Qt::AccessibleDescriptionRole:
-                return ProfileInheritComboBox::notUsedText(rule->source_profile_);
+                return IncludeParentCheckBox::notUsedText(rule->source_profile_);
             default:
                 break;
             }
@@ -468,12 +454,12 @@ protected:
         case Qt::DecorationRole:
             if (idx.column() != 0)
                 return QVariant();
-            return overriddenByOwn(rule) ? ProfileInheritComboBox::overriddenIcon(iconColor(rule))
-                                         : ProfileInheritComboBox::inheritedIcon(iconColor(rule));
+            return overriddenByOwn(rule) ? IncludeParentCheckBox::overriddenIcon(iconColor(rule))
+                                         : IncludeParentCheckBox::inheritedIcon(iconColor(rule));
         case Qt::FontRole:
         case Qt::ToolTipRole:
         case Qt::AccessibleDescriptionRole:
-            return ProfileInheritComboBox::inheritedData(role, rule->source_profile_);
+            return IncludeParentCheckBox::inheritedData(role, rule->source_profile_);
         default:
             *handled = false;
             return QVariant();
@@ -483,14 +469,11 @@ protected:
     /** @brief The root item; its children are the rules shown. */
     Item *root_;
 
-    /** @brief The inherited rules, including the ones hidden by own rules. */
+    /** @brief The inherited rules, including the ones overridden by own rules. */
     QList<Item *> inherited_rules_;
 
-    /** @brief The profile's own rules, while hidden in PROFILE_INHERIT_PARENT_ONLY mode. */
-    QList<Item *> hidden_own_rules_;
-
-    /** @brief Where the rules come from. */
-    profile_inherit_e inherit_mode_;
+    /** @brief Whether the parent profiles are included. */
+    bool include_parent_;
 
     /** @brief Set while the rows are being replaced. */
     bool refreshing_inherited_;
