@@ -10810,12 +10810,13 @@ class TestDissectAx25Link:
 # ar_drone_coverage.pcap.gz is synthetic: every packet was generated, to
 # cover as much of the AR Drone dissector as possible. No UDP port is
 # registered for it by default and its heuristic is disabled.
-AR_DRONE_OPTS = ('-d', 'udp.port==5556,ar_drone')
-AR_DRONE_HEUR = ('--enable-heuristic', 'ar_drone_udp')
-
-
 class TestDissectArDrone:
-    def ar_drone_fields(self, cmd_tshark, capture_file, test_env, *fields, opts=AR_DRONE_OPTS):
+    AR_DRONE_OPTS = ('-d', 'udp.port==5556,ar_drone')
+    AR_DRONE_HEUR = ('--enable-heuristic', 'ar_drone_udp')
+
+    def ar_drone_fields(self, cmd_tshark, capture_file, test_env, *fields, opts=None):
+        if opts is None:
+            opts = self.AR_DRONE_OPTS
         args = []
         for field in fields:
             args += ['-e', field]
@@ -10826,7 +10827,7 @@ class TestDissectArDrone:
         return {int(line.split('\t')[0]): line.split('\t')[1:] for line in stdout.splitlines()}
 
     def ar_drone_tree(self, cmd_tshark, capture_file, test_env, frame):
-        stdout = subprocess.check_output((cmd_tshark, *AR_DRONE_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.AR_DRONE_OPTS,
                 '-r', capture_file('ar_drone_coverage.pcap.gz'),
                 '-Y', f'frame.number == {frame}', '-V', '-O', 'ar_drone',
             ), encoding='utf-8', env=test_env)
@@ -10844,7 +10845,7 @@ class TestDissectArDrone:
     def test_ar_drone_protocols(self, cmd_tshark, capture_file, test_env):
         '''Every command decodes without malformed packets or error expert
         infos, in one and two passes, by port and by the heuristic.'''
-        for opts, ar_drone, udp in ((AR_DRONE_OPTS, 39, 8), (AR_DRONE_HEUR, 40, 7)):
+        for opts, ar_drone, udp in ((self.AR_DRONE_OPTS, 44, 8), (self.AR_DRONE_HEUR, 45, 7)):
             stdout = subprocess.check_output((cmd_tshark, *opts,
                     '-r', capture_file('ar_drone_coverage.pcap.gz'),
                     '-Tfields', '-e_ws.col.protocol',
@@ -10920,13 +10921,13 @@ class TestDissectArDrone:
         # AT*FOO=1,2; AT*; ATX*REF=1,2; AT*COMWDG without '='; AT*=1
         for n in (36, 40, 41, 42, 43):
             assert frames[n] == ['UDP', ''], n
-        stdout = subprocess.check_output((cmd_tshark, *AR_DRONE_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.AR_DRONE_OPTS,
                 '-r', capture_file('ar_drone_coverage.pcap.gz'),
                 '-Y', 'ar_drone',
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
-        assert stdout.split() == [str(n) for n in [*range(1, 36), 37, 38, 39, 44]]
-        stdout = subprocess.check_output((cmd_tshark, *AR_DRONE_OPTS,
+        assert stdout.split() == [str(n) for n in [*range(1, 36), 37, 38, 39, 44, *range(48, 53)]]
+        stdout = subprocess.check_output((cmd_tshark, *self.AR_DRONE_OPTS,
                 '-r', capture_file('ar_drone_coverage.pcap.gz'),
                 '-Y', 'frame.number in {36, 42, 43}', '-V',
             ), encoding='utf-8', env=test_env)
@@ -10939,17 +10940,48 @@ class TestDissectArDrone:
         plain UDP.'''
         frames = self.ar_drone_fields(cmd_tshark, capture_file, test_env,
                                       '_ws.col.protocol', 'ar_drone.command',
-                                      opts=AR_DRONE_HEUR)
+                                      opts=self.AR_DRONE_HEUR)
         assert frames[36] == ['UDP', '']         # AT*FOO=1,2
         assert frames[45] == ['ar_drone', 'REF']  # not on port 5556
         assert frames[46] == ['UDP', '']         # AT*FOO=1
         assert frames[47] == ['UDP', '']         # no '='
-        stdout = subprocess.check_output((cmd_tshark, *AR_DRONE_HEUR,
+        stdout = subprocess.check_output((cmd_tshark, *self.AR_DRONE_HEUR,
                 '-r', capture_file('ar_drone_coverage.pcap.gz'),
                 '-Y', 'frame.number == 36', '-V',
             ), encoding='utf-8', env=test_env)
         assert 'AR Drone' not in stdout
         assert 'Data (11 bytes)' in stdout
+
+    def test_ar_drone_exact_command_names(self, cmd_tshark, capture_file, test_env):
+        '''A command is decoded only when its whole name matches, and its
+        values are read from after the '='. AT*PCMD_MAG (AR Drone 2.0) used
+        to be decoded as AT*PCMD, AT*REFX as AT*REF, AT*LEDS as AT*LED and
+        AT*CONFIGS as AT*CONFIG, from offsets inside the name. A name that
+        only starts like a known command is shown by name, with no fields,
+        and ends the packet.'''
+        frames = self.ar_drone_fields(cmd_tshark, capture_file, test_env,
+                                      'ar_drone.command', 'ar_drone.pcmd.id', 'ar_drone.ref.id',
+                                      'ar_drone.ref.ctrl', 'ar_drone.led.seq',
+                                      'ar_drone.config.seq', 'ar_drone.comwdg',
+                                      'ar_drone.configids.seq',
+                                      opts=self.AR_DRONE_HEUR)
+        # Frame 44 is the AT*PCMD_MAG of the review reproducer
+        assert frames[44] == ['PCMD_MAG', '', '', '', '', '', '', '']
+        assert frames[48] == ['PCMD_MAG', '', '', '', '', '', '', '']
+        # The AT*REF in front of it is decoded
+        assert frames[49] == ['REF|PCMD_MAG', '', '41', '290718208', '', '', '', '']
+        assert frames[50] == ['REFX', '', '', '', '', '', '', '']
+        # AT*LEDS and AT*CONFIGS: no LED or CONFIG sequence number
+        assert frames[51] == ['COMWDG|LEDS', '', '', '', '', '', '44', '']
+        assert frames[52] == ['CONFIG_IDS|CONFIGS', '', '', '', '', '', '', '46']
+        # The same by port: one item, not two (an unknown first command used
+        # to return 0 and UDP called the dissector again with the other port)
+        frames = self.ar_drone_fields(cmd_tshark, capture_file, test_env,
+                                      'ar_drone.command', 'ar_drone.pcmd.id')
+        assert frames[44] == ['PCMD_MAG', '']
+        assert frames[48] == ['PCMD_MAG', '']
+        assert frames[49] == ['REF|PCMD_MAG', '']
+        assert frames[50] == ['REFX', '']
 
 
 class TestDissectArinc615a:

@@ -189,6 +189,15 @@ def main(outdir):
     cap.udp('AT*FOO=1\r', sport=40001, dport=40002)
     cap.udp('AT*REF\r', sport=40001, dport=40002)
 
+    cap.note('command names are compared whole: AT*PCMD_MAG (AR Drone 2.0) '
+             'is not a PCMD, a name that only starts like a known command ends the packet')
+    cap.udp('AT*PCMD_MAG=12,1,0,0,0,0,0,0\r', sport=40003)     # first command: accepted, not decoded
+    cap.udp('AT*REF=%d,%d\rAT*PCMD_MAG=%d,1,0,0,0,0,0,0\r' % (s(), TAKEOFF, s()))
+    cap.udp('AT*REFX=%d,%d\r' % (s(), LAND))                   # starts like AT*REF
+    cap.udp('AT*COMWDG=%d\rAT*LEDS=%d,2,0,3\r' % (s(), s()))   # starts like AT*LED
+    cap.udp('AT*CONFIG_IDS=%d,"d2e081a3","be27e2e4","d87f7e0c"\rAT*CONFIGS=%d,"a","b"\r'
+            % (s(), s()))
+
     # ---- Missing delimiters ---------------------------------------------
     bad.note('each command cut before each of its delimiters (error expert infos)')
     for name, cmd in SAMPLES.items():
