@@ -99,11 +99,15 @@ class ColCall:
         if self.name == 'col_add_fstr' or self.name == 'col_append_fstr':
             # Look at format string
             self.last_args = self.last_args.replace('\\\"', "'")
-            m = re.search(r'"(.*?)"', self.last_args)
+            # The format string may be written as adjacent literals that the
+            # compiler concatenates, with macros such as UTF8_RIGHTWARDS_ARROW
+            # among them. Take the whole run, and only judge it if it has a
+            # literal in it - the argument may be a variable or a call.
+            m = re.match(r'\s*(?:(?:"[^"]*"|[A-Za-z_]\w*)\s*)+', self.last_args)
             if m:
+                format_string = ''.join(re.findall(r'"([^"]*)"', m.group(0)))
                 # Should contain at least one format specifier!
-                format_string = m.group(1)
-                if '%' not in format_string:
+                if format_string and '%' not in format_string:
                     result.warn(self.issue_prefix(), 'with no format specifiers  - "' + format_string + '" - use _str() version instead')
 
 
