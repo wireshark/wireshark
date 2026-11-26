@@ -472,6 +472,62 @@ REPRO_BAD = {0, 2, 4, 6, 10, 12, 13, 14, 15, 16, 18, 19, 20, 21, 24, 25,
     163, 164, 171}
 
 
+# ---------------------------------------------------------------- length checks
+def checks_clean():
+    """(direction, payload) of the cases added with the NAM block, remaining
+    length and MS Key Request checks that decode cleanly"""
+    m = []
+    # PUZL Download Response: blocks with 16-bit and 8-bit identifiers; the
+    # length that is checked is what is left after the earlier blocks
+    m.append((R, b(12, 3, 0, 0, 0x80, 0x01, 0x02, 0x03, 0, 0, 0x00, 1, 0,
+                   0x81, 0x00, 0x04, 0x05)))
+    # 3GPD, MMD and MMS Configuration Response: several blocks, each with
+    # its result code
+    for t in (13, 17, 22):
+        m.append((R, b(t, 3, blk(0, b''), 0, blk(1, b''), 1, blk(2, b''), 2)))
+    # MS Key Request with revision 2 and empty then non-empty P and G
+    m.append((F, b(2, 0, 0, 2, 0xaa, 0xbb)))
+    # Configuration Response and Download Request with NAM blocks of exactly
+    # the smallest length and one octet more, one block after the other
+    m.append((R, b(0, 4, blk(0, rev_nam_cdma_analog(0, 0)), blk(2, rev_nam_cdma(0)),
+                   blk(3, nam_imsi_t(0)), blk(2, rev_nam_cdma(1, b'\xee')), 0, 1, 2, 3)))
+    m.append((F, b(1, 4, blk(0, for_nam_cdma_analog(0)), blk(2, for_nam_cdma(0)),
+                   blk(3, nam_imsi_t(0)), blk(0, for_nam_cdma_analog(1, b'\xee')))))
+    return m
+
+
+def checks_malformed():
+    """(direction, payload) of the same checks failing: Short Data (error)"""
+    m = []
+    # The review reproducer: a 1-octet CDMA/Analog NAM block followed by the
+    # result code and other data that used to be decoded as block fields
+    m.append((R, b(0, 1, 0, 1, 0xaa, 0, seq(16))))
+    # Every NAM block decoder with one octet less than its layout, followed
+    # by octets that must not be taken as part of the block
+    for blk_id, rev_min, for_min in ((0, 17, 14), (2, 12, 10), (3, 7, 7)):
+        m.append((R, b(0, 1, blk(blk_id, seq(rev_min - 1)), 0, seq(20, 0xa0))))
+        m.append((F, b(1, 1, blk(blk_id, seq(for_min - 1)), seq(20, 0xa0))))
+    # MS Key Request: P and G longer than the message, no G, no length
+    m.append((F, b(2, 0, 9, 0x11, 0x22)))
+    m.append((F, b(2, 0, 1, 0x11, 9, 0x33)))
+    m.append((F, b(2, 0, 1, 0x11)))
+    m.append((F, b(2, 0)))
+    # PUZL Download Response: the second block has too little data left
+    m.append((R, b(12, 2, 0, 0, 0x00, 0, 0, 0x80, 0x01)))
+    # Configuration Responses whose result codes are missing
+    for t in (13, 17, 22):
+        m.append((R, b(t, 1, blk(0, b'\xaa'))))
+    return m
+
+
+# Reproducers that the block length checks turned into Short Data errors,
+# with the replacement that keeps the frame of the main capture clean
+REPRO_NOW_BAD = {
+    3: bytes([1, 1, 3, 7]) + nam_imsi_t(0) + b'\xff' + b'\x00' * 29,
+    7: bytes([0, 1, 3, 7]) + nam_imsi_t(0) + b'\x00\xff' + b'\x00' * 28,
+}
+
+
 # ---------------------------------------------------------------- carriage
 def dtap_adds_deliver(ota):
     """ANSI A DTAP ADDS Deliver, ADDS User Part of burst type OTA"""
@@ -562,6 +618,12 @@ def main():
 
     # 2. the targeted cases
     for i, (d, p) in enumerate(reproducers()):
+        if i in REPRO_NOW_BAD:
+            # A 1-octet IMSI_T block is now Short Data (an error): the
+            # original goes to the malformed capture, a block of the right
+            # length takes its place in the main capture
+            bad.append(exp_table(d, p))
+            p = REPRO_NOW_BAD[i]
         (bad if i in REPRO_BAD else clean).append(exp_table(d, p))
 
     # 3. ANSI A DTAP ADDS Deliver (P2P direction: 0 sent = forward,
@@ -578,6 +640,13 @@ def main():
             2, tid, smdpp_invoke(1, SESSION[n][1], service))))
         clean.append(exp_name('ansi_tcap', tcap_package(
             4, tid, smdpp_result(1, SESSION[n + 1][1]))))
+
+    # 5. length checks of the NAM blocks, remaining lengths and MS Key
+    #    Request (appended: the frame numbers above do not change)
+    for d, p in checks_clean():
+        clean.append(exp_table(d, p))
+    for d, p in checks_malformed():
+        bad.append(exp_table(d, p))
 
     for p in forward_malformed():
         bad.append(exp_table(F, p))

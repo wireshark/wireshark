@@ -8554,9 +8554,9 @@ class TestDissectAnsi683:
                 '-eansi_683.for_msg_type', '-eansi_683.rev_msg_type',
             ), encoding='utf-8', env=test_env)
         frames = [line.split('\t') for line in stdout.splitlines()]
-        assert len(frames) == 240
+        assert len(frames) == 247
         protocols = [f[0] for f in frames]
-        assert protocols.count('exported_pdu:ansi_683') == 216
+        assert protocols.count('exported_pdu:ansi_683') == 223
         assert protocols.count('exported_pdu:ansi_a_dtap:ansi_683') == 12
         assert protocols.count('exported_pdu:ansi_tcap:ansi_map:ansi_683') == 12
         # Every message type 0-23 in both directions
@@ -8580,23 +8580,24 @@ class TestDissectAnsi683:
         them: Secure Mode Request (STOP, reserved 010), CDMA NAM block of a
         Configuration Response (reserved 11, SLOTTED_MODE, reserved 00101),
         OTAPA Request and Response (reserved before NAM_LOCK_IND), the
-        IMSI_T block (reserved after IMSI_T_S) and the FRESH_INCL octet.'''
+        IMSI_T block (reserved after IMSI_T_S) and the FRESH_INCL octet. The
+        field is a number shown in hex, not a boolean.'''
         for frame, lines in (
                 (53, ('0... .... = Secure Mode: Stop',
-                      '.... .010 = Reserved: True')),
+                      '.... .010 = Reserved: 0x02')),
                 (50, ('.000 0... = Security: SMCK generation using SSD_A and SSD_B',
-                      '.... .101 = Reserved: True')),
-                (75, ('11.. .... = Reserved: True',
+                      '.... .101 = Reserved: 0x05')),
+                (75, ('11.. .... = Reserved: 0x03',
                       '..1. .... = Slotted Mode: 1',
-                      '...0 0101 = Reserved: True')),
+                      '...0 0101 = Reserved: 0x05')),
                 (38, ('0... .... = OTAPA session: Stop',
-                      '.111 1111 = Reserved: True')),
+                      '.111 1111 = Reserved: 0x7f')),
                 (9, ('0... .... = FRESH_INCL: False',
-                     '.111 1111 = Reserved: True')),
-                (105, ('0000 000. = Reserved: False',
+                     '.111 1111 = Reserved: 0x7f')),
+                (105, ('0000 000. = Reserved: 0x00',
                        '.... ...1 = NAM_LOCK indicator: 1')),
                 (5, ('The least significant 10 digits of the IMSI_T (IMSI_T_S) (34 bits): 4344454647',
-                     '.... ...1 = Reserved: True')),
+                     '.... ...1 = Reserved: 0x01')),
                 ):
             stdout = subprocess.check_output((cmd_tshark,
                     '-r', capture_file('ansi_683_coverage.pcap.gz'),
@@ -8670,6 +8671,91 @@ class TestDissectAnsi683:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 0
+
+    @staticmethod
+    def ota_pdu(direction, payload):
+        # Exported PDU: dissector table "ansi_a.ota", direction as value
+        return (struct.pack('>HH', 14, 12) + b'ansi_a.ota\0\0'
+                + struct.pack('>HHI', 32, 4, direction)
+                + struct.pack('>HH', 0, 0) + payload)
+
+    def test_ansi_683_nam_block_lengths(self, cmd_tshark, capture_file, test_env):
+        '''NAM blocks of exactly their smallest length, then another block,
+        decode with their own result codes, and the octets after a block are
+        not taken as part of it (frames 245-247), several PUZL, 3GPD, MMD and
+        MMS blocks each with its own length left (241-244), and MMS Download
+        Response blocks are two octets long.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_683_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 241',
+                '-Tfields', '-Eaggregator=,', '-eframe.number', '-eansi_683.number_of_parameter_blocks',
+                '-eansi_683.result_code', '-eansi_683.user_zone_id', '-eansi_683.reserved_bytes',
+                '-eansi_683.parameter_g',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['241', '3', '0,0,0', '2,512', '', ''],
+            ['242', '3', '0,1,2', '', '', ''],
+            ['243', '3', '0,1,2', '', '', ''],
+            ['244', '3', '0,1,2', '', '', ''],
+            ['245', '', '', '', '', 'aabb'],
+            ['246', '4', '0,1,2,3', '', '61,ee', ''],
+            ['247', '4', '', '', '2e,3a,2eee', ''],
+        ]
+        import xml.etree.ElementTree as ET
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_683_coverage.pcap.gz'),
+                '-Y', 'ansi_683.rev_msg_type == 23', '-T', 'pdml',
+            ), encoding='utf-8', env=test_env)
+        blocks = [f for f in ET.fromstring(stdout).iter('field')
+                  if (f.get('show') or '').startswith('Block #')]
+        assert blocks
+        assert all(f.get('size') == '2' for f in blocks)
+
+    def test_ansi_683_nam_block_short(self, cmd_text2pcap, cmd_tshark, result_file, test_env):
+        '''A NAM block shorter than its decoder's layout (CDMA/Analog, CDMA
+        and IMSI_T in a Configuration Response and a Download Request) is
+        Short Data, and the result codes and FRESH after it are still
+        decoded; a P, G, PUZL or Configuration Response result code that is
+        missing is Short Data, not an exception.'''
+        def seq(n, start):
+            return bytes((start + i) & 0xff for i in range(n))
+
+        def blk(block_id, data):
+            return bytes([block_id, len(data)]) + data
+        tail = seq(20, 0xa0)
+        packets = [
+            # Review reproducer: reverse CDMA/Analog block of 1 octet, result code 0
+            (1, bytes([0, 1, 0, 1, 0xaa, 0]) + seq(16, 0x10)),
+        ]
+        for block_id, rev_min, for_min in ((0, 17, 14), (2, 12, 10), (3, 7, 7)):
+            packets.append((1, bytes([0, 1]) + blk(block_id, seq(rev_min - 1, 0x51)) + b'\x00' + tail))
+            packets.append((0, bytes([1, 1]) + blk(block_id, seq(for_min - 1, 0x21)) + tail))
+        packets += [
+            (0, bytes([2, 0, 9, 0x11, 0x22])),                  # P longer than the message
+            (0, bytes([2, 0, 1, 0x11, 9, 0x33])),               # G longer than the message
+            (0, bytes([2, 0, 1, 0x11])),                        # no G
+            (0, bytes([2, 0])),                                 # no P
+            (1, bytes([12, 2, 0, 0, 0, 0, 0, 0x80, 1])),        # PUZL, 2nd block short
+        ]
+        packets += [(1, bytes([t, 1]) + blk(0, b'\xaa')) for t in (13, 17, 22)]
+        text_file = result_file('ansi_683_nam_short.txt')
+        capture = result_file('ansi_683_nam_short.pcapng')
+        with open(text_file, 'w') as f:
+            f.writelines(f'000000  {self.ota_pdu(d, p).hex(" ")}\n' for d, p in packets)
+        subprocess.check_call((cmd_text2pcap, '-q', '-l', '252', text_file, capture), env=test_env)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture,
+                '-Tfields', '-Eaggregator=,', '-eframe.number', '-eansi_683.short_data',
+                '-eansi_683.result_code', '-e_ws.malformed.expert',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert len(lines) == len(packets)
+        # Short Data in every frame, no exception in any of them
+        assert all(line[1] != '' for line in lines), lines
+        assert all(line[3] == '' for line in lines), lines
+        # The reproducer and the reverse NAM blocks still have their result codes
+        assert lines[0][2] == '0'
+        assert [lines[i][2] for i in (1, 3, 5)] == ['0', '0', '0']
 
 
 ANSI_A_OPTS = ('-d', 'sccp.ssn==252,bsap')  # BSAP has no fixed SCCP SSN
