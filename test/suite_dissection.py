@@ -180214,3 +180214,118 @@ class TestDissectAlljoyn:
         assert row[6] == '0x0090,0x0023,0x00ff'
         # the name service also works over TCP
         assert self.frame(cmd_tshark, capture_file, test_env, 85, *fields)[3] == '192.0.2.7'
+
+
+class TestDissectAlp:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *names, passes=()):
+        '''Return the lines of the given fields for the matching frames,
+        values of repeated fields joined with ",".'''
+        args = [cmd_tshark, *passes,
+                '-r', capture_file('alp_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number', '-Eaggregator=,']
+        args += ['-e' + name for name in names]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_alp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every kind of ALP packet is dissected, with no malformed packets
+        and no error expert infos (also none from the transport stream
+        dissector), in one and two passes with the same result.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('alp_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+            protocols = [line.split('\t')[1] for line in stdout.splitlines()]
+            assert len(protocols) == 51
+            assert protocols.count('ALP') == 27
+            assert protocols.count('UDP') == 13
+            assert protocols.count('MPEG TS') == 11
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('alp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        assert outputs[0] == outputs[1]
+
+    def test_alp_sony_l1d_time(self, cmd_tshark, capture_file, test_env):
+        '''The Sony L1D time is shown with the nanosecond part below one
+        second: a time of 1023 ms 999 us 999 ns after second 1000000 is
+        .023999999 of the following second, not ".1023999999".'''
+        frames = self.fields(cmd_tshark, capture_file, test_env, 'alp.he.sony_l1d_timeinfo',
+                'alp.he.sony_l1d_timeinfo.time', 'alp.he.sony_l1d_timeinfo.time_ns',
+                'alp.he.sony_l1d_timeinfo.ms')
+        assert [(f[0], f[2], f[3]) for f in frames] == [
+            ('4', '1000000005006007', '5'),
+            ('9', '1000001023999999', '1023'),
+            ('10', '1000000999999999', '999'),
+            ('11', '2000000000000000000', '0'),
+            ('36', '11023000000', '1023'),
+        ]
+        # The seconds and the fraction of the time field (the time zone
+        # moves only hours and minutes)
+        parts = {f[0]: f[1].split('T')[1].split('.') for f in frames}
+        assert [(parts[n][0][-2:], parts[n][1][:9]) for n in ('4', '9', '10', '11', '36')] == [
+            ('40', '005006007'), ('41', '023999999'), ('40', '999999999'),
+            ('20', '000000000'), ('11', '023000000')]
+
+    def test_alp_header_extensions(self, cmd_tshark, capture_file, test_env):
+        '''Sony time and PLP extensions are decoded by type and length, others
+        are shown as data.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env, 'alp.he.type',
+                'alp.he.type', 'alp.he.length', 'alp.he.sony_plp.id')
+        assert frames == [
+            ['4', '0xf0', '8', ''], ['5', '0xf1', '1', '21'], ['6', '0x42', '14', ''],
+            ['7', '0xf0', '3', ''], ['8', '0xf1', '2', ''], ['9', '0xf0', '8', ''],
+            ['10', '0xf0', '8', ''], ['11', '0xf0', '8', ''], ['20', '0xf1', '1', '2'],
+            ['21', '0x42', '2', ''], ['36', '0xf0', '8', ''],
+        ]
+
+    def test_alp_link_mapping_table(self, cmd_tshark, capture_file, test_env):
+        '''Link Mapping Tables with several PLPs and multicast entries with
+        and without sub-stream and context ids. The destination port, SID
+        and context id fields carry their own names.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env, 'alp.lmt',
+                'alp.lmt.numplp', 'alp.plp.id', 'alp.plp.mc.dst_port',
+                'alp.plp.mc.sid', 'alp.plp.mc.context_id')
+        assert frames[:3] == [
+            ['34', '1', '1', '2000,2000,2000,2000', '1,2', '0x01,0x03'],
+            ['35', '3', '1,2,3', '2000,2000', '5', '0x06'],
+            ['36', '1', '63', '65535', '255', '0xff'],
+        ]
+        assert [f[1] for f in frames] == ['1', '3', '1', '64', '1']
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'fields'),
+                encoding='utf-8', env=test_env)
+        names = {line.split('\t')[2]: line.split('\t')[1]
+                 for line in stdout.splitlines() if line.startswith('F\t')}
+        assert names['alp.plp.mc.dst_port'] == 'Destination Port'
+        assert names['alp.plp.mc.sid'] == 'SID'
+        assert names['alp.plp.mc.context_id'] == 'Context ID'
+
+    def test_alp_mpegts(self, cmd_tshark, capture_file, test_env):
+        '''MPEG-2 transport stream packets with deleted null packets and
+        header deletion. 16 packets with the default 128 deleted null
+        packets are 144 transport stream packets.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env, 'alp.numts',
+                'alp.numts', 'alp.ahf', 'alp.hdm', 'alp.dnp', 'mp2t.pid')
+        summary = [(f[0], f[1], f[2], f[3], f[4], len(f[5].split(','))) for f in frames]
+        assert summary == [
+            ('41', '1', '0', '', '', 1), ('42', '3', '0', '', '', 3), ('43', '2', '0', '', '', 2),
+            ('44', '2', '1', '0', '3', 5), ('45', '3', '1', '1', '5', 8),
+            ('46', '4', '1', '1', '1', 5), ('47', '5', '1', '1', '2', 7),
+            ('48', '16', '1', '0', '127', 143), ('49', '16', '1', '0', '128', 144),
+            ('50', '16', '1', '1', '0', 16), ('51', '16', '0', '', '', 16),
+        ]
+        # The deleted null packets are on PID 0x1fff
+        pids = frames[8][5].split(',')
+        assert pids.count('0x00001fff') == 128 and pids.count('0x00000100') == 16
+
+    def test_alp_junk(self, cmd_tshark, capture_file, test_env):
+        '''Data after the packet is shown as junk.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env, 'alp.junk', 'alp.junk')
+        assert frames == [['31', '6a756e6b'], ['32', '6a'], ['42', '78'],
+                          ['43', '7461696c206279746573']]
