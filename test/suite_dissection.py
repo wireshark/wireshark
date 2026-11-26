@@ -180910,6 +180910,31 @@ class TestDissectAlljoyn:
         assert self.frame(cmd_tshark, capture_file, test_env, 85, *fields)[3] == '192.0.2.7'
 
 
+    def test_alljoyn_nested_struct_signatures(self, cmd_tshark, capture_file, test_env):
+        '''Every struct item shows the rest of its signature, from its "("
+        to the matching ")", for arrays of structs nested 4 and 12 deep, in
+        one and two passes. The text of each item is built once and appended
+        in one piece ("AllJoyn: Fix the work per byte of nested structure
+        signatures"); the text is the same as before, so this checks the
+        rewrite did not change it.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('alljoyn-nested-signature.pcap'),
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            assert 'Dissector bug' not in stdout
+            assert 'Malformed Packet' not in stdout
+            structs = [l.strip() for l in stdout.splitlines() if l.strip().startswith('struct ')]
+            expected = []
+            for k, n in ((4, 3), (12, 2)):
+                for _ in range(n):
+                    expected += ['struct ' + '(' * j + 'y' + ')' * j for j in range(k, 0, -1)]
+            assert structs == expected
+            assert 'Signature: a((((y))))' in stdout
+            assert 'Signature: a' + '(' * 12 + 'y' + ')' * 12 in stdout
+            assert stdout.count('Unsigned byte: ') == 5
+
+
 class TestDissectAlp:
     @staticmethod
     def fields(cmd_tshark, capture_file, test_env, display_filter, *names, passes=()):
