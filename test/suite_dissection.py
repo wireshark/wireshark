@@ -8191,16 +8191,16 @@ class TestDissectAnsi637:
                 '-Tfields', '-e', 'frame.protocols',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.split()
-        assert len(protocols) == 133
-        assert protocols.count('exported_pdu:ip:udp:sip:ansi_637_trans:ansi_637_tele') == 35
-        assert protocols.count('exported_pdu:ip:udp:sip:ansi_637_trans') == 26
+        assert len(protocols) == 148
+        assert protocols.count('exported_pdu:ip:udp:sip:ansi_637_trans:ansi_637_tele') == 46
+        assert protocols.count('exported_pdu:ip:udp:sip:ansi_637_trans') == 29
         assert protocols.count('exported_pdu:ansi_tcap:ansi_map:ansi_637_tele') == 60
         assert protocols.count('exported_pdu:ansi_a_bsmap:ansi_637_trans:ansi_637_tele') == 1
         assert protocols.count('exported_pdu:ansi_a_dtap:ansi_637_trans:ansi_637_tele') == 1
         assert protocols.count('exported_pdu:ansi_a_dtap:ansi_637_trans') == 1
         assert protocols.count('exported_pdu:ansi_637_trans:ansi_637_tele') == 6
         assert protocols.count('exported_pdu:ansi_637_trans') == 1
-        assert protocols.count('exported_pdu:ansi_637_tele') == 2
+        assert protocols.count('exported_pdu:ansi_637_tele') == 3
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *passes,
                     '-r', capture_file('ansi_637_coverage.pcap.gz'),
@@ -8310,6 +8310,71 @@ class TestDissectAnsi637:
         assert out[51][0] == 'second part'
         assert out[55][0] == 'GSM part two'
         assert out[57][0] == 'Unicode Ω part'
+
+    def test_ansi_637_length_checks(self, cmd_tshark, capture_file, test_env):
+        '''An address, a CMAS message and a User Data Header that are longer
+        than the parameter holding them give Short Data, and the parameters
+        after them are still dissected (these used to read past the
+        parameter and end in Malformed).'''
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env, range(134, 149),
+                              'ansi_637.short_data', 'ansi_637.extraneous_data',
+                              'ansi_637_tele.user_data.num_fields', 'ansi_637_tele.cmas.num_fields',
+                              'ansi_637_tele.user_data.text', 'ansi_637_trans.param_id',
+                              'ansi_637_tele.subparam_id', '_ws.malformed', passes=passes)
+            short = {n for n, v in out.items() if v[0] != ''}
+            # Address (length 2 and 3), CMAS (200, 0, 3), UDH in each encoding
+            assert short == {134, 135, 137, 138, 139, 141, 142, 143, 144}
+            assert all(v[7] == '' for v in out.values())
+            # The Teleservice Identifier after the short addresses
+            assert out[134][5] == out[135][5] == '2|0'
+            # The Priority and Language subparameters after the short CMAS
+            for n in (137, 138, 139, 140):
+                assert out[n][6].split('|')[-2:] == ['8', '13'], n
+            # Valid: address of length 4, CMAS with only the version octet
+            assert out[136][0] == '' and out[140][0] == ''
+            assert out[140][3] == '2'
+            # A header taking all of the characters leaves no text
+            for n, nf in ((145, '7'), (146, '6'), (147, '3')):
+                assert out[n][2] == nf and out[n][4] == '' and out[n][0] == '', n
+            # By the Teleservice ID table
+            assert out[148][4] == 'By table'
+
+    def test_ansi_637_cb_num_fields(self, cmd_tshark, capture_file, test_env):
+        '''The Number of Fields of a DTMF call-back number is the number of
+        digits (the item used to be one octet late with the wrong mask).'''
+        out = self.fields(cmd_tshark, capture_file, test_env, (2, 15, 16),
+                          'ansi_637_tele.cb_num.num_fields', 'ansi_637_tele.cb_num.number')
+        assert out[2] == ['10', '5551230002']
+        assert out[15] == ['7', '5551239']
+        assert out[16] == ['3', '*86']
+        import xml.etree.ElementTree as ET
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_637_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2', '-T', 'pdml',
+            ), encoding='utf-8', env=test_env)
+        packet = ET.fromstring(stdout)
+        item = packet.find(".//field[@name='ansi_637_tele.cb_num.num_fields']")
+        digit_mode = packet.find(".//field[@name='ansi_637_tele.cb_num.digit_mode']")
+        # The 8 bits are the last 7 bits of the first octet and the first bit
+        # of the second: the item starts at the Digit Mode octet
+        assert item.get('size') == '2'
+        assert item.get('pos') == digit_mode.get('pos')
+        assert item.get('unmaskedvalue') == '052a'
+
+    def test_ansi_637_field_names(self, cmd_tshark, test_env):
+        '''Field names of the Alert on Message Delivery priority and the
+        Service Category Program Data category and language.'''
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'fields'),
+                                         encoding='utf-8', env=test_env)
+        names = {}
+        for line in stdout.splitlines():
+            cols = line.split('\t')
+            if cols[0] == 'F':
+                names.setdefault(cols[2], cols[1])
+        assert names['ansi_637_tele.alert_msg_delivery.priority'] == 'Priority'
+        assert names['ansi_637_tele.srvc_cat_prog_data.category'] == 'Category'
+        assert names['ansi_637_tele.srvc_cat_prog_data.language'] == 'Language'
 
 
 class TestDissectAnsi801:

@@ -1013,6 +1013,59 @@ def malformed_frames():
     return f
 
 
+def raw_user_data(enc, nf, octets):
+    """User Data with an arbitrary NUM_FIELDS: encoding, NUM_FIELDS, octets."""
+    b = Bits().put(enc, 5).put(nf, 8).putbytes(octets)
+    return sub(0x01, b.bytes())
+
+
+def g_checks():
+    """Length checks added to the transport address, CMAS and User Data
+    Header decoders: Short Data (a note) instead of reading past the
+    subparameter, and the boundary cases that are still valid."""
+    f = []
+    # Originating Address, 8-bit digit mode, number mode 0, parameter length
+    # 2 (NUM_FIELDS 254: used to wrap the length check and read past the
+    # parameter) and 3 (NUM_FIELDS 1, one octet short); length 4 is valid
+    f.append(sip_message(trans_p2p(sub(0x02, b'\x80\x7f'), t_tele_id(4098)), mo=False))
+    f.append(sip_message(trans_p2p(sub(0x02, b'\x80\x00\x80'), t_tele_id(4098)), mo=False))
+    f.append(sip_message(trans_p2p(sub(0x02, b'\x80\x00\x80\x41'), t_tele_id(4098)), mo=False))
+
+    # CMAS with NUM_FIELDS larger than the User Data subparameter (200: the
+    # next subparameters used to be decoded as CMAS records), 0, one octet
+    # more than fits, and exactly as many octets as fit (protocol version
+    # only)
+    def bcast(ud):
+        return sip_message(trans_bcast(t_srvc_cat(4096), t_bearer(
+            s_msg_id(1, 0xc00) + ud + sub(0x08, b'\x00') + s_lang(1))), mo=False)
+    f.append(bcast(sub(0x01, struct.pack('>H', 200 << 3) + b'\x00\x00')))
+    f.append(bcast(sub(0x01, struct.pack('>H', 0) + b'\x00\x00')))
+    f.append(bcast(sub(0x01, struct.pack('>H', 3 << 3) + b'\x00\x00')))
+    f.append(bcast(sub(0x01, struct.pack('>H', 2 << 3) + b'\x00\x00')))
+
+    # A User Data Header longer than NUM_FIELDS (7-bit ASCII, GSM 7-bit,
+    # Latin, Unicode): the character count used to wrap
+    def hdr_ud(enc, nf, udhl):
+        octets = bytes([udhl]) + bytes([0x70, udhl - 2] + [0x41] * (udhl - 2))[:udhl] + b'\x41'
+        return sip_message(trans_p2p(t_tele_id(4098), t_bearer(
+            s_msg_id(1, 0xc01, hdr=1) + raw_user_data(enc, nf, octets))), mo=False)
+    f.append(hdr_ud(ENC_ASCII7, 1, 20))
+    f.append(hdr_ud(ENC_GSM7, 2, 20))
+    f.append(hdr_ud(ENC_LATIN, 1, 8))
+    f.append(hdr_ud(ENC_UCS2, 1, 8))
+
+    # A User Data Header that takes all of the characters: no text (GSM 7-bit
+    # is left out, the generator appends a fill octet to an empty text)
+    for enc in (ENC_ASCII7, ENC_LATIN, ENC_UCS2):
+        f.append(sip_message(trans_p2p(t_tele_id(4098), t_bearer(
+            s_msg_id(1, 0xc02, hdr=1) + s_user_data_udh(enc, udh_concat(7, 2, 1), ''))), mo=False))
+
+    # The Teleservice ID table with a value: Exported PDU table tag
+    f.append(exp_pdu(s_msg_id(1, 0xc03) + s_user_data(ENC_LATIN, 'By table'),
+                     table='ansi_637.tele_id', value=4098))
+    return f
+
+
 def frame_ts(i):
     return 1767225600 + i, 0
 
@@ -1036,6 +1089,7 @@ def main():
         ('Reproducers (by name)', clean_repro),
         ('Stale Broadcast reproducer (by name)', stale),
         ('Wrong lengths, unknown parameters (notes and warnings)', g_lengths()),
+        ('Length checks: address, CMAS NUM_FIELDS, User Data Header', g_checks()),
     ]
     frames = []
     for title, g in groups:
