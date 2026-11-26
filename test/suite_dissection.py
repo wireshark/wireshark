@@ -179895,3 +179895,322 @@ class TestDissectAlcap:
                 'alcap.vbws.max_size.bw', 'alcap.pvbws.max_size.bw', 'alcap.vbws.stt', 'alcap.pvbws.stt',
                 'alcap.pvbwt.max_size.fw', 'alcap.fbw.max_size.bw')
         assert lines == ['71\t54\t38\t3\t2\t21\t22']
+
+
+class TestDissectAlljoyn:
+    CAPTURE = 'alljoyn_coverage.pcap.gz'
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectAlljoyn.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def rows(stdout):
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    @staticmethod
+    def frame(cmd_tshark, capture_file, test_env, number, *fields):
+        '''The values of the fields of one frame, repeated fields joined with
+        commas, in one pass.'''
+        args = ['-Y', f'frame.number == {number}', '-Tfields', '-E', 'aggregator=,']
+        for field in fields:
+            args += ['-e', field]
+        return TestDissectAlljoyn.rows(TestDissectAlljoyn.run(
+            cmd_tshark, capture_file, test_env, *args))[0]
+
+    def test_alljoyn_coverage_frames(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the AllJoyn frames, in one and two passes. The
+        TCP segments that start a reassembled message have no Info text in
+        the first pass and are TCP frames in the second.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'aj || ardp || ajns', '-Tfields', '-eframe.number',
+                    '-e_ws.col.protocol', '-e_ws.col.info')
+            outputs.append([r for r in self.rows(stdout) if r[2:] != [''] and len(r) > 2])
+        assert outputs[0] == outputs[1]
+        rows = {r[0]: r[1:] for r in outputs[0]}
+        assert len(rows) == 76
+        assert rows['4'] == ['ALLJOYN', 'SASL-AUTH']
+        assert rows['11'] == ['ALLJOYN', "Message 0000000001: 'Method call' Hello"]
+        assert rows['12'] == ['ALLJOYN', "Message 0000000001: 'Method reply with returned data' Replies to: 000000001 (s)"]
+        assert rows['15'] == ['ALLJOYN', "Message 0000000004: 'Error reply' Replies to: 000000002 (s)"]
+        assert rows['16'] == ['ALLJOYN', "Message 0000000005: 'Signal emission' Ping"]
+        assert rows['17'] == ['ALLJOYN', "Message 0000000006: 'Invalid type' Odd"]
+        assert rows['18'] == ['ALLJOYN', "Message 0000000007: 'Method call' AllTypes (ybnqiuhxtdsog)"]
+        assert rows['21'] == ['ALLJOYN', "Message 0000000010: 'Signal emission' Arrays (asayaia(is)a{sv}aaiat)"]
+        assert rows['22'] == ['ALLJOYN', "Message 0000000011: 'Signal emission' Structs ((ysu)(i(ii)s))"]
+        assert rows['26'] == ['ALLJOYN', "Message 0000000015: 'Method call' EmptyArray (ais)"]
+        assert rows['36'] == ['ALLJOYN', "Message 0000000019: 'Method call' Large (sas)"]
+        assert rows['47'] == ['ALLJOYN', 'CONNECT-initial byte']
+        assert rows['52'] == ['ALLJOYN-ARDP', 'flags: SYN SEQ:         10 ACK:          0']
+        assert rows['73'] == ['ALLJOYN-NS', 'VERSION 0 WHOHAS']
+        assert rows['81'] == ['ALLJOYN-NS', 'VERSION 2 (UNSUPPORTED) ISAT WHOHAS']
+
+    def test_alljoyn_coverage_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no warnings, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_alljoyn_coverage_sasl(self, cmd_tshark, capture_file, test_env):
+        '''The connect byte and the SASL commands, also when the command is
+        split over two segments.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'alljoyn.SASL.command || alljoyn.InitialByte', '-Tfields', '-eframe.number',
+                '-ealljoyn.InitialByte', '-ealljoyn.SASL.command', '-ealljoyn.SASL.parameter')
+        assert self.rows(stdout) == [
+            ['4', '0x00', 'AUTH', ' EXTERNAL 31303030'],
+            ['5', '', 'REJECTED', ' EXTERNAL ANONYMOUS'],
+            ['6', '', 'AUTH', ' ANONYMOUS 616c6c6a6f796e'],
+            ['7', '', 'OK', ' 0123456789abcdef0123456789abcdef'],
+            ['8', '', 'DATA', ' 1234'],
+            ['9', '', 'ERROR', ''],
+            ['10', '', 'CANCEL', ''],
+            ['11', '', 'BEGIN', ''],
+            ['47', '0x00', '', ''],
+            ['93', '', 'AUTH', ' ANONYMOUS 616c'],
+        ]
+
+    def test_alljoyn_coverage_header(self, cmd_tshark, capture_file, test_env):
+        '''Flags and every header field code of a method call.'''
+        row = self.frame(cmd_tshark, capture_file, test_env, 13,
+                'alljoyn.mess_header.flags', 'alljoyn.mess_header.serial',
+                'alljoyn.mess_header.headerlength', 'alljoyn.mess_header.bodylength',
+                'alljoyn.message.fieldcode', 'alljoyn.mess_header.flags.encrypted',
+                'alljoyn.mess_header.flags.noreply', 'alljoyn.uint32')
+        assert row == ['0xff', '2', '168', '4',
+                '0x01,0x02,0x03,0x06,0x09,0x10,0x11,0x12,0x13,0x07,0x08',
+                'True', 'True', '16,0,123456,99,4242,7']
+        row = self.frame(cmd_tshark, capture_file, test_env, 17,
+                'alljoyn.mess_header.type', 'alljoyn.mess_header.flags')
+        assert row == ['0', '0xc0']
+        row = self.frame(cmd_tshark, capture_file, test_env, 12,
+                'alljoyn.uint32', 'alljoyn.string.data')
+        assert row == ['1', ':abc.1,:def.2,:abc.1']
+        row = self.frame(cmd_tshark, capture_file, test_env, 15,
+                'alljoyn.string.data', 'alljoyn.uint32')
+        assert row == ['org.alljoyn.Bus.ErrorResponse,It failed', '2']
+
+    def test_alljoyn_coverage_header_bytes(self, cmd_tshark, capture_file, test_env):
+        '''A header field with an unexpected byte is flagged in its text.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 32', '-V')
+        assert "Expected '0x01 byte' but found '0x02'" in stdout
+        assert 'Type ID: invalid' in stdout
+        assert 'Signal emission' in self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 32', '-Tfields', '-e_ws.col.info')
+
+    def test_alljoyn_coverage_basic_types(self, cmd_tshark, capture_file, test_env):
+        '''Every basic argument type, in both byte orders.'''
+        little = self.frame(cmd_tshark, capture_file, test_env, 18,
+                'alljoyn.uint8', 'alljoyn.boolean', 'alljoyn.int16', 'alljoyn.uint16',
+                'alljoyn.int32', 'alljoyn.handle', 'alljoyn.int64', 'alljoyn.uint64',
+                'alljoyn.double', 'alljoyn.string.data', 'alljoyn.mess_header.endianness')
+        # the double is printed with the decimal separator of the locale
+        assert little[8] in ('3.25', '3,25')
+        little[8] = '3.25'
+        assert little == ['1,0,1,0,1,0,1,0,1,0,200', 'True', '-5', '65000', '-100000',
+                '0x00000003', '-1099511627776', '1125899906842624', '3.25',
+                '/org/alljoyn/Bus,org.alljoyn.Bus,AllTypes,org.alljoyn.Bus,a string,/obj/path',
+                "'l'"]
+        big = self.frame(cmd_tshark, capture_file, test_env, 19,
+                'alljoyn.uint8', 'alljoyn.boolean', 'alljoyn.int16', 'alljoyn.uint16',
+                'alljoyn.int32', 'alljoyn.handle', 'alljoyn.int64', 'alljoyn.uint64',
+                'alljoyn.double', 'alljoyn.string.data', 'alljoyn.mess_header.endianness')
+        assert big[8] in ('3.25', '3,25')
+        big[8] = '3.25'
+        assert big[:9] == little[:9]
+        assert big[9].split(',')[2:] == ['AllTypesBE', 'org.alljoyn.Bus', 'a string', '/obj/path']
+        assert big[10] == "'B'"
+
+    def test_alljoyn_coverage_containers(self, cmd_tshark, capture_file, test_env):
+        '''Arrays, structures, dictionaries and variants.'''
+        row = self.frame(cmd_tshark, capture_file, test_env, 21,
+                'alljoyn.array', 'alljoyn.structure', 'alljoyn.dictionary_entry',
+                'alljoyn.string.data', 'alljoyn.uint64')
+        assert [len(v.split(',')) for v in row[:3]] == [10, 2, 3]
+        assert row[3].split(',')[3:] == ['one', 'two', 'three', 'a', 'bb', 'k1', 'v1', 'k2', 'k3']
+        assert row[4] == '8589934592,5'
+        row = self.frame(cmd_tshark, capture_file, test_env, 22,
+                'alljoyn.structure', 'alljoyn.uint8', 'alljoyn.int32', 'alljoyn.uint32',
+                'alljoyn.string.data')
+        assert row[0].count(',') == 2
+        assert row[2:4] == ['1,2,3', '16,99']
+        assert row[4].split(',')[3:] == ['nine', 'three']
+        row = self.frame(cmd_tshark, capture_file, test_env, 23,
+                'alljoyn.variant', 'alljoyn.string.data', 'alljoyn.uint32', 'alljoyn.int32')
+        assert row[0].count(',') == 3
+        assert row[1].split(',')[3:] == ['text', 'five']
+        assert row[2:] == ['16,42', '7,8,9,5']
+        row = self.frame(cmd_tshark, capture_file, test_env, 24,
+                'alljoyn.dictionary_entry', 'alljoyn.string.data', 'alljoyn.uint8')
+        assert row[0].count(',') == 3
+        assert row[1].split(',')[3:] == ['a', 'b', 'c', 'd', 'x']
+        row = self.frame(cmd_tshark, capture_file, test_env, 25,
+                'alljoyn.uint32', 'alljoyn.parameter.signature')
+        assert row == ['16,5', 'ug,a{sv}']
+
+    def test_alljoyn_coverage_signature_argument(self, cmd_tshark, capture_file, test_env):
+        '''A signature argument does not replace the signature of the body:
+        the int32 arguments after it are decoded, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number == 94', '-Tfields', '-E', 'aggregator=,',
+                    '-ealljoyn.parameter.signature', '-ealljoyn.int32',
+                    '-ealljoyn.dictionary_entry', '-e_ws.col.info')
+            assert self.rows(stdout) == [['gii,a{sv}', '1,2', '',
+                    "Message 0000000060: 'Signal emission' SigFirst (gii)"]]
+
+    def test_alljoyn_coverage_sasl_split(self, cmd_tshark, capture_file, test_env):
+        '''A SASL command in two segments is one command, the first segment
+        has no AllJoyn text in either pass.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 92 && frame.number <= 93 && aj', '-Tfields',
+                    '-eframe.number', '-ealljoyn.SASL.command', '-e_ws.col.info')
+            rows = self.rows(stdout)
+            assert rows[-1] == ['93', 'AUTH', 'SASL-AUTH']
+            assert all('BAD DATA' not in r[-1] for r in rows)
+
+    def test_alljoyn_coverage_empty_arrays(self, cmd_tshark, capture_file, test_env):
+        '''After an empty array the signature continues with the next type:
+        the arguments that follow are decoded.'''
+        row = self.frame(cmd_tshark, capture_file, test_env, 26,
+                'alljoyn.array', 'alljoyn.int32', 'alljoyn.string.data')
+        assert row[0] == '1'
+        assert row[1] == ''
+        assert row[2].split(',')[-1] == 'hi'
+        row = self.frame(cmd_tshark, capture_file, test_env, 27,
+                'alljoyn.array', 'alljoyn.uint32')
+        assert row[0] == '1,1,1,1'
+        assert row[1].split(',')[-1] == '77'
+        row = self.frame(cmd_tshark, capture_file, test_env, 28,
+                'alljoyn.array', 'alljoyn.int32', 'alljoyn.string.data')
+        assert row[:2] == ['1', '']
+        assert row[2].split(',')[-1] == 'after'
+        row = self.frame(cmd_tshark, capture_file, test_env, 29,
+                'alljoyn.array', 'alljoyn.uint32')
+        assert row == ['1', '16,5']
+        row = self.frame(cmd_tshark, capture_file, test_env, 30, 'alljoyn.array')
+        assert row == ['1,1,1,1,1']
+
+    def test_alljoyn_coverage_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message in three TCP segments, two messages in a segment and a
+        message split between two segments.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 36 && frame.number <= 39', '-Tfields',
+                    '-eframe.number', '-etcp.reassembled.length', '-E', 'aggregator=,',
+                    '-ealljoyn.mess_header.serial')
+            assert self.rows(stdout) == [
+                ['36', '553', '19'],
+                ['37', '', '20,21'],
+                ['38', '', '20'],
+                ['39', '100', '21'],
+            ]
+
+    def test_alljoyn_coverage_length_limits(self, cmd_tshark, capture_file, test_env):
+        '''Absurd header and body lengths and object path lengths are
+        reported instead of waiting for gigabytes of data.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 40 && frame.number <= 43', '-Tfields',
+                '-eframe.number', '-e_ws.col.info')
+        assert self.rows(stdout) == [
+            ['40', 'BAD DATA: Header length is 16, body length is 4294967280. Expected <= 135168'],
+            ['41', 'BAD DATA: Header length is 4294967280, body length is 0. Expected <= 135168'],
+            ['42', 'BAD DATA: Object path length is 4294967295.'],
+            ['43', 'BAD DATA: Object path length is 4294967295.'],
+        ]
+
+    def test_alljoyn_coverage_ardp(self, cmd_tshark, capture_file, test_env):
+        '''ARDP flags, the SYN parameters, EACK bitmaps and the header
+        length.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ardp.hdr.SYN || ardp.hdr.EAK || ardp.hdr.NUL || ardp.hdr.RST || frame.number == 54',
+                '-Tfields', '-eframe.number', '-eardp.hdr.hlen', '-eardp.hdr.seq',
+                '-eardp.hdr.ack', '-e_ws.col.info')
+        rows = {r[0]: r[1:] for r in self.rows(stdout)}
+        assert rows['52'][:3] == ['14', '10', '0']
+        assert rows['53'][:3] == ['14', '20', '10']
+        assert rows['58'][0] == '20'
+        assert rows['60'][3] == 'flags: NUL SEQ:         14 ACK:         23'
+        assert rows['70'][3] == 'flags: RST SEQ:        120 ACK:         31'
+        # the SYN parameters: the segment limits and the delayed ACK timeout
+        row = self.frame(cmd_tshark, capture_file, test_env, 52,
+                'ardp.hdr.segmentmax', 'ardp.hdr.segmentbmax', 'ardp.hdr.dackt', 'ardp.hdr.options')
+        assert row == ['4', '1500', '100', '0x0000']
+        # a header of 17 words and the fields after the SYN
+        row = self.frame(cmd_tshark, capture_file, test_env, 54,
+                'ardp.hdr.ttl', 'ardp.hdr.lcs', 'ardp.hdr.nsa', 'ardp.hdr.fss', 'ardp.hdr.fcnt')
+        assert row == ['3000', '0', '0', '11', '0x0001']
+
+    def test_alljoyn_coverage_ardp_eack(self, cmd_tshark, capture_file, test_env):
+        '''The EACK bitmap is bytes of the length the header says, also for
+        a header longer than 255 bytes.'''
+        assert self.frame(cmd_tshark, capture_file, test_env, 58,
+                'ardp.hdr.bmp', 'ardp.hdr.hlen') == ['a5a5a5a5a5a5', '20']
+        assert self.frame(cmd_tshark, capture_file, test_env, 59, 'ardp.hdr.bmp') == ['8142']
+        row = self.frame(cmd_tshark, capture_file, test_env, 62,
+                'ardp.hdr.hlen', 'ardp.hdr.bmp')
+        assert row[0] == '139'
+        assert row[1] == 'aa' * 244
+
+    def test_alljoyn_coverage_ardp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Messages carried in ARDP packets and messages spread over
+        several packets.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 55 && frame.number <= 72', '-Tfields',
+                '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        rows = {r[0]: r[1:] for r in self.rows(stdout)}
+        assert rows['55'] == ['ALLJOYN', "Message 0000000050: 'Method call' ArdpHello"]
+        assert rows['57'] == ['ALLJOYN', "Message 0000000052: 'Signal emission' Sig (ay)"]
+        assert rows['65'] == ['ALLJOYN', 'Fragmented ARDP message: Remaining packet length is 20. Expected 661']
+        assert rows['66'][1].endswith('Fragment 2 of 3 for a previous ALLJOYN message')
+        assert rows['67'][1].endswith('Fragment 3 of 3 for a previous ALLJOYN message')
+        assert rows['68'][1].startswith("Message 0000000061: 'Method call' Fragmented2 (sas), Fragmented ARDP message or bad data")
+        assert rows['69'][1].endswith('Fragment 2 of 2 for a previous ALLJOYN message')
+        assert self.frame(cmd_tshark, capture_file, test_env, 57, 'alljoyn.uint8') == ['1,0,1,0,1,0,1,0,1,2,3']
+
+    def test_alljoyn_coverage_name_service_queries(self, cmd_tshark, capture_file, test_env):
+        '''Who-Has questions of version 0 (with the transport flags) and 1.'''
+        for number, expected in (
+                (73, ['1', '0', '1', '0', '120', 'True', 'True', 'True', 'True', '2',
+                      'org.example.one,org.example.two']),
+                (74, ['1', '0', '2', '0', '120', 'False,True', 'False,False', 'False,True',
+                      'True,False', '1,3', 'a.b,c.d,e.f,g.h']),
+                (75, ['0', '0', '1', '0', '0', 'False', 'True', 'False', 'False', '0', '']),
+                (78, ['1', '1', '1', '0', '120', '', '', '', '', '1', 'org.example.v1'])):
+            row = self.frame(cmd_tshark, capture_file, test_env, number,
+                    'alljoyn.header.sendversion', 'alljoyn.header.messageversion',
+                    'alljoyn.header.questions', 'alljoyn.header.answers', 'alljoyn.header.timer',
+                    'alljoyn.whohas.T', 'alljoyn.whohas.U', 'alljoyn.whohas.S',
+                    'alljoyn.whohas.F', 'alljoyn.whohas.count', 'alljoyn.string.data')
+            assert row == expected
+
+    def test_alljoyn_coverage_name_service_answers(self, cmd_tshark, capture_file, test_env):
+        '''Is-At answers of version 0 and 1: addresses, ports, GUIDs, names
+        and the transport mask.'''
+        guid = '0123456789abcdef0123456789abcdef'
+        fields = ('alljoyn.isat.G', 'alljoyn.isat.C', 'alljoyn.isat.count', 'alljoyn.isat.ipv4',
+                  'alljoyn.isat.ipv6', 'alljoyn.isat.port', 'alljoyn.isat.TransportMask',
+                  'alljoyn.string.data')
+        assert self.frame(cmd_tshark, capture_file, test_env, 76, *fields) == [
+            'False', 'True', '1', '192.0.2.7', '', '9955', '', 'org.example.svc1']
+        assert self.frame(cmd_tshark, capture_file, test_env, 77, *fields) == [
+            'True,True', 'True,False', '2,0', '192.0.2.8', '2001:db8::1,2001:db8::2',
+            '9956,9955', '', f'{guid},n1,n2,{guid}']
+        assert self.frame(cmd_tshark, capture_file, test_env, 79, *fields) == [
+            'True', 'False', '1', '192.0.2.9', '', '9955', '0x0004', f'{guid},org.example.v1a']
+        row = self.frame(cmd_tshark, capture_file, test_env, 80, *fields)
+        assert row[2] == '1,2,1'
+        assert row[3] == '192.0.2.10,192.0.2.11,192.0.2.12'
+        assert row[4] == '2001:db8::1,2001:db8::2,2001:db8::1,2001:db8::2'
+        assert row[5] == '9956,9955,9956,1,2,3,4'
+        assert row[6] == '0x0090,0x0023,0x00ff'
+        # the name service also works over TCP
+        assert self.frame(cmd_tshark, capture_file, test_env, 85, *fields)[3] == '192.0.2.7'
