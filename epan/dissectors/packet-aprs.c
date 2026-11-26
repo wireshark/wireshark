@@ -1152,12 +1152,12 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 			wmem_strbuf_append(sb, " (");
 			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1, 7));	/* Timestamp */
 			wmem_strbuf_append(sb, " ");
-			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7 + 1, 8));    /*??*/	/* Lat */
+			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7, 8));	/* Lat */
 			wmem_strbuf_append(sb, " ");
 			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7 + 8 + 1, 9));	/* Long */
 			wmem_strbuf_append(sb, " ");
-			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7, 1));	/* Symbol table id */
-			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7 + 1 + 9, 1));	/* Symbol Code */
+			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7 + 8, 1));	/* Symbol table id */
+			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7 + 8 + 1 + 9, 1));	/* Symbol Code */
 			break;
 
 		case '@':
@@ -1165,12 +1165,12 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 			wmem_strbuf_append(sb, " (");
 			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1, 7));	/* Timestamp */
 			wmem_strbuf_append(sb, " ");
-			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7 + 1, 8));    /*??*/	/* Lat */
+			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7, 8));	/* Lat */
 			wmem_strbuf_append(sb, " ");
 			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7 + 8 + 1, 9));	/* Long */
 			wmem_strbuf_append(sb, " ");
-			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7, 1));	/* Symbol table id */
-			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7 + 1 + 9, 1));	/* Symbol Code */
+			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7 + 8, 1));	/* Symbol table id */
+			wmem_strbuf_append(sb, tvb_format_text(pinfo->pool, tvb, offset + 1 + 7 + 8 + 1 + 9, 1));	/* Symbol Code */
 			break;
 		}
 
