@@ -223,6 +223,9 @@ static const char dtmf_digits[16] = {'?','1','2','3','4','5','6','7','8','9','0'
         return; \
     }
 
+#define REMAINING_LEN(rl_len, rl_off, rl_saved) \
+    (((rl_len) > ((rl_off) - (rl_saved))) ? ((rl_len) - ((rl_off) - (rl_saved))) : 0)
+
 #define EXACT_DATA_CHECK(edc_len, edc_eq_len) \
     if ((edc_len) != (edc_eq_len)) \
     { \
@@ -645,6 +648,27 @@ static const true_false_string tfs_cdma_analog_mode = { "Dual Mode", "CDMA Only"
 static const true_false_string tfs_configured_not_configured = { "Configured", "Not configured" };
 static const true_false_string tfs_discontinuous_continous = { "Discontinuous", "Continuous" };
 
+/*
+ * The NAM parameter block decoders below read a fixed layout. Make sure
+ * the block is long enough for it, so that the octets that follow the
+ * block (result codes, FRESH) are not decoded as part of the block.
+ */
+#define NAM_CDMA_ANALOG_REV_MIN_LEN     17
+#define NAM_CDMA_REV_MIN_LEN            12
+#define NAM_IMSI_T_MIN_LEN              7
+#define NAM_CDMA_ANALOG_FOR_MIN_LEN     14
+#define NAM_CDMA_FOR_MIN_LEN            10
+
+static bool
+nam_block_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned block_len, uint32_t offset, unsigned min_len)
+{
+    if (block_len >= min_len)
+        return false;
+
+    proto_tree_add_expert(tree, pinfo, &ei_ansi_683_short_data, tvb, offset, block_len);
+    return true;
+}
+
 static void
 rev_param_block_nam_cdma_analog(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, unsigned len, uint32_t offset)
 {
@@ -723,8 +747,11 @@ rev_param_block_nam_cdma_analog(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tre
     proto_tree_add_item(tree, hf_ansi_683_sid_nid_pairs_3fff, tvb, offset+1, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_ansi_683_reserved_bytes,
-        tvb, offset, len - (offset - saved_offset), ENC_NA);
+    if (len > (offset - saved_offset))
+    {
+        proto_tree_add_item(tree, hf_ansi_683_reserved_bytes,
+            tvb, offset, len - (offset - saved_offset), ENC_NA);
+    }
 }
 
 /*
@@ -819,8 +846,11 @@ rev_param_block_nam_cdma(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree
     proto_tree_add_item(tree, hf_ansi_683_sid_nid_pairs_01ff, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_ansi_683_reserved_bytes,
-        tvb, offset, len - (offset - saved_offset), ENC_NA);
+    if (len > (offset - saved_offset))
+    {
+        proto_tree_add_item(tree, hf_ansi_683_reserved_bytes,
+            tvb, offset, len - (offset - saved_offset), ENC_NA);
+    }
 }
 
 /*
@@ -895,8 +925,11 @@ for_param_block_nam_cdma_analog(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tre
     proto_tree_add_item(tree, hf_ansi_683_sid_nid_pairs_3fff, tvb, offset+1, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_ansi_683_reserved_bytes,
-        tvb, offset, len - (offset - saved_offset), ENC_NA);
+    if (len > (offset - saved_offset))
+    {
+        proto_tree_add_item(tree, hf_ansi_683_reserved_bytes,
+            tvb, offset, len - (offset - saved_offset), ENC_NA);
+    }
 }
 
 /*
@@ -942,8 +975,11 @@ for_param_block_nam_cdma(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree
     proto_tree_add_item(tree, hf_ansi_683_sid_nid_pairs_01ff, tvb, offset+1, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_ansi_683_reserved_bytes,
-        tvb, offset, len - (offset - saved_offset), ENC_NA);
+    if (len > (offset - saved_offset))
+    {
+        proto_tree_add_item(tree, hf_ansi_683_reserved_bytes,
+            tvb, offset, len - (offset - saved_offset), ENC_NA);
+    }
 }
 
 /*
@@ -1070,7 +1106,11 @@ msg_download_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned l
             switch (block_id)
             {
             case FOR_BLOCK_NAM_CDMA_ANALOG:
-                for_param_block_nam_cdma_analog(tvb, pinfo, subtree, block_len, offset);
+                if (!nam_block_short(tvb, pinfo, subtree, block_len, offset, NAM_CDMA_ANALOG_FOR_MIN_LEN))
+                {
+                    tvbuff_t *blk_tvb = tvb_new_subset_length(tvb, offset, block_len);
+                    for_param_block_nam_cdma_analog(blk_tvb, pinfo, subtree, block_len, 0);
+                }
                 break;
 
             case FOR_BLOCK_NAM_MDN:
@@ -1078,11 +1118,19 @@ msg_download_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned l
                 break;
 
             case FOR_BLOCK_NAM_CDMA:
-                for_param_block_nam_cdma(tvb, pinfo, subtree, block_len, offset);
+                if (!nam_block_short(tvb, pinfo, subtree, block_len, offset, NAM_CDMA_FOR_MIN_LEN))
+                {
+                    tvbuff_t *blk_tvb = tvb_new_subset_length(tvb, offset, block_len);
+                    for_param_block_nam_cdma(blk_tvb, pinfo, subtree, block_len, 0);
+                }
                 break;
 
             case FOR_BLOCK_NAM_IMSI_T:
-                param_block_nam_imsi_t(tvb, subtree, block_len, offset);
+                if (!nam_block_short(tvb, pinfo, subtree, block_len, offset, NAM_IMSI_T_MIN_LEN))
+                {
+                    tvbuff_t *blk_tvb = tvb_new_subset_length(tvb, offset, block_len);
+                    param_block_nam_imsi_t(blk_tvb, subtree, block_len, 0);
+                }
                 break;
 
             default:
@@ -1130,7 +1178,11 @@ msg_ms_key_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len
 
     if (akey_prev < 0x03)
     {
+        SHORT_DATA_CHECK(REMAINING_LEN(len, offset, saved_offset), 1);
+
         param_len = tvb_get_uint8(tvb, offset);
+
+        SHORT_DATA_CHECK(REMAINING_LEN(len, offset, saved_offset), (uint32_t)param_len + 1);
 
         subtree = proto_tree_add_subtree(tree,
                 tvb, offset, param_len + 1,
@@ -1146,7 +1198,11 @@ msg_ms_key_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len
             offset += param_len;
         }
 
+        SHORT_DATA_CHECK(REMAINING_LEN(len, offset, saved_offset), 1);
+
         param_len = tvb_get_uint8(tvb, offset);
+
+        SHORT_DATA_CHECK(REMAINING_LEN(len, offset, saved_offset), (uint32_t)param_len + 1);
 
         subtree = proto_tree_add_subtree(tree,
                 tvb, offset, param_len + 1,
@@ -2047,7 +2103,11 @@ msg_config_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len
             switch (block_id)
             {
             case REV_BLOCK_NAM_CDMA_ANALOG:
-                rev_param_block_nam_cdma_analog(tvb, pinfo, subtree, block_len, offset);
+                if (!nam_block_short(tvb, pinfo, subtree, block_len, offset, NAM_CDMA_ANALOG_REV_MIN_LEN))
+                {
+                    tvbuff_t *blk_tvb = tvb_new_subset_length(tvb, offset, block_len);
+                    rev_param_block_nam_cdma_analog(blk_tvb, pinfo, subtree, block_len, 0);
+                }
                 break;
 
             case REV_BLOCK_NAM_MDN:
@@ -2055,11 +2115,19 @@ msg_config_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len
                 break;
 
             case REV_BLOCK_NAM_CDMA:
-                rev_param_block_nam_cdma(tvb, pinfo, subtree, block_len, offset);
+                if (!nam_block_short(tvb, pinfo, subtree, block_len, offset, NAM_CDMA_REV_MIN_LEN))
+                {
+                    tvbuff_t *blk_tvb = tvb_new_subset_length(tvb, offset, block_len);
+                    rev_param_block_nam_cdma(blk_tvb, pinfo, subtree, block_len, 0);
+                }
                 break;
 
             case REV_BLOCK_NAM_IMSI_T:
-                param_block_nam_imsi_t(tvb, subtree, block_len, offset);
+                if (!nam_block_short(tvb, pinfo, subtree, block_len, offset, NAM_IMSI_T_MIN_LEN))
+                {
+                    tvbuff_t *blk_tvb = tvb_new_subset_length(tvb, offset, block_len);
+                    param_block_nam_imsi_t(blk_tvb, subtree, block_len, 0);
+                }
                 break;
 
             default:
@@ -2508,7 +2576,7 @@ msg_puzl_download_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsig
 
         if (oct & 0x80)
         {
-            SHORT_DATA_CHECK(len, 4);
+            SHORT_DATA_CHECK(REMAINING_LEN(len, offset, saved_offset), 4);
 
             proto_tree_add_item(tree, hf_ansi_683_identifiers_present16, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_ansi_683_user_zone_id, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -2603,7 +2671,7 @@ msg_3gpd_config_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigne
             offset += block_len;
         }
 
-        SHORT_DATA_CHECK(len, 1);
+        SHORT_DATA_CHECK(REMAINING_LEN(len, offset, saved_offset), 1);
 
         proto_tree_add_item(tree, hf_ansi_683_result_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -2833,7 +2901,7 @@ msg_mmd_config_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned
             offset += block_len;
         }
 
-        SHORT_DATA_CHECK(len, 1);
+        SHORT_DATA_CHECK(REMAINING_LEN(len, offset, saved_offset), 1);
 
         proto_tree_add_item(tree, hf_ansi_683_result_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -3039,7 +3107,7 @@ msg_mms_config_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned
             offset += block_len;
         }
 
-        SHORT_DATA_CHECK(len, 1);
+        SHORT_DATA_CHECK(REMAINING_LEN(len, offset, saved_offset), 1);
 
         proto_tree_add_item(subtree, hf_ansi_683_result_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -3077,7 +3145,7 @@ msg_mms_download_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsign
     for (i=0; i < num_blocks; i++)
     {
         subtree = proto_tree_add_subtree_format(tree,
-                tvb, offset, 1, ett_for_mms_block, NULL,
+                tvb, offset, 2, ett_for_mms_block, NULL,
                 "Block #%u", i+1);
 
         proto_tree_add_item(subtree, hf_ansi_683_for_param_block_mms, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3317,7 +3385,7 @@ proto_register_ansi_683(void)
         },
         { &hf_ansi_683_reserved8,
             { "Reserved",         "ansi_683.reserved8",
-            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            FT_UINT8, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_683_reserved16_f,
