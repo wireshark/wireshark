@@ -96,7 +96,7 @@ void ListEditButtons::setSelection(const InheritSelection &sel)
     const QString nothing_selected = tr("Select an entry first.");
     const QString inherited_read_only = tr("Inherited entries are read-only. Change them in the parent profile, "
                                            "or copy them to this profile first.");
-    const QString unavailable = tr("Not available for this selection.");
+    const QString inherited_move = tr("Inherited entries cannot be moved. They always come after the entries of this profile.");
 
     // New
     new_button_->setEnabled(sel.own_used);
@@ -119,14 +119,14 @@ void ListEditButtons::setSelection(const InheritSelection &sel)
     else if (!sel.selected())
         reason = nothing_selected;
     else if (!copy_selection)
-        reason = unavailable;
+        reason = tr("Select a single entry to duplicate.");
     copy_button_->setEnabled(sel.own_used && copy_selection);
     updateToolTip(copy_button_, tool_tips_.copy, reason);
 
     // Move
     bool can_move = sel.selected() && !sel.inherited_selected && sel.contiguous();
-    reason = !sel.selected() ? nothing_selected : sel.inherited_selected ? inherited_read_only
-           : !sel.contiguous() ? unavailable : QString();
+    reason = !sel.selected() ? nothing_selected : sel.inherited_selected ? inherited_move
+           : !sel.contiguous() ? tr("Select adjacent entries to move them.") : QString();
     move_up_button_->setEnabled(can_move && sel.first_row > 0);
     updateToolTip(move_up_button_, tool_tips_.moveUp, reason);
     move_down_button_->setEnabled(can_move && sel.last_row < sel.own_count - 1);
@@ -134,8 +134,12 @@ void ListEditButtons::setSelection(const InheritSelection &sel)
 
     // Clear removes the entries of this profile only
     reason.clear();
-    if (sel.own_visible == 0)
-        reason = unavailable;
+    if (sel.own_count == 0)
+        reason = tr("This profile has no entries of its own to clear.");
+    else if (sel.own_visible == 0)
+        reason = tr("The entries of this profile are hidden.");
+    else if (sel.has_inherited)
+        reason = tr("Inherited entries are kept.");
     clear_button_->setEnabled(sel.own_visible != 0);
     updateToolTip(clear_button_, tool_tips_.clear, reason);
 }
