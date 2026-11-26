@@ -99,6 +99,7 @@ static int hf_ancp_ext_tlv_len;
 static int hf_ancp_dsl_line_stlv_type;
 static int hf_ancp_dsl_line_stlv_len;
 static int hf_ancp_dsl_line_stlv_value;
+static int hf_ancp_dsl_line_stlv_value_bytes;
 static int hf_ancp_ext_tlv_value_str;
 static int hf_ancp_oam_opaque;
 static int hf_ancp_oam_loopb_cnt;
@@ -359,12 +360,14 @@ dissect_ancp_tlv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tlv_tree, int of
         uint16_t    tlen, ttype;
         int16_t     num_stlvs;
         proto_item *tti;
+        int         value_offset;
 
             proto_tree_add_item_ret_uint16(tlv_tree, hf_ancp_ext_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN, &ttype);
             offset += 2;
 
             tti = proto_tree_add_item_ret_uint16(tlv_tree, hf_ancp_ext_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN, &tlen);
             offset += 2;
+            value_offset = offset;
 
             /*
              * Extension Block is common for event message and port
@@ -392,6 +395,15 @@ dissect_ancp_tlv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tlv_tree, int of
                                 2, ENC_BIG_ENDIAN);
                         stlvlen = tvb_get_ntohs(tvb, offset);
                         offset += 2; /* Sub TLV Length */
+
+                        if (stlvlen != 4) {
+                            /* Not a 32-bit value (e.g. Access-Loop-Encapsulation) */
+                            proto_tree_add_item(dsl_tree,
+                                    hf_ancp_dsl_line_stlv_value_bytes, tvb, offset,
+                                    stlvlen, ENC_NA);
+                            offset += WS_ROUNDUP_4(stlvlen);
+                            continue;
+                        }
 
                         tti = proto_tree_add_item(dsl_tree,
                                 hf_ancp_dsl_line_stlv_value, tvb, offset,
@@ -429,7 +441,6 @@ dissect_ancp_tlv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tlv_tree, int of
                     offset += 4;
                     proto_tree_add_item(tlv_tree, hf_ancp_oam_opaque,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
-                    offset += 4;
                     break;
                 case TLV_PING_PARAMS:
                     /* Count (1B) Timeout (1B), 2B empty */
@@ -438,18 +449,16 @@ dissect_ancp_tlv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tlv_tree, int of
                     offset += 1;
                     proto_tree_add_item(tlv_tree,
                             hf_ancp_oam_timeout, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
                     /* Lets not bother about 2B until IETF WG figures out */
-                    offset += 2;
                     break;
                 default:
                     /* Assume TLV value is string - covers ALCID, OAM resp */
                     proto_tree_add_item(tlv_tree, hf_ancp_ext_tlv_value_str,
                             tvb, offset, tlen, ENC_ASCII);
-                    offset += WS_ROUNDUP_4(tlen);
                     break;
             } /* end switch {ttype} */
-            return offset;
+            /* The TLV always occupies its length, rounded up to 4 bytes */
+            return value_offset + WS_ROUNDUP_4(tlen);
 }
 
 static void
@@ -586,6 +595,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
         tlv_len = tvb_get_ntohs(tvb, offset);
         offset += 2;
         proto_item_append_text(sti, " (%d bytes)", tlv_len);
+        offset += WS_ROUNDUP_4(tlv_len);
         /* TODO - if there are non boolean caps, validate before use */
     }
 }
@@ -945,6 +955,12 @@ proto_register_ancp(void)
         { &hf_ancp_dsl_line_stlv_len,
             { "Sub-TLV Length", "ancp.sub_tlv_len",
                 FT_UINT16, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ancp_dsl_line_stlv_value_bytes,
+            { "Value", "ancp.dsl_line_param_bytes",
+                FT_BYTES, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
         },
