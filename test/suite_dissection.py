@@ -181603,3 +181603,83 @@ class TestDissectAppPkixCert:
         assert [r[4] for r in rows[1:4]] == [''] * 3
         # The reassembled and the IPv6 certificates are in other streams
         assert [r[6] for r in rows] == ['0', '0', '0', '0', '1', '2']
+
+
+class TestDissectArcnet:
+    CAPTURE = 'arcnet_coverage.pcapng.gz'
+    # Protocol column of the first nineteen frames of each interface
+    PROTOCOLS = [
+        'UDP', 'ARP', 'UDP', 'ARP', 'RARP', 'IPX', 'IPX', 'UDP', '0x00e8',
+        '0x0000', '0x0001', '0x0008', '0x00f3', '0x00fb', 'RTMP', 'Vines RTP',
+        '0x0080', 'BACnet-APDU', '0x0099']
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectArcnet.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def rows(stdout):
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_arcnet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 46 frames are ARCNET and none is malformed or an error, in
+        one and two passes; the payload of each protocol ID is decoded.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'arcnet', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 46
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split('\n')[:-1]
+        assert protocols[0:19] == self.PROTOCOLS
+        assert protocols[24:43] == self.PROTOCOLS
+        assert protocols[19:24] == ['UDP', 'ARP', 'UDP', 'UDP', 'UDP']
+        assert protocols[43:46] == ['UDP', 'UDP', 'UDP']
+
+    def test_arcnet_addresses_and_ids(self, cmd_tshark, capture_file, test_env):
+        '''Source and destination, protocol ID and the offset field that
+        only the Linux-style header has.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1,3,20,25,27,44}', '-Tfields', '-eframe.number',
+                '-earcnet.src', '-earcnet.dst', '-earcnet.protID', '-earcnet.offset')
+        assert self.rows(stdout) == [
+            ['1', '0x01', '0x02', '0xf0', ''],
+            ['3', '0x01', '0x02', '0xd4', ''],
+            ['20', '0x05', '0x00', '0xd4', ''],
+            ['25', '0x11', '0x12', '0xf0', '0200'],
+            ['27', '0x11', '0x12', '0xd4', '0202'],
+            ['44', '0x15', '0x00', '0xd4', '0200'],
+        ]
+
+    def test_arcnet_fragmentation_and_exceptions(self, cmd_tshark, capture_file, test_env):
+        '''RFC 1201 protocols have a split flag and sequence number; the
+        RFC 1051, diagnose and BACnet ones do not. An exception frame has
+        a second protocol ID; only BSD-style frames can be exception
+        frames.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'arcnet.split_flag', '-Tfields', '-eframe.number',
+                '-earcnet.split_flag', '-earcnet.sequence')
+        rows = self.rows(stdout)
+        assert len(rows) == 37
+        assert rows[0] == ['3', '2', '4098']
+        assert ['20', '3', '43981'] in rows
+        assert ['45', '255', '48351'] in rows
+        assert ['46', '255', '48352'] in rows
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'arcnet.exception_flag', '-Tfields', '-eframe.number',
+                '-earcnet.exception_flag', '-earcnet.padding', '-earcnet.protID',
+                '-earcnet.split_flag', '-earcnet.sequence')
+        assert self.rows(stdout) == [
+            ['22', '0xff', '0x0000', '0xd4,0xd4', '4', '1'],
+            ['23', '0xff', '0x0000', '0xc4,0xc4', '6', '2'],
+        ]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', '!arcnet.split_flag && arcnet.protID in {0xf0,0xf1,0x80,0xcd}',
+                '-Tfields', '-eframe.number')
+        assert stdout.split() == ['1', '2', '17', '18', '24', '25', '26', '41', '42']
