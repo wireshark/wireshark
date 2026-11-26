@@ -45,6 +45,7 @@ static int hf_amt_multicast_data;
 
 static expert_field ei_amt_relay_address_unknown;
 static expert_field ei_amt_unknown;
+static expert_field ei_amt_gateway_short;
 
 static int ett_amt;
 
@@ -136,6 +137,7 @@ dissect_amt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         break;
         case MEMBERSHIP_QUERY:{ /* 4 */
             uint32_t flags_g;
+            unsigned query_start;
             proto_tree_add_item(amt_tree, hf_amt_membership_query_reserved, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(amt_tree, hf_amt_membership_query_l, tvb, offset, 1, ENC_NA);
             proto_tree_add_item_ret_uint(amt_tree, hf_amt_membership_query_g, tvb, offset, 1, ENC_NA, &flags_g);
@@ -144,10 +146,15 @@ dissect_amt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             offset += 6;
             proto_tree_add_item(amt_tree, hf_amt_request_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
+            query_start = offset;
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(ip_handle, next_tvb, pinfo, amt_tree);
             offset += tvb_reported_length_remaining(tvb, offset);
             if(flags_g){
+                if (offset < query_start + 18) {
+                    proto_tree_add_expert_remaining(amt_tree, pinfo, &ei_amt_gateway_short, tvb, query_start);
+                    break;
+                }
                 offset -= 2;
                 offset -= 16;
                 proto_tree_add_item(amt_tree, hf_amt_gateway_port_number, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -298,6 +305,10 @@ proto_register_amt(void)
         { &ei_amt_relay_address_unknown,
           { "amt.relay_address.unknown", PI_UNDECODED, PI_NOTE,
             "Relay Address (Unknown Type)", EXPFILL }
+        },
+        { &ei_amt_gateway_short,
+          { "amt.gateway_short", PI_MALFORMED, PI_ERROR,
+            "Gateway Port Number and IP Address do not fit in the Membership Query", EXPFILL }
         },
         { &ei_amt_unknown,
           { "amt.unknown", PI_UNDECODED, PI_NOTE,
