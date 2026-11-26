@@ -398,6 +398,10 @@ static expert_field ei_alcap_undecoded;
 static expert_field ei_alcap_release_cause_not31;
 static expert_field ei_alcap_abnormal_release;
 static expert_field ei_alcap_response;
+static expert_field ei_alcap_leg_msgs_truncated;
+
+/* Most messages listed in the leg tree of each packet */
+#define ALCAP_MAX_LEG_MSGS_SHOWN 100
 
 static dissector_handle_t alcap_handle;
 
@@ -1286,8 +1290,16 @@ static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, 
         alcap_msg_data_t* msg = leg->msgs;
         proto_item* pi_local;
         proto_tree* tree_local = proto_tree_add_subtree(tree,tvb,0,0,ett_leg,&pi_local,"[Messages in this leg]");
+        unsigned shown = 0;
 
+        /* Every packet of the leg shows the list, so bound it: a long leg
+         * would otherwise cost time quadratic in its number of messages. */
         do {
+            if (shown++ == ALCAP_MAX_LEG_MSGS_SHOWN) {
+                pi_local = proto_tree_add_expert(tree_local, pinfo, &ei_alcap_leg_msgs_truncated, tvb, 0, 0);
+                proto_item_set_generated(pi_local);
+                break;
+            }
             pi_local = proto_tree_add_uint(tree_local,hf_alcap_leg_frame,tvb,0,0,msg->framenum);
             proto_item_set_text(pi_local,"%s in frame %u",
                                 val_to_str_ext_const(msg->msg_type,&msg_type_strings_ext,"Unknown message"),
@@ -2383,6 +2395,7 @@ proto_register_alcap(void)
         { &ei_alcap_release_cause_not31, { "alcap.leg.cause.not31", PI_RESPONSE_CODE, PI_WARN, "Leg Release cause != 31", EXPFILL }},
         { &ei_alcap_abnormal_release, { "alcap.abnormal_release", PI_RESPONSE_CODE, PI_WARN, "Abnormal Release", EXPFILL }},
         { &ei_alcap_response, { "alcap.response", PI_RESPONSE_CODE, PI_NOTE, "Response", EXPFILL }},
+        { &ei_alcap_leg_msgs_truncated, { "alcap.leg.msgs_truncated", PI_SEQUENCE, PI_NOTE, "Further messages of this leg are not listed", EXPFILL }},
     };
 
     proto_alcap = proto_register_protocol("AAL type 2 signalling protocol (Q.2630)", "ALCAP", "alcap");
