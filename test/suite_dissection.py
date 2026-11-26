@@ -177930,3 +177930,199 @@ class TestDissectActrace:
                 '-Tfields', '-eframe.number', '-eudp.length',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['50\t56', '51\t56', '52\t57', '53\t11', '54\t8']
+
+
+class TestDissectAdb:
+    '''
+    adb_coverage.pcapng.gz has two interfaces. Interface 0 (Ethernet, frames
+    1-118): three ADB connections over TCP port 5555 (frames 1-86 the first
+    one, with CNXN, AUTH, shell, logcat, sync, jdwp, tcpip and root services;
+    87-88 the second, 89-118 the third). Interface 1 (Linux usbmon, frames
+    119-204): two USB devices with an ADB interface (class 0xff, subclass
+    0x42, protocol 1). TCP port 5555 and the USB interface are not claimed
+    by default, so every test decodes them with Decode As.
+    '''
+    OPTS = ('-d', 'tcp.port==5555,adb', '-d', 'usb.protocol==0xff4201,adb')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        '''Run tshark -Tfields with the Decode As options and return the
+        lines split at the tabs.'''
+        stdout = subprocess.check_output((cmd_tshark, *TestDissectAdb.OPTS,
+                '-r', capture_file('adb_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_adb_not_decoded_by_default(self, cmd_tshark, capture_file, test_env):
+        '''ADB is only reached with Decode As.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('adb_coverage.pcapng.gz'),
+                '-Y', 'adb',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_adb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames decode without malformed packets or errors in one and two
+        passes, and both passes give the same Info column.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 212
+        assert protocols.count('ADB') == 127
+        assert protocols.count('Logcat') == 6
+        assert protocols.count('TCP') == 9
+        assert protocols.count('USB') == 70
+        infos = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('adb_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('adb_coverage.pcapng.gz'),
+                    '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            infos.append(stdout)
+        assert infos[0] == infos[1]
+
+    def test_adb_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command, on TCP and on USB.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb.command', '-Tfields', '-eadb.command')
+        commands = [r[0] for r in rows]
+        for command, count in (('0x434e5953', 2), ('0x45534c43', 14), ('0x45545257', 39),
+                               ('0x48545541', 13), ('0x4e584e43', 11), ('0x4e45504f', 17),
+                               ('0x59414b4f', 33)):
+            assert commands.count(command) == count
+
+    def test_adb_connect_and_auth(self, cmd_tshark, capture_file, test_env):
+        '''CNXN with a banner in the same or the next segment, AUTH types,
+        and an RSA key in three segments.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 4 && frame.number <= 16',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = dict((r[0], r[1]) for r in rows)
+        assert info['4'] == ('Connect(version=1.0.0, max_data=262144) length=28 '
+                'Connection Info: host::features=shell_v2,cmd')
+        assert info['5'] == 'Connect(version=1.0.0, max_data=4096) length=77 '
+        assert info['6'].startswith('Connection Info: device::ro.product.name=sdk;')
+        assert info['7'].startswith('Authenticate(type=Token, 0) length=20 ')
+        assert info['8'] == 'Authenticate(type=Signature, 0) length=256 '
+        assert info['11'] == 'Authenticate(type=RSA Public Key, 0) length=1211 '
+        assert [info[str(n)] for n in (12, 13, 14)] == ['Data Fragment'] * 3
+        assert info['15'] == 'Authenticate(type=Unknown, 0)'
+
+    def test_adb_services(self, cmd_tshark, capture_file, test_env):
+        '''The service of an OPEN is applied to the data of the stream: shell
+        input and output by direction, results, and raw data of streams that
+        were never opened.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_service.stdout || adb_service.stdin || adb_service.result',
+                '-Tfields', '-eframe.number', '-eadb_service.stdin',
+                '-eadb_service.stdout', '-eadb_service.result')
+        assert rows[0] == ['19', '', 'a.txt\\r\\nb.txt\\r\\n', '']
+        assert rows[1] == ['22', 'echo hello\\n', '', '']
+        assert ['65', '', '', 'restarting in TCP mode port: 5555\\n'] in rows
+        assert ['76', '', '', 'restarting adbd as root\\n'] in rows
+        # the USB device answers the shell command too
+        assert ['144', '', '34\\r\\n', ''] in rows
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb.command == 0x45545257 && adb.data',
+                '-Tfields', '-eframe.number', '-eadb.data')
+        assert [r[0] for r in rows] == ['79', '83', '88', '208']
+
+    def test_adb_service_state(self, cmd_tshark, capture_file, test_env):
+        '''Frames of a service link to its OPEN and to the frames that close
+        it, in the local and the remote direction.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number == 22 || frame.number == 32',
+                '-Tfields', '-eframe.number', '-eadb.service',
+                '-eadb.service_start_in_frame', '-eadb.close_local_in_frame',
+                '-eadb.close_remote_in_frame')
+        # the OPEN in frame 17 is closed by the host in frame 31 and by the
+        # device in frame 32
+        assert rows[0] == ['22', 'shell:ls /sdcard', '17', '32', '31']
+        assert rows[1] == ['32', 'shell:ls /sdcard', '17', '32', '31']
+
+    def test_adb_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A write whose data follows in later segments: the header names the
+        frame that completes it, and a service gets the reassembled data. The
+        logcat stream in frames 42-45 holds 60 entries.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number >= 42 && frame.number <= 45',
+                '-Tfields', '-eframe.number', '-eadb.completed_in_frame',
+                '-eadb.command_in_frame', '-eadb.data_fragment')
+        assert rows[0] == ['42', '45', '', '']
+        assert rows[1] == ['43', '45', '42', '1']
+        assert rows[2] == ['44', '45', '42', '1']
+        assert rows[3] == ['45', '', '42', '1']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 45', '-Tfields', '-elogcat.tag')
+        assert len(rows[0][0].split(',')) == 60
+        assert rows[0][0].split(',')[0] == 'Big'
+
+    def test_adb_logcat(self, cmd_tshark, capture_file, test_env):
+        '''Logcat entries: three in one message, one cut between messages
+        and, over USB, a message that is cut in the payload.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'logcat', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [r[0] for r in rows] == ['36', '40', '45', '160', '166', '174']
+        assert rows[0][1] == 'third'
+        assert rows[1][1] == 'next'
+        assert rows[3][1] == 'complete'
+        assert rows[4][1] == 'a log entry over USB, split over two WRTE messages'
+
+    def test_adb_second_pass_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''A WRTE that announces 24 octets followed by 24 octets that look
+        like an OPEN is data, in the first and in the second pass. The
+        second pass used to decode it as a service name.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number == 88',
+                    '-Tfields', '-eadb.data', '-eadb.service', '-e_ws.col.info')
+            assert rows[0][0] != ''
+            assert rows[0][1] == ''
+            assert rows[0][2].startswith('Data Raw: OPEN')
+
+    def test_adb_usb(self, cmd_tshark, capture_file, test_env):
+        '''ADB over USB bulk transfers: two devices with their own streams.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb && usb', '-Tfields', '-eusb.device_address',
+                '-eadb.command')
+        devices = [r[0] for r in rows]
+        assert devices.count('5') > 20
+        assert devices.count('6') == 5
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb.service && usb.device_address == 6',
+                '-Tfields', '-eframe.number', '-eadb.service')
+        assert rows[0] == ['199', 'shell:true']
+
+    def test_adb_completed_in_frame_first_pass(self, cmd_tshark, capture_file, test_env):
+        '''The frame that completes a message is not known to the first pass,
+        which omits the field (it used to show 4294967295); the second pass
+        shows it.'''
+        for passes, expected in (((), ''), (('-2',), '6')):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number == 5', '-Tfields', '-eadb.completed_in_frame')
+            assert rows == [[expected]]
+
+    def test_adb_frames_after_command(self, cmd_tshark, capture_file, test_env):
+        '''Frames after a completed command that are not commands (a bad
+        magic, fewer than 24 octets, zeros, an unknown command) are raw data
+        with the same text in both passes. The first pass used the data length
+        of the previous command and showed a fragment.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 208', '-Tfields', '-eframe.number',
+                    '-e_ws.col.info')
+            outputs.append(rows)
+        assert outputs[0] == outputs[1]
+        rows = outputs[0]
+        assert [r[0] for r in rows] == ['208', '209', '210', '211', '212']
+        assert rows[0][1].startswith('Write(local=77, remote=88) length=11 Data Raw: raw payload')
+        assert all(r[1].startswith('Data Raw:') for r in rows[1:])
+        assert 'Fragment' not in ''.join(r[1] for r in rows)
