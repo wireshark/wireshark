@@ -763,7 +763,6 @@ advance_to_end_of_signature(packet_info *pinfo, const uint8_t **signature, uint8
 {
     bool done = false;
     int8_t current_type;
-    int8_t end_type = ARG_INVALID;
 
     increment_dissection_depth(pinfo);
 
@@ -771,27 +770,28 @@ advance_to_end_of_signature(packet_info *pinfo, const uint8_t **signature, uint8
         current_type = *(++(*signature));
         --*signature_length;
 
-        /* Were we looking for the end of a structure or dictionary? If so, did we find it? */
-        if(end_type != ARG_INVALID) {
-            if(end_type == current_type) {
-                done = true; /* Found the end of the structure or dictionary. All done. */
-            }
-
-            continue;
-        }
-
         switch(current_type)
         {
         case ARG_ARRAY:
+            /* Skip the element type, which is the last part of this type. */
             advance_to_end_of_signature(pinfo, signature, signature_length);
+            done = true;
             break;
         case ARG_STRUCT:
-            end_type = ')';
-            advance_to_end_of_signature(pinfo, signature, signature_length);
-            break;
         case ARG_DICT_ENTRY:
-            end_type = '}';
-            advance_to_end_of_signature(pinfo, signature, signature_length);
+            {
+                uint8_t end_type = (current_type == ARG_STRUCT) ? ')' : '}';
+
+                /* Skip each member, then the closing character. */
+                while (*signature_length > 1 && *(*signature + 1) != end_type && *(*signature + 1) != '\0') {
+                    advance_to_end_of_signature(pinfo, signature, signature_length);
+                }
+                if (*signature_length > 1 && *(*signature + 1) == end_type) {
+                    (*signature)++;
+                    (*signature_length)--;
+                }
+                done = true;
+            }
             break;
 
         case ARG_BYTE:
@@ -935,6 +935,11 @@ parse_arg(tvbuff_t      *tvb,
 
             if(0 == length) {
                 advance_to_end_of_signature(pinfo, signature, signature_length);
+                /* That stops on the last character of the element type; move past it. */
+                if (*signature_length > 0) {
+                    (*signature)++;
+                    (*signature_length)--;
+                }
             } else {
                 uint8_t sig_length_saved = *signature_length - 1;
 
@@ -1011,11 +1016,14 @@ parse_arg(tvbuff_t      *tvb,
 
         /* Extract signature from tvb and return to caller. */
         /* XXX should this extract "length - 1" since we always expect /0? */
-        proto_tree_add_item_ret_string(field_tree, hf_alljoyn_mess_body_signature, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, signature);
-        *signature_length = length;
-
         if(HDR_SIGNATURE == field_code) {
+            /* Only the header signature field gives the signature the body is read with. */
+            proto_tree_add_item_ret_string(field_tree, hf_alljoyn_mess_body_signature, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, signature);
+            *signature_length = length;
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", *signature);
+        } else {
+            /* A signature argument in the body must not replace the signature being walked. */
+            proto_tree_add_item(field_tree, hf_alljoyn_mess_body_signature, tvb, offset, length, ENC_ASCII);
         }
 
         offset += length;
@@ -1049,7 +1057,12 @@ parse_arg(tvbuff_t      *tvb,
         break;
 
     case ARG_OBJ_PATH:   /* AllJoyn Name of an AllJoyn object instance basic type */
-        length = tvb_get_uint32(tvb, offset, encoding) + 1;
+        length = tvb_get_uint32(tvb, offset, encoding);
+        if (length >= MAX_ARRAY_LEN) {
+            col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Object path length is %u.", length);
+            return tvb_reported_length(tvb);
+        }
+        length++;
 
         /* The + 4 is for the length specifier. Object paths may be of "any length"
            according to D-Bus spec. But there are practical limits. */
@@ -1518,6 +1531,15 @@ handle_message_header_body(tvbuff_t    *tvb,
 
     header_length = tvb_get_uint32(tvb, offset + HEADER_LENGTH_OFFSET, encoding);
     body_length = tvb_get_uint32(tvb, offset + BODY_LENGTH_OFFSET, encoding);
+
+    /* AllJoyn limits the header fields and the body, reject anything larger
+     * rather than waiting for gigabytes of data. */
+    if ((unsigned)header_length > MAX_PACKET_LEN || (unsigned)body_length > MAX_PACKET_LEN) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Header length is %u, body length is %u. Expected <= %d",
+            (unsigned)header_length, (unsigned)body_length, MAX_PACKET_LEN);
+        return offset + remaining_packet_length;
+    }
+
     packet_length_needed = ROUND_TO_8BYTE(header_length) + body_length + MESSAGE_HEADER_LENGTH;
 
     /* ARDP (UDP) packets can't be desegmented by Wireshark and it is normal to see them in
@@ -1708,7 +1730,8 @@ dissect_AllJoyn_message(tvbuff_t    *tvb,
 
             offset = handle_message_sasl(tvb, pinfo, offset, message_tree);
 
-            if(offset >= packet_length) {
+            /* More data was requested: stop and parse the command again once it is complete. */
+            if(pinfo->desegment_len != 0 || offset >= packet_length) {
                 break;
             }
         }
@@ -2151,7 +2174,8 @@ ardp_parse_header(tvbuff_t *tvb,
                   packet_info *pinfo,
                   alljoyn_ardp_tree_data *tree_data)
 {
-    uint8_t     flags, header_length;
+    uint8_t     flags;
+    unsigned    header_length;
     int         eaklen, packet_length;
     uint16_t    data_length;
 
@@ -2182,7 +2206,7 @@ ardp_parse_header(tvbuff_t *tvb,
 
     data_length = tvb_get_ntohs(tvb, ARDP_DATA_LENGTH_OFFSET);
 
-    if(packet_length < header_length + data_length) {
+    if((unsigned)packet_length < header_length + data_length) {
         /* If we need more data before dissecting then communicate the number of additional bytes needed. */
         set_pinfo_desegment(pinfo, 0, header_length + data_length - packet_length);
 
@@ -2252,7 +2276,7 @@ ardp_parse_header(tvbuff_t *tvb,
         tree_data->fragment_count = tvb_get_ntohs(tvb, tree_data->offset);
         tree_data->offset += 2;
 
-        eaklen = header_length - ARDP_FIXED_HDR_LEN;
+        eaklen = (int)header_length - ARDP_FIXED_HDR_LEN;
 
         /* In the case of a corrupted packet eaklen could be < 0 and bad things could happen. */
         if(eaklen > 0) {
@@ -2275,7 +2299,8 @@ ardp_parse_header(tvbuff_t *tvb,
 static bool
 protocol_is_ardp(tvbuff_t *tvb)
 {
-    uint8_t     flags, header_length;
+    uint8_t     flags;
+    unsigned    header_length;
     int length = tvb_captured_length(tvb);
 
     /* We must be able to get the byte value at this offset to determine if it is an ARDP protocol. */
@@ -2944,7 +2969,7 @@ proto_register_AllJoyn(void)
           NULL, HFILL}},
         {&hf_ardp_bmp,
          {"EACK Bitmap", "ardp.hdr.bmp",
-          FT_UINT8, BASE_HEX, NULL, 0x0,
+          FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL}},
         {&hf_ardp_segmax,
          {"Segment Max", "ardp.hdr.segmentmax",
@@ -2952,11 +2977,11 @@ proto_register_AllJoyn(void)
           NULL, HFILL}},
         {&hf_ardp_segbmax,
          {"Segment Buffer Max", "ardp.hdr.segmentbmax",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL}},
         {&hf_ardp_dackt,
          {"Receiver's delayed ACK timeout", "ardp.hdr.dackt",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}},
         {&hf_ardp_options,
          {"Options", "ardp.hdr.options",
