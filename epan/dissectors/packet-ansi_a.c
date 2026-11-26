@@ -2175,7 +2175,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
     uint8_t     num_bands, band_class_count, band_class_entry_len, p_rev;
     uint32_t    curr_offset;
     int         band_class;
-    proto_item  *item;
+    proto_item  *item, *entry_item;
     proto_tree  *subtree;
 
     curr_offset = offset;
@@ -2270,9 +2270,11 @@ elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
         num_bands = 0;
         do
         {
+            uint32_t entry_start = curr_offset;
+
             subtree =
                 proto_tree_add_subtree_format(tree, tvb, curr_offset, band_class_entry_len,
-                    ett_cm2_band_class, NULL, "Band Class Entry [%u]", num_bands + 1);
+                    ett_cm2_band_class, &entry_item, "Band Class Entry [%u]", num_bands + 1);
 
             proto_tree_add_item(subtree, hf_ansi_a_reserved_bits_8_e0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(subtree, hf_ansi_a_scm_band_class_entry_band_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2318,7 +2320,12 @@ elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
 
             curr_offset++;
 
-            proto_item_append_text(item, ": (%d)", band_class);
+            if (band_class_entry_len > 3)
+            {
+                curr_offset = entry_start + band_class_entry_len;
+            }
+
+            proto_item_append_text(entry_item, ": (%d)", band_class);
 
             num_bands++;
         }
@@ -5666,6 +5673,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
                     i++;
                     curr_offset += 2;
                 }
+                curr_offset = saved_offset2 + oct_len;
                 break;
 
             default:
@@ -6797,7 +6805,7 @@ elem_ms_des_freq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t o
     proto_item_append_text(data_p->elem_item, " - (CDMA Channel: %u)",
         tvb_get_ntohs(tvb, curr_offset) & 0x07ff);
 
-    curr_offset++;
+    curr_offset += 2;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -10144,9 +10152,7 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static void
 dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool from_sip)
 {
-    static ansi_a_tap_rec_t     tap_rec[16];
-    static ansi_a_tap_rec_t     *tap_p;
-    static int                  tap_current = 0;
+    ansi_a_tap_rec_t            *tap_p;
     uint8_t                     oct;
     uint32_t                    offset;
     uint32_t                    len;
@@ -10171,12 +10177,7 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool f
     /*
      * set tap record pointer
      */
-    tap_current++;
-    if (tap_current == array_length(tap_rec))
-    {
-        tap_current = 0;
-    }
-    tap_p = &tap_rec[tap_current];
+    tap_p = wmem_new0(pinfo->pool, ansi_a_tap_rec_t);
 
     len = tvb_reported_length(tvb);
     offset = 0;
@@ -10251,9 +10252,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 static void
 dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool from_sip)
 {
-    static ansi_a_tap_rec_t     tap_rec[16];
-    static ansi_a_tap_rec_t     *tap_p;
-    static int                  tap_current = 0;
+    ansi_a_tap_rec_t            *tap_p;
     uint8_t                     oct, oct_1 = 0;
     uint32_t                    offset;
     uint32_t                    len;
@@ -10292,12 +10291,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool fr
     /*
      * set tap record pointer
      */
-    tap_current++;
-    if (tap_current == array_length(tap_rec))
-    {
-        tap_current = 0;
-    }
-    tap_p = &tap_rec[tap_current];
+    tap_p = wmem_new0(pinfo->pool, ansi_a_tap_rec_t);
 
     offset = 0;
 
@@ -12613,7 +12607,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_plcm42,
             { "PLCM_42", "ansi_a_bsmap.plcm42",
-            FT_BOOLEAN, 56, NULL, UINT64_C(0x3FFFFFFFFFF),
+            FT_UINT48, BASE_HEX, NULL, UINT64_C(0x3FFFFFFFFFF),
             NULL, HFILL }
         },
     };
