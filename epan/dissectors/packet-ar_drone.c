@@ -105,6 +105,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 {
     unsigned    offset, length;
     unsigned    master_offset = 0;
+    unsigned    value_offset;
     bool found;
     proto_item *ti, *sub_item;
     proto_tree *ar_tree, *sub_tree;
@@ -148,11 +149,14 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         if (!tvb_find_uint8_remaining(tvb, master_offset, '=', &offset))
             return master_offset;
 
+        /* The value starts after the '=' that ends the command name */
+        value_offset = offset + 1;
+
         command = (char*)tvb_get_string_enc(pinfo->pool, tvb, master_offset, offset-master_offset, ENC_ASCII|ENC_NA);
         complete_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, master_offset+3, offset-master_offset-3, ENC_ASCII|ENC_NA);
         sub_item = proto_tree_add_string(ar_tree, hf_ar_drone_command, tvb, master_offset, -1, complete_str);
 
-        if (!strncmp(command, "AT*PCMD", 7))
+        if (!strcmp(command, "AT*PCMD"))
         {
             /** Parse according the PCMD layout: */
             uint8_t     PCMD_byte;
@@ -160,7 +164,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             sub_tree = proto_item_add_subtree(sub_item, ett_ar_drone_PCMD);
 
-            offset = master_offset + 8;
+            offset = value_offset;
 
             /* Add PCMD ID */
             found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
@@ -322,12 +326,12 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 proto_item_append_text(ti, "%s", PCMD_str);
             offset += (length + 1);
         }
-        else if (!strncmp(command, "AT*REF", 6))
+        else if (!strcmp(command, "AT*REF"))
         {
             /** Parse according to the REF layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_ar_drone_REF);
 
-            offset = master_offset + 7;
+            offset = value_offset;
 
             /* Add REF ID */
             found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
@@ -349,12 +353,12 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             proto_tree_add_item(sub_tree, hf_ar_drone_REF_ctrl, tvb, offset, length, ENC_ASCII);
             offset += (length + 1);
 
-        } else if (!strncmp(command, "AT*CONFIG_IDS", 13))
+        } else if (!strcmp(command, "AT*CONFIG_IDS"))
         {
             /** Parse according to the CONFIG_ID layout:  */
             sub_tree = proto_item_add_subtree(sub_item, ett_ar_drone_CONFIG_ID);
 
-            offset = master_offset + 14;
+            offset = value_offset;
 
             /* Add Sequence Number */
             found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
@@ -396,12 +400,12 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             proto_tree_add_item(sub_tree, hf_ar_drone_CONFIG_ID_app, tvb, offset, length, ENC_ASCII);
             offset += (length + 1);
 
-        } else if (!strncmp(command, "AT*ANIM", 7))
+        } else if (!strcmp(command, "AT*ANIM"))
         {
             /** Parse according to the ANIM layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_ar_drone_ANIM);
 
-            offset = master_offset + 8;
+            offset = value_offset;
 
             /* Add sequence */
             found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
@@ -433,12 +437,12 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             proto_tree_add_item(sub_tree, hf_ar_drone_ANIM_sec, tvb, offset, length, ENC_ASCII);
             offset += (length + 1);
 
-        } else if (!strncmp(command, "AT*FTRIM", 8))
+        } else if (!strcmp(command, "AT*FTRIM"))
         {
             /** Parse according to the FTRIM layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_ar_drone_FTRIM);
 
-            offset = master_offset + 9;
+            offset = value_offset;
 
             /* Add sequence number */
             found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
@@ -450,12 +454,12 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             proto_item_append_text(sub_item, " (Sets the reference for the horizontal plane)");
             proto_tree_add_item(sub_tree, hf_ar_drone_FTRIM_seq, tvb, offset, length, ENC_ASCII);
             offset += (length + 1);
-        } else if (!strncmp(command, "AT*CONFIG", 9))
+        } else if (!strcmp(command, "AT*CONFIG"))
         {
             /** Parse according to the CONFIG layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_ar_drone_CONFIG);
 
-            offset = master_offset + 10;
+            offset = value_offset;
 
             /* Add sequence */
             found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
@@ -487,12 +491,12 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             proto_tree_add_item(sub_tree, hf_ar_drone_CONFIG_val, tvb, offset, length, ENC_ASCII);
             offset += (length + 1);
 
-        } else if (!strncmp(command, "AT*LED", 6))
+        } else if (!strcmp(command, "AT*LED"))
         {
             /** Parse according to the LED layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_ar_drone_LED);
 
-            offset = master_offset + 7;
+            offset = value_offset;
 
             /* Add sequence */
             found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
@@ -534,12 +538,12 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             proto_tree_add_item(sub_tree, hf_ar_drone_LED_sec, tvb, offset, length, ENC_ASCII);
             offset += (length + 1);
 
-        } else if (!strncmp(command, "AT*COMWDG", 9))
+        } else if (!strcmp(command, "AT*COMWDG"))
         {
             /** Parse according to the COMWDG layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_ar_drone_COMWDG);
 
-            offset = master_offset + 10;
+            offset = value_offset;
 
             /* Add sequence number */
             found = tvb_find_uint8_remaining(tvb, offset, 0x0d, &length);
@@ -551,14 +555,14 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             proto_tree_add_item(sub_tree, hf_ar_drone_COMWDG, tvb, offset, length, ENC_ASCII);
             offset += (length + 1);
 
-        }else if (!strncmp(command, "AT*CTRL", 7))
+        }else if (!strcmp(command, "AT*CTRL"))
         {
             const char* CTRL_mode_str;
 
             /** Parse according to the CTRL layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_ar_drone_CTRL);
 
-            offset = master_offset + 8;
+            offset = value_offset;
 
             /* Add sequence */
             found = tvb_find_uint8_remaining(tvb, offset, ',', &length);
@@ -593,8 +597,10 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         }
         else
         {
-            /* Unknown command, just abort */
-            return master_offset;
+            /* Unknown command, just abort. The packet was claimed above, so
+             * do not return 0 for an unknown first command: UDP would hand
+             * it to the dissector again and add everything twice. */
+            return master_offset ? master_offset : tvb_captured_length(tvb);
         }
 
         proto_item_set_len(sub_item, offset-master_offset);
