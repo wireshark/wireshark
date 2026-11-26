@@ -8166,6 +8166,34 @@ class TestDissectAmqp:
             assert rows == []
 
 
+    def test_amqp_exported_pdu_version_table(self, cmd_tshark, capture_file, test_env):
+        '''AMQP 0-9 method frames handed to the "amqp.version" table by
+        Exported PDU records never ran the AMQP stream dissector, so there is
+        no conversation data. They are still dissected without a dissector
+        bug or malformed packet, in one and two passes (before the fix
+        confirm.select-ok and basic.publish dereferenced NULL).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('amqp-exported-pdu.pcap'),
+                    '-Tfields', '-eframe.number', '-eamqp.method.class',
+                    '-eamqp.method.method', '-e_ws.malformed', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\t85\t11\t\t',     # confirm.select-ok
+                '2\t60\t40\t\t',     # basic.publish
+                '3\t60\t80\t\t',     # basic.ack
+            ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('amqp-exported-pdu.pcap'), '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Dissector bug' not in stdout
+        assert 'Malformed Packet' not in stdout
+        assert 'Method: Select-Ok (11)' in stdout
+        assert 'Method: Publish (40)' in stdout
+        assert 'Routing-Key: rk' in stdout
+        assert 'Method: Ack (80)' in stdout
+
+
 class TestDissectAnsi637:
     @staticmethod
     def fields(cmd_tshark, capture_file, test_env, frames, *fields, passes=()):
