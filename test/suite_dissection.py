@@ -178126,3 +178126,140 @@ class TestDissectAdb:
         assert rows[0][1].startswith('Write(local=77, remote=88) length=11 Data Raw: raw payload')
         assert all(r[1].startswith('Data Raw:') for r in rows[1:])
         assert 'Fragment' not in ''.join(r[1] for r in rows)
+
+
+class TestDissectAdbCs:
+    '''
+    adb_cs_coverage.pcapng.gz: TCP connections between an adb client
+    (192.0.2.1) and the adb server (192.0.2.2, port 5037), one connection to
+    port 5038 (decoded as ADB CS, but not the server port) and, on a second
+    interface, one Exported PDU frame for the ADB Service dissector. Neither
+    port is claimed by default, so every test uses Decode As.
+    '''
+    OPTS = ('-d', 'tcp.port==5037,adb_cs', '-d', 'tcp.port==5038,adb_cs')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        '''Run tshark with the Decode As options and return the lines split
+        at the tabs.'''
+        stdout = subprocess.check_output((cmd_tshark, *TestDissectAdbCs.OPTS,
+                '-r', capture_file('adb_cs_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_adb_cs_not_decoded_by_default(self, cmd_tshark, capture_file, test_env):
+        '''Port 5037 is only reached with Decode As.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('adb_cs_coverage.pcapng.gz'),
+                '-Y', 'adb_cs',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_adb_cs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no errors, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 486
+        assert protocols.count('ADB CS') == 205
+        assert protocols.count('Logcat') == 10
+        assert protocols.count('TCP') == 270
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number')
+            assert rows == []
+
+    def test_adb_cs_roles(self, cmd_tshark, capture_file, test_env):
+        '''Frames to the server port are from the client, frames from it are
+        from the server; frames on a port that is not the server port have an
+        unknown role.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_cs.role', '-Tfields', '-eadb_cs.role')
+        roles = [r[0] for r in rows]
+        assert roles.count('0x01') == 129
+        assert roles.count('0x02') == 84
+        assert roles.count('0x00') == 2
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 419 && frame.number <= 420',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert rows == [['419', 'Unknown role'], ['420', 'Unknown role']]
+
+    def test_adb_cs_server_port_preference(self, cmd_tshark, capture_file, test_env):
+        '''With adb_cs.server_port 5038 the connection to port 5038 is a
+        request and its answer, and port 5037 has no role.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'adb_cs.server_port:5038',
+                '-Y', 'frame.number in {4, 419, 420}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eadb_cs.role')
+        assert rows[0] == ['4', 'Unknown role', '0x00']
+        assert rows[1] == ['419', 'Client Length=12 Service=<host:version>', '0x02']
+        assert rows[2] == ['420', 'Server Status=OKAY Service=<host:version> Version=41', '0x01']
+
+    def test_adb_cs_requests(self, cmd_tshark, capture_file, test_env):
+        '''The request is a hex length and the service; the service of a
+        connection applies to the later frames of it, also when the length
+        and the service are in different segments.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {12, 13, 14, 15, 16, 146, 147, 148}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-eadb_cs.hex_ascii_length', '-eadb_cs.length')
+        info = dict((r[0], r[1:]) for r in rows)
+        assert info['12'] == ['Client Length=12', '000c', '12']
+        assert info['13'] == ['Client Service=<host:version>', '', '']
+        assert info['14'] == ['Server Status=OKAY Service=<host:version>', '', '']
+        assert info['16'] == ['Server Service=<host:version> Version=41', '', '']
+        assert info['146'] == ['Client Length=34', '0022', '34']
+        assert info['147'] == ['Client Service=<shell:getprop ro.build.version.sdk>', '', '']
+        assert info['148'][0] == ('Server Status=OKAY Service=<shell:getprop '
+                'ro.build.version.sdk> Stdout=<34\\\\r\\\\n>')
+
+    def test_adb_cs_fail(self, cmd_tshark, capture_file, test_env):
+        '''FAIL answers with the reason in the same or the next segment, and
+        a length that is shorter than the reason.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_cs.status == "FAIL"',
+                '-Tfields', '-eframe.number', '-eadb_cs.fail_reason',
+                '-eadb_cs.length')
+        assert rows == [['367', "device 'NOSUCHDEVICE' not found", '31'],
+                        ['375', '', '16'],
+                        ['378', 'device offline', '14'],
+                        ['386', '', '0']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_cs.fail_reason', '-Tfields', '-eframe.number',
+                '-e_ws.col.info')
+        assert rows[0][1].endswith("Fail=<device 'NOSUCHDEVICE' not found>")
+        assert [r[0] for r in rows] == ['367', '376', '378']
+
+    def test_adb_cs_incomplete(self, cmd_tshark, capture_file, test_env):
+        '''A result that is longer than its length says is an incomplete
+        message warning, in both dissectors.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_cs.expert.incomplete_message || adb_service.expert.incomplete_message',
+                '-Tfields', '-eframe.number')
+        assert [r[0] for r in rows] == ['53', '104', '281', '376']
+
+    def test_adb_cs_data_without_request(self, cmd_tshark, capture_file, test_env):
+        '''Data without a request is shown as such, from either side.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 401 && frame.number <= 415',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = dict((r[0], r[1]) for r in rows if r[1])
+        assert info['401'] == 'Server Unknown service'
+        assert info['402'] == 'Client Unknown service'
+        assert info['411'] == 'Client Length=5'
+        assert info['412'] == 'Client Service=<hello>'
+
+    def test_adb_cs_request_info_first_pass(self, cmd_tshark, capture_file, test_env):
+        '''The frame that carries a request shows its service in the first
+        pass, as in the second (it showed "Unknown service").'''
+        infos = []
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'adb_cs', '-Tfields', '-e_ws.col.info')
+            infos.append(rows)
+        assert infos[0] == infos[1]
+        assert ['Client Length=12 Service=<host:version>'] in infos[0]
+        assert not any('Unknown service' in r[0] and r[0].startswith('Client Length=12')
+                       for r in infos[0])
