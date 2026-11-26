@@ -8854,9 +8854,9 @@ class TestDissectAnsiA:
         '''Every BSMAP and DTAP message of both variants, over M3UA/SCCP, in
         a femtocell SIP MESSAGE and in ANSI-41 MAP, decodes without malformed
         packets or errors, in one and two passes.'''
-        for ios5, counts in ((False, {'BSAP': 268, 'SCCP (Int. ITU)': 20, 'SIP': 12, 'ANSI MAP': 3,
+        for ios5, counts in ((False, {'BSAP': 271, 'SCCP (Int. ITU)': 20, 'SIP': 12, 'ANSI MAP': 3,
                                       'IS-637-A': 4, 'IS-683': 2, 'IS-801': 2}),
-                             (True, {'BSAP': 283, 'SCCP (Int. ITU)': 22, 'SIP': 12, 'ANSI MAP': 3,
+                             (True, {'BSAP': 288, 'SCCP (Int. ITU)': 22, 'SIP': 12, 'ANSI MAP': 3,
                                      'IS-637-A': 4, 'IS-683': 2, 'IS-801': 2,
                                      'EVRC': 4, 'RTP': 1, 'RTP EVENT': 1})):
             stdout = self.ansi_a(cmd_tshark, capture_file, test_env, ios5,
@@ -8964,6 +8964,62 @@ class TestDissectAnsiA:
                     '-Y', 'frame.number == ' + frame,
                     '-Tfields', '-eansi_a_bsmap.cause_1', '-eansi_a_bsmap.esn')
             assert stdout.strip() == '9\t0x8a123456'
+
+    def test_ansi_a_cm2_band_class_entry_length(self, cmd_tshark, capture_file, test_env):
+        '''Classmark Information Type 2 steps over the padding of Band
+        Class Entries longer than 3 octets (lengths 4 and 5): the entries
+        keep their own band class and protocol level, and nothing is left
+        as extraneous data. The band class is shown on the entry item (it
+        used to be appended to the Station Class Mark item).'''
+        for ios5, frames in ((False, ('312', '313')), (True, ('335', '336'))):
+            stdout = self.ansi_a(cmd_tshark, capture_file, test_env, ios5,
+                    '-Y', 'frame.number in {%s}' % ','.join(frames),
+                    '-Tfields', '-eframe.number', '-eansi_a_bsmap.cm2.scm.band_class_entry_len',
+                    '-eansi_a_bsmap.cm2.scm.bc_entry.band_class',
+                    '-eansi_a_bsmap.cm2.scm.bc_entry.p_rev')
+            assert stdout.splitlines() == [
+                frames[0] + '\t4\t1,5\t6,6',
+                frames[1] + '\t5\t1,3,5\t6,5,6',
+            ]
+            stdout = self.ansi_a(cmd_tshark, capture_file, test_env, ios5,
+                    '-Y', 'frame.number == ' + frames[0], '-V', '-O', 'ansi_a_bsmap,ansi_a_dtap')
+            assert 'Band Class Entry [1]: (1)' in stdout
+            assert 'Band Class Entry [2]: (5)' in stdout
+            assert 'Extraneous' not in stdout
+
+    def test_ansi_a_so_information_tail(self, cmd_tshark, capture_file, test_env):
+        '''A Reverse MS Information Record Service Option Information
+        whose length is not a multiple of 3 skips the stray octet, so the
+        Keypad Facility record after it is decoded as such.'''
+        for ios5, frame in ((False, '314'), (True, '337')):
+            stdout = self.ansi_a(cmd_tshark, capture_file, test_env, ios5,
+                    '-Y', 'frame.number == ' + frame, '-V', '-O', 'ansi_a_bsmap,ansi_a_dtap')
+            assert 'Information Record Type [1]: (17) Service Option Information' in stdout
+            assert 'Information Record Type [2]: (3) Keypad Facility' in stdout
+            assert 'Extraneous' not in stdout
+            assert 'Reserved' not in stdout.split('Keypad Facility')[1].split('\n')[0]
+
+    def test_ansi_a_ms_designated_frequency(self, cmd_tshark, capture_file, test_env):
+        '''MS Designated Frequency (IOS 5, 2 octets) is stepped over
+        completely, as the last element and before another one: no
+        extraneous data note.'''
+        stdout = self.ansi_a(cmd_tshark, capture_file, test_env, True,
+                '-Y', 'frame.number >= 338',
+                '-Tfields', '-eframe.number', '-eansi_a_bsmap.ms_des_freq.band_class',
+                '-eansi_a_bsmap.ms_des_freq.cdma_channel')
+        assert stdout.splitlines() == ['338\t1\t75', '339\t1\t75']
+        stdout = self.ansi_a(cmd_tshark, capture_file, test_env, True,
+                '-Y', 'frame.number >= 338 && _ws.expert.message contains "Extraneous"',
+                '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+
+    def test_ansi_a_plcm_42(self, cmd_tshark, capture_file, test_env):
+        '''The 42 bit PLCM of the PLCM Identification element in ANSI-41
+        MAP is shown as a number (it used to be a boolean).'''
+        stdout = self.ansi_a(cmd_tshark, capture_file, test_env, True,
+                '-Y', 'ansi_a_bsmap.plcm42 && frame.number >= 329',
+                '-Tfields', '-eframe.number', '-eansi_a_bsmap.plcm42')
+        assert stdout.strip() == '329\t0x0000030102030405'
 
 
 # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.

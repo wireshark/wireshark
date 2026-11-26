@@ -645,6 +645,7 @@ def build(ios5):
     build_repro(c, ios5)
     build_ansi_map(c, ios5)
     build_fill(c, ios5)
+    build_round2(c, ios5)
     return c
 
 
@@ -1145,6 +1146,30 @@ def build_fill(c, ios5):
               ber(CTX, 0, 2, b'\x01\x23') +
               ber(CTX, 0, 356, TLV(CAUSE, b'\x09') + b'\x00\x01\x00' + TLV(MID, ESN)))
     c.udt(down, tcap_package(2, b'\x00\x00\x00\x62', [tcap_invoke(1, 36, params)]), ssn=8)
+
+
+def build_round2(c, ios5):
+    """Elements whose length handling was fixed: MS Designated Frequency
+    (2 octets), Classmark Information Type 2 with Band Class Entry Length
+    4, and a Service Option Information record with a partial last entry"""
+    # Band Class Entry Length 4: each entry has one padding octet
+    v = bytes([0xc0, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x04,
+               0x01, 0xf8, 0x06, 0xee, 0x05, 0xf8, 0x06, 0xee])
+    c.udt(True, D(0x08, LV(ESN), TLV(CM2, v), pd=5))
+    # Entry length 3 with a larger band class count, and entry length 5
+    v = bytes([0xc0, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x03, 0x05,
+               0x01, 0xf8, 0x06, 0xee, 0xee, 0x03, 0xf8, 0x05, 0xee, 0xee,
+               0x05, 0xf8, 0x06, 0xee, 0xee])
+    c.udt(True, D(0x08, LV(ESN), TLV(CM2, v), pd=5))
+    # Service Option Information of 4 octets (one entry and a stray octet)
+    # followed by Keypad Facility
+    recs = rec(0x11, bytes([0x03, 0x00, 0x03, 0x00])) + rec(0x03, b'56')
+    c.udt(True, D(0x25, TLV(REV_MS_INFO, recs), pd=5))
+    if ios5:
+        # MS Designated Frequency (2 octets) as the last element and
+        # in front of another one
+        c.udt(True, B(0x60, TLV(MID, ESN), TLV(MS_DES_FREQ, b'\x08\x4b')))
+        c.udt(True, B(0x60, TLV(MID, ESN), TLV(MS_DES_FREQ, b'\x08\x4b'), TLV(MOB_SUB_INFO, b'\x01')))
 
 
 # ================================================================ main
