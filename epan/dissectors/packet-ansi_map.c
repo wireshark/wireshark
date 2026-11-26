@@ -2296,10 +2296,11 @@ dissect_ansi_map_controlchanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
 /* 6.5.2.52 CountUpdateReport */
 static const value_string ansi_map_CountUpdateReport_vals[]  = {
-    {   0, "Class I"},
-    {   1, "Class II"},
-    {   2, "Class III"},
-    {   3, "Reserved"},
+    {   0, "Not used"},
+    {   1, "COUNT Update not attempted"},
+    {   2, "COUNT Update no response"},
+    {   3, "COUNT Update successful"},
+    {   4, "COUNT Update failed"},
     {   0, NULL }
 };
 
@@ -2400,11 +2401,6 @@ static const value_string ansi_map_GeographicAuthorization_vals[]  = {
     {   2, "Authorized for this MarketID only"},
     {   3, "Authorized for this MarketID and Switch Number only"},
     {   4, "Authorized for this LocationAreaID within a MarketID only"},
-    {   5, "VLR"},
-    {   6, "EIR (reserved)"},
-    {   7, "AC"},
-    {   8, "Border MSC"},
-    {   9, "Originating MSC"},
     {   0, NULL }
 };
 
@@ -3197,22 +3193,12 @@ static const value_string ansi_map_SMS_TeleserviceIdentifier_vals[]  = {
 
 /* 6.5.2.142 SSDUpdateReport */
 static const value_string ansi_map_SSDUpdateReport_vals[]  = {
-    {       0, "Not used"},
-    {    4096, "AMPS Extended Protocol Enhanced Services"},
-    {    4097, "CDMA Cellular Paging Teleservice"},
-    {    4098, "CDMA Cellular Messaging Teleservice"},
-    {   32513, "TDMA Cellular Messaging Teleservice"},
-    {   32514, "TDMA Cellular Paging Teleservice (CPT-136)"},
-    {   32515, "TDMA Over-the-Air Activation Teleservice (OATS)"},
-    {   32516, "TDMA Over-the-Air Programming Teleservice (OPTS)"},
-    {   32517, "TDMA General UDP Transport Service (GUTS)"},
-    {   32576, "Reserved"},
-    {   32577, "TDMA Segmented Cellular MessagingTeleservice"},
-    {   32578, "TDMA Segmented Cellular Paging Teleservice"},
-    {   32579, "TDMA Segmented Over-the-Air Activation Teleservice (OATS)"},
-    {   32580, "TDMA Segmented Over-the-Air Programming Teleservice (OPTS)."},
-    {   32581, "TDMA Segmented General UDP Transport Service (GUTS)"},
-    {       0, NULL }
+    {   0, "Not used"},
+    {   1, "SSD Update not attempted"},
+    {   2, "SSD Update no response"},
+    {   3, "SSD Update successful"},
+    {   4, "SSD Update failed"},
+    {   0, NULL }
 };
 
 /* 6.5.2.143 StationClassMark */
@@ -3284,7 +3270,7 @@ static const value_string ansi_map_TerminationAccessType_vals[]  = {
     { 160, "Reserved for TIA/EIA-41 protocol extension. If unknown, treat the same as value 253, Land-to-Mobile Directory Number access"},
     { 161, "Reserved for this Standard"},
     /* 161 through  251 */
-    { 151, "Reserved for this Standard"},
+    { 251, "Reserved for this Standard"},
     { 252, "Mobile-to-Mobile Directory Number access"},
     { 253, "Land-to-Mobile Directory Number access"},
     { 254, "Remote Feature Control port access"},
@@ -5399,7 +5385,7 @@ dissect_ansi_map_ServiceIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsi
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
-	if (parameter_tvb){
+	if (parameter_tvb && tvb_reported_length(parameter_tvb) > 0){
 		ServiceIndicator = tvb_get_uint8(parameter_tvb,0);
 		if (SMS_BearerData_tvb !=NULL)
 		{
@@ -15228,19 +15214,12 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
     bool                          opCodeKnown = true;
-    static ansi_map_tap_rec_t     tap_rec[16];
-    static ansi_map_tap_rec_t     *tap_p;
-    static int                    tap_current=0;
+    ansi_map_tap_rec_t            *tap_p;
 
     /*
      * set tap record pointer
      */
-    tap_current++;
-    if (tap_current == array_length(tap_rec))
-    {
-        tap_current = 0;
-    }
-    tap_p = &tap_rec[tap_current];
+    tap_p = wmem_new0(actx->pinfo->pool, ansi_map_tap_rec_t);
 
     switch(OperationCode){
     case 1: /*Handoff Measurement Request*/
@@ -15607,19 +15586,12 @@ static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned off
 
 static unsigned dissect_returnData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
     bool                          opCodeKnown = true;
-    static ansi_map_tap_rec_t     tap_rec[16];
-    static ansi_map_tap_rec_t     *tap_p;
-    static int                    tap_current=0;
+    ansi_map_tap_rec_t            *tap_p;
 
     /*
      * set tap record pointer
      */
-    tap_current++;
-    if (tap_current == array_length(tap_rec))
-    {
-        tap_current = 0;
-    }
-    tap_p = &tap_rec[tap_current];
+    tap_p = wmem_new0(actx->pinfo->pool, ansi_map_tap_rec_t);
 
     switch(OperationCode){
     case 1: /*Handoff Measurement Request*/
@@ -17176,7 +17148,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
     { &hf_ansi_map_ssdUpdateReport,
       { "ssdUpdateReport", "ansi_map.ssdUpdateReport",
-        FT_UINT16, BASE_DEC, VALS(ansi_map_SSDUpdateReport_vals), 0,
+        FT_UINT8, BASE_DEC, VALS(ansi_map_SSDUpdateReport_vals), 0,
         NULL, HFILL }},
     { &hf_ansi_map_voicePrivacyReport,
       { "voicePrivacyReport", "ansi_map.voicePrivacyReport",
@@ -19448,7 +19420,7 @@ void proto_register_ansi_map(void) {
 
     is637_tele_id_dissector_table =
         register_dissector_table("ansi_map.tele_id", "IS-637 Teleservice ID", proto_ansi_map,
-                                 FT_UINT8, BASE_DEC);
+                                 FT_UINT16, BASE_DEC);
 
     is683_dissector_table =
         register_dissector_table("ansi_map.ota", "IS-683-A (OTA)", proto_ansi_map,

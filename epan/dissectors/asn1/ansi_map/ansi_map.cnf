@@ -456,7 +456,7 @@ ReturnData
 #.FN_BODY ServiceIndicator VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
-	if (parameter_tvb){
+	if (parameter_tvb && tvb_reported_length(parameter_tvb) > 0){
 		ServiceIndicator = tvb_get_uint8(parameter_tvb,0);
 		if (SMS_BearerData_tvb !=NULL)
 		{
@@ -528,7 +528,7 @@ SetupResult TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SetupR
 UniqueChallengeReport TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_UniqueChallengeReport_vals)
 ISLPInformation TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_islp_type_vals)
 ServiceRedirectionCause  TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_ServiceRedirectionCause_type_vals)
-SSDUpdateReport   TYPE = FT_UINT16  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SSDUpdateReport_vals)
+SSDUpdateReport   TYPE = FT_UINT8   DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SSDUpdateReport_vals)
 ReauthenticationReport   TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_ReauthenticationReport_vals)
 MSIDUsage TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_MSIDUsage_m_or_i_vals)
 BSMCStatus  TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_map_BSMCStatus_vals)
