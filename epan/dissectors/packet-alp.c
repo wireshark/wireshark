@@ -382,8 +382,8 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             uint64_t ns_part = sony_ns + sony_us * 1000 + sony_ms * 1000000;
             uint64_t ns_full = ns_part + sony_sec * 1000000000;
             nstime_t abs_time = {
-                .secs = (time_t) sony_sec,
-                .nsecs = (int) ns_part
+                .secs = (time_t) (sony_sec + ns_part / 1000000000),
+                .nsecs = (int) (ns_part % 1000000000)
             };
             col_add_fstr(pinfo->cinfo, COL_INFO, "Sony L1D TAI Time: %s (%" PRIu64 ")",
                 abs_time_to_str(pinfo->pool, &abs_time, ABSOLUTE_TIME_UTC, false), ns_full);
@@ -764,7 +764,7 @@ proto_register_alp(void)
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
         } },
         { &hf_alp_lmt_plp_mc_dst_port, {
-            "Destination IP", "alp.plp.mc.dst_port",
+            "Destination Port", "alp.plp.mc.dst_port",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
         } },
         { &hf_alp_lmt_plp_mc_sid_flag, {
@@ -780,11 +780,11 @@ proto_register_alp(void)
             FT_UINT8, BASE_HEX, NULL, ALP_LMT_PLP_MC_RESERVED_MASK, NULL, HFILL
         } },
         { &hf_alp_lmt_plp_mc_sid, {
-            "Reserved", "alp.plp.mc.sid",
+            "SID", "alp.plp.mc.sid",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
         } },
         { &hf_alp_lmt_plp_mc_context_id, {
-            "Reserved", "alp.plp.mc.context_id",
+            "Context ID", "alp.plp.mc.context_id",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
         } },
 
