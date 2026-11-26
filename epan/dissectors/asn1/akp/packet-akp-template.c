@@ -40,6 +40,20 @@ static int dissect_PrivateKeyInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 #include "packet-akp-fn.c"
 
+static int
+dissect_akp_private_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AKP");
+  return dissect_PrivateKeyInfo_PDU(tvb, pinfo, tree, data);
+}
+
+static int
+dissect_akp_encrypted_private_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AKP");
+  return dissect_EncryptedPrivateKeyInfo_PDU(tvb, pinfo, tree, data);
+}
+
 /*--- proto_register_akp ----------------------------------------------*/
 void proto_register_akp(void) {
 
@@ -61,9 +75,9 @@ void proto_register_akp(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   private_key_dissector_handle = register_dissector_with_description(
-    "akp_private_key", "AKP Private Key", dissect_PrivateKeyInfo_PDU, proto_akp);
+    "akp_private_key", "AKP Private Key", dissect_akp_private_key, proto_akp);
   encrypted_private_key_dissector_handle = register_dissector_with_description(
-    "akp_encrypted_private_key", "AKP Encrypted Private Key", dissect_EncryptedPrivateKeyInfo_PDU, proto_akp);
+    "akp_encrypted_private_key", "AKP Encrypted Private Key", dissect_akp_encrypted_private_key, proto_akp);
 }
 
 

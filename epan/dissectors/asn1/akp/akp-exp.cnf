@@ -1,0 +1,19 @@
+# Do not modify this file. Changes will be overwritten.
+# Generated automatically by the ASN.1 to Wireshark dissector compiler
+# akp-exp.cnf
+# asn2wrs.py -E -b -q -L -p akp -c ./akp.cnf -D . AsymmetricKeyPackageModuleV1.asn
+
+#.MODULE
+AsymmetricKeyPackageModuleV1  akp
+#.END
+
+#.IMPORT_TAG
+PrivateKeyInfo           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+EncryptedPrivateKeyInfo  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+#.END
+
+#.TYPE_ATTR
+PrivateKeyInfo           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+EncryptedPrivateKeyInfo  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+

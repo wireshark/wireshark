@@ -67,8 +67,10 @@ static const value_string akp_Version_vals[] = {
 
 static unsigned
 dissect_akp_Version(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
-                                                            0U, 0U, hf_index, NULL);
+  /* Version ::= INTEGER { v1(0), v2(1) } (v1, ..., v2) is extensible, so
+   * do not treat the root v1 as a 0..0 constraint: v2 is valid (RFC 5958). */
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
 
   return offset;
 }
@@ -222,6 +224,20 @@ static int dissect_EncryptedPrivateKeyInfo_PDU(tvbuff_t *tvb _U_, packet_info *p
 }
 
 
+static int
+dissect_akp_private_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AKP");
+  return dissect_PrivateKeyInfo_PDU(tvb, pinfo, tree, data);
+}
+
+static int
+dissect_akp_encrypted_private_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AKP");
+  return dissect_EncryptedPrivateKeyInfo_PDU(tvb, pinfo, tree, data);
+}
+
 /*--- proto_register_akp ----------------------------------------------*/
 void proto_register_akp(void) {
 
@@ -293,9 +309,9 @@ void proto_register_akp(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   private_key_dissector_handle = register_dissector_with_description(
-    "akp_private_key", "AKP Private Key", dissect_PrivateKeyInfo_PDU, proto_akp);
+    "akp_private_key", "AKP Private Key", dissect_akp_private_key, proto_akp);
   encrypted_private_key_dissector_handle = register_dissector_with_description(
-    "akp_encrypted_private_key", "AKP Encrypted Private Key", dissect_EncryptedPrivateKeyInfo_PDU, proto_akp);
+    "akp_encrypted_private_key", "AKP Encrypted Private Key", dissect_akp_encrypted_private_key, proto_akp);
 }
 
 

@@ -38,3 +38,10 @@ PrivateKeyInfo
   }
 
 #.END
+
+#.FN_BODY Version
+  /* Version ::= INTEGER { v1(0), v2(1) } (v1, ..., v2) is extensible, so
+   * do not treat the root v1 as a 0..0 constraint: v2 is valid (RFC 5958). */
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+#.END
