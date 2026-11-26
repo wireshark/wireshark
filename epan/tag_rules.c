@@ -56,7 +56,8 @@
 static GSList *tag_rule_list;
 
 /* Display preferences for the active profile */
-static tag_prefs_t tag_prefs = { '\0', 0, TAG_LINK_CLICK_CTRL };
+#define DEFAULT_TAG_PREFS { '\0', 0, TAG_LINK_CLICK_CTRL }
+static tag_prefs_t tag_prefs = DEFAULT_TAG_PREFS;
 
 tag_prefs_t
 tag_rules_get_prefs(void)
@@ -479,6 +480,8 @@ tag_rules_init(void)
     profile_inherit_e mode = profile_get_inherit(NULL, NULL, TAGRULES_FILE_NAME);
 
     tag_rule_list_delete(&tag_rule_list);
+    /* A profile without the preferences uses the defaults */
+    tag_prefs = (tag_prefs_t)DEFAULT_TAG_PREFS;
 
     /* Load current-profile rules from the profile directory */
     path = get_persconffile_path(TAGRULES_FILE_NAME, true, NULL);
