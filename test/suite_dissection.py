@@ -180560,3 +180560,132 @@ class TestDissectAlp:
         frames = self.fields(cmd_tshark, capture_file, test_env, 'alp.junk', 'alp.junk')
         assert frames == [['31', '6a756e6b'], ['32', '6a'], ['42', '78'],
                           ['43', '7461696c206279746573']]
+
+
+class TestDissectAmt:
+    '''Automatic Multicast Tunneling (RFC 7450) over UDP port 2268, from the
+    synthetic capture amt_coverage.pcap.gz: 26 frames of every message type
+    (the Membership Query, Membership Update and Multicast Data ones
+    carry IGMPv3, MLDv2 and UDP packets, which the IP dissector decodes),
+    unknown types, and in frame 26 a 62 levels deep AMT/IP/UDP nesting. The
+    generator is test/captures/generators/amt/mkamt.py.'''
+
+    @staticmethod
+    def amt_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('amt_coverage.pcap.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number',
+                *(('-e' + f) for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_amt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''15 frames end in AMT, the others in the IGMPv3, MLDv2 and UDP
+        payload of the tunneled packet; no frame is malformed or has an
+        error expert info in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('amt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 26
+        assert protocols.count('AMT') == 15
+        assert protocols.count('IGMPv3') == 5
+        assert protocols.count('ICMPv6') == 3
+        assert protocols.count('UDP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('amt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_amt_discovery_and_advertisement(self, cmd_tshark, capture_file, test_env):
+        '''Relay Discovery (also over IPv6 and with other reserved
+        octets) and Relay Advertisement with an IPv4 address, an IPv6
+        address and an address of another length (frame 4).'''
+        lines = self.amt_fields(cmd_tshark, capture_file, test_env,
+                'amt.type in {1, 2} and frame.number <= 5', 'amt.type', 'amt.discovery_nonce',
+                'amt.relay_address.ipv4', 'amt.relay_address.ipv6')
+        assert lines == [
+            '1\t1\t0x12345678\t\t',
+            '2\t2\t0x12345678\t198.51.100.7\t',
+            '3\t2\t0x12345678\t\t2001:db8:1::7',
+            '4\t2\t0x12345678\t\t',
+            '5\t1\t0xffffffff\t\t',
+        ]
+        lines = self.amt_fields(cmd_tshark, capture_file, test_env, 'amt.relay_address.unknown',
+                'amt.relay_address.unknown')
+        assert lines == ['4\t1']
+
+    def test_amt_request(self, cmd_tshark, capture_file, test_env):
+        '''Request with the P flag set and clear, and reserved bits set.'''
+        lines = self.amt_fields(cmd_tshark, capture_file, test_env, 'amt.type == 3',
+                'amt.request.p', 'amt.request.reserved', 'amt.request_nonce')
+        assert lines == ['6\tTrue\t0x00\t0x12345678', '7\tFalse\t0x00\t0x12345678',
+                         '8\tTrue\t0x7f\t0x00000001']
+
+    def test_amt_membership_query(self, cmd_tshark, capture_file, test_env):
+        '''Membership Query: IGMPv3 and MLDv2 general queries, the L flag
+        and the G flag; with G the gateway port and address are the last 18
+        octets after the tunneled packet.'''
+        lines = self.amt_fields(cmd_tshark, capture_file, test_env, 'amt.type == 4',
+                'amt.membership_query.l', 'amt.membership_query.g', 'amt.response_mac',
+                'amt.request_nonce', 'amt.gateway.port_number', 'amt.gateway.ip_address',
+                '_ws.col.protocol')
+        assert lines == [
+            '9\t0\t0\t0x0000a1b2c3d4e5f6\t0x12345678\t\t\tIGMPv3',
+            '10\t0\t0\t0x0000a1b2c3d4e5f6\t0x12345678\t\t\tICMPv6',
+            '11\t1\t0\t0x0000a1b2c3d4e5f6\t0x12345679\t\t\tIGMPv3',
+            '12\t0\t1\t0x0000a1b2c3d4e5f6\t0x1234567a\t41234\t2001:db8:2::99\tIGMPv3',
+            '13\t1\t1\t0x0000a1b2c3d4e5f6\t0x1234567b\t41234\t2001:db8:2::99\tICMPv6',
+            '14\t0\t1\t0x0000a1b2c3d4e5f6\t0x1234567c\t41234\t2001:db8:2::99\tIGMPv3',
+        ]
+        lines = self.amt_fields(cmd_tshark, capture_file, test_env, 'frame.number in {9, 10}',
+                'ip.dst', 'ipv6.dst', 'igmp.type', 'icmpv6.type')
+        assert lines == ['9\t192.0.2.1,224.0.0.1\t\t0x11\t', '10\t\t2001:db8::1,ff02::1\t\t130']
+
+    def test_amt_membership_update(self, cmd_tshark, capture_file, test_env):
+        '''Membership Update carries an IGMPv3 report and an MLDv2 report.'''
+        lines = self.amt_fields(cmd_tshark, capture_file, test_env, 'amt.type == 5',
+                'amt.request_nonce', 'igmp.type', 'icmpv6.type', 'amt.reserved')
+        assert lines == ['15\t0x12345678\t0x22\t\t00', '16\t0x12345678\t\t143\t80']
+
+    def test_amt_multicast_data(self, cmd_tshark, capture_file, test_env):
+        '''Multicast Data carries UDP over IPv4 and over IPv6.'''
+        lines = self.amt_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {17, 18, 19}', 'amt.type', 'ip.dst', 'ipv6.dst', 'udp.length')
+        assert lines == ['17\t6\t192.0.2.1,232.1.1.1\t\t53,23',
+                         '18\t6\t\t2001:db8::1,ff3e::8000:1\t76,26',
+                         '19\t6\t192.0.2.1,232.1.1.1\t\t102,72']
+
+    def test_amt_teardown(self, cmd_tshark, capture_file, test_env):
+        '''Teardown with the gateway port and address, over IPv4 and IPv6.'''
+        lines = self.amt_fields(cmd_tshark, capture_file, test_env, 'amt.type == 7',
+                'amt.request_nonce', 'amt.gateway.port_number', 'amt.gateway.ip_address')
+        assert lines == ['20\t0x12345678\t41234\t2001:db8:2::99',
+                         '21\t0x12345679\t41234\t2001:db8:2::99']
+
+    def test_amt_unknown_types(self, cmd_tshark, capture_file, test_env):
+        '''The types 0, 8 and 15 are unknown; the data is marked and the
+        Info column says so. A version other than 0 is shown (frames 24,
+        25).'''
+        lines = self.amt_fields(cmd_tshark, capture_file, test_env, 'amt.unknown',
+                'amt.version', 'amt.type', '_ws.col.info')
+        assert lines == ['22\t0\t0\tUnknown AMT TYPE', '23\t0\t8\tUnknown AMT TYPE',
+                         '24\t1\t15\tUnknown AMT TYPE']
+        lines = self.amt_fields(cmd_tshark, capture_file, test_env, 'frame.number == 25',
+                'amt.version', 'amt.type', '_ws.col.info')
+        assert lines == ['25\t2\t1\tRelay Discovery']
+
+    def test_amt_nested(self, cmd_tshark, capture_file, test_env):
+        '''Frame 26 has 62 AMT layers: 61 Multicast Data (each with IPv4 and
+        UDP port 2268) around one Relay Discovery.'''
+        for passes in ((), ('-2',)):
+            lines = self.amt_fields(cmd_tshark, capture_file, test_env, 'frame.number == 26',
+                    'amt.type', passes=passes)
+            types = lines[0].split('\t')[1].split(',')
+            assert len(types) == 62
+            assert types[:61] == ['6'] * 61
+            assert types[61] == '1'
