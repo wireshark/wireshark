@@ -181491,3 +181491,61 @@ class TestDissectAp1394:
         stdout = self.run(cmd_tshark, capture_file, test_env,
                 '-Y', 'ip.src == 192.0.2.1 && ip.dst == 192.0.2.2', '-Tfields', '-eframe.number')
         assert stdout.split() == ['1', '2', '6', '10', '12']
+
+
+class TestDissectAppPkixCert:
+    CAPTURE = 'app_pkix_cert_coverage.pcap.gz'
+    CERT_FRAMES = ['2', '4', '6', '8', '15', '20']
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectAppPkixCert.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def rows(stdout):
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_app_pkix_cert_frames(self, cmd_tshark, capture_file, test_env):
+        '''Six certificates reach the dissector, and nothing is malformed or
+        raises a warning, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'pkix-cert.cert', '-Tfields', '-eframe.number')
+            assert stdout.split() == self.CERT_FRAMES
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_app_pkix_cert_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The info column names the media type, also of the reassembled
+        certificate.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'pkix-cert', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        for row in self.rows(stdout):
+            assert row[1].endswith('(application/pkix-cert)')
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 4', '-Tfields', '-ehttp.content_type')
+        assert stdout.strip() == 'application/pkix-cert; charset=binary'
+
+    def test_app_pkix_cert_fields(self, cmd_tshark, capture_file, test_env):
+        '''Serial numbers, version and the extensions of the certificates.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'pkix-cert', '-Tfields', '-eframe.number', '-ex509af.serialNumber',
+                '-ex509af.version', '-ex509af.algorithm.id', '-ex509ce.dNSName', '-ex509ce.cA',
+                '-etcp.stream')
+        rows = self.rows(stdout)
+        assert [r[1] for r in rows] == ['01', '02', '03', '04', '01', '03']
+        # Version 1 certificates carry no version field
+        assert [r[2] for r in rows] == ['2', '', '2', '2', '2', '2']
+        # The EC certificate uses ecdsa-with-SHA256
+        assert rows[3][3].startswith('1.2.840.10045.4.3.2,')
+        assert rows[0][3].startswith('1.2.840.113549.1.1.11,')
+        # Only the CA certificates have a SAN and basic constraints
+        assert rows[0][4] == rows[4][4] == 'www.example.com,x.example'
+        assert rows[0][5] == rows[4][5] == 'True'
+        assert [r[4] for r in rows[1:4]] == [''] * 3
+        # The reassembled and the IPv6 certificates are in other streams
+        assert [r[6] for r in rows] == ['0', '0', '0', '0', '1', '2']
