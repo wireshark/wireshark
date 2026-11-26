@@ -909,6 +909,25 @@ def build(repro_dir):
         'SMSDeliveryPointToPoint', param(116, b'\x10'), bd(is637_bearer())))]),
         'SMSDPP, 1-octet TeleserviceIdentifier')
 
+    # Value strings and field types fixed in round two: CountUpdateReport and
+    # SSDUpdateReport (0 to 4; SSDUpdateReport is one octet),
+    # TerminationAccessType 251 and GeographicAuthorization 5 to 9 (reserved).
+    # An empty ServiceIndicator is in the malformed capture (BER length error).
+    for v in range(5):
+        add(clean, MSC, HLR, package(QUERY_PERM, tid(), [invoke(1, 40, enc.mand(
+            'AuthenticationStatusReport',
+            enc.fv('AuthenticationStatusReport', 'countUpdateReport', bytes([v])),
+            enc.fv('AuthenticationStatusReport', 'ssdUpdateReport', bytes([v]))))]),
+            'AuthenticationStatusReport, CountUpdateReport and SSDUpdateReport %d' % v)
+    for v in (150, 151, 251):
+        add(clean, MSC, HLR, package(QUERY_PERM, tid(), [invoke(1, 15, enc.mand(
+            'LocationRequest', enc.fv('LocationRequest', 'terminationAccessType', bytes([v]))))]),
+            'LocationRequest, TerminationAccessType %d' % v)
+    for v in (0, 4, 5, 9):
+        add(clean, MSC, HLR, package(QUERY_PERM, tid(), [invoke(1, 47, enc.mand(
+            'OriginationRequest', enc.fv('OriginationRequest', 'geographicAuthorization', bytes([v]))))]),
+            'OriginationRequest, GeographicAuthorization %d' % v)
+
     # ------------------------------------------------ malformed
     # Known open core issue: 600 distinct SMS-BearerData parameters after a
     # TeleserviceIdentifier each go to IS-637 and hit the per-frame layer

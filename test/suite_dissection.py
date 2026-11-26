@@ -9023,10 +9023,10 @@ class TestDissectAnsiA:
 
 
 # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
-ANSI_MAP_OPTS = ('-o', 'mtp3.standard:ANSI')
-
-
 class TestDissectAnsiMap:
+    # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
+    OPTS = ('-o', 'mtp3.standard:ANSI')
+
     def test_ansi_map_needs_ansi_mtp3(self, cmd_tshark, capture_file, test_env):
         '''With the default (ITU) MTP3 standard the ANSI SCCP addresses do
         not route to TCAP, so nothing is dissected as ANSI MAP.'''
@@ -9042,13 +9042,13 @@ class TestDissectAnsiMap:
         parameters, decodes without malformed packets or error expert infos,
         in one and two passes. The NewlyAssignedIMSI of frames 308 and 311
         holds non-decimal digits, which E.212 reports as malformed.'''
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_map_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.splitlines()
-        assert len(protocols) == 336
-        assert protocols.count('ANSI MAP') == 297
+        assert len(protocols) == 348
+        assert protocols.count('ANSI MAP') == 309
         # The Reject and the ReturnError without parameters are not passed
         # to ANSI MAP
         assert protocols.count('ANSI TCAP') == 2
@@ -9057,7 +9057,7 @@ class TestDissectAnsiMap:
         assert protocols.count('IS-683') == 4
         assert protocols.count('IS-801') == 7
         for passes in ((), ('-2',)):
-            stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS, *passes,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
                     '-r', capture_file('ansi_map_coverage.pcap.gz'),
                     '-Y', '_ws.malformed || _ws.expert.severity == error',
                     '-Tfields', '-eframe.number',
@@ -9066,13 +9066,13 @@ class TestDissectAnsiMap:
 
     def test_ansi_map_imsi(self, cmd_tshark, capture_file, test_env):
         '''The IMSI parameters are decoded by E.212 and fire the "imsi" tap.'''
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_map_coverage.pcap.gz'),
                 '-Y', 'frame.number == 9',
                 '-Tfields', '-eansi_map.imsi', '-ee212.imsi', '-ee212.mcc',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '13004021436587f9\t310004123456789\t310'
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_map_coverage.pcap.gz'),
                 '-q', '-z', 'imsi',
             ), encoding='utf-8', env=test_env)
@@ -9085,7 +9085,7 @@ class TestDissectAnsiMap:
         many TeleserviceIdentifier or ServiceIndicator parameters follow.
         Each one used to dissect it again, until 600 of them failed the
         layer limit assertion.'''
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_map_coverage.pcap.gz'),
                 '-Y', 'frame.number in {290, 291, 325, 327, 328, 329}',
                 '-Tfields', '-eframe.number', '-eframe.protocols',
@@ -9105,7 +9105,7 @@ class TestDissectAnsiMap:
         Delivery Point to Point Invoke). ReturnError names the matched
         operation, and a unidirectional package (no transaction ID) with
         an Invoke and a ReturnResult decodes.'''
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_map_coverage.pcap.gz'),
                 '-Y', 'frame.number in {299, 300, 303, 306, 309, 312, 330}',
                 '-Tfields', '-eframe.number', '-e_ws.col.info',
@@ -9119,7 +9119,7 @@ class TestDissectAnsiMap:
             '312\tAuthentication Directive ReturnError ',
             '330\tSMS Delivery Point to Point ReturnResult ',
         ]
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_map_coverage.pcap.gz'),
                 '-Y', 'ansi_map.registrationNotificationRes_element || ansi_map.sms_CauseCode',
                 '-Tfields', '-eframe.number',
@@ -9137,7 +9137,7 @@ class TestDissectAnsiMap:
                 ('tid_source', 'Registration Notification ReturnResult '),
                 ('tid_source_dest', 'Registration Notification ReturnResult '),
                 ):
-            stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                     '-o', f'ansi_map.transaction.matchtype:{matchtype}',
                     '-r', capture_file('ansi_map_coverage.pcap.gz'),
                     '-Y', 'frame.number == 295',
@@ -9155,19 +9155,19 @@ class TestDissectAnsiMap:
                 ('ansi_801', '284 285 286 287 290 328 329'),
                 ('ansi_801.rev_sess_tag', '285 287'),
                 ):
-            stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                     '-r', capture_file('ansi_map_coverage.pcap.gz'),
                     '-Y', dfilter,
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert ' '.join(stdout.split()) == frames, dfilter
         for dfilter, count in (
-                ('ansi_map.bcd_digits == "2015550123"', 95),
-                ('ansi_map.ia5_digits == "5551212"', 38),
+                ('ansi_map.bcd_digits == "2015550123"', 97),
+                ('ansi_map.ia5_digits == "5551212"', 39),
                 ('ansi_map.SSN == 6', 53),
                 ('ansi_map.win_trigger_list', 21),
                 ):
-            stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                     '-r', capture_file('ansi_map_coverage.pcap.gz'),
                     '-Y', dfilter,
                     '-Tfields', '-eframe.number',
@@ -9179,7 +9179,7 @@ class TestDissectAnsiMap:
         resolution used to be added with length -1, which always threw),
         and a 1-octet TeleserviceIdentifier is shown with its length
         instead of throwing.'''
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_map_coverage.pcap.gz'),
                 '-Y', 'frame.number in {334, 335}',
                 '-Tfields', '-eframe.number', '-eansi_map.mslocation.lat',
@@ -9189,7 +9189,7 @@ class TestDissectAnsiMap:
             '334\t4198964\t8410744\t5',
             '335\t4198964\t8410744\t1281',
         ]
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_map_coverage.pcap.gz'),
                 '-Y', 'frame.number == 336',
                 '-V', '-O', 'ansi_map',
@@ -9202,7 +9202,7 @@ class TestDissectAnsiMap:
         '''-z ansi_map counts every known operation, also after the
         unknown ones (a static flag used to stop the counting at the first
         unknown operation code).'''
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_map_coverage.pcap.gz'),
                 '-q', '-z', 'ansi_map',
             ), encoding='utf-8', env=test_env)
@@ -9215,6 +9215,44 @@ class TestDissectAnsiMap:
         assert counts['0x35'] == 39    # SMS Delivery Point to Point
         assert counts['0x70'] == 2     # QualificationRequest2 (the last)
         assert counts['0x67'] == 0     # not an ANSI MAP operation
+
+    def test_ansi_map_report_value_strings(self, cmd_tshark, capture_file, test_env):
+        '''CountUpdateReport and SSDUpdateReport (both 0 to 4, one octet
+        each), TerminationAccessType 251 and the reserved
+        GeographicAuthorization values 5 to 9 have their own value strings.
+        They used to show the CDMA power classes, teleservice IDs, an
+        unknown 251 and the MSC types.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 337', '-V', '-O', 'ansi_map',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.splitlines()]
+        for item in (
+                'countUpdateReport: Not used (0)',
+                'countUpdateReport: COUNT Update not attempted (1)',
+                'countUpdateReport: COUNT Update no response (2)',
+                'countUpdateReport: COUNT Update successful (3)',
+                'countUpdateReport: COUNT Update failed (4)',
+                'ssdUpdateReport: Not used (0)',
+                'ssdUpdateReport: SSD Update not attempted (1)',
+                'ssdUpdateReport: SSD Update no response (2)',
+                'ssdUpdateReport: SSD Update successful (3)',
+                'ssdUpdateReport: SSD Update failed (4)',
+                'terminationAccessType: Unknown (151)',
+                'terminationAccessType: Reserved for this Standard (251)',
+                'geographicAuthorization: Unknown (5)',
+                'geographicAuthorization: Unknown (9)',
+                ):
+            assert item in lines, item
+
+    def test_ansi_map_report_field_types(self, cmd_tshark, capture_file, test_env):
+        '''SSDUpdateReport is a one octet field.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-Y', 'ansi_map.ssdUpdateReport && frame.number >= 337',
+                '-Tfields', '-eframe.number', '-eansi_map.ssdUpdateReport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['337\t0', '338\t1', '339\t2', '340\t3', '341\t4']
 
 
 # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
