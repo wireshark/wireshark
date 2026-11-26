@@ -181432,3 +181432,62 @@ class TestDissectAoe:
                 '-Tfields', '-eframe.number', '-eaoe.version', '-eaoe.cmd')
         # Only version 1 PDUs are decoded further
         assert self.rows(stdout) == [['33', '2', ''], ['34', '0', ''], ['35', '2', '']]
+
+
+class TestDissectAp1394:
+    CAPTURE = 'ap1394_coverage.pcap.gz'
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectAp1394.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def rows(stdout):
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ap1394_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 12 frames carry the IP/IEEE1394 header, and none is malformed
+        or an error, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'ap1394', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 12
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_ap1394_addresses_and_types(self, cmd_tshark, capture_file, test_env):
+        '''EUI-64 addresses and the ethertype of each frame.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-eap1394.src', '-eap1394.dst',
+                '-eap1394.type', '-e_ws.col.protocol')
+        rows = self.rows(stdout)
+        assert [r[3] for r in rows] == [
+            '0x0800', '0x0800', '0x0800', '0x0806', '0x0806', '0x0800', '0x86dd',
+            '0x86dd', '0x1234', '0x8100', '0xfffe', '0x8847']
+        assert [r[4] for r in rows] == [
+            'UDP', 'ICMP', 'ICMP', 'ARP', 'ARP', 'TCP', 'ICMPv6', 'UDP',
+            'IP/IEEE1394', 'UDP', 'IP/IEEE1394', 'UDP']
+        assert rows[0][1:3] == ['001122fffe334455', '001122fffe667788']
+        assert rows[2][1:3] == ['001122fffe667788', '001122fffe334455']
+        assert rows[3][2] == 'ffffffffffffffff'
+
+    def test_ap1394_payloads(self, cmd_tshark, capture_file, test_env):
+        '''The payloads are decoded by the ethertype subdissectors, and
+        unknown ethertypes are shown as data.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'arp', '-Tfields', '-eframe.number', '-earp.hw.type',
+                '-earp.hw.size', '-earp.opcode')
+        assert self.rows(stdout) == [['4', '24', '16', '1'], ['5', '24', '16', '2']]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'data && !udp && !tcp && !icmp && !icmpv6', '-Tfields', '-eframe.number', '-edata.len')
+        assert self.rows(stdout) == [['9', '25']]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'vlan || mpls', '-Tfields', '-eframe.number', '-evlan.id', '-empls.label')
+        assert self.rows(stdout) == [['10', '5', ''], ['12', '', '100']]
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ip.src == 192.0.2.1 && ip.dst == 192.0.2.2', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['1', '2', '6', '10', '12']
