@@ -263,6 +263,17 @@ static const fragment_items ajp13_body_fragment_items = {
 
 static reassembly_table ajp13_body_reassembly_table;
 
+/* Reassembly ID of the bodies. Two transactions can start in the same
+ * frame, so the frame number alone is not unique. Bumped on the first
+ * pass only, and kept in the transaction for later passes. */
+static uint32_t ajp13_body_seq;
+
+static void
+ajp13_init(void)
+{
+  ajp13_body_seq = 0;
+}
+
 static int ajp13_eo_tap;
 
 /* Reassemble request and response bodies (needed for Export Objects) */
@@ -602,7 +613,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree,
       if (!cd->trans) {
         /* we haven't seen the request */
         cd->trans = wmem_new0(wmem_file_scope(), ajp13_trans_info);
-        cd->trans->body_id = pinfo->num;
+        cd->trans->body_id = ++ajp13_body_seq;
       }
       cd->rsp_trans = cd->trans;
     }
@@ -883,7 +894,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     if (cod == MTYPE_FORWARD_REQUEST) {
       /* a new request, for the bodies */
       trans = wmem_new0(wmem_file_scope(), ajp13_trans_info);
-      trans->body_id = pinfo->num;
+      trans->body_id = ++ajp13_body_seq;
       trans->host = wmem_strdup(wmem_file_scope(), srv);
       trans->uri = wmem_strdup(wmem_file_scope(), uri);
       cd->trans = trans;
@@ -1455,6 +1466,7 @@ proto_register_ajp13(void)
                                  "using \"Content-Encoding: \"",
                                  &ajp13_decompress_body);
 
+  register_init_routine(ajp13_init);
   reassembly_table_register(&ajp13_body_reassembly_table,
                             &addresses_ports_reassembly_table_functions);
 
