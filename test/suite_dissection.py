@@ -178801,3 +178801,310 @@ class TestDissectAdwinConfig:
                 'frame.number in {1, 37, 39}', '_ws.col.protocol', '_ws.col.info')
         assert lines == ['1\tADwin Config\t', '37\tADwin Config\tTCPFlashUpdate',
                          '39\tADwin Config\tTCPFlashUpdate']
+
+
+class TestDissectAeron:
+    CAPTURE = 'aeron_coverage.pcap.gz'
+    DECODE_AS = ('-d', 'udp.port==40456,aeron')
+    SEQUENCE = ('-o', 'aeron.sequence_analysis:TRUE')
+    STREAM = ('-o', 'aeron.sequence_analysis:TRUE', '-o', 'aeron.stream_analysis:TRUE')
+    REASSEMBLY = ('-o', 'aeron.sequence_analysis:TRUE', '-o', 'aeron.stream_analysis:TRUE',
+                  '-o', 'aeron.reassemble_fragments:TRUE')
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectAeron.CAPTURE), *TestDissectAeron.DECODE_AS, *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def rows(stdout):
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    @staticmethod
+    def frame(cmd_tshark, capture_file, test_env, number, prefs, passes, *fields):
+        '''The values of the fields of one frame, repeated fields joined with
+        commas.'''
+        args = [*prefs, *passes, '-Y', f'frame.number == {number}', '-Tfields', '-E', 'aggregator=,']
+        for field in fields:
+            args += ['-e', field]
+        return TestDissectAeron.rows(TestDissectAeron.run(
+            cmd_tshark, capture_file, test_env, *args))[0]
+
+    @staticmethod
+    def frames_with(cmd_tshark, capture_file, test_env, field, passes=('-2',)):
+        '''The numbers of the frames that have a field (all preferences on).'''
+        stdout = TestDissectAeron.run(cmd_tshark, capture_file, test_env,
+                *TestDissectAeron.REASSEMBLY, *passes, '-Y', field, '-Tfields', '-eframe.number')
+        return stdout.split()
+
+    def test_aeron_coverage_default_preferences(self, cmd_tshark, capture_file, test_env):
+        '''Without the analysis preferences the Info column shows the frame
+        types and every frame is dissected.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        rows = self.rows(stdout)
+        assert len(rows) == 172
+        assert {r[1] for r in rows} == {'Aeron'}
+        info = {r[0]: r[2] for r in rows}
+        assert info['1'] == 'aeron:udp?remote=192.0.2.2:40456, Setup'
+        assert info['2'] == 'aeron:udp?remote=192.0.2.2:40456, Status-SETUP'
+        assert info['3'] == 'aeron:udp?remote=192.0.2.2:40456, Status'
+        assert info['4'] == 'aeron:udp?remote=192.0.2.2:40456, Data'
+        assert info['13'] == 'aeron:udp?remote=192.0.2.2:40456, Data'
+        assert info['17'] == 'aeron:udp?remote=192.0.2.2:40456, Pad'
+        assert info['22'] == 'aeron:udp?remote=192.0.2.2:40456, NAK'
+        assert info['38'] == 'aeron:udp?remote=192.0.2.2:40456, Data, Data, Data'
+        assert info['141'] == 'aeron:udp?group=233.252.0.1:40456, Setup'
+        assert info['151'] == 'aeron:udp?group=[ff0e::1]:40456, Setup'
+        assert info['155'] == 'aeron:udp?remote=[2001:db8::2]:40456, Setup'
+        assert self.rows(self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'aeron.sequence_analysis || aeron.stream_analysis || aeron.data.reassembly',
+                '-Tfields', '-eframe.number')) == []
+
+    def test_aeron_coverage_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no expert info of error severity, with
+        every combination of the preferences, in one and two passes.'''
+        for prefs in ((), self.SEQUENCE, self.STREAM, self.REASSEMBLY):
+            for passes in ((), ('-2',)):
+                stdout = self.run(cmd_tshark, capture_file, test_env, *prefs, *passes,
+                        '-Y', '_ws.malformed || _ws.expert.severity >= error', '-Tfields', '-eframe.number')
+                assert count_output(stdout) == 0
+
+    def test_aeron_coverage_info_column(self, cmd_tshark, capture_file, test_env):
+        '''With the stream analysis the Info column shows the positions;
+        one pass and two passes agree.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *self.REASSEMBLY, *passes,
+                    '-Tfields', '-eframe.number', '-e_ws.col.info')
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+        info = {r[0]: r[1] for r in self.rows(outputs[0])}
+        base = 'aeron:udp?remote=192.0.2.2:40456, '
+        assert info['2'] == base + 'Status-SETUP'
+        assert info['4'] == base + 'Data (0x00005000:0)'
+        assert info['9'] == base + 'Status (3008/3008 [0])'
+        assert info['10'] == base + 'Status-KA'
+        assert info['13'] == base + 'Data-KA'
+        assert info['17'] == base + 'Pad (0x00005000:4000)'
+        assert info['19'] == base + 'Status (160/0 [160])'
+        assert info['32'] == base + 'Status (0x00005001:1440/0x00005002:0 [2656])'
+        assert info['36'] == base + 'Data (0x00005001:1280), Error'
+        assert info['37'] == base + 'Setup, Data (0x00005000:0)'
+        assert info['38'] == (base + 'Data (0x00005000:64), Data (0x00005000:128), '
+                'Data (0x00005000:192)')
+        assert info['148'] == 'aeron:udp?group=233.252.0.1:40456, Status-KA'
+
+    def test_aeron_coverage_frame_fields(self, cmd_tshark, capture_file, test_env):
+        '''The fields of every frame type.'''
+        def row(number, *fields):
+            return self.frame(cmd_tshark, capture_file, test_env, number, self.REASSEMBLY, (), *fields)
+        assert row(1, 'aeron.setup.initial_term_id', 'aeron.setup.active_term_id',
+                'aeron.setup.term_length', 'aeron.setup.mtu', 'aeron.setup.ttl',
+                'aeron.setup.session_id', 'aeron.setup.stream_id', 'aeron.setup.frame_length',
+                'aeron.channel_id') == ['20480', '20480', '4096', '1408', '0', '4097', '1001', '40', '1']
+        assert row(2, 'aeron.sm.flags', 'aeron.sm.flags.s', 'aeron.sm.consumption_term_id') == [
+            '0x80', 'True', '20480']
+        assert row(3, 'aeron.sm.consumption_term_offset', 'aeron.sm.receiver_window',
+                'aeron.sm.receiver_id', 'aeron.sm.flags.s') == [
+            '0', '2048', '1234605616436508552', 'False']
+        assert row(8, 'aeron.data.flags', 'aeron.data.flags.b', 'aeron.data.flags.e',
+                'aeron.data.flags.s', 'aeron.data.term_offset', 'aeron.data.next_offset',
+                'aeron.data.frame_length', 'aeron.data.session_id', 'aeron.data.stream_id',
+                'aeron.data.term_id') == ['0x40', 'False', 'True', 'False', '2464', '3008',
+                '532', '4097', '1001', '20480']
+        assert row(18, 'aeron.data.flags.s', 'aeron.data.next_offset', 'aeron.data.term_id') == [
+            'True', '160', '20481']
+        assert row(17, 'aeron.pad.frame_length', 'aeron.pad.term_offset', 'aeron.pad.term_id',
+                'aeron.data.next_offset', 'aeron.data.next_offset_term') == [
+            '96', '4000', '20480', '0', '20481']
+        assert row(13, 'aeron.heartbeat.frame_length', 'aeron.heartbeat.term_offset',
+                'aeron.heartbeat.flags.b', 'aeron.heartbeat.flags.e') == ['0', '3008', 'True', 'True']
+        assert row(33, 'aeron.rtt.flags.r', 'aeron.rtt.echo_timestamp', 'aeron.rtt.reception_delta',
+                'aeron.rtt.receiver_id', 'aeron.rtt.frame_length') == [
+            'False', '1000', '50', '1234605616436508552', '40']
+        assert row(34, 'aeron.rtt.flags.r') == ['True']
+        assert row(22, 'aeron.nak.term_id', 'aeron.nak.term_offset', 'aeron.nak.length',
+                'aeron.nak.frame_length') == ['20481', '160', '704', '28']
+        assert row(144, 'aeron.sm.receiver_id') == ['1']
+        assert row(145, 'aeron.sm.receiver_id') == ['2']
+
+    def test_aeron_coverage_analysis_flags(self, cmd_tshark, capture_file, test_env):
+        '''The frames flagged by the stream analysis, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            def frames(flag):
+                return self.frames_with(cmd_tshark, capture_file, test_env,
+                        f'aeron.analysis.{flag}', passes)
+            assert frames('keepalive') == ['13', '14']
+            assert frames('keepalive_sm') == ['10', '11', '148']
+            assert frames('ooo_sm') == ['12']
+            assert frames('window_full') == ['19']
+            assert frames('window_resize') == ['11', '19', '27', '148']
+            assert frames('term_id_change') == ['18', '75']
+            assert frames('idle_rx') == ['28', '43', '61', '64', '172']
+            assert frames('pacing_rx') == ['24', '26', '36', '170']
+            assert frames('nak')[:3] == ['22', '30', '35']
+            assert frames('nak')[3:14] == [str(n) for n in range(90, 101)]
+            assert frames('nak')[14:] == ['149', '159']
+            rx = frames('rx')
+            assert rx[:12] == ['23', '25', '31', '40', '41', '45', '57', '59', '60', '65', '68', '69']
+            assert rx[12:23] == [str(n) for n in range(101, 112)]
+            assert rx[23:] == ['139', '140', '150', '162']
+            gaps = frames('ooo_gap')
+            assert gaps[:8] == ['29', '56', '67', '70', '71', '72', '74', '75']
+            assert gaps[-1] == '138'
+
+    def test_aeron_coverage_sequence_analysis(self, cmd_tshark, capture_file, test_env):
+        '''Previous and next frames, retransmissions and the NAK analysis.'''
+        def row(number, passes, *fields):
+            return self.frame(cmd_tshark, capture_file, test_env, number, self.REASSEMBLY, passes, *fields)
+        assert row(4, ('-2',), 'aeron.sequence_analysis.retransmission',
+                'aeron.sequence_analysis.prev_channel_frame',
+                'aeron.sequence_analysis.next_channel_frame',
+                'aeron.sequence_analysis.next_stream_frame',
+                'aeron.sequence_analysis.next_term_frame') == ['False', '3', '5', '5', '5']
+        # a retransmission knows the NAK and the other frames of its offset
+        assert row(23, ('-2',), 'aeron.sequence_analysis.retransmission',
+                'aeron.sequence_analysis.retransmission.rx.frame',
+                'aeron.sequence_analysis.term_offset.frame',
+                'aeron.sequence_analysis.keepalive') == ['True', '22', '20,25', 'False']
+        # the NAK learns about its retransmissions on the second pass only
+        assert row(22, (), 'aeron.sequence_analysis.nak_unrecovered',
+                'aeron.sequence_analysis.nak_rx.frame') == ['704', '']
+        assert row(22, ('-2',), 'aeron.sequence_analysis.nak_unrecovered',
+                'aeron.sequence_analysis.nak_rx.frame') == ['40', '23,31']
+        assert row(30, ('-2',), 'aeron.sequence_analysis.nak_unrecovered',
+                'aeron.sequence_analysis.nak_rx.frame') == ['84', '31']
+
+    def test_aeron_coverage_stream_analysis(self, cmd_tshark, capture_file, test_env):
+        '''Highest sent and completed positions and the outstanding bytes.'''
+        fields = ('aeron.stream_analysis.high_term_id', 'aeron.stream_analysis.high_term_offset',
+                  'aeron.stream_analysis.completed_term_id',
+                  'aeron.stream_analysis.completed_term_offset',
+                  'aeron.stream_analysis.outstanding_bytes')
+        for passes in ((), ('-2',)):
+            assert self.frame(cmd_tshark, capture_file, test_env, 19, self.REASSEMBLY, passes,
+                    *fields) == ['20481', '160', '20481', '0', '160']
+            assert self.frame(cmd_tshark, capture_file, test_env, 32, self.REASSEMBLY, passes,
+                    *fields) == ['20481', '1440', '20482', '0', '2656']
+            assert self.frame(cmd_tshark, capture_file, test_env, 4, self.REASSEMBLY, passes,
+                    *fields)[:2] == ['20480', '160']
+
+    def test_aeron_coverage_preferences(self, cmd_tshark, capture_file, test_env):
+        '''Each analysis needs its preference.'''
+        def count(prefs, field):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *prefs, '-Y', field,
+                    '-Tfields', '-eframe.number')
+            return len(stdout.split())
+        assert count((), 'aeron.sequence_analysis') == 0
+        assert count(self.SEQUENCE, 'aeron.sequence_analysis') > 100
+        assert count(self.SEQUENCE, 'aeron.stream_analysis') == 0
+        assert count(self.SEQUENCE, 'aeron.data.reassembly') == 0
+        assert count(self.STREAM, 'aeron.stream_analysis') > 100
+        assert count(self.STREAM, 'aeron.data.reassembly') == 0
+        assert count(self.REASSEMBLY, 'aeron.data.reassembly') == 11
+        # reassembly without the stream analysis does nothing
+        assert count(('-o', 'aeron.reassemble_fragments:TRUE'), 'aeron.data.reassembly') == 0
+        # the heuristic sub-dissectors change nothing: there are none
+        assert count(self.REASSEMBLY + ('-o', 'aeron.use_heuristic_subdissectors:TRUE'),
+                     'aeron.data.reassembly') == 11
+
+    def test_aeron_coverage_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Fragmented messages: in order, with the end before the middle,
+        with retransmissions and orphans, in one datagram and over two terms.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *self.REASSEMBLY, *passes,
+                    '-Y', 'aeron.data.reassembly', '-Tfields', '-E', 'aggregator=,',
+                    '-eframe.number', '-eaeron.data.reassembly.fragment')
+            assert self.rows(stdout) == [
+                ['8', '6,7,8'],
+                ['38', '38,38,38'],
+                ['54', '52,53,54'],
+                ['57', '55,57,56'],
+                ['58', '58,58,58'],
+                ['66', '62,63,66'],
+                ['69', '68,69'],
+                ['73', '72,72,73'],
+                ['140', '139,140'],
+                ['163', '162,161,163'],
+                ['167', '165,166,167'],
+            ]
+        stdout = self.run(cmd_tshark, capture_file, test_env, *self.REASSEMBLY,
+                '-Y', 'frame.number == 8', '-V')
+        assert '3 Reassembled Fragments (2200 bytes): #165(1000), #166(1000), #167(200)' in self.run(
+                cmd_tshark, capture_file, test_env, *self.REASSEMBLY, '-Y', 'frame.number == 167', '-V')
+        assert '3 Reassembled Fragments (2484 bytes): #6(992), #7(992), #8(500)' in stdout
+
+    def test_aeron_coverage_limits(self, cmd_tshark, capture_file, test_env):
+        '''The analysis keeps at most 100 NAKs per term, 100 retransmissions
+        per NAK and 256 orphan fragments per term; a frame past a limit has
+        the expert info.'''
+        def row(number, passes, *fields):
+            return self.frame(cmd_tshark, capture_file, test_env, number, self.REASSEMBLY, passes, *fields)
+        limited = self.frames_with(cmd_tshark, capture_file, test_env, 'aeron.analysis.limit')
+        assert '100' in limited and '111' in limited and '138' in limited
+        # the 101st NAK is not tracked: frame 100 has no retransmissions
+        assert row(100, ('-2',), 'aeron.sequence_analysis.nak_unrecovered',
+                'aeron.sequence_analysis.nak_rx.frame') == ['4294967295', '']
+        # the first NAKs have 100 retransmissions each: 10 NAKs per datagram
+        stdout = self.run(cmd_tshark, capture_file, test_env, *self.REASSEMBLY, '-2',
+                '-Y', 'frame.number == 90', '-Tfields', '-E', 'aggregator=,',
+                '-eaeron.sequence_analysis.nak_rx.frame', '-eaeron.sequence_analysis.nak_unrecovered')
+        frames, unrecovered = self.rows(stdout)[0]
+        assert len(frames.split(',')) == 1000
+        assert set(unrecovered.split(',')) == {str(0xffffffff - 100 * 64)}
+        # the 101st retransmission is not recorded with any NAK and says so
+        assert row(110, ('-2',), 'aeron.sequence_analysis.retransmission.rx.frame')[0].count(',') == 999
+        assert row(111, ('-2',), 'aeron.sequence_analysis.retransmission',
+                'aeron.sequence_analysis.retransmission.rx.frame') == ['True', '']
+        stdout = self.run(cmd_tshark, capture_file, test_env, *self.REASSEMBLY, '-2',
+                '-Y', 'frame.number == 111', '-Tfields', '-e_ws.expert.message')
+        assert 'Analysis limit reached, some NAK, retransmission or reassembly state was not kept' in stdout
+        # two orphans past the limit in the last datagram of orphans
+        stdout = self.run(cmd_tshark, capture_file, test_env, *self.REASSEMBLY, '-2',
+                '-Y', 'frame.number == 138', '-Tfields', '-E', 'aggregator=|',
+                '-eaeron.analysis.limit')
+        assert self.rows(stdout) == [['1|1']]
+        # the message after the orphans is still reassembled
+        assert self.frame(cmd_tshark, capture_file, test_env, 140, self.REASSEMBLY, ('-2',),
+                'aeron.data.reassembly.fragment') == ['139,140']
+
+    def test_aeron_coverage_error_frames(self, cmd_tshark, capture_file, test_env):
+        '''An Error frame that is not first in its datagram shows its
+        offending header and its text.'''
+        fields = ('aeron.err.string', 'aeron.err.off_hdr', 'aeron.err.off_frame_length',
+                  'aeron.err.frame_length', 'aeron.err.code')
+        for passes in ((), ('-2',)):
+            def row(number):
+                return self.frame(cmd_tshark, capture_file, test_env, number, self.REASSEMBLY,
+                        passes, *fields)
+            assert row(36) == ['Invalid frame', '12345678', '4', '29', '0x01']
+            assert row(42) == ['error-text', '48445221', '4', '26', '0x01']
+            assert row(46)[2:] == ['0', '12', '0x01']
+            assert row(47)[1:] == ['4f4646454e44494e472d4845414445522d4f462d414e2d4541524c4945522d4652414d45',
+                                   '36', '48', '0x02']
+            assert row(48) == ['only text', '', '0', '21', '0x03']
+            assert row(49) == ['error over IPv6', '7636', '2', '29', '0x01']
+
+    def test_aeron_coverage_next_offset(self, cmd_tshark, capture_file, test_env):
+        '''The next offset of a frame that is dissected before the Setup with
+        the term length is the same in every pass.'''
+        results = []
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *self.REASSEMBLY, *passes,
+                    '-Y', 'frame.number >= 42 && frame.number <= 45', '-Tfields',
+                    '-eframe.number', '-eaeron.data.next_offset', '-eaeron.data.next_offset_term')
+            results.append(self.rows(stdout))
+        assert results[0] == results[1]
+        assert results[0] == [['42', '0', '52'], ['43', '0', '52'], ['44', '', ''], ['45', '128', '']]
+
+    def test_aeron_coverage_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The UDP heuristic finds Aeron without Decode As when it is enabled.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAPTURE),
+                '--enable-heuristic', 'aeron_udp', '-Y', 'aeron', '-Tfields', '-eframe.number'),
+                encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 172
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAPTURE),
+                '-Y', 'aeron', '-Tfields', '-eframe.number'), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
