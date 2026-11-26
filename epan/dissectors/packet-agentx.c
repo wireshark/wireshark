@@ -305,7 +305,7 @@ dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t flags)
 
 /* XXX - Is there a particular reason we're not using oid_encoded2string() here? */
 static int
-convert_oid_to_str(uint32_t *oid, int len, char* str, int slen, char prefix)
+convert_oid_to_str(uint32_t *oid, int len, char* str, int slen, uint8_t prefix)
 {
 	int i, tlen = 0;
 	if(!oid)  return 0;
@@ -315,7 +315,7 @@ convert_oid_to_str(uint32_t *oid, int len, char* str, int slen, char prefix)
 	if(slen < len) return 0;
 
 	if(prefix) {
-		tlen += snprintf(str, slen, ".1.3.6.1.%d", prefix);
+		tlen += snprintf(str, slen, ".1.3.6.1.%u", prefix);
 	}
 
 	for(i=0; i < len && tlen < slen; i++) {
@@ -407,12 +407,13 @@ dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len, uint8_t fl
 	uint16_t vtag;
 	int tlen;
 	proto_tree* subtree;
+	proto_item* ti;
 
 	NORLES(flags, vtag, tvb, offset);
 	/* 2 reserved bytes after this */
 
 	if(tree) {
-		subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_valrep, NULL, "Value Representation");
+		subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_valrep, &ti, "Value Representation");
 	} else return len;
 
 	proto_tree_add_uint(subtree, hf_vtag, tvb, offset, 2, vtag);
@@ -447,6 +448,7 @@ dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len, uint8_t fl
 		case  VB_ENDOFMIB:
 			break;
 	}
+	proto_item_set_len(ti, tlen + 4);
 	return tlen + 4;
 }
 
@@ -837,7 +839,7 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 	pdu_hdr_tree = proto_tree_add_subtree_format(agentx_tree, tvb, 0, PDU_HDR_LEN,
 			ett_pdu_hdr, NULL, "PDU Header: Type[%u], len=%d, sid=%d, tid=%d, packid=%d",
-			(char)type, payload_len, session_id, trans_id, packet_id);
+			type, payload_len, session_id, trans_id, packet_id);
 
 	proto_tree_add_uint(pdu_hdr_tree, hf_version, tvb, 0, 1, version);
 	proto_tree_add_uint(pdu_hdr_tree, hf_type, tvb, 1, 1, type);
