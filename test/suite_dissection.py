@@ -180889,3 +180889,70 @@ class TestDissectAncp:
         assert counts['SynAck'] == 1
         assert counts['Rstack'] == 1
         assert counts['Unknown Adjacency packet (9)'] == 1
+
+
+class TestDissectAns:
+    '''Intel ANS (Advanced Network Services) probes, ethertype 0x886d, from
+    the synthetic capture ans_coverage.pcap.gz: 14 probes of three teams
+    (the generator is test/captures/generators/ans/mkans.py).'''
+
+    @staticmethod
+    def ans_fields(cmd_tshark, capture_file, test_env, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ans_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                *(('-e' + f) for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_ans_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 14 frames are ANS probes, without malformed packets or
+        error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ans_coverage.pcap.gz'),
+                    '-Y', 'ans', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 14
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ans_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ans_fields(self, cmd_tshark, capture_file, test_env):
+        '''Application and revision IDs, sequence number, sender ID and
+        team ID of the broadcast and multicast probes and of the extreme
+        values.'''
+        lines = self.ans_fields(cmd_tshark, capture_file, test_env,
+                'ans.app_id', 'ans.rev_id', 'ans.seq_num', 'ans.sender_id', 'ans.team_id')
+        assert len(lines) == 14
+        assert lines[0] == '1\t0x0001\t0x0001\t100\t0\t02:00:00:00:0a:01'
+        assert lines[5] == '6\t0x0001\t0x0001\t105\t2\t02:00:00:00:0a:01'
+        assert lines[6] == '7\t0x0001\t0x0002\t16909056\t7\t02:00:00:00:0b:02'
+        assert lines[10] == '11\t0xffff\t0xffff\t4294967295\t65535\tff:ff:ff:ff:ff:ff'
+        assert lines[11] == '12\t0x0000\t0x0000\t0\t0\t00:00:00:00:00:00'
+
+    def test_ans_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The Info column has the sequence number, sender ID and team ID,
+        the Protocol column the dissector name.'''
+        lines = self.ans_fields(cmd_tshark, capture_file, test_env,
+                '_ws.col.protocol', '_ws.col.info')
+        assert lines[0] == '1\tIntel ANS probe\tSequence: 100, Sender ID 0, Team ID 02:00:00:00:0a:01'
+        assert lines[10] == '11\tIntel ANS probe\tSequence: 4294967295, Sender ID 65535, Team ID ff:ff:ff:ff:ff:ff'
+
+    def test_ans_destinations(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-6 and 11-14 go to the broadcast address, 7-10 to
+        the Intel multicast address 01:aa:00:00:00:00.'''
+        lines = self.ans_fields(cmd_tshark, capture_file, test_env, 'eth.dst')
+        assert lines[0] == '1\tff:ff:ff:ff:ff:ff'
+        assert [ln.split('\t')[0] for ln in lines if ln.endswith('01:aa:00:00:00:00')] == ['7', '8', '9', '10']
+
+    def test_ans_padding(self, cmd_tshark, capture_file, test_env):
+        '''Probes without padding (frame 13) and with extra padding
+        (frame 14) are decoded the same way.'''
+        lines = self.ans_fields(cmd_tshark, capture_file, test_env,
+                'frame.len', 'ans.seq_num')
+        assert lines[12] == '13\t30\t500'
+        assert lines[13] == '14\t130\t501'
