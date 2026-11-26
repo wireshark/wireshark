@@ -5318,7 +5318,10 @@ proto_reg_handoff_tls(void)
 void
 ssl_dissector_add(unsigned port, dissector_handle_t handle)
 {
-    ssl_association_add("tls.port", tls_handle, handle, port, true);
+    /* If the TLS dissector is dissabled it may still be called */
+    if (tls_handle) {
+        ssl_association_add("tls.port", tls_handle, handle, port, true);
+    }
 }
 
 void
