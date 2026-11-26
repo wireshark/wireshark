@@ -7,8 +7,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 """amqp_coverage.pcap: the AMQP 0-8/0-9/0-9-1/0-10 capture of mkamqp0.py
-followed by the AMQP 1.0 capture of mkamqp10.py (as `mergecap -a` joins
-them).
+followed by the AMQP 1.0 capture of mkamqp10.py and the frames for the
+decoding fixes of mkamqp_fixes.py (as `mergecap -a` joins them).
 
 Usage: mkamqp.py [<output directory>]
 
@@ -22,6 +22,7 @@ import tempfile
 
 import mkamqp0
 import mkamqp10
+import mkamqp_fixes
 
 
 def main():
@@ -29,15 +30,18 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         mkamqp0.build_main().write(os.path.join(tmp, 'a.pcap'))
         mkamqp10.build_main().write(os.path.join(tmp, 'b.pcap'))
+        mkamqp_fixes.build_main().write(os.path.join(tmp, 'c.pcap'))
         with open(os.path.join(tmp, 'a.pcap'), 'rb') as f:
             a = f.read()
         with open(os.path.join(tmp, 'b.pcap'), 'rb') as f:
             b = f.read()
+        with open(os.path.join(tmp, 'c.pcap'), 'rb') as f:
+            c = f.read()
     # Both are little-endian microsecond pcap files with the same link type;
     # append the records of the second after the first.
-    assert a[:24] == b[:24]
+    assert a[:24] == b[:24] == c[:24]
     with open(os.path.join(out, 'amqp-coverage.pcap'), 'wb') as f:
-        f.write(a + b[24:])
+        f.write(a + b[24:] + c[24:])
 
 
 if __name__ == '__main__':

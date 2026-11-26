@@ -7632,46 +7632,67 @@ class TestDissectExportedPdu:
 
 # amqp_coverage.pcap.gz is synthetic: an AMQP 0-8, 0-9 and 0-10 part
 # (hosts in 10.0.0.0/24) and an AMQP 1.0 part (hosts in 10.1.0.0/24).
-AMQP0_HOSTS = 'ip.addr==10.0.0.0/24'
-
-
-def amqp0_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
-    '''Run tshark on the AMQP 0-x frames and return one list of field
-    values per frame.'''
-    args = []
-    for f in fields:
-        args += ['-e', f]
-    stdout = subprocess.check_output((cmd_tshark, *passes,
-            '-r', capture_file('amqp_coverage.pcap.gz'),
-            '-Y', f'{AMQP0_HOSTS} && ({dfilter})',
-            '-Tfields', *args,
-        ), encoding='utf-8', env=test_env)
-    return [line.split('\t') for line in stdout.splitlines()]
-
-
-def amqp0_base(cmd_tshark, capture_file, test_env):
-    '''Frame number before the first AMQP 0-x frame (the SYN of the first
-    0-9 connection is frame base + 1).'''
-    frames = amqp0_fields(cmd_tshark, capture_file, test_env,
-                          'ip.src==10.0.0.1 && tcp.flags.syn==1', 'frame.number')
-    return int(frames[0][0]) - 1
-
-
-AMQP10_HOSTS = 'ip.addr==10.1.0.0/24'
-
-
 class TestDissectAmqp:
+    AMQP0_HOSTS = 'ip.addr==10.0.0.0/24'
+    AMQP10_HOSTS = 'ip.addr==10.1.0.0/24'
+    FIX_HOSTS = 'ip.addr==10.2.0.0/24'
+    DAMAGED_HOSTS = 'ip.addr==10.3.0.0/24'
+
+    @staticmethod
+    def amqp0_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        '''Run tshark on the AMQP 0-x frames and return one list of field
+        values per frame.'''
+        args = []
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('amqp_coverage.pcap.gz'),
+                '-Y', f'{TestDissectAmqp.AMQP0_HOSTS} && ({dfilter})',
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    @staticmethod
+    def amqp0_base(cmd_tshark, capture_file, test_env):
+        '''Frame number before the first AMQP 0-x frame (the SYN of the first
+        0-9 connection is frame base + 1).'''
+        frames = TestDissectAmqp.amqp0_fields(cmd_tshark, capture_file, test_env,
+                              'ip.src==10.0.0.1 && tcp.flags.syn==1', 'frame.number')
+        return int(frames[0][0]) - 1
+
+    @staticmethod
+    def fix_fields(cmd_tshark, capture_file, test_env, hosts, dfilter, *fields,
+                   passes=(), options=()):
+        '''Run tshark on the frames of the fixes (10.2.0.0/24 and
+        10.3.0.0/24) and return one list of field values per frame, the
+        values of a field that occurs several times joined with commas.'''
+        args = []
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output((cmd_tshark, *passes, *options,
+                '-r', capture_file('amqp_coverage.pcap.gz'),
+                '-Y', f'{hosts} && ({dfilter})',
+                '-Tfields', '-E', 'occurrence=a', '-E', 'aggregator=,', *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    @staticmethod
+    def refs(rows, base=0):
+        '''{frame: [referenced frames]} of rows of frame number and a
+        comma separated list of frame numbers.'''
+        return {int(n): [int(m) - base for m in v.split(',')] for n, v in rows}
+
     def test_amqp0_protocols(self, cmd_tshark, capture_file, test_env):
         '''Every AMQP 0-8, 0-9, 0-9-1 and 0-10 class, method, control,
         command and struct decodes without malformed packets or error
         expert infos, in one and two passes.'''
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
         protocols = [f[0] for f in frames]
         assert protocols.count('AMQP') == 261
         assert protocols.count('AMQP/JSON') == 13
         assert protocols.count('TCP') == 31
         for passes in ((), ('-2',)):
-            frames = amqp0_fields(cmd_tshark, capture_file, test_env,
+            frames = self.amqp0_fields(cmd_tshark, capture_file, test_env,
                                   '_ws.malformed || _ws.expert.severity == error',
                                   'frame.number', passes=passes)
             assert frames == []
@@ -7679,16 +7700,16 @@ class TestDissectAmqp:
     def test_amqp0_classes(self, cmd_tshark, capture_file, test_env):
         '''All twelve 0-9 method classes, all ten 0-10 classes, every
         field table type and every 0-10 struct.'''
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.method.class',
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.method.class',
                               'amqp.method.class')
         classes = {int(c) for f in frames for c in f[0].split(',')}
         assert classes == {10, 20, 30, 40, 50, 60, 70, 80, 85, 90, 100, 110}
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.class', 'amqp.class')
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.class', 'amqp.class')
         assert {int(c) for f in frames for c in f[0].split(',')} == set(range(1, 11))
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.field.type', 'amqp.field.type')
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.field.type', 'amqp.field.type')
         types = {t for f in frames for t in f[0].split(',')}
         assert types == {f"'{t}'" for t in 'AbBdDfFiIlsStTuVx'}
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.struct32.class',
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.struct32.class',
                               'amqp.struct32.class', 'amqp.struct32.struct')
         structs = {(int(c), int(s)) for f in frames
                    for c, s in zip(f[0].split(','), f[1].split(','))}
@@ -7700,14 +7721,14 @@ class TestDissectAmqp:
         The 0-11 header is not recognised, so it is shown as an unknown
         version and the frames that follow are recognised as 0-9 by their
         frame end octet; connections captured mid-way are recognised too.'''
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.init.version_minor',
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.init.version_minor',
                               'amqp.init.version_major', 'amqp.init.version_minor')
         assert frames == [['0', '9'], ['9', '1'], ['8', '0'], ['0', '9'], ['0', '10'], ['0', '10']]
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env,
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env,
                               '_ws.col.info == "AMQP (unknown version)"', 'tcp.srcport')
         assert frames == [['40004']]
         # The mid-way 0-9 and 0-10 connections
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env,
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env,
                               'ip.addr==10.0.0.6 || ip.addr==10.0.0.9', '_ws.col.info')
         assert [f[0].split()[0] for f in frames] == [
             'Basic.Deliver', 'Basic.Ack', 'Heartbeat', 'message.transfer', 'message.accept']
@@ -7717,13 +7738,13 @@ class TestDissectAmqp:
         Reject point at the messages they acknowledge (multiple too, and a
         multiple ack of tag 0 acknowledges all), in each direction. A second
         pass keeps them and adds the frame that acknowledges each message.'''
-        base = amqp0_base(cmd_tshark, capture_file, test_env)
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env,
+        base = self.amqp0_base(cmd_tshark, capture_file, test_env)
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env,
                               'amqp.method.arguments.publish_number',
                               'frame.number', 'amqp.method.arguments.publish_number')
         assert [(int(n) - base, int(p)) for n, p in frames] == [
             (47, 1), (106, 2), (128, 1), (129, 2), (130, 3), (131, 4), (132, 5)]
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.message_in',
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.message_in',
                               'frame.number', 'amqp.message_in')
         acks = {int(n) - base: [int(m) - base for m in msgs.split(',')] for n, msgs in frames}
         assert acks == {
@@ -7732,10 +7753,10 @@ class TestDissectAmqp:
             145: [141], 146: [142, 143], 147: [144],      # consumer ack, nack, reject
             149: [148], 152: [151], 154: [153], 184: [183],
         }
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.message_in',
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.message_in',
                               'frame.number', 'amqp.message_in', passes=('-2',))
         assert {int(n) - base: [int(m) - base for m in msgs.split(',')] for n, msgs in frames} == acks
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.ack_in',
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'amqp.ack_in',
                               'frame.number', 'amqp.ack_in', passes=('-2',))
         assert {int(n) - base: int(a) - base for n, a in frames} == {
             msg: ack for ack, msgs in acks.items() for msg in msgs}
@@ -7745,15 +7766,15 @@ class TestDissectAmqp:
         of the basic content header on the same channel, a body is
         reassembled from three TCP segments, and a 0-10 message.transfer
         split over TCP segments is joined.'''
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'json', 'amqp.method.class')
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'json', 'amqp.method.class')
         assert len(frames) == 13
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env, 'data-text-lines',
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env, 'data-text-lines',
                               'amqp.method.properties.content_type')
         assert frames == [['text/plain'], ['text/plain']]
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env,
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env,
                               'amqp.payload && len(amqp.payload) == 3000', 'tcp.reassembled.length')
         assert frames == [['3008']]
-        frames = amqp0_fields(cmd_tshark, capture_file, test_env,
+        frames = self.amqp0_fields(cmd_tshark, capture_file, test_env,
                               'amqp.message.message-properties.content-type',
                               'amqp.message.message-properties.content-type',
                               'amqp.message.delivery-properties.routing-key')
@@ -7765,7 +7786,7 @@ class TestDissectAmqp:
         error expert infos, in one and two passes.'''
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('amqp_coverage.pcap.gz'),
-                '-Y', AMQP10_HOSTS,
+                '-Y', self.AMQP10_HOSTS,
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.split()
@@ -7774,7 +7795,7 @@ class TestDissectAmqp:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *passes,
                     '-r', capture_file('amqp_coverage.pcap.gz'),
-                    '-Y', f'{AMQP10_HOSTS} && (_ws.malformed || _ws.expert.severity == error)',
+                    '-Y', f'{self.AMQP10_HOSTS} && (_ws.malformed || _ws.expert.severity == error)',
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
@@ -7784,7 +7805,7 @@ class TestDissectAmqp:
         all five SASL frames.'''
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('amqp_coverage.pcap.gz'),
-                '-Y', f'{AMQP10_HOSTS} && amqp',
+                '-Y', f'{self.AMQP10_HOSTS} && amqp',
                 '-Tfields', '-eamqp.init.id', '-eamqp.performative', '-eamqp.sasl.method',
                 '-E', 'occurrence=a', '-E', 'aggregator=,',
             ), encoding='utf-8', env=test_env)
@@ -7814,7 +7835,7 @@ class TestDissectAmqp:
                   'amqp.tx.discharge', 'amqp.tx.transactionalState')
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('amqp_coverage.pcap.gz'),
-                '-Y', f'{AMQP10_HOSTS} && amqp', '-T', 'json',
+                '-Y', f'{self.AMQP10_HOSTS} && amqp', '-T', 'json',
             ), encoding='utf-8', env=test_env)
         missing = [f for f in fields if f'"{f}"' not in stdout]
         assert missing == []
@@ -7825,7 +7846,7 @@ class TestDissectAmqp:
         type-specific message-id fields.'''
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('amqp_coverage.pcap.gz'),
-                '-Y', f'{AMQP10_HOSTS} && amqp.performative.arguments.containerId == "client-container-1"',
+                '-Y', f'{self.AMQP10_HOSTS} && amqp.performative.arguments.containerId == "client-container-1"',
                 '-Tfields', '-eamqp.performative.arguments.maxFrameSize',
                 '-eamqp.performative.arguments.channelMax',
                 '-eamqp.performative.arguments.idleTimeout',
@@ -7834,14 +7855,14 @@ class TestDissectAmqp:
         assert stdout.strip() == '65536\t255\t30000\ten-US'
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('amqp_coverage.pcap.gz'),
-                '-Y', f'{AMQP10_HOSTS} && amqp.message.messageId.guid',
+                '-Y', f'{self.AMQP10_HOSTS} && amqp.message.messageId.guid',
                 '-Tfields', '-eamqp.message.messageId.guid',
                 '-eamqp.message.correlationId.bytes',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '01234567-89ab-cdef-0123-456789abcdef\t010203'
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('amqp_coverage.pcap.gz'),
-                '-Y', f'{AMQP10_HOSTS} && amqp.message.creationTime',
+                '-Y', f'{self.AMQP10_HOSTS} && amqp.message.creationTime',
                 '-Tfields', '-eamqp.message.messageId.uint', '-eamqp.message.to.string',
                 '-eamqp.message.creationTime', '-eamqp.message.expiryTime',
                 '-eamqp.message.groupSequence',
@@ -7855,7 +7876,7 @@ class TestDissectAmqp:
         type name and value.'''
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('amqp_coverage.pcap.gz'),
-                '-Y', f'{AMQP10_HOSTS} && amqp.performative.arguments.deliveryTag == "types-1"',
+                '-Y', f'{self.AMQP10_HOSTS} && amqp.performative.arguments.deliveryTag == "types-1"',
                 '-O', 'amqp', '-V',
             ), encoding='utf-8', env=test_env)
         assert 'AMQP-Sequence (list of 46 elements)' in stdout
@@ -7929,10 +7950,206 @@ class TestDissectAmqp:
         stdout = subprocess.check_output((cmd_tshark,
                 '-o', 'uat:amqp_message_decoding:"Equal to","sensors/equal","data-text-lines","message,example.Reading"',
                 '-r', capture_file('amqp_coverage.pcap.gz'),
-                '-Y', f'{AMQP10_HOSTS} && data-text-lines',
+                '-Y', f'{self.AMQP10_HOSTS} && data-text-lines',
                 '-Tfields', '-eamqp.message.to.string',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['sensors/equal']
+
+    # ---- the frames added for the decoding and robustness fixes
+
+    @staticmethod
+    def fix_base(cmd_tshark, capture_file, test_env):
+        '''Frame number before the first of the fix frames (the SYN of the
+        first connection is frame base + 1).'''
+        frames = TestDissectAmqp.fix_fields(cmd_tshark, capture_file, test_env,
+                                            TestDissectAmqp.FIX_HOSTS,
+                                            'ip.src==10.2.0.1 && tcp.flags.syn==1',
+                                            'frame.number')
+        return int(frames[0][0]) - 1
+
+    def test_amqp_fixes_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frames of the fixes (10.2.0.0/24) decode without malformed
+        packets or error expert infos, in one and two passes. Long strings,
+        byte arrays and binary values that are longer than the data left
+        (10.3.0.0/24) are shown with an error expert info, and the
+        frames after them still decode.'''
+        rows = self.fix_fields(cmd_tshark, capture_file, test_env, self.FIX_HOSTS, 'amqp',
+                               'frame.number')
+        assert len(rows) == 70
+        for passes in ((), ('-2',)):
+            rows = self.fix_fields(cmd_tshark, capture_file, test_env,
+                                   self.FIX_HOSTS,
+                                   '_ws.malformed || _ws.expert.severity == error',
+                                   'frame.number', passes=passes)
+            assert rows == []
+            base = self.fix_base(cmd_tshark, capture_file, test_env)
+            rows = self.fix_fields(cmd_tshark, capture_file, test_env, self.DAMAGED_HOSTS,
+                                   '_ws.expert.severity == error && amqp',
+                                   'frame.number', '_ws.expert.message', passes=passes)
+            assert [(int(n) - base, m) for n, m in rows] == [
+                (105, 'Field is cut off by the end of the field table'),
+                (106, 'Field is cut off by the end of the field table'),
+                (115, 'Length 4294967295 exceeds the remaining data'),
+                (116, 'Length 256 exceeds the remaining data')]
+
+    def test_amqp09_unacked_deliveries(self, cmd_tshark, capture_file, test_env):
+        '''Unacked publishes are found by delivery tag: a single ack, an ack
+        of a tag that is gone, a multiple ack, 300 acks of unknown tags,
+        a nack and a multiple ack of tag 0. A second pass gives the same
+        references and adds the frame that acknowledges each message.'''
+        base = self.fix_base(cmd_tshark, capture_file, test_env)
+        want = {
+            11: [5],                            # tag 7, publishes 1-50 are in frame 5
+            13: [5] * 49 + [6] * 50,            # tags 1 to 100 except 7, oldest first
+            20: [9],                            # tag 250
+            21: [10],                           # nack of tag 251
+            22: [7] * 50 + [8] * 50 + [9] * 49 + [10] * 49,  # tag 0, multiple
+        }
+        for passes in ((), ('-2',)):
+            rows = self.fix_fields(cmd_tshark, capture_file, test_env, 'ip.addr==10.2.0.1',
+                                   'amqp.message_in', 'frame.number', 'amqp.message_in',
+                                   passes=passes)
+            got = {int(n) - base: [int(m) - base for m in v.split(',')] for n, v in rows}
+            assert got == want
+        rows = self.fix_fields(cmd_tshark, capture_file, test_env, 'ip.addr==10.2.0.1',
+                               'amqp.ack_in', 'frame.number', 'amqp.ack_in', passes=('-2',))
+        got = {int(n) - base: [int(m) - base for m in v.split(',')] for n, v in rows}
+        assert got == {
+            5: [13] * 6 + [11] + [13] * 43,
+            6: [13] * 50,
+            7: [22] * 50,
+            8: [22] * 50,
+            9: [22] * 49 + [20],
+            10: [21] + [22] * 49,
+        }
+
+    def test_amqp09_repeated_delivery_tags(self, cmd_tshark, capture_file, test_env):
+        '''Deliveries that repeat their tags: a single ack takes all
+        deliveries with the tag, a multiple ack the newest one with the tag
+        and every older delivery, and the deliveries left are found by
+        their tag afterwards. The references are the same in a second
+        pass.'''
+        base = self.fix_base(cmd_tshark, capture_file, test_env)
+        want = {
+            37: [31, 33, 35],                    # ack tag 7: three deliveries
+            38: ([31] * 19 + [32] * 20 + [33] * 19 + [34] * 20 + [35] * 5),
+            40: [35],                            # tag 6: only the newest is left
+            41: [35],                            # nack of tag 9
+            42: [35],                            # reject of tag 11
+            44: [35] * 11 + [36] * 20,           # multiple ack of tag 0
+            46: [45, 45],                        # tag 2 was delivered twice again
+            47: [45],
+        }
+        for passes in ((), ('-2',)):
+            rows = self.fix_fields(cmd_tshark, capture_file, test_env, 'ip.addr==10.2.0.3',
+                                   'amqp.message_in', 'frame.number', 'amqp.message_in',
+                                   passes=passes)
+            got = {int(n) - base: [int(m) - base for m in v.split(',')] for n, v in rows}
+            if passes == ():
+                # the order of the references: oldest first; only the
+                # frames and their counts are compared for the long ones
+                assert {k: (len(v), v[0], v[-1]) for k, v in got.items()} == {
+                    k: (len(v), v[0], v[-1]) for k, v in want.items()}
+                first = got
+            else:
+                assert got == first
+        assert first[38].count(31) == 19 and first[38].count(34) == 20
+        # Acks of tags that are gone or unknown have no reference
+        rows = self.fix_fields(cmd_tshark, capture_file, test_env, 'ip.addr==10.2.0.3',
+                               'amqp.method.arguments.delivery_tag && !amqp.message_in',
+                               'frame.number')
+        # 39 and 43 are the acks of a gone and of an unknown tag, 45 the
+        # new deliveries (acked later)
+        assert [int(r[0]) - base for r in rows if int(r[0]) - base > 36] == [39, 43, 45]
+
+    def test_amqp09_content_params_second_pass(self, cmd_tshark, capture_file, test_env):
+        '''Each content body goes to the dissector of the media type of its
+        own content header (JSON or line-based text), also when the frames
+        are dissected again and the last header of the connection is for a
+        different type.'''
+        base = self.fix_base(cmd_tshark, capture_file, test_env)
+        for passes in ((), ('-2',)):
+            rows = self.fix_fields(cmd_tshark, capture_file, test_env, 'ip.addr==10.2.0.4',
+                                   'amqp.payload', 'frame.number', 'json', 'data-text-lines',
+                                   passes=passes)
+            got = [(int(n) - base, bool(j), bool(t)) for n, j, t in rows]
+            assert got == [(57, True, False), (58, False, True), (61, True, False),
+                           (62, False, True), (63, True, False), (64, True, False),
+                           (65, False, True)]
+        # the media type is taken as lower case
+        rows = self.fix_fields(cmd_tshark, capture_file, test_env, 'ip.addr==10.2.0.4',
+                               'amqp.method.properties.content_type', 'frame.number',
+                               'amqp.method.properties.content_type')
+        assert [r[1] for r in rows] == ['application/json', 'text/plain', 'Application/JSON',
+                                        'text/plain', 'application/json', 'application/json',
+                                        'text/plain']
+
+    def test_amqp010_exchange_binding_key(self, cmd_tshark, capture_file, test_env):
+        '''The binding-key of exchange.bind, unbind and bound is a length
+        prefixed string and is shown as such.'''
+        base = self.fix_base(cmd_tshark, capture_file, test_env)
+        rows = self.fix_fields(cmd_tshark, capture_file, test_env, 'ip.addr==10.2.0.5',
+                               'amqp.exchange.bind.binding-key', 'frame.number',
+                               'amqp.exchange.bind.binding-key')
+        assert [(int(n) - base, k) for n, k in rows] == [
+            (73, 'fix.key.one'), (74, 'fix.key.two'), (75, 'fix.key.three'), (76, '')]
+
+    def test_amqp010_sequence_sets(self, cmd_tshark, capture_file, test_env):
+        '''The sequence set of message.release and message.acquire is shown
+        on the Commands item and not on Arguments, and sets with an odd
+        value count or a length that is not a multiple of four do not read
+        past the set.'''
+        base = self.fix_base(cmd_tshark, capture_file, test_env)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('amqp_coverage.pcap.gz'),
+                '-Y', 'ip.addr==10.2.0.5 && amqp.message.accept.transfers', '-V',
+            ), encoding='utf-8', env=test_env)
+        sets, frame = {}, None
+        for line in stdout.splitlines():
+            if line.startswith('Frame '):
+                frame = int(line.split()[1].rstrip(':')) - base
+            elif line.strip() == 'Arguments':
+                sets.setdefault(frame, []).append('Arguments')
+            elif line.strip().startswith('Commands'):
+                sets.setdefault(frame, []).append(line.strip())
+        assert sets == {
+            77: ['Arguments', 'Commands [(1, 5), (8, 9)]'],
+            78: ['Arguments', 'Commands [(3, 3)]'],
+            79: ['Arguments', 'Commands [(10, 20)]'],
+            80: ['Arguments', 'Commands [(1, 2), (4, 5), (7, 8)]'],
+            81: ['Arguments', 'CommandsInvalid sequence set value count 1 []'],
+            82: ['Arguments', 'CommandsInvalid sequence set value count 3 [(1, 2)]'],
+            83: ['Arguments', 'CommandsInvalid sequence set length 6'
+                             'Invalid sequence set value count 1 []'],
+            84: ['Arguments', 'Commands []'],
+        }
+
+    def test_amqp10_many_data_sections(self, cmd_tshark, capture_file, test_env):
+        '''Transfers with 300 data sections: all are found, and with a
+        Message Decoding entry all sections of a transfer are handed to the
+        payload dissector when the "to" address of that transfer matches,
+        and none otherwise, also for several transfers in one segment and
+        a transfer without properties.'''
+        base = self.fix_base(cmd_tshark, capture_file, test_env)
+        for passes in ((), ('-2',)):
+            rows = self.fix_fields(cmd_tshark, capture_file, test_env, 'ip.addr==10.2.0.6',
+                                   'amqp.data', 'frame.number', 'amqp.data', passes=passes)
+            assert [(int(n) - base, len(d.split(','))) for n, d in rows] == [
+                (93, 300), (94, 300), (95, 300), (96, 120), (97, 2)]
+            assert rows[0][1].split(',')[:2] == ['a100', 'a101']
+            assert rows[0][1].split(',')[-1] == 'a12b'      # section 299
+            # (the "to" item is only in the tree of -Tfields when it is asked for)
+            rows = self.fix_fields(cmd_tshark, capture_file, test_env, 'ip.addr==10.2.0.6',
+                                   'data.data', 'frame.number', 'data.data',
+                                   'amqp.message.to.string', passes=passes,
+                                   options=('-V', '-o', 'uat:amqp_message_decoding:'
+                                            '"Equal to","sensors/equal","data",""'))
+            assert [(int(n) - base, len(d.split(','))) for n, d, to in rows] == [
+                (93, 300), (96, 80), (97, 2)]
+            # without an entry nothing is decoded
+            rows = self.fix_fields(cmd_tshark, capture_file, test_env, 'ip.addr==10.2.0.6',
+                                   'data.data', 'frame.number', passes=passes)
+            assert rows == []
 
 
 class TestDissectAnsi637:
