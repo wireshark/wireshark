@@ -178263,3 +178263,206 @@ class TestDissectAdbCs:
         assert ['Client Length=12 Service=<host:version>'] in infos[0]
         assert not any('Unknown service' in r[0] and r[0].startswith('Client Length=12')
                        for r in infos[0])
+
+
+class TestDissectAdbService:
+    '''
+    ADB services as the adb server answers them (adb_cs_coverage.pcapng.gz,
+    TCP port 5037): host:version, device lists, results, shell, logcat,
+    framebuffer in six pixel formats, track-jdwp, jdwp, sync, and an Exported
+    PDU frame that names the dissector without ADB data. Port 5037 is not
+    claimed by default, so every test uses Decode As. The service of a
+    request is only known to the first pass after the frame was dissected, so
+    the Info column is the same in both passes.
+    '''
+    OPTS = ('-d', 'tcp.port==5037,adb_cs', '-d', 'tcp.port==5038,adb_cs')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, *TestDissectAdbService.OPTS,
+                '-r', capture_file('adb_cs_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_adb_service_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''Frames of every service decode without malformed packets or errors
+        in one and two passes, with and without the pixel details.'''
+        for prefs in ((), ('-o', 'adb_service.framebuffer_more_details:TRUE')):
+            for passes in ((), ('-2',)):
+                rows = self.fields(cmd_tshark, capture_file, test_env, *passes, *prefs,
+                        '-Y', '_ws.malformed || _ws.expert.severity == error',
+                        '-Tfields', '-eframe.number')
+                assert rows == []
+
+    def test_adb_service_version(self, cmd_tshark, capture_file, test_env):
+        '''host:version, with the length and the version in one segment, in
+        separate segments (the version continues the length of an earlier
+        frame) and a second version request on that connection.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_service.version', '-Tfields', '-eframe.number',
+                '-eadb_service.length', '-eadb_service.version')
+        assert rows == [['5', '4', '41'], ['16', '', '41'], ['18', '4', '48'],
+                        ['27', '', '41'], ['394', '4', '58']]
+
+    def test_adb_service_texts(self, cmd_tshark, capture_file, test_env):
+        '''Device lists, results, process ids and the shell streams.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_service.devices || adb_service.result || adb_service.pids',
+                '-Tfields', '-eframe.number', '-eadb_service.devices',
+                '-eadb_service.result', '-eadb_service.pids')
+        by_frame = dict((r[0], r[1:]) for r in rows)
+        assert by_frame['35'][0] == '0123456789ABCDEF\\tdevice\\nFEDCBA9876543210\\toffline\\n'
+        assert by_frame['52'][0] == '0123456789ABCDEF\\toffline\\n'
+        assert by_frame['61'][1] == 'device'
+        assert by_frame['69'][1] == '0123456789ABCDEF'
+        assert by_frame['77'][1] == 'usb:1-1'
+        assert by_frame['279'][2] == '1234\\n5678\\n'
+        assert by_frame['316'][1] == 'restarting adbd as root\\n'
+        assert by_frame['327'][1] == 'remount succeeded\\n'
+        assert by_frame['338'][1] == 'restarting in TCP mode port: 5555\\n'
+        assert by_frame['349'][1] == 'restarting in USB mode\\n'
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_service.stdin || adb_service.stdout',
+                '-Tfields', '-eframe.number', '-eadb_service.stdin',
+                '-eadb_service.stdout')
+        by_frame = dict((r[0], r[1:]) for r in rows)
+        assert by_frame['123'] == ['', 'Alarms\\r\\nDCIM\\r\\nDownload\\r\\n']
+        assert by_frame['135'] == ['ls -l\\n', '']
+        assert by_frame['136'] == ['', 'ls -l\\r\\ntotal 0\\r\\n']
+
+    def test_adb_service_incomplete(self, cmd_tshark, capture_file, test_env):
+        '''A list with more text than its length says, and a result that is
+        longer than the length.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_service.expert.incomplete_message',
+                '-Tfields', '-eframe.number')
+        assert [r[0] for r in rows] == ['53', '104', '281']
+
+    def test_adb_service_framebuffer_header(self, cmd_tshark, capture_file, test_env):
+        '''The framebuffer header: size, geometry and colour layout, one per
+        screenshot.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_service.framebuffer.width', '-Tfields', '-eframe.number',
+                '-eadb_service.framebuffer.size', '-eadb_service.framebuffer.width',
+                '-eadb_service.framebuffer.height', '-eadb_service.framebuffer.red_offset',
+                '-eadb_service.framebuffer.red_length', '-eadb_service.framebuffer.blue_offset',
+                '-eadb_service.framebuffer.green_offset', '-eadb_service.framebuffer.alpha_offset',
+                '-eadb_service.framebuffer.alpha_length')
+        assert rows == [
+            ['196', '9', '3', '1', '11', '5', '0', '5', '0', '0'],
+            ['207', '16', '2', '2', '0', '8', '16', '8', '24', '8'],
+            ['218', '8', '2', '1', '0', '8', '16', '8', '24', '0'],
+            ['229', '7', '1', '1', '16', '8', '0', '8', '24', '8'],
+            ['240', '8', '2', '1', '0', '8', '16', '8', '0', '0'],
+            ['251', '4', '2', '2', '5', '2', '0', '2', '0', '0'],
+            ['262', '64', '4', '4', '0', '8', '16', '8', '24', '8'],
+            ['268', '4', '2', '1', '11', '5', '0', '5', '0', '0'],
+            ['459', '4', '2', '1', '11', '5', '0', '5', '0', '0'],
+        ]
+
+    def test_adb_service_framebuffer_pixels_off(self, cmd_tshark, capture_file, test_env):
+        '''Pixels are not dissected unless the preference is set.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_service.framebuffer.pixel', '-Tfields', '-eframe.number')
+        assert rows == []
+
+    def test_adb_service_framebuffer_pixels(self, cmd_tshark, capture_file, test_env):
+        '''RGB565 (the red and blue masks are the right way round), RGBA,
+        RGBX, BGRA with the colour offsets of the header, RGB888, a screenshot
+        in several segments, and a format that has no pixel decoding.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'adb_service.framebuffer_more_details:TRUE',
+                '-Y', 'adb_service.framebuffer.pixel', '-Tfields', '-eframe.number',
+                '-eadb_service.framebuffer.pixel.red', '-eadb_service.framebuffer.pixel.green',
+                '-eadb_service.framebuffer.pixel.blue', '-eadb_service.framebuffer.pixel.alpha',
+                '-eadb_service.framebuffer.pixel.unused', '-eadb_service.framebuffer.pixel.red_5',
+                '-eadb_service.framebuffer.pixel.green_6', '-eadb_service.framebuffer.pixel.blue_5',
+                '-E', 'aggregator=,')
+        by_frame = dict((r[0], r[1:]) for r in rows)
+        assert sorted(by_frame, key=int) == ['196', '207', '218', '229', '240',
+                                             '263', '264', '265', '268', '459']
+        # 565 has its own 16 bit fields: red 31, green 63 and blue 31 are the
+        # full values
+        assert by_frame['196'] == ['', '', '', '', '', '31,0,0,31', '0,63,0,63', '0,0,31,31']
+        assert by_frame['207'][:5] == ['1,5,9,13', '2,6,10,14', '3,7,11,15', '4,8,12,16', '']
+        assert by_frame['218'][:5] == ['1,5', '2,6', '3,7', '', '0,0']
+        # BGRA: red at offset 16, blue at 0; the trailing octets are a fragment
+        assert by_frame['229'][:5] == ['3', '2', '1', '4', '']
+        assert by_frame['240'][:5] == ['1,4', '2,5', '3,6', '', '']
+        # three segments of a 4x4 screenshot
+        assert by_frame['263'][0] == '0,4,8,12,16,20'
+        assert by_frame['265'][3] == '51,55,59,63'
+
+    def test_adb_service_framebuffer_odd_octet(self, cmd_tshark, capture_file, test_env):
+        '''A trailing octet that is not a whole pixel is a fragment, in RGB565
+        and in the other formats. In RGB565 it used to be skipped and a pixel
+        that did not fit was added past the end (Malformed Packet).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'adb_service.framebuffer_more_details:TRUE',
+                '-Y', 'adb_service.fragment && adb_service.framebuffer.pixel',
+                '-Tfields', '-eframe.number')
+        assert [r[0] for r in rows] == ['196', '229', '240']
+
+    def test_adb_service_logcat(self, cmd_tshark, capture_file, test_env):
+        '''Logcat entries of both versions, in both spellings of the service,
+        with a tty that turns LF into CR LF, entries cut in the header, in the
+        payload and between the CR and the LF, and entries of one octet per
+        segment.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'logcat', '-Tfields', '-eframe.number', '-elogcat.tag',
+                '-E', 'aggregator=,')
+        assert rows == [['159', 'Tag,ActivityManager,E,Debug,Verbose'], ['161', 'Split'],
+                        ['162', 'Split2'], ['164', 'Cr'], ['165', 'Last'], ['166', 'Tail'],
+                        ['168', 'LfEnd'], ['173', 'One'], ['184', 'Tag'], ['185', 'T2']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'adb_service.fragment && !adb_service.framebuffer.pixel',
+                '-Tfields', '-eframe.number')
+        assert [r[0] for r in rows if int(r[0]) < 190] == [
+            '160', '161', '163', '167', '169', '170', '171', '172', '184']
+
+    def test_adb_service_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The dissector called by name with no ADB data adds its tree only.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 424 && adb_service', '-Tfields', '-eframe.number',
+                '-eadb_service.service')
+        assert rows == [['424', '']]
+
+    def test_adb_service_empty_results(self, cmd_tshark, capture_file, test_env):
+        '''An empty device list ("0000" in track-devices) and empty results
+        are not malformed; the devices and result items are left out. They used
+        to throw.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {430, 439, 448}', '-Tfields', '-e_ws.col.protocol',
+                    '-e_ws.malformed', '-eadb_service.devices', '-eadb_service.result')
+            assert rows == [['ADB CS', '', '', ''], ['ADB CS', '', '', ''], ['ADB CS', '', '', '']]
+
+    def test_adb_service_framebuffer_stray_data(self, cmd_tshark, capture_file, test_env):
+        '''Client data on a finished framebuffer connection (frame 460) and a
+        header shorter than 52 octets (frame 471) are shown as data, not as a
+        header and not as a malformed packet.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {459, 460, 471}', '-Tfields', '-eframe.number',
+                    '-eadb_service.data', '-eadb_service.framebuffer.width', '-e_ws.malformed')
+            assert rows == [['459', '00000000', '2', ''], ['460', '010203', '', ''],
+                            ['471', '01000000100000000400000002000000010000000b000000050000000000', '', '']]
+
+    def test_adb_service_logcat_lone_lf(self, cmd_tshark, capture_file, test_env):
+        '''A segment that is only the LF after a segment ending in CR is
+        dissected (it used to throw).'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {482, 483} && adb_service.fragment',
+                    '-Tfields', '-eframe.number', '-e_ws.malformed')
+            assert rows == [['482', ''], ['483', '']]
+
+    def test_adb_service_rgb565_filter_names(self, cmd_tshark, capture_file, test_env):
+        '''The 16 bit RGB565 fields have their own filter names, so the 8 bit
+        fields of the other formats are not mixed up with them.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'adb_service.framebuffer_more_details:TRUE',
+                '-Y', 'adb_service.framebuffer.pixel.red_5 == 31', '-Tfields', '-eframe.number',
+                '-eadb_service.framebuffer.pixel.green_6', '-eadb_service.framebuffer.pixel.blue_5',
+                '-E', 'aggregator=,')
+        assert rows[0] == ['196', '0,63,0,63', '0,0,31,31']
