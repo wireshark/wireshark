@@ -110,7 +110,12 @@ is_armagetronad_packet(tvbuff_t * tvb)
 
 	/* For each message in the frame */
 	while (tvb_captured_length_remaining(tvb, offset) > 2) {
-		int data_len = tvb_get_ntohs(tvb, offset + 4) * 2;
+		int data_len;
+
+		if (tvb_captured_length_remaining(tvb, offset) < 6)
+			return false;
+
+		data_len = tvb_get_ntohs(tvb, offset + 4) * 2;
 
 #if 0
 		/*
