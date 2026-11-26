@@ -1669,14 +1669,8 @@ static bool run_capture_ios(ssh_channel channel, const char* iface, const char* 
 		cmdline = NULL;
 	}
 
-	wscp_cnt = 1;
-	for (str = iface_copy; ; str = NULL) {
-		iface_one = strtok(str, ",");
-		if (iface_one == NULL)
-			break;
-
-		wscp_str = g_strdup_printf("%s_%d", WIRESHARK_CAPTURE_POINT, wscp_cnt);
-		wscp_cnt++;
+	for (int i = 1; i < wscp_cnt; i++) {
+		wscp_str = g_strdup_printf("%s_%d", WIRESHARK_CAPTURE_POINT, i);
 
 		if (ssh_channel_printf(channel, "monitor capture point start %s\n", wscp_str) == EXIT_FAILURE)
 			goto error;
