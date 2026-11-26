@@ -263,13 +263,14 @@ QIcon ProfileInheritComboBox::inheritedPlaceholderIcon()
     return icons.value(size);
 }
 
-QSize ProfileInheritComboBox::inheritedSizeHint(QStyleOptionViewItem opt, QSize size, bool check_box)
+QSize ProfileInheritComboBox::inheritedSizeHint(const QStyleOptionViewItem &option, QSize size, bool check_box)
 {
-    if (!(opt.features & QStyleOptionViewItem::HasDecoration) ||
-        opt.decorationSize.height() > inherited_icon_size()) {
+    if (!(option.features & QStyleOptionViewItem::HasDecoration) ||
+        option.decorationSize.height() > inherited_icon_size()) {
         return size;
     }
 
+    QStyleOptionViewItem opt(option);
     opt.features &= ~QStyleOptionViewItem::HasDecoration;
     if (check_box) {
         opt.features |= QStyleOptionViewItem::HasCheckIndicator;
