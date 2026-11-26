@@ -179715,3 +179715,183 @@ class TestDissectAkp:
             outputs.append(self.run(cmd_tshark, capture_file, test_env, *passes,
                     '-O', 'akp,cms,x509af,pkcs12'))
         assert outputs[0] == outputs[1]
+
+
+class TestDissectAlcap:
+    '''ALCAP (AAL type 2 signalling, Q.2630) in MTP3 with the service
+    indicator AAL2, from the synthetic capture alcap_coverage.pcap.gz
+    (link-layer type MTP3): 138 frames. Frames 8-12 are the leg state
+    reproducer of "ALCAP: Fix parameter decoding and leg state", frames
+    1-2 and 98-111 have the parameters the same change fixed. The
+    generator is test/captures/generators/alcap/mkalcap.py.'''
+
+    @staticmethod
+    def alcap_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('alcap_coverage.pcap.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number',
+                *(('-e' + f) for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_alcap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 138 frames are ALCAP, without malformed packets or error
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('alcap_coverage.pcap.gz'),
+                    '-Y', 'alcap', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 138
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('alcap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_alcap_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The Info column has the message type and the summary of the
+        parameters that have one (connection element, cause); parameters
+        without a summary add nothing, in particular not "(null)".'''
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 5, 8, 9, 13, 15, 16, 20, 23, 24, 86, 88, 91, 125}', '_ws.col.info')
+        assert lines == [
+            '1\tEstablish request (ERQ) Path: 7 CID: 9',
+            '5\tModify Reject (MOR) Path: 7 CID: 9 No circuit/channel available',
+            '8\tEstablish request (ERQ) Path: 8 CID: 1',
+            '9\tEstablish confirm (ECF)',
+            '13\tBlock confirm (BLC) Path: 0 (All Paths)',
+            '15\tConfusion (CFN) Message type non-existent or not implemented',
+            '16\tReset confirm (RSC) Path: 4 CID: 0 (Every CID)',
+            '20\tUnknown Message',
+            '23\tModify Request (MOD)',
+            '24\tModify Request (MOD) Normal, unspecified',
+            '86\tRelease request (REL) Unknown(77)',
+            '88\tRelease request (REL) 16',
+            '91\tRelease request (REL) Unknown(127)',
+            '125\tModify Ack (MOA) Unknown(0)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('alcap_coverage.pcap.gz'),
+                '-Y', '_ws.col.info contains "(null)"', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_alcap_addresses(self, cmd_tshark, capture_file, test_env):
+        '''The E.164 digits of DESEA and OESEA, the NSAP addresses of DNSEA
+        and ONSEA (each exactly 20 octets) and the leg's copy of them in
+        frame 1; DESEA and OESEA took one octet past the parameter.'''
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env, 'frame.number == 1',
+                'e164.called_party_number.digits', 'e164.calling_party_number.digits',
+                'alcap.dnsea.addr', 'alcap.onsea.addr', 'alcap.leg.dnsea', 'alcap.leg.onsea')
+        assert lines == ['1\t12345678\t8765432'
+                         '\t39840f00000000000000000000000000000000aa'
+                         '\t47000580ffe1000000f21a0b0100000000000bb0'
+                         '\t39840f00000000000000000000000000000000aa'
+                         '\t47000580ffe1000000f21a0b0100000000000bb0']
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {98, 99, 100, 101, 102}',
+                'e164.called_party_number.digits', 'e164.calling_party_number.digits')
+        assert lines == ['98\t1\t1', '99\t0123456789\t0123456789', '100\t4655551234\t4655551234',
+                         '101\t999\t999', '102\t12\t12']
+
+    def test_alcap_sut_and_suci(self, cmd_tshark, capture_file, test_env):
+        '''The served user transport starts after its length octet (frames
+        1, 109-111) and the correlation ID is four octets (frames 1, 109-111).'''
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 109, 110, 111}', 'alcap.sut.sut_len', 'alcap.sut.transport', 'alcap.suci')
+        assert lines == [
+            '1\t0x03\t616263\t0x01020304',
+            '109\t0x01\t00\t0xffffffff',
+            '110\t0x05\t0001020304\t0x00ffffff',
+            '111\t0x14\t000102030405060708090a0b0c0d0e0f10111213\t0x0000ffff',
+        ]
+
+    def test_alcap_leg_state_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Frames 8-12 are ERQ, ECF, REL (cause 41), RLC (31) and a second
+        REL (16). A frame shows the release cause the leg has had up to
+        then in one pass, and the final cause 16 in the second pass,
+        which no longer rewrites the leg while it walks over the frames.'''
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 8 && frame.number <= 12', 'alcap.leg.cause')
+        assert lines == ['8\t', '9\t', '10\t41', '11\t31', '12\t16']
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 8 && frame.number <= 12', 'alcap.leg.cause', passes=('-2',))
+        assert lines == ['8\t16', '9\t16', '10\t16', '11\t16', '12\t16']
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 8 && frame.number <= 12', 'alcap.leg.dsaid', 'alcap.leg.osaid', passes=('-2',))
+        assert lines == ['%d\t0x0d0d0d0d\t0x0c0c0c0c' % i for i in range(8, 13)]
+
+    def test_alcap_leg_messages(self, cmd_tshark, capture_file, test_env):
+        '''The leg of frame 1 lists its messages: ECF, MOD, MOA, MOR, REL
+        and RLC (frames 2-7) and the four MOA of frames 135-138 (their
+        DSAID is the originating SAID), found through the originating
+        SAID; a message sent by the other side to the destination SAID is
+        also found.'''
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 1', 'alcap.leg.msg', passes=('-2',))
+        assert lines == ['1\t1,2,3,4,5,6,7,135,136,137,138']
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 6', 'alcap.leg.msg', 'alcap.leg.cause', passes=('-2',))
+        assert lines == ['6\t1,2,3,4,5,6,7,135,136,137,138\t31']
+        # A leg found only through its destination SAID (frames 120-127)
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 127', 'alcap.leg.msg', passes=('-2',))
+        assert lines == ['127\t120,121,122,123,124,125,126,127']
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'alcap.leg.pathid == 11', 'alcap.leg.sugr', 'alcap.leg.cid', passes=('-2',))
+        assert lines[0] == '120\t0xabcdef01\t3'
+        # Messages of a leg that does not exist have no leg info
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {128, 129, 130} && alcap.leg.msg')
+        assert lines == []
+
+    def test_alcap_leg_info_preference(self, cmd_tshark, capture_file, test_env):
+        '''With alcap.leg_info off no leg information is kept or shown.'''
+        stdout = subprocess.check_output((cmd_tshark, '-o', 'alcap.leg_info:FALSE',
+                '-r', capture_file('alcap_coverage.pcap.gz'),
+                '-Y', 'alcap.leg.osaid || alcap.leg.msg', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_alcap_cause(self, cmd_tshark, capture_file, test_env):
+        '''Cause coding and value, and the diagnostics of the causes 97,
+        99 and 110 (message, then parameter ID and field number pairs).'''
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {72, 88, 89, 90, 92}', 'alcap.cau.coding', 'alcap.cau.value')
+        assert lines == ['72\t0\t1', '88\t1\t16', '89\t2\t17', '90\t3\t18', '92\t0\t41']
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 93 && frame.number <= 97', 'alcap.cau.diag.len', 'alcap.cau.diag.msg',
+                'alcap.cau.diag.param', 'alcap.cau.diag.field_num')
+        assert lines == ['93\t0\t\t\t', '94\t1\t5\t\t', '95\t3\t5\t8\t2',
+                         '96\t5\t4\t6,7\t1,2', '97\t3\t7\t3\t1']
+        # An abnormal release (cause other than 0 and 31) has an expert info
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('alcap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {74, 75} && alcap.abnormal_release', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['75']
+
+    def test_alcap_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Every parameter with a valid length is decoded (frames 23-62 have
+        the parameter IDs 0-39); the IDs 0 and 36-39 are unknown and
+        marked as undecoded.'''
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'alcap.unknown.field', 'alcap.param')
+        assert lines == ['23\t0', '59\t36', '60\t37', '61\t38', '62\t39']
+        # SSISA and SSISU (34, 35, 71) and a cause diagnostic (92) are
+        # decoded only in part
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env, 'alcap.undecoded')
+        assert [ln.split('\t')[0] for ln in lines] == ['23', '34', '35', '59', '60', '61', '62', '71', '92']
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {33, 34, 37, 38}', 'alcap.param')
+        assert lines == ['33\t10', '34\t11', '37\t14', '38\t15']
+
+    def test_alcap_variable_bandwidth(self, cmd_tshark, capture_file, test_env):
+        '''VBWS and PVBWS have one backward size item each (it was added
+        twice), then the source traffic type (frame 71).'''
+        lines = self.alcap_fields(cmd_tshark, capture_file, test_env, 'frame.number == 71',
+                'alcap.vbws.max_size.bw', 'alcap.pvbws.max_size.bw', 'alcap.vbws.stt', 'alcap.pvbws.stt',
+                'alcap.pvbwt.max_size.fw', 'alcap.fbw.max_size.bw')
+        assert lines == ['71\t54\t38\t3\t2\t21\t22']
