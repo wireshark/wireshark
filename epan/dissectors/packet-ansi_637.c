@@ -658,6 +658,12 @@ tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 
     required_octs = num_fields;
 
+    if (required_octs == 0 || required_octs + 2 > len)
+    {
+        proto_tree_add_expert(tree, pinfo, &ei_ansi_637_short_data, tvb, offset - 2, len);
+        return;
+    }
+
     tvb_out =
         tvb_new_octet_aligned(tvb, ((offset - 1) * 8) + (8 - unused_bits), (required_octs * 8));
     add_new_data_source(pinfo, tvb_out, "CMAS Message");
@@ -891,7 +897,11 @@ tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
         }
     }
 
-    EXTRANEOUS_DATA_CHECK(required_octs, offset);
+    if (required_octs > offset)
+    {
+        proto_tree_add_expert(tree, pinfo, &ei_ansi_637_extraneous_data,
+            tvb_out, offset, required_octs - offset);
+    }
 
     /* the last 3 bits of the last octet in 'tvb' are reserved */
     offset = temp_offset + required_octs - 1;
@@ -1000,6 +1010,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
     {
         gsm_sms_udh_fields_t    udh_fields;
         int32_t                 num_udh_bits;
+        uint32_t                nf_units, udh_units;
+        uint8_t                 udl_unused = 0xff;
 
         memset(&udh_fields, 0, sizeof(udh_fields));
 
@@ -1025,20 +1037,42 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 
         num_udh_bits = (required_octs * 8) + fill_bits;
 
+        saved_offset = offset + required_octs;
+
+        /*
+         * dis_field_udh() subtracts the size of the header from the number
+         * of characters without checking it, so do that here and make sure
+         * the header is not longer than the text.
+         */
+        nf_units = num_fields;
+        if (encoding_bit_len == 7)
+        {
+            udh_units = ((required_octs * 8) + (6 - (((required_octs - 1) * 8) % 7))) / 7;
+        }
+        else
+        {
+            udh_units = required_octs;
+        }
+        if (encoding_bit_len == 16)
+        {
+            nf_units <<= 1;
+        }
+
+        if (udh_units > nf_units)
+        {
+            proto_tree_add_expert(tree, pinfo, &ei_ansi_637_short_data, tvb, orig_offset, len);
+            return;
+        }
+
         tvb_out =
             tvb_new_octet_aligned(tvb, (offset * 8) + (8 - unused_bits), num_udh_bits);
         add_new_data_source(pinfo, tvb_out, "Header");
 
-        saved_offset = offset + required_octs;
-
         offset = 0;
         fill_bits = 0;
-        if (encoding_bit_len == 16) {
-            /* the NUM_FIELD value represents the number of characters in Unicode encoding.
-               Let's translate it into bytes */
-            num_fields <<= 1;
-        }
-        dis_field_udh(tvb_out, pinfo, tree, &offset, &required_octs, &num_fields, cset, &fill_bits, &udh_fields);
+        dis_field_udh(tvb_out, pinfo, tree, &offset, &required_octs, &udl_unused, cset, &fill_bits, &udh_fields);
+
+        num_fields = (uint8_t)((nf_units - udh_units) >> (encoding_bit_len == 16 ? 1 : 0));
 
         offset = saved_offset;
 
@@ -1072,9 +1106,6 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
             default:
                 break;
             }
-        } else if (encoding_bit_len == 16) {
-            /* compute the number of Unicode characters now that UDH is taken into account */
-            num_fields >>= 1;
         }
 
         if (udh_fields.frags > 0)
@@ -1376,7 +1407,7 @@ tele_param_cb_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
         oct2 = tvb_get_uint8(tvb, offset);
         num_fields = ((oct & 0x7f) << 1) | ((oct2 & 0x80) >> 7);
 
-        proto_tree_add_item(tree, hf_ansi_637_tele_cb_num_num_fields07f8, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ansi_637_tele_cb_num_num_fields07f8, tvb, offset - 1, 2, ENC_BIG_ENDIAN);
 
         oct = oct2;
         odd = false;
@@ -2073,7 +2104,7 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 
             if (num_fields == 0) return;
 
-            SHORT_DATA_CHECK(len - 3, num_fields);
+            SHORT_DATA_CHECK(len, num_fields + 3);
 
             tvb_out = tvb_new_octet_aligned(tvb, offset*8 + 1, (int)num_fields*8);
             add_new_data_source(pinfo, tvb_out, "Address");
@@ -2966,7 +2997,7 @@ proto_register_ansi_637(void)
             NULL, HFILL }
         },
         { &hf_ansi_637_tele_alert_msg_delivery_priority,
-            { "Privacy", "ansi_637_tele.alert_msg_delivery.priority",
+            { "Priority", "ansi_637_tele.alert_msg_delivery.priority",
             FT_UINT8, BASE_DEC, VALS(tele_param_alert_priority_strings), 0xc0,
             NULL, HFILL }
         },
@@ -2997,7 +3028,7 @@ proto_register_ansi_637(void)
         },
         { &hf_ansi_637_tele_cb_num_num_fields07f8,
             { "Number of fields", "ansi_637_tele.cb_num.num_fields",
-            FT_UINT16, BASE_DEC, NULL, 0x07F8,
+            FT_UINT16, BASE_DEC, NULL, 0x7F80,
             NULL, HFILL }
         },
         { &hf_ansi_637_tele_cb_num_number,
@@ -3206,12 +3237,12 @@ proto_register_ansi_637(void)
             NULL, HFILL }
         },
         { &hf_ansi_637_tele_srvc_cat_prog_data_category,
-            { "Operation code", "ansi_637_tele.srvc_cat_prog_data.category",
+            { "Category", "ansi_637_tele.srvc_cat_prog_data.category",
             FT_UINT16, BASE_DEC|BASE_EXT_STRING, &ansi_tsb58_srvc_cat_vals_ext, 0,
             NULL, HFILL }
         },
         { &hf_ansi_637_tele_srvc_cat_prog_data_language,
-            { "Operation code", "ansi_637_tele.srvc_cat_prog_data.language",
+            { "Language", "ansi_637_tele.srvc_cat_prog_data.language",
             FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ansi_tsb58_language_ind_vals_ext, 0,
             NULL, HFILL }
         },
@@ -3345,7 +3376,7 @@ proto_register_ansi_637(void)
 
     tele_dissector_table =
         register_dissector_table("ansi_637.tele_id",
-            "ANSI IS-637-A Teleservice ID", proto_ansi_637_tele, FT_UINT8, BASE_DEC);
+            "ANSI IS-637-A Teleservice ID", proto_ansi_637_tele, FT_UINT16, BASE_DEC);
 }
 
 
