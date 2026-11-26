@@ -159,9 +159,10 @@ CAP_UNKNOWN = guid(0x01020304, 0x0506, 0x0708, [9, 10, 11, 12, 13, 14, 15, 16])
 PLUGIN_NONE = bytes(16)
 PLUGIN_STATUS_MANAGER = guid(0xD140CF10, 0xE94F, 0x11D3, [0xBC, 0xD2, 0x00, 0x04, 0xAC, 0x96, 0xDD, 0x96])
 
-# Direct connection info: 35 octets as dissect_aim_tlv_value_dcinfo() reads
-# them (NOTE: it adds the 4 octet auth cookie but steps over 2 octets).
-DCINFO = (bytes([192, 168, 1, 10]) + u32(4000) + u8(4) + u16(8) + b'\xc0\x0c' +
+# Direct connection info: 37 octets as dissect_aim_tlv_value_dcinfo() reads
+# them: IP, TCP port, type, protocol version, 4 octet auth cookie, web front
+# port, client futures, three update times and 2 unknown octets.
+DCINFO = (bytes([192, 168, 1, 10]) + u32(4000) + u8(4) + u16(8) + b'\xc0\x0c\x12\x34' +
           u32(80) + u32(3) + u32(1100000000) + u32(1100000001) + u32(1100000002) + u16(0))
 
 # Online buddy TLVs: every type in aim_onlinebuddy_tlvs, plus an unknown one
@@ -300,11 +301,7 @@ def generic(s):
     s.server(snac(F, 0x000d))
     s.client(snac(F, 0x000e))
     s.server(snac(F, 0x000f, userinfo(b'alice', ONLINEBUDDY_ALL)))
-    # NOTE: dissect_aim_generic_evil() adds the new warning level but then
-    # reads user info from offset 0, so the high octet of the warning level
-    # is the buddy name length. Warning level 0x0000 lines this up as an
-    # empty name, warning level 0x0000 and one TLV.
-    s.server(snac(F, 0x0010, u16(0) + u8(0) + u16(1) + tlv(0x0001, u16(0x10))))
+    s.server(snac(F, 0x0010, u16(0) + userinfo(b'', [tlv(0x0001, u16(0x10))])))
     s.client(snac(F, 0x0011, u16(300)))
     s.server(snac(F, 0x0012, u16(2) + u16(0x13) + u16(0x02) +
                   tlv(0x0005, b'bos2.example.invalid') + tlv(0x0006, b'\xaa\xbb')))
@@ -389,7 +386,7 @@ def messaging(s):
     s.server(snac(F, 0x000b, cookie + u16(2) + bname(b'bob') + u16(3) + u16(2) + u16(1)))
     s.server(snac(F, 0x000b, cookie + u16(1) + bname(b'bob') + u16(3) +
                   extended_data(PLUGIN_NONE, u8(0xe8) + u8(0x03) + u16(0) + u16(1) +
-                                u16(9) + b'I am away')))
+                                le16(9) + b'I am away')))
     s.server(snac(F, 0x000b, cookie + u16(4) + bname(b'bob') + u16(3) +
                   extended_data(PLUGIN_STATUS_MANAGER, b'plugin data')))
     s.server(snac(F, 0x000b, cookie + u16(4) + bname(b'bob') + u16(3) +
@@ -644,6 +641,25 @@ def coverage_packets(cap):
     t = TcpStream(cap, cport=CLIENT_PORT + 1)
     t.client(b'Z*not a FLAP')
     tls_packets(cap)
+    fixed_fields(cap)
+
+
+def fixed_fields(cap):
+    """Fields that used to be decoded at the wrong offset or width: the DC
+    info web front port and later fields, the new warning level of an evil
+    notification followed by the user info, and the little-endian text
+    length and the flag bits of an extended data message."""
+    s = TcpStream(cap, cport=CLIENT_PORT + 20)
+    cookie = b'12345678'
+    s.server(snac(0x0003, 0x000b, userinfo(b'carol', [tlv(0x000c, DCINFO)])))
+    s.server(snac(0x0001, 0x0010, u16(0x0123) + userinfo(b'dave', [tlv(0x0001, u16(0x10)),
+                                                                   tlv(0x0004, u16(77))])))
+    for flags, text in ((0x01, b'abc'), (0x82, b'automatic, to many')):
+        s.server(snac(0x0004, 0x000b, cookie + u16(1) + bname(b'bob') + u16(3) +
+                      extended_data(PLUGIN_NONE, u8(0xe8) + u8(flags) + u16(0) + u16(1) +
+                                    le16(len(text)) + text)))
+    s.server(snac(0x0001, 0x0021, u16(2) + u8(0x41) + u8(5) + b'happy'))
+    s.client(snac(0x0001, 0x0012, u16(1) + u16(0x13) + tlv(0x0005, b'bos3.example.invalid')))
 
 
 # ---------------------------------------------------------------------------

@@ -1168,7 +1168,6 @@ class TestDissectGrpcWeb:
         assert count_output(stdout, 'greet.HelloReply') == 6
 
 
-
 class TestDissectHttp:
     def test_http_request_target_whitespace(self, cmd_tshark, capture_file, test_env):
         stdout = subprocess.check_output((cmd_tshark,
@@ -6880,10 +6879,20 @@ class TestDissectAjp13:
 
 
 # TCP port 5190 belongs to the "aol" dissector by default.
-AIM_OPTS = ('-d', 'tcp.port==5190,aim')
-
-
 class TestDissectAim:
+    # TCP port 5190 belongs to the "aol" dissector by default.
+    OPTS = ('-d', 'tcp.port==5190,aim')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *names, passes=()):
+        '''Return the lines of the given fields for the matching frames.'''
+        args = [cmd_tshark, *TestDissectAim.OPTS, *passes,
+                '-r', capture_file('aim_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        args += ['-e' + name for name in names]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
     def test_aim_port_not_aim_by_default(self, cmd_tshark, capture_file, test_env):
         '''Port 5190 goes to the AOL dissector unless Decode As says AIM.'''
         stdout = subprocess.check_output((cmd_tshark,
@@ -6896,26 +6905,26 @@ class TestDissectAim:
     def test_aim_protocols(self, cmd_tshark, capture_file, test_env):
         '''Every SNAC family is dissected, with no malformed packets and
         no errors.'''
-        stdout = subprocess.check_output((cmd_tshark, *AIM_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('aim_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.splitlines()
-        assert len(protocols) == 261
+        assert len(protocols) == 270
         assert protocols.count('AIM') == 14
         assert protocols.count('AIM Administration') == 10
         assert protocols.count('AIM Advertisements') == 3
         assert protocols.count('AIM BOS') == 8
-        assert protocols.count('AIM Buddylist') == 11
+        assert protocols.count('AIM Buddylist') == 12
         assert protocols.count('AIM Chat') == 17
         assert protocols.count('AIM ChatNav') == 9
         assert protocols.count('AIM Directory') == 5
         assert protocols.count('AIM Email') == 4
-        assert protocols.count('AIM Generic') == 33
+        assert protocols.count('AIM Generic') == 36
         assert protocols.count('AIM ICQ') == 11
         assert protocols.count('AIM Invitation') == 3
         assert protocols.count('AIM Location') == 12
-        assert protocols.count('AIM Messaging') == 26
+        assert protocols.count('AIM Messaging') == 28
         assert protocols.count('AIM Popup') == 7
         assert protocols.count('AIM Signon') == 9
         assert protocols.count('AIM SSI') == 35
@@ -6924,7 +6933,8 @@ class TestDissectAim:
         assert protocols.count('AIM Translate') == 3
         assert protocols.count('AIM User Lookup') == 3
         assert protocols.count('TLSv1.2') == 11
-        stdout = subprocess.check_output((cmd_tshark, *AIM_OPTS,
+        assert protocols.count('TCP') == 19
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('aim_coverage.pcap.gz'),
                 '-Y', '_ws.malformed || _ws.expert.severity == error',
                 '-Tfields', '-eframe.number',
@@ -6934,7 +6944,7 @@ class TestDissectAim:
     def test_aim_chat_long_messages(self, cmd_tshark, capture_file, test_env):
         '''Chat messages longer than 999 octets are not shown, and the
         Info column does not pick up an uninitialised buffer.'''
-        stdout = subprocess.check_output((cmd_tshark, *AIM_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('aim_coverage.pcap.gz'),
                 '-Y', 'aim_chat && aim.datalen > 999',
                 '-Tfields', '-eframe.number', '-e_ws.col.info',
@@ -6946,7 +6956,7 @@ class TestDissectAim:
 
     def test_aim_chat_short_messages(self, cmd_tshark, capture_file, test_env):
         '''The text of a short chat message is taken from the HTML.'''
-        stdout = subprocess.check_output((cmd_tshark, *AIM_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('aim_coverage.pcap.gz'),
                 '-Y', 'aim_chat.screen_name == "bob"',
                 '-Tfields', '-e_ws.col.info',
@@ -6960,7 +6970,7 @@ class TestDissectAim:
     def test_aim_tls_heuristic(self, cmd_tshark, capture_file, test_env):
         '''AIM in a TLS session (NULL cipher) is found by the aim_tls
         heuristic when it is enabled.'''
-        stdout = subprocess.check_output((cmd_tshark, *AIM_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '--enable-heuristic', 'aim_tls',
                 '-r', capture_file('aim_coverage.pcap.gz'),
                 '-Y', 'tls && aim',
@@ -6974,12 +6984,58 @@ class TestDissectAim:
     def test_aim_two_pass(self, cmd_tshark, capture_file, test_env):
         '''One pass and two passes give the same AIM output.'''
         def aim_info(*opts):
-            return subprocess.check_output((cmd_tshark, *AIM_OPTS, *opts,
+            return subprocess.check_output((cmd_tshark, *self.OPTS, *opts,
                     '-r', capture_file('aim_coverage.pcap.gz'),
                     '-Y', 'aim',
                     '-Tfields', '-eframe.number', '-e_ws.col.info',
                 ), encoding='utf-8', env=test_env)
         assert aim_info() == aim_info('-2')
+
+    def test_aim_dc_info(self, cmd_tshark, capture_file, test_env):
+        '''The direct connection info skips the whole 4 octet auth cookie,
+        so the web front port and the later fields are not shifted.'''
+        for passes in ((), ('-2',)):
+            frames = self.fields(cmd_tshark, capture_file, test_env, 'aim.dcinfo.webport',
+                    'aim.dcinfo.auth_cookie', 'aim.dcinfo.webport',
+                    'aim.dcinfo.client_futures', 'aim.dcinfo.last_info_update',
+                    'aim.dcinfo.last_ext_info_update', 'aim.dcinfo.last_ext_status_update',
+                    passes=passes)
+            assert [f[0] for f in frames] == ['22', '32', '59', '235', '265']
+            for f in frames:
+                assert f[1:] == ['c00c1234', '80', '0x00000003', '1100000000',
+                                 '1100000001', '1100000002']
+
+    def test_aim_evil_notification(self, cmd_tshark, capture_file, test_env):
+        '''The new warning level of an evil notification is skipped before
+        the user info, which used to end in a malformed packet.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'aim_generic.evil.new_warn_level',
+                'aim_generic.evil.new_warn_level', 'aim.buddyname')
+        assert frames == [['23', '0', ''], ['266', '291', 'dave']]
+
+    def test_aim_extended_data_message(self, cmd_tshark, capture_file, test_env):
+        '''The text length of an extended data message is little-endian
+        (it was shown byte-swapped and the packet was malformed), and the
+        flag bits are decoded from the one octet field.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'aim_messaging.icbm.extended_data.message.text_length',
+                'aim_messaging.icbm.extended_data.message.text_length',
+                'aim_messaging.icbm.extended_data.message.text',
+                'aim_messaging.icbm.extended_data.message.flags.normal',
+                'aim_messaging.icbm.extended_data.message.flags.auto',
+                'aim_messaging.icbm.rendezvous.extended_data.message.flags.multi')
+        assert frames == [
+            ['77', '9', 'I am away', 'True', 'True', 'False'],
+            ['267', '3', 'abc', 'True', 'False', 'False'],
+            ['268', '18', 'automatic, to many', 'False', 'True', 'True'],
+        ]
+
+    def test_aim_extended_status_reply(self, cmd_tshark, capture_file, test_env):
+        '''The extended status data is as long as its length field says.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'aim_generic.ext_status.data', 'aim_generic.ext_status.length',
+                'aim_generic.ext_status.data')
+        assert frames == [['35', '0x04', '61776179'], ['269', '0x05', '6861707079']]
 
 
 class TestDissectAfs:
@@ -7395,7 +7451,6 @@ class TestDissectAmr:
         # SID frames: SID_UPDATE in IF1, SID_UPDATE in IF2
         assert lines[2][5] == 'True' and lines[7][5] == 'True'
         assert lines[11][6] == 'True' and lines[15][6] == 'True'
-
 
 
 class TestDissectExportedPdu:
