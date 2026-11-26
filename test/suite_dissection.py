@@ -179364,3 +179364,106 @@ class TestDissectAfp:
             '338\tNo User Authent\t\t\t\t',
             '340\tCleartxt passwrd\talice\t\tsecret\t',
         ]
+
+
+class TestDissectAgentx:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *names, passes=()):
+        '''Return the lines of the given fields for the matching frames,
+        values of repeated fields joined with ",".'''
+        args = [cmd_tshark, *passes,
+                '-r', capture_file('agentx_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number', '-Eaggregator=,']
+        args += ['-e' + name for name in names]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_agentx_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Port 705 is dissected as AgentX by default, with no malformed
+        packets or errors, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('agentx_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert protocols.count('AgentX') == 94
+            assert protocols.count('TCP') == 15
+            assert len(protocols) == 109
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('agentx_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_agentx_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''Every PDU type is dissected, in both byte orders, and a type
+        that is not defined is shown as unknown.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env, 'agentx',
+                'agentx.type', 'agentx.flags.byteorder')
+        assert {t for f in frames for t in f[1].split(',')} == {str(t) for t in range(1, 19)} | {'99'}
+        assert sorted({b for f in frames for b in f[2].split(',')}) == ['False', 'True']
+        # The second connection is little-endian from frame 67 on
+        assert {f[2] for f in frames if 67 <= int(f[0]) <= 94} == {'False'}
+        assert {f[2] for f in frames if int(f[0]) < 64} == {'True'}
+        assert {f[2] for f in frames if int(f[0]) > 94} == {'True', 'True,True'}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('agentx_coverage.pcap.gz'),
+                '-Y', 'agentx.type == 99', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'unknown: sid=1, tid=0, packid=1, plen=8'
+
+    def test_agentx_varbind_types(self, cmd_tshark, capture_file, test_env):
+        '''The test set carries a varbind of every type, and an undefined
+        one, in both byte orders.'''
+        for frame in ('21', '83'):
+            frames = self.fields(cmd_tshark, capture_file, test_env,
+                    f'frame.number == {frame}', 'agentx.v.tag', 'agentx.v.val32',
+                    'agentx.v.val64')
+            assert frames[0][1] == '2,4,5,6,64,65,66,67,68,70,128,129,130,99'
+            assert frames[0][2] == '7,4294967280,4000000000,123456'
+            assert frames[0][3] == '81985529216486895'
+
+    def test_agentx_response_errors(self, cmd_tshark, capture_file, test_env):
+        '''Every response error code is shown.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'agentx.r.error && frame.number >= 33 && frame.number <= 62', 'agentx.r.error')
+        assert [f[1] for f in frames] == [str(e) for e in
+                                          list(range(19)) + list(range(256, 266)) + [999]]
+
+    def test_agentx_oid_prefix(self, cmd_tshark, capture_file, test_env):
+        '''An OID prefix above 127 is shown as an unsigned number (it used
+        to be negative), and the prefix is applied to the sub-identifiers.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 108 && agentx', 'agentx.oid', 'agentx.oid_prefix')
+        assert [f[0] for f in frames] == ['108', '109']
+        for f in frames:
+            assert f[1] == '.1.3.6.1.2.1.2.3,.1.3.6.1.2.4.5,.1.3.6.1.200.6'
+            assert f[2] == '2,2,200'
+
+    def test_agentx_varbind_subtree_length(self, cmd_tshark, capture_file, test_env):
+        '''The "Value Representation" subtree of a varbind is as long as the
+        varbind (24, 20 and 16 octets). Each used to be as long as the
+        whole PDU payload.'''
+        from xml.etree import ElementTree
+        for frame in ('108', '109'):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('agentx_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}', '-Tpdml',
+                ), encoding='utf-8', env=test_env)
+            root = ElementTree.fromstring(stdout)
+            sizes = [int(f.get('size')) for f in root.iter('field')
+                     if f.get('show') == 'Value Representation']
+            assert sizes == [24, 20, 16]
+
+    def test_agentx_desegmentation(self, cmd_tshark, capture_file, test_env):
+        '''PDUs packed into one segment and PDUs split over segments are
+        dissected, in one pass and two.'''
+        for passes in ((), ('-2',)):
+            frames = self.fields(cmd_tshark, capture_file, test_env,
+                    'frame.number >= 95 && agentx', 'agentx.packet_id',
+                    passes=passes)
+            assert [(f[0], f[1]) for f in frames][:6] == [
+                ('98', '11,12'), ('101', '13'), ('103', '11'), ('104', '12'),
+                ('108', '3'), ('109', '3')]
