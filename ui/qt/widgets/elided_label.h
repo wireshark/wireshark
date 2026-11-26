@@ -32,6 +32,15 @@ public:
     void setUrl(const QString &url);
 
     /**
+     * @brief setSuffix Set plain text shown after the text, outside the URL's link.
+     *
+     * When the label is too narrow, the text is elided in the middle first,
+     * then the suffix from its end.
+     * @param suffix The suffix. HTML will be escaped.
+     */
+    void setSuffix(const QString &suffix);
+
+    /**
      * @brief setSmallText Specifies a small or normal text size.
      * @param small_text Show the text in a smaller font size if true, or a normal size otherwise.
      */
@@ -59,6 +68,9 @@ private:
 
     /** The URL string if the label acts as a hyperlink. */
     QString url_;
+
+    /** Plain text shown after the text, outside the link. */
+    QString suffix_;
 
     /**
      * @brief Recalculates and updates the displayed text based on current width and settings.

@@ -165,12 +165,16 @@ void ProfileInheritComboBox::setPathText(ElidedLabel *label, const QString &own_
         names << QStringLiteral("'%1'").arg(profile);
     QString profiles = names.join(QStringLiteral(", "));
 
+    // Only the own path is linked; the profiles follow as plain text
     if (profiles.isEmpty()) {
         label->setText(own_path);
+        label->setSuffix(QString());
     } else if (mode() == PROFILE_INHERIT_PARENT_ONLY || own_path.isEmpty()) {
-        label->setText(tr("From %1").arg(profiles));
+        label->setText(QString());
+        label->setSuffix(tr("From %1").arg(profiles));
     } else {
-        label->setText(own_path + tr(" + from %1").arg(profiles));
+        label->setText(own_path);
+        label->setSuffix(tr(" + from %1").arg(profiles));
     }
 }
 
