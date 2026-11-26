@@ -686,7 +686,8 @@ save_decode_as_entries_for_mode(const char* app_name, const char* app_env_var_pr
     GList *decode_as_rows_list = NULL;
 
     if (mode == PROFILE_INHERIT_PARENT_ONLY) {
-        /* Only the parent's entries are in the tables; the own file is left as it is */
+        /* Only the parent's entries are in the tables; the own entries are
+         * saved with save_decode_as_entry_values() */
         return 0;
     }
 
@@ -696,6 +697,19 @@ save_decode_as_entries_for_mode(const char* app_name, const char* app_env_var_pr
     return ret;
 }
 
+int
+save_decode_as_entry_values(const char* app_name, const char* app_env_var_prefix, GSList *values, char** err)
+{
+    GList *rows = NULL;
+
+    for (GSList *item = values; item; item = g_slist_next(item)) {
+        char *row = ws_strdup_printf(DECODE_AS_ENTRY ": %s\n", (const char *)item->data);
+        rows = g_list_insert_sorted(rows, row, (GCompareFunc)g_ascii_strcasecmp);
+    }
+    int ret = write_decode_as_rows(app_name, app_env_var_prefix, rows, err);
+    g_list_free_full(rows, g_free);
+    return ret;
+}
 
 /*
  * Data structure for tracking which dissector need to be reset.  This

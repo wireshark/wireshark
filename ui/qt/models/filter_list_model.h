@@ -245,7 +245,6 @@ public:
 protected:
     QList<FilterListItem *> readInherited(profile_inherit_e mode) override;
     void leavingInheritMode(profile_inherit_e mode) override;
-    QList<FilterListItem *> readOwnRows() override;
     void enteredInheritMode(profile_inherit_e mode) override;
 
 private:

@@ -59,8 +59,7 @@ public:
         inherit_mode_(profile_get_inherit(application_configuration_environment_prefix(), NULL, filename)),
         refreshing_inherited_(false),
         refresh_pending_(false),
-        own_edited_(false),
-        own_unsaved_(false)
+        own_edited_(false)
     {
     }
 
@@ -68,6 +67,7 @@ public:
     {
         delete root_;
         qDeleteAll(inherited_rules_);
+        qDeleteAll(hidden_own_rules_);
     }
 
     /**
@@ -113,15 +113,6 @@ public:
     }
 
     /**
-     * @brief Whether the own rules were changed since they were read or saved.
-     * @return true if changes would be lost by reading them again.
-     */
-    bool hasUnsavedOwn() const { return own_unsaved_; }
-
-    /** @brief Tells that the own rules were saved. */
-    void ownSaved() { own_unsaved_ = false; }
-
-    /**
      * @brief Whether a row is an inherited rule overridden by an own rule, which is not used.
      * @param row The row.
      * @return true if the rule is inherited and overridden.
@@ -135,9 +126,7 @@ public:
     /**
      * @brief Selects where the rules come from, reloading the inherited rules.
      *
-     * The own rules are not used in PROFILE_INHERIT_PARENT_ONLY mode, and are
-     * dropped from the model, which leaves the file as it is; another mode
-     * reads them again, discarding changes not saved.
+     * The own rules are kept while hidden in PROFILE_INHERIT_PARENT_ONLY mode.
      * @param mode The inherit mode.
      */
     void setInheritMode(profile_inherit_e mode)
@@ -152,12 +141,11 @@ public:
         leavingInheritMode(inherit_mode_);
 
         if (mode == PROFILE_INHERIT_PARENT_ONLY) {
-            qDeleteAll(takeOwnRows());
+            // Keep the own rules, so another mode can show them again
+            hidden_own_rules_ << takeOwnRows();
         } else if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
-            QList<Item *> own_rules = readOwnRows();
-            insertOwnRows(own_rules);
+            insertOwnRows(hidden_own_rules_);
         }
-        own_unsaved_ = false;
 
         inherit_mode_ = mode;
         enteredInheritMode(mode);
@@ -262,12 +250,6 @@ protected:
     virtual QColor iconColor(const Item *rule) const { Q_UNUSED(rule) return QColor(); }
 
     /**
-     * @brief Reads the own rules from the profile's file, when leaving PROFILE_INHERIT_PARENT_ONLY mode.
-     * @return New own rules, empty if the profile has none.
-     */
-    virtual QList<Item *> readOwnRows() = 0;
-
-    /**
      * @brief Called when switching mode, once the own rows for the new mode are shown.
      * @param mode The new mode.
      */
@@ -283,13 +265,6 @@ protected:
     {
         loadInherited();
         refreshInherited();
-
-        // Changes of the own rules, not the inherited rules being replaced
-        auto changed = [this]() { if (!refreshing_inherited_) own_unsaved_ = true; };
-        QObject::connect(this, &QAbstractItemModel::dataChanged, this, changed);
-        QObject::connect(this, &QAbstractItemModel::rowsInserted, this, changed);
-        QObject::connect(this, &QAbstractItemModel::rowsRemoved, this, changed);
-        QObject::connect(this, &QAbstractItemModel::rowsMoved, this, changed);
 
         QObject::connect(this, &QAbstractItemModel::dataChanged, this, [this]() { scheduleRefreshInherited(); });
         QObject::connect(this, &QAbstractItemModel::rowsInserted, this, [this]() { scheduleRefreshInherited(); });
@@ -502,6 +477,9 @@ protected:
     /** @brief The inherited rules, including the ones hidden by own rules. */
     QList<Item *> inherited_rules_;
 
+    /** @brief The profile's own rules, while hidden in PROFILE_INHERIT_PARENT_ONLY mode. */
+    QList<Item *> hidden_own_rules_;
+
     /** @brief Where the rules come from. */
     profile_inherit_e inherit_mode_;
 
@@ -513,9 +491,6 @@ protected:
 
     /** @brief Set if the user changed the own rules. */
     bool own_edited_;
-
-    /** @brief Set if the own rules were changed since they were read or saved. */
-    bool own_unsaved_;
 };
 
 #endif // INHERITED_RULES_MODEL_H

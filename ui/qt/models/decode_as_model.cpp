@@ -203,20 +203,42 @@ DecodeAsModel::DecodeAsModel(QObject *parent, capture_file *cf) :
     QAbstractTableModel(parent),
     cap_file_(cf),
     inherit_mode_(profile_get_inherit(application_configuration_environment_prefix(), NULL, DECODE_AS_ENTRIES_FILE_NAME)),
-    refreshing_inherited_(false),
-    own_unsaved_(false)
+    own_hidden_(false)
 {
-    // Changes of the own entries, not the inherited entries being replaced
-    auto changed = [this]() { if (!refreshing_inherited_) own_unsaved_ = true; };
-    connect(this, &QAbstractItemModel::dataChanged, this, changed);
-    connect(this, &QAbstractItemModel::rowsInserted, this, changed);
-    connect(this, &QAbstractItemModel::rowsRemoved, this, changed);
 }
 
 DecodeAsModel::~DecodeAsModel()
 {
     qDeleteAll(decode_as_items_);
     qDeleteAll(inherited_items_);
+    qDeleteAll(hidden_own_items_);
+}
+
+bool DecodeAsModel::saveHiddenOwn(QString &err)
+{
+    if (!own_hidden_)
+        return true;
+
+    // The own entries are not in the dissector tables while hidden
+    QList<QByteArray> values;
+    GSList *list = NULL;
+    foreach (DecodeAsItem *item, hidden_own_items_) {
+        QString selector = item->selectorText();
+        if (selector.isNull() || item->currentDissector().isEmpty())
+            continue;
+        values << QStringLiteral("%1,%2,%3,%4").arg(item->tableName(), selector,
+                                                    item->defaultDissector(), item->currentDissector()).toUtf8();
+    }
+    for (const QByteArray &value : values)
+        list = g_slist_append(list, (void *)value.constData());
+
+    char *err_msg = NULL;
+    bool ok = save_decode_as_entry_values(application_flavor_name_proper(), application_configuration_environment_prefix(),
+                                          list, &err_msg) == 0;
+    g_slist_free(list);
+    if (!ok)
+        err = gchar_free_to_qstring(err_msg);
+    return ok;
 }
 
 int DecodeAsModel::ownRowCount() const
@@ -296,15 +318,11 @@ void DecodeAsModel::refreshInherited()
     }
     if (same) {
         // Own entries may have changed which inherited entries they override
-        if (shown > 0) {
-            refreshing_inherited_ = true;
+        if (shown > 0)
             emit dataChanged(index(own_count, 0), index(own_count + shown - 1, columnCount() - 1));
-            refreshing_inherited_ = false;
-        }
         return;
     }
 
-    refreshing_inherited_ = true;
     if (shown > 0) {
         beginRemoveRows(QModelIndex(), own_count, own_count + shown - 1);
         while (decode_as_items_.count() > own_count)
@@ -317,7 +335,6 @@ void DecodeAsModel::refreshInherited()
             decode_as_items_ << new DecodeAsItem(*item);
         endInsertRows();
     }
-    refreshing_inherited_ = false;
 }
 
 void DecodeAsModel::setInheritMode(profile_inherit_e mode)
@@ -338,23 +355,29 @@ void DecodeAsModel::setInheritMode(profile_inherit_e mode)
     decode_as_items_.clear();
 
     if (mode == PROFILE_INHERIT_PARENT_ONLY) {
-        // The own entries are not used; the file is left as it is
-        qDeleteAll(own_items);
+        // Keep the own entries, so another mode shows them again and saving keeps them
+        hidden_own_items_ << own_items;
+        own_hidden_ = true;
     } else if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
-        // The own entries were not used, so read them from the profile
-        char *path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, application_configuration_environment_prefix());
-        FILE *fp = ws_fopen(path, "r");
-        if (fp) {
-            read_prefs_file(path, fp, readDecodeAsEntry, this);
-            fclose(fp);
+        if (!own_hidden_) {
+            // The own entries were not used, so read them from the profile
+            char *path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, application_configuration_environment_prefix());
+            FILE *fp = ws_fopen(path, "r");
+            if (fp) {
+                read_prefs_file(path, fp, readDecodeAsEntry, this);
+                fclose(fp);
+            }
+            g_free(path);
+        } else {
+            decode_as_items_ << hidden_own_items_;
+            hidden_own_items_.clear();
+            own_hidden_ = false;
         }
-        g_free(path);
     } else {
         decode_as_items_ << own_items;
     }
 
     inherit_mode_ = mode;
-    own_unsaved_ = false;
     loadInherited();
     foreach (DecodeAsItem *item, inherited_items_)
         decode_as_items_ << new DecodeAsItem(*item);
@@ -1033,7 +1056,6 @@ void DecodeAsModel::gatherChangedEntries(const char *table_name,
 
 void DecodeAsModel::applyChanges()
 {
-    own_unsaved_ = false;
     dissector_table_t sub_dissectors;
     module_t *module;
     pref_t* pref_value;

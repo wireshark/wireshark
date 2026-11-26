@@ -241,12 +241,6 @@ public:
     bool isOverridden(int row) const;
 
     /**
-     * @brief Whether the own records were changed since they were read or saved.
-     * @return true if changes would be lost by reading them again.
-     */
-    bool hasUnsavedOwn() const { return own_unsaved_; }
-
-    /**
      * @brief Marks the profile's own records as changed, e.g. after copying from another profile.
      */
     void markOwnChanged() { ownEdited(); }
@@ -318,11 +312,8 @@ private:
     /** @brief Updates overridden_ whenever the rows change. */
     void followOverridden();
 
-    /** @brief Set while the inherited rows are being replaced. */
-    bool refreshing_inherited_ = false;
-
-    /** @brief Set if the own records were changed since they were read or saved. */
-    bool own_unsaved_ = false;
+    /** @brief The edit state of the own records, while hidden in PROFILE_INHERIT_PARENT_ONLY mode. */
+    QVector<bool> hidden_dirty_;
 
     /** @brief Vector tracking which records have been modified. */
     QVector<bool> dirty_records;

@@ -331,9 +331,10 @@ public:
      *  @return true if overridden. */
     bool isOverridden(int row) const;
 
-    /** @brief Whether the own entries were changed since they were read or applied.
-     *  @return true if changes would be lost by reading them again. */
-    bool hasUnsavedOwn() const { return own_unsaved_; }
+    /** @brief Saves the own entries hidden in PROFILE_INHERIT_PARENT_ONLY mode, if they were shown before.
+     *  @param err Set to an error message on failure.
+     *  @return true on success. */
+    bool saveHiddenOwn(QString &err);
 
 protected:
     /** @brief Callback to record a changed uint or string dissector table entry.
@@ -377,9 +378,9 @@ private:
     QList<UIntEntry> changed_uint_entries_;                           /**< Pending changes to uint-keyed tables. */
     QList<QPair<const char *, const char *> > changed_string_entries_; /**< Pending changes to string-keyed tables. */
     QList<DecodeAsItem *> inherited_items_;                           /**< The inherited entries, including the ones hidden by own entries. */
+    QList<DecodeAsItem *> hidden_own_items_;                          /**< The own entries, while hidden in PROFILE_INHERIT_PARENT_ONLY mode. */
     profile_inherit_e inherit_mode_;                                  /**< Where the entries come from. */
-    bool refreshing_inherited_;                                       /**< Set while the inherited entries are being replaced. */
-    bool own_unsaved_;                                                /**< Set if the own entries were changed since they were read or applied. */
+    bool own_hidden_;                                                 /**< Set if hidden_own_items_ holds the own entries, which are then saved from there. */
 
     /** @brief Reads the inherited entries for the selected mode. */
     void loadInherited();

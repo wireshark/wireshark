@@ -278,12 +278,8 @@ public:
 
 protected:
     QList<TaggingRuleItem*> readInherited(profile_inherit_e mode) override;
-    QList<TaggingRuleItem*> readOwnRows() override;
 
 private:
-    /** The profile's file, which the own rules are read from and written to. */
-    QString own_path_;
-
     /**
      * @brief Whether a tagging rules file has rules, which an empty file may replace.
      * @param path The file.

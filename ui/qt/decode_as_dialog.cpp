@@ -81,9 +81,7 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     connect(copy_button_, &CopyFromProfileButton::copyProfile, this, &DecodeAsDialog::copyFromProfile);
 
     // Where the entries come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, DECODE_AS_ENTRIES_FILE_NAME,
-                                                    [this]() { return model_->hasUnsavedOwn(); },
-                                                    [this]() { return saveEntries(); });
+    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, DECODE_AS_ENTRIES_FILE_NAME);
     connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &DecodeAsDialog::inheritModeChanged);
 
     // Not used entries can be hidden, which is not stored
@@ -234,21 +232,6 @@ void DecodeAsDialog::clearClicked()
     model_->clearAll();
 }
 
-bool DecodeAsDialog::saveEntries()
-{
-    char* err = NULL;
-
-    // In the mode of the entries shown, the selected one is not applied yet
-    applyChanges();
-    if (save_decode_as_entries_for_mode(application_flavor_name_proper(), application_configuration_environment_prefix(),
-                                        model_->inheritMode(), &err) < 0) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
-        g_free(err);
-        return false;
-    }
-    return true;
-}
-
 void DecodeAsDialog::applyChanges()
 {
     model_->applyChanges();
@@ -281,6 +264,11 @@ void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
                                             inherit_combo_->mode(), &err) < 0) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
             g_free(err);
+        }
+        // The own entries hidden while only the parent's are used aren't in the tables
+        if (inherit_combo_->mode() == PROFILE_INHERIT_PARENT_ONLY && !model_->saveHiddenOwn(inherit_err)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", inherit_err.toUtf8().constData());
+            inherit_err.clear();
         }
         if (!inherit_combo_->saveMode(inherit_err)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", inherit_err.toUtf8().constData());

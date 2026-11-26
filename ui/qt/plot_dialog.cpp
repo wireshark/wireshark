@@ -155,9 +155,7 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf) :
     connect(copy_profile_bt_, &CopyFromProfileButton::copyProfile, this, &PlotDialog::copyFromProfile);
 
     // Where the plots come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, plot_uat_filename_,
-                                                    [this]() { return uat_model_ && uat_model_->hasUnsavedOwn(); },
-                                                    []() { applyChanges(); return true; });
+    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, plot_uat_filename_);
     if (plot_uat_)
         inherit_combo_->syncMode(uat_get_inherit_mode(plot_uat_));
     connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &PlotDialog::inheritModeChanged);

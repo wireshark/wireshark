@@ -99,9 +99,7 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter, QS
     connect(&colorRuleModel_, &ColoringRulesModel::rowsMoved, this, &ColoringRulesDialog::updateWidgets);
 
     // Where the rules come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, COLORING_RULES_FILE_NAME,
-                                                    [this]() { return colorRuleModel_.hasUnsavedOwn(); },
-                                                    [this]() { return saveRules(); });
+    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, COLORING_RULES_FILE_NAME);
     connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &ColoringRulesDialog::inheritModeChanged);
 
     // Not used entries can be hidden, which is not stored
@@ -482,16 +480,6 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
             }
         }
     }
-}
-
-bool ColoringRulesDialog::saveRules()
-{
-    QString err;
-    if (!colorRuleModel_.writeColors(err)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
-        return false;
-    }
-    return true;
 }
 
 void ColoringRulesDialog::on_buttonBox_accepted()

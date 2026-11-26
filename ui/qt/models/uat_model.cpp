@@ -124,13 +124,6 @@ void UatModel::followOverridden()
     connect(this, &QAbstractItemModel::rowsMoved, this, update);
     connect(this, &QAbstractItemModel::dataChanged, this, update);
     connect(this, &QAbstractItemModel::modelReset, this, update);
-
-    // Changes of the own records, not the inherited records being replaced
-    auto changed = [this]() { if (!refreshing_inherited_) own_unsaved_ = true; };
-    connect(this, &QAbstractItemModel::rowsInserted, this, changed);
-    connect(this, &QAbstractItemModel::rowsRemoved, this, changed);
-    connect(this, &QAbstractItemModel::rowsMoved, this, changed);
-    connect(this, &QAbstractItemModel::dataChanged, this, changed);
 }
 
 void UatModel::updateOverridden()
@@ -155,11 +148,18 @@ bool UatModel::setInheritMode(profile_inherit_e mode, QString &error)
         return true;
 
     char *err = NULL;
+    profile_inherit_e old_mode = inheritMode();
     int own_count = ownRowCount();
-    // The edit state of the own records, which stay as they are if they are not read again
     QVector<bool> own_dirty = dirty_records.mid(0, own_count);
 
-    own_unsaved_ = false;
+    // The own records are hidden, kept, while only the parent's records are
+    // used; keep their edit state with them, so that invalid records keep OK
+    // disabled once shown again
+    if (mode == PROFILE_INHERIT_PARENT_ONLY)
+        hidden_dirty_ = own_dirty;
+    else if (old_mode == PROFILE_INHERIT_PARENT_ONLY)
+        own_dirty = hidden_dirty_;
+
     beginResetModel();
     bool ok = uat_set_inherit_mode(uat_, mode, application_configuration_environment_prefix(), &err);
     record_errors.clear();
@@ -218,7 +218,6 @@ void UatModel::doRefreshInherited()
     const char *prefix = application_configuration_environment_prefix();
     int own_count = ownRowCount();
     int shown = rowCount() - own_count;
-    refreshing_inherited_ = true;
     if (shown > 0) {
         beginRemoveRows(QModelIndex(), own_count, own_count + shown - 1);
         uat_remove_inherited_records(uat_);
@@ -233,10 +232,8 @@ void UatModel::doRefreshInherited()
     uat_add_inherited_records(uat_, prefix, &err);
     g_free(err);
     int added = static_cast<int>(uat_->raw_data->len) - own_count;
-    if (added <= 0) {
-        refreshing_inherited_ = false;
+    if (added <= 0)
         return;
-    }
 
     unannounced_rows_ = added;
     beginInsertRows(QModelIndex(), own_count, own_count + added - 1);
@@ -247,12 +244,10 @@ void UatModel::doRefreshInherited()
         dirty_records.push_back(false);
     }
     endInsertRows();
-    refreshing_inherited_ = false;
 }
 
 bool UatModel::applyChanges(QString &error)
 {
-    own_unsaved_ = false;
     if (uat_->changed) {
         char *err = NULL;
 
@@ -281,6 +276,7 @@ bool UatModel::revertChanges(QString &error)
     // Ideally this model should remember the changes made and try to undo them
     // to avoid calling post_update_cb. Calling uat_clear + uat_load is a lazy
     // option and might fail (e.g. when the UAT file is removed).
+    hidden_dirty_.clear();
     if (uat_->changed) {
         char *err = NULL;
         uat_clear(uat_);

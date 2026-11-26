@@ -258,7 +258,6 @@ public:
 protected:
     QList<ColoringRuleItem*> readInherited(profile_inherit_e mode) override;
     void leavingInheritMode(profile_inherit_e mode) override;
-    QList<ColoringRuleItem *> readOwnRows() override;
     QColor iconColor(const ColoringRuleItem *rule) const override { return rule->foreground_; }
     void enteredInheritMode(profile_inherit_e mode) override;
 

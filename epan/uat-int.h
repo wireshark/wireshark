@@ -74,6 +74,9 @@ struct epan_uat {
     int                  enabled_field;    /**< Index of a bool field which, if false, keeps a record from being inherited; -1 for none. */
     bool                 own_from_global;  /**< True if the own records were read from the global file, and are unchanged defaults. */
     bool                 loading_inherited; /**< True while reading a parent profile's file; its records are not exposed to the dissectors yet. */
+    GArray*              hidden_raw;       /**< The own records, kept but not used while only the parent's records are used. */
+    GArray*              hidden_valid;     /**< Parallel to hidden_raw: whether each record is valid. */
+    bool                 own_hidden;       /**< True if hidden_raw holds the own records, which are then saved from there. */
     GHashTable*          override_keys;    /**< While adding inherited records for editing: the keys of the own records, which an inherited record with the same key is kept for, but not used; NULL otherwise. */
     bool                 own_read;         /**< True if the own records had records when read: the profile's file, or the global records used without one. Only then is a file without records written. */
 };

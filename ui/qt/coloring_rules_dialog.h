@@ -129,9 +129,6 @@ private slots:
      */
     void on_buttonBox_accepted();
 
-    /** @brief Saves the rules without closing the dialog. @return true on success. */
-    bool saveRules();
-
     /**
      * @brief Slot triggered when help is requested from the button box.
      */

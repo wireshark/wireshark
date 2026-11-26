@@ -98,9 +98,6 @@ private slots:
      */
     void acceptChanges();
 
-    /** @brief Saves the records without closing the dialog. @return true on success. */
-    bool saveRecords();
-
     /**
      * @brief Discards all pending changes and closes the dialog.
      */

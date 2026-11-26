@@ -57,9 +57,6 @@ public:
      */
     void acceptChanges();
 
-    /** @brief Saves the records without closing the dialog. @return true on success. */
-    bool saveRecords();
-
     /**
      * @brief Rejects and discards the pending changes.
      */
