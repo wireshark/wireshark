@@ -594,7 +594,7 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 				frame_label = wmem_strdup(pinfo->pool, "MF: inter_exch_sw");
 			}
 		} else if (function == SEND_CAS) {
-			frame_label = wmem_strdup_printf(pinfo->pool, "AB: %s", val_to_str_const(ACTRACE_CAS_EV_00-par0, actrace_cas_event_ab_vals, "ERROR"));
+			frame_label = wmem_strdup_printf(pinfo->pool, "AB: %s", val_to_str_const((int32_t)((uint32_t)ACTRACE_CAS_EV_00-(uint32_t)par0), actrace_cas_event_ab_vals, "ERROR"));
 		} else if (function == SEND_DEST_NUM) {
 			if (par0 == SEND_TYPE_ADDRESS ) {
 				frame_label = wmem_strdup(pinfo->pool, "DTMF/MF: sending DNIS");
@@ -623,7 +623,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				 proto_tree *actrace_tree)
 {
 	/* Declare variables */
-	int       len;
+	uint32_t  len;
 	int32_t   value, trunk;
 	tvbuff_t *next_tvb;
 	int       offset = 0;
@@ -642,7 +642,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	offset += 32;
 
-	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_isdn_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+	proto_tree_add_item_ret_uint(actrace_tree, hf_actrace_isdn_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
 
 	/* if it is a q931 packet (we don't want LAPD packets for Voip Graph) add tap info */
 	if (len > 4) {
@@ -685,6 +685,9 @@ static int is_actrace(tvbuff_t *tvb, unsigned offset)
 {
 	int    tvb_len;
 	int32_t source, isdn_header;
+
+	if (tvb_captured_length_remaining(tvb, offset) < 8)
+		return NOT_ACTRACE;
 
 	tvb_len = tvb_reported_length(tvb);
 
@@ -755,7 +758,7 @@ void proto_register_actrace(void)
 			  { "Direction", "actrace.isdn.dir", FT_INT32, BASE_DEC, VALS(actrace_isdn_direction_vals), 0x0,
 			    NULL, HFILL }},
 			{ &hf_actrace_isdn_length,
-			  { "Length", "actrace.isdn.length", FT_INT16, BASE_DEC, NULL, 0x0,
+			  { "Length", "actrace.isdn.length", FT_UINT16, BASE_DEC, NULL, 0x0,
 			    NULL, HFILL }},
 		};
 
