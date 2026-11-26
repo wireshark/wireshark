@@ -724,8 +724,12 @@ append_struct_signature(proto_item   *item,
     uint8_t type_start;
     int    signature_length = 0;
     char c;
+    wmem_strbuf_t *text;
 
-    proto_item_append_text(item, "%c", ' ');
+    /* Build the text first and append it once: appending one character at a
+     * time formats the label again for every character, which nested
+     * structures turn into a large amount of work per byte. */
+    text = wmem_strbuf_new(NULL, " ");
     type_start = *signature;
 
     do {
@@ -738,12 +742,14 @@ append_struct_signature(proto_item   *item,
         }
 
         c = *signature++;
-        proto_item_append_text(item, "%c", g_ascii_isprint(c) ? c : '?');
+        wmem_strbuf_append_c(text, g_ascii_isprint(c) ? c : '?');
     } while(depth > 0 && ++signature_length < signature_max_length);
 
     if(signature_length >= signature_max_length) {
-        proto_item_append_text(item, "... Invalid signature!");
+        wmem_strbuf_append(text, "... Invalid signature!");
     }
+    proto_item_append_text(item, "%s", wmem_strbuf_get_str(text));
+    wmem_strbuf_destroy(text);
 }
 
 /* This is called to advance the signature pointer to the end of the signature
