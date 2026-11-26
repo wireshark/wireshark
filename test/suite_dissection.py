@@ -7403,16 +7403,15 @@ class TestDissectAmp:
 # with AMR and AMR-WB in every fmtp variant; one RTP flow has no SDP and
 # needs Decode As; the rest are Exported PDUs (named AMR dissectors and
 # an H.245 TerminalCapabilitySet with the AMR capabilities).
-AMR_OPTS = ('-d', 'udp.port==50000,rtp',
-            '-d', 'rtp.pt==97,amr',
-            '-d', 'rtp.pt==98,amr_wb')
-
-
 class TestDissectAmr:
+    AMR_OPTS = ('-d', 'udp.port==50000,rtp',
+                '-d', 'rtp.pt==97,amr',
+                '-d', 'rtp.pt==98,amr_wb')
+
     def test_amr_protocols(self, cmd_tshark, capture_file, test_env):
         '''Every part of the capture decodes, with no malformed packets or
         errors, in one and two passes.'''
-        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.AMR_OPTS,
                 '-r', capture_file('amr_coverage.pcapng.gz'),
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
@@ -7425,7 +7424,7 @@ class TestDissectAmr:
         assert protocols.count('SIP') == 2
         assert protocols.count('H.245') == 1
         for passes in ((), ('-2',)):
-            stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS, *passes,
+            stdout = subprocess.check_output((cmd_tshark, *self.AMR_OPTS, *passes,
                     '-r', capture_file('amr_coverage.pcapng.gz'),
                     '-Y', '_ws.malformed || _ws.expert.severity == error',
                     '-Tfields', '-eframe.number',
@@ -7437,7 +7436,7 @@ class TestDissectAmr:
         decodes as AMR with the preferences (octet-aligned). The struct
         tcpinfo used to be handed to AMR, which read it as RTP
         information and crashed.'''
-        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.AMR_OPTS,
                 '-r', capture_file('amr_coverage.pcapng.gz'),
                 '-Y', 'exported_pdu.tcp_dissector_data.version == 1',
                 '-Tfields', '-eframe.number', '-e_ws.col.protocol',
@@ -7452,7 +7451,7 @@ class TestDissectAmr:
         '''The SDP fmtp parameters of each RTP payload type choose the
         format: octet-aligned for octet-align=1, crc=1, interleaving or
         robust-sorting, bandwidth-efficient otherwise.'''
-        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.AMR_OPTS,
                 '-r', capture_file('amr_coverage.pcapng.gz'),
                 '-Y', 'rtp && udp.port != 50000 && !amr.reserved.not_zero',
                 '-Tfields', '-ertp.p_type', '-eamr.payload_decoded_as',
@@ -7466,7 +7465,7 @@ class TestDissectAmr:
             104: {'1'}, 105: {'0'}, 106: {'0'}, 107: {'0'}, 108: {'0'}, 109: {'1'},
         }
         # CRCs and interleaving headers from the SDP
-        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.AMR_OPTS,
                 '-r', capture_file('amr_coverage.pcapng.gz'),
                 '-Y', 'amr.crc || amr.ill',
                 '-Tfields', '-eframe.number', '-eamr.crc', '-eamr.ill', '-eamr.ilp',
@@ -7481,7 +7480,7 @@ class TestDissectAmr:
     def test_amr_preferences(self, cmd_tshark, capture_file, test_env):
         '''The encoding preference applies to RTP set up by Decode As and
         to exported PDUs, not to RTP set up by SDP.'''
-        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.AMR_OPTS,
                 '-o', 'amr.encoding.version:bw_efficient',
                 '-r', capture_file('amr_coverage.pcapng.gz'),
                 '-Y', 'frame.number in {23, 85, 88, 90, 92}',
@@ -7491,7 +7490,7 @@ class TestDissectAmr:
 
     def test_amr_h245_capability(self, cmd_tshark, capture_file, test_env):
         '''The AMR names the H.245 generic audio capability parameters.'''
-        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.AMR_OPTS,
                 '-r', capture_file('amr_coverage.pcapng.gz'),
                 '-Y', 'h245', '-O', 'h245', '-V',
             ), encoding='utf-8', env=test_env)
@@ -7504,7 +7503,7 @@ class TestDissectAmr:
 
     def test_amr_if1_if2(self, cmd_tshark, capture_file, test_env):
         '''The IF1 and IF2 dissectors, called by name.'''
-        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.AMR_OPTS,
                 '-r', capture_file('amr_coverage.pcapng.gz'),
                 '-Y', 'exported_pdu.prot_name matches "^amr_if"',
                 '-Tfields', '-eexported_pdu.prot_name',
@@ -7521,6 +7520,21 @@ class TestDissectAmr:
         # SID frames: SID_UPDATE in IF1, SID_UPDATE in IF2
         assert lines[2][5] == 'True' and lines[7][5] == 'True'
         assert lines[11][6] == 'True' and lines[15][6] == 'True'
+
+    def test_amr_wb_if1_sid_length(self, cmd_tshark, capture_file, test_env):
+        '''The speech data of an AMR-WB IF1 SID frame is 5 bytes (40 bits),
+        like the one of the narrow-band SID, and the SID type indicator
+        follows it. The data used to be 4 bytes, leaving a gap.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.AMR_OPTS,
+                '-r', capture_file('amr_coverage.pcapng.gz'),
+                '-Y', 'amr.if1.sti', '-Tfields', '-eframe.number',
+                '-eamr.wb.if1.ft', '-eamr.nb.if1.ft', '-eamr.speech_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '98\t\t8\t0000000000',
+            '99\t\t8\t0000000000',
+            '103\t9\t\t0000000000',
+        ]
 
 
 class TestDissectExportedPdu:
