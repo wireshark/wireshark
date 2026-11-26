@@ -9256,10 +9256,10 @@ class TestDissectAnsiMap:
 
 
 # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
-ANSI_TCAP_OPTS = ('-o', 'mtp3.standard:ANSI')
-
-
 class TestDissectAnsiTcap:
+    # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
+    OPTS = ('-o', 'mtp3.standard:ANSI')
+
     def test_ansi_tcap_needs_ansi_mtp3(self, cmd_tshark, capture_file, test_env):
         '''With the default (ITU) MTP3 standard the ANSI SCCP addresses do
         not route to TCAP, so nothing is dissected as ANSI TCAP.'''
@@ -9274,26 +9274,26 @@ class TestDissectAnsiTcap:
         '''Every package type, component type, operation code family and
         national parameter decodes without malformed packets or error expert
         infos, and two passes give the same result as one.'''
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.splitlines()
-        assert len(protocols) == 135
-        assert protocols.count('ANSI TCAP') == 86
+        assert len(protocols) == 144
+        assert protocols.count('ANSI TCAP') == 95
         assert protocols.count('ANSI MAP') == 24
         assert protocols.count('IS-637-A') == 19
         assert protocols.count('AIN') == 3
         assert protocols.count('LNPDQP') == 3
         outputs = []
         for passes in ((), ('-2',)):
-            stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS, *passes,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
                     '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                     '-Y', '_ws.malformed || _ws.expert.severity == error',
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
-            outputs.append(subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS, *passes,
+            outputs.append(subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
                     '-r', capture_file('ansi_tcap_coverage.pcap.gz'), '-V',
                 ), encoding='utf-8', env=test_env))
         assert outputs[0] == outputs[1]
@@ -9310,14 +9310,14 @@ class TestDissectAnsiTcap:
             '130': ('lnpdqp', 475, 125),
         }
         for frame, (proto, handed, skipped) in expected.items():
-            stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                     '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                     '-Y', f'frame.number == {frame}', '-V',
                 ), encoding='utf-8', env=test_env)
             assert 'Dissector bug' not in stdout
             assert 'Malformed Packet' not in stdout
             assert count_output(stdout, r'Expert Info \(Warning/Undecoded\): Too many components in one package') == skipped
-            stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                     '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                     '-Y', f'frame.number == {frame}',
                     '-Tfields', '-eframe.protocols',
@@ -9331,7 +9331,7 @@ class TestDissectAnsiTcap:
         operation, and two passes give the same result as one.'''
         outputs = []
         for passes in ((), ('-2',)):
-            stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS, *passes,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
                     '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                     '-Y', 'frame.number == 131',
                     '-Tfields', '-eansi_tcap.private',
@@ -9339,7 +9339,7 @@ class TestDissectAnsiTcap:
             # The two Invokes' private operation codes, and no generated
             # operation code for the ReturnResult
             assert stdout.strip() == '2357,2317'
-            outputs.append(subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS, *passes,
+            outputs.append(subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
                     '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                     '-Y', 'frame.number == 131', '-V',
                 ), encoding='utf-8', env=test_env))
@@ -9350,7 +9350,7 @@ class TestDissectAnsiTcap:
         matching (its length was truncated to 8 bits): a result whose ID
         differs after the first four octets is not matched, one with the
         same ID is.'''
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                 '-Y', 'frame.number >= 21 && frame.number <= 23',
                 '-Tfields', '-eframe.number', '-eansi_tcap.identifier', '-eansi_tcap.national',
@@ -9371,7 +9371,7 @@ class TestDissectAnsiTcap:
             'tid_source_dest': '112\t257\n114\t\n116\t\n',
         }
         for matchtype, result in expected.items():
-            stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                     '-o', f'ansi_tcap.transaction.matchtype:{matchtype}',
                     '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                     '-Y', 'frame.number in {112, 114, 116}',
@@ -9379,7 +9379,7 @@ class TestDissectAnsiTcap:
                 ), encoding='utf-8', env=test_env)
             assert stdout == result
         # The AIN ReturnResult gets its operation from the matched Invoke
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                 '-Y', 'frame.number == 108',
                 '-Tfields', '-eansi_tcap.private', '-e_ws.col.info',
@@ -9389,32 +9389,72 @@ class TestDissectAnsiTcap:
     def test_ansi_tcap_values(self, cmd_tshark, capture_file, test_env):
         '''Abort causes, reject problems, error codes and national
         parameters.'''
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                 '-Y', 'ansi_tcap.abortCause',
                 '-Tfields', '-eansi_tcap.abortCause',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == [str(c) for c in range(1, 11)] + ['42', '6']
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                 '-Y', 'frame.number == 58',
                 '-Tfields', '-eansi_tcap.rejectProblem',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '257,258,259,260,513,514,515,516,769,770,771,1025,1026,1027,1028,1029,1281,1282,1283,1284,1285,1286'
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                 '-Y', 'ansi_tcap.parameter',
                 '-Tfields', '-eansi_tcap.parameter', '-E', 'occurrence=a',
             ), encoding='utf-8', env=test_env)
         params = set(','.join(stdout.split()).split(','))
         assert len(params) == 38
-        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
                 '-Y', 'frame.number == 121 || frame.number == 124 || frame.number == 125',
                 '-Tfields', '-eansi_tcap.timestamp.difference', '-eansi_tcap.generic_name.characters',
                 '-eansi_tcap.display_text',
             ), encoding='utf-8', env=test_env)
         assert stdout == '-5\t\t\n\tALICE\t\n\t\tHELLO\n'
+
+    def test_ansi_tcap_national_parameter_layout(self, cmd_tshark, capture_file, test_env):
+        '''National parameters are Identifier, Length, Contents (T1.114): 0x8f
+        (DN to line service type mapping, low nibble 0xf) is a one octet
+        identifier, the next parameter starts where the length field says
+        and not where the decoder stopped reading, a Generic Name takes its
+        type of name from the bits 0xe0 and its characters from the length,
+        Digits holds two BCD digits per octet and a parameter length may
+        be in long form.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 136',
+                    '-Tfields', '-eframe.number', '-eansi_tcap.parameter',
+                    '-eansi_tcap.parameter_length', '-eansi_tcap.digits.number_of_digits',
+                    '-eansi_tcap.digits.digit', '-eansi_tcap.generic_name.type_name',
+                    '-eansi_tcap.generic_name.characters',
+                    '-E', 'occurrence=a',
+                ), encoding='utf-8', env=test_env)
+            rows = {r[0]: r[1:] for r in (line.split('\t') for line in stdout.splitlines())}
+            # Reproducers: Standard Announcement and Busy/Idle, DN to line
+            # service type mapping, Generic Name
+            assert rows['136'][:2] == ['0x0082,0x008b', '0x06,0x01,0x01']
+            assert rows['137'][:2] == ['0x008f', '0x03,0x01']
+            assert rows['138'][:2] == ['0x0097', '0x08,0x06']
+            assert rows['138'][4:] == ['0x01', 'ALICE']
+            # Digits: 5 digits in 3 octets
+            assert rows['139'][0] == '0x0084,0x0084'
+            assert rows['139'][2:4] == ['0x04,0x01', '0x12,0x34,0x05']
+            # Generic Name without characters, another type of name
+            assert rows['140'][0] == '0x0097,0x0097'
+            assert rows['140'][4:] == ['0x03,0x02', 'BOB']
+            # Parameter longer than its decoder reads, long form length
+            assert rows['141'][:2] == ['0x0082,0x008b', '0x08,0x03,0x01']
+            assert rows['142'][:2] == ['0x0084,0x008b', '0x0c,0x06,0x01']
+            # 40 parameters in a set of 200 octets (long form length)
+            assert rows['143'][0].split(',') == ['0x0081'] * 40
+            assert rows['143'][1].split(',')[0] == '0xc8'
+            # 2-octet identifiers followed by 0x8f
+            assert rows['144'][0] == '0x9f1f,0x7f20,0x7f21,0x008f'
 
 
 class TestDissectTcap:

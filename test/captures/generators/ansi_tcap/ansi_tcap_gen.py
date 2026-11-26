@@ -146,6 +146,20 @@ def main():
         frames.append(exp_pdu(package(2, struct.pack('>I', 0x20 + i), comps)))
     write_pcap(os.path.join(out, 'ansi_tcap_national_params.pcap'), frames)
 
+    # 5. The same parameter sets in the T1.114 layout, Identifier, Length,
+    #    Contents: DN to line service type mapping (0x8f, whose low nibble is
+    #    0xf), a Generic Name with type of name bits in 0xe0.
+    psets = [
+        bytes([0xf2, 0x06]) + bytes([0x82, 0x01, 0x05, 0x8b, 0x01, 0x01]),
+        bytes([0xf2, 0x03]) + bytes([0x8f, 0x01, 0x45]),
+        bytes([0xf2, 0x08]) + bytes([0x97, 0x06, 0x21]) + b'ALICE',
+    ]
+    frames = []
+    for i, ps in enumerate(psets):
+        comps = [invoke_national(1, 0x0101, ps)]
+        frames.append(exp_pdu(package(2, struct.pack('>I', 0x30 + i), comps)))
+    write_pcap(os.path.join(out, 'ansi_tcap_national_params_t1114.pcap'), frames)
+
 
 if __name__ == '__main__':
     main()

@@ -301,16 +301,16 @@ LNP_CC_ARG = pset(lnp_digits(4, 4, '2015559999'), tlv(PRI, False, 65, b'\x00\x01
 
 
 # ---------------------------------------------------------------- national parameters
-# parameter_type() reads: identifier (1 octet, or 2 when the low nibble of
-# the first is 0xF), one octet it skips, the length, then a value of the
-# size each case expects; dissect after the value skips one more octet.
-# These helpers produce exactly that layout.
+# T1.114 parameter layout: Identifier (1 octet, or 2 when the low five bits
+# of the first are 0x1f), Length (BER), Contents.  parameter_type() reads
+# the contents the way each case expects and continues at the end the
+# length field gives.
 
 def nparam(ident, value, length=None):
     ib = ident.to_bytes(2 if ident > 0xff else 1, 'big')
     if length is None:
         length = len(value)
-    return ib + b'\x00' + bytes([length]) + value + b'\x00'
+    return ib + ber_len(length) + value
 
 
 def national_set(*params):
@@ -324,9 +324,9 @@ NAT_PARAMS = [
     nparam(0x81, bytes([0x03, 0x05, 0x0a])),                    # ACG indicators
     nparam(0x82, bytes([0x05])),                                # standard announcement
     nparam(0x83, bytes([0x03, 0x11, 0x22, 0x33])),              # customized announcement
-    nparam(0x84, bytes([0x06, 0x01, 0x21, 0x04, 0x02, 0x00, 0x01, 0x05])),  # digits
+    nparam(0x84, bytes([0x06, 0x01, 0x21, 0x05, 0x12, 0x34, 0x50])),  # digits: 5 digits in 3 octets
     nparam(0x85, bytes([0x01])),                                # standard user error code
-    nparam(0x86, b'', 2),                                       # problem data (no decoder, nothing read)
+    nparam(0x86, bytes([0x01, 0x02])),                          # problem data (no decoder)
     nparam(0x87, bytes([0x42])),                                # SCCP calling party address
     nparam(0x88, bytes([0x07])),                                # transaction ID
     nparam(0x89, bytes([0xe2])),                                # package type
@@ -338,10 +338,7 @@ NAT_PARAMS = [
     nparam(0x8c, bytes([0x5a])),                                # call forwarding status
     nparam(0x8d, bytes([0x02])),                                # originating restrictions
     nparam(0x8e, bytes([0x04])),                                # terminating restrictions
-    # DN to line service type mapping (0x8f): its low nibble is 0xF, so
-    # parameter_type() reads a 2-octet identifier 0x8fxx and never reaches
-    # case 0x8f; shown as the unknown parameter 0x8f00
-    nparam(0x8f00, b'', 1),
+    nparam(0x8f, bytes([0x45])),                                # DN to line service type mapping
     nparam(0x90, bytes([0x01, 0x02, 0x03])),                    # duration
     nparam(0x91, bytes([0x8b])),                                # returned data
     nparam(0x92, bytes([0x80, 0x90, 0xa2, 0x00, 0x01, 0x02])),  # bearer capability requested
@@ -349,7 +346,7 @@ NAT_PARAMS = [
     nparam(0x94, bytes([0x33])),                                # reference ID
     nparam(0x95, bytes([0x5f, 0x00, 0x12, 0x34, 0x00, 0x56, 0x07])),  # business group
     nparam(0x96, bytes([0x02, 0x01, 0x02])),                    # signalling networks ID
-    nparam(0x97, bytes([0x05, 0x21]) + b'ALICE'),               # generic name
+    nparam(0x97, bytes([0x81]) + b'ALICE'),                     # generic name (connected name)
     nparam(0x98, bytes([0x21])),                                # message waiting indicator
     nparam(0x99, bytes([0x45])),                                # look ahead for busy
     nparam(0x9a, bytes([0x34, 0x12])),                          # CIC
@@ -361,8 +358,8 @@ NAT_PARAMS = [
     nparam(0x7f20, bytes([0x01, 0x03])),                        # number of messages
     nparam(0x7f21, bytes([0x05]) + b'HELLO'),                   # display text
     nparam(0x7f22, bytes([0x01, 0x01, 0x05, 0x02, 0x02, 0xca, 0xfe])),  # key exchange
-    nparam(0x7f23, b'', 3),                                     # SCCP called party address (not decoded)
-    nparam(0xa5, b'', 2),                                       # unknown identifier
+    nparam(0x7f23, bytes([0x42, 0x43, 0x44])),                  # SCCP called party address (not decoded)
+    nparam(0xa5, bytes([0x01, 0x02])),                          # unknown identifier
     nparam(0x82, b''),                                          # length 0: "asking to be returned"
     nparam(0x7f21, b''),                                        # 2-octet identifier, length 0
 ]
@@ -496,6 +493,13 @@ def reproducers():
     ]
     r['national_params'] = [r_package(2, struct.pack('>I', 0x20 + i), [r_invoke_national(1, 0x8105, ps)])
                             for i, ps in enumerate(psets)]
+    psets = [
+        bytes([0xf2, 0x06]) + bytes([0x82, 0x01, 0x05, 0x8b, 0x01, 0x01]),
+        bytes([0xf2, 0x03]) + bytes([0x8f, 0x01, 0x45]),
+        bytes([0xf2, 0x08]) + bytes([0x97, 0x06, 0x21]) + b'ALICE',
+    ]
+    r['national_params_t1114'] = [r_package(2, struct.pack('>I', 0x30 + i), [r_invoke_national(1, 0x0101, ps)])
+                                  for i, ps in enumerate(psets)]
     return r
 
 
@@ -710,6 +714,27 @@ def build(repro_dir):
     for t in (bytes(range(8)), bytes(300), bytes(256), b'\x01\x02\x03'):
         c(MSC, HLR, package(QUERY_PERM, t, [sms()]), 'reproducer tid_lengths, %d-octet TID, valid parameters' % len(t))
 
+    # T1.114 national parameter sets (reproducers of the national parameter
+    # fix) and more layouts of the parameter set
+    for i, p in enumerate(rep['national_params_t1114']):
+        c(MSC, HLR, p, 'reproducer national_params_t1114 %d: T1.114 layout' % (i + 1))
+    def nat(*params, raw=None):
+        return package(QUERY_PERM, tid(), [invoke((1,), opcode_national(0x0101), raw if raw is not None else national_set(*params))])
+    c(MSC, HLR, nat(nparam(0x84, bytes([0x06, 0x01, 0x21, 0x04, 0x12, 0x34])),
+                    nparam(0x84, bytes([0x06, 0x01, 0x21, 0x01, 0x05]))),
+      'national Digits with 4 and 1 digits (2 and 1 octets)')
+    c(MSC, HLR, nat(nparam(0x97, bytes([0x61])), nparam(0x97, bytes([0x4e]) + b'BOB')),
+      'national Generic Name without characters, and with another type of name')
+    c(MSC, HLR, nat(nparam(0x82, bytes([0x05, 0xaa, 0xbb])), nparam(0x8b, bytes([0x01]))),
+      'national parameter longer than its decoder reads: the length field gives the next parameter')
+    c(MSC, HLR, nat(bytes([0x84, 0x81, 0x06]) + bytes([0x06, 0x01, 0x21, 0x04, 0x12, 0x34]), nparam(0x8b, bytes([0x01]))),
+      'national parameter with a long form length')
+    c(MSC, HLR, nat(*([nparam(0x81, bytes([0x03, 0x05, 0x0a]))] * 40)),
+      'national parameter set with a long form length (200 octets)')
+    c(MSC, HLR, nat(nparam(0x9f1f, bytes([0x02, 0x00, 0x07])), nparam(0x7f20, bytes([0x01, 0x03])),
+                    nparam(0x7f21, bytes([0x05]) + b'HELLO'), nparam(0x8f, bytes([0x45]))),
+      'national 2-octet identifiers followed by a one octet parameter ending in 0xf')
+
     # ---------------------------------------------------- malformed capture
     for name in ('many_components', 'many_components_ok', 'many_components_ain', 'many_components_lnp',
                  'same_frame_match', 'tid_lengths', 'national_params'):
@@ -721,6 +746,11 @@ def build(repro_dir):
             cut = p[:-2]
             m(MSC, HLR, package(QUERY_PERM, tid(), [invoke((1,), opcode_national(0x0101), national_set(cut))]),
               'national parameter 0x%02x cut short' % p[0])
+    # Parameter length beyond the data, a length of 4 GB, a set length beyond the data
+    m(MSC, HLR, nat(nparam(0x8a, bytes([0x01, 0x05]), 0x70)), 'national parameter length beyond the parameter set')
+    m(MSC, HLR, nat(raw=bytes([0xf2, 0x08, 0x84, 0x84, 0xff, 0xff, 0xff, 0xff, 0x01, 0x02])),
+      'national parameter length of 4 GB')
+    m(MSC, HLR, nat(raw=bytes([0xf2, 0x7f, 0x82, 0x01, 0x05])), 'national parameter set longer than its data')
     # Parameter set too short for the length octet / identifier
     m(MSC, HLR, package(QUERY_PERM, tid(), [invoke((1,), opcode_national(0x0101), b'\xf2\x01\x8a')]),
       'national parameter set of 1 octet')
