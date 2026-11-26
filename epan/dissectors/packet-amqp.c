@@ -9896,16 +9896,29 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return tvb_reported_length(tvb);
 }
 
+/* dissect_amqp() creates the amqp_conv, but the "amqp.version" table entries
+ * can also be called directly (e.g. from an Exported PDU naming the table),
+ * so every user creates it if it is missing. */
+static amqp_conv*
+get_or_create_amqp_conv(conversation_t *conv)
+{
+    amqp_conv *conn = (amqp_conv *)conversation_get_proto_data(conv, proto_amqp);
+
+    if (conn == NULL) {
+        conn = wmem_new0(wmem_file_scope(), amqp_conv);
+        conn->channels = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        conversation_add_proto_data(conv, proto_amqp, conn);
+    }
+    return conn;
+}
+
 static amqp_channel_t*
 get_conversation_channel(conversation_t *conv, uint16_t channel_num)
 {
     amqp_conv *conn;
     amqp_channel_t *channel;
 
-    /* the amqp_conv structure was already created to record the AMQP version */
-    conn = (amqp_conv *)conversation_get_proto_data(conv, proto_amqp);
-    if (!conn)
-        return NULL;
+    conn = get_or_create_amqp_conv(conv);
 
     channel = (amqp_channel_t *)wmem_map_lookup(conn->channels, GUINT_TO_POINTER((uint32_t)channel_num));
     if(channel == NULL)
@@ -11094,12 +11107,7 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     /* Find (or build) conversation to remember the protocol version */
     conv = find_or_create_conversation(pinfo);
-    conn = (amqp_conv *)conversation_get_proto_data(conv, proto_amqp);
-    if (conn == NULL) {
-        conn = wmem_new0(wmem_file_scope(), amqp_conv);
-        conn->channels = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
-        conversation_add_proto_data(conv, proto_amqp, conn);
-    }
+    conn = get_or_create_amqp_conv(conv);
     check_amqp_version(tvb, conn);
     /* Restore can_desegment to whatever TCP set it to before calling the
      * subdissector (which will decrement it a second time) in order for
