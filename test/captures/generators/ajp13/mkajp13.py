@@ -438,6 +438,33 @@ def large_query_string(cap):
     c.close()
 
 
+def same_frame_transactions(cap):
+    """Two transactions that start in one TCP segment. The bodies of both
+    are reassembled, and each must keep its own reassembly (they used to
+    share one ID, so the second pass attached the wrong body)."""
+    # Two responses without a request in one segment; the second one
+    # continues in the next segment
+    c = TcpStream(cap, 40006)
+    c.container(send_headers(200, 'OK', [(R_CONTENT_TYPE, 'text/a')])
+                + body_chunk(b'AAAA') + end_response(1)
+                + send_headers(200, 'OK', [(R_CONTENT_TYPE, 'text/b')])
+                + body_chunk(b'BBBB'),
+                body_chunk(b'bbbb') + end_response(1))
+    c.close()
+    # Two FORWARD_REQUESTs in one segment (without a Content-Length: a
+    # request with one is followed by its body, so a second request cannot
+    # follow it directly), then two responses in one segment, and a second response after it
+    c = TcpStream(cap, 40007)
+    c.web(forward(2, '/first', [(CONTENT_TYPE, 'text/plain')])
+          + forward(2, '/second', [(CONTENT_TYPE, 'text/plain')],
+                  attrs=attr(0x05, 'x=1') + b'\xff'))
+    c.container(send_headers(200, 'OK', [(R_CONTENT_TYPE, 'text/c')])
+                + body_chunk(b'CCCC') + end_response(1)
+                + send_headers(200, 'OK', [(R_CONTENT_TYPE, 'text/d')])
+                + body_chunk(b'DDDD') + end_response(1))
+    c.close()
+
+
 # ---------------------------------------------------------------------------
 # Paths that end in an exception or an error expert info
 
@@ -466,7 +493,7 @@ def main():
     out = sys.argv[1] if len(sys.argv) > 1 else '.'
     cap = Pcap()
     for gen in (every_header_and_attribute, post_with_content_length, chunked_and_encodings,
-                odd_messages, large_query_string):
+                odd_messages, large_query_string, same_frame_transactions):
         gen(cap)
     cap.write(os.path.join(out, 'ajp13-coverage.pcap'))
     bad = Pcap()

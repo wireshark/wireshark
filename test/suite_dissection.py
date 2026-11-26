@@ -6804,22 +6804,22 @@ class TestDissectAcn:
             assert [len(r[1].split('|')) for r in rows] == [2]
 
 
-AJP13_OPTS = ('-d', 'tcp.port==8009,ajp13')  # 8009 is nvme-tcp by default
-
-
 class TestDissectAjp13:
+    # 8009 is nvme-tcp by default
+    OPTS = ('-d', 'tcp.port==8009,ajp13')
+
     def test_ajp13_protocols(self, cmd_tshark, capture_file, test_env):
         '''Every message type, method, coded and named header and request
         attribute decodes without malformed packets, in one and two passes.'''
-        stdout = subprocess.check_output((cmd_tshark, *AJP13_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ajp13_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.split()
-        assert protocols.count('AJP13') == 111
-        assert protocols.count('TCP') == 30
+        assert protocols.count('AJP13') == 115
+        assert protocols.count('TCP') == 42
         for passes in ((), ('-2',)):
-            stdout = subprocess.check_output((cmd_tshark, *AJP13_OPTS, *passes,
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
                     '-r', capture_file('ajp13_coverage.pcap.gz'),
                     '-Y', '_ws.malformed || _ws.expert.severity == error',
                     '-Tfields', '-eframe.number',
@@ -6830,14 +6830,14 @@ class TestDissectAjp13:
         '''A request with a 31000 octet URI and 11000 null query_string
         attributes decodes. It used to keep a copy of the URI for each
         attribute, about 1.4 GB.'''
-        stdout = subprocess.check_output((cmd_tshark, *AJP13_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ajp13_coverage.pcap.gz'),
                 '-Y', 'ajp13.query_string',
                 '-Tfields', '-eframe.number', '-eajp13.uri',
                 '-e', 'ajp13.query_string', '-E', 'aggregator=|',
             ), encoding='utf-8', env=test_env)
         frames = [line.split('\t') for line in stdout.splitlines()]
-        assert [f[0] for f in frames] == ['4', '58', '137']
+        assert [f[0] for f in frames] == ['4', '58', '137', '153']
         number, uri, query_strings = frames[2]
         assert uri.endswith('/big')
         assert query_strings == '|' * 10999
@@ -6847,7 +6847,7 @@ class TestDissectAjp13:
         uncompressed, and the query string is appended to the URI once.'''
         export_dir = tmp_path / 'export'
         export_dir.mkdir()
-        subprocess.check_call((cmd_tshark, *AJP13_OPTS,
+        subprocess.check_call((cmd_tshark, *self.OPTS,
                 '-r', capture_file('ajp13_coverage.pcap.gz'),
                 '-q', '--export-objects', f'ajp13,{export_dir}',
             ), env=test_env)
@@ -6856,8 +6856,15 @@ class TestDissectAjp13:
         assert sorted(files) == [
             'bad.txt', 'big%3f', 'c.txt', 'd.txt', 'form%3fa=1&b=2', 'form%3fa=1&b=2(1)',
             'index.html%3fq=all&x=1', 'items(1).json', 'items.json',
-            'object118.text%2fplain', 'raw', 'raw(1)', 'z.txt',
+            'object118.text%2fplain', 'object145.text%2fa', 'object146.text%2fb',
+            'object154.text%2fd', 'raw', 'raw(1)', 'second%3fx=1', 'z.txt',
         ]
+        # Two responses that start in one segment keep their own bodies
+        assert files['object145.text%2fa'] == b'AAAA'
+        assert files['object146.text%2fb'] == b'BBBBbbbb'
+        # Two requests in one segment, and the two responses that follow
+        assert files['second%3fx=1'] == b'CCCC'
+        assert files['object154.text%2fd'] == b'DDDD'
         # The large request: a single "?" for the 11000 empty query strings
         assert files['big%3f'] == b'big response\n'
         # Request body over three body packets
@@ -6876,6 +6883,51 @@ class TestDissectAjp13:
             assert files['raw(1)'] == text
         if features.have_zstd:
             assert files['z.txt'] == text[:200]
+
+    def test_ajp13_same_frame_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Two responses that start in one segment have their own reassembly
+        IDs. In the second pass each END RESPONSE points at its own body
+        (the two used to share an ID, so the first one showed the frame of
+        the second), and the body lengths are the same as in one pass.'''
+        def bodies(*passes):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('ajp13_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 145 && ajp13.body.reassembled.length',
+                    '-Tfields', '-eframe.number',
+                    '-eajp13.body.reassembled.in', '-eajp13.body.reassembled.length',
+                    '-eajp13.data', '-Eaggregator=,',
+                ), encoding='utf-8', env=test_env)
+            return [line.split('\t') for line in stdout.splitlines()]
+        one = bodies()
+        two = bodies('-2')
+        assert [[f[0], f[2], f[3]] for f in one] == [['145', '4', 'AAAA,BBBB'], ['146', '8', 'bbbb'],
+                                         ['154', '4,4', 'CCCC,DDDD']]
+        assert [[f[0], f[2], f[3]] for f in two] == [[f[0], f[2], f[3]] for f in one]
+        assert [f[:2] for f in two] == [['145', '145,146'], ['146', '146'], ['154', '154,154']]
+        # Two requests in one segment are two transactions as well
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS, '-2',
+                '-r', capture_file('ajp13_coverage.pcap.gz'),
+                '-Y', 'ajp13.uri', '-Tfields', '-eframe.number', '-eajp13.uri',
+                '-Eaggregator=,',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split()[-2:] == ['153', '/first,/second']
+
+    def test_ajp13_export_objects_two_passes(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Export Objects after two passes has the same bodies, including
+        both responses that start in one segment.'''
+        names = []
+        for passes in ((), ('-2',)):
+            export_dir = tmp_path / ('export' + ''.join(passes))
+            export_dir.mkdir()
+            subprocess.check_call((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('ajp13_coverage.pcap.gz'),
+                    '-q', '--export-objects', f'ajp13,{export_dir}',
+                ), env=test_env)
+            files = {p.name: p.read_bytes() for p in export_dir.iterdir()}
+            assert files['object145.text%2fa'] == b'AAAA'
+            assert files['object146.text%2fb'] == b'BBBBbbbb'
+            names.append(sorted(files))
+        assert names[0] == names[1]
 
 
 # TCP port 5190 belongs to the "aol" dissector by default.
