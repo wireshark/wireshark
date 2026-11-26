@@ -464,6 +464,8 @@ static const char* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_t
                 case 99:
                 case 110:
                     proto_tree_add_item(tree, hf_alcap_cau_diag_msg, tvb, ++offset, 1, ENC_BIG_ENDIAN);
+                    /* The message identifier is part of the diagnostics length */
+                    diag_len--;
 
                     while(diag_len >= 2) {
                         proto_tree_add_item(tree, hf_alcap_cau_diag_param_id, tvb, ++offset, 1, ENC_BIG_ENDIAN);
@@ -473,7 +475,7 @@ static const char* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_t
                     break;
                 default:
                     /* XXX - TODO Q.2610 */
-                    proto_tree_add_expert(tree, pinfo, &ei_alcap_undecoded, tvb, offset, diag_len);
+                    proto_tree_add_expert(tree, pinfo, &ei_alcap_undecoded, tvb, offset + 1, diag_len);
                     break;
             }
         }
@@ -532,10 +534,10 @@ static const char* dissect_fields_desea(packet_info* pinfo, tvbuff_t *tvb, proto
      * XXX - section 7.4.14 "E.164 address" of Q.2630.3 seems to
      * indicate that this is BCD, not ASCII.
      */
-    e164->E164_number_str = (char*)tvb_get_string_enc(pinfo->pool,tvb,offset+1,len,ENC_ASCII|ENC_NA);
+    e164->E164_number_str = (char*)tvb_get_string_enc(pinfo->pool,tvb,offset+1,len-1,ENC_ASCII|ENC_NA);
     e164->E164_number_length = len-1;
 
-    dissect_e164_number(tvb, tree, offset-1, len, *e164);
+    dissect_e164_number(tvb, tree, offset+1, len-1, *e164);
 
     return NULL;
 }
@@ -562,10 +564,10 @@ static const char* dissect_fields_oesea(packet_info* pinfo, tvbuff_t *tvb, proto
      * XXX - section 7.4.14 "E.164 address" of Q.2630.3 seems to
      * indicate that this is BCD, not ASCII.
      */
-    e164->E164_number_str = (char*)tvb_get_string_enc(pinfo->pool,tvb,offset+1,len,ENC_ASCII|ENC_NA);
+    e164->E164_number_str = (char*)tvb_get_string_enc(pinfo->pool,tvb,offset+1,len-1,ENC_ASCII|ENC_NA);
     e164->E164_number_length = len-1;
 
-    dissect_e164_number(tvb, tree, offset-1, len, *e164);
+    dissect_e164_number(tvb, tree, offset+1, len-1, *e164);
 
     return NULL;
 }
@@ -577,15 +579,15 @@ static const char* dissect_fields_dnsea(packet_info* pinfo, tvbuff_t *tvb, proto
      * 7.4.15 NSAP Address
      */
 
-    if (len < 1) {
+    if (len != FIELD_NSAP_ADDRESS_LEN) {
         proto_tree_add_expert(tree, pinfo, &ei_alcap_parameter_field_bad_length, tvb, offset, len);
         return NULL;
     }
 
-    msg_info->dest_nsap = tvb_bytes_to_str(pinfo->pool, tvb,offset,20);
+    msg_info->dest_nsap = tvb_bytes_to_str(pinfo->pool, tvb,offset,FIELD_NSAP_ADDRESS_LEN);
 
-    proto_tree_add_item(tree, hf_alcap_dnsea, tvb, offset, 20, ENC_NA);
-    dissect_nsap(tvb, pinfo, offset,20, tree);
+    proto_tree_add_item(tree, hf_alcap_dnsea, tvb, offset, FIELD_NSAP_ADDRESS_LEN, ENC_NA);
+    dissect_nsap(tvb, pinfo, offset,FIELD_NSAP_ADDRESS_LEN, tree);
 
     return NULL;
 }
@@ -597,15 +599,15 @@ static const char* dissect_fields_onsea(packet_info* pinfo, tvbuff_t *tvb, proto
      * 7.4.15 NSAP Address
      */
 
-    if (len < 1) {
+    if (len != FIELD_NSAP_ADDRESS_LEN) {
         proto_tree_add_expert(tree, pinfo, &ei_alcap_parameter_field_bad_length, tvb, offset, len);
         return NULL;
     }
 
-    msg_info->orig_nsap = tvb_bytes_to_str(pinfo->pool, tvb,offset,20);
+    msg_info->orig_nsap = tvb_bytes_to_str(pinfo->pool, tvb,offset,FIELD_NSAP_ADDRESS_LEN);
 
-    proto_tree_add_item(tree, hf_alcap_onsea, tvb, offset, 20, ENC_NA);
-    dissect_nsap(tvb, pinfo, offset,20, tree);
+    proto_tree_add_item(tree, hf_alcap_onsea, tvb, offset, FIELD_NSAP_ADDRESS_LEN, ENC_NA);
+    dissect_nsap(tvb, pinfo, offset,FIELD_NSAP_ADDRESS_LEN, tree);
 
     return NULL;
 }
@@ -1062,7 +1064,6 @@ static const char* dissect_fields_vbws(packet_info* pinfo, tvbuff_t *tvb, proto_
     proto_tree_add_item(tree,hf_alcap_vbws_bucket_bw,tvb,offset+8,2,ENC_BIG_ENDIAN);
     proto_tree_add_item(tree,hf_alcap_vbws_size_fw,tvb,offset+10,1,ENC_BIG_ENDIAN);
     proto_tree_add_item(tree,hf_alcap_vbws_size_bw,tvb,offset+11,1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree,hf_alcap_vbws_size_bw,tvb,offset+11,1,ENC_BIG_ENDIAN);
     proto_tree_add_item(tree,hf_alcap_vbws_stt,tvb,offset+12,1,ENC_BIG_ENDIAN);
 
     return NULL;
@@ -1087,7 +1088,6 @@ static const char* dissect_fields_pvbws(packet_info* pinfo, tvbuff_t *tvb, proto
     proto_tree_add_item(tree,hf_alcap_pvbws_bucket_fw,tvb,offset+6,2,ENC_BIG_ENDIAN);
     proto_tree_add_item(tree,hf_alcap_pvbws_bucket_bw,tvb,offset+8,2,ENC_BIG_ENDIAN);
     proto_tree_add_item(tree,hf_alcap_pvbws_size_fw,tvb,offset+10,1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree,hf_alcap_pvbws_size_bw,tvb,offset+11,1,ENC_BIG_ENDIAN);
     proto_tree_add_item(tree,hf_alcap_pvbws_size_bw,tvb,offset+11,1,ENC_BIG_ENDIAN);
     proto_tree_add_item(tree,hf_alcap_pvbws_stt,tvb,offset+12,1,ENC_BIG_ENDIAN);
 
@@ -1176,7 +1176,11 @@ static const char* dissect_fields_sut(packet_info* pinfo, tvbuff_t *tvb, proto_t
     }
 
     proto_tree_add_item_ret_uint8(tree, hf_alcap_sut_len, tvb, offset, 1, ENC_BIG_ENDIAN, &sut_len);
-    proto_tree_add_item(tree, hf_alcap_sut, tvb, offset, sut_len, ENC_NA);
+    if (sut_len > len - 1) {
+        proto_tree_add_expert(tree, pinfo, &ei_alcap_parameter_field_bad_length, tvb, offset, len);
+        return NULL;
+    }
+    proto_tree_add_item(tree, hf_alcap_sut, tvb, offset+1, sut_len, ENC_NA);
 
     return NULL;
 }
@@ -1363,7 +1367,8 @@ static int dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         if ( alcap_tree || param_info->run_wo_tree )
             colinfo_str = param_info->dissect_fields(pinfo,tvb,param_tree,offset+3,param_len,msg_info);
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",colinfo_str);
+        if (colinfo_str)
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %s",colinfo_str);
 
         len -= 3 + param_len;
         offset += 3 + param_len;
@@ -1414,8 +1419,10 @@ static int dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 break;
             case 4: /* ECF */
                 if(( leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_osaid,msg_info->dsaid) )) {
-                    leg->dsaid = msg_info->osaid;
-                    wmem_tree_insert32(legs_by_dsaid,leg->dsaid,leg);
+                    if (!PINFO_FD_VISITED(pinfo)) {
+                        leg->dsaid = msg_info->osaid;
+                        wmem_tree_insert32(legs_by_dsaid,leg->dsaid,leg);
+                    }
                 }
                 break;
             case 6: /* RLC */
@@ -1425,7 +1432,7 @@ static int dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 if( ( leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_osaid,msg_info->dsaid) )
                     || ( leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_dsaid,msg_info->dsaid) ) ) {
 
-                    if(msg_info->release_cause)
+                    if(msg_info->release_cause && !PINFO_FD_VISITED(pinfo))
                         leg->release_cause =  msg_info->release_cause;
 
                 }
@@ -1433,9 +1440,10 @@ static int dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             case 7: /* REL */
                 leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_osaid,msg_info->dsaid);
 
-                if(leg) {
-                    leg->release_cause =  msg_info->release_cause;
-                } else if (( leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_dsaid,msg_info->dsaid) )) {
+                if (!leg) {
+                    leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_dsaid,msg_info->dsaid);
+                }
+                if (leg && !PINFO_FD_VISITED(pinfo)) {
                     leg->release_cause =  msg_info->release_cause;
                 }
                     break;
@@ -1917,7 +1925,7 @@ proto_register_alcap(void)
 
     { &hf_alcap_suci,
       { "SUCI", "alcap.suci",
-        FT_UINT8, BASE_HEX, NULL, 0,
+        FT_UINT32, BASE_HEX, NULL, 0,
         "Served User Correlation Id", HFILL }
     },
 
