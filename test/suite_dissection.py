@@ -6984,22 +6984,24 @@ class TestDissectAim:
 
 class TestDissectAfs:
     def test_afs_protocols(self, cmd_tshark, capture_file, test_env):
-        '''Every RX data packet is dissected as AFS, with no malformed
-        packets or error expert infos.'''
+        '''Every RX data packet is dissected as AFS. No packet is malformed
+        and none has an error expert info; the callback manager reply with
+        more than 32 interfaces has the warning (in the malformed group)
+        for the number of interfaces.'''
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('afs_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.splitlines()
-        assert len(protocols) == 392
-        assert protocols.count('AFS (RX)') == 391
+        assert len(protocols) == 401
+        assert protocols.count('AFS (RX)') == 400
         assert protocols.count('RX') == 1
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('afs_coverage.pcap.gz'),
                 '-Y', '_ws.malformed || _ws.expert.severity == error',
-                '-Tfields', '-eframe.number',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
             ), encoding='utf-8', env=test_env)
-        assert count_output(stdout) == 0
+        assert stdout.splitlines() == ['394\tNumber of interfaces 40 > 32, using 32']
 
     def test_afs_full_tree(self, cmd_tshark, capture_file, test_env):
         '''With the whole tree shown every field is added, which is where
@@ -7030,7 +7032,7 @@ class TestDissectAfs:
         entries in one datagram decode quickly and completely.'''
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('afs_coverage.pcap.gz'),
-                '-Y', 'frame.number >= 389',
+                '-Y', 'frame.number >= 389 && frame.number <= 392',
                 '-Tfields', '-eframe.number', '-eafs.fs.acl.count.positive',
                 '-eafs.fs.acl.entity', '-E', 'aggregator=|',
             ), encoding='utf-8', env=test_env)
@@ -7040,6 +7042,72 @@ class TestDissectAfs:
             ('390', '2147483647', 1),
             ('391', '2147483647', 1),
             ('392', '16000', 16000),
+        ]
+
+    def test_afs_cm_interfaces(self, cmd_tshark, capture_file, test_env):
+        '''A callback manager reply that says it has 40 interfaces has its
+        number clamped to 32, with a warning, and the capabilities after the
+        interfaces are still decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('afs_coverage.pcap.gz'),
+                '-Y', 'afs.cm.numint > 32',
+                '-Tfields', '-eframe.number', '-eafs.cm.numint',
+                '-eafs.cm.ipaddr', '-eafs.cm.mtu', '-eafs.cm.numcap', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[:2] == ['394', '40']
+        assert len(fields[2].split('|')) == 32
+        assert fields[2].split('|')[:2] == ['10.0.1.0', '10.0.1.1']
+        assert fields[3].split('|') == ['1500'] * 32
+        assert fields[4] == '1'
+
+    @staticmethod
+    def acl_entities(cmd_tshark, capture_file, test_env, frame):
+        '''(offset in the frame, length, text) of the ACL entities of a frame.'''
+        import xml.etree.ElementTree as ET
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('afs_coverage.pcap.gz'),
+                '-Y', 'frame.number == %d' % frame, '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        return [(int(f.get('pos')), int(f.get('size')), f.get('value'))
+                for f in ET.fromstring(stdout).iter('field')
+                if f.get('name') == 'afs.fs.acl.entity']
+
+    def test_afs_acl_control_characters(self, cmd_tshark, capture_file, test_env):
+        '''The entries of an ACL whose names have control characters are
+        found at their own place in the packet: the offsets do not come from
+        the escaped text. (The ACLs used to run past the end of the packet.)'''
+        ents = self.acl_entities(cmd_tshark, capture_file, test_env, 395)
+        assert ents == [(94, 12, '0101010101010101' + '6e616d65')]
+        ents = self.acl_entities(cmd_tshark, capture_file, test_env, 396)
+        assert [(p, n) for p, n, v in ents] == [(94, 3), (100, 4), (109, 3), (115, 3)]
+        assert [v for p, n, v in ents] == ['610162', '63020364', '657f66', '670768']
+
+    def test_afs_acl_zero_padding(self, cmd_tshark, capture_file, test_env):
+        '''An ACL with a huge count followed by zero octets ends at the
+        first zero: one entry, no malformed packet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('afs_coverage.pcap.gz'),
+                '-Y', 'frame.number == 397',
+                '-Tfields', '-eafs.fs.acl.count.positive', '-eafs.fs.acl.entity',
+                '-e_ws.malformed', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip('\n') == '2147483647\ta\t'
+
+    def test_afs_service_in_key(self, cmd_tshark, capture_file, test_env):
+        '''Two calls of different RX services with the same epoch, connection
+        and call number in one conversation are not mixed up: each reply is
+        decoded by the opcode of the request of its own service.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('afs_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 398', '-Tfields', '-eframe.number',
+                '-erx.serviceid', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '398\t1\tFS Request: fetch-status (132)',
+            '399\t2\tFS Request: get-time (153)',
+            '400\t2\tFS Reply: get-time (153)',
+            '401\t1\tFS Reply: fetch-status (132)',
         ]
 
 

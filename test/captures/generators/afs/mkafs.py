@@ -24,7 +24,11 @@ Writes:
                                body the dissector parses, requests and
                                replies, UBIK, multi-packet calls (for the
                                afs.defragment preference), the Store ACL
-                               requests of several sizes, and an RX abort
+                               requests of several sizes and with control
+                               characters, a callback manager with more than
+                               32 interfaces, calls on different services
+                               that share the rest of their key, and an RX
+                               abort
   afs-coverage-malformed.pcap  paths that end in an exception
 
 Nothing needs to be enabled; afs.defragment changes how the multi-packet
@@ -92,10 +96,10 @@ EPOCH = 1700000000
 CID = 0x12345600
 
 
-def rx(callnumber, seq, ptype, flags, payload, cid=CID, epoch=EPOCH, serial=None):
+def rx(callnumber, seq, ptype, flags, payload, cid=CID, epoch=EPOCH, serial=None, service=1):
     return struct.pack('>IIIIIBBBBHH', epoch, cid, callnumber, seq,
                        seq if serial is None else serial,
-                       ptype, flags, 0, 0, 0, 1) + payload
+                       ptype, flags, 0, 0, 0, service) + payload
 
 
 class Afs:
@@ -552,27 +556,39 @@ def reproducers(a):
     a.rpc(P, 134, fid(1, 2, 3) + acl(t))
 
 
+def after_fixes(a):
+    """Frames added after the first ones: what the fixes of packet-afs.c
+    decode now."""
+    P = PORT_FS
+    # CB get-capabilities with 40 interfaces: only the first 32 are decoded
+    # and the number is flagged
+    ifs = u32(40) + bytes(range(44)) + u32(*[0x0a000100 + i for i in range(32)]) \
+        + u32(*[0xffffff00] * 32) + u32(*[1500] * 32)
+    a.rpc(PORT_CB, 65538, b'', ifs + u32(1, 1))
+    # Store ACL with control characters in the names: their offsets in the
+    # packet are not those of the escaped text
+    a.rpc(P, 134, fid() + acl(b'1 0 \x01\x01\x01\x01\x01\x01\x01\x01name 1 '))
+    a.rpc(P, 134, fid() + acl(b'2 2 a\x01b 1 c\x02\x03d 127 e\x7ff 9 g\x07h 4 '))
+    # positive count 2147483647 and 20000 zero octets: the ACL text ends at
+    # the first one
+    a.rpc(P, 134, fid(1, 2, 3) + acl(b'2147483647 0 a 0 ' + b'\0' * 20000))
+    # Requests of different services that share epoch, connection and call
+    # number; their replies come in the other order
+    c = a.new_call()
+    a.request(P, c, u32(132) + fid(), serial=1, service=1)
+    a.request(P, c, u32(153), serial=2, service=2)
+    a.reply(P, c, u32(1700000000, 500000), service=2)
+    a.reply(P, c, fetch_status() + callback() + volsync(), service=1)
+
+
 def malformed(a):
     P = PORT_FS
-    # positive count 2147483647 and 20000 zero
-    # octets.  tvb_format_text() turns each zero into the 4 characters
-    # "\\000", so dissect_acl() keeps finding 128 character "entries" and
-    # steps through the packet 4 times too fast until an entry is added
-    # past its end
-    a.rpc(P, 134, fid(1, 2, 3) + acl(b'2147483647 0 a 0 ' + b'\0' * 20000))
     # fetch-data request cut short
     a.rpc(P, 130, fid()[:6])
     # kauth getticket with a ticket length beyond the packet
     a.rpc(PORT_KAUTH, 23, u32(0) + rxstr('X') + u32(0x7fffffff) + b'tk')
-    # CB get-capabilities with more than 32 interfaces: NOTE the skip of
-    # 4*(32-numint) octets goes backwards
-    a.rpc(PORT_CB, 65538, b'', u32(40) + b'\0' * 44 + u32(*range(40)) * 3 + u32(1, 1))
     # PROT name-to-id with a huge count
     a.rpc(PORT_PROT, 504, u32(0xffffffff) + strv('alice', 64))
-    # Store ACL with control characters in the name: tvb_format_text()
-    # escapes them, so the text is longer than the packet data and the
-    # entry is added past the end of the packet
-    a.rpc(P, 134, fid() + acl(b'1 0 \x01\x01\x01\x01\x01\x01\x01\x01name 1 '))
     # A short RX data packet: no room for the opcode
     c = a.new_call()
     a.request(P, c, b'\0\0')
@@ -582,7 +598,7 @@ def main():
     out = sys.argv[1] if len(sys.argv) > 1 else '.'
     cap = Pcap()
     a = Afs(cap)
-    for f in (fs, cb, prot, vldb, kauth, vol, bos, ubik, other_services, multi_packet, reproducers):
+    for f in (fs, cb, prot, vldb, kauth, vol, bos, ubik, other_services, multi_packet, reproducers, after_fixes):
         f(a)
     cap.write(os.path.join(out, 'afs-coverage.pcap'))
     bad = Pcap()
