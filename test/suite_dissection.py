@@ -178466,3 +178466,175 @@ class TestDissectAdbService:
                 '-eadb_service.framebuffer.pixel.green_6', '-eadb_service.framebuffer.pixel.blue_5',
                 '-E', 'aggregator=,')
         assert rows[0] == ['196', '0,63,0,63', '0,0,31,31']
+
+
+class TestDissectAdwin:
+    '''ADwin communication protocol over UDP port 6543, from the synthetic
+    capture adwin_coverage.pcap.gz: 173 frames, 172 ADwin packets of every
+    type (UDPH1 old and new, UDPR1-4, GDSHR, GDSHP, UDPH2) and a UDP
+    packet of another length. Frames 171-173 are the reproducer of "ADwin:
+    Keep the request/response transaction per frame". The generator is
+    test/captures/generators/adwin/mkadwin.py.'''
+
+    @staticmethod
+    def adwin_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('adwin_coverage.pcap.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number',
+                *(('-e' + f) for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_adwin_protocols(self, cmd_tshark, capture_file, test_env):
+        '''172 of the 173 frames are ADwin; the UDP packet of 100 octets
+        is not one of the packet lengths. No frame is malformed or has an
+        error expert info in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('adwin_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 173
+        assert protocols.count('ADwin') == 172
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('adwin_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_adwin_packet_types(self, cmd_tshark, capture_file, test_env):
+        '''The packet type follows from the UDP payload length: UDPH1 old
+        (frame 1) and new (59), UDPR1 (2), UDPR2 (98), UDPR4 (100), UDPR3
+        (158), GDSHP (160) and GDSHR (162). The types are numbered as in
+        the dissector (UDPH1 old 0 ... GDSHR 7); the new UDPH1 is also
+        decoded as the old one, so it has both.'''
+        lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 2, 59, 98, 100, 158, 160, 162}', 'adwin.packet_type')
+        assert lines == ['1\t0', '2\t2', '59\t0,1', '98\t3', '100\t5', '158\t4', '160\t6', '162\t7']
+
+    def test_adwin_info_column(self, cmd_tshark, capture_file, test_env):
+        '''Info column of requests (instructions, 3+1 codes, unknown
+        values) and of responses (known and unknown status codes).'''
+        lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 35, 57, 59, 93, 60, 136, 138, 140, 158, 160, 167}', '_ws.col.info')
+        assert lines == [
+            '1\tUDPH1 (old): 3+1 instruction: Get parameter',
+            '35\tUDPH1 (old): 3+1 instruction: unknown 3+1 code: 99',
+            '57\tUDPH1 (old): Load binary file',
+            '59\tUDPH1 (new): Get data',
+            '60\tUDPR1 Status: Timeout to link',
+            '93\tUDPH1 (old): unknown instruction: 4242',
+            '136\tUDPR4 Undefined error code -25',
+            '138\tUDPR1 Undefined error code 77',
+            '140\tUDPR2 Undefined error code 77',
+            '158\tUDPR3',
+            '160\tGDSHP',
+            '167\tUDPH2 - UNUSED',
+        ]
+
+    def test_adwin_request_fields(self, cmd_tshark, capture_file, test_env):
+        '''Password, operating system, timeout and the arguments of 3+1
+        instructions (parameter, value) and of Boot (memory size, block
+        size, processor, file size).'''
+        lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 9, 73}', 'adwin.password', 'adwin.osys', 'adwin.timeout',
+                'adwin.parameter', 'adwin.val1', 'adwin.memsize', 'adwin.blocksize',
+                'adwin.processor', 'adwin.binfilesize')
+        assert lines == [
+            '1\tsecret\t16\t1000\t1001\t\t\t\t\t',
+            '9\tsecret\t51\t5000\t1101\t1069547520\t\t\t\t',
+            '73\tsecret\t16\t37000\t\t\t1048576\t1400\t2\t654321',
+        ]
+
+    def test_adwin_dll_version(self, cmd_tshark, capture_file, test_env):
+        '''The DLL version of the new UDPH1 is shown as major.minor.patch.'''
+        lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {59, 63, 87}', 'adwin.dll_version')
+        assert lines == ['59\t2.3.16', '63\t2.3.18', '87\t2.3.30']
+
+    def test_adwin_status_codes(self, cmd_tshark, capture_file, test_env):
+        '''Status of the UDPR1 responses 60-94 (every defined code) and of
+        responses with codes the dissector does not know.'''
+        lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                'adwin.status and frame.number in {58, 60, 70, 76, 86, 94, 136, 138, 140}', 'adwin.status')
+        assert lines == ['58\t0', '60\t1', '70\t-100', '76\t-35', '86\t-26', '94\t-5',
+                         '136\t-25', '138\t77', '140\t77']
+
+    def test_adwin_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Responses are linked to the request with the same sequence
+        number: UDPR1 (2), UDPR3 (158) and the two GDSHP packets (160, 161)
+        of the GDSH request 159; a response without a request (166) is
+        not. A request shows "Response In" only in the second pass.'''
+        for passes in ((), ('-2',)):
+            lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                    'adwin.response_to', 'adwin.response_to', 'adwin.response_time', passes=passes)
+            assert ['\t'.join(ln.split('\t')[:2]) for ln in lines if ln.split('\t')[0] in ('2', '158', '160', '161')] == [
+                '2\t1', '158\t157', '160\t159', '161\t159']
+            assert '166' not in [ln.split('\t')[0] for ln in lines]
+            assert len(lines) == 87
+        lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                'adwin.response_in', 'adwin.response_in', passes=('-2',))
+        assert lines[0] == '1\t2'
+        assert '2\t' not in lines
+
+    def test_adwin_sequence_reuse(self, cmd_tshark, capture_file, test_env):
+        '''Frames 171 and 173 are requests with the same sequence number,
+        172 the response between them. The response belongs to request
+        171 in every pass; it showed the later request 173 in the second
+        pass before the transaction was kept per frame.'''
+        for passes in ((), ('-2',)):
+            lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                    'frame.number >= 169', 'adwin.response_to', 'adwin.response_time', passes=passes)
+            by_frame = {ln.split('\t')[0]: ln.split('\t')[1:] for ln in lines}
+            assert by_frame['170'][0] == '169'
+            assert by_frame['172'][0] == '171'
+            assert by_frame['172'][1][0] == '1'
+            assert not any(by_frame['173'])
+        lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 169', 'adwin.response_in', passes=('-2',))
+        assert lines == ['169\t170', '170\t', '171\t172', '172\t', '173\t']
+
+    def test_adwin_data_types(self, cmd_tshark, capture_file, test_env):
+        '''The UDPR4 data type (frames 142-156: 2, 3, 4, 5, 6, 20, 0, 99)
+        selects how the 350 data items are shown.'''
+        lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                'adwin.packet_type == 5 and frame.number >= 142', 'adwin.data_type')
+        assert lines == ['142\t2', '144\t3', '146\t4', '148\t5', '150\t6', '152\t20', '154\t0', '156\t99']
+        for frame, n_int, n_float, n_hex in ((142, 350, 0, 350), (148, 0, 350, 350), (150, 0, 0, 350)):
+            lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                    'frame.number == %d' % frame, 'adwin.data_int', 'adwin.data_float', 'adwin.data_hex')
+            cols = lines[0].split('\t')[1:]
+            assert [len(c.split(',')) if c else 0 for c in cols] == [n_int, n_float, n_hex]
+
+    def test_adwin_dissect_data_preference(self, cmd_tshark, capture_file, test_env):
+        '''With adwin.dissect_data off the data sections of the UDPR2-4
+        and GDSHP packets are not decoded item by item.'''
+        stdout = subprocess.check_output((cmd_tshark, '-o', 'adwin.dissect_data:FALSE',
+                '-r', capture_file('adwin_coverage.pcap.gz'),
+                '-Y', 'adwin.data_hex', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark, '-o', 'adwin.dissect_data:FALSE',
+                '-r', capture_file('adwin_coverage.pcap.gz'),
+                '-Y', 'frame.number in {98, 100, 158, 160} and data', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['98', '100', '158', '160']
+
+    def test_adwin_gdsh_request(self, cmd_tshark, capture_file, test_env):
+        '''The Get Data Shifted Handshake requests (frames 162-165) show a
+        single packet, a range, finished and an unknown code.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('adwin_coverage.pcap.gz'),
+                '-Y', 'adwin.gdsh_status', '-V', '-O', 'adwin',
+            ), encoding='utf-8', env=test_env)
+        assert 'GDSH status: get single packet no 3' in stdout
+        assert 'GDSH status: get packets 1 - 3' in stdout
+        assert 'GDSH status: finished' in stdout
+        assert 'GDSH status: unknown code 3' in stdout
+        lines = self.adwin_fields(cmd_tshark, capture_file, test_env,
+                'adwin.gdsh_status', 'adwin.request_no', 'adwin.complete_packets',
+                'adwin.packet_start', 'adwin.packet_end')
+        assert lines == ['162\t1\t2\t3\t0', '163\t2\t2\t1\t3', '164\t3\t3\t0\t0', '165\t4\t3\t9\t9']
