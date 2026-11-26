@@ -9314,9 +9314,13 @@ dissect_ain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
         dissect_returnResultData(ain_tree, tvb, 0, &asn1_ctx);
         break;
     case 3:
+        /* ANSI TCAP keeps the operation code of the invoke this answers */
+        opcode = p_private_tcap->d.OperationCode_private;
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s ReturnError ", val_to_str(pinfo->pool, opcode, ain_opr_code_strings, "Unknown AIN PDU (%u)"));
         break;
     case 4:
+        /* ANSI TCAP keeps the operation code of the invoke this answers */
+        opcode = p_private_tcap->d.OperationCode_private;
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reject ", val_to_str(pinfo->pool, opcode, ain_opr_code_strings, "Unknown AIN PDU (%u)"));
         break;
     default:
