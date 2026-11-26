@@ -192,6 +192,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             client_request->first_in = pinfo->num;
             client_request->service_in = -1;
             client_request->data_length = -1;
+            client_request->status = STATUS_UNKNOWN;
             wmem_tree_insert32_array(client_requests, key, client_request);
         }
 
@@ -229,6 +230,8 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     service_length = INT_MAX;
                 client_request->service = (char *) tvb_get_string_enc(wmem_file_scope(), tvb, offset, service_length, ENC_ASCII);
                 client_request->service_in = pinfo->num;
+                /* Same Info as a later pass, which finds this saved request */
+                client_request_service = true;
             }
         }
 
