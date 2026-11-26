@@ -7220,6 +7220,66 @@ class TestDissectAfs:
 
 
 # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
+
+
+    @staticmethod
+    def acl_frames(cmd_tshark, capture_file, test_env, *passes):
+        '''The ACL fields of each Store ACL request of afs-acl-entries.pcap:
+        a list per frame of (frame number, positive count, negative count,
+        entities, then read, lookup, insert, delete, write, lock and
+        administer, each one value per entry).'''
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('afs-acl-entries.pcap'),
+                '-Tfields', '-Eaggregator=,', '-eframe.number',
+                '-eafs.fs.acl.count.positive', '-eafs.fs.acl.count.negative',
+                '-eafs.fs.acl.entity', '-eafs.fs.acl.r', '-eafs.fs.acl.l',
+                '-eafs.fs.acl.i', '-eafs.fs.acl.d', '-eafs.fs.acl.w',
+                '-eafs.fs.acl.k', '-eafs.fs.acl.a',
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_afs_acl_entries(self, cmd_tshark, capture_file, test_env):
+        '''The ACL text of Store ACL requests is decoded by a scanner that
+        works on the one text and no longer calls sscanf() per entry ("AFS:
+        Fix quadratic time in parsing ACLs"). Entities, rights and counts
+        are as before, including the cases where scanning stops: rights
+        beyond INT_MAX, an entity of 128 characters, a missing rights value
+        and counts larger than the number of entries. Same in two
+        passes.'''
+        long_name = 'a' * 127
+        for passes in ((), ('-2',)):
+            rows = self.acl_frames(cmd_tshark, capture_file, test_env, *passes)
+            assert len(rows) == 7
+            # frame, positive, negative, entities, r, l, i, d, w, k, a
+            # anonymous 63 (rlidwk), alice 0, bob 127 (negative, all)
+            assert rows[0] == ['1', '2', '1', 'anonymous,alice,bob',
+                               'True,False,True', 'True,False,True', 'True,False,True', 'True,False,True', 'True,False,True', 'True,False,True', 'False,False,True']
+            # white space of any kind between the fields; alice 7 is r, i, w
+            assert rows[1] == ['2', '1', '1', 'alice,bob',
+                               'True,False', 'False,False', 'True,False', 'False,False', 'True,True', 'False,False', 'False,False']
+            # -1 and INT_MAX give all rights, 2147483648 stops the scan
+            assert rows[2] == ['3', '3', '0', 'root,max',
+                               'True,True', 'True,True', 'True,True', 'True,True', 'True,True', 'True,True', 'True,True']
+            # 127 characters are accepted, 128 stop the scan
+            assert rows[3][:4] == ['4', '2', '0', long_name]
+            # bob without rights stops the scan
+            assert rows[4][:4] == ['5', '2', '0', 'alice']
+            # counts of 5 with two entries
+            assert rows[5][:4] == ['6', '5', '5', 'alice,bob']
+            # no valid count: nothing decoded
+            assert rows[6] == ['7', '', '', '', '', '', '', '', '', '', '']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('afs-acl-entries.pcap'),
+                '-V', '-Y', 'frame.number == 1', '-O', 'afs',
+            ), encoding='utf-8', env=test_env)
+        assert 'ACL:  anonymous rlidwk' in stdout
+        assert 'ACL:  bob rlidwka (negative)' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('afs-acl-entries.pcap'),
+                '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == []
 class TestDissectAin:
     # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
     OPTS = ('-o', 'mtp3.standard:ANSI')
