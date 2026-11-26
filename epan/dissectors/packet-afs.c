@@ -19,7 +19,8 @@
 
 #include "config.h"
 
-#include <stdio.h>		/* for sscanf() */
+#include <limits.h>
+#include <stdlib.h>
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
@@ -1471,12 +1472,43 @@ afs_hash (const void *v)
  * representing a logical OR of all the ACL permission bits
  */
 /*
- * XXX - FIXME:
- *
- *	sscanf is probably quite dangerous if we run outside the packet.
- *
- * Should this just scan the string itself, rather than using "sscanf()"?
+ * Scan "[<user>] <integer>" followed by any white space at s, like
+ * sscanf(s, "%127s %d %n") (or "%d %n" if user is NULL) but without
+ * sscanf()'s scan of the whole rest of the string on every call, which
+ * made the ACL loop quadratic in the length of the packet.
+ * Returns the number of bytes consumed, or 0 if s does not match.
  */
+static int
+acl_scan(const char *s, char *user, size_t user_size, int *value)
+{
+	const char *p = s;
+	char *end;
+	int64_t v;
+
+	if (user) {
+		const char *start;
+
+		while (g_ascii_isspace(*p))
+			p++;
+		start = p;
+		while (*p != '\0' && !g_ascii_isspace(*p))
+			p++;
+		if (p == start || (size_t)(p - start) >= user_size)
+			return 0;
+		memcpy(user, start, p - start);
+		user[p - start] = '\0';
+	}
+	/* long is 32 bits on Windows: scan as 64-bit to catch values beyond INT_MAX */
+	v = g_ascii_strtoll(p, &end, 10);
+	if (end == p || v < INT_MIN || v > INT_MAX)
+		return 0;
+	*value = (int)v;
+	p = end;
+	while (g_ascii_isspace(*p))
+		p++;
+	return (int)(p - s);
+}
+
 static void
 dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 {
@@ -1485,7 +1517,7 @@ dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 	int i, n, pos, neg, acl;
 	proto_tree* tree = ptvcursor_tree(cursor);
 	tvbuff_t* tvb = ptvcursor_tvbuff(cursor);
-	char user[128] = "[Unknown]"; /* Be sure to adjust sscanf()s below if length is changed... */
+	char user[128] = "[Unknown]";
 	const char *acl_str;
 	int64_t acl_end;
 
@@ -1510,7 +1542,7 @@ dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 		acl_str = acl_buf;
 	}
 
-	if (sscanf(acl_str, "%d %n", &pos, &n) != 1) {
+	if ((n = acl_scan(acl_str, NULL, 0, &pos)) == 0) {
 		/* does not matter what we return, if this fails,
 		 * we can't dissect anything else in the packet either.
 		 */
@@ -1521,7 +1553,7 @@ dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 	ptvcursor_advance(cursor, n);
 	acl_str += n;
 
-	if (sscanf(acl_str, "%d %n", &neg, &n) != 1) {
+	if ((n = acl_scan(acl_str, NULL, 0, &neg)) == 0) {
 		return;
 	}
 	proto_tree_add_uint(tree, hf_afs_fs_acl_count_negative, tvb,
@@ -1534,7 +1566,7 @@ dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 	 */
 	offset = ptvcursor_current_offset(cursor);
 	for (i = 0; i < pos; i++) {
-		if (sscanf(acl_str, "%127s %d %n", user, &acl, &n) != 2) {
+		if ((n = acl_scan(acl_str, user, sizeof user, &acl)) == 0) {
 			return;
 		}
 		ACLOUT(user,1,acl,n);
@@ -1545,7 +1577,7 @@ dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 		}
 	}
 	for (i = 0; i < neg; i++) {
-		if (sscanf(acl_str, "%127s %d %n", user, &acl, &n) != 2) {
+		if ((n = acl_scan(acl_str, user, sizeof user, &acl)) == 0) {
 			return;
 		}
 		ACLOUT(user,0,acl,n);
