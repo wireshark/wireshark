@@ -25,6 +25,8 @@
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/ptvcursor.h>
+#include <epan/expert.h>
+#include <wsutil/str_util.h>
 
 #include "packet-rx.h"
 
@@ -452,6 +454,8 @@ static int ett_afs_vldb_flags;
 static int ett_afs_fragment;
 static int ett_afs_fragments;
 static int ett_afs_cm_interfaces;
+
+static expert_field ei_afs_cm_numint;
 static int ett_afs_cm_capabilities;
 
 static const fragment_items afs_frag_items = {
@@ -578,7 +582,7 @@ static void OUT_FS_AFSCallBack(ptvcursor_t *cursor)
 
 
 /* Output cache manager interfaces */
-static void OUT_CM_INTERFACES(ptvcursor_t *cursor)
+static void OUT_CM_INTERFACES(ptvcursor_t *cursor, packet_info *pinfo)
 {
 	unsigned int i;
 	unsigned int maxint = 32,
@@ -586,6 +590,11 @@ static void OUT_CM_INTERFACES(ptvcursor_t *cursor)
 
 	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_afs_cm_interfaces, "Interfaces");
 	ptvcursor_add(cursor, hf_afs_cm_numint, 4, ENC_BIG_ENDIAN);
+	if (numint > maxint) {
+		expert_add_info_format(pinfo, ptvcursor_tree(cursor), &ei_afs_cm_numint,
+				"Number of interfaces %u > %u, using %u", numint, maxint, maxint);
+		numint = maxint;
+	}
 	ptvcursor_add(cursor, hf_afs_cm_uuid, 4*11, ENC_NA);
 	for ( i=0; i<numint; i++ ) {
 		ptvcursor_add(cursor, hf_afs_cm_ipaddr, 4, ENC_BIG_ENDIAN);
@@ -737,8 +746,8 @@ static void OUT_FS_AFSVolSync(ptvcursor_t *cursor)
 		save = tree; \
 		tree = proto_tree_add_subtree_format(tree, tvb, offset, bytes, \
 			ett_afs_acl, NULL, "ACL:  %s %s%s", \
-			who, tmp, positive ? "" : " (negative)"); \
-		proto_tree_add_string(tree,hf_afs_fs_acl_entity, tvb,offset,(int)strlen(who), who);\
+			format_text(pinfo->pool, who, strlen(who)), tmp, positive ? "" : " (negative)"); \
+		proto_tree_add_item(tree,hf_afs_fs_acl_entity, tvb,offset,(int)strlen(who), ENC_ASCII);\
 		tmpoffset = offset + (int)strlen(who) + 1; \
 		acllen = bytes - (int)strlen(who) - 1; \
 		proto_tree_add_boolean(tree,hf_afs_fs_acl_r, tvb,tmpoffset,acllen,acl);\
@@ -1426,6 +1435,7 @@ afs_equal(const void *v, const void *w)
 	if (v1 -> conversation == v2 -> conversation &&
 	    v1 -> epoch == v2 -> epoch &&
 	    v1 -> cid == v2 -> cid &&
+	    v1 -> service == v2 -> service &&
 	    v1 -> callnumber == v2 -> callnumber ) {
 
 		return 1;
@@ -1440,7 +1450,7 @@ afs_hash (const void *v)
 	const struct afs_request_key *key = (const struct afs_request_key *)v;
 	unsigned val;
 
-	val = key -> conversation + key -> epoch + key -> cid + key -> callnumber;
+	val = key -> conversation + key -> epoch + key -> cid + key -> callnumber + key -> service;
 
 	return val;
 }
@@ -1467,8 +1477,6 @@ afs_hash (const void *v)
  *
  * Should this just scan the string itself, rather than using "sscanf()"?
  */
-#define GETSTR (tvb_format_text(pinfo->pool,tvb,ptvcursor_current_offset(cursor),tvb_captured_length_remaining(tvb,ptvcursor_current_offset(cursor))))
-
 static void
 dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 {
@@ -1488,7 +1496,19 @@ dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 	/* Format the text once and step through it, rather than formatting
 	 * the rest of the packet again for each entry.
 	 */
-	acl_str = GETSTR;
+	{
+		/* Scan the raw bytes: the lengths found below are used as
+		 * offsets into the tvb, which tvb_format_text() output would
+		 * not preserve for non-printable bytes.
+		 */
+		int acl_off = ptvcursor_current_offset(cursor);
+		unsigned acl_len = tvb_captured_length_remaining(tvb, acl_off);
+		char *acl_buf = (char *)wmem_alloc(pinfo->pool, (size_t)acl_len + 1);
+
+		tvb_memcpy(tvb, acl_buf, acl_off, acl_len);
+		acl_buf[acl_len] = '\0';
+		acl_str = acl_buf;
+	}
 
 	if (sscanf(acl_str, "%d %n", &pos, &n) != 1) {
 		/* does not matter what we return, if this fails,
@@ -2193,13 +2213,13 @@ dissect_kauth_request(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo
  * CB Helpers
  */
 static void
-dissect_cb_reply(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo, int opcode)
+dissect_cb_reply(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo, int opcode)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode ) {
 			case 65538: /* get-capabilities */
-				OUT_CM_INTERFACES(cursor);
+				OUT_CM_INTERFACES(cursor, pinfo);
 				OUT_CM_CAPABILITIES(cursor);
 				break;
 		}
@@ -2977,6 +2997,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			col_append_str(pinfo->cinfo, COL_INFO, " [AFS reassembled]");
 		} else {
 			col_set_str(pinfo->cinfo, COL_INFO, "[AFS segment of a reassembled PDU]");
+			pinfo->fragmented = save_fragmented;
 			return tvb_captured_length(tvb);
 		}
 	}
@@ -3682,12 +3703,18 @@ proto_register_afs(void)
 		&ett_afs_cm_capabilities,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_afs_cm_numint, { "afs.cm.numint.too_large", PI_MALFORMED, PI_WARN, "Too many interfaces", EXPFILL }},
+	};
+	expert_module_t *expert_afs;
 	module_t *afs_module;
 
 	proto_afs = proto_register_protocol("Andrew File System (AFS)",
 	    "AFS (RX)", "afs");
 	proto_register_field_array(proto_afs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_afs = expert_register_protocol(proto_afs);
+	expert_register_field_array(expert_afs, ei, array_length(ei));
 
 	reassembly_table_register(&afs_reassembly_table,
 			      &addresses_reassembly_table_functions);
