@@ -1178,7 +1178,7 @@ dissect_aim_tlv_value_dcinfo(proto_item *ti, uint16_t valueid _U_, tvbuff_t *tvb
 	proto_tree_add_item(dctree, hf_aim_dcinfo_tcpport, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
 	proto_tree_add_item(dctree, hf_aim_dcinfo_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;
 	proto_tree_add_item(dctree, hf_aim_dcinfo_proto_version, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
-	proto_tree_add_item(dctree, hf_aim_dcinfo_auth_cookie, tvb, offset, 4, ENC_NA); offset+=2;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_auth_cookie, tvb, offset, 4, ENC_NA); offset+=4;
 	proto_tree_add_item(dctree, hf_aim_dcinfo_webport, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
 	proto_tree_add_item(dctree, hf_aim_dcinfo_client_future, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
 	proto_tree_add_item(dctree, hf_aim_dcinfo_last_info_update, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
@@ -2345,7 +2345,7 @@ static int dissect_aim_generic_migration_req(tvbuff_t *tvb, packet_info *pinfo, 
 	proto_tree *entry;
 
 	n = tvb_get_ntohs(tvb, offset);offset+=2;
-	proto_tree_add_uint(gen_tree, hf_generic_migration_numfams, tvb, offset, 2, n);
+	proto_tree_add_uint(gen_tree, hf_generic_migration_numfams, tvb, offset - 2, 2, n);
 	entry = proto_tree_add_subtree(gen_tree, tvb, offset, 2 * n,
 	        ett_generic_migratefamilies, NULL, "Families to migrate");
 	for(i = 0; i < n; i++) {
@@ -2380,6 +2380,7 @@ static int dissect_aim_generic_evil(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
 	unsigned offset = 0;
 	proto_tree_add_item(gen_tree, hf_generic_evil_new_warn_level, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
 	while(tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_userinfo(tvb, pinfo, offset, gen_tree);
 	}
@@ -2423,7 +2424,7 @@ static int dissect_aim_generic_ext_status_repl(tvbuff_t *tvb, packet_info *pinfo
 	proto_tree_add_item_ret_uint8(gen_tree, hf_generic_ext_status_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
 	offset += 1;
 	proto_tree_add_item(gen_tree, hf_generic_ext_status_data, tvb, offset, length, ENC_NA);
-	offset += 1;
+	offset += length;
 	return offset;
 }
 
@@ -3191,8 +3192,7 @@ dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 	offset+=1;
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_status_code, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_priority_code, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
-	text_length = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item_ret_uint(msg_tree, hf_aim_rendezvous_extended_data_message_text_length, tvb, offset, 2, ENC_BIG_ENDIAN, &text_length); offset+=2;
+	proto_tree_add_item_ret_uint(msg_tree, hf_aim_rendezvous_extended_data_message_text_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &text_length); offset+=2;
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_text, tvb, offset, text_length, ENC_ASCII); /* offset+=text_length; */
 
 	offset = tvb_reported_length(tvb);
@@ -3407,7 +3407,7 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 			format_text(pinfo->pool, buddyname, buddyname_length));
 
 	if(tree) {
-		offset+=dissect_aim_buddyname(tvb, pinfo, offset, tree);
+		offset = dissect_aim_buddyname(tvb, pinfo, offset, tree);
 	}
 
 	return offset;
@@ -4306,15 +4306,15 @@ proto_register_aim(void)
 		},
 		{ &hf_aim_rendezvous_extended_data_message_flags_normal,
 		  { "Normal Message", "aim_messaging.icbm.extended_data.message.flags.normal",
-		  FT_BOOLEAN, 16, TFS(&tfs_set_notset), EXTENDED_DATA_MFLAG_NORMAL, NULL, HFILL }
+		  FT_BOOLEAN, 8, TFS(&tfs_set_notset), EXTENDED_DATA_MFLAG_NORMAL, NULL, HFILL }
 		},
 		{ &hf_aim_rendezvous_extended_data_message_flags_auto,
 		  { "Auto Message", "aim_messaging.icbm.extended_data.message.flags.auto",
-		  FT_BOOLEAN, 16, TFS(&tfs_set_notset), EXTENDED_DATA_MFLAG_AUTO, NULL, HFILL }
+		  FT_BOOLEAN, 8, TFS(&tfs_set_notset), EXTENDED_DATA_MFLAG_AUTO, NULL, HFILL }
 		},
 		{ &hf_aim_rendezvous_extended_data_message_flags_multi,
 		  { "Multiple Recipients Message", "aim_messaging.icbm.rendezvous.extended_data.message.flags.multi",
-		  FT_BOOLEAN, 16, TFS(&tfs_set_notset), EXTENDED_DATA_MFLAG_MULTI, NULL, HFILL }
+		  FT_BOOLEAN, 8, TFS(&tfs_set_notset), EXTENDED_DATA_MFLAG_MULTI, NULL, HFILL }
 		},
 		{ &hf_aim_rendezvous_extended_data_message_status_code,
 		  { "Status Code", "aim_messaging.icbm.extended_data.message.status_code",
