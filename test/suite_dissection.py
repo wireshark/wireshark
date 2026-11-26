@@ -178638,3 +178638,166 @@ class TestDissectAdwin:
                 'adwin.gdsh_status', 'adwin.request_no', 'adwin.complete_packets',
                 'adwin.packet_start', 'adwin.packet_end')
         assert lines == ['162\t1\t2\t3\t0', '163\t2\t2\t1\t3', '164\t3\t3\t0\t0', '165\t4\t3\t9\t9']
+
+
+class TestDissectAdwinConfig:
+    '''ADwin configuration protocol (a heuristic dissector for UDP and TCP
+    port 7000), from the synthetic capture adwin-config_coverage.pcap.gz:
+    52 frames. UDP frames 1-33 reach it by default, the TCP frames 34-52
+    (except the connection from port 7000) only with
+    tcp.try_heuristic_first, because the Gryphon plugin owns TCP port 7000
+    and accepts everything. The generator is
+    test/captures/generators/adwin-config/mkadwin-config.py.'''
+
+    TCP_HEURISTIC = ('-o', 'tcp.try_heuristic_first:TRUE')
+
+    @staticmethod
+    def adwin_config_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        env = test_env.copy()
+        env['TZ'] = 'UTC'
+        stdout = subprocess.check_output((cmd_tshark, *TestDissectAdwinConfig.TCP_HEURISTIC, *passes,
+                '-r', capture_file('adwin-config_coverage.pcap.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number',
+                *(('-e' + f) for f in fields),
+            ), encoding='utf-8', env=env)
+        return stdout.splitlines()
+
+    def test_adwin_config_protocols(self, cmd_tshark, capture_file, test_env):
+        '''37 of the 52 frames are ADwin-Config packets (30 UDP, 7 TCP). No
+        frame is malformed or has an error expert info in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.TCP_HEURISTIC,
+                '-r', capture_file('adwin-config_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 52
+        assert protocols.count('ADwin Config') == 37
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.TCP_HEURISTIC, *passes,
+                    '-r', capture_file('adwin-config_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_adwin_config_tcp_needs_heuristic_first(self, cmd_tshark, capture_file, test_env):
+        '''At default preferences only the 30 UDP packets and frame 50 are
+        ADwin-Config: the TCP port 7000 dissector (Gryphon) takes the
+        segments to port 7000. Frame 50 is sent from port 7000 on a
+        connection the device opened, which the TCP dissector does not
+        hand to Gryphon.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('adwin-config_coverage.pcap.gz'),
+                '-Y', 'adwin_config', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(i) for i in range(1, 31)] + ['50']
+
+    def test_adwin_config_not_adwin(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic refuses a source address outside the ADwin ranges
+        (frame 31), a payload length of no packet type (32), a UDP port
+        other than 7000 (33), the same for TCP (51: addresses, 52: port).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.TCP_HEURISTIC,
+                '-r', capture_file('adwin-config_coverage.pcap.gz'),
+                '-Y', 'frame.number in {31, 32, 33, 51, 52} && !adwin_config', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['31', '32', '33', '51', '52']
+
+    def test_adwin_config_udp_status(self, cmd_tshark, capture_file, test_env):
+        '''UDPStatus: the scan patterns, the status flags and the
+        network settings.'''
+        lines = self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 2, 3, 4, 8, 9, 10}',
+                'adwin_config.pattern', 'adwin_config.status',
+                'adwin_config.status_bootloader', 'adwin_config.status_eeprom_support')
+        assert lines == [
+            '1\t0x73241291\t0x00000001\tTrue\tFalse',
+            '2\t0x37241291\t0x00000002\tFalse\tFalse',
+            '3\t0x12343210\t0x00000004\tFalse\tFalse',
+            '4\t0x11111111\t0x00000008\tFalse\tFalse',
+            '8\t0x11111111\t0x00000080\tFalse\tTrue',
+            '9\t0x73241291\t0x000000ff\tTrue\tTrue',
+            '10\t0x37241291\t0x00000000\tFalse\tFalse',
+        ]
+        lines = self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 1', 'adwin_config.mac', 'adwin_config.port',
+                'adwin_config.gateway', 'adwin_config.scan_id')
+        assert lines == ['1\t00:50:c2:0a:20:01\t6543\t192.0.2.254\t0x00000000']
+
+    def test_adwin_config_udp_ext_status(self, cmd_tshark, capture_file, test_env):
+        '''UDPExtStatus: processor and system types, known and unknown.'''
+        lines = self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {11, 14, 16}', 'adwin_config.processor_type',
+                'adwin_config.system_type', 'adwin_config.processor_type_raw',
+                'adwin_config.description')
+        assert lines == [
+            '11\tT9\tLight 16\t09\tADwin Pro II',
+            '14\tUnknown (12)\tPro II\t12\tADwin Pro II',
+            '16\tT10\tUnknown (99)\t10\tADwin Pro II',
+        ]
+
+    def test_adwin_config_udp_message(self, cmd_tshark, capture_file, test_env):
+        '''UDPMessage (100 octets) and the broken 104 octet version, with
+        every configuration command.'''
+        lines = self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                'adwin_config.command', 'adwin_config.command', 'adwin_config.password')
+        assert lines == ['17\t100\tadwin', '18\t105\tadwin', '19\t110\tadwin',
+                         '20\t120\tadwin', '21\t130\tadwin', '22\t999\tadwin',
+                         '23\t100\tadwin', '24\t110\tadwin']
+        lines = self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {23, 24}', 'frame.len')
+        assert lines == ['23\t146', '24\t146']
+
+    def test_adwin_config_other_udp(self, cmd_tshark, capture_file, test_env):
+        '''UDPInitAck, UDPIXP425FlashUpdate and UDPOut.'''
+        lines = self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {25, 26, 27, 28, 29, 30}', 'adwin_config.pattern',
+                'adwin_config.reboot', 'adwin_config.filename', 'adwin_config.status')
+        assert lines == [
+            '25\t0x12343210\tTrue\t\t',
+            '26\t0x73241291\tFalse\t\t',
+            '27\t0x37241291\t\tixp425.bin\t0x00000081',
+            '28\t0x12343210\t\taaaaaaaaaaaaaaaaaaaaaaaa\t0x00000081',
+            '29\t\t\t\t0x00000002',
+            '30\t\t\t\t0x000000ff',
+        ]
+
+    def test_adwin_config_tcp_flash_update(self, cmd_tshark, capture_file, test_env):
+        '''TCP flash updates: EEPROM support on and off, files with their
+        path, size and times, the data after the unused part.'''
+        lines = self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {37, 38, 39, 40, 50}', 'adwin_config.stream_length',
+                'adwin_config.eeprom_support', 'adwin_config.filename', 'adwin_config.path',
+                'adwin_config.filesize')
+        assert lines == [
+            '37\t14\tTrue\t\t\t',
+            '38\t15\tFalse\t\t\t',
+            '39\t229\t\tfirmware.bin\t/flash/\t4096',
+            '40\t155\t\tboot.bin\t/\t0',
+            '50\t15\tFalse\t\t\t',
+        ]
+        lines = self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {39, 40}', 'adwin_config.filetime', 'adwin_config.updatetime')
+        assert lines == [
+            '39\t2023-11-14T22:13:20.000000000+0000\t2023-11-14T23:13:20.000000000+0000',
+            '40\t1970-01-01T00:00:00.000000000+0000\t1970-01-01T00:00:00.000000000+0000',
+        ]
+
+    def test_adwin_config_tcp_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Frame 41 has two PDUs; the PDU of frames 42-43 is reassembled
+        from two segments and decoded in frame 43.'''
+        for passes in ((), ('-2',)):
+            lines = self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                    'frame.number in {41, 42, 43}', 'adwin_config.stream_length',
+                    'adwin_config.filename', passes=passes)
+            assert lines == ['41\t14,157\ta.bin', '42\t\t', '43\t359\tbig.bin']
+        assert self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 42 && adwin_config') == []
+
+    def test_adwin_config_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The TCP packets have the Info column "TCPFlashUpdate", the UDP
+        ones have none.'''
+        lines = self.adwin_config_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 37, 39}', '_ws.col.protocol', '_ws.col.info')
+        assert lines == ['1\tADwin Config\t', '37\tADwin Config\tTCPFlashUpdate',
+                         '39\tADwin Config\tTCPFlashUpdate']
