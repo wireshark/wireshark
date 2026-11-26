@@ -10005,8 +10005,11 @@ APRS_OPTS = ('-o', 'ax25_nol3.showaprs:TRUE')  # APRS decoding is off by default
 
 
 class TestDissectAprs:
+    # APRS decoding is off by default
+    APRS_OPTS = ('-o', 'ax25_nol3.showaprs:TRUE')
+
     def run_fields(self, cmd_tshark, capture_file, test_env, *args, decimals=()):
-        stdout = subprocess.check_output((cmd_tshark, *APRS_OPTS,
+        stdout = subprocess.check_output((cmd_tshark, *self.APRS_OPTS,
                 '-r', capture_file('aprs_coverage.pcap.gz'),
                 '-Tfields', *args,
             ), encoding='utf-8', env=test_env)
@@ -10024,10 +10027,10 @@ class TestDissectAprs:
         the lax preference.'''
         protocols = [f[0] for f in self.run_fields(cmd_tshark, capture_file, test_env,
                                                    '-e_ws.col.protocol')]
-        assert protocols.count('APRS') == 162
+        assert protocols.count('APRS') == 165
         assert protocols.count('AX.25-NoL3') == 2
         for opts in ((), ('-2',), ('-o', 'aprs.showaprslax:TRUE')):
-            stdout = subprocess.check_output((cmd_tshark, *APRS_OPTS, *opts,
+            stdout = subprocess.check_output((cmd_tshark, *self.APRS_OPTS, *opts,
                     '-r', capture_file('aprs_coverage.pcap.gz'),
                     '-Y', '_ws.malformed || _ws.expert.severity == error',
                     '-Tfields', '-eframe.number',
@@ -10162,6 +10165,25 @@ class TestDissectAprs:
                                      '-eaprs.position.lat')
             assert frames == [[str(n), '0', c, '', '4903.50N']
                               for n, c in zip(range(145, 163), comments)]
+
+    def test_aprs_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of a position with a timestamp ('/' and '@')
+        shows the latitude, longitude and symbol of the position. They were
+        taken from octets before the position, so that '/' and '@' reports
+        showed part of the timestamp and the position.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'frame.number in {21, 22, 23, 24, 163, 165, 166, 167}',
+                                 '-eframe.number', '-e_ws.col.info')
+        assert frames == [
+            ['21', 'Position + timestamp (092345z 4903.50N 07201.75W />'],
+            ['22', 'Position + timestamp (092345/ 4903.50N 07201.75W />'],
+            ['23', 'Position + timestamp (092345x 4903.50N 07201.75W />'],
+            ['24', 'Position + timestamp (234517h 4903.50N 07201.75W />'],
+            ['163', 'Position + timestamp (092345z 4903.50N 07201.75W /@'],
+            ['165', 'Position + timestamp (092345z 4903.50N 07201.75W />'],
+            ['166', 'Position + timestamp + APRS data extension (092345z 4903.50N 07201.75W />'],
+            ['167', 'Position + APRS data extension (4903.50N 07201.75W />'],
+        ]
 
 
 # The ax25_*.pcap.gz captures are synthetic (text2pcap): each exercises one

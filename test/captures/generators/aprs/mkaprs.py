@@ -332,6 +332,15 @@ def build_main():
     A('/092345z4903.50N/07201.75W@088/036/HC/150^200/0980>090&050%040')
     A('>09234')                             # status shorter than a timestamp
     cap.section()
+
+    # -- Info column of positions with a timestamp ---------------------------
+    cap.section("Info column reproducer: '/' and '@' with a timestamp and '=' "
+                "without, same position and comment (the Info column takes "
+                "latitude, symbol table and symbol code from the same octets)")
+    A('/092345z4903.50N/07201.75W>Test')
+    A('@092345z4903.50N/07201.75W>Test')
+    A('=4903.50N/07201.75W>Test')
+    cap.section()
     return cap
 
 
