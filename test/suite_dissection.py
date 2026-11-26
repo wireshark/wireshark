@@ -177814,3 +177814,119 @@ class TestDissectAcse:
                     '-Tfields', '-eframe.protocols',
                 ), encoding='utf-8', env=test_env, timeout=120)
             assert stdout.strip() == 'exported_pdu:tcap:acse'
+
+
+class TestDissectActrace:
+    '''
+    actrace_coverage.pcap.gz: AudioCodes trunk trace on UDP port 2428.
+    Frames 1-49 are CAS records (48 octets), 50-54 are payloads the
+    heuristic rejects, 55-68 are ISDN records that carry LAPD frames.
+    '''
+
+    def test_actrace_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CAS and ISDN records are dissected, with no malformed packets and
+        no errors, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('actrace_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 68
+        assert protocols.count('AC_CAS') == 49
+        assert protocols.count('AC_ISDN') == 14
+        # source 3 and -1, 49 octets, 3 octets and none are not CAS records
+        assert protocols.count('UDP') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('actrace_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_actrace_cas_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of CAS records: events, functions, parameters
+        named by the function.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('actrace_coverage.pcap.gz'),
+                '-Y', 'actrace.cas.time',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert len(info) == 49
+        assert info[0] == 't1b2|D|1|EV_CAS_1_1|2|NILL|0|0|0|'
+        assert info[12] == 't0b1|D|1|EV_DTMF|2|NILL|5|0|0|'
+        assert info[14] == 't0b1|D|1|999|2|NILL|0|0|0|'
+        assert info[17] == ('t0b1|U|1|EV_TO_USER|2|SEND_EVENT|'
+                'acEV_PSTN_INCOMING_CALL_DETECTED|NORMAL_CALL_CLEAR|0|')
+        assert info[19] == 't0b1|U|1|EV_TO_USER|2|SEND_EVENT|300|999|0|'
+        assert info[21] == ('t0b1|U|1|EV_OPEN_CHANNEL|2|CHANGE_COLLECT_TYPE|'
+                'COLLECT_TYPE_ADDRESS|0|0|')
+        assert info[29] == 't0b1|U|1|EV_ALARM|2|77|2|0|0|'
+        assert info[30] == 't3b4|T|1|SEND_FIRST_DIGIT|2|SEND_MF|SPECIFIC|7|0|'
+        assert info[36] == 't3b4|T|1|SEND_FIRST_DIGIT|2|SEND_MF|9|0|0|'
+        assert info[42] == 't0b1|T|1|SEND_FIRST_DIGIT|2|SEND_CAS|-2147483648|0|0|'
+
+    def test_actrace_source_values(self, cmd_tshark, capture_file, test_env):
+        '''The three sources and the parameter fields of a SEND_EVENT record.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('actrace_coverage.pcap.gz'),
+                '-Y', 'actrace.cas.source == 1 && actrace.cas.function == 3',
+                '-Tfields', '-eframe.number', '-eactrace.cas.par0',
+                '-eactrace.cas.par1', '-eactrace.cas.trunk',
+                '-eactrace.cas.bchannel', '-eactrace.cas.conn_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[0] == '18\t66\t16\t0\t1\t100'
+        for source, count in ((0, 15), (1, 15), (2, 19)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('actrace_coverage.pcap.gz'),
+                    '-Y', f'actrace.cas.source == {source}',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == count
+
+    def test_actrace_isdn(self, cmd_tshark, capture_file, test_env):
+        '''ISDN records in both directions carry LAPD frames; Q.931 is
+        decoded from them.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('actrace_coverage.pcap.gz'),
+                '-Y', 'actrace.isdn.dir',
+                '-Tfields', '-eframe.number', '-eactrace.isdn.dir',
+                '-eactrace.isdn.trunk', '-eactrace.isdn.length',
+                '-eq931.message_type', '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert len(rows) == 14
+        # SETUP from the PSTN, ALERTING to the PSTN
+        assert rows[0] == ['55', '1229218915', '1', '25', '0x05']
+        assert rows[1] == ['56', '1231307843', '1', '13', '0x01']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('actrace_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 55 && frame.number <= 64',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert info[0] == ('Trunk:1  Blade <-- PSTN TEI:00 I, N(R)=0, N(S)=0 | SETUP')
+        assert info[2].endswith('| CONNECT')
+        assert info[5].endswith('| RELEASE COMPLETE')
+        assert info[6].endswith('S, func=RR, N(R)=2 | ')
+
+    def test_actrace_unsigned_length(self, cmd_tshark, capture_file, test_env):
+        '''The ISDN length is unsigned: 0xFFFF used to be -1 and 0x8000 was
+        negative as well; they were passed as a 4 GiB reported length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('actrace_coverage.pcap.gz'),
+                '-Y', 'actrace.isdn.length > 32767',
+                '-Tfields', '-eframe.number', '-eactrace.isdn.length',
+                '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['65\t65535\tAC_ISDN', '66\t32768\tAC_ISDN']
+
+    def test_actrace_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''Payloads that are not CAS or ISDN records stay plain UDP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('actrace_coverage.pcap.gz'),
+                '-Y', 'udp && !actrace',
+                '-Tfields', '-eframe.number', '-eudp.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['50\t56', '51\t56', '52\t57', '53\t11', '54\t8']
