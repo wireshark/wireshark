@@ -8387,12 +8387,12 @@ class TestDissectAnsi801:
                 '-Tfields', '-eframe.protocols', '-eansi_801.for_sess_tag',
             ), encoding='utf-8', env=test_env)
         frames = [line.split('\t') for line in stdout.splitlines()]
-        assert len(frames) == 109
+        assert len(frames) == 129
         assert all(p.endswith(':ansi_801') for p, _ in frames)
         assert sum(':ansi_map:' in p for p, _ in frames) == 4
         assert sum(':ansi_a_dtap:' in p for p, _ in frames) == 2
         # Forward link frames have the forward session tag
-        assert sum(t != '' for _, t in frames) == 59
+        assert sum(t != '' for _, t in frames) == 71
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *passes,
                     '-r', capture_file('ansi_801_coverage.pcap.gz'),
@@ -8405,13 +8405,16 @@ class TestDissectAnsi801:
         '''Each forward request type is decoded with its own fields. The
         function table used to be one entry out of step: Request Location
         Response was shown as data, and Pseudorange, Pilot Phase and Time
-        Offset Measurement used the function of the next type.'''
+        Offset Measurement used the function of the next type. The Height
+        information bit of Request Location Response has its own field,
+        ansi_801.height_information (it shared ansi_801.height_incl with the
+        Provide Location Response).'''
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('ansi_801_coverage.pcap.gz'),
                 '-Y', 'frame.number <= 19 && ansi_801.for_req_type',
                 '-Tfields', '-eframe.number', '-eansi_801.for_req_type',
                 '-eansi_801.pref_resp_qual', '-eansi_801.offset_req',
-                '-eansi_801.desired_pilot_phase_resolution', '-eansi_801.height_incl',
+                '-eansi_801.desired_pilot_phase_resolution', '-eansi_801.height_information',
                 '-eansi_801.use_action_time_indicator', '-eansi_801.action_time',
                 '-eansi_801.cancellation_type', '-eansi_801.data',
             ), encoding='utf-8', env=test_env)
@@ -8438,14 +8441,16 @@ class TestDissectAnsi801:
         '''Messages with PD_MSG_TYPE 1: the forward response used to start
         one octet late, and in both directions the response count was not
         shifted down (16 times too large), so Short Data was reported after
-        the last response.'''
+        the last response. A request count in such a message (the requests
+        are not decoded) used to make the first octets be decoded again as a
+        response: it is now reported as undecoded.'''
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('ansi_801_coverage.pcap.gz'),
                 '-Y', 'ansi_801.pd_message_type == 1',
                 '-Tfields', '-eframe.number',
                 '-eansi_801.for_message_number_responses', '-eansi_801.rev_message_number_responses',
                 '-eansi_801.for_rsp_type', '-eansi_801.rev_rsp_type',
-                '-eansi_801.reject_request_type', '-e_ws.expert',
+                '-eansi_801.reject_request_type', '-eansi_801.undecoded',
             ), encoding='utf-8', env=test_env)
         assert [line.split('\t') for line in stdout.splitlines()] == [
             # The review reproducer: one Reject of type 2 in each direction
@@ -8454,11 +8459,14 @@ class TestDissectAnsi801:
             ['43', '3', '', '2,1,12', '', '', ''],
             ['44', '2', '', '0,8', '', '8', ''],
             # A request count, requests not decoded
-            ['45', '1', '', '0', '', '8', ''],
+            ['45', '1', '', '', '', '', '1'],
             ['82', '', '3', '', '2,1,6', '', ''],
-            ['83', '', '1', '', '0', '4', ''],
+            ['83', '', '1', '', '', '', '1'],
             # In ANSI MAP
             ['107', '', '1', '', '7', '', ''],
+            # A request in a PD_MSG_TYPE 1 message, forward and reverse
+            ['110', '0', '', '', '', '', '1'],
+            ['114', '', '0', '', '', '', '1'],
         ]
         # Short Data only where requests or responses are missing
         stdout = subprocess.check_output((cmd_tshark,
@@ -8466,7 +8474,8 @@ class TestDissectAnsi801:
                 '-Y', 'ansi_801.short_data',
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
-        assert stdout.split() == ['88', '90', '92', '94', '96', '97', '100', '101']
+        assert stdout.split() == ['6', '88', '90', '92', '94', '96', '97', '100', '101',
+                                  '119', '120', '121', '122', '124', '125', '126', '127', '128', '129']
 
     def test_ansi_801_location_response(self, cmd_tshark, capture_file, test_env):
         '''The Provide Location Response bit fields, with and without the
@@ -8541,6 +8550,78 @@ class TestDissectAnsi801:
             ['86', '255', 'ff', ''],
             ['87', '192', '', ''],
         ]
+
+    def test_ansi_801_undecoded(self, cmd_tshark, capture_file, test_env):
+        '''A request or response of an unknown type, or any request in a
+        PD_MSG_TYPE 1 message, is reported as undecoded and ends the message:
+        the elements before it are decoded, the ones after it are not (the
+        decoder used to stay at the same octets and decode them again as the
+        next request or response).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                    '-Y', 'ansi_801.undecoded',
+                    '-Tfields', '-Eaggregator=,', '-eframe.number',
+                    '-eansi_801.for_req_type', '-eansi_801.rev_req_type',
+                    '-eansi_801.for_rsp_type', '-eansi_801.rev_rsp_type',
+                ), encoding='utf-8', env=test_env)
+            assert [line.split('\t') for line in stdout.splitlines()] == [
+                # Reserved and unknown types of the original capture
+                ['8', '', '', '', ''],
+                ['45', '', '', '', ''],
+                ['83', '', '', '', ''],
+                ['99', '', '', '', ''],
+                # PD_MSG_TYPE 1 with a request, unknown type first
+                ['110', '', '', '', ''],
+                ['111', '', '', '', ''],
+                # A valid element before the unknown one
+                ['112', '', '', '0', ''],
+                ['113', '2', '', '', ''],
+                ['114', '', '', '', ''],
+                ['115', '', '', '', ''],
+                ['116', '', '2', '', ''],
+                ['117', '', '', '', ''],
+                ['118', '', '', '', '0'],
+            ]
+
+    def test_ansi_801_short_location_response(self, cmd_tshark, capture_file, test_env):
+        '''A Provide Location Response that is cut inside the velocity, clock
+        or height part reports Short Data and does not read into the next
+        element (frames 119-129); with all parts complete it is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                '-Y', 'frame.number in {119..129}',
+                '-Tfields', '-Eaggregator=,', '-eframe.number', '-eansi_801.velocity_incl',
+                '-eansi_801.clock_incl', '-eansi_801.height_incl', '-eansi_801.velocity_hor',
+                '-eansi_801.clock_bias', '-eansi_801.height', '-eansi_801.short_data',
+                '-eansi_801.rev_rsp_type', '-eansi_801.for_rsp_type',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['119', 'True', '', '', '', '', '', '1', '', '1'],
+            ['120', 'True', '', '', '', '', '', '1', '', '1'],
+            ['121', 'False', 'True', '', '', '', '', '1', '', '1'],
+            ['122', 'False', 'False', 'True', '', '', '', '1', '', '1'],
+            ['123', 'True', 'True', 'True', '50', '250', '112', '', '', '1'],
+            ['124', 'True', 'True', '', '50', '', '', '1', '', '1'],
+            ['125', 'True', 'True', 'True', '50', '250', '', '1', '', '1'],
+            ['126', 'True', '', '', '', '', '', '1', '1', ''],
+            ['127', 'False', 'True', '', '', '', '', '1', '1', ''],
+            ['128', 'False', 'False', 'True', '', '', '', '1', '1', ''],
+            ['129', 'True', '', '', '', '', '', '1', '', '1,0'],
+        ]
+
+    def test_ansi_801_height_information(self, cmd_tshark, test_env):
+        '''The Request Location Response Height information bit and the
+        Provide Location Response HEIGHT_INCL bit are different fields.'''
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'fields'),
+                                         encoding='utf-8', env=test_env)
+        fields = {}
+        for line in stdout.splitlines():
+            cols = line.split('\t')
+            if cols[0] == 'F' and cols[2].startswith('ansi_801.height'):
+                fields.setdefault(cols[2], cols[1])
+        assert fields['ansi_801.height_information'] == 'Height information'
+        assert fields['ansi_801.height_incl'] == 'Height information included (HEIGHT_INCL)'
 
 
 class TestDissectAnsi683:

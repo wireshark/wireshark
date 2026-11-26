@@ -496,6 +496,54 @@ def main_frames():
                            reverse=False)))
     F.append(('ANSI A DTAP ADDS Deliver (received): rev IS-801',
               adds_deliver(msg0(sess(12, end=True), [], [rsp(R_RSP_LOC, LOC_FULL)]), reverse=True)))
+    # --- requests and responses that cannot be decoded: a warning, and the
+    # elements after them are not decoded (they used to be decoded again
+    # from the same octets)
+    s = sess(13)
+    # The review reproducers: a request in a PD_MSG_TYPE 1 message, and an
+    # unknown request type, after which a valid response follows
+    fwd('undecoded: fwd PD_MSG_TYPE 1 with a Request MS Information',
+        hdr1(s, 5 + 2, 0, 1, 0) + req(F_REQ_MSINFO, b''))
+    fwd('undecoded: fwd unknown request type 13 before a Request MS Information, and a response',
+        hdr0(s, 2, 1) + b'\x0d\x01\x00' + req(F_REQ_MSINFO, b'') + rsp(F_RSP_REJECT, b'\x80'))
+    fwd('undecoded: fwd unknown response type 13 after a valid response',
+        hdr0(s, 0, 2) + rsp(F_RSP_REJECT, b'\x80') + b'\x0d\x01\x00')
+    fwd('undecoded: fwd valid request, then an unknown request type 14',
+        hdr0(s, 2, 0) + req(F_REQ_MSINFO, b'') + b'\x0e\x00')
+    rev('undecoded: rev PD_MSG_TYPE 1 with a Request BS Capabilities',
+        hdr1(s, 5 + 2, 0, 1, 0) + req(R_REQ_BSCAP, b''))
+    rev('undecoded: rev unknown request type 13, then a valid request',
+        hdr0(s, 2, 0) + b'\x0d\x00' + req(R_REQ_BSCAP, b''))
+    rev('undecoded: rev valid request, then an unknown request type 14',
+        hdr0(s, 2, 0) + req(R_REQ_BSCAP, b'') + b'\x0e\x00')
+    rev('undecoded: rev unknown response type 8 before a valid response',
+        hdr0(s, 0, 2) + b'\x08\x00' + rsp(R_RSP_REJECT, b'\x40'))
+    rev('undecoded: rev valid response, then an unknown response type 9',
+        hdr0(s, 0, 2) + rsp(R_RSP_REJECT, b'\x40') + b'\x09\x01\x00')
+
+    # --- Provide Location Response cut short inside the optional parts
+    # (Short Data, a note): velocity (2-D and 3-D fix), clock and height
+    # with too few bits left; and the same with every part complete
+    s = sess(14)
+    v2 = loc_response(fix3d=False, vel=(0x0c8, 0x100, 0))
+    v3 = loc_response(fix3d=True, vel=(0x0c8, 0x100, 0x90))
+    c2 = loc_response(fix3d=False, clock=(13250, 0xfff6))
+    h2 = loc_response(fix3d=False, height=(612, 0x0b))
+    vch = loc_response(fix3d=False, vel=(0x0c8, 0x100, 0), clock=(13250, 0xfff6), height=(612, 0x0b))
+    fwd('short location: fwd velocity (2-D) with 11 octets', msg0(s, [], [rsp(F_RSP_LOC, v2[:11])]))
+    fwd('short location: fwd velocity (3-D) with 12 octets', msg0(s, [], [rsp(F_RSP_LOC, v3[:12])]))
+    fwd('short location: fwd clock with 13 octets', msg0(s, [], [rsp(F_RSP_LOC, c2[:13])]))
+    fwd('short location: fwd height with 12 octets', msg0(s, [], [rsp(F_RSP_LOC, h2[:12])]))
+    fwd('short location: fwd velocity, clock and height, 2-D, whole', msg0(s, [], [rsp(F_RSP_LOC, vch)]))
+    fwd('short location: fwd velocity, clock and height, clock cut', msg0(s, [], [rsp(F_RSP_LOC, vch[:15])]))
+    fwd('short location: fwd velocity, clock and height, height cut', msg0(s, [], [rsp(F_RSP_LOC, vch[:19])]))
+    rev('short location: rev velocity (2-D) with 11 octets', msg0(s, [], [rsp(R_RSP_LOC, v2[:11])]))
+    rev('short location: rev clock with 13 octets', msg0(s, [], [rsp(R_RSP_LOC, c2[:13])]))
+    rev('short location: rev height with 12 octets', msg0(s, [], [rsp(R_RSP_LOC, h2[:12])]))
+    # Short Location Response followed by another response: it must not
+    # read into the next element
+    fwd('short location: fwd cut location response, then a Reject',
+        msg0(s, [], [rsp(F_RSP_LOC, v3[:12]), rsp(F_RSP_REJECT, b'\x80')]))
     return F
 
 
