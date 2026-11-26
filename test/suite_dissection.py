@@ -180591,6 +180591,47 @@ class TestDissectAlcap:
         assert lines == ['71\t54\t38\t3\t2\t21\t22']
 
 
+    def test_alcap_leg_message_list_is_bounded(self, cmd_tshark, capture_file, test_env):
+        '''Every packet of a leg lists the messages of the leg, at most 100
+        of them ("ALCAP: Bound the messages listed in the leg tree"), with
+        the alcap.leg.msgs_truncated expert info when there are more. The
+        capture has a leg of 150 messages (frames 1-150) and one of 5
+        (frames 151-155). In one pass a frame lists the messages up to
+        itself, so frames 101-150 are the ones with the expert info; in
+        two passes the whole leg is known and all of its frames have
+        it. The leg of 5 never does.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('alcap-leg-messages.pcap'),
+                    '-Tfields', '-eframe.number', '-Eaggregator=,',
+                    '-ealcap.leg.msg', '-ealcap.leg.msgs_truncated',
+                ), encoding='utf-8', env=test_env)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert len(rows) == 155
+            for row in rows:
+                number = int(row[0])
+                listed = row[1].split(',')
+                if number > 150:
+                    # the short leg: its own frames, not truncated
+                    assert listed == [str(n) for n in range(151, 156 if passes else number + 1)]
+                    assert row[2] == ''
+                    continue
+                # never more than 100 entries, always starting at frame 1
+                assert listed == [str(n) for n in range(1, min(100, 150 if passes else number) + 1)]
+                assert (row[2] != '') == (bool(passes) or number > 100)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('alcap-leg-messages.pcap'),
+                '-Y', 'alcap.leg.msgs_truncated', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(n) for n in range(101, 151)]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('alcap-leg-messages.pcap'),
+                '-Y', 'frame.number == 150', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Further messages of this leg are not listed' in stdout
+        assert stdout.count(' in frame ') == 100
+
+
 class TestDissectAlljoyn:
     CAPTURE = 'alljoyn_coverage.pcap.gz'
 
