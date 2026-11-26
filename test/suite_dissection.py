@@ -179108,3 +179108,191 @@ class TestDissectAeron:
         stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAPTURE),
                 '-Y', 'aeron', '-Tfields', '-eframe.number'), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 0
+
+
+class TestDissectAfp:
+    def afp(self, cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('afp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_afp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''AFP over DSI on TCP port 548: the DSI frames and the AFP requests
+        and replies, none malformed and with no expert info, in one pass
+        and in two.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.splitlines()
+        assert len(protocols) == 341
+        assert protocols.count('DSI') == 14
+        assert protocols.count('AFP') == 327
+        for passes in ((), ('-2',)):
+            stdout = self.afp(cmd_tshark, capture_file, test_env, passes=passes,
+                    *('-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number'))
+            assert count_output(stdout) == 0
+
+    def test_afp_full_tree(self, cmd_tshark, capture_file, test_env):
+        '''With the whole tree shown every field is added.'''
+        for passes in ((), ('-2',)):
+            stdout = self.afp(cmd_tshark, capture_file, test_env, passes=passes,
+                    *('-V', '-O', 'afp'))
+            assert 'Malformed Packet' not in stdout
+            assert 'Expert Info' not in stdout
+            assert 'Dissector bug' not in stdout
+
+    def test_afp_comment_vol_did(self, cmd_tshark, capture_file, test_env):
+        '''FPGetComment, FPRemoveComment and FPAddComment show the desktop
+        reference and DID of their own request in the Info column, whatever
+        was dissected before: the same in one pass and in two. The first
+        FPGetComment is followed by an FPDelete with other values.'''
+        expected = [
+            '13\tFPGetComment request: Vol=1 Did=2 Name=cmt',
+            '15\tFPDelete request: Vol=4660 Did=22136 Name=del',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = self.afp(cmd_tshark, capture_file, test_env, passes=passes,
+                    *('-Y', 'frame.number in {13,15}', '-Tfields', '-eframe.number', '-e_ws.col.info'))
+            assert stdout.splitlines() == expected
+            stdout = self.afp(cmd_tshark, capture_file, test_env, passes=passes,
+                    *('-Y', 'afp.command in {56,57,58} && !afp.response_to && frame.number > 100',
+                      '-Tfields', '-e_ws.col.info'))
+            assert stdout.splitlines() == [
+                'FPGetComment request: Vol=4660 Did=22136 Name=cmt',
+                'FPRemoveComment request: Vol=8738 Did=13107 Name=gone',
+                'FPAddComment request: Vol=4660 Did=17476 Name=with comment',
+                'FPAddComment request: Vol=4660 Did=17476 Name=odd',
+            ]
+
+    def test_afp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of requests and of replies with an error code.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {21,22,77,321,323}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '21\tFPLogin request',
+            '22\tFPLogin reply: logincont (-5001)',
+            '77\tFPOpenFork reply: Fork=5',
+            '321\tFPDelete request: Vol=1 Did=2 Name=Unknown type',
+            '323\t[Reply without query?]',
+        ]
+
+    def test_afp_login_uams(self, cmd_tshark, capture_file, test_env):
+        '''The user authentication method of every login request.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'afp.UAM && !afp.response_to && frame.number < 332', '-Tfields', '-eafp.UAM')
+        assert stdout.splitlines() == [
+            'Cleartxt passwrd', 'DHCAST128', 'Cleartxt', '', '2-Way Randnum exchange',
+            'No User Authent', 'DHCAST128', 'DHCAST128', 'Cleartxt passwrd',
+            'Cleartxt passwrd', '2-Way Randnum exchange', 'DHX2', 'Client Krb v2',
+        ]
+
+    def test_afp_server_params(self, cmd_tshark, capture_file, test_env):
+        '''FPGetSrvrParms lists every volume, also after a volume whose name
+        has 255 octets.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 18', '-Tfields', '-eafp.vol_name', '-E', 'aggregator=|')
+        assert stdout.strip().split('|') == ['Macintosh HD', 'x' * 255, 'Public', 'Both']
+
+    def test_afp_volume_name_offset(self, cmd_tshark, capture_file, test_env):
+        '''The volume name is taken from the offset in the volume parameters,
+        also when something is between the fields and the name.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'afp.vol_name_offset',
+                '-Tfields', '-eframe.number', '-eafp.vol_name_offset', '-eafp.vol_name')
+        assert stdout.splitlines() == [
+            '54\t50\tSynthetic Volume', '56\t6\tPublic', '58\t5\tOdd',
+            '60\t48\tSynthetic Volume', '62\t18\tSynthetic Volume',
+        ]
+
+    def test_afp_server_status(self, cmd_tshark, capture_file, test_env):
+        '''The server status of DSI GetStatus: the name, the lists and the
+        addresses of every type.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 2',
+                '-Tfields', '-eafp.server_name', '-eafp.server_type', '-eafp.server_vers',
+                '-eafp.server_uams', '-eafp.server_directory', '-eafp.utf8_server_name',
+                '-eafp.server_addr.type', '-E', 'aggregator=|')
+        assert stdout.strip() == ('Synthetic AFP Server\tXserve\tAFP2.2|AFPX03|AFP3.1\t'
+                'No User Authent|DHCAST128|DHX2\t'
+                'afpserver/afp.example.com@EXAMPLE.COM|LDAP\tSynthetic AFP Server é\t'
+                '1|2|3|4|5|4|6|7|9')
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {6,8,10}', '-Tfields', '-eafp.server_name',
+                '-eafp.server_flag.tcpip', '-eafp.server_flag.directory', '-eafp.server_flag.utf8_name')
+        assert stdout.splitlines() == [
+            'Synthetic AFP Server\tTrue\tFalse\tFalse',
+            'Synthetic AFP Server\tFalse\tTrue\tFalse',
+            'Synthetic AFP Server\tFalse\tFalse\tTrue',
+        ]
+
+    def test_afp_enumerate(self, cmd_tshark, capture_file, test_env):
+        '''Enumerate replies with the long names of their records.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'afp.command in {9,66,68} && afp.response_to && afp.path_name',
+                '-Tfields', '-eframe.number', '-eafp.path_name', '-E', 'aggregator=|')
+        assert stdout.splitlines() == [
+            '170\ta.txt|subdir|odd', '172\t\u00fcber.txt', '174\ta.txt|subdir|odd',
+            '176\t\u00fcber.txt', '188\te.txt',
+        ]
+
+    def test_afp_spotlight(self, cmd_tshark, capture_file, test_env):
+        '''Spotlight RPC in both byte orders: the strings, the nested FileMeta
+        and the table of contents, whose label shows the number of entries
+        once and whose header is decoded in the byte order of the data.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {309,311,313,315}',
+                '-Tfields', '-eframe.number', '-eafp.endianness', '-E', 'aggregator=|')
+        assert stdout.splitlines() == [
+            '309\t0x0000000000000001', '311\t0x0000000000000000',
+            '313\t0x0000000000000001|0x0000000000000001',
+            '315\t0x0000000000000000|0x0000000000000000',
+        ]
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 309', '-Tfields', '-eafp.string', '-eafp.utf_16_string',
+                '-E', 'aggregator=|')
+        assert stdout.strip() == ('openQuery|kMDQueryString|kMDQueryScopes|/Volumes/Share\t'
+                'kMDItemFSName == "*.txt"')
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 313', '-Tfields', '-eafp.string', '-E', 'aggregator=|')
+        assert stdout.strip() == 'fileMeta|kMDItemDisplayName|readme.txt'
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 309', '-V', '-O', 'afp')
+        assert 'Complex types ToC (10 entries)\n' in stdout
+        assert 'entries) (' not in stdout
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 311', '-V', '-O', 'afp')
+        assert 'unknown1: 0x5566' in stdout
+        assert 'unknown2: 0x11223344' in stdout
+        assert 'Complex types ToC (10 entries)\n' in stdout
+
+    def test_afp_two_connections(self, cmd_tshark, capture_file, test_env):
+        '''A second connection that uses the same request IDs has its own
+        calls: its reply is matched to its own request.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 328 && frame.number <= 331 && afp',
+                '-Tfields', '-eframe.number', '-eafp.response_to', '-eafp.vol_name')
+        assert stdout.splitlines() == ['328\t\t', '329\t328\tOther', '330\t\t', '331\t330\t']
+
+    def test_afp_srt(self, cmd_tshark, capture_file, test_env):
+        '''The AFP service response time statistics list the commands.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env, '-q', '-z', 'afp,srt')
+        assert 'AFP SRT Statistics' in stdout
+        rows = [line.split() for line in stdout.splitlines() if 'FPGetSrvrParms' in line]
+        assert len(rows) == 1
+        assert rows[0][1:3] == ['FPGetSrvrParms', '4']
+
+    def test_afp_uam_parameters(self, cmd_tshark, capture_file, test_env):
+        '''The parameters of a login follow its UAM: the password of
+        Cleartxt passwrd, the random number of DHCAST128, nothing for the
+        2-Way exchange, and no user name for No User Authent.'''
+        stdout = self.afp(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 332 && afp.UAM && !afp.response_to',
+                '-Tfields', '-eframe.number', '-eafp.UAM', '-eafp.user', '-eafp.user_name',
+                '-eafp.passwd', '-eafp.random')
+        assert stdout.splitlines() == [
+            '332\tCleartxt passwrd\t\tfrank\tpassword\t',
+            '334\tDHCAST128\t\tfrank\t\t000102030405060708090a0b0c0d0e0f',
+            '336\t2-Way Randnum exchange\t\tfrank\t\t',
+            '338\tNo User Authent\t\t\t\t',
+            '340\tCleartxt passwrd\talice\t\tsecret\t',
+        ]
