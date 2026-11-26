@@ -95,6 +95,9 @@ uat_t* uat_new(const char* name,
     uat->enabled_field = -1;
     uat->own_from_global = false;
     uat->loading_inherited = false;
+    uat->hidden_raw = g_array_new(false, false, (unsigned)uat->record_size);
+    uat->hidden_valid = g_array_new(false, false, sizeof(bool));
+    uat->own_hidden = false;
     uat->override_keys = NULL;
     uat->own_read = false;
     uat->changed = false;
@@ -534,16 +537,19 @@ bool uat_save(uat_t* uat, const char* app_env_var_prefix, char** error) {
     char* fname;
     FILE* fp;
 
-    /* The own records are not in memory while only the parent's records are used */
+    /* The own records to write, which are hidden while only the parent's
+     * records are used */
     bool parent_only = uat->from_profile && uat->inherit_mode == PROFILE_INHERIT_PARENT_ONLY;
+    GArray *own_raw = parent_only ? uat->hidden_raw : uat->raw_data;
+    GArray *own_valid = parent_only ? uat->hidden_valid : uat->valid_data;
 
-    unsigned own_count = uat_own_count(uat);
+    unsigned own_count = parent_only ? own_raw->len : uat_own_count(uat);
 
     /* The profile's own file is kept as is if the own records were not
      * read, and a file without records is written only if the own records
      * had records when read. Without a file the profile keeps using the
      * global or inherited records. */
-    if (parent_only || (uat->from_profile && own_count == 0 && !uat->own_read)) {
+    if ((parent_only && !uat->own_hidden) || (uat->from_profile && own_count == 0 && !uat->own_read)) {
         *error = NULL;
         /* Inherited records are only checked when exposed to the dissectors */
         uat_rebuild_user_data(uat, uat_own_count(uat) < uat->raw_data->len);
@@ -626,12 +632,12 @@ bool uat_save(uat_t* uat, const char* app_env_var_prefix, char** error) {
     }
 
     /* Write the valid own records; inherited records belong to a parent profile */
-    for ( i = 0 ; i < uat->raw_data->len ; i++ ) {
-        void* rec = UAT_INDEX_PTR(uat, i);
+    for ( i = 0 ; i < own_raw->len ; i++ ) {
+        void* rec = own_raw->data + (uat->record_size * i);
         uat_field_t* f;
         unsigned j;
 
-        if (!g_array_index(uat->valid_data, bool, i) || uat_record_is_inherited(uat, i)) {
+        if (!g_array_index(own_valid, bool, i) || (!parent_only && uat_record_is_inherited(uat, i))) {
             continue;
         }
 
@@ -667,6 +673,54 @@ uat_t *uat_find(char *name) {
     return NULL;
 }
 
+/* Free the hidden own records */
+static void uat_clear_hidden(uat_t *uat) {
+    for (unsigned i = 0; i < uat->hidden_raw->len; i++) {
+        if (uat->free_cb) {
+            uat->free_cb(uat->hidden_raw->data + (uat->record_size * i));
+        }
+    }
+    g_array_set_size(uat->hidden_raw, 0);
+    g_array_set_size(uat->hidden_valid, 0);
+    uat->own_hidden = false;
+}
+
+/*
+ * Move the own records, which come first, to the hidden records. The
+ * records move as they are, so they keep what they own. If the own records
+ * are not in memory, e.g. the default records were dropped, none are
+ * hidden and saving leaves the own file as it is.
+ */
+static void uat_hide_own_records(uat_t *uat, bool own_in_memory) {
+    unsigned own_count = uat_own_count(uat);
+
+    uat_clear_hidden(uat);
+    g_array_append_vals(uat->hidden_raw, uat->raw_data->data, own_count);
+    g_array_append_vals(uat->hidden_valid, uat->valid_data->data, own_count);
+    g_array_remove_range(uat->raw_data, 0, own_count);
+    g_array_remove_range(uat->valid_data, 0, own_count);
+    g_ptr_array_remove_range(uat->sources, 0, own_count);
+    uat->own_hidden = own_in_memory;
+    if (!own_in_memory) {
+        uat_clear_hidden(uat);
+    }
+}
+
+/* Move the hidden own records back before the other records */
+static void uat_unhide_own_records(uat_t *uat) {
+    unsigned count = uat->hidden_raw->len;
+
+    g_array_prepend_vals(uat->raw_data, uat->hidden_raw->data, count);
+    g_array_prepend_vals(uat->valid_data, uat->hidden_valid->data, count);
+    for (unsigned i = 0; i < count; i++) {
+        g_ptr_array_insert(uat->sources, 0, NULL);
+    }
+    /* The records moved; nothing is freed */
+    g_array_set_size(uat->hidden_raw, 0);
+    g_array_set_size(uat->hidden_valid, 0);
+    uat->own_hidden = false;
+}
+
 void uat_clear(uat_t* uat) {
     unsigned i;
 
@@ -686,6 +740,8 @@ void uat_clear(uat_t* uat) {
     g_array_set_size(uat->user_data,0);
     g_array_set_size(uat->valid_data,0);
     g_ptr_array_set_size(uat->sources,0);
+    uat_clear_hidden(uat);
+
     *((uat)->user_ptr) = NULL;
     *((uat)->nrows_p) = 0;
 
@@ -719,6 +775,8 @@ static void free_uat(uat_t *uat)
     g_array_free(uat->raw_data, true);
     g_array_free(uat->valid_data, true);
     g_ptr_array_free(uat->sources, true);
+    g_array_free(uat->hidden_raw, true);
+    g_array_free(uat->hidden_valid, true);
     g_array_free(uat->key_fields, true);
     for (j = 0; uat->fields[j].title; j++)
         g_free(uat->fields[j].priv);
@@ -1051,10 +1109,11 @@ bool uat_set_inherit_mode(uat_t *uat, profile_inherit_e mode, const char *app_en
     }
 
     if (mode == PROFILE_INHERIT_PARENT_ONLY) {
-        /* The own records are not used; the file is kept as it is, and read
-         * again for another mode, discarding changes not saved */
-        uat_remove_record_range(uat, 0, uat->raw_data->len);
-        uat->own_read = false;
+        /* Keep the own records, unused, so that another mode shows them
+         * again and saving keeps them */
+        uat_hide_own_records(uat, own_in_memory);
+    } else if (old_mode == PROFILE_INHERIT_PARENT_ONLY && uat->own_hidden) {
+        uat_unhide_own_records(uat);
     } else if (!own_in_memory) {
         /* Read the own records as a fresh load would, including the
          * global file for a profile using its own records only */

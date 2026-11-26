@@ -273,9 +273,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_
     connect(copy_profile_bt_, &CopyFromProfileButton::copyProfile, this, &IOGraphDialog::copyFromProfile);
 
     // Where the graphs come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, iog_uat_filename_,
-                                                    [this]() { return uat_model_ && uat_model_->hasUnsavedOwn(); },
-                                                    []() { applyChanges(); return true; });
+    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, iog_uat_filename_);
     if (iog_uat_)
         inherit_combo_->syncMode(uat_get_inherit_mode(iog_uat_));
     connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &IOGraphDialog::inheritModeChanged);

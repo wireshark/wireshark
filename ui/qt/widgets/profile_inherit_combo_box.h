@@ -15,7 +15,6 @@
 #include <wsutil/profile_inherit.h>
 
 #include <QComboBox>
-#include <functional>
 
 class ElidedLabel;
 class ListEditButtons;
@@ -52,24 +51,7 @@ public:
      * @return The combo box.
      */
     static ProfileInheritComboBox *addNextTo(QWidget *parent, QBoxLayout *layout, ListEditButtons *edit_buttons,
-                                             const QString &filename,
-                                             std::function<bool()> has_unsaved_changes = nullptr,
-                                             std::function<bool()> save_changes = nullptr);
-
-    /**
-     * @brief Sets how to tell that the entries of this profile have changes not saved.
-     *
-     * "Parent only" drops the entries of this profile, and reads them again for
-     * another mode, so choosing it asks first if there are such changes: to
-     * save them, to discard them, or to keep the mode.
-     * @param has_unsaved_changes Returns true if there are changes not saved.
-     * @param save_changes Saves the changes without closing the dialog and returns true on success; without it the question has no save button.
-     */
-    void setUnsavedChangesCheck(std::function<bool()> has_unsaved_changes, std::function<bool()> save_changes = nullptr)
-    {
-        has_unsaved_ = has_unsaved_changes;
-        save_ = save_changes;
-    }
+                                             const QString &filename);
 
     /**
      * @brief Sets the configuration file name and selects its saved inherit mode.
@@ -217,15 +199,6 @@ signals:
 
 private:
     QString filename_;
-
-    /** The mode before the last change, to go back to if the change is not confirmed. */
-    profile_inherit_e last_mode_;
-
-    /** Tells if the entries of this profile have changes not saved. */
-    std::function<bool()> has_unsaved_;
-
-    /** Saves the entries of this profile without closing the dialog. */
-    std::function<bool()> save_;
 
     bool canInherit() const;
     profile_inherit_e savedMode() const;

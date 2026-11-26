@@ -86,9 +86,6 @@ private:
      */
     void applyChanges();
 
-    /** @brief Applies the entries and saves them in the profile, without closing the dialog. @return true on success. */
-    bool saveEntries();
-
     /**
      * @brief Fills the table model with the current "Decode As" rules.
      */

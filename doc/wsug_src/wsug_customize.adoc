@@ -1749,8 +1749,6 @@ not saved.
 Parent only::
 Only the entries of the parent profile are used. The entries of this profile
 are kept, but not used.
-Changes to the entries of this profile that are not saved yet are discarded
-when switching to this setting. A question offers to save them first.
 
 Entries can also come from a global profile, which is placed right before
 the parent of the profile with its name. Selecting a global profile creates a

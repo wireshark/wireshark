@@ -184,6 +184,21 @@ WS_DLL_PUBLIC int save_decode_as_entries_for_mode(const char* app_name, const ch
                                                   profile_inherit_e mode, char** err);
 
 /**
+ * @brief Save the given "Decode As" entries as the entries of the current profile.
+ *
+ * Used for the own entries, which are not in the dissector tables while
+ * only the parent profiles' entries are used.
+ *
+ * @param app_name The application name, for the file header.
+ * @param app_env_var_prefix The prefix for the application environment variable.
+ * @param values The entries, each "table,selector,initial,current" as in the file.
+ * @param err Set to a g_malloc()'d error message on failure.
+ * @return 0 on success, -1 on failure.
+ */
+WS_DLL_PUBLIC int save_decode_as_entry_values(const char* app_name, const char* app_env_var_prefix,
+                                              GSList *values, char** err);
+
+/**
  * @brief Callback for an entry inherited from a parent profile.
  *
  * @param profile_name The parent profile the entry comes from.

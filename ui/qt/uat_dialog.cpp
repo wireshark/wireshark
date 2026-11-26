@@ -113,9 +113,7 @@ void UatDialog::setUat(epan_uat *uat)
             connect(copy_button_, &CopyFromProfileButton::copyProfile, this, &UatDialog::copyFromProfile);
 
             // Where the records come from, next to the button clearing them
-            inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, uat->filename,
-                                                    [this]() { return uat_model_ && uat_model_->hasUnsavedOwn(); },
-                                                    [this]() { return saveRecords(); });
+            inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, uat->filename);
             inherit_combo_->syncMode(uat_get_inherit_mode(uat_));
             connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &UatDialog::inheritModeChanged);
         }
@@ -400,22 +398,6 @@ void UatDialog::applyChanges()
     }
 }
 
-
-bool UatDialog::saveRecords()
-{
-    if (!uat_model_) return true;
-
-    QString error;
-    bool applied = uat_model_->applyChanges(error);
-    if (!error.isEmpty()) {
-        report_failure("%s", qPrintable(error));
-        return false;
-    }
-    if (applied) {
-        applyChanges();
-    }
-    return true;
-}
 
 void UatDialog::acceptChanges()
 {

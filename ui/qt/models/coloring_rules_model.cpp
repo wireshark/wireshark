@@ -117,6 +117,16 @@ ColoringRulesModel::ColoringRulesModel(QColor defaultForeground, QColor defaultB
     // Without a file, a profile using its own rules only uses the default rules
     own_from_globals_ = inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY && !own_file_exists_;
 
+    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
+        // The own rules are not in use, but are kept and written as they are
+        if (own_file_exists_) {
+            char *err_msg = NULL;
+            if (!color_filters_import(path.constData(), &hidden_own_rules_, &err_msg, color_filter_append_item_cb)) {
+                g_free(err_msg);
+            }
+        }
+    }
+
     initInherited();
     own_edited_ = false;
 }
@@ -162,19 +172,6 @@ QList<ColoringRuleItem*> ColoringRulesModel::readInherited(profile_inherit_e mod
     if (!color_filters_read_inherited(mode, &rules, &err_msg, color_filter_append_item_cb,
                                       application_configuration_environment_prefix())) {
         g_free(err_msg);
-    }
-    return rules;
-}
-
-QList<ColoringRuleItem*> ColoringRulesModel::readOwnRows()
-{
-    QList<ColoringRuleItem*> rules;
-    QByteArray path = ownFilePath().toUtf8();
-    if (file_exists(path.constData())) {
-        char *err_msg = NULL;
-        if (!color_filters_import(path.constData(), &rules, &err_msg, color_filter_append_item_cb)) {
-            g_free(err_msg);
-        }
     }
     return rules;
 }
@@ -305,8 +302,13 @@ bool ColoringRulesModel::writeColors(QString& err)
         err = gchar_free_to_qstring(err_msg);
         success = false;
     }
-    // The profile's file is left as it is when only the parent's rules are used
+    // The profile's own rules are not used, but kept, when only the parent's rules are used
     GSList *write_cfl = cfl;
+    GSList *hidden_cfl = NULL;
+    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
+        hidden_cfl = createColorFilterList(hidden_own_rules_);
+        write_cfl = hidden_cfl;
+    }
     // An own file without rules is written only if the rules it replaces
     // had rules: the file, or the default rules used without a file. A
     // profile without a file keeps using the default or inherited rules.
@@ -318,11 +320,10 @@ bool ColoringRulesModel::writeColors(QString& err)
         }
     }
     bool written = true;
-    if (inherit_mode_ != PROFILE_INHERIT_PARENT_ONLY &&
-        (has_own_rules || (own_from_globals_ && inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY) || ownFileHasRules())) {
+    if (has_own_rules || (own_from_globals_ && inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY) || ownFileHasRules()) {
         written = color_filters_write(write_cfl, application_flavor_name_proper(), application_configuration_environment_prefix(), &err_msg);
-        ownSaved();
     }
+    color_filter_list_delete(&hidden_cfl);
     if (!written) {
         err = tr("Unable to save coloring rules: %1").arg(g_strerror(errno));
         success = false;

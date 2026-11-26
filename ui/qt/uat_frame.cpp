@@ -110,8 +110,6 @@ void UatFrame::setUat(epan_uat *uat)
             ui->inheritComboBox->setFilename(uat->filename);
             ui->inheritComboBox->syncMode(uat_get_inherit_mode(uat_));
             connect(ui->inheritComboBox, &ProfileInheritComboBox::modeChanged, this, &UatFrame::inheritModeChanged);
-            ui->inheritComboBox->setUnsavedChangesCheck([this]() { return uat_model_ && uat_model_->hasUnsavedOwn(); },
-                                                        [this]() { return saveRecords(); });
         } else {
             ui->inheritComboBox->setFilename(QString());
         }
@@ -213,22 +211,6 @@ void UatFrame::applyChanges()
         /* Redissect packets if we have any */
         mainApp->queueAppSignal(MainApplication::PacketDissectionChanged);
     }
-}
-
-bool UatFrame::saveRecords()
-{
-    if (!uat_model_) return true;
-
-    QString error;
-    bool applied = uat_model_->applyChanges(error);
-    if (!error.isEmpty()) {
-        report_failure("%s", qPrintable(error));
-        return false;
-    }
-    if (applied) {
-        applyChanges();
-    }
-    return true;
 }
 
 void UatFrame::acceptChanges()

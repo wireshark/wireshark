@@ -111,22 +111,6 @@ TaggingRulesModel::~TaggingRulesModel()
 {
 }
 
-QList<TaggingRuleItem*> TaggingRulesModel::readOwnRows()
-{
-    QList<TaggingRuleItem*> rules;
-    if (own_path_.isEmpty() || !file_exists(own_path_.toUtf8().constData()))
-        return rules;
-
-    char *err_msg = NULL;
-    GSList *list = tag_rules_read_path(own_path_.toUtf8().constData(), &err_msg);
-    g_free(err_msg);
-    for (GSList *r = list; r; r = g_slist_next(r)) {
-        rules << new TaggingRuleItem((tag_rule_t *)r->data, NULL);
-    }
-    tag_rule_list_free(list);
-    return rules;
-}
-
 QList<TaggingRuleItem*> TaggingRulesModel::readInherited(profile_inherit_e mode)
 {
     QList<TaggingRuleItem*> rules;
@@ -222,12 +206,15 @@ bool TaggingRulesModel::loadFromPath(const QString &path, QString &err)
 
     beginResetModel();
     delete root_;
-    own_path_ = path;
+    qDeleteAll(hidden_own_rules_);
+    hidden_own_rules_.clear();
     root_ = new TaggingRuleItem(false, QString(), QString(), QString(), QString(), QString(), NULL);
     for (GSList *r = list; r; r = g_slist_next(r)) {
         tag_rule_t *rule = (tag_rule_t *)r->data;
-        // The own rules are not used when only the parent's rules are used
-        if (inherit_mode_ != PROFILE_INHERIT_PARENT_ONLY)
+        // The own rules are kept, but not shown, when only the parent's rules are used
+        if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
+            hidden_own_rules_ << new TaggingRuleItem(rule, NULL);
+        else
             root_->appendChild(new TaggingRuleItem(rule, root_));
     }
     tag_rule_list_free(list);
@@ -237,23 +224,22 @@ bool TaggingRulesModel::loadFromPath(const QString &path, QString &err)
 
 bool TaggingRulesModel::writeToPath(const QString &path, const tag_prefs_t *prefs, bool prefs_changed, QString &err)
 {
-    // The own rules of the file are kept as they are when only the parent's
+    // The profile's own rules are kept, but not used, when only the parent's
     // rules are used. Without own rules there may be nothing to keep, and
     // then no file is created for no rules.
-    bool parent_only = inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY;
-    char *read_err = NULL;
-    GSList *list = parent_only ? tag_rules_read_path(path.toUtf8().constData(), &read_err) : createTagRuleList();
-    g_free(read_err);
-    if (list == NULL && !prefs_changed && !fileHasRules(path))
+    bool has_own_rules = ownRowCount() > 0 || !hidden_own_rules_.isEmpty();
+    if (!has_own_rules && !prefs_changed && !fileHasRules(path))
         return true;
+
+    GSList *list = createTagRuleList();
+    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
+        list = g_slist_concat(list, createTagRuleList(hidden_own_rules_));
 
     char *err_msg = NULL;
     bool ok = tag_rules_write_path(list, path.toUtf8().constData(), prefs, &err_msg);
     tag_rule_list_free(list);
     if (!ok)
         err = gchar_free_to_qstring(err_msg);
-    else
-        ownSaved();
     return ok;
 }
 

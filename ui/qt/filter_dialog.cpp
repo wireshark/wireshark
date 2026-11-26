@@ -117,9 +117,7 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     connect(model_, &FilterListModel::modelReset, this, &FilterDialog::updateWidgets);
 
     // Where the filters come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, filename_,
-                                                    [this]() { return model_->hasUnsavedOwn(); },
-                                                    [this]() { model_->saveList(); return true; });
+    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, filename_);
     connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &FilterDialog::inheritModeChanged);
 
     // Not used entries can be hidden, which is not stored

@@ -92,9 +92,7 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
     connect(&tagRuleModel_, &TaggingRulesModel::modelReset, this, &TaggingRulesDialog::rowCountChanged);
 
     // Where the rules come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, TAGRULES_FILE_NAME,
-                                                    [this]() { return tagRuleModel_.hasUnsavedOwn(); },
-                                                    [this]() { return saveRules(); });
+    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, TAGRULES_FILE_NAME);
     connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &TaggingRulesDialog::inheritModeChanged);
 
     // Not used entries can be hidden, which is not stored
@@ -419,18 +417,6 @@ bool TaggingRulesDialog::prefsChanged(const tag_prefs_t &prefs) const
 {
     return prefs.separator != originalPrefs_.separator || prefs.emoji_size != originalPrefs_.emoji_size ||
            prefs.link_click != originalPrefs_.link_click;
-}
-
-bool TaggingRulesDialog::saveRules()
-{
-    QString err;
-    tag_prefs_t p = tag_rules_get_prefs();
-
-    if (!tagRuleModel_.writeToPath(profilePath_, &p, prefsChanged(p), err)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
-        return false;
-    }
-    return true;
 }
 
 void TaggingRulesDialog::on_buttonBox_accepted()
