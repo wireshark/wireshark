@@ -181,6 +181,7 @@ static int hf_ansi_801_gps_week_number;
 
 static expert_field ei_ansi_801_extraneous_data;
 static expert_field ei_ansi_801_short_data;
+static expert_field ei_ansi_801_undecoded;
 static expert_field ei_ansi_801_unexpected_length;
 
 
@@ -548,13 +549,23 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned le
 	uint32_t     bit_offset, spare_bits;
 	uint32_t     value;
 	float        fl_value;
-	uint32_t     saved_offset;
+	uint32_t     saved_offset, end_bit;
 	uint64_t     fix_type, velocity_incl, clock_incl, height_incl;
 	const char *str = NULL;
+
+#define PR_LOC_BITS_CHECK(n)							\
+	if ((end_bit - bit_offset) < (n))					\
+	{									\
+		proto_tree_add_expert(tree, pinfo, &ei_ansi_801_short_data, tvb,	\
+				      bit_offset >> 3,				\
+				      (saved_offset + len) - (bit_offset >> 3));	\
+		return;								\
+	}
 
 	SHORT_DATA_CHECK(len, 11);
 	saved_offset = offset;
 	bit_offset   = offset << 3;
+	end_bit      = (offset + len) << 3;
 
 	/* TIME_REF_CDMA */
 	value = tvb_get_bits16(tvb, bit_offset, 14, ENC_BIG_ENDIAN);
@@ -619,11 +630,14 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned le
 	proto_tree_add_bits_ret_val(tree, hf_ansi_801_fix_type, tvb, bit_offset++, 1, &fix_type, ENC_BIG_ENDIAN);
 
 	/* VELOCITY_INCL */
+	PR_LOC_BITS_CHECK(1u);
 	proto_tree_add_bits_ret_val(tree, hf_ansi_801_velocity_incl, tvb, bit_offset++, 1, &velocity_incl, ENC_BIG_ENDIAN);
 
 
 	if(velocity_incl)
 	{
+		PR_LOC_BITS_CHECK(fix_type ? 27u : 19u);
+
 		/* VELOCITY_HOR */
 		value = tvb_get_bits16(tvb, bit_offset, 9, ENC_BIG_ENDIAN);
 		fl_value = (float)(0.25 * value);
@@ -650,10 +664,13 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned le
 	}
 
 	/* CLOCK_INCL */
+	PR_LOC_BITS_CHECK(1u);
 	proto_tree_add_bits_ret_val(tree, hf_ansi_801_clock_incl, tvb, bit_offset++, 1, &clock_incl, ENC_BIG_ENDIAN);
 
 	if(clock_incl)
 	{
+		PR_LOC_BITS_CHECK(34u);
+
 		/* CLOCK_BIAS */
 		value = tvb_get_bits32(tvb, bit_offset, 18, ENC_BIG_ENDIAN);
 		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_clock_bias, tvb, bit_offset, 18, (int32_t)value - 13000,
@@ -668,10 +685,13 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned le
 	}
 
 	/* HEIGHT_INCL */
+	PR_LOC_BITS_CHECK(1u);
 	proto_tree_add_bits_ret_val(tree, hf_ansi_801_height_incl, tvb, bit_offset++, 1, &height_incl, ENC_BIG_ENDIAN);
 
 	if(height_incl)
 	{
+		PR_LOC_BITS_CHECK(19u);
+
 		/* HEIGHT */
 		value = tvb_get_bits16(tvb, bit_offset, 14, ENC_BIG_ENDIAN);
 		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_height, tvb, bit_offset, 14, (int32_t)value - 500,
@@ -705,6 +725,8 @@ pr_loc_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned le
 	offset = bit_offset >> 3;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
+
+#undef PR_LOC_BITS_CHECK
 }
 
 static void
@@ -1086,7 +1108,7 @@ static void (* const rev_rsp_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, prot
 	NULL,                  /* NONE */
 };
 
-static void
+static bool
 for_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offset_p, uint8_t pd_msg_type)
 {
 	uint32_t     offset;
@@ -1106,7 +1128,8 @@ for_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offse
 		str = try_val_to_str_idx(oct & 0x0f, for_req_type_strings, &idx);
 		if (str == NULL)
 		{
-			return;
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_ansi_801_undecoded, tvb, *offset_p);
+			return false;
 		}
 
 		item = proto_tree_add_uint_format_value(tree, hf_ansi_801_for_req_type, tvb, offset, 1,
@@ -1119,7 +1142,8 @@ for_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offse
 		 * It is unclear from TIA-801-A how this was meant to be decoded.
 		 * Are the elements supposed to be byte aligned?
 		 */
-		return;
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_ansi_801_undecoded, tvb, *offset_p);
+		return false;
 	}
 
 	subtree = proto_item_add_subtree(item, ett_for_req_type[idx]);
@@ -1143,9 +1167,10 @@ for_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offse
 	}
 
 	*offset_p = offset + oct;
+	return true;
 }
 
-static void
+static bool
 for_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offset_p)
 {
 	uint32_t     offset;
@@ -1165,7 +1190,8 @@ for_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offs
 
 	if (str == NULL)
 	{
-		return;
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_ansi_801_undecoded, tvb, *offset_p);
+		return false;
 	}
 
 	item = proto_tree_add_uint_format_value(tree, hf_ansi_801_for_rsp_type, tvb, offset, 1,
@@ -1189,9 +1215,10 @@ for_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offs
 	}
 
 	*offset_p = offset + oct;
+	return true;
 }
 
-static void
+static bool
 rev_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offset_p, uint8_t pd_msg_type)
 {
 	uint32_t     offset;
@@ -1211,7 +1238,8 @@ rev_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offse
 		str = try_val_to_str_idx(oct & 0x0f, rev_req_type_strings, &idx);
 		if (str == NULL)
 		{
-			return;
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_ansi_801_undecoded, tvb, *offset_p);
+			return false;
 		}
 
 		item = proto_tree_add_uint_format_value(tree, hf_ansi_801_rev_req_type, tvb, offset, 1,
@@ -1224,7 +1252,8 @@ rev_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offse
 		 * It is unclear from TIA-801-A how this was meant to be decoded.
 		 * Are the elements supposed to be byte aligned?
 		 */
-		return;
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_ansi_801_undecoded, tvb, *offset_p);
+		return false;
 	}
 
 	subtree = proto_item_add_subtree(item, ett_rev_req_type[idx]);
@@ -1246,9 +1275,10 @@ rev_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offse
 	}
 
 	*offset_p = offset + oct;
+	return true;
 }
 
-static void
+static bool
 rev_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offset_p)
 {
 	uint32_t     offset;
@@ -1268,7 +1298,8 @@ rev_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offs
 
 	if (str == NULL)
 	{
-		return;
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_ansi_801_undecoded, tvb, *offset_p);
+		return false;
 	}
 
 	item = proto_tree_add_uint_format_value(tree, hf_ansi_801_rev_rsp_type, tvb, offset, 1,
@@ -1292,6 +1323,7 @@ rev_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offs
 	}
 
 	*offset_p = offset + oct;
+	return true;
 }
 
 static void
@@ -1383,7 +1415,10 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	while ((num_req > 0) &&
 	       (rem_len >= 2))
 	{
-		for_request(tvb, pinfo, tree, &offset, pd_msg_type);
+		if (!for_request(tvb, pinfo, tree, &offset, pd_msg_type))
+		{
+			return;
+		}
 
 		rem_len = tvb_reported_length_remaining(tvb, offset);
 		num_req--;
@@ -1398,7 +1433,10 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	while ((num_rsp > 0) &&
 	       (rem_len >= 2))
 	{
-		for_response(tvb, pinfo, tree, &offset);
+		if (!for_response(tvb, pinfo, tree, &offset))
+		{
+			return;
+		}
 
 		rem_len = tvb_reported_length_remaining(tvb, offset);
 		num_rsp--;
@@ -1505,7 +1543,10 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	while ((num_req > 0) &&
 	       (rem_len >= 2))
 	{
-		rev_request(tvb, pinfo, tree, &offset, pd_msg_type);
+		if (!rev_request(tvb, pinfo, tree, &offset, pd_msg_type))
+		{
+			return;
+		}
 
 		rem_len = tvb_reported_length_remaining(tvb, offset);
 		num_req--;
@@ -1520,7 +1561,10 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	while ((num_rsp > 0) &&
 	       (rem_len >= 2))
 	{
-		rev_response(tvb, pinfo, tree, &offset);
+		if (!rev_response(tvb, pinfo, tree, &offset))
+		{
+			return;
+		}
 
 		rem_len = tvb_reported_length_remaining(tvb, offset);
 		num_rsp--;
@@ -1777,7 +1821,7 @@ proto_register_ansi_801(void)
 		    NULL, HFILL }
 		},
 		{ &hf_ansi_801_for_req_loc_height_information,
-		  { "Height information", "ansi_801.height_incl",
+		  { "Height information", "ansi_801.height_information",
 		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x000010,
 		    NULL, HFILL }
 		},
@@ -2246,6 +2290,7 @@ proto_register_ansi_801(void)
 	static ei_register_info ei[] = {
 		{ &ei_ansi_801_extraneous_data, { "ansi_801.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec (report to wireshark.org)", EXPFILL }},
 		{ &ei_ansi_801_short_data, { "ansi_801.short_data", PI_PROTOCOL, PI_NOTE, "Short Data (?) - try checking decoder variant preference or dissector bug/later version spec (report to wireshark.org)", EXPFILL }},
+		{ &ei_ansi_801_undecoded, { "ansi_801.undecoded", PI_UNDECODED, PI_WARN, "Unknown or unsupported request or response type, remaining data not decoded", EXPFILL }},
 		{ &ei_ansi_801_unexpected_length, { "ansi_801.unexpected_length", PI_PROTOCOL, PI_WARN, "Unexpected Data Length - try checking decoder variant preference or dissector bug/later version spec (report to wireshark.org)", EXPFILL }},
 	};
 
