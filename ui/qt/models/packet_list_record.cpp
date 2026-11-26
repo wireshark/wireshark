@@ -107,6 +107,7 @@ void PacketListRecord::resetColumns(column_info *cinfo)
     }
 
     cinfo_column_.clear();
+    bool had_tag_column = any_tag_column_;
     any_tag_column_ = false;
     unsigned i, j;
     for (i = 0, j = 0; i < cinfo->num_cols; i++) {
@@ -117,6 +118,10 @@ void PacketListRecord::resetColumns(column_info *cinfo)
             j++;
         }
     }
+
+    // The tags are found when colorizing, which records already colorized skip
+    if (any_tag_column_ && !had_tag_column)
+        resetColorization();
 }
 
 void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, bool dissect_color)
