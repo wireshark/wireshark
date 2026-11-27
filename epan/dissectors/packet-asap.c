@@ -122,7 +122,7 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
 
   code              = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
   length            = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
-  cause_info_length = length - CAUSE_HEADER_LENGTH;
+  cause_info_length = (length > CAUSE_HEADER_LENGTH) ? length - CAUSE_HEADER_LENGTH : 0;
   if (cause_info_length > 0)
     proto_tree_add_item(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, ENC_NA);
   proto_item_append_text(cause_item, " (code %u and %u byte%s information)", code, cause_info_length, plurality(cause_info_length, "", "s"));
@@ -200,14 +200,15 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_error_causes(tvbuff_t *error_causes_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
-  uint16_t length, total_length;
+  uint16_t length;
+  unsigned total_length; /* WS_ROUNDUP_4(0xFFFD..0xFFFF) does not fit in 16 bits */
   int offset;
   tvbuff_t *error_cause_tvb;
 
   offset = 0;
   while(tvb_reported_length_remaining(error_causes_tvb, offset) > 0) {
     length          = tvb_get_ntohs(error_causes_tvb, offset + CAUSE_LENGTH_OFFSET);
-    total_length    = WS_ROUNDUP_4(length);
+    total_length    = WS_ROUNDUP_4((unsigned)length);
     error_cause_tvb = tvb_new_subset_length(error_causes_tvb, offset , total_length);
     dissect_error_cause(error_cause_tvb, pinfo, parameter_tree);
     offset += total_length;
@@ -785,12 +786,12 @@ asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
 
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_SHARE_COLUMN);
     msg_data->type = TABLE_ITEM_FLOAT;
-    msg_data->value.float_value = 100.0 * m / (double)asap_total_msgs;
+    msg_data->value.float_value = asap_total_msgs ? 100.0 * m / (double)asap_total_msgs : 0.0;
     stat_tap_set_field_data(table, i, MESSAGES_SHARE_COLUMN, msg_data);
 
     msg_data = stat_tap_get_field_data(table, i, BYTES_SHARE_COLUMN);
     msg_data->type = TABLE_ITEM_FLOAT;
-    msg_data->value.float_value = 100.0 * b / (double)asap_total_bytes;
+    msg_data->value.float_value = asap_total_bytes ? 100.0 * b / (double)asap_total_bytes : 0.0;
     stat_tap_set_field_data(table, i, BYTES_SHARE_COLUMN, msg_data);
     i++;
   }
