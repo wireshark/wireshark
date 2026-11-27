@@ -102,9 +102,13 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                              offset, ayiya_len, "AYIYA" );
         ayiya_tree = proto_item_add_subtree(ti, ett_ayiya);
 
-        proto_tree_add_bits_item(ayiya_tree, hf_id_len, tvb, 0, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_uint_bits_format_value(ayiya_tree, hf_id_len, tvb, 0, 4,
+                                   tvb_get_bits8(tvb, 0, 4), ENC_BIG_ENDIAN,
+                                   "%u (%d octets)", tvb_get_bits8(tvb, 0, 4), idlen);
         proto_tree_add_bits_item(ayiya_tree, hf_id_type, tvb, 4, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_bits_item(ayiya_tree, hf_sig_len, tvb, 8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_uint_bits_format_value(ayiya_tree, hf_sig_len, tvb, 8, 4,
+                                   tvb_get_bits8(tvb, 8, 4), ENC_BIG_ENDIAN,
+                                   "%u (%d octets)", tvb_get_bits8(tvb, 8, 4), siglen);
         proto_tree_add_bits_item(ayiya_tree, hf_hash_method, tvb, 12, 4, ENC_BIG_ENDIAN);
         proto_tree_add_bits_item(ayiya_tree, hf_auth_method, tvb, 16, 4, ENC_BIG_ENDIAN);
         proto_tree_add_bits_item(ayiya_tree, hf_opcode, tvb, 20, 4, ENC_BIG_ENDIAN);
