@@ -15632,7 +15632,7 @@ class TestDissectBblog:
             '101\tPRU: ATTACH',
             '126\tPRU: FLUSH',
             '127\tPRU: UNKNOWN (0x7f)',
-            '128\tUnknown (flex1 0x11223344, flex2 0x556677880)',
+            '128\tUnknown (flex1 0x11223344, flex2 0x55667788)',
         ]
         for flag, field in ((1, 'bblog.rxb_acc'), (2, 'bblog.txb_acc')):
             stdout = subprocess.check_output((cmd_tshark,
