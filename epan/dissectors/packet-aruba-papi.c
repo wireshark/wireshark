@@ -410,7 +410,7 @@ static const value_string licmgr_type_vals[] = {
     { 11, "License ACR Remaining " },
     { 12, "License AP Used" },
     { 13, "License PEF Used" },
-    { 14, "License AP Used" },
+    { 14, "License RFP Used" },
     { 15, "License xSec Used" },
     { 16, "License ACR Used" },
     { 17, "License WebCC Key ?" },
