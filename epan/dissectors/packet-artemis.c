@@ -45,7 +45,10 @@ get_artemis_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                          int offset, void *data _U_)
 {
     /* The 4bytes length doesn't include the actual length byte, that's why the "+4" */
-    return (unsigned) tvb_get_ntohl(tvb, offset) + 4;
+    uint32_t len = tvb_get_ntohl(tvb, offset);
+    if (len > UINT32_MAX - 4)
+        return UINT32_MAX;
+    return len + 4;
 }
 
 static int
