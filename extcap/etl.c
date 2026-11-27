@@ -662,7 +662,11 @@ static void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
     ULONG total_packet_length = 0;
     BOOLEAN is_inbound = false;
     /* 0x80000000 mask the function to host message */
-    is_inbound = ((*(INT32*)(ev->UserData)) & 0x80000000) ? true : false;
+    if (ev->UserDataLength >= sizeof(INT32)) {
+        INT32 header;
+        memcpy(&header, ev->UserData, sizeof(header));
+        is_inbound = (header & 0x80000000) ? true : false;
+    }
     total_packet_length = wtap_etl_record_buffer_init(&etl_record, ev, true, NULL, NULL);
     wtap_etl_rec_dump((char*)etl_record, total_packet_length, total_packet_length, 0, is_inbound, timestamp, WTAP_ENCAP_ETW, NULL, 0);
     g_free(etl_record);
