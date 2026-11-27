@@ -5606,7 +5606,8 @@ static dissector_table_t bacapp_dissector_table;
 
 /* Stat: BACnet Packets sorted by IP */
 /* XXX - Should probably be passed into functions and not be global */
-static bacapp_info_value_t bacinfo;
+/* Allocated per call in pinfo->pool, so that each tapped PDU keeps its own values */
+static bacapp_info_value_t *bacinfo;
 
 static const char* st_str_packets_by_ip = "BACnet Packets by IP";
 static const char* st_str_packets_by_ip_dst = "By Destination";
@@ -5822,19 +5823,19 @@ static int
 updateBacnetInfoValue(int whichval, const char *data)
 {
     if (whichval == BACINFO_SERVICE) {
-        bacinfo.service_type = data;
+        bacinfo->service_type = data;
         return 0;
     }
     if (whichval == BACINFO_INVOKEID) {
-        bacinfo.invoke_id = data;
+        bacinfo->invoke_id = data;
         return 0;
     }
     if (whichval == BACINFO_OBJECTID) {
-        bacinfo.object_ident = data;
+        bacinfo->object_ident = data;
         return 0;
     }
     if (whichval == BACINFO_INSTANCEID) {
-        bacinfo.instance_ident = data;
+        bacinfo->instance_ident = data;
         return 0;
     }
     return -1;
@@ -5997,7 +5998,7 @@ static bool
 fUnsigned64(tvbuff_t *tvb, unsigned offset, uint32_t lvt, uint64_t *val)
 {
     bool valid = false;
-    int64_t  value = 0;
+    uint64_t value = 0;
     uint8_t  data;
 
     if (lvt && (lvt <= 8)) {
@@ -7404,12 +7405,21 @@ fCharacterStringBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
         offs = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
         offset += offs;
 
+        if (lvt == 0) {
+            /* No room for the character set byte */
+            proto_tree_add_expert_remaining(tree, pinfo, &ei_bacapp_bad_length, tvb, start);
+            return tvb_reported_length(tvb);
+        }
         character_set = tvb_get_uint8(tvb, offset);
         offset++;
         lvt--;
 
         /* Account for code page if DBCS */
         if (character_set == IBM_MS_DBCS) {
+            if (lvt < 2) {
+                proto_tree_add_expert_remaining(tree, pinfo, &ei_bacapp_bad_length, tvb, start);
+                return tvb_reported_length(tvb);
+            }
             offset += 2;
             lvt -= 2;
         }
@@ -7532,8 +7542,13 @@ fBitStringTagVSBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
     proto_tree     *subtree = tree;
 
     offs = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-    numberOfBytes = lvt-1; /* Ignore byte for unused bit count */
     offset += offs;
+    if (lvt == 0) {
+        /* No room for the unused bit count byte */
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_bacapp_bad_length, tvb, start);
+        return tvb_reported_length(tvb);
+    }
+    numberOfBytes = lvt-1; /* Ignore byte for unused bit count */
     unused  = tvb_get_uint8(tvb, offset); /* get the unused Bits */
 
     memset(bf_arr, 0, sizeof(bf_arr));
@@ -14631,7 +14646,8 @@ static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
 fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
-    int32_t i = 1;
+    uint32_t i = 1;
+    bool single = false;
     char  *str_ar;
     unsigned lastoffset = 0;
     uint8_t tag_no;
@@ -14646,12 +14662,13 @@ fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
         BACnetARRAY refers to this as all elements of the array.
         If the optional index is specified for a BACnetARRAY,
         then that specific array element is referenced. */
-        i = propertyArrayIndex;
+        i = (uint32_t)propertyArrayIndex;
+        single = true;
     }
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /* exit loop if nothing happens inside */
         lastoffset = offset;
-        str_ar = wmem_strdup_printf(pinfo->pool, "%s[%d]: ",
+        str_ar = wmem_strdup_printf(pinfo->pool, "%s[%u]: ",
             val_to_split_str(pinfo->pool, 87 , 512,
                 BACnetPropertyIdentifier,
                 ASHRAE_Reserved_Fmt,
@@ -14680,8 +14697,9 @@ fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
                 offset = fApplicationTypes(tvb, pinfo, tree, offset, str_ar);
             }
         }
-        /* there are only 16 priority array elements */
-        if (i > 16) {
+        /* there are only 16 priority array elements, and a given
+           index selects exactly one of them */
+        if (single || i > 16) {
             break;
         }
         if (offset <= lastoffset) break;     /* nothing happened, exit loop */
@@ -15685,7 +15703,7 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
     }
     *svc = tvb_get_uint8(tvb, offset+extra);
     if (bacapp_flags & 0x08)
-        *svc = tvb_get_int8(tvb, offset+extra+2);
+        *svc = tvb_get_uint8(tvb, offset+extra+2);
 
     proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     tc = proto_tree_add_item(bacapp_tree, hf_bacapp_pduflags, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -16182,10 +16200,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     col_add_fstr(pinfo->cinfo, COL_INFO, "%-16s",
         val_to_str_const(bacapp_type, BACnetTypeName, "# unknown APDU #"));
 
-    bacinfo.service_type = NULL;
-    bacinfo.invoke_id = NULL;
-    bacinfo.instance_ident = NULL;
-    bacinfo.object_ident = NULL;
+    bacinfo = wmem_new0(pinfo->pool, bacapp_info_value_t);
 
     switch (bacapp_type) {
     case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST:
@@ -16434,7 +16449,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     pinfo->fragmented = save_fragmented;
 
     /* tapping */
-    tap_queue_packet(bacapp_tap, pinfo, &bacinfo);
+    tap_queue_packet(bacapp_tap, pinfo, bacinfo);
     return tvb_captured_length(tvb);
 }
 
