@@ -78,19 +78,22 @@ dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 
 	int data_len;
 	int offset;
+	int text_len;
 
 	offset   = 0;
 	data_len = tvb_reported_length_remaining( tvb, offset );
+	/* At most the first 15 octets, fewer in a short payload */
+	text_len = MIN( 15, tvb_captured_length( tvb ) );
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "DX" );
 
-	col_add_str( pinfo->cinfo, COL_INFO, tvb_format_text( pinfo->pool, tvb, offset, 15 ) );
+	col_add_str( pinfo->cinfo, COL_INFO, tvb_format_text( pinfo->pool, tvb, offset, text_len ) );
 
 	if ( parent_tree )
 		{
 		/* create display subtree for the protocol */
 		ti = proto_tree_add_protocol_format( parent_tree, proto_dx, tvb, 0, -1,
-		    "DX (%s)", tvb_format_text( pinfo->pool, tvb, offset, 15 ) );
+		    "DX (%s)", tvb_format_text( pinfo->pool, tvb, offset, text_len ) );
 		dx_tree = proto_item_add_subtree( ti, ett_dx );
 		offset = 0;
 
@@ -174,7 +177,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 		}
 	if ( gPREF_DX )
 		{
-		if ( tvb_get_uint8( tvb, offset ) == 'D' && tvb_get_uint8( tvb, offset + 1 ) == 'X' )
+		if ( tvb_captured_length( tvb ) >= 2 && tvb_get_uint8( tvb, offset ) == 'D' && tvb_get_uint8( tvb, offset + 1 ) == 'X' )
 		snprintf( info_buffer, STRLEN, "DX cluster" );
 		}
 
@@ -210,7 +213,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 		}
 	if ( ! dissected && gPREF_DX )
 		{
-		if ( tvb_get_uint8( tvb, offset ) == 'D' && tvb_get_uint8( tvb, offset + 1 ) == 'X' )
+		if ( tvb_captured_length( tvb ) >= 2 && tvb_get_uint8( tvb, offset ) == 'D' && tvb_get_uint8( tvb, offset + 1 ) == 'X' )
 			{
 			dissected = true;
 			dissect_dx( next_tvb, pinfo, ax25_nol3_tree, NULL );
