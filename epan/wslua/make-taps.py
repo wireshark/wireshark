@@ -95,42 +95,79 @@ def get_tap_info(tap_name, header_file, struct_name, enum_types):
         sys.exit(1)
 
     body = m.group(1)
-
     elems = {}
 
     for line in body.splitlines():
         k = None
         v = None
+        dim = None
 
-        m = re.search(r'\s*(.*?)([\w\d_]+)\s*\[\s*\d+\s*\]\s*;', line)
+        # Array case
+        m = re.search(r'\s*(.*?)([\w\d_]+)\s*\[\s*(\d+)\s*\]\s*;', line)
         if m:
             k = m.group(2)
             v = m.group(1)
-            v += '[]'
+            dim = int(m.group(3))
 
+        # Single value
         m = re.search(r'\s*(.*?)([\w\d_]+)\s*;', line)
         if m:
             k = m.group(2)
             v = m.group(1)
 
         if v and k:
+            # Add to table
             v = re.sub(r'const ', '', v)
             v = re.sub(r'\s+', '', v)
-            elems[k] = v
+            elems[k] = (v, dim)
 
+    # Open function
     code += f'static void wslua_{tap_name}_to_table(lua_State* L, const void* p) {{\n\tconst {struct_name}* v;\n\n\tv = (const {struct_name}*)p;\n\tlua_newtable(L);\n\n'
 
     for el in sorted(elems):
         try:
-            fmt = types[elems[el]]
-            code += f'\tlua_pushstring(L,\"{el}\");\n\t'
-            lua_type = re.sub(r'\bSTR\b', el, fmt)
-            code += lua_type
-            code += '\n\tlua_settable(L,-3);\n'
+            # Write out the C code for each struct member
+            fmt = types[elems[el][0]]
+            dim = elems[el][1]
+            if dim is None:
+                # Single value - variable name
+                code += f'\tlua_pushstring(L,\"{el}\");\n\t'
+                # Push whatever type the variable is
+                lua_type = re.sub(r'\bSTR\b', el, fmt)
+                code += lua_type
+                # Remove from the stack
+                code += '\n\tlua_settable(L,-3);\n'
+            else:
+                # Array.  Will generate a C loop.
+                # Set loop limit (may be whole size, or limited by a '_count' field)
+                limit = dim
+                count_field = el+'_count'
+                if count_field in elems:
+                    limit = f'v->{count_field}'
+
+                # Open loop
+                code += f'\tfor (unsigned n=0; n < {limit}; n++) '
+                code += '{\n'
+
+                # Add el_<n>
+                code += '\t\tchar elem_with_suffix[64];\n'
+                code += f'\t\tsnprintf(elem_with_suffix, 64, "{el}_%u", n);\n'
+                code += f'\t\tlua_pushstring(L, elem_with_suffix);\n'
+                # Push whatever type the variable is
+                lua_type = re.sub(r'\bSTR\b', f'{el}[n]', fmt)
+                code += f'\t\t{lua_type}'
+                # Remove from the stack
+                code += '\n\t\tlua_settable(L,-3);\n'
+
+                # Close loop
+                code += '\t}\n'
+
             doc += f'\t{el}: {comments[elems[el]]}\n'
         except KeyError:
+            # print(f'KeyError for {el}: {ke}')
             pass
 
+    # Close function
     code += "}\n\n"
     doc += "\n"
 

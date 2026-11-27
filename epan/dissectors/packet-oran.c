@@ -57,6 +57,7 @@ void proto_register_oran(void);
 static int proto_oran;
 
 static int oran_tap = -1;
+static int oran_bfws_tap = -1;
 
 static int hf_oran_du_port_id;
 static int hf_oran_bandsector_id;
@@ -2788,6 +2789,9 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
                                   section_details_t *section_details,
                                   oran_tap_info *tap_info)
 {
+    oran_bfws_t *tap_bfws_info = wmem_new0(pinfo->pool, oran_bfws_t);
+    tap_bfws_info->method = se11;
+
     /* Set bundle name */
     char bundle_name[32];
     if (!bundle->is_orphan) {
@@ -2845,6 +2849,10 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
     offset += 2;
     add_beam_id_to_tap(tap_info, beam_id);
 
+    tap_bfws_info->beam_id = beam_id;
+    tap_bfws_info->start_prb = bundle->start;
+    tap_bfws_info->end_prb = bundle->end;
+
     if (!PINFO_FD_VISITED(pinfo)) {
         if (section_details) {
             for (unsigned prb = bundle->start; prb <= bundle->end && prb < ORAN_MAX_PRBS; prb++) {
@@ -2899,6 +2907,8 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
         bit_offset += iq_width;
         proto_item_append_text(bfw_ti, "I%u=%f ", w, value);
 
+        tap_bfws_info->i[tap_bfws_info->i_count++] = value;
+
         /* Q */
         /* Get bits, and convert to float. */
         bits = tvb_get_bits32(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
@@ -2912,6 +2922,8 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
         proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", w, value);
         bit_offset += iq_width;
         proto_item_append_text(bfw_ti, "Q%u=%f)", w, value);
+
+        tap_bfws_info->q[tap_bfws_info->q_count++] = value;
     }
 
     if (!non_zero_weights_seen) {
@@ -2925,6 +2937,8 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
     /* Set extent of bundle */
     proto_item_set_end(bundle_ti, tvb, (bit_offset+7)/8);
+
+    tap_queue_packet(oran_bfws_tap, pinfo, tap_bfws_info);
 
     return (bit_offset+7)/8;
 }
@@ -3770,6 +3784,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
                 PROTO_ITEM_SET_HIDDEN(bf_ti);
 
+                oran_bfws_t *tap_bfws_info = wmem_new0(pinfo->pool, oran_bfws_t);
+                tap_bfws_info->method = se1;
+
                 /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth) */
                 offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
                                             &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
@@ -3819,6 +3836,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                          (bfwcomphdr_iq_width+7)/8, value);
                     bit_offset += bfwcomphdr_iq_width;
                     proto_item_append_text(bfw_ti, "I=%f ", value);
+                    tap_bfws_info->i[tap_bfws_info->i_count++] = value;
 
                     /* Leave a gap between I and Q values */
                     proto_item_append_text(bfw_ti, "  ");
@@ -3839,8 +3857,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_item_append_text(bfw_ti, "Q=%f", value);
 
                     proto_item_append_text(bfw_ti, ")");
+                    tap_bfws_info->q[tap_bfws_info->q_count++] = value;
+
                     proto_item_set_len(bfw_ti, (bit_offset+7)/8  - bfw_offset);
                 }
+
+                /* Complete BFWs tap details and send */
+                tap_bfws_info->beam_id = section_beamId;
+                tap_bfws_info->start_prb = startPrbc;
+                tap_bfws_info->end_prb = numPrbc;
+                tap_queue_packet(oran_bfws_tap, pinfo, tap_bfws_info);
 
                 /* Need to round to next byte */
                 offset = (bit_offset+7)/8;
@@ -12342,6 +12368,8 @@ proto_register_oran(void)
 
     /* Register the tap name. */
     oran_tap = register_tap("oran-fh-cus");
+    oran_bfws_tap = register_tap("oran_bfws");
+
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_oran, hf, array_length(hf));

@@ -103,6 +103,24 @@ typedef struct oran_tap_info {
 
 } oran_tap_info;
 
+typedef enum _bfw_method_t {
+    se1,
+    se11,
+    st6,
+    st4
+} bfw_method_t;
+
+typedef struct _oran_bfws_t {
+    uint32_t beam_id;
+    uint32_t start_prb;
+    uint32_t end_prb;
+    bfw_method_t method;
+    uint16_t i_count;
+    uint16_t q_count;
+    float i[64];
+    float q[64];
+} oran_bfws_t;
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
