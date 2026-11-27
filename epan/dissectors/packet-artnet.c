@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 #include "packet-rdm.h"
@@ -2849,6 +2850,7 @@ static const value_string artnet_file_type_vals[] = {
   { 0, NULL },
 };
 
+static GRegex *artnet_poll_reply_node_report_regex_compiled;
 static const char * artnet_poll_reply_node_report_regex = "^#([A-Fa-f0-9]{4}) \\[?([0-9]+)\\]? (.{1,56})$";
 
 static const value_string vals_artnet_poll_reply_style[] = {
@@ -3224,6 +3226,8 @@ static int * const artnet_poll_reply_swremote_fields[] = {
 static expert_field ei_artnet_poll_reply_bind_ip_without_index;
 static expert_field ei_artnet_poll_reply_bind_index_without_ip;
 static expert_field ei_artnet_poll_reply_node_report_invalid_format;
+static expert_field ei_artnet_dmx_length_invalid;
+static expert_field ei_artnet_output_excess_bytes;
 
 /* ArtOutput */
 static int hf_artnet_output;
@@ -3317,6 +3321,9 @@ static int hf_artnet_firmware_reply;
 static int hf_artnet_firmware_reply_type;
 
 /* ArtVideoSetup */
+static int hf_artnet_video_setup;
+static int hf_artnet_video_palette;
+static int hf_artnet_video_data;
 static int hf_artnet_video_setup_control;
 static int hf_artnet_video_setup_font_height;
 static int hf_artnet_video_setup_first_font;
@@ -3704,7 +3711,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
   uint16_t universe,uni_port;
   uint8_t bind_index;
   uint32_t bind_ip_address;
-  GRegex *regex = NULL;
+  GRegex *regex = artnet_poll_reply_node_report_regex_compiled;
   GMatchInfo *match_info = NULL;
   bool bg_queue_supported;
 
@@ -3761,8 +3768,6 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   /* Try to extract node report regex data as generated fields (only if data contained) */
   if(tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN) > 0) {
-    regex = g_regex_new(artnet_poll_reply_node_report_regex, G_REGEX_DEFAULT, (GRegexMatchFlags) 0, NULL);
-    DISSECTOR_ASSERT(regex != NULL);
     g_regex_match(
       regex,
       (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 64, ENC_ASCII),
@@ -3789,7 +3794,6 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
     } else {
       expert_add_info(pinfo, tree, &ei_artnet_poll_reply_node_report_invalid_format);
     }
-    g_regex_unref(regex);
     g_match_info_free(match_info);
   }
   offset += 64;
@@ -4102,13 +4106,29 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
   return offset;
 }
 
+/* Call a dissector without letting it write to the Info column, and
+   restore the column state even if it throws an exception. */
+static void
+artnet_call_dissector_quiet(dissector_handle_t handle, tvbuff_t *next_tvb, packet_info *pinfo, proto_tree *tree)
+{
+  bool save_info = col_get_writable(pinfo->cinfo, COL_INFO);
+
+  col_set_writable(pinfo->cinfo, COL_INFO, false);
+  TRY {
+    call_dissector(handle, next_tvb, pinfo, tree);
+  }
+  FINALLY {
+    col_set_writable(pinfo->cinfo, COL_INFO, save_info);
+  }
+  ENDTRY;
+}
+
 static unsigned
 dissect_artnet_output(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info *pinfo, proto_tree* base_tree)
 {
   tvbuff_t *next_tvb;
   uint16_t  length;
   unsigned  size;
-  bool      save_info;
 
   proto_tree_add_item(tree, hf_artnet_output_sequence, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -4132,14 +4152,18 @@ dissect_artnet_output(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_i
 
   size = tvb_reported_length_remaining(tvb, offset);
 
-  save_info = col_get_writable(pinfo->cinfo, COL_INFO);
-  col_set_writable(pinfo->cinfo, COL_INFO, false);
+  if (length > size) {
+    proto_tree_add_expert(tree, pinfo, &ei_artnet_dmx_length_invalid, tvb, offset, size);
+    length = (uint16_t)size;
+  }
 
   next_tvb = tvb_new_subset_length(tvb, offset, length);
 
-  call_dissector(dmx_chan_handle, next_tvb, pinfo, base_tree);
+  artnet_call_dissector_quiet(dmx_chan_handle, next_tvb, pinfo, base_tree);
 
-  col_set_writable(pinfo->cinfo, COL_INFO, save_info);
+  if (size > length) {
+    proto_tree_add_expert(tree, pinfo, &ei_artnet_output_excess_bytes, tvb, offset + length, size - length);
+  }
 
   return offset + size;
 }
@@ -4159,7 +4183,6 @@ dissect_artnet_nzs(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info
 {
   uint16_t length, payload_length, lang_code;
   uint8_t start_code;
-  bool save_info;
   tvbuff_t *next_tvb;
   proto_item *pi;
 
@@ -4264,7 +4287,7 @@ dissect_artnet_nzs(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info
     } else if(lang_code == ARTNET_NZS_VLC_LANG_CODE_BEACON_TEXT) {
       pi = proto_tree_add_item(tree, hf_artnet_nzs_vlc_payload_beacon_text, tvb, offset, payload_length, ENC_ASCII);
       proto_item_set_generated(pi);
-    } else if(lang_code == ARTNET_NZS_VLC_LANG_CODE_BEACON_LOCID && tvb_reported_length_remaining(tvb, offset) >= 2) {
+    } else if(lang_code == ARTNET_NZS_VLC_LANG_CODE_BEACON_LOCID && payload_length >= 2) {
       pi = proto_tree_add_item(tree, hf_artnet_nzs_vlc_payload_beacon_location_id, tvb, offset, 2, ENC_BIG_ENDIAN);
       proto_item_set_generated(pi);
     }
@@ -4276,14 +4299,14 @@ dissect_artnet_nzs(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info
 
     /* Nzs -> DMX data */
 
-    save_info = col_get_writable(pinfo->cinfo, COL_INFO);
-    col_set_writable(pinfo->cinfo, COL_INFO, false);
+    if (length > tvb_reported_length_remaining(tvb, offset)) {
+      length = (uint16_t)tvb_reported_length_remaining(tvb, offset);
+      proto_tree_add_expert(tree, pinfo, &ei_artnet_dmx_length_invalid, tvb, offset, length);
+    }
 
     next_tvb = tvb_new_subset_length(tvb, offset, length);
 
-    call_dissector(dmx_chan_handle, next_tvb, pinfo, base_tree);
-
-    col_set_writable(pinfo->cinfo, COL_INFO, save_info);
+    artnet_call_dissector_quiet(dmx_chan_handle, next_tvb, pinfo, base_tree);
 
     return offset + length;
 
@@ -4744,7 +4767,6 @@ dissect_artnet_rdm(tvbuff_t *tvb, unsigned offset, proto_tree *tree,  packet_inf
   uint8_t   rdmver;
   uint8_t   sc;
   unsigned  size;
-  bool      save_info;
   tvbuff_t *next_tvb;
 
   rdmver = tvb_get_uint8(tvb, offset);
@@ -4809,14 +4831,9 @@ dissect_artnet_rdm(tvbuff_t *tvb, unsigned offset, proto_tree *tree,  packet_inf
 
   size = tvb_reported_length_remaining(tvb, offset);
 
-  save_info = col_get_writable(pinfo->cinfo, COL_INFO);
-  col_set_writable(pinfo->cinfo, COL_INFO, false);
-
   next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-  call_dissector(rdm_handle, next_tvb, pinfo, base_tree);
-
-  col_set_writable(pinfo->cinfo, COL_INFO, save_info);
+  artnet_call_dissector_quiet(rdm_handle, next_tvb, pinfo, base_tree);
 
   return offset + size;
 }
@@ -5835,7 +5852,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     case ARTNET_OP_VIDEO_SETUP:
 
       hi = proto_tree_add_item(artnet_tree,
-                                hf_artnet_input,
+                                hf_artnet_video_setup,
                                 tvb,
                                 offset,
                                 0,
@@ -5854,7 +5871,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     case ARTNET_OP_VIDEO_PALETTE:
 
       hi = proto_tree_add_item(artnet_tree,
-                                hf_artnet_input,
+                                hf_artnet_video_palette,
                                 tvb,
                                 offset,
                                 0,
@@ -5873,7 +5890,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     case ARTNET_OP_VIDEO_DATA:
 
       hi = proto_tree_add_item(artnet_tree,
-                                hf_artnet_input,
+                                hf_artnet_video_data,
                                 tvb,
                                 offset,
                                 0,
@@ -7403,6 +7420,24 @@ proto_register_artnet(void) {
 
     /* ArtVideoSetup */
 
+    { &hf_artnet_video_setup,
+      { "ArtVideoSetup packet",
+        "artnet.video_setup",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtVideoSetup packet", HFILL }},
+
+    { &hf_artnet_video_palette,
+      { "ArtVideoPalette packet",
+        "artnet.video_palette",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtVideoPalette packet", HFILL }},
+
+    { &hf_artnet_video_data,
+      { "ArtVideoData packet",
+        "artnet.video_data",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Art-Net ArtVideoData packet", HFILL }},
+
     { &hf_artnet_video_setup_control,
       { "control",
         "artnet.video_setup.control",
@@ -8288,6 +8323,14 @@ proto_register_artnet(void) {
     { &ei_artnet_poll_reply_node_report_invalid_format,
       { "artnet.poll_reply.node_report_format_invalid", PI_MALFORMED, PI_WARN,
           "Node report has invalid format.", EXPFILL }
+    },
+    { &ei_artnet_dmx_length_invalid,
+      { "artnet.dmx_length_invalid", PI_MALFORMED, PI_WARN,
+          "DMX data length exceeds the packet", EXPFILL }
+    },
+    { &ei_artnet_output_excess_bytes,
+      { "artnet.output_excess_bytes", PI_PROTOCOL, PI_NOTE,
+          "Bytes after the DMX data", EXPFILL }
     }
   };
 
@@ -8338,6 +8381,9 @@ proto_register_artnet(void) {
   proto_artnet = proto_register_protocol("Art-Net", "Art-Net", "artnet");
   proto_register_field_array(proto_artnet, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  artnet_poll_reply_node_report_regex_compiled = g_regex_new(artnet_poll_reply_node_report_regex, G_REGEX_DEFAULT, (GRegexMatchFlags) 0, NULL);
+  DISSECTOR_ASSERT(artnet_poll_reply_node_report_regex_compiled != NULL);
 
   expert_artnet = expert_register_protocol(proto_artnet);
   expert_register_field_array(expert_artnet, ei, array_length(ei));
