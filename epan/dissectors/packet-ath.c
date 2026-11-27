@@ -65,6 +65,18 @@ static int ett_ath;
 
 static expert_field ei_ath_hlen_invalid;
 static expert_field ei_ath_hmark_invalid;
+static expert_field ei_ath_len_negative;
+
+/* A length field is signed in the protocol; treat a negative one as empty. */
+static int32_t
+ath_check_len(packet_info *pinfo, proto_item *item, int32_t len)
+{
+  if (len < 0) {
+    expert_add_info(pinfo, item, &ei_ath_len_negative);
+    return 0;
+  }
+  return len;
+}
 
 static bool
 test_ath(tvbuff_t *tvb)
@@ -94,11 +106,11 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   int    tribes_version_mark;
 
   /* store the info */
-  const char *info_srcaddr = "";
+  const char *info_srcaddr;
   const char *info_domain  = "";
   const char *info_command = "";
 
-  proto_item *ti, *hlen_item;
+  proto_item *ti, *hlen_item, *len_item;
   proto_tree *ath_tree;
 
   if (!test_ath(tvb)) {
@@ -171,19 +183,21 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       /* COMMAND LENGTH
        */
-      proto_tree_add_item_ret_int(ath_tree, hf_ath_clen, tvb, offset, 4, ENC_BIG_ENDIAN, &clen);
+      len_item = proto_tree_add_item_ret_int(ath_tree, hf_ath_clen, tvb, offset, 4, ENC_BIG_ENDIAN, &clen);
+      clen = ath_check_len(pinfo, len_item, clen);
       offset += 4;
 
       /* COMMAND
        */
       proto_tree_add_item(ath_tree, hf_ath_comm, tvb, offset, clen, ENC_ASCII);
-      if (clen != -1)
+      if (clen != 0)
         info_command = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, clen, ENC_ASCII);
       offset += clen;
 
       /* DOMAIN LENGTH
        */
-      proto_tree_add_item_ret_int(ath_tree, hf_ath_dlen, tvb, offset, 4, ENC_BIG_ENDIAN, &dlen);
+      len_item = proto_tree_add_item_ret_int(ath_tree, hf_ath_dlen, tvb, offset, 4, ENC_BIG_ENDIAN, &dlen);
+      dlen = ath_check_len(pinfo, len_item, dlen);
       offset += 4;
 
       /* DOMAIN
@@ -200,7 +214,8 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       /* PAYLOAD LENGTH
        */
-      proto_tree_add_item_ret_int(ath_tree, hf_ath_plen, tvb, offset, 4, ENC_BIG_ENDIAN, &plen);
+      len_item = proto_tree_add_item_ret_int(ath_tree, hf_ath_plen, tvb, offset, 4, ENC_BIG_ENDIAN, &plen);
+      plen = ath_check_len(pinfo, len_item, plen);
       offset += 4;
 
       /* PAYLOAD
@@ -271,19 +286,21 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       /* COMMAND LENGTH
        */
-      proto_tree_add_item_ret_int(ath_tree, hf_ath_clen, tvb, offset, 4, ENC_BIG_ENDIAN, &clen);
+      len_item = proto_tree_add_item_ret_int(ath_tree, hf_ath_clen, tvb, offset, 4, ENC_BIG_ENDIAN, &clen);
+      clen = ath_check_len(pinfo, len_item, clen);
       offset += 4;
 
       /* COMMAND
        */
       proto_tree_add_item(ath_tree, hf_ath_comm, tvb, offset, clen, ENC_ASCII);
-      if (clen != -1)
+      if (clen != 0)
         info_command = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, clen, ENC_ASCII);
       offset += clen;
 
       /* DOMAIN LENGTH
        */
-      proto_tree_add_item_ret_int(ath_tree, hf_ath_dlen, tvb, offset, 4, ENC_BIG_ENDIAN, &dlen);
+      len_item = proto_tree_add_item_ret_int(ath_tree, hf_ath_dlen, tvb, offset, 4, ENC_BIG_ENDIAN, &dlen);
+      dlen = ath_check_len(pinfo, len_item, dlen);
       offset += 4;
 
       /* DOMAIN
@@ -300,7 +317,8 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       /* PAYLOAD LENGTH
        */
-      proto_tree_add_item_ret_int(ath_tree, hf_ath_plen, tvb, offset, 4, ENC_BIG_ENDIAN, &plen);
+      len_item = proto_tree_add_item_ret_int(ath_tree, hf_ath_plen, tvb, offset, 4, ENC_BIG_ENDIAN, &plen);
+      plen = ath_check_len(pinfo, len_item, plen);
       offset += 4;
 
       /* PAYLOAD
@@ -427,6 +445,7 @@ proto_register_ath(void)
 
   static ei_register_info ei[] = {
     { &ei_ath_hlen_invalid, { "ath.hlen.invalid", PI_MALFORMED, PI_ERROR, "Decode aborted: invalid IP length", EXPFILL }},
+    { &ei_ath_len_negative, { "ath.len.negative", PI_MALFORMED, PI_ERROR, "Negative length, treated as 0", EXPFILL }},
     { &ei_ath_hmark_invalid, { "ath.hmark.invalid", PI_MALFORMED, PI_ERROR, "Decode aborted: not an ATH packet", EXPFILL }},
   };
 
