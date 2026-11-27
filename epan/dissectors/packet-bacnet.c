@@ -725,21 +725,21 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 			break;
 		/* Challenge-Request */
 		case BAC_NET_CHALL_REQ:
-			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
+			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, bacnet_tree, offset, NULL, &sec_decrypted);
 			if (!sec_decrypted) {
 				call_data_dissector(tvb, pinfo, tree);
 				return tvb_captured_length(tvb);
 			}
 
-			proto_tree_add_item(tree, hf_bacnet_msg_is_challenged,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_msg_is_challenged,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bacnet_security_original_message_id,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_original_message_id,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(tree, hf_bacnet_security_original_time_stamp,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_original_time_stamp,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
@@ -749,14 +749,14 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 			bool is_net_msg_flg;
 			uint16_t bacnet_len;
 
-			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, &is_net_msg_flg, &sec_decrypted);
+			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, bacnet_tree, offset, &is_net_msg_flg, &sec_decrypted);
 			if (!sec_decrypted) {
 				call_data_dissector(tvb, pinfo, tree);
 				return tvb_captured_length(tvb);
 			}
 			/* get payload length */
 			bacnet_len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_bacnet_security_msg_len,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_msg_len,
 				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			/* set length to reported length in header */
@@ -778,22 +778,22 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 		{
 			uint8_t bacnet_responsecode;
 
-			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
+			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, bacnet_tree, offset, NULL, &sec_decrypted);
 			if (!sec_decrypted) {
 				call_data_dissector(tvb, pinfo, tree);
 				return tvb_captured_length(tvb);
 			}
 
 			bacnet_responsecode = tvb_get_uint8(tvb, offset);
-			proto_tree_add_item(tree, hf_bacnet_security_response_code,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_response_code,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bacnet_security_original_message_id,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_original_message_id,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(tree, hf_bacnet_security_original_time_stamp,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_original_time_stamp,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
@@ -821,17 +821,17 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				/* no parameters are expected here */
 				break;
 			case 0x06: /* badTimestamp */
-				proto_tree_add_item(tree, hf_bacnet_security_response_expected_time_stamp,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_response_expected_time_stamp,
 					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				break;
 			case 0x07: /* cannotUseKey */
 			case 0x0F: /* invalidKeyData */
 			case 0x17: /* unknownKey */
-				proto_tree_add_item(tree, hf_bacnet_security_response_key_algo,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_response_key_algo,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
-				proto_tree_add_item(tree, hf_bacnet_security_response_key_id,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_response_key_id,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				break;
@@ -839,30 +839,30 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				bacnet_responsecode = tvb_get_uint8(tvb, offset);
 				offset++;
 				while (tvb_reported_length_remaining(tvb, offset) > 1 && bacnet_responsecode > 0) {
-					proto_tree_add_item(tree, hf_bacnet_security_response_key_algo,
+					proto_tree_add_item(bacnet_tree, hf_bacnet_security_response_key_algo,
 						tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
-					proto_tree_add_item(tree, hf_bacnet_security_response_key_id,
+					proto_tree_add_item(bacnet_tree, hf_bacnet_security_response_key_id,
 						tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 					bacnet_responsecode--;
 				}
 				break;
 			case 0x16: /* unknownAuthenticationType */
-				proto_tree_add_item(tree, hf_bacnet_security_response_original_authentication_mech,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_response_original_authentication_mech,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
-				proto_tree_add_item(tree, hf_bacnet_security_response_vendor_id,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_response_vendor_id,
 					tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 				break;
 			case 0x18: /* unknownKeyRevision */
-				proto_tree_add_item(tree, hf_bacnet_security_response_key_revision,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_response_key_revision,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				break;
 			case 0x15: /* tooManyKeys */
-				proto_tree_add_item(tree, hf_bacnet_security_response_number_keys,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_response_number_keys,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				break;
@@ -871,57 +871,57 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 			break;
 		/* Request-Key-Update */
 		case BAC_NET_REQ_KEY_UP:
-			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
+			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, bacnet_tree, offset, NULL, &sec_decrypted);
 			if (!sec_decrypted) {
 				call_data_dissector(tvb, pinfo, tree);
 				return tvb_captured_length(tvb);
 			}
 
-			proto_tree_add_item(tree, hf_bacnet_security_set1_key_reveision,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_set1_key_reveision,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bacnet_security_set1_activation_time_stamp,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_set1_activation_time_stamp,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(tree, hf_bacnet_security_set1_expiration_time_stamp,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_set1_expiration_time_stamp,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(tree, hf_bacnet_security_set2_key_reveision,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_set2_key_reveision,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bacnet_security_set2_activation_time_stamp,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_set2_activation_time_stamp,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(tree, hf_bacnet_security_set2_expiration_time_stamp,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_set2_expiration_time_stamp,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(tree, hf_bacnet_security_dist_key_revision,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_dist_key_revision,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			break;
 		/* Update-Keyset */
 		case BAC_NET_UPD_KEYSET:
-			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
+			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, bacnet_tree, offset, NULL, &sec_decrypted);
 			if (!sec_decrypted) {
 				call_data_dissector(tvb, pinfo, tree);
 				return tvb_captured_length(tvb);
 			}
 
 			bacnet_update_control = tvb_get_uint8(tvb, offset);
-			proto_tree_add_bitmask(tree, tvb, offset, hf_bacnet_update_control,
+			proto_tree_add_bitmask(bacnet_tree, tvb, offset, hf_bacnet_update_control,
 				ett_bacnet_update_control, update_control_flags, ENC_NA);
 			offset++;
 
 			if (bacnet_update_control & BAC_UPDATE_CONTROL_SET1_TIMES_PRESENT) {
-				proto_tree_add_item(tree, hf_bacnet_security_set1_key_reveision,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_set1_key_reveision,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
-				proto_tree_add_item(tree, hf_bacnet_security_set1_activation_time_stamp,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_set1_activation_time_stamp,
 					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(tree, hf_bacnet_security_set1_expiration_time_stamp,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_set1_expiration_time_stamp,
 					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
@@ -933,17 +933,17 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				offset++;
 
 				for (i = 0; tvb_reported_length_remaining(tvb, offset) > 1 && i < keycount; i++)	{
-					proto_tree_add_item(tree, hf_bacnet_security_set1_key_algo,
+					proto_tree_add_item(bacnet_tree, hf_bacnet_security_set1_key_algo,
 						tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
-					proto_tree_add_item(tree, hf_bacnet_security_set1_key_id,
+					proto_tree_add_item(bacnet_tree, hf_bacnet_security_set1_key_id,
 						tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 
 					bacnet_dlen = tvb_get_uint8(tvb, offset);
 					offset++;
 
-					proto_tree_add_item(tree,
+					proto_tree_add_item(bacnet_tree,
 						hf_bacnet_security_set1_key_data, tvb, offset,
 						bacnet_dlen, ENC_NA);
 					offset += bacnet_dlen;
@@ -951,13 +951,13 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 			}
 
 			if (bacnet_update_control & BAC_UPDATE_CONTROL_SET2_TIMES_PRESENT) {
-				proto_tree_add_item(tree, hf_bacnet_security_set2_key_reveision,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_set2_key_reveision,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
-				proto_tree_add_item(tree, hf_bacnet_security_set2_activation_time_stamp,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_set2_activation_time_stamp,
 					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(tree, hf_bacnet_security_set2_expiration_time_stamp,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_set2_expiration_time_stamp,
 					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
@@ -969,17 +969,17 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				offset++;
 
 				for (i = 0; tvb_reported_length_remaining(tvb, offset) > 1 && i < keycount; i++)	{
-					proto_tree_add_item(tree, hf_bacnet_security_set2_key_algo,
+					proto_tree_add_item(bacnet_tree, hf_bacnet_security_set2_key_algo,
 						tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
-					proto_tree_add_item(tree, hf_bacnet_security_set2_key_id,
+					proto_tree_add_item(bacnet_tree, hf_bacnet_security_set2_key_id,
 						tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 
 					bacnet_dlen = tvb_get_uint8(tvb, offset);
 					offset++;
 
-					proto_tree_add_item(tree,
+					proto_tree_add_item(bacnet_tree,
 						hf_bacnet_security_set2_key_data, tvb, offset,
 						bacnet_dlen, ENC_NA);
 					offset += bacnet_dlen;
@@ -988,26 +988,26 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 			break;
 		/* Update-distribution-Key */
 		case BAC_NET_UPD_DKEY:
-			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
+			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, bacnet_tree, offset, NULL, &sec_decrypted);
 			if (!sec_decrypted) {
 				call_data_dissector(tvb, pinfo, tree);
 				return tvb_captured_length(tvb);
 			}
 
-			proto_tree_add_item(tree, hf_bacnet_security_dist_key_revision,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_dist_key_revision,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bacnet_security_dist_key_algo,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_dist_key_algo,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bacnet_security_dist_key_id,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_dist_key_id,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 			bacnet_dlen = tvb_get_uint8(tvb, offset);
 			offset++;
 
-			proto_tree_add_item(tree,
+			proto_tree_add_item(bacnet_tree,
 				hf_bacnet_security_dist_key_data, tvb, offset,
 				bacnet_dlen, ENC_NA);
 			offset += bacnet_dlen;
@@ -1017,7 +1017,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 		{
 			uint8_t keycount;
 
-			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
+			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, bacnet_tree, offset, NULL, &sec_decrypted);
 			if (!sec_decrypted) {
 				call_data_dissector(tvb, pinfo, tree);
 				return tvb_captured_length(tvb);
@@ -1026,7 +1026,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 			keycount = tvb_get_uint8(tvb, offset);
 			offset++;
 			while (tvb_reported_length_remaining(tvb, offset) > 1 && keycount > 0) {
-				proto_tree_add_item(tree, hf_bacnet_security_master_key_algo,
+				proto_tree_add_item(bacnet_tree, hf_bacnet_security_master_key_algo,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				keycount--;
@@ -1035,23 +1035,23 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 		}
 		/* Set-Masterkey */
 		case BAC_NET_SET_MKEY:
-			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
+			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, bacnet_tree, offset, NULL, &sec_decrypted);
 			if (!sec_decrypted) {
 				call_data_dissector(tvb, pinfo, tree);
 				return tvb_captured_length(tvb);
 			}
 
-			proto_tree_add_item(tree, hf_bacnet_security_master_key_algo,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_master_key_algo,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bacnet_security_master_key_id,
+			proto_tree_add_item(bacnet_tree, hf_bacnet_security_master_key_id,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 			bacnet_dlen = tvb_get_uint8(tvb, offset);
 			offset++;
 
-			proto_tree_add_item(tree,
+			proto_tree_add_item(bacnet_tree,
 				hf_bacnet_security_master_key_data, tvb, offset,
 				bacnet_dlen, ENC_NA);
 			offset += bacnet_dlen;
@@ -1720,7 +1720,7 @@ proto_register_bacnet(void)
 
 	bacnet_dissector_table = register_dissector_table("bacnet.vendor",
 							  "BACnet Vendor Identifier", proto_bacnet,
-							  FT_UINT8, BASE_HEX);
+							  FT_UINT16, BASE_HEX);
 }
 
 void
