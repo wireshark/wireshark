@@ -550,7 +550,9 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 		 * tok->sub->last is a set with one element
 		 * tok->sub->last->sub is the value
 		 */
-		DISSECTOR_ASSERT(tok->sub);
+		if (!tok->sub) {
+			return NULL;
+		}
 		value_tok = tok->sub->last;
 	}
 
@@ -622,7 +624,9 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 	/* tok is a set with one element
 	 * tok->sub is the value
 	 */
-	DISSECTOR_ASSERT(value_tok && value_tok->sub);
+	if (!(value_tok && value_tok->sub)) {
+		return NULL;
+	}
 	value_tok = value_tok->sub;
 
 	json_token_type_t value_id = (json_token_type_t)value_tok->id;
@@ -1803,6 +1807,17 @@ typedef struct {
 	int hf_id;         // Header field ID dynamically registered
 } jsonplus_parser_child_field_t;
 
+/* wmem destroy callback: free only the GPtrArray container. The elements it
+ * holds are allocated from the same wmem pool and are reclaimed by the pool
+ * itself, so we must not let g_ptr_array_free() free them (hence false).
+ */
+static bool
+jsonplus_free_child_fields_cb(wmem_allocator_t *scope _U_, wmem_cb_event_t event _U_, void *data)
+{
+	g_ptr_array_free((GPtrArray *)data, false);
+	return false;
+}
+
 static jsonplus_parser_result_t *
 jsonplus_execute_parser(json_field_t *field, const char *value, wmem_allocator_t *pool)
 {
@@ -1862,11 +1877,15 @@ jsonplus_execute_parser(json_field_t *field, const char *value, wmem_allocator_t
 		argv = g_new0(gchar *, argc + 3);
 		argv[0] = parser_path;
 		argv[1] = field_value_arg;
+		/* Duplicate each extra arg into pool-owned memory so that the whole
+		 * strv returned by g_shell_parse_argv() can be freed here without
+		 * leaking the individual strings (argv only holds borrowed pointers).
+		 */
 		for (gint i = 0; i < argc; i++) {
-			argv[i + 2] = extra_args[i];
+			argv[i + 2] = wmem_strdup(pool, extra_args[i]);
 		}
 		argv[argc + 2] = NULL;
-		g_free(extra_args);
+		g_strfreev(extra_args);
 	} else {
 		argv = g_new0(gchar *, 3);
 		argv[0] = parser_path;
@@ -1901,6 +1920,10 @@ jsonplus_execute_parser(json_field_t *field, const char *value, wmem_allocator_t
 	result = wmem_new0(pool, jsonplus_parser_result_t);
 	result->append_text = NULL;
 	result->child_fields = g_ptr_array_new();
+	/* The GPtrArray is a glib allocation living on a wmem-allocated result;
+	 * free its container when the pool is torn down to avoid a leak.
+	 */
+	wmem_register_callback(pool, jsonplus_free_child_fields_cb, result->child_fields);
 
 	// Parse output line by line
 	gchar **lines = g_strsplit(standard_output, "\n", -1);
@@ -2368,21 +2391,27 @@ jsonplus_dissect_dict_boolean_field(tvbuff_t *tvb, proto_tree *tree, packet_info
 // NOLINTNEXTLINE(misc-no-recursion)
 static int jsonplus_count_json_tokens(jsmntok_t *tokens, int token_idx, int depth)
 {
-	DISSECTOR_ASSERT(depth < JSON_PLUS_MAX_PATH_DEPTH);
+	// Nesting is attacker-controlled; stop descending instead of asserting.
+	if (depth >= JSON_PLUS_MAX_PATH_DEPTH) {
+		return 1;  // Count only the current token, do not recurse further
+	}
 	jsmntok_t *token = &tokens[token_idx];
 	int count = 1;  // Start with current token
 	int i, child_idx;
 
 	if (token->type == JSMN_OBJECT) {
-		// Skip over all key value pairs
+		// Skip over all key/value pairs. Count each child exactly once and
+		// advance by that amount (counting twice per child was O(2^depth)).
 		child_idx = token_idx + 1;
 		for (i = 0; i < token->size; i++) {
 			// Skip key
-			count += jsonplus_count_json_tokens(tokens, child_idx, depth + 1);
-			child_idx += jsonplus_count_json_tokens(tokens, child_idx, depth + 1);
+			int key_tokens = jsonplus_count_json_tokens(tokens, child_idx, depth + 1);
+			count += key_tokens;
+			child_idx += key_tokens;
 			// Skip value
-			count += jsonplus_count_json_tokens(tokens, child_idx, depth + 1);
-			child_idx += jsonplus_count_json_tokens(tokens, child_idx, depth + 1);
+			int value_tokens = jsonplus_count_json_tokens(tokens, child_idx, depth + 1);
+			count += value_tokens;
+			child_idx += value_tokens;
 		}
 	}
 	else if (token->type == JSMN_ARRAY) {
@@ -2419,7 +2448,16 @@ static int jsonplus_dissect_dict_object_field(tvbuff_t *tvb, proto_tree *tree, p
 			  jsmntok_t *tokens, int token_idx, const char *json_buf, json_field_t *field,
 			  const char **path_parts, int path_depth)
 {
-	DISSECTOR_ASSERT(path_depth < JSON_PLUS_MAX_PATH_DEPTH);
+	// Nesting depth is attacker-controlled: skip this subtree gracefully
+	// instead of asserting. Return the token count so the caller advances.
+	if (path_depth >= JSON_PLUS_MAX_PATH_DEPTH) {
+		if (tree) {
+			proto_tree_add_expert_format(tree, pinfo, &ei_json_plus_parse_error,
+				tvb, 0, 0, "JSON+ nesting too deep, skipping (max %d)",
+				JSON_PLUS_MAX_PATH_DEPTH);
+		}
+		return jsonplus_count_json_tokens(tokens, token_idx, 0);
+	}
 	jsmntok_t *token = &tokens[token_idx];
 	proto_item *ti;
 	proto_tree *subtree;
@@ -2530,7 +2568,16 @@ static int jsonplus_dissect_dict_array_field(tvbuff_t *tvb, proto_tree *tree, pa
 			 jsmntok_t *tokens, int token_idx, const char *json_buf, json_field_t *field,
 			 const char **path_parts, int path_depth)
 {
-	DISSECTOR_ASSERT(path_depth < JSON_PLUS_MAX_PATH_DEPTH);
+	// Nesting depth is attacker-controlled: skip this subtree gracefully
+	// instead of asserting. Return the token count so the caller advances.
+	if (path_depth >= JSON_PLUS_MAX_PATH_DEPTH) {
+		if (tree) {
+			proto_tree_add_expert_format(tree, pinfo, &ei_json_plus_parse_error,
+				tvb, 0, 0, "JSON+ nesting too deep, skipping (max %d)",
+				JSON_PLUS_MAX_PATH_DEPTH);
+		}
+		return jsonplus_count_json_tokens(tokens, token_idx, 0);
+	}
 	jsmntok_t *token = &tokens[token_idx];
 	proto_item *ti;
 	proto_tree *subtree;
@@ -2630,7 +2677,16 @@ static int jsonplus_display_json_tree_dict(tvbuff_t *tvb, proto_tree *tree, pack
 		       jsmntok_t *tokens, int token_idx, const char *json_buf,
 		       const char **path_parts, int path_depth)
 {
-	DISSECTOR_ASSERT(path_depth < JSON_PLUS_MAX_PATH_DEPTH);
+	// Nesting depth is attacker-controlled: skip this subtree gracefully
+	// instead of asserting. Return the token count so the caller advances.
+	if (path_depth >= JSON_PLUS_MAX_PATH_DEPTH) {
+		if (tree) {
+			proto_tree_add_expert_format(tree, pinfo, &ei_json_plus_parse_error,
+				tvb, 0, 0, "JSON+ nesting too deep, skipping (max %d)",
+				JSON_PLUS_MAX_PATH_DEPTH);
+		}
+		return jsonplus_count_json_tokens(tokens, token_idx, 0);
+	}
 	jsmntok_t *token = &tokens[token_idx];
 	json_field_t *field = NULL;
 	char *current_path;
