@@ -14645,7 +14645,7 @@ class TestDissectAx25Kiss:
         assert [f[6] for f in frames] == [
             'Tx delay 50, Port 0', 'Persistence 63, Port 0', 'Slot time 10, Port 0',
             'Tx tail 5, Port 0', 'Full duplex 0, Port 0', 'Full duplex 1, Port 3',
-            'Tx delay 255, Port 2', 'Set hardware 0, Port 0', 'Set hardware, Port 4']
+            'Tx delay 255, Port 2', 'Set hardware, Port 0', 'Set hardware, Port 4']
         frames = self.run_fields(cmd_tshark, capture_file, test_env,
                                  '-Y', 'frame.number >= 17 && frame.number <= 24',
                                  '-e_ws.col.info')

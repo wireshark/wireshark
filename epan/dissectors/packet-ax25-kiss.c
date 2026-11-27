@@ -101,6 +101,7 @@
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/proto_data.h>
 #include "packet-ax25.h"
 
@@ -142,6 +143,9 @@ static int hf_ax25_kiss_fullduplex;
 static int hf_ax25_kiss_sethardware;
 static int hf_ax25_kiss_data_ack;
 static int hf_ax25_kiss_cksum;
+static int hf_ax25_kiss_cksum_status;
+
+static expert_field ei_ax25_kiss_cksum;
 
 
 /* Initialize the subtree pointers */
@@ -255,7 +259,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 		}
 	frame_type_text = val_to_str(pinfo->pool, kiss_type, kiss_frame_types, "Unknown (%u)");
 	snprintf( info_buffer, STRLEN, "%s, Port %u", frame_type_text, kiss_port );
-	if ( kiss_param_len > 0 )
+	if ( kiss_param_len > 0 && kiss_type != KISS_SETHARDWARE )
 		snprintf( info_buffer, STRLEN, "%s %u, Port %u", frame_type_text, kiss_param, kiss_port );
 
 	offset += kiss_param_len;
@@ -334,7 +338,9 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 				for ( kiss_cksum_index = 0; kiss_cksum_index < kiss_tvb_length; kiss_cksum_index++ )
 					kiss_cksum ^= (tvb_get_uint8( tvb, kiss_cksum_index ) & 0xff);
 
-				proto_tree_add_checksum(kiss_tree, tvb, 0, hf_ax25_kiss_cksum, -1, NULL, pinfo, kiss_cksum, ENC_NA, PROTO_CHECKSUM_GENERATED);
+				proto_tree_add_checksum(kiss_tree, tvb, kiss_tvb_length, hf_ax25_kiss_cksum,
+					hf_ax25_kiss_cksum_status, &ei_ax25_kiss_cksum, pinfo, kiss_cksum,
+					ENC_NA, PROTO_CHECKSUM_VERIFY);
 			}
 		}
 	}
@@ -414,10 +420,23 @@ proto_register_ax25_kiss(void)
 		},
 		{ &hf_ax25_kiss_cksum,
 			{ "Checksum",		"ax25_kiss.cksum",
-			FT_UINT16, BASE_HEX, NULL, 0x0,
+			FT_UINT8, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_kiss_cksum_status,
+			{ "Checksum Status",	"ax25_kiss.cksum.status",
+			FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
 			NULL, HFILL }
 		},
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_ax25_kiss_cksum,
+			{ "ax25_kiss.cksum_bad", PI_CHECKSUM, PI_WARN,
+			"Bad checksum", EXPFILL }
+		},
+	};
+	expert_module_t *expert_ax25_kiss;
 
 	/* Setup protocol subtree array */
 	static int *ett[] = {
@@ -433,6 +452,8 @@ proto_register_ax25_kiss(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25_kiss, hf, array_length( hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
+	expert_ax25_kiss = expert_register_protocol( proto_ax25_kiss );
+	expert_register_field_array( expert_ax25_kiss, ei, array_length( ei ) );
 
 	/* Register preferences module */
 	ax25_kiss_module = prefs_register_protocol( proto_ax25_kiss, NULL);
