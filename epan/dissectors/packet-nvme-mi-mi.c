@@ -686,7 +686,7 @@ static const value_string mi_aeosi_vtht_vals[] = {
 static void
 nvme_mi_pwriv_fmt(char *result, uint32_t val)
 {
-    snprintf(result, ITEM_LABEL_LENGTH, "%u (%u.%02u V)", val, (val * 5) / 100, (val * 5) % 100);
+    snprintf(result, ITEM_LABEL_LENGTH, "%u (%.2f V)", val, val * 5 / 100.0);
 }
 
 /* IPMI FRU 1.0r1.3 Table 16-2; 0Bh-0Dh per NVMe-MI 2.2 Figures 175-177. */
@@ -2670,9 +2670,9 @@ dissect_nvme_mi_mi_aeosi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                ENC_LITTLE_ENDIAN, &pwrv);
         /* Figure 65: Watts = Power Value x Power Scale; 00b, 11b Reserved. */
         if (pwrs == 1)
-            proto_item_append_text(pwrv_it, " (%u.%04u W)", pwrv / 10000, pwrv % 10000);
+            proto_item_append_text(pwrv_it, " (%.4f W)", pwrv / 10000.0);
         else if (pwrs == 2)
-            proto_item_append_text(pwrv_it, " (%u.%02u W)", pwrv / 100, pwrv % 100);
+            proto_item_append_text(pwrv_it, " (%.2f W)", pwrv / 100.0);
         reserved = &hf_nvme_mi_mi_aeosi_pwr_rsvd;
     } else if (id == 0x0f) {
         proto_item *ti = proto_tree_add_item(info, hf_nvme_mi_mi_aeosi_pwrid, tvb, pos, 4,

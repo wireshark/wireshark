@@ -37,6 +37,13 @@ to_capture = partial(helpers.to_capture, links=FRAME_LINKS)
 at = partial(helpers.at, links=FRAME_LINKS)
 in_section = partial(helpers.in_section, links=FRAME_LINKS)
 
+
+def decimal_forms(text):
+    '''text with '.' and with ',' as the decimal separator: tshark prints
+    computed decimals with the separator of the locale.'''
+    return text, re.sub(r'(?<=\d)\.(?=\d)', ',', text)
+
+
 # Every MI Get Log Page request shows this text, not as an expert info
 # (NVMe-MI 2.2 Figure 137).
 RAE_TEXT = ('Management Endpoint ignores RAE; if RAE is supported and this log'
@@ -4721,8 +4728,10 @@ class TestNvmeMiFieldEncoding:
         assert show(2, 'nvme.cmd.sanitize.dword10.owpass') == '0x00000000'
         assert '(16 passes)' in label(2, 'nvme.cmd.sanitize.dword10.owpass')
         # DUR/DUW are thousands of 512-byte units, rounded up (Figure 210).
-        assert '<= 1000.00 TiB' in label(4, 'nvme.cmd.get_logpage.smart.dur')
-        assert '<= 1.95 PiB' in label(4, 'nvme.cmd.get_logpage.smart.duw')
+        assert label(4, 'nvme.cmd.get_logpage.smart.dur').endswith(
+            decimal_forms('(<= 1000.00 TiB)'))
+        assert label(4, 'nvme.cmd.get_logpage.smart.duw').endswith(
+            decimal_forms('(<= 1.95 PiB)'))
         # Bit-position prefixes show which bits each mask covers.
         for frame, name, prefix in (
                 (6, 'nvme.cmd.get_logpage.errinf.sf.val', '0000 0011 0000 001. ='),
@@ -4745,7 +4754,8 @@ class TestNvmeMiFieldEncoding:
         # SPROG FFFFh is the not-applicable sentinel, not 99.998%.
         assert 'not applicable' in label(8, 'nvme.cmd.get_logpage.sanitize.sprog')
         assert '%' not in label(8, 'nvme.cmd.get_logpage.sanitize.sprog')
-        assert '(25.00% complete)' in label(10, 'nvme.cmd.get_logpage.sanitize.sprog')
+        assert label(10, 'nvme.cmd.get_logpage.sanitize.sprog').endswith(
+            decimal_forms('(25.00% complete)'))
         assert 'Overwrite Passes Completed (OPC)' in label(
             8, 'nvme.cmd.get_logpage.sanitize.sstat.opc')
         # THR is 0's based (Figure 474).
@@ -5858,9 +5868,7 @@ class TestNvmeMiSpecRevisionFields:
         for frame, name, text in (
                 (2, i + 'vsen1.vsrs', '100 microseconds (0x03)'),
                 (2, i + 'vsen1.volss', '0.01 V (0x2)'),
-                (2, i + 'vsen1.pisv', '240 (12.00 V)'),
                 (2, i + 'vsen2.volss', '0.001 V (0x1)'),
-                (2, i + 'vsen2.pisv', '66 (3.30 V)'),
                 (2, i + 'vsen3.volss', 'Reserved (0x0)'),
                 (2, i + 'msvmt', '30 minutes'),
                 (2, i + 'psds.psd.miiell', '5 (500 us)'),
@@ -5875,6 +5883,8 @@ class TestNvmeMiSpecRevisionFields:
                 (32, 'nvme-mi.mi.port.pdas', '8 (2^8 = 256 bytes)'),
                 (34, 'nvme-mi.mi.port.pdas', '0 (No NVMe-MI PDA)')):
             assert text in p.label(frame, name), (frame, name, p.label(frame, name))
+        for name, text in (('vsen1.pisv', '240 (12.00 V)'), ('vsen2.pisv', '66 (3.30 V)')):
+            assert p.label(2, i + name).endswith(decimal_forms(text)), p.label(2, i + name)
         # Every PSD carries MIIELL; only PSD 0 sets it.
         assert p.values(2, i + 'psds.psd.miiell') == [5] + [0] * 31
         # Descriptor reserved bytes follow CFIDS; the window decodes no list
@@ -5950,13 +5960,14 @@ class TestNvmeMiVoltage:
                 (5, f + 'vmeas.act', 'Start Voltage Measurements (0x1)'),
                 (5, f + 'vmeas.svmt', '10 minutes'),
                 (9, f + 'vmeas.act', 'Clear Overvoltage Valid and Undervoltage Valid (0x2)'),
-                (12, vm + 'vsi.vssv', '240 (12.00 V)'),
                 (12, vm + 'vsi.vsss', '0.001 V (0x1)'),
                 (12, vm + 'iovpe', '2%'),
                 (12, vm + 'iuvpe', 'Not reported (255)'),
-                (15, 'nvme-mi.mi.aeosi.pwriv', '240 (12.00 V)'),
                 (15, 'nvme-mi.mi.aeosi.vtht', 'Overvoltage Threshold (0x0)')):
             assert text in p.label(frame, name), (frame, name, p.label(frame, name))
+        for frame, name in ((12, vm + 'vsi.vssv'), (15, 'nvme-mi.mi.aeosi.pwriv')):
+            assert p.label(frame, name).endswith(decimal_forms('240 (12.00 V)')), (
+                frame, name, p.label(frame, name))
         assert p.values(12, vm + 'ivolm.volv') == [12000, 12100]
         assert p.values(12, vm + 'ivolm.ncvm') == [0, 1]
         assert p.values(14, vm + 'ivolm.volv') == [12000, 12100]
@@ -8811,7 +8822,8 @@ class TestNvmeMiEdgeCases:
             assert label(p, frame, 'nvme-mi.mi.aeosi.ctv') == 'Composite Temperature Value (CTV): ' + ctv
             assert label(p, frame, 'nvme-mi.mi.aeosi.pmt').endswith('Power Measurement Type (PMT): ' + pmt)
             assert label(p, frame, 'nvme-mi.mi.aeosi.pwrs').endswith('Power Scale (PWRS): ' + pwrs)
-            assert label(p, frame, 'nvme-mi.mi.aeosi.pwrv').endswith('Power Value (PWRV): ' + pwrv)
+            assert label(p, frame, 'nvme-mi.mi.aeosi.pwrv').endswith(
+                decimal_forms('Power Value (PWRV): ' + pwrv))
         # VPD enumerations (Figures 172/175/176/183/194) and record byte order.
         assert [label(q, 84, n) for n in ('nvme-mi.mi.vpd.bfc', 'nvme-mi.mi.vpd.ff',
                                           'nvme-mi.mi.vpd.pciemlw')] == [

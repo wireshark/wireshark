@@ -3727,7 +3727,7 @@ static void add_pm_iiell(char *result, uint32_t val)
 
 static void add_ctrl_vsen_pisv(char *result, uint32_t val)
 {
-    snprintf(result, ITEM_LABEL_LENGTH, "%u (%u.%02u V)", val, (val * 5) / 100, (val * 5) % 100);
+    snprintf(result, ITEM_LABEL_LENGTH, "%u (%.2f V)", val, val * 5 / 100.0);
 }
 
 static void add_ctrl_minutes(char *result, uint32_t val)

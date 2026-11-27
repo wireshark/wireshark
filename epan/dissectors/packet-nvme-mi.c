@@ -225,7 +225,7 @@ static void
 nvme_mi_fmt_mprt(char *buf, uint32_t value)
 {
     if (value == 0xffff)
-        snprintf(buf, ITEM_LABEL_LENGTH, ">= 6553.5 s (0xffff)");
+        snprintf(buf, ITEM_LABEL_LENGTH, ">= %.1f s (0xffff)", 6553.5);
     else
         snprintf(buf, ITEM_LABEL_LENGTH, "%u ms (%u x 100 ms)",
                  value * 100, value);
