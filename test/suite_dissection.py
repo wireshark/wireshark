@@ -13189,6 +13189,28 @@ class TestDissectAth:
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 17
 
+    def test_ath_negative_lengths(self, cmd_tshark, capture_file, test_env):
+        '''A negative command, domain or payload length is reported and
+        taken as 0, so the rest of the heartbeat up to the end mark is
+        still decoded, in one and two passes.'''
+        err = 'Negative length, treated as 0'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ath-negative-lengths.pcap'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.info', '-eath.clen',
+                    '-eath.dlen', '-eath.domain', '-eath.plen', '-eath.end',
+                    '-e_ws.expert.message', '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\tHeartbeat from 10.0.0.1 to default domain\t4\t0\t\t0\tTRIBES-E\t\t',
+                '2\tHeartbeat from 10.0.0.1 to domain dom\t-1\t3\tdom\t0\tTRIBES-E\t'
+                + err + '\t_ws.malformed',
+                '3\tHeartbeat from 10.0.0.1 to default domain\t0\t-1\t\t0\tTRIBES-E\t'
+                + err + '\t_ws.malformed',
+                '4\tHeartbeat from 10.0.0.1 to default domain\t0\t0\t\t-5\tTRIBES-E\t'
+                + err + '\t_ws.malformed',
+            ]
+
     def test_ath_ipv6_host(self, cmd_tshark, capture_file, test_env):
         '''A 16 octet host is decoded as an IPv6 address and shown in the
         Info column. It used to be an "invalid IP length" error.'''
