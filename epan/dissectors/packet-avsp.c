@@ -321,7 +321,7 @@ static const value_string dzgre_a_versions[] = {
 };
 
 static const value_string dzgre_b_versions[] = {
-    {ARISTA_DZGRE_A_VER_1, "1"},
+    {ARISTA_DZGRE_B_VER_1, "1"},
     {0, NULL}
 };
 
@@ -565,6 +565,12 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
             offset += 1;
 
             for (i = 0; i < count; i++) {
+                /* Each sample adds layers; stop before the layer limit */
+                if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+                    proto_tree_add_expert_remaining(avsp_greent_hdr, pinfo,
+                            &ei_avsp_too_deep, tvb, offset);
+                    return tvb_captured_length(tvb);
+                }
                 ti = proto_tree_add_item(avsp_greent_hdr,
                         hf_avsp_greent_sample_hdr, tvb, 0, -1, ENC_NA);
                 avsp_greent_sample_hdr = proto_item_add_subtree(ti,
@@ -807,7 +813,7 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
 
         switch (version) {
         case ARISTA_DZGRE_TS_64_TAI:
-            col_set_str(pinfo->cinfo, COL_INFO, "Arista DzGRE(A) Frame");
+            col_set_str(pinfo->cinfo, COL_INFO, "Arista DzGRE(timestamped) Frame");
             ti = proto_tree_add_item(avsp_tree, hf_avsp_dzgre_ts_hdr, tvb,
                     0, -1, ENC_NA);
             avsp_dzgre_hdr = proto_item_add_subtree(ti, ett_avsp_dzgre_ts_hdr);
@@ -975,7 +981,7 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
             ENDTRY;
 
             /* Get the TGen payload captured length. */
-            uint16_t tgen_payload_captured_len = tvb_captured_length(tgen_payload_tvb);
+            unsigned tgen_payload_captured_len = tvb_captured_length(tgen_payload_tvb);
 
             /* Add the TGen payload to the tree, with a heading that displays
                the TGgen payload captured length. */
