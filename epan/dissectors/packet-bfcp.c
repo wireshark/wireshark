@@ -358,6 +358,13 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			offset++;
 			break;
 		case 6: /* ERROR-CODE */
+			if (length < 3) {
+				/* Type, Length and the Error Code are needed */
+				expert_add_info_format(pinfo, item, &ei_bfcp_attribute_length_too_small,
+						       "Attribute length is too small (%d bytes - minimum valid is 3)", length);
+				offset = attr_start_offset + length;
+				break;
+			}
 			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			if(length>3){
@@ -501,7 +508,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			break;
 		}
 		proto_item_set_len(ti, length + pad_len);
-		read_attr = read_attr + length;
+		read_attr = read_attr + length + pad_len;
 	}
 	decrement_dissection_depth(pinfo);
 
