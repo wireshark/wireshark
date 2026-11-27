@@ -1447,7 +1447,7 @@ dissect_cmgl_data_part(tvbuff_t *tvb, packet_info *pinfo,
             expert_add_info(pinfo, pitem, &ei_invalid_hex);
             return true;
         }
-        sscanf((char *)pos, "%2hhx", &(final_arr[i-8]));
+        final_arr[i-8] = (uint8_t)((g_ascii_xdigit_value(pos[0]) << 4) | g_ascii_xdigit_value(pos[1]));
         pos += 2;
     }
     final_tvb = tvb_new_child_real_data(tvb, final_arr, bytes_count - 8, bytes_count - 8);
@@ -1556,7 +1556,7 @@ dissect_cmgr_data_part(tvbuff_t *tvb, packet_info *pinfo,
             expert_add_info(pinfo, pitem, &ei_invalid_hex);
             return true;
         }
-        sscanf((char *)pos, "%2hhx", &(final_arr[i-8]));
+        final_arr[i-8] = (uint8_t)((g_ascii_xdigit_value(pos[0]) << 4) | g_ascii_xdigit_value(pos[1]));
         pos += 2;
     }
     final_tvb = tvb_new_child_real_data(tvb, final_arr, bytes_count - 8, bytes_count - 8);
@@ -1942,7 +1942,7 @@ dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     expert_add_info(pinfo, pitem, &ei_invalid_hex);
                     return true;
                 }
-                sscanf((char *)pos, "%2hhx", &(final_arr[i]));
+                final_arr[i] = (uint8_t)((g_ascii_xdigit_value(pos[0]) << 4) | g_ascii_xdigit_value(pos[1]));
                 pos += 2;
             }
             final_tvb = tvb_new_child_real_data(tvb, final_arr, bytes_count, bytes_count);
