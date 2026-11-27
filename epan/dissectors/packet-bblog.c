@@ -591,6 +591,9 @@ dissect_bblog_binary_option(tvbuff_t *tvb, packet_info *pinfo,
     uint32_t type;
     struct nflx_tcpinfo tcpinfo;
 
+    if (cbo_data == NULL || cbo_data->optval == NULL)
+        return 0;
+
     custom_data_len = cbo_data->optval->custom_binaryval.data.custom_data_len;
     custom_data = cbo_data->optval->custom_binaryval.data.custom_data;
 
