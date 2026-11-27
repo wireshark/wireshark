@@ -608,13 +608,11 @@ dissect_atn_cm(
     void *data _U_)
 {
     int   type;
+    proto_item *ti;
     proto_tree *sub_tree;
 
-    sub_tree = proto_tree_add_subtree(
-      tree, tvb, 0, -1, ett_atn_cm, NULL, ATN_CM_PROTO);
-
-    /* ti = proto_tree_add_item(tree, proto_atn_cm, tvb, 0, 0 , ENC_NA); */
-    /* sub_tree = proto_item_add_subtree(ti, ett_atn_cm_pdu); */
+    ti = proto_tree_add_item(tree, proto_atn_cm, tvb, 0, -1, ENC_NA);
+    sub_tree = proto_item_add_subtree(ti, ett_atn_cm);
 
     /* determine whether it is uplink or downlink */
     type = check_heur_msg_type(pinfo);
@@ -715,6 +713,8 @@ dissect_atn_cm_heur(
                 pinfo->clnp_srcref,
                 &pinfo->dst );
         }
+        /* the PDU may belong to a dialog whose AARQ was not seen (the
+         * capture started later), it is still a valid CM PDU */
         if(atn_cv){
             atn_cv->ae_qualifier = cma;
         }
