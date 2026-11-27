@@ -14511,6 +14511,29 @@ class TestDissectAvsp:
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
 
+    def test_avsp_greent_layer_limit(self, cmd_tshark, capture_file, test_env):
+        '''GREENT frames with 10, 30, 100 and 255 samples, each an
+        Ethernet frame: the sample loop stops near the layer limit with an
+        expert info instead of a dissector bug, after 96 samples with the
+        default maximum tree depth, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('avsp-greent-layers.pcap'),
+                    '-Tfields', '-eframe.number', '-eavsp.greent.sample_count',
+                    '-eavsp.greent.sample.len', '-e_ws.expert.message',
+                    '-E', 'aggregator=,',
+                ), encoding='utf-8', env=test_env)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert [(r[0], r[1], len(r[2].split(','))) for r in rows] == [
+                ('1', '10', 10), ('2', '30', 30), ('3', '100', 96), ('4', '255', 96)]
+            assert [r[3] for r in rows] == ['', '', 'AVSP nested too deep, not dissected',
+                                            'AVSP nested too deep, not dissected']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('avsp-greent-layers.pcap'), '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Dissector bug' not in stdout
+        assert 'Malformed Packet' not in stdout
+
     def test_avsp_nesting_limit(self, cmd_tshark, capture_file, test_env):
         '''300 nested AVSP timestamp headers stop with avsp.too_deep
         instead of failing an assertion at the layer limit.'''
