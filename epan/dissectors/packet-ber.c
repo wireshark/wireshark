@@ -68,6 +68,12 @@
  * XXX - Max nesting in the ASN.1 plugin is 32. Should they match?
  */
 #define BER_MAX_NESTING 500
+/* Nesting limit for the unknown BER dissector; each level adds tree levels,
+   so stay well below the tree depth limit. */
+#define BER_MAX_UNKNOWN_NESTING 100
+/* Nesting limit for walking indefinite length encodings in try_get_ber_length(),
+   which re-walks the contents at every level. */
+#define BER_MAX_INDEF_NESTING 100
 
 void proto_register_ber(void);
 void proto_reg_handoff_ber(void);
@@ -167,6 +173,7 @@ static expert_field ei_ber_wrong_tag_in_tagged_type;
 static expert_field ei_ber_universal_tag_unknown;
 static expert_field ei_ber_no_oid;
 static expert_field ei_ber_nesting_too_deep;
+static expert_field ei_ber_unknown_nesting;
 static expert_field ei_ber_syntax_not_implemented;
 static expert_field ei_ber_oid_not_implemented;
 static expert_field ei_ber_value_too_many_bytes;
@@ -795,9 +802,10 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile unsigned off
     proto_item        *pi;
     asn1_ctx_t         asn1_ctx;
 
-    if (nest_level > BER_MAX_NESTING) {
-        /* Assume that we have a malformed packet. */
-        THROW(ReportedBoundsError);
+    if (nest_level > BER_MAX_UNKNOWN_NESTING) {
+        /* Stop well before the tree depth limit is reached. */
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_ber_unknown_nesting, tvb, offset);
+        return tvb_reported_length(tvb);
     }
 
     start_offset = offset;
@@ -1306,7 +1314,7 @@ try_get_ber_length(tvbuff_t *tvb, unsigned offset, uint32_t *length, bool *ind, 
     tmp_length = 0;
     tmp_ind    = false;
 
-    if (nest_level > BER_MAX_NESTING) {
+    if (nest_level > BER_MAX_INDEF_NESTING) {
         /* Assume that we have a malformed packet. */
         THROW(ReportedBoundsError);
     }
@@ -4551,6 +4559,7 @@ proto_register_ber(void)
         { &ei_ber_error_length, { "ber.error.length", PI_MALFORMED, PI_WARN, "BER Error: length is not valid", EXPFILL }},
         { &ei_ber_wrong_tag_in_tagged_type, { "ber.error.wrong_tag_in_tagged_type", PI_MALFORMED, PI_WARN, "BER Error: Wrong tag in tagged type", EXPFILL }},
         { &ei_ber_universal_tag_unknown, { "ber.error.universal_tag_unknown", PI_MALFORMED, PI_WARN, "BER Error: can not handle universal", EXPFILL }},
+        { &ei_ber_unknown_nesting, { "ber.error.unknown_nesting", PI_UNDECODED, PI_WARN, "BER: unknown BER nested too deeply", EXPFILL }},
         { &ei_ber_nesting_too_deep, { "ber.error.nesting_too_deep", PI_UNDECODED, PI_WARN, "BER: OID callbacks nested too deeply", EXPFILL }},
         { &ei_ber_no_oid, { "ber.error.no_oid", PI_MALFORMED, PI_WARN, "BER Error: No OID supplied to call_ber_oid_callback", EXPFILL }},
         { &ei_ber_oid_not_implemented, { "ber.error.oid_not_implemented", PI_UNDECODED, PI_WARN, "BER: Dissector for OID not implemented. Contact Wireshark developers if you want this supported", EXPFILL }},
