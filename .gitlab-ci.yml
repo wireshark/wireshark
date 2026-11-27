@@ -1498,6 +1498,11 @@ Visual Studio Code Analysis:
   script:
     - py -m venv sarif-tools.venv
     - sarif-tools.venv\Scripts\pip.exe install sarif-tools
+    # mcli verifies TLS servers against the Windows root store, which is missing the
+    # Amazon Trust Services roots that S3 now uses. Refresh it from Windows Update.
+    # XXX Remove this once the wireshark-windows-dev image refreshes its roots.
+    - certutil -generateSSTFromWU C:\roots.sst
+    - Import-Certificate -FilePath C:\roots.sst -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
     # https://github.com/minio/mc was archived in July 2026. As of this writing (September 2026), the Pigsty fork appears to be the most active.
     - New-Item -Path C:\mcli -Type "directory"
     - Invoke-Webrequest -OutFile C:\mcli\mcli.tar.gz https://github.com/pgsty/mc/releases/download/RELEASE.2026-09-16T00-00-00Z/mcli_20260916000000.0.0_windows_amd64.tar.gz
