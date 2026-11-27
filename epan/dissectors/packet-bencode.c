@@ -222,12 +222,20 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
             return op1len;
          }
 
+         /* The entry is dissected once; its length is set when the value
+          * length is known (a second pass without a tree doubled the work at
+          * every nesting level) */
+         ti = proto_tree_add_item(dtree, hf_bencode_dict_entry, tvb, offset + used, op1len, ENC_NA);
+         itree = proto_item_add_subtree(ti, ett_bencode_dict_entry);
+
+         dissect_bencoding_str(tvb, pinfo, offset + used, length, itree, ti, 1);
+
          op2len = -1;
          /* The shortest values there are - "0:", "le" and "de" - are two
           * bytes long, so anything from two bytes on is worth a try */
          if ((length - op1len) >= 2) {
             increment_dissection_depth(pinfo);
-            op2len = dissect_bencoding_rec(tvb, pinfo, offset + used + op1len, length - op1len, NULL, level + 1, NULL, 0);
+            op2len = dissect_bencoding_rec(tvb, pinfo, offset + used + op1len, length - op1len, itree, level + 1, ti, 2);
             decrement_dissection_depth(pinfo);
          }
 
@@ -236,13 +244,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
             return op2len;
          }
 
-         ti = proto_tree_add_item(dtree, hf_bencode_dict_entry, tvb, offset + used, op1len + op2len, ENC_NA);
-         itree = proto_item_add_subtree(ti, ett_bencode_dict_entry);
-
-         dissect_bencoding_str(tvb, pinfo, offset + used, length, itree, ti, 1);
-         increment_dissection_depth(pinfo);
-         dissect_bencoding_rec(tvb, pinfo, offset + used + op1len, length - op1len, itree, level + 1, ti, 2);
-         decrement_dissection_depth(pinfo);
+         proto_item_set_len(ti, op1len + op2len);
 
          used   += op1len + op2len;
          length -= op1len + op2len;
