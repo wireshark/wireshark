@@ -72,32 +72,38 @@ typedef struct _frame_data {
   wmem_list_t *pfd;          /**< Per frame proto data */
   GHashTable  *dependent_frames;     /**< A hash table of frames which this one depends on */
   const struct _color_filter *color_filter;  /**< Per-packet matching color_filter_t object */
-  uint32_t     cum_bytes;    /**< Cumulative bytes into the capture */
-  /* XXX - cum_bytes presumably ought to be 64-bit as well now */
-  uint8_t      tcp_snd_manual_analysis;   /**< TCP SEQ Analysis Overriding, 0 = none, 1 = OOO, 2 = RET , 3 = Fast RET, 4 = Spurious RET  */
-  /* Keep the bitfields below to 24 bits, so this plus the previous field
-     are 32 bits. (XXX - The previous field could be a bitfield too.) */
-  unsigned int passed_dfilter   : 1; /**< 1 = display, 0 = no display */
-  unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */
-  /* Do NOT use packet_char_enc enum here: MSVC compiler does not handle an enum in a bit field properly */
-  unsigned int encoding         : 1; /**< Character encoding (ASCII, EBCDIC...) */
-  unsigned int visited          : 1; /**< Has this packet been visited yet? 1=Yes,0=No*/
-  unsigned int marked           : 1; /**< 1 = marked by user, 0 = normal */
-  unsigned int ref_time         : 1; /**< 1 = marked as a reference time frame, 0 = normal */
-  unsigned int ignored          : 1; /**< 1 = ignore this frame, 0 = normal */
-  unsigned int has_ts           : 1; /**< 1 = has time stamp, 0 = no time stamp */
-  unsigned int has_modified_block : 1; /** 1 = block for this packet has been modified */
-  unsigned int need_colorize    : 1; /**< 1 = need to (re-)calculate packet color */
-  unsigned int tsprec           : 4; /**< Time stamp precision -2^tsprec gives up to femtoseconds */
-  nstime_t     abs_ts;       /**< Absolute timestamp */
+  /* The following two fields are only used with the time shift or
+   * aggregation view active, and perhaps should be moved out to a
+   * separate table to save memory in the typical case. */
+  char*        aggregation_key; /**< Holds the aggregation_key values used for rendering the aggregation view. */
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
+  nstime_t     abs_ts;       /**< Absolute timestamp */
   uint32_t     frame_ref_num; /**< Reference frame for relative timestamps (can be this frame) */
   /* frame_ref_num == num if ref_time == true, but also if this is the first
    * record that has_ts (or if somehow a record without a TS is a reference
    * time frame, the first frame after that with has_ts == true.) */
   uint32_t     prev_dis_num; /**< Previous displayed frame (0 if first one) */
-  gchar*       aggregation_key; /**< Holds the aggregation_key values used for rendering the aggregation view. */
-  bool         aggregated; /**<  * True if this frame is not displayed individually because it is represented
+  uint32_t     cum_bytes;    /**< Cumulative bytes into the capture */
+  /* XXX - cum_bytes presumably ought to be 64-bit as well now. */
+  /* MSVC starts a new storage unit when the declared size changes,
+     so all the bitfields should have the same size, e.g. don't use a
+     bool unless all the other bitfields are bool or uint8_t. */
+  unsigned int passed_dfilter     : 1; /**< 1 = display, 0 = no display */
+  unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */
+  /* Do NOT use packet_char_enc enum here: MSVC compiler does not handle an enum
+   * in a bit field properly (with C23 we could declare the underlying type
+   * of packet_char_enc to be uint8_t.) */
+  unsigned int encoding           : 1; /**< Character encoding (ASCII, EBCDIC...) */
+  unsigned int visited            : 1; /**< Has this packet been visited yet? 1=Yes,0=No*/
+  unsigned int marked             : 1; /**< 1 = marked by user, 0 = normal */
+  unsigned int ref_time           : 1; /**< 1 = marked as a reference time frame, 0 = normal */
+  unsigned int ignored            : 1; /**< 1 = ignore this frame, 0 = normal */
+  unsigned int has_ts             : 1; /**< 1 = has time stamp, 0 = no time stamp */
+  unsigned int has_modified_block : 1; /**< 1 = block for this packet has been modified */
+  unsigned int need_colorize      : 1; /**< 1 = need to (re-)calculate packet color */
+  unsigned int tsprec             : 4; /**< Time stamp precision -2^tsprec gives up to femtoseconds */
+  unsigned int tcp_snd_manual_analysis : 3;   /**< TCP SEQ Analysis Overriding, 0 = none, 1 = OOO, 2 = RET , 3 = Fast RET, 4 = Spurious RET  */
+  unsigned int aggregated         : 1; /**<  * True if this frame is not displayed individually because it is represented
    * by another frame sharing the same aggregation_key. */
 } frame_data;
 DIAG_ON_PEDANTIC
