@@ -16050,19 +16050,22 @@ class TestDissectBer:
     def test_ber_reassembly(self, cmd_tshark, capture_file, test_env):
         '''Constructed OCTET STRINGs: three segments, indefinite length,
         and (frame 24) an LDAP AttributeValue of two segments, which LDAP
-        dissects with hf_id -1 and which used to fail an assertion.'''
-        stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file('ber_coverage.pcap.gz'),
-                '-Y', 'ber.octet_string.fragment.count',
-                '-Tfields', '-eframe.number', '-eldap.name', '-eldap.baseObject',
-                '-eldap.AttributeValue', '-eber.octet_string.fragment.count',
-                '-eber.octet_string.reassembled.length',
-            ), encoding='utf-8', env=test_env)
-        assert stdout.splitlines() == [
-            '17\tcn=admin,dc=example,dc=com\t\t\t3\t26',
-            '21\t\tdc=example,dc=com\t\t2\t17',
-            '24\t\t\t61626364\t2\t4',
-        ]
+        dissects with hf_id -1 and which used to fail an assertion. The
+        segments are gathered in a composite tvb, so there is no fragment
+        subtree, and one and two passes show the same strings.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ber_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {17, 21, 24}',
+                    '-Tfields', '-eframe.number', '-eldap.name', '-eldap.baseObject',
+                    '-eldap.AttributeValue', '-eber.octet_string.fragment.count',
+                    '-eber.octet_string.reassembled.length',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '17\tcn=admin,dc=example,dc=com\t\t\t\t',
+                '21\t\tdc=example,dc=com\t\t\t',
+                '24\t\t\t61626364\t\t',
+            ]
 
     def test_ber_times(self, cmd_tshark, capture_file, test_env):
         '''UTCTime with Z and with a +hhmm/-hhmm offset (a valid offset

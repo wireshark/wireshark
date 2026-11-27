@@ -305,29 +305,6 @@ static non_const_value_string syntax_names[MAX_SYNTAX_NAMES+1] = {
     {0, NULL}
 };
 
-static const fragment_items octet_string_frag_items = {
-    /* Fragment subtrees */
-    &ett_ber_fragment,
-    &ett_ber_fragments,
-    /* Fragment fields */
-    &hf_ber_fragments,
-    &hf_ber_fragment,
-    &hf_ber_fragment_overlap,
-    &hf_ber_fragment_overlap_conflicts,
-    &hf_ber_fragment_multiple_tails,
-    &hf_ber_fragment_too_long_fragment,
-    &hf_ber_fragment_error,
-    &hf_ber_fragment_count,
-    /* Reassembled in field */
-    &hf_ber_reassembled_in,
-    /* Reassembled length field */
-    &hf_ber_reassembled_length,
-    /* Reassembled data field */
-    NULL,
-    /* Tag */
-    "OCTET STRING fragments"
-};
-
 void
 add_ber_encoded_label(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree)
 {
@@ -1454,8 +1431,6 @@ proto_tree_add_debug_text(tree, "dissect BER length %d, offset %d (remaining %d)
     return offset;
 }
 
-static reassembly_table octet_segment_reassembly_table;
-
 static unsigned
 dissect_ber_constrained_octet_string_impl(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, unsigned offset, int32_t min_len, int32_t max_len, int hf_id, tvbuff_t **out_tvb, unsigned nest_level, unsigned encoding);
 
@@ -1463,13 +1438,12 @@ static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
 reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, int hf_id, tvbuff_t *tvb, unsigned offset, uint32_t con_len, bool ind, tvbuff_t **out_tvb, unsigned nest_level)
 {
-    fragment_head *fd_head         = NULL;
     tvbuff_t      *next_tvb        = NULL;
     tvbuff_t      *reassembled_tvb = NULL;
-    uint16_t       dst_ref         = 0;
-    int            start_offset    = offset;
-    bool       fragment        = true;
-    bool       firstFragment   = true;
+    tvbuff_t      *composite_tvb   = NULL;
+    unsigned       start_offset    = offset;
+    bool           fragment        = true;
+    bool           firstFragment   = true;
 
     if (nest_level > BER_MAX_NESTING) {
         /* Assume that we have a malformed packet. */
@@ -1484,10 +1458,12 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, int hf_id, tvbuff_t 
     if (con_len == 0) /* Zero encodings (8.7.3) */
         return offset;
 
-    /* not sure we need this */
-    actx->pinfo->fragmented = true;
-
-    while(!fd_head) {
+    /*
+     * Gather the segments in a composite tvb that belongs to this packet;
+     * nothing is kept across packets, and nested constructed strings only
+     * reference their inner segments instead of copying them.
+     */
+    while (fragment) {
 
         offset = dissect_ber_constrained_octet_string_impl(false, actx, NULL,
                 tvb, offset, NO_BOUND, NO_BOUND, hf_id, &next_tvb, nest_level + 1, 0);
@@ -1524,43 +1500,39 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, int hf_id, tvbuff_t 
             break;
         }
 
-
         if (tvb_reported_length(next_tvb) < 1) {
-            /* Don't cause an assertion in the reassembly code. */
+            /* Composite tvbs cannot hold empty segments. */
             THROW(ReportedBoundsError);
         }
-        fd_head = fragment_add_seq_next(&octet_segment_reassembly_table,
-                                        next_tvb, 0, actx->pinfo,
-                                        (dst_ref | nest_level << 16), NULL,
-                                        tvb_reported_length(next_tvb),
-                                        fragment);
+        if (tvb_captured_length(next_tvb) < tvb_reported_length(next_tvb)) {
+            /* A composite tvb skips members that are not captured (it
+             * would end up shorter than reported); the reassembly code
+             * used before also threw here when it copied the segment. */
+            THROW(BoundsError);
+        }
+        if (composite_tvb == NULL)
+            composite_tvb = tvb_new_composite();
+        tvb_composite_append(composite_tvb, next_tvb);
 
         firstFragment = false;
     }
 
-    if (fd_head) {
-        if (fd_head->next) {
-            /* not sure I really want to do this here - should be nearer the application where we can give it a better name*/
-            proto_tree *next_tree;
-            proto_item *frag_tree_item;
+    if (composite_tvb) {
+        tvb_composite_finalize(composite_tvb);
+        reassembled_tvb = composite_tvb;
 
-            reassembled_tvb = tvb_new_chain(next_tvb, fd_head->tvb_data);
-
+        /* Only the outermost string gets a data source and a tree item */
+        if (nest_level == 0) {
             add_new_data_source(actx->pinfo, reassembled_tvb, "Reassembled OCTET STRING");
             /* Some callers pass -1 and only want the reassembled tvb */
             if (hf_id > 0) {
                 actx->created_item = proto_tree_add_item(tree, hf_id, reassembled_tvb, 0, -1, ENC_BIG_ENDIAN);
-                next_tree = proto_item_add_subtree (actx->created_item, ett_ber_reassembled_octet_string);
-                show_fragment_seq_tree(fd_head, &octet_string_frag_items, next_tree, actx->pinfo, reassembled_tvb, &frag_tree_item);
             }
         }
     }
 
     if (out_tvb)
         *out_tvb = reassembled_tvb;
-
-    /* again - not sure we need this */
-    actx->pinfo->fragmented = false;
 
     return offset;
 
@@ -4672,9 +4644,6 @@ proto_register_ber(void)
     syntax_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free); /* oid to syntax */
 
     register_ber_syntax_dissector("ASN.1", proto_ber, dissect_ber_syntax);
-
-    reassembly_table_register(&octet_segment_reassembly_table,
-                          &addresses_reassembly_table_functions);
 
     register_shutdown_routine(ber_shutdown);
 
