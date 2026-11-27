@@ -12971,6 +12971,33 @@ class TestDissectAt:
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
 
+    def test_at_copy_and_hex(self, cmd_tshark, capture_file, test_env):
+        '''A frame of 2000 one octet commands (it used to be copied once
+        per command), hex strings converted to octets in both cases, a
+        non hex character, and a lower case response matched after the
+        frame is upper-cased, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('at-copy.pcap'),
+                    '-Tfields', '-eframe.number', '-eat.cmd', '-edata.data',
+                    '-e_ws.expert.message', '-E', 'aggregator=;',
+                ), encoding='utf-8', env=test_env)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert [r[0] for r in rows] == ['1', '2', '3', '4']
+            # frame 1: every ";" is a command of its own, with an expert info
+            assert rows[0][1] == ';' * 1999
+            assert rows[0][2] == ''
+            assert rows[0][3].split(';') == ['Unknown or Non-standard AT command'] * 2000
+            # frame 2: 32 octets, upper and lower case digits
+            assert rows[1][1:] == ['+CSIM', bytes(range(0x10, 0x30)).hex(), '']
+            assert rows[2][1:] == ['+CSIM', '', 'Non hex character found in hex string']
+            assert rows[3][1:] == ['+csim', '', 'Odd hex string length']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at-copy.pcap'),
+                '-Y', 'frame.number == 4', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Command: +csim (Generic SIM access)' in stdout
+
     def test_at_ciev_missing_index(self, cmd_tshark, capture_file, test_env):
         '''+CIEV whose first parameter starts with CR has no indicator
         index. It used to be dereferenced; now it is an expert info.'''
