@@ -753,7 +753,7 @@ static void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timest
 
         StringCbCopy(formatMessage, MAX_LOG_LINE_LENGTH, (LPWSTR)ADD_OFFSET_TO_POINTER(pInfo, pInfo->EventMessageOffset));
 
-        for (USHORT i = 0; i < dwTopLevelPropertyCount; i++)
+        for (DWORD i = 0; i < dwTopLevelPropertyCount; i++)
         {
             pUserData = extract_properties(ev, pInfo, PointerSize, i, pUserData, pEndOfUserData, &prop_arr[i]);
             if (NULL == pUserData)

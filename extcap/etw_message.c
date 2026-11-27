@@ -86,7 +86,7 @@ VOID format_message(WCHAR* lpszMessage, PROPERTY_KEY_VALUE* propArray, DWORD dwP
 * length attribute, the size is inferred from the data type. The length will be zero for variable
 * length, null-terminated strings and structures.
 */
-static DWORD GetPropertyLength(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, USHORT i, PUSHORT PropertyLength)
+static DWORD GetPropertyLength(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, ULONG i, PUSHORT PropertyLength)
 {
     DWORD status = ERROR_SUCCESS;
     PROPERTY_DATA_DESCRIPTOR DataDescriptor = { 0 };
@@ -158,7 +158,7 @@ cleanup:
     return status;
 }
 
-static DWORD GetArraySize(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, USHORT i, PUSHORT ArraySize)
+static DWORD GetArraySize(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, ULONG i, PUSHORT ArraySize)
 {
     DWORD status = ERROR_SUCCESS;
     PROPERTY_DATA_DESCRIPTOR DataDescriptor = { 0 };
@@ -223,7 +223,7 @@ cleanup:
 }
 
 
-PBYTE extract_properties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD PointerSize, USHORT i, PBYTE pUserData, PBYTE pEndOfUserData, PROPERTY_KEY_VALUE* pExtract)
+PBYTE extract_properties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD PointerSize, ULONG i, PBYTE pUserData, PBYTE pEndOfUserData, PROPERTY_KEY_VALUE* pExtract)
 {
     TDHSTATUS status = ERROR_SUCCESS;
     USHORT PropertyLength = 0;
@@ -281,12 +281,12 @@ PBYTE extract_properties(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD Po
                 LastMember = pInfo->EventPropertyInfoArray[i].structType.StructStartIndex +
                     pInfo->EventPropertyInfoArray[i].structType.NumOfStructMembers;
 
-                for (USHORT j = pInfo->EventPropertyInfoArray[i].structType.StructStartIndex; j < LastMember; j++)
+                for (ULONG j = pInfo->EventPropertyInfoArray[i].structType.StructStartIndex; j < LastMember; j++)
                 {
                     pUserData = extract_properties(pEvent, pInfo, PointerSize, j, pUserData, pEndOfUserData, pExtract);
                     if (NULL == pUserData)
                     {
-                        StringCbPrintf(pExtract->value, sizeof(pExtract->value), L"%s: extract_properties of member %d failed 0x%x", pExtract->key, j, status);
+                        StringCbPrintf(pExtract->value, sizeof(pExtract->value), L"%s: extract_properties of member %lu failed 0x%x", pExtract->key, j, status);
                         break;
                     }
                 }
