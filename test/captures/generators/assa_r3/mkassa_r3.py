@@ -534,8 +534,8 @@ def odd_pdus(cap):
     s.host(a + b + c[:6], c[6:])
     s.lock(pdu(resp(0, 1), pktno=2) + pdu(hasdata(2, field(9, b'R3 2.00')), pktno=3) +
            pdu(resp(0, 5), pktno=4))
-    # the "~~~ds" string (length octet 'd': 101 octet PDU)
-    s.lock(b'~~~ds' + b'\r\n' + b' ' * 94)
+    # the "~~~ds" string is 5 octets without a length field, a PDU follows it
+    s.lock(b'~~~ds' + pdu(resp(0, 5), pktno=5))
     # unknown command values (warning)
     s.host(pdu(cmd(32)))
     s.host(pdu(cmd(0xff, b'\x01')))

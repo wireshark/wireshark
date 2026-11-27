@@ -3885,7 +3885,7 @@ dissect_r3_upstreamcommand_dumpeventlog (tvbuff_t *tvb, uint32_t start_offset, u
 
   if (length != 11)
   {
-    expert_add_info_format(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "Malformed event log record -- expected 10 octets");
+    expert_add_info_format(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "Malformed event log record -- expected 11 octets");
   }
   else
   {
@@ -3897,7 +3897,7 @@ dissect_r3_upstreamcommand_dumpeventlog (tvbuff_t *tvb, uint32_t start_offset, u
 
     en = val_to_str_ext_const (tvb_get_uint8 (tvb, 10), &r3_eventnames_ext, "[Unknown Event]");
 
-    eventlog_tree = proto_tree_add_subtree_format(tree, tvb, start_offset, 10, ett_r3eventlogrecord, NULL,
+    eventlog_tree = proto_tree_add_subtree_format(tree, tvb, start_offset, 11, ett_r3eventlogrecord, NULL,
         "Event Log Record %u (%s)", tvb_get_letohs (tvb, 0), en);
 
     proto_tree_add_item (eventlog_tree, hf_r3_eventlog_recordnumber, tvb,  0, 2, ENC_LITTLE_ENDIAN);
@@ -3963,7 +3963,7 @@ dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, uint32_t start_offset, ui
                         "Config Field: %s (%u)", ci, tvb_get_uint8 (tvb, offset + 1));
 
     pi = proto_tree_add_item (upstreamfield_tree, hf_r3_configitemlength, tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
-    if (item_length == 0) {
+    if (item_length < 3) {
       expert_add_info_format(pinfo, pi, &ei_r3_malformed_length, "Invalid item length");
       return;
     }
@@ -4148,7 +4148,7 @@ dissect_r3_upstreamcommand_dumpalarmlog (tvbuff_t *tvb, uint32_t start_offset, u
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  alarmlog_tree = proto_tree_add_subtree_format(tree, tvb, start_offset, 9,
+  alarmlog_tree = proto_tree_add_subtree_format(tree, tvb, start_offset, 11,
         ett_r3alarmlogrecord, NULL, "Alarm Log Record %u", tvb_get_letohs (tvb, 0));
 
   proto_tree_add_item (alarmlog_tree, hf_r3_alarmlog_recordnumber, tvb, 0, 2, ENC_LITTLE_ENDIAN);
@@ -5225,7 +5225,7 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, uint32_t start_offset, uint32_t length 
 
     sc_item = proto_tree_add_item (sc_tree, hf_r3_configitemlength, payload_tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (sc_tree, hf_r3_configitem,       payload_tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-    if (item_length == 0) {
+    if (item_length < 2) {
       expert_add_info_format(pinfo, sc_item, &ei_r3_malformed_length, "Invalid item length");
       return;
     }
@@ -5235,7 +5235,7 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, uint32_t start_offset, uint32_t length 
       switch (configMap [configItem])
       {
         case CONFIGTYPE_NONE :
-          proto_tree_add_item (sc_tree, hf_r3_configitemdata, payload_tvb, offset + 2, item_length - 3, ENC_NA);
+          proto_tree_add_item (sc_tree, hf_r3_configitemdata, payload_tvb, offset + 2, item_length - 2, ENC_NA);
           break;
 
         case CONFIGTYPE_BOOL :
@@ -6583,6 +6583,7 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
   unsigned    offset       = 0;
   uint32_t    packetLen;
   unsigned    octConsumed;
+  unsigned    tail_offset;
 
   if (tvb_strneql (tvb, 0, "~~~ds", 5) == 0)
   {
@@ -6611,6 +6612,15 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
 
   packetLen = tvb_get_uint8 (tvb, 3);
 
+  /* The PDU is packetLen + 1 octets: 5 header octets and 3 tail octets (CRC, XOR) */
+  if (packetLen < 7)
+  {
+    expert_add_info_format(pinfo, proto_tree_get_parent (r3_tree), &ei_r3_malformed_length,
+                            "Packet length too short");
+    return tvb_reported_length (tvb);
+  }
+  tail_offset = packetLen - 2;
+
   if (r3_tree)
   {
     payload_item = proto_tree_add_item (r3_tree, hf_r3_payload, tvb, 5, -1, ENC_NA);
@@ -6633,39 +6643,46 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
     offset += octConsumed;
   }
 
+  if (offset != tail_offset)
+  {
+    expert_add_info_format(pinfo, proto_tree_get_parent (payload_tree), &ei_r3_malformed_length,
+                            "Commands do not end at the CRC");
+    offset = tail_offset;
+  }
+
   /*
    *  Show the CRC and XOR status
    */
   if (r3_tree)
   {
-    proto_item *tail_item     = proto_tree_add_item (r3_tree, hf_r3_tail, tvb, offset, 3, ENC_NA);
+    proto_item *tail_item     = proto_tree_add_item (r3_tree, hf_r3_tail, tvb, tail_offset, 3, ENC_NA);
     proto_tree *tail_tree     = proto_item_add_subtree (tail_item, ett_r3tail);
-    uint32_t    packetCRC     = tvb_get_letohs (tvb, offset);
-    uint32_t    packetXor     = tvb_get_uint8 (tvb, offset + 2);
+    uint32_t    packetCRC     = tvb_get_letohs (tvb, tail_offset);
+    uint32_t    packetXor     = tvb_get_uint8 (tvb, tail_offset + 2);
     uint32_t    calculatedCRC;
 
     if ((calculatedCRC = crc16_r3_ccitt_tvb(tvb, 1, packetLen - 3)) == packetCRC)
-      proto_tree_add_uint_format_value(tail_tree, hf_r3_crc, tvb, offset, 2, packetCRC, "0x%04x (correct)", packetCRC);
+      proto_tree_add_uint_format_value(tail_tree, hf_r3_crc, tvb, tail_offset, 2, packetCRC, "0x%04x (correct)", packetCRC);
     else
     {
       proto_item *tmp_item;
 
-      proto_tree_add_uint_format_value(tail_tree, hf_r3_crc, tvb, offset, 2, packetCRC,
+      proto_tree_add_uint_format_value(tail_tree, hf_r3_crc, tvb, tail_offset, 2, packetCRC,
                                   "0x%04x (incorrect, should be 0x%04x)", packetCRC, calculatedCRC);
-      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_crc_bad, tvb, offset, 2, true);
+      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_crc_bad, tvb, tail_offset, 2, true);
       proto_item_set_generated (tmp_item);
     }
 
     if ((packetLen ^ 0xff) == packetXor)
-      proto_tree_add_uint_format_value(tail_tree, hf_r3_xor, tvb, offset + 2, 1, packetXor,
+      proto_tree_add_uint_format_value(tail_tree, hf_r3_xor, tvb, tail_offset + 2, 1, packetXor,
                                   "0x%02x (correct)", packetXor);
     else
     {
       proto_item *tmp_item;
 
-      proto_tree_add_uint_format_value(tail_tree, hf_r3_xor, tvb, offset + 2, 1, packetXor,
+      proto_tree_add_uint_format_value(tail_tree, hf_r3_xor, tvb, tail_offset + 2, 1, packetXor,
                                   "0x%02x (incorrect, should be 0x%02x)", packetXor, packetLen ^ 0xff);
-      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_xor_bad, tvb, offset + 2, 1, true);
+      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_xor_bad, tvb, tail_offset + 2, 1, true);
       proto_item_set_generated (tmp_item);
     }
   }
@@ -6707,13 +6724,17 @@ dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static unsigned
 get_r3_message_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
+  /* The "~~~ds" banner is 5 octets and has no length field */
+  if (tvb_strneql (tvb, offset, "~~~ds", 5) == 0)
+    return 5;
+
   return (unsigned) tvb_get_uint8 (tvb, offset + 3) + 1;
 }
 
 static int
 dissect_r3 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  tcp_dissect_pdus (tvb, pinfo, tree, true, 4, get_r3_message_len, dissect_r3_message, data);
+  tcp_dissect_pdus (tvb, pinfo, tree, true, 5, get_r3_message_len, dissect_r3_message, data);
   return tvb_reported_length(tvb);
 }
 

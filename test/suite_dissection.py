@@ -12690,8 +12690,9 @@ class TestDissectAssaR3:
         assert values('r3.configitem') >= set(range(157))
 
     def test_assa_r3_reassembly(self, cmd_tshark, capture_file, test_env):
-        '''A PDU over three segments (the first cut inside the header) and
-        a PDU finished in the segment after two others.'''
+        '''A PDU over three segments (the first cut inside the header), a
+        PDU finished in the segment after two others, and the 5 octet
+        "~~~ds" string followed by a PDU.'''
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('assa_r3_coverage.pcap.gz'),
                 '-Y', 'frame.number >= 324 && frame.number <= 330 && r3',
@@ -12703,7 +12704,7 @@ class TestDissectAssaR3:
             '327\t\t2|3\t',
             '328\t327|328\t4\t',
             '329\t\t2|3|4\t',
-            '330\t\t\t~~~ds\\r\\n' + ' ' * 94,
+            '330\t\t5\t~~~ds',
         ]
 
     def test_assa_r3_fixed_offsets(self, cmd_tshark, capture_file, test_env):
