@@ -66,7 +66,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
       switch(ulcs_context_value){
           case  1: /* ACSE PDU*/
               atn_ulcs_tree = proto_tree_add_subtree(
-                  root_tree, tvb, offset, 0,
+                  root_tree, tvb, offset >> 3, 0,
                   ett_atn_acse, NULL, ATN_ACSE_PROTO );
 
               dissect_ACSE_apdu_PDU(
@@ -181,35 +181,38 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
     atn_conversation_t *atn_cv = NULL;
     uint32_t aircraft_24_bit_address = 0;
 
-    /* AARQ/DT: dstref present, srcref is always zero */
-    if((pinfo->clnp_dstref) && (!pinfo->clnp_srcref)){
+    /* conversations and AARQ data are only updated on the first pass */
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /* AARQ/DT: dstref present, srcref is always zero */
+        if((pinfo->clnp_dstref) && (!pinfo->clnp_srcref)){
 
-        atn_cv = find_atn_conversation(
-            &pinfo->dst,
-            pinfo->clnp_dstref,
-            &pinfo->src );
-        if(!atn_cv){
-            atn_cv = wmem_new(wmem_file_scope(), atn_conversation_t);
-            atn_cv->ae_qualifier = unknown;
-            create_atn_conversation(&pinfo->dst,
+            atn_cv = find_atn_conversation(
+                &pinfo->dst,
                 pinfo->clnp_dstref,
-                &pinfo->src ,
-                atn_cv);
+                &pinfo->src );
+            if(!atn_cv){
+                atn_cv = wmem_new(wmem_file_scope(), atn_conversation_t);
+                atn_cv->ae_qualifier = unknown;
+                create_atn_conversation(&pinfo->dst,
+                    pinfo->clnp_dstref,
+                    &pinfo->src ,
+                    atn_cv);
+            }
         }
-    }
 
-  /* AARQ/CR: srcref present, dstref is always zero */
-    if((!pinfo->clnp_dstref) && (pinfo->clnp_srcref)){
-        atn_cv = find_atn_conversation(&pinfo->src,
-            pinfo->clnp_srcref,
-            &pinfo->dst );
-        if(!atn_cv){
-            atn_cv = wmem_new(wmem_file_scope(), atn_conversation_t);
-            atn_cv->ae_qualifier = unknown;
-            create_atn_conversation(&pinfo->src,
+      /* AARQ/CR: srcref present, dstref is always zero */
+        if((!pinfo->clnp_dstref) && (pinfo->clnp_srcref)){
+            atn_cv = find_atn_conversation(&pinfo->src,
                 pinfo->clnp_srcref,
-                &pinfo->dst ,
-                atn_cv);
+                &pinfo->dst );
+            if(!atn_cv){
+                atn_cv = wmem_new(wmem_file_scope(), atn_conversation_t);
+                atn_cv->ae_qualifier = unknown;
+                create_atn_conversation(&pinfo->src,
+                    pinfo->clnp_srcref,
+                    &pinfo->dst ,
+                    atn_cv);
+            }
         }
     }
 
@@ -218,48 +221,50 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
     %(DEFAULT_BODY)s
 
 
-    /* save AARQ packet data to create a conversation  */
-    /* when decoding the following AARE PDU */
-    /* ATN applications CM and CPDLC are air/ground applications */
-    /* so there is always an aircraft (with its 24-bit address) */
-    /* and a ground facility. */
-    /* the assumption is that there is only one open AARQ/AARE */
-    /* dialog per aircraft at a time. */
-    /* the aircraft's 24-bit address is used as a key to each AARQ */
-    /* data. AARQ data is used to create a conversation with */
-    /* air and ground endpoints (based on NSAP's and transport references) */
-    /* when decoding AARE.*/
-    /* note: */
-    /* it may be more robust to create the conversation */
-    /* in the "ositp" dissector an to merely use the conversation here */
-    aircraft_24_bit_address =
-        get_aircraft_24_bit_address_from_nsap(pinfo);
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /* save AARQ packet data to create a conversation  */
+        /* when decoding the following AARE PDU */
+        /* ATN applications CM and CPDLC are air/ground applications */
+        /* so there is always an aircraft (with its 24-bit address) */
+        /* and a ground facility. */
+        /* the assumption is that there is only one open AARQ/AARE */
+        /* dialog per aircraft at a time. */
+        /* the aircraft's 24-bit address is used as a key to each AARQ */
+        /* data. AARQ data is used to create a conversation with */
+        /* air and ground endpoints (based on NSAP's and transport references) */
+        /* when decoding AARE.*/
+        /* note: */
+        /* it may be more robust to create the conversation */
+        /* in the "ositp" dissector an to merely use the conversation here */
+        aircraft_24_bit_address =
+            get_aircraft_24_bit_address_from_nsap(pinfo);
 
-    /* search for aarq entry */
-    aarq_data = (aarq_data_t *) wmem_tree_lookup32(
-        aarq_data_tree,
-        aircraft_24_bit_address);
+        /* search for aarq entry */
+        aarq_data = (aarq_data_t *) wmem_tree_lookup32(
+            aarq_data_tree,
+            aircraft_24_bit_address);
 
-    if(!aarq_data){  /* aarq data not found, create new record */
+        if(!aarq_data){  /* aarq data not found, create new record */
 
-        /* alloc aarq data */
-        aarq_data = wmem_new(wmem_file_scope(), aarq_data_t);
-        aarq_data-> aarq_pending = false;
+            /* alloc aarq data */
+            aarq_data = wmem_new(wmem_file_scope(), aarq_data_t);
+            aarq_data-> aarq_pending = false;
 
-        /* insert aarq data */
-        wmem_tree_insert32(aarq_data_tree ,aircraft_24_bit_address,(void*)aarq_data);
-    }
+            /* insert aarq data */
+            wmem_tree_insert32(aarq_data_tree ,aircraft_24_bit_address,(void*)aarq_data);
+        }
 
-    /* check for pending AARQ/AARE sequences */
-    /* if "aarq_data-> aarq_pending" is set this means that there is already one  */
-    /* AARQ/AARE sequence pending (is unwise to overwrite AARE/AARQ) */
-    if (aarq_data-> aarq_pending == false ) {
+        /* check for pending AARQ/AARE sequences */
+        /* if "aarq_data-> aarq_pending" is set this means that there is already one  */
+        /* AARQ/AARE sequence pending (is unwise to overwrite AARE/AARQ) */
+        if (aarq_data-> aarq_pending == false ) {
 
-      /* init aarq data */
-      memset(aarq_data,0,sizeof(aarq_data_t));
+          /* init aarq data */
+          memset(aarq_data,0,sizeof(aarq_data_t));
 
-      aarq_data->cv = atn_cv;
-      aarq_data-> aarq_pending = true;
+          aarq_data->cv = atn_cv;
+          aarq_data-> aarq_pending = true;
+        }
     }
 
 #.END
@@ -280,72 +285,74 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
   /* heuristical decoding of ASN1 will not work for all cases, */
   /* for there may be CM PDU's which will exactly look like CPDLC PDU'S */
 
-  /* get 24-bit icao address */
-  aircraft_24_bit_address = get_aircraft_24_bit_address_from_nsap(pinfo);
+  /* conversations and AARQ data are only updated on the first pass, */
+  /* the fields are always dissected */
+  if (!PINFO_FD_VISITED(pinfo)) {
+    /* get 24-bit icao address */
+    aircraft_24_bit_address = get_aircraft_24_bit_address_from_nsap(pinfo);
 
-  /* search for aarq entry */
-  aarq_data = (aarq_data_t *) wmem_tree_lookup32(
-      aarq_data_tree,
-      aircraft_24_bit_address);
+    /* search for aarq entry */
+    aarq_data = (aarq_data_t *) wmem_tree_lookup32(
+        aarq_data_tree,
+        aircraft_24_bit_address);
 
-  /* no aarq data present, do nothing  */
-  /* without both ends of the conversation and without */
-  /* the "calling ae-qualifier there is no point in setting up "*/
-  /* a conversation */
-  if(!aarq_data) {
+    /* no aarq data present, do nothing  */
+    /* without both ends of the conversation and without */
+    /* the "calling ae-qualifier there is no point in setting up "*/
+    /* a conversation */
+    if (aarq_data) {
 
-    return offset;
-  }
+      /* AARE/DT: dstref present, srcref is always zero */
+      if((pinfo->clnp_dstref) && (!pinfo->clnp_srcref)){
 
-  /* AARE/DT: dstref present, srcref is always zero */
-  if((pinfo->clnp_dstref) && (!pinfo->clnp_srcref)){
-
-    atn_cv = find_atn_conversation(&pinfo->dst,
-                          pinfo->clnp_dstref,
-                          &pinfo->src );
-
-    if(!atn_cv){ /* conversation not fond */
-
-      /* DT has only dstref - create new conversation */
-      create_atn_conversation(&pinfo->dst,
+        atn_cv = find_atn_conversation(&pinfo->dst,
                               pinfo->clnp_dstref,
-                              &pinfo->src ,
-                              aarq_data->cv);
+                              &pinfo->src );
+
+        if(!atn_cv){ /* conversation not fond */
+
+          /* DT has only dstref - create new conversation */
+          create_atn_conversation(&pinfo->dst,
+                                  pinfo->clnp_dstref,
+                                  &pinfo->src ,
+                                  aarq_data->cv);
+        }
+      }
+
+      /* AARE/CC: srcref and dstref present  */
+      if((pinfo->clnp_dstref) && (pinfo->clnp_srcref)){
+
+        atn_cv = find_atn_conversation(
+            &pinfo->src,
+            pinfo->clnp_srcref,
+            &pinfo->dst);
+
+        if(atn_cv){ /* conversation found. */
+
+          /* create new conversation for dstref */
+          create_atn_conversation(&pinfo->dst,
+                                  pinfo->clnp_dstref,
+                                  &pinfo->src ,
+                                  aarq_data->cv);
+
+        }else { /* no conversation found  */
+          /* as CC contains srcref *and* dstref we use both to create new records  */
+          create_atn_conversation(&pinfo->src,
+                                  pinfo->clnp_srcref,
+                                  &pinfo->dst ,
+                                  aarq_data->cv);
+          create_atn_conversation(&pinfo->dst,
+                                  pinfo->clnp_dstref,
+                                  &pinfo->src ,
+                                  aarq_data->cv);
+        }
+      }
+
+      /* clear aarq data */
+      memset(aarq_data,0,sizeof(aarq_data_t));
+      aarq_data-> aarq_pending  =  false;
     }
   }
-
-  /* AARE/CC: srcref and dstref present  */
-  if((pinfo->clnp_dstref) && (pinfo->clnp_srcref)){
-
-    atn_cv = find_atn_conversation(
-        &pinfo->src,
-        pinfo->clnp_srcref,
-        &pinfo->dst);
-
-    if(atn_cv){ /* conversation found. */
-
-      /* create new conversation for dstref */
-      create_atn_conversation(&pinfo->dst,
-                              pinfo->clnp_dstref,
-                              &pinfo->src ,
-                              aarq_data->cv);
-
-    }else { /* no conversation found  */
-      /* as CC contains srcref *and* dstref we use both to create new records  */
-      create_atn_conversation(&pinfo->src,
-                              pinfo->clnp_srcref,
-                              &pinfo->dst ,
-                              aarq_data->cv);
-      create_atn_conversation(&pinfo->dst,
-                              pinfo->clnp_dstref,
-                              &pinfo->src ,
-                              aarq_data->cv);
-    }
-  }
-
-  /* clear aarq data */
-  memset(aarq_data,0,sizeof(aarq_data_t));
-  aarq_data-> aarq_pending  =  false;
 
   %(DEFAULT_BODY)s
 

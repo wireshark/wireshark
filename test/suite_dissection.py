@@ -13706,8 +13706,8 @@ class TestDissectAtnUlcs:
                 ), encoding='utf-8', env=test_env)
             protocols = [p.split(':cotp:')[1] for p in stdout.split()]
             assert len(protocols) == 81
-            assert protocols.count('atn-ulcs') == 52
-            assert protocols.count('atn-ulcs:atn-cm') == 19
+            assert protocols.count('atn-ulcs') == 51
+            assert protocols.count('atn-ulcs:atn-cm') == 20
             assert protocols.count('atn-ulcs:atn-cpdlc') == 8
             assert protocols.count('data') == 2
             layers.append(protocols)
@@ -13863,7 +13863,7 @@ class TestDissectAtnUlcs:
             35: 'atn-cm',                                              # CC found the DT AARQ
             40: 'atn-cm',                                              # second AARQ pending
             42: 'atn-cm',                                              # AARE without AARQ data
-            43: 'atn-ulcs',                                            # AARE without any AARQ
+            43: 'atn-cm',                                              # AARE without any AARQ (dissected anyway)
             71: 'atn-cm',                                              # COTP over TPKT
             74: 'atn-ulcs',                                            # mixed NSAP lengths
             77: 'data', 78: 'data',                                    # not ATN-ULCS
@@ -13874,7 +13874,7 @@ class TestDissectAtnUlcs:
                 '-Y', 'frame.number == 43',
                 '-Tfields', '-eatn-ulcs.ACSE_apdu', '-eatn-ulcs.result',
             ), encoding='utf-8', env=test_env)
-        assert stdout.rstrip('\n').split('\t') == ['1', '']
+        assert stdout.rstrip('\n').split('\t') == ['1', '0']
 
 
 class TestDissectAtRl:
