@@ -12809,6 +12809,34 @@ class TestDissectAsterix:
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
 
+    def test_asterix_probe_dead_ends(self, cmd_tshark, capture_file, test_env):
+        '''Data blocks of category 1 (two UAPs) made of 3 octet records that
+        both UAPs accept, once with a final octet that is no record, once
+        three of them in a datagram, once all valid, once with a bad octet
+        in the middle. Probing the interpretations used to take time
+        exponential in the number of records. The results are exact and
+        the same in one and two passes.'''
+        none = 'No possible solution found'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('asterix-probe.pcap'),
+                    '-Tfields', '-eframe.number', '-easterix.category', '-easterix.length',
+                    '-e_ws.expert.message', '-e_ws.malformed', '-E', 'aggregator=,',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\t1\t43\t' + none + '\t',
+                '2\t1,1,1\t43,43,43\t' + ','.join([none] * 3) + '\t',
+                '3\t1\t42\tInterpretations number of solutions exceeded\t',
+                '4\t1\t28\t' + none + '\t',
+            ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asterix-probe.pcap'),
+                '-Y', 'frame.number == 3', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Possible interpretations: 100' in stdout
+        assert 'Possible interpretation (100/100)' in stdout
+        assert 'Malformed Packet' not in stdout
+
     def test_asterix_categories(self, cmd_tshark, capture_file, test_env):
         '''There is a data block of every category the dissector knows.'''
         stdout = subprocess.check_output((cmd_tshark,
