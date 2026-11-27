@@ -970,7 +970,7 @@ static ULONG wtap_etl_rec_build(
 
     if (ctx->properties_count != 0)
     {
-        for (USHORT i = 0; i < ctx->properties_count; i++)
+        for (DWORD i = 0; i < ctx->properties_count; i++)
         {
             prop.KeyLength = ctx->properties[i].key_length;
             prop.ValueLength = ctx->properties[i].value_length;
@@ -1676,7 +1676,7 @@ static void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timest
         wszMessage = (LPWSTR)ADD_OFFSET_TO_POINTER(pInfo, pInfo->EventMessageOffset);
     }
 
-    for (USHORT i = 0; i < dwTopLevelPropertyCount; i++)
+    for (DWORD i = 0; i < dwTopLevelPropertyCount; i++)
     {
         pUserData = extract_property(ev, pInfo, PointerSize, i, pUserData, pEndOfUserData, &prop_arr[i]);
         if (NULL == pUserData)
