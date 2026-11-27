@@ -15656,6 +15656,25 @@ class TestDissectBat:
 
 
 class TestDissectBblog:
+    def test_bblog_binary_option_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The binary option dissector, reached through an Exported PDU
+        record for the pcapng_custom_binary_option table, gets no custom
+        option data. It used to crash; now it declines and the records
+        stay Exported PDU, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bblog-exported-pdu.pcap'),
+                    '-Tfields', '-eframe.number', '-eframe.protocols',
+                    '-eexported_pdu.prot_name', '-e_ws.malformed', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['1\texported_pdu\t\t\t', '2\texported_pdu\t\t\t']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bblog-exported-pdu.pcap'), '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'pcapng_custom_binary_option' in stdout
+        assert 'Dissector bug' not in stdout
+        assert 'Malformed Packet' not in stdout
+
     def test_bblog_protocols(self, cmd_tshark, capture_file, test_env):
         '''Netflix BBLog event and skip custom blocks and packets with the
         TCP info option decode without malformed packets or error expert
