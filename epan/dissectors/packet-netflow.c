@@ -1815,6 +1815,18 @@ static const value_string v10_template_types_ixia[] = {
     {  386, "IMEI Mobile Device Manufacturer"},
     {  387, "Tunnel Interface Name"},
     {  510, "HTTP Body"},
+    {  523, "TLS Client Hello Bytes"},
+    {  524, "TLS Client Key Share Groups"},
+    {  525, "TLS Client Signature Algorithms Offered"},
+    {  526, "TLS Client Supported Groups"},
+    {  527, "TLS Handshake Alert Code"},
+    {  528, "TLS Handshake Duration (ms)"},
+    {  529, "TLS Handshake Failure Reason"},
+    {  530, "TLS Hello Retry Request"},
+    {  531, "TLS Key Exchange Group"},
+    {  532, "TLS Key Exchange Group ID"},
+    {  533, "TLS Signature Algorithm"},
+    {  534, "TLS Version"},
     { 0, NULL }
 };
 static value_string_ext v10_template_types_ixia_ext = VALUE_STRING_EXT_INIT(v10_template_types_ixia);
@@ -3689,6 +3701,18 @@ static int      hf_pie_ixia_http_alt_svc;
 static int      hf_pie_ixia_unidirectional;
 static int      hf_pie_ixia_http_tls_server_rand;
 static int      hf_pie_ixia_http_tls_session_id;
+static int      hf_pie_ixia_tls_client_hello_bytes;
+static int      hf_pie_ixia_tls_client_key_share_groups;
+static int      hf_pie_ixia_tls_client_sig_algs_offered;
+static int      hf_pie_ixia_tls_client_supported_groups;
+static int      hf_pie_ixia_tls_handshake_alert_code;
+static int      hf_pie_ixia_tls_handshake_duration_ms;
+static int      hf_pie_ixia_tls_handshake_failure_reason;
+static int      hf_pie_ixia_tls_hello_retry_request;
+static int      hf_pie_ixia_tls_key_exchange_group;
+static int      hf_pie_ixia_tls_key_exchange_group_id;
+static int      hf_pie_ixia_tls_signature_algorithm;
+static int      hf_pie_ixia_tls_version;
 static int      hf_pie_ixia_sip_to;
 static int      hf_pie_ixia_sip_from;
 static int      hf_pie_ixia_sip_call_id;
@@ -11542,6 +11566,54 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 510):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_body,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 523):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_client_hello_bytes,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 524):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_client_key_share_groups,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 525):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_client_sig_algs_offered,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 526):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_client_supported_groups,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 527):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_handshake_alert_code,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 528):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_handshake_duration_ms,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 529):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_handshake_failure_reason,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 530):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_hello_retry_request,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 531):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_key_exchange_group,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 532):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_key_exchange_group_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 533):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_signature_algorithm,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 534):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_version,
                                      tvb, offset, length, ENC_ASCII);
             break;
             /* END Ixia Communications */
@@ -20086,6 +20158,90 @@ proto_register_netflow(void)
          {"TLS Session ID", "cflow.pie.ixia.tls-session-id",
           FT_BYTES, BASE_NONE, NULL, 0x0,
           "SSL/TLS Session ID", HFILL}
+        },
+
+        /* ixia, 3054 / 523 */
+        {&hf_pie_ixia_tls_client_hello_bytes,
+         {"TLS Client Hello Bytes", "cflow.pie.ixia.tls-client-hello-bytes",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Size of the TLS ClientHello handshake message", HFILL}
+        },
+
+        /* ixia, 3054 / 524 */
+        {&hf_pie_ixia_tls_client_key_share_groups,
+         {"TLS Client Key Share Groups", "cflow.pie.ixia.tls-client-key-share-groups",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "TLS groups for which the client sent key shares", HFILL}
+        },
+
+        /* ixia, 3054 / 525 */
+        {&hf_pie_ixia_tls_client_sig_algs_offered,
+         {"TLS Client Signature Algorithms Offered", "cflow.pie.ixia.tls-client-sig-algs-offered",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "TLS signature algorithms offered by the client", HFILL}
+        },
+
+        /* ixia, 3054 / 526 */
+        {&hf_pie_ixia_tls_client_supported_groups,
+         {"TLS Client Supported Groups", "cflow.pie.ixia.tls-client-supported-groups",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "TLS groups supported by the client", HFILL}
+        },
+
+        /* ixia, 3054 / 527 */
+        {&hf_pie_ixia_tls_handshake_alert_code,
+         {"TLS Handshake Alert Code", "cflow.pie.ixia.tls-handshake-alert-code",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "TLS alert description seen before the handshake completed", HFILL}
+        },
+
+        /* ixia, 3054 / 528 */
+        {&hf_pie_ixia_tls_handshake_duration_ms,
+         {"TLS Handshake Duration (ms)", "cflow.pie.ixia.tls-handshake-duration-ms",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Observable TLS handshake interval in milliseconds", HFILL}
+        },
+
+        /* ixia, 3054 / 529 */
+        {&hf_pie_ixia_tls_handshake_failure_reason,
+         {"TLS Handshake Failure Reason", "cflow.pie.ixia.tls-handshake-failure-reason",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Classification of an observed TLS alert", HFILL}
+        },
+
+        /* ixia, 3054 / 530 */
+        {&hf_pie_ixia_tls_hello_retry_request,
+         {"TLS Hello Retry Request", "cflow.pie.ixia.tls-hello-retry-request",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Whether the server sent a HelloRetryRequest", HFILL}
+        },
+
+        /* ixia, 3054 / 531 */
+        {&hf_pie_ixia_tls_key_exchange_group,
+         {"TLS Key Exchange Group", "cflow.pie.ixia.tls-key-exchange-group",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Server-selected or HelloRetryRequest-requested TLS group", HFILL}
+        },
+
+        /* ixia, 3054 / 532 */
+        {&hf_pie_ixia_tls_key_exchange_group_id,
+         {"TLS Key Exchange Group ID", "cflow.pie.ixia.tls-key-exchange-group-id",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "IANA TLS Supported Groups codepoint", HFILL}
+        },
+
+        /* ixia, 3054 / 533 */
+        {&hf_pie_ixia_tls_signature_algorithm,
+         {"TLS Signature Algorithm", "cflow.pie.ixia.tls-signature-algorithm",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Signature algorithm used by the server", HFILL}
+        },
+
+        /* ixia, 3054 / 534 */
+        {&hf_pie_ixia_tls_version,
+         {"TLS Version", "cflow.pie.ixia.tls-version",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Effective negotiated TLS version", HFILL}
         },
 
         /* ixia, 3054 / 324 */
