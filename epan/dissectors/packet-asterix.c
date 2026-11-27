@@ -206,7 +206,7 @@ static void print_icao_string (tvbuff_t *tvb, unsigned offset, unsigned bit_offs
 
 static void check_spare_bits (tvbuff_t *tvb, unsigned bit_offset, unsigned bit_size, proto_item *item)
 {
-    if (bit_size > (64 - bit_offset))
+    if (bit_size == 0 || bit_size > 64)
     {
         return;
     }
@@ -280,8 +280,16 @@ static unsigned asterix_parse_re_field (tvbuff_t *tvb, unsigned offset, proto_tr
     table_params table_p = {0};
     get_expansion_table(cat, ed, &table_p);
 
-    for (unsigned i = 0; i < table_p.table_size; i++) {
-        if (asterix_field_exists(tvb, start_offset, i)) {
+    unsigned fs_index = 0;
+    for (unsigned i = 0; i < table_p.table_size; i++, fs_index++) {
+        /* Every eighth FSPEC bit is the FX bit, not a field presence bit. */
+        if (((fs_index + 1) % 8) == 0) {
+            if (!asterix_field_exists(tvb, start_offset, fs_index)) {
+                break;
+            }
+            fs_index++;
+        }
+        if (asterix_field_exists(tvb, start_offset, fs_index)) {
             const int *expand = table_p.table_pointer_expand[i];
             int expand_value = -1;
             if (expand != NULL)
