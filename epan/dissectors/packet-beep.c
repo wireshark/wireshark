@@ -127,6 +127,10 @@ struct beep_proto_data {
   int mime_hdr;  /* Whether we expect a mime header. 1 on first, 0 on rest
                   * in a message
                   */
+  wmem_array_t *mime_flags; /* mime_hdr of each message header in the frame,
+                             * recorded on the first pass (uint8_t each)
+                             */
+  unsigned msg_idx;         /* Message header being dissected in this pass */
 };
 
 /*
@@ -377,7 +381,16 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
                    struct beep_proto_data *beep_frame_data, packet_info *pinfo)
 {
 
-  if (!request_val) return; /* Nothing to do ??? */
+  if (!request_val) {
+    /* Later pass: use what the first pass found for this message */
+    if (beep_frame_data->mime_flags &&
+        beep_frame_data->msg_idx < wmem_array_get_count(beep_frame_data->mime_flags)) {
+      beep_frame_data->mime_hdr =
+        *(uint8_t *)wmem_array_index(beep_frame_data->mime_flags, beep_frame_data->msg_idx);
+    }
+    beep_frame_data->msg_idx++;
+    return;
+  }
 
   if (value_is_in_range(global_beep_tcp_ports, pinfo->destport)) { /* Going to the server ... client */
 
@@ -415,6 +428,12 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
     }
 
   }
+
+  if (!beep_frame_data->mime_flags)
+    beep_frame_data->mime_flags = wmem_array_new(wmem_file_scope(), sizeof(uint8_t));
+  uint8_t flag = (uint8_t)beep_frame_data->mime_hdr;
+  wmem_array_append_one(beep_frame_data->mime_flags, flag);
+  beep_frame_data->msg_idx++;
 
 }
 
@@ -803,7 +822,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * elsewhere for other frames
      */
 
-    beep_frame_data = wmem_new(wmem_file_scope(), struct beep_proto_data);
+    beep_frame_data = wmem_new0(wmem_file_scope(), struct beep_proto_data);
 
     beep_frame_data->pl_left = pl_left;
     beep_frame_data->pl_size = 0;
@@ -832,7 +851,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   if (beep_frame_data == NULL) {
 
-    beep_frame_data = wmem_new(wmem_file_scope(), struct beep_proto_data);
+    beep_frame_data = wmem_new0(wmem_file_scope(), struct beep_proto_data);
 
     beep_frame_data->pl_left = 0;
     beep_frame_data->pl_size = 0;
@@ -841,6 +860,10 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     p_add_proto_data(wmem_file_scope(), pinfo, proto_beep, 0, beep_frame_data);
 
   }
+
+  /* Each pass starts from the same state as the first one */
+  beep_frame_data->pl_size = 0;
+  beep_frame_data->msg_idx = 0;
 
   /* Dissect the messages one after the other rather than recursing, a
    * frame can hold any number of them */
