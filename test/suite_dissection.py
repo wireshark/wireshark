@@ -12984,6 +12984,23 @@ class TestDissectAtalk:
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
 
+    def test_atalk_ddp_addresses_macip_error(self, cmd_tshark, capture_file, test_env):
+        '''The hidden ddp.src and ddp.dst fields hold the DDP addresses
+        (not those of the layer below), and a MacIP error reply shows its
+        text as a string after a single "Other IP Address", in one and
+        two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atalk-ddp-macip.pcap'),
+                    '-Tfields', '-eframe.number', '-eddp.src', '-eddp.dst',
+                    '-emacip.error', '-emacip.other', '-e_ws.col.info',
+                    '-e_ws.malformed', '-e_ws.expert.message', '-E', 'aggregator=,',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\t0304.06\t0102.05\tno addresses\t0.0.0.0\tReply tid 7\t\t',
+                '2\t0304.06\t0102.05\tno free address in the pool\t0.0.0.0\tReply tid 8\t\t',
+            ]
+
     def test_atalk_ddp_short(self, cmd_tshark, capture_file, test_env):
         '''An Exported PDU naming "ddp_short" has no LLAP node addresses
         and is rejected (it used to crash), and the reserved bits of the
