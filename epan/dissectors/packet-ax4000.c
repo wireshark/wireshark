@@ -24,6 +24,7 @@ static int hf_ax4000_port;
 static int hf_ax4000_chassis;
 static int hf_ax4000_fill;
 static int hf_ax4000_index;
+static int hf_ax4000_unknown;
 static int hf_ax4000_timestamp;
 static int hf_ax4000_seq;
 static int hf_ax4000_crc;
@@ -53,6 +54,7 @@ dissect_ax4000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree_add_item_ret_uint(ax4000_tree, hf_ax4000_chassis, tvb, 1, 1, ENC_LITTLE_ENDIAN, &ax_chassis);
 	proto_tree_add_item(ax4000_tree, hf_ax4000_fill, tvb, 2, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item_ret_uint(ax4000_tree, hf_ax4000_index, tvb, 2, 2, ENC_BIG_ENDIAN, &ax_index);
+	proto_tree_add_item(ax4000_tree, hf_ax4000_unknown, tvb, 4, 2, ENC_NA);
 	proto_tree_add_item_ret_uint(ax4000_tree, hf_ax4000_timestamp, tvb, 6, 4, ENC_LITTLE_ENDIAN, &ax_timestamp);
 	proto_tree_add_item_ret_uint(ax4000_tree, hf_ax4000_seq, tvb, 10, 4, ENC_LITTLE_ENDIAN, &ax_seq);
 	proto_tree_add_item(ax4000_tree, hf_ax4000_crc, tvb, 14, 2, ENC_LITTLE_ENDIAN);
@@ -92,6 +94,11 @@ proto_register_ax4000(void)
 		{ &hf_ax4000_index,
 		  { "Index", "ax4000.index",
 		    FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+		    NULL, HFILL }
+		},
+		{ &hf_ax4000_unknown,
+		  { "Unknown", "ax4000.unknown",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_ax4000_timestamp,
