@@ -2165,7 +2165,8 @@ static const at_cmd_t at_cmds[] = {
 
 static int
 dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        int offset, uint32_t role, int command_number, at_packet_info_t *at_info)
+        int offset, uint32_t role, int command_number, at_packet_info_t *at_info,
+        char *upper_buf)
 {
     proto_item      *pitem;
     proto_tree      *command_item = NULL;
@@ -2199,14 +2200,9 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_ASCII);
     }
 
-    at_stream = (char *)wmem_alloc(pinfo->pool, length + 1);
-    tvb_memcpy(tvb, at_stream, offset, length);
-    at_stream[length] = '\0';
-
-    while (at_stream[i_char]) {
-        at_stream[i_char] = g_ascii_toupper(at_stream[i_char]);
-        i_char += 1;
-    }
+    /* upper_buf is the upper-cased, NUL-terminated copy of the whole tvb
+     * made once per frame in dissect_at(). */
+    at_stream = upper_buf + offset;
 
     if (role == ROLE_DTE) {
         if (command_number) {
@@ -2457,7 +2453,8 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_at_command_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        int offset, uint32_t role, int command_number, at_packet_info_t *at_info)
+        int offset, uint32_t role, int command_number, at_packet_info_t *at_info,
+        uint8_t *raw_buf)
 {
     at_processed_cmd_t *cmd;
     proto_item      *data_part_item;
@@ -2477,9 +2474,8 @@ dissect_at_command_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (length <= 0)
         return tvb_reported_length(tvb);
 
-    data_stream = (uint8_t *) wmem_alloc(pinfo->pool, length + 1);
-    tvb_memcpy(tvb, data_stream, offset, length);
-    data_stream[length] = '\0';
+    /* raw_buf is the NUL-terminated copy of the whole tvb made once per frame */
+    data_stream = raw_buf + offset;
 
     while (data_part_length < length && data_stream[data_part_length] != '\r') {
         data_part_length += 1;
@@ -2515,6 +2511,10 @@ static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     at_conv_info_t *at_conv;
     at_packet_info_t *at_info;
     at_processed_cmd_t *last_command;
+    uint8_t    *raw_buf;
+    char       *upper_buf;
+    unsigned    i;
+    unsigned    copy_len;
 
     string = tvb_format_text_wsp(pinfo->pool, tvb, 0, tvb_captured_length(tvb));
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "AT");
@@ -2563,6 +2563,17 @@ static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     offset = 0;
     cmd_indx = 0;
 
+    /* Copy the frame once (the commands below index into it), plus an
+     * upper-cased copy; copying per command is quadratic. */
+    copy_len = tvb_reported_length(tvb);
+    raw_buf = (uint8_t *)wmem_alloc(pinfo->pool, (size_t)copy_len + 1);
+    tvb_memcpy(tvb, raw_buf, 0, copy_len);
+    raw_buf[copy_len] = '\0';
+    upper_buf = (char *)wmem_alloc(pinfo->pool, (size_t)copy_len + 1);
+    for (i = 0; i < copy_len; i++)
+        upper_buf[i] = g_ascii_toupper((char)raw_buf[i]);
+    upper_buf[copy_len] = '\0';
+
     conversation = find_conversation(pinfo->num,
                                &pinfo->src, &pinfo->dst,
                                conversation_pt_to_conversation_type(pinfo->ptype),
@@ -2574,12 +2585,12 @@ static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
         last_command = get_current_role_last_command(at_info, role);
         if (last_command && last_command->expected_data_parts > last_command->consumed_data_parts) {
             // Continuing a previous command
-            offset = dissect_at_command_continuation(tvb, pinfo, at_tree, offset, role, last_command->cmd_indx, at_info);
+            offset = dissect_at_command_continuation(tvb, pinfo, at_tree, offset, role, last_command->cmd_indx, at_info, raw_buf);
             last_command->consumed_data_parts++;
         }
         else {
             // New Command
-            offset = dissect_at_command(tvb, pinfo, at_tree, offset, role, cmd_indx, at_info);
+            offset = dissect_at_command(tvb, pinfo, at_tree, offset, role, cmd_indx, at_info, upper_buf);
             /* Only if the command is expecting data parts save its index */
             last_command = get_current_role_last_command(at_info, role);
             if (last_command && last_command->expected_data_parts > last_command->consumed_data_parts) {
