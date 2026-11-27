@@ -24,6 +24,7 @@
 #include <epan/address_types.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-llc.h"
 #include <epan/capture_dissectors.h>
 #include "packet-atalk.h"
@@ -1203,6 +1204,11 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct atp_asp_dsi_info *atp_
   asp_request_val *request_val;
   uint8_t          fn;
 
+  /* The request/reply matching depends on the frames seen so far, so keep
+   * the result of the first pass for later passes over this frame. */
+  if (PINFO_FD_VISITED(pinfo))
+    return (asp_request_val *) p_get_proto_data(wmem_file_scope(), pinfo, proto_asp, 0);
+
   conversation = find_or_create_conversation(pinfo);
 
   request_key.conversation = conversation->conv_index;
@@ -1220,6 +1226,9 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct atp_asp_dsi_info *atp_
 
     wmem_map_insert(asp_request_hash, new_request_key, request_val);
   }
+
+  if (request_val && !p_get_proto_data(wmem_file_scope(), pinfo, proto_asp, 0))
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_asp, 0, request_val);
 
   return request_val;
 }
@@ -1678,7 +1687,7 @@ dissect_atp_macip(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
     proto_tree_add_item(macip_tree, hf_macip_other, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     /* Some MacIP servers (ex: macipgw) don't output the full list of IPs, so handle that here */
-    if (offset < captured) {
+    if (fn != MACIP_ERROR && offset < captured) {
       proto_tree_add_item(macip_tree, hf_macip_other, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       proto_tree_add_item(macip_tree, hf_macip_other, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1688,7 +1697,7 @@ dissect_atp_macip(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
     }
     /* Variable length error messages are attached to the end of the reply block */
     if (fn == MACIP_ERROR) {
-      proto_tree_add_item(macip_tree, hf_macip_error, tvb, offset, -1, ENC_STRING);
+      proto_tree_add_item(macip_tree, hf_macip_error, tvb, offset, -1, ENC_ASCII);
     }
   }
   return tvb_captured_length(tvb);
@@ -1802,14 +1811,6 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_HEADER_SIZE, ENC_NA);
   ddp_tree = proto_item_add_subtree(ti, ett_ddp);
 
-  hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
-                                        4, 3, address_to_str(pinfo->pool, &pinfo->src));
-  proto_item_set_hidden(hidden_item);
-
-  hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
-                                        6, 3, address_to_str(pinfo->pool, &pinfo->dst));
-  proto_item_set_hidden(hidden_item);
-
   proto_tree_add_item(ddp_tree, hf_ddp_hopcount,   tvb, 0, 2, ENC_BIG_ENDIAN);
   len_item = proto_tree_add_item_ret_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, ENC_BIG_ENDIAN, &len);
   if (len < DDP_HEADER_SIZE) {
@@ -1846,6 +1847,14 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   copy_address_shallow(&pinfo->src, &pinfo->net_src);
   set_address(&pinfo->net_dst, atalk_address_type, sizeof(struct atalk_ddp_addr), dst);
   copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+  hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
+                                        4, 3, address_to_str(pinfo->pool, &pinfo->src));
+  proto_item_set_hidden(hidden_item);
+
+  hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
+                                        6, 3, address_to_str(pinfo->pool, &pinfo->dst));
+  proto_item_set_hidden(hidden_item);
 
   new_tvb = tvb_new_subset_remaining(tvb, DDP_HEADER_SIZE);
 
@@ -2393,7 +2402,7 @@ proto_register_atalk(void)
         NULL, HFILL}},
 
   { &hf_macip_error,
-      { "Error",    "macip.error",FT_STRINGZ, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
+      { "Error",    "macip.error",FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "Error Message", HFILL}},
 
   { &hf_macip_pad,
