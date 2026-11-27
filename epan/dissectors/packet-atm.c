@@ -11,6 +11,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/oui.h>
@@ -1043,6 +1044,11 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         next_tvb = tvb_new_subset_remaining(tvb, 4);
       }
 
+      /* Remember the type used, for Decode As (pinfo->pseudo_header->atm
+       * is not this ATM information when reached through a pseudowire). */
+      if (p_get_proto_data(pinfo->pool, pinfo, proto_atm, 0) == NULL)
+        p_add_proto_data(pinfo->pool, pinfo, proto_atm, 0,
+                         GUINT_TO_POINTER((unsigned)atm_info->type + 1));
       if (dissector_try_uint(atm_type_aal2_table, atm_info->type, next_tvb, pinfo, tree))
       {
         decoded = true;
@@ -1751,6 +1757,10 @@ static void atm_prompt(packet_info *pinfo _U_, char* result)
 
 static void *atm_value(packet_info *pinfo)
 {
+  void *type_plus_one = p_get_proto_data(pinfo->pool, pinfo, proto_atm, 0);
+
+  if (type_plus_one != NULL)
+    return GUINT_TO_POINTER(GPOINTER_TO_UINT(type_plus_one) - 1);
   return GUINT_TO_POINTER((unsigned)pinfo->pseudo_header->atm.type);
 }
 
