@@ -117,6 +117,13 @@ static uint32_t arp_request_count;
 static nstime_t time_at_start_of_count;
 
 
+static void
+arp_storm_cleanup(void)
+{
+  arp_request_count = 0;
+  nstime_set_zero(&time_at_start_of_count);
+}
+
 /* Map of (IP address -> MAC address) to detect duplicate IP addresses
    Key is unsigned32 */
 static wmem_map_t *address_hash_table;
@@ -792,8 +799,8 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
 static void
 request_seen(packet_info *pinfo)
 {
-  /* Don't count frame again after already recording first time around. */
-  if (p_get_proto_data(wmem_file_scope(), pinfo, proto_arp, 0) == 0)
+  /* Count each frame only on the first pass, whatever happens afterwards. */
+  if (!PINFO_FD_VISITED(pinfo))
   {
     arp_request_count++;
   }
@@ -805,9 +812,10 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   bool report_storm = false;
 
-  if (p_get_proto_data(wmem_file_scope(), pinfo, proto_arp, 0) != 0)
+  if (PINFO_FD_VISITED(pinfo))
   {
-    /* Read any previous stored packet setting */
+    /* Read any previous stored packet setting; a frame that threw before
+       its setting was stored is treated as no storm. */
     report_storm = (p_get_proto_data(wmem_file_scope(), pinfo, proto_arp, 0) == (void*)STORM);
   }
   else
@@ -849,7 +857,8 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                            "ARP packet storm detected (%u packets in < %u ms)",
                            global_arp_detect_request_storm_packets,
                            global_arp_detect_request_storm_period);
-    arp_request_count = 0;
+    if (!PINFO_FD_VISITED(pinfo))
+      arp_request_count = 0;
   }
 }
 
@@ -1560,7 +1569,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       /* If Gratuitous, don't report duplicate for same IP address twice */
       if (global_arp_detect_duplicate_ip_addresses && (duplicate_ip!=ip))
       {
-        duplicate_detected =
+        duplicate_detected |=
           check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip,
                                         &duplicate_ip);
       }
@@ -2091,6 +2100,8 @@ proto_register_arp(void)
   address_hash_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), address_hash_func, address_equal_func);
   duplicate_result_hash_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), duplicate_result_hash_func,
                                                  duplicate_result_equal_func);
+
+  register_cleanup_routine(arp_storm_cleanup);
 
   arp_cap_handle = register_capture_dissector("arp", capture_arp, proto_arp);
 }
