@@ -11496,6 +11496,32 @@ class TestDissectArtnet:
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
 
+    def test_artnet_dmx_length(self, cmd_tshark, capture_file, test_env):
+        '''An ArtDmx or ArtNzs length beyond the packet is clamped to the
+        data present and flagged (malformed), data after the DMX data is
+        flagged, and the Info column of each frame is kept, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('artnet-dmx-length.pcap'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-e_ws.expert.message', '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env)
+            dmx = 'ArtDMX Seq=1 Port=0 Univ=1'
+            assert stdout.splitlines() == [
+                '1\t' + dmx + '\t\t',
+                '2\t' + dmx + '\tDMX data length exceeds the packet\t_ws.malformed',
+                '3\t' + dmx + '\tBytes after the DMX data\t',
+                '4\tArtNzs\tDMX data length exceeds the packet\t_ws.malformed',
+                '5\tArtNzs\t\t',
+            ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('artnet-dmx-length.pcap'),
+                '-Y', 'frame.number == 2', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Length: 512' in stdout
+        assert '0x001:   0%  0%  1%  1%  1%  2%' in stdout
+
     def test_artnet_heuristic(self, cmd_tshark, capture_file, test_env):
         '''The heuristic takes only packets with the "Art-Net" ID.'''
         stdout = subprocess.check_output((cmd_tshark,
