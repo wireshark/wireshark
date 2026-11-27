@@ -32,8 +32,12 @@ The following changes have been made since version 1.0.0rc2:
 * Configuration profiles can now be organized hierarchically, with profiles inside other profiles.
 
 * A profile can inherit entries from its parent profile, and from the global profile with the same name.
-  Coloring rules, Decode As entries and UAT records such as filter buttons, filter macros and Plots can be taken from the profile only, the profile and its parent, or the parent only.
+  Coloring rules, Decode As entries and UAT records such as filter buttons, filter macros and Plots can include the entries of the parent profiles with an “Include parent” check box.
   Inherited entries are shown read-only and can be copied into the profile.
+
+* The name resolution files, such as hosts, subnets, ethers and services, are now read from the profile and all its parent profiles up to the Default profile, where the entries of a nearer profile win.
+  The new Name Resolution preference “Use name resolution entries from parent profiles”, on by default, can turn this off.
+  Before, the ethers, manuf, services, ipxnets, vlans and enterprises files of the Default profile were used only for a profile without such a file, and the ss7pcs and tacs files only from the profile itself.
 
 * The installer package for Windows now ships as a thin executable wrapper which includes the Visual C++ redistributable and the Stratoshark MSI package.
 
