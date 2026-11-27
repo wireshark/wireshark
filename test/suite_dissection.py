@@ -16454,6 +16454,38 @@ class TestDissectBfcp:
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
 
+    def test_bfcp_padding_and_error_code(self, cmd_tshark, capture_file, test_env):
+        '''The padding of an attribute inside a grouped attribute counts
+        towards the group, so the FLOOR-ID after the group stays outside
+        it (it used to be dissected as part of the group). An ERROR-CODE
+        shorter than 3 octets is reported and skipped; a valid one is
+        decoded. One and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-d', 'udp.port==5070,bfcp',
+                    '-r', capture_file('bfcp-padding.pcap'),
+                    '-Tfields', '-eframe.number', '-ebfcp.floor_id', '-ebfcp.error_code',
+                    '-ebfcp.padding', '-e_ws.expert.message', '-e_ws.malformed',
+                    '-E', 'aggregator=,',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\t5\t\tffffff\t\t',
+                '2\t5\t\t\tAttribute length is too small (2 bytes - minimum valid is 3)'
+                '\t_ws.malformed',
+                '3\t5\t5\t00\t\t',
+            ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-d', 'udp.port==5070,bfcp',
+                '-r', capture_file('bfcp-padding.pcap'),
+                '-Y', 'frame.number == 1', '-V',
+            ), encoding='utf-8', env=test_env)
+        indent = {}
+        for line in stdout.splitlines():
+            if 'Attribute Type:' in line:
+                indent[line.split('Attribute Type: ')[1]] = len(line) - len(line.lstrip())
+        assert indent['FloorRequestInformation (15)'] == indent['FloorID (2)']
+        assert indent['StatusInfo (9)'] > indent['FloorRequestInformation (15)']
+
     def test_bfcp_zero_padding(self, cmd_tshark, capture_file, test_env):
         '''A zero padding octet is stepped over, so the BENEFICIARY-ID and
         USER-URI after the padding in frames 4 and 5 are decoded (frame 5
