@@ -16105,6 +16105,30 @@ class TestDissectBencode:
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
 
+    def test_bencode_dict_values(self, cmd_tshark, capture_file, test_env):
+        '''Dictionaries nested 9 deep around a list of 40 strings, with
+        mixed values, with a value cut short and nested past the level
+        limit (a dictionary value used to be dissected twice at every
+        level). Every entry, string, integer and list is decoded once, in
+        one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bencode-dict.pcap'),
+                    '-Tfields', '-eframe.number', '-ebencode.dict.entry', '-ebencode.int',
+                    '-ebencode.str', '-ebencode.list', '-e_ws.expert.message',
+                    '-E', 'aggregator=,',
+                ), encoding='utf-8', env=test_env)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert len(rows) == 4
+            assert rows[0] == ['1', ','.join(['1'] * 9), '', ','.join(['a'] * 9 + [''] * 40), '1', '']
+            assert rows[1] == ['2', ','.join(['1'] * 6), '42,1,2,7', 'a,b,xy,c,d,e,f,g', '1,1', '']
+            assert rows[2][:5] == ['3', '1,1', '1', 'a,b', '']
+            assert rows[2][5] == 'Decode Aborted: Invalid String Length,Decode Aborted: Invalid Dictionary Value'
+            assert rows[3][1] == ','.join(['1'] * 11)
+            messages = rows[3][5].split(',')
+            assert messages.count('Decode Aborted: Nested Too Deep') == 1
+            assert messages.count('Decode Aborted: Invalid Dictionary Value') == 11
+
     def test_bencode_list_depth(self, cmd_tshark, capture_file, test_env):
         '''600 empty lists inside a list (frame 15) decode as 601 lists:
         each list that ends with "e" restores the dissection depth, so
