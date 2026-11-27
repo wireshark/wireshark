@@ -15469,6 +15469,36 @@ class TestDissectBatadv:
             '112\t0x8001\t0xdeadbeef\t',
         ]
 
+    def test_batadv_tt_vlan_crc_many(self, cmd_tshark, capture_file, test_env):
+        '''A full table TT response with 24 VLANs and interleaved changes:
+        each VLAN's CRC covers only its own changes (computed in one pass),
+        the three wrong CRCs and the two empty VLANs are reported, and a
+        response that is not a full table is not verified.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('batadv-tt-vlan.pcap'),
+                    '-Tfields', '-eframe.number', '-ebatadv.tvlv.tt.vlan.vid',
+                    '-ebatadv.tvlv.tt.vlan.crc.status', '-E', 'aggregator=,',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            assert len(lines) == 2
+            number, vids, status = lines[0].split('\t')
+            assert number == '1'
+            assert vids == ','.join('0x%04x' % v for v in range(24))
+            bad = {7, 21, 23}
+            assert status == ','.join('0' if v in bad else '1' for v in range(24))
+            assert lines[1] == '2\t' + vids + '\t'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('batadv-tt-vlan.pcap'),
+                '-Y', 'batadv.tvlv.tt.vlan.crc.status',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env)
+        messages = stdout.rstrip('\n').split('\t')[1].split(';')
+        assert len(messages) == 5
+        assert sum('bad TT VLAN crc' in m for m in messages) == 3
+        assert sum('empty VLAN' in m for m in messages) == 2
+
     def test_batadv_ogm2(self, cmd_tshark, capture_file, test_env):
         '''Each aggregated OGM2 takes its TVLV length from its own header,
         so a large throughput does not swallow the next OGM2.'''
