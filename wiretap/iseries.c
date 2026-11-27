@@ -974,7 +974,15 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
   /* Make sure we have enough room for the packet. */
   ws_buffer_assure_space (&rec->data, rec->rec_header.packet_header.caplen);
   /* Convert ascii data to binary and return in the frame buffer */
-  iseries_parse_hex_string (ascii_buf, ws_buffer_start_ptr (&rec->data), ascii_offset);
+  if (!iseries_parse_hex_string (ascii_buf, ws_buffer_start_ptr (&rec->data), ascii_offset))
+    {
+      /* The Ethernet header fields are read with sscanf() and not checked
+       * for hex digits, unlike everything added with append_hex_digits(),
+       * so if this fails it must be in the header. */
+      *err = WTAP_ERR_BAD_FILE;
+      *err_info = g_strdup ("iseries: packet header isn't valid hex");
+      goto errxit;
+    }
   ws_buffer_increase_length(&rec->data, rec->rec_header.packet_header.caplen);
 
   /* free buffer allocs and return */
