@@ -14206,13 +14206,14 @@ class TestDissectAutosarIpdum:
 
 # AUTOSAR NM and PDU Transport have no default UDP port
 AUTOSAR_NM_OPTS = ('-d', 'udp.port==30500,autosar-nm',
+                   '--enable-heuristic', 'autosar_nm_can_heur',
                    '-o', 'pdu_transport.udp.port:30501',
                    '-o', 'autosar-nm.pdu_transport.ids:0x4e4d0001')
 
 
 class TestDissectAutosarNm:
     def test_autosar_nm_protocols(self, cmd_tshark, capture_file, test_env):
-        '''AUTOSAR NM over CAN (heuristic, CAN ID 0), CAN FD, UDP, PDU
+        '''AUTOSAR NM over CAN (heuristic, enabled, CAN ID 0), CAN FD, UDP, PDU
         Transport and Exported PDU decodes without malformed packets, in
         one and two passes.'''
         stdout = subprocess.check_output((cmd_tshark, *AUTOSAR_NM_OPTS,
@@ -14264,12 +14265,19 @@ class TestDissectAutosarNm:
         ]
 
     def test_autosar_nm_can_id(self, cmd_tshark, capture_file, test_env):
-        '''The default CAN ID 0 matches the standard and extended ID 0
-        frames (not RTR or error frames); another ID matches only its
-        frame.'''
+        '''The heuristic is disabled by default. Enabled, the default CAN
+        ID 0 matches the standard and extended ID 0 frames (not RTR or
+        error frames); another ID matches only its frame.'''
+        heur = ('--enable-heuristic', 'autosar_nm_can_heur')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('autosar_nm_coverage.pcapng.gz'),
+                '-Y', 'can && autosar-nm',
+                '-Tfields', '-e', 'frame.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == []
         for opts, frames in (((), list(range(1, 17))),
                              (('-o', 'autosar-nm.can_id:0x123'), [17])):
-            stdout = subprocess.check_output((cmd_tshark, *opts,
+            stdout = subprocess.check_output((cmd_tshark, *heur, *opts,
                     '-r', capture_file('autosar_nm_coverage.pcapng.gz'),
                     '-Y', 'can && autosar-nm',
                     '-Tfields', '-e', 'frame.number',
@@ -14279,7 +14287,8 @@ class TestDissectAutosarNm:
     def test_autosar_nm_prefs(self, cmd_tshark, capture_file, test_env):
         '''CBV version and CBV / SNI positions.'''
         def fields(*opts):
-            return subprocess.check_output((cmd_tshark, *opts,
+            return subprocess.check_output((cmd_tshark,
+                    '--enable-heuristic', 'autosar_nm_can_heur', *opts,
                     '-r', capture_file('autosar_nm_coverage.pcapng.gz'),
                     '-Y', 'frame.number == 3',
                     '-Tfields', '-e', 'autosar-nm.ctrl', '-e', 'autosar-nm.src',
@@ -14302,6 +14311,7 @@ class TestDissectAutosarNm:
         '''User data fields from the UAT, with a masked bit below the
         field; a field longer than the frame is left out.'''
         stdout = subprocess.check_output((cmd_tshark,
+                '--enable-heuristic', 'autosar_nm_can_heur',
                 '-o', 'uat:NM_user_data_fields:"wakeup","Wakeup reason","2","2","0",""',
                 '-o', 'uat:NM_user_data_fields:"wakeup","Wakeup bit","2","2","0100","pnc"',
                 '-o', 'uat:NM_user_data_fields:"tail","Last octets","56","8","0",""',
