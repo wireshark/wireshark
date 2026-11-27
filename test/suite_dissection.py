@@ -11283,6 +11283,28 @@ class TestDissectArp:
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
 
+    def test_arp_duplicate_note_and_storm(self, cmd_tshark, capture_file, test_env):
+        '''A reply whose sender is a duplicate but whose target is not keeps
+        the duplicate note in the Info column, and request storms are
+        reported on the same frames in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-o', 'arp.detect_request_storms:TRUE',
+                    '-o', 'arp.detect_storm_number_of_packets:3',
+                    '-o', 'arp.detect_storm_period:100',
+                    '-r', capture_file('arp-dup-storm.pcap'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-earp.duplicate-address-detected', '-earp.packet-storm-detected',
+                ), encoding='utf-8', env=test_env)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert len(rows) == 11
+            assert rows[0] == ['1', '192.0.2.1 is at 02:00:00:00:00:01', '', '']
+            assert rows[1] == ['2', '192.0.2.1 is at 02:00:00:00:00:03 '
+                               '(duplicate use of 192.0.2.1 detected!)', '1', '']
+            assert [r[2] for r in rows[2:]] == [''] * 9
+            assert [r[3] for r in rows[2:]] == ['', '', '1', '', '', '', '1', '', '']
+            assert all(r[1] == 'Who has 192.0.2.99? Tell 192.0.2.10' for r in rows[2:])
+
     def test_arp_probe_announcement(self, cmd_tshark, capture_file, test_env):
         '''ARP Probes and Announcements are recognized for Ethernet/IPv4
         only. Requests with short or non-IPv4 addresses (frames 59-62)
