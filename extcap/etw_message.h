@@ -70,7 +70,7 @@ BOOL get_event_information(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO* pInfo);
  * @param pExtract Pointer to the PROPERTY_KEY_VALUE structure where the extracted property will be stored.
  * @return PBYTE Pointer to the next byte in the user data buffer, or NULL if an error occurred.
  */
-PBYTE extract_property(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD PointerSize, USHORT i, PBYTE pUserData, PBYTE pEndOfUserData, PROPERTY_KEY_VALUE* pExtract);
+PBYTE extract_property(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD PointerSize, ULONG i, PBYTE pUserData, PBYTE pEndOfUserData, PROPERTY_KEY_VALUE* pExtract);
 
 #endif
 
