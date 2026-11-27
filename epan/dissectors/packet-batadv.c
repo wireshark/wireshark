@@ -1671,6 +1671,9 @@ static unsigned dissect_batadv_batman_v14(tvbuff_t *tvb, unsigned offset, packet
 	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_data_dissector(next_tvb, pinfo, tree);
+		/* The leftover bytes were handed to the data dissector,
+		 * the caller must not parse them again as an OGM. */
+		offset += length_remaining;
 	}
 
 	return offset;
@@ -3269,7 +3272,7 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		break;
 	}
 
-	for (i = 0; i < vis_packeth->entries; i++) {
+	for (i = 0; i < vis_packeth->entries && tvb_reported_length_remaining(tvb, offset) >= entry_size; i++) {
 		next_tvb = tvb_new_subset_length(tvb, offset, entry_size);
 
 		if (have_tap_listener(batadv_follow_tap)) {
@@ -3375,7 +3378,7 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	tap_queue_packet(batadv_tap, pinfo, vis_packeth);
 
-	for (i = 0; i < vis_packeth->entries; i++) {
+	for (i = 0; i < vis_packeth->entries && tvb_reported_length_remaining(tvb, offset) >= VIS_ENTRY_V8_SIZE; i++) {
 		next_tvb = tvb_new_subset_length(tvb, offset, VIS_ENTRY_V8_SIZE);
 
 		if (have_tap_listener(batadv_follow_tap)) {
@@ -3471,7 +3474,7 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	tap_queue_packet(batadv_tap, pinfo, vis_packeth);
 
-	for (i = 0; i < vis_packeth->entries; i++) {
+	for (i = 0; i < vis_packeth->entries && tvb_reported_length_remaining(tvb, offset) >= VIS_ENTRY_V8_SIZE; i++) {
 		next_tvb = tvb_new_subset_length(tvb, offset, VIS_ENTRY_V8_SIZE);
 
 		if (have_tap_listener(batadv_follow_tap)) {
@@ -5563,8 +5566,8 @@ void proto_register_batadv(void)
 	reassembly_table_register(&msg_reassembly_table,
 			      &addresses_reassembly_table_functions);
 
-	batadv_tap = register_tap("batman");
-	batadv_follow_tap = register_tap("batman_follow");
+	batadv_tap = register_tap("batadv");
+	batadv_follow_tap = register_tap("batadv_follow");
 }
 
 void proto_reg_handoff_batadv(void)
