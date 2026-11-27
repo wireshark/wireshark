@@ -12589,6 +12589,26 @@ class TestDissectAsphodel:
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
 
+    def test_asphodel_many_responses(self, cmd_tshark, capture_file, test_env):
+        '''300 responses from one device are all dissected, and the TCP
+        segment from the device's port 7000 (no Asphodel port) is decoded
+        through the TCP conversation that the responses set up, in one
+        and two passes. Responses used to create a conversation each.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *ASPHODEL_OPTS, *passes,
+                    '-r', capture_file('asphodel-responses.pcap'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-easphodel.serial_number', '-easphodel.cmd',
+                    '-e_ws.malformed', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert len(rows) == 302
+            assert all(r[1] == 'Asphodel' for r in rows)
+            assert [r[2] for r in rows[1:301]] == ['WM%04d' % n for n in range(300)]
+            assert rows[0][2:] == ['', '', '', '']
+            assert rows[301][3] == '0x01'  # GET_BOARD_INFO
+            assert all(r[4] == '' and r[5] == '' for r in rows)
+
     def test_asphodel_remote_param_lengths(self, cmd_tshark, capture_file, test_env):
         '''The remote parameter lengths of a radio are read from the remote
         fields, not from the device's own (frame 3: remote 128/64/20,
