@@ -180,19 +180,21 @@ typedef struct {
 } iseries_t;
 
 static bool iseries_read (wtap * wth, wtap_rec *rec,
-                              int *err, char ** err_info, int64_t *data_offset);
+                          int *err, char ** err_info, int64_t *data_offset);
 static bool iseries_seek_read (wtap * wth, int64_t seek_off,
-                                   wtap_rec *rec,
-                                   int *err, char ** err_info);
-static bool iseries_check_file_type (wtap * wth, int *err, char **err_info,
-                                         int format);
+                               wtap_rec *rec,
+                               int *err, char ** err_info);
+WS_WARN_UNUSED static bool iseries_check_file_type (wtap * wth, int *err,
+                                                    char **err_info,
+                                                    int format);
 static int64_t iseries_seek_next_packet (wtap * wth, int *err, char **err_info);
-static bool iseries_parse_packet (wtap * wth, FILE_T fh,
-                                      wtap_rec *rec,
-                                      int *err, char ** err_info);
+WS_WARN_UNUSED static bool iseries_parse_packet (wtap * wth, FILE_T fh,
+                                                 wtap_rec *rec,
+                                                 int *err, char ** err_info);
 static int iseries_UNICODE_to_ASCII (uint8_t * buf, unsigned bytes);
-static bool iseries_parse_hex_string (const char * ascii, uint8_t * buf,
-                                          size_t len);
+WS_WARN_UNUSED static bool iseries_parse_hex_string (const char * ascii,
+                                                     uint8_t * buf,
+                                                     size_t len);
 
 static int iseries_file_type_subtype = -1;
 static int iseries_unicode_file_type_subtype = -1;
