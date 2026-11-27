@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "packet-tcp.h"
 
 void proto_register_atmtcp(void);
 void proto_reg_handoff_atmtcp(void);
@@ -36,8 +37,25 @@ static int ett_atmtcp;
 #define ATMTCP_CTRL_OPEN        1       /* request/reply */
 #define ATMTCP_CTRL_CLOSE       2       /* request/reply */
 
+#define ATMTCP_HDR_LEN          8
+#define ATMTCP_MAX_DATA_LEN     65535   /* largest AAL5 SDU */
+
+static unsigned
+get_atmtcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    uint32_t length = tvb_get_ntohl(tvb, offset + 4);
+
+    /* The size of a command depends on the kernel's struct atmtcp_control,
+     * and an oversized length is invalid: do not reassemble, take what
+     * this segment holds. */
+    if (length == (uint32_t)ATMTCP_HDR_MAGIC || length > ATMTCP_MAX_DATA_LEN)
+        return tvb_reported_length_remaining(tvb, offset);
+
+    return ATMTCP_HDR_LEN + length;
+}
+
 static int
-dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_atmtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     proto_item *ti;
@@ -87,6 +105,14 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_data_dissector(next_tvb, pinfo, tree);
     return tvb_reported_length(tvb);
+}
+
+static int
+dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, true, ATMTCP_HDR_LEN,
+                     get_atmtcp_pdu_len, dissect_atmtcp_pdu, data);
+    return tvb_captured_length(tvb);
 }
 
 
