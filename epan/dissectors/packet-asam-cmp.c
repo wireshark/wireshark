@@ -2946,6 +2946,11 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
     };
 
     /* Testing for Ethernet Padding */
+    /* The caller guarantees 16 octets only; a transmit message needs 22 for the test below,
+     * so anything shorter is padding at the end of the frame. */
+    if (tx && tvb_reported_length_remaining(tvb, offset) <= 21) {
+        return 0;
+    }
     if ( (!tx && tvb_get_uint8(tvb, offset + 13) == 0) || (tx && tvb_get_uint8(tvb, offset + 21) == 0)) {
         return 0;
     }
@@ -3280,7 +3285,6 @@ dissect_asam_cmp_status_vendor_data_technica(tvbuff_t *tvb, packet_info *pinfo, 
             offset += 4;
 
             dissect_asam_cmp_status_technica_float(tvb, meas_tree, hf_cmp_status_technica_temp_silicon, offset);
-            offset += 4;
         }
         /* skip fields we do not know (newer minor versions) or a too short structure */
         offset = meas_end;
