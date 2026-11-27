@@ -38,7 +38,7 @@ class QRubberBand;
 class QTimer;
 class QAbstractButton;
 class CopyFromProfileButton;
-class ProfileInheritComboBox;
+class IncludeParentCheckBox;
 
 class QCPGraph;
 class QCPItemTracer;
@@ -459,7 +459,7 @@ protected:
 private:
     Ui::IOGraphDialog *ui;
     CopyFromProfileButton *copy_profile_bt_; /**< Button that copies graph settings from another profile. */
-    ProfileInheritComboBox *inherit_combo_ = nullptr; /**< Selects where the graphs come from. */
+    IncludeParentCheckBox *include_parent_check_box_ = nullptr; /**< Selects where the graphs come from. */
 
     /** @brief Updates the buttons for the selected rows and the source of the graphs. */
     void updateInheritWidgets();
@@ -576,10 +576,10 @@ private slots:
     void copyFromProfile(QString filename);
 
     /**
-     * @brief Selects where the graphs come from, and saves the selection.
-     * @param mode The inherit mode.
+     * @brief Selects whether the parent profiles are included, and saves the selection.
+     * @param include_parent Whether the parent profiles are included.
      */
-    void inheritModeChanged(profile_inherit_e mode);
+    void includeParentChanged(bool include_parent);
 
     /** @brief Refresh enabled/disabled state of all toolbar and dialog widgets. */
     void updateWidgets() override;

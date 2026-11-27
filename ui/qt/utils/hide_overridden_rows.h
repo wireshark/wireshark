@@ -118,9 +118,9 @@ QCheckBox *addHideNotUsedCheckBox(QWidget *parent, QBoxLayout *layout, QWidget *
     // Only mention unchecked entries if an entry can be unchecked
     check_box->setToolTip(check_column >= 0 ?
         QCoreApplication::translate("HideOverriddenRows",
-            "Hide the entries that are not used: the unchecked entries, and the inherited entries that an entry of this profile overrides.") :
+            "Hide the entries that are not used: the unchecked entries, and the included entries that an entry of this profile overrides.") :
         QCoreApplication::translate("HideOverriddenRows",
-            "Hide the inherited entries that are not used because an entry of this profile overrides them."));
+            "Hide the included entries that are not used because an entry of this profile overrides them."));
     layout->insertWidget(layout->indexOf(after) + 1, check_box);
     QWidget::setTabOrder(after, check_box);
     hideOverriddenRows(view, model, check_box, check_column);

@@ -23,9 +23,8 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/color_utils.h>
 #include <QFont>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 #include <app/application_flavor.h>
-#include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_assert.h>
 
@@ -202,8 +201,7 @@ QString DecodeAsItem::entryId() const
 DecodeAsModel::DecodeAsModel(QObject *parent, capture_file *cf) :
     QAbstractTableModel(parent),
     cap_file_(cf),
-    inherit_mode_(profile_get_inherit(application_configuration_environment_prefix(), NULL, DECODE_AS_ENTRIES_FILE_NAME)),
-    own_hidden_(false)
+    include_parent_(profile_get_include_parent(application_configuration_environment_prefix(), NULL, DECODE_AS_ENTRIES_FILE_NAME))
 {
 }
 
@@ -211,34 +209,6 @@ DecodeAsModel::~DecodeAsModel()
 {
     qDeleteAll(decode_as_items_);
     qDeleteAll(inherited_items_);
-    qDeleteAll(hidden_own_items_);
-}
-
-bool DecodeAsModel::saveHiddenOwn(QString &err)
-{
-    if (!own_hidden_)
-        return true;
-
-    // The own entries are not in the dissector tables while hidden
-    QList<QByteArray> values;
-    GSList *list = NULL;
-    foreach (DecodeAsItem *item, hidden_own_items_) {
-        QString selector = item->selectorText();
-        if (selector.isNull() || item->currentDissector().isEmpty())
-            continue;
-        values << QStringLiteral("%1,%2,%3,%4").arg(item->tableName(), selector,
-                                                    item->defaultDissector(), item->currentDissector()).toUtf8();
-    }
-    for (const QByteArray &value : values)
-        list = g_slist_append(list, (void *)value.constData());
-
-    char *err_msg = NULL;
-    bool ok = save_decode_as_entry_values(application_flavor_name_proper(), application_configuration_environment_prefix(),
-                                          list, &err_msg) == 0;
-    g_slist_free(list);
-    if (!ok)
-        err = gchar_free_to_qstring(err_msg);
-    return ok;
 }
 
 int DecodeAsModel::ownRowCount() const
@@ -277,11 +247,10 @@ void DecodeAsModel::loadInherited()
     qDeleteAll(inherited_items_);
     inherited_items_.clear();
 
-    if (inherit_mode_ == PROFILE_INHERIT_PROFILE_ONLY)
+    if (!include_parent_)
         return;
 
-    decode_as_foreach_inherited(inherit_mode_, application_configuration_environment_prefix(),
-                                addInheritedEntry, &inherited_items_);
+    decode_as_foreach_inherited(application_configuration_environment_prefix(), addInheritedEntry, &inherited_items_);
 }
 
 bool DecodeAsModel::overriddenByOwn(const DecodeAsItem *item) const
@@ -337,14 +306,14 @@ void DecodeAsModel::refreshInherited()
     }
 }
 
-void DecodeAsModel::setInheritMode(profile_inherit_e mode)
+void DecodeAsModel::setIncludeParent(bool include_parent)
 {
-    if (mode == inherit_mode_)
+    if (include_parent == include_parent_)
         return;
 
     beginResetModel();
 
-    // Drop the inherited rows; they are read again for the new mode
+    // Drop the inherited rows; they are read again if the parent profiles are included
     QList<DecodeAsItem *> own_items;
     foreach (DecodeAsItem *item, decode_as_items_) {
         if (item->isInherited())
@@ -352,32 +321,9 @@ void DecodeAsModel::setInheritMode(profile_inherit_e mode)
         else
             own_items << item;
     }
-    decode_as_items_.clear();
+    decode_as_items_ = own_items;
 
-    if (mode == PROFILE_INHERIT_PARENT_ONLY) {
-        // Keep the own entries, so another mode shows them again and saving keeps them
-        hidden_own_items_ << own_items;
-        own_hidden_ = true;
-    } else if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY) {
-        if (!own_hidden_) {
-            // The own entries were not used, so read them from the profile
-            char *path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, application_configuration_environment_prefix());
-            FILE *fp = ws_fopen(path, "r");
-            if (fp) {
-                read_prefs_file(path, fp, readDecodeAsEntry, this);
-                fclose(fp);
-            }
-            g_free(path);
-        } else {
-            decode_as_items_ << hidden_own_items_;
-            hidden_own_items_.clear();
-            own_hidden_ = false;
-        }
-    } else {
-        decode_as_items_ << own_items;
-    }
-
-    inherit_mode_ = mode;
+    include_parent_ = include_parent;
     loadInherited();
     foreach (DecodeAsItem *item, inherited_items_)
         decode_as_items_ << new DecodeAsItem(*item);
@@ -431,7 +377,7 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
     {
     case Qt::FontRole:
         if (inherited) {
-            QFont font = ProfileInheritComboBox::inheritedData(role, item->sourceProfile()).value<QFont>();
+            QFont font = IncludeParentCheckBox::inheritedData(role, item->sourceProfile()).value<QFont>();
             // Not used: also struck out
             font.setStrikeOut(overridden);
             return font;
@@ -439,7 +385,7 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
         return QVariant();
     case Qt::ForegroundRole:
         if (inherited)
-            return ProfileInheritComboBox::inheritedData(role, item->sourceProfile());
+            return IncludeParentCheckBox::inheritedData(role, item->sourceProfile());
         return QVariant();
     case Qt::DecorationRole:
         // A lock marks the inherited entries. Own entries get room for it
@@ -447,14 +393,14 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
         if (index.column() != colTable)
             return QVariant();
         if (inherited)
-            return overridden ? ProfileInheritComboBox::overriddenIcon() : ProfileInheritComboBox::inheritedIcon();
+            return overridden ? IncludeParentCheckBox::overriddenIcon() : IncludeParentCheckBox::inheritedIcon();
         if (ownRowCount() < rowCount()) {
-            return ProfileInheritComboBox::inheritedPlaceholderIcon();
+            return IncludeParentCheckBox::inheritedPlaceholderIcon();
         }
         return QVariant();
     case Qt::AccessibleDescriptionRole:
         if (inherited)
-            return ProfileInheritComboBox::inheritedData(role, item->sourceProfile());
+            return IncludeParentCheckBox::inheritedData(role, item->sourceProfile());
         return QVariant();
     case Qt::ToolTipRole:
     {
@@ -479,11 +425,11 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
         }
         // The column's description, and where an inherited entry comes from
         if (overridden)
-            tip = tip.isEmpty() ? ProfileInheritComboBox::notUsedText(item->sourceProfile()) :
-                                  QStringLiteral("%1\n%2").arg(tip, ProfileInheritComboBox::notUsedText(item->sourceProfile()));
+            tip = tip.isEmpty() ? IncludeParentCheckBox::notUsedText(item->sourceProfile()) :
+                                  QStringLiteral("%1\n%2").arg(tip, IncludeParentCheckBox::notUsedText(item->sourceProfile()));
         else if (inherited)
-            tip = tip.isEmpty() ? ProfileInheritComboBox::inheritedText(item->sourceProfile()) :
-                                  QStringLiteral("%1\n%2").arg(tip, ProfileInheritComboBox::inheritedText(item->sourceProfile()));
+            tip = tip.isEmpty() ? IncludeParentCheckBox::inheritedText(item->sourceProfile()) :
+                                  QStringLiteral("%1\n%2").arg(tip, IncludeParentCheckBox::inheritedText(item->sourceProfile()));
         return tip.isEmpty() ? QVariant() : QVariant(tip);
     }
     case Qt::DisplayRole:
@@ -665,7 +611,7 @@ bool DecodeAsModel::setData(const QModelIndex &cur_index, const QVariant &value,
 bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/)
 {
     // support insertion of just one item for now.
-    if (count != 1 || row < 0 || row > rowCount() || inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
+    if (count != 1 || row < 0 || row > rowCount())
         return false;
 
     // New entries are own entries, which come before the inherited entries

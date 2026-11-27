@@ -85,7 +85,6 @@ public:
      * @brief Enables the buttons for the selection.
      *
      * Inherited entries can be copied into the own entries, but not changed.
-     * The own entries are not used with the parent's entries only.
      * @param sel What the selection allows.
      */
     void setSelection(const InheritSelection &sel);

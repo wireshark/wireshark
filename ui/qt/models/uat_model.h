@@ -200,18 +200,18 @@ public:
     QModelIndex findRowForColumnContent(QVariant columnContent, int columnToCheckAgainst, int role = Qt::DisplayRole);
 
     /**
-     * @brief Selects where the records come from, reloading the inherited records.
-     * @param mode The inherit mode.
+     * @brief Selects whether the parent profiles are included, reloading the inherited records.
+     * @param include_parent Whether the parent profiles are included.
      * @param error Set to an error message on failure.
      * @return True if successful.
      */
-    bool setInheritMode(profile_inherit_e mode, QString &error);
+    bool setIncludeParent(bool include_parent, QString &error);
 
     /**
-     * @brief Where the records come from.
-     * @return The inherit mode.
+     * @brief Whether the parent profiles are included.
+     * @return true if inherited.
      */
-    profile_inherit_e inheritMode() const;
+    bool includesParent() const;
 
     /**
      * @brief The number of the profile's own records, which come first.
@@ -311,9 +311,6 @@ private:
 
     /** @brief Updates overridden_ whenever the rows change. */
     void followOverridden();
-
-    /** @brief The edit state of the own records, while hidden in PROFILE_INHERIT_PARENT_ONLY mode. */
-    QVector<bool> hidden_dirty_;
 
     /** @brief Vector tracking which records have been modified. */
     QVector<bool> dirty_records;

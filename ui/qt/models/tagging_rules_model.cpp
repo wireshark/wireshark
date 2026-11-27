@@ -111,10 +111,10 @@ TaggingRulesModel::~TaggingRulesModel()
 {
 }
 
-QList<TaggingRuleItem*> TaggingRulesModel::readInherited(profile_inherit_e mode)
+QList<TaggingRuleItem*> TaggingRulesModel::readInherited()
 {
     QList<TaggingRuleItem*> rules;
-    GSList *list = tag_rules_read_inherited(mode);
+    GSList *list = tag_rules_read_inherited();
     for (GSList *r = list; r; r = g_slist_next(r)) {
         rules << new TaggingRuleItem((tag_rule_t *)r->data, NULL);
     }
@@ -128,16 +128,9 @@ QList<TaggingRuleItem*> TaggingRulesModel::readInherited(profile_inherit_e mode)
 
 GSList *TaggingRulesModel::createTagRuleList()
 {
-    QList<TaggingRuleItem *> rules;
-    for (int row = 0; row < root_->childCount(); row++)
-        rules << root_->child(row);
-    return createTagRuleList(rules);
-}
-
-GSList *TaggingRulesModel::createTagRuleList(const QList<TaggingRuleItem *> &rules)
-{
     GSList *list = NULL;
-    for (TaggingRuleItem *rule : rules) {
+    for (int row = 0; row < root_->childCount(); row++) {
+        TaggingRuleItem *rule = root_->child(row);
         if (rule == NULL)
             continue;
 
@@ -206,16 +199,10 @@ bool TaggingRulesModel::loadFromPath(const QString &path, QString &err)
 
     beginResetModel();
     delete root_;
-    qDeleteAll(hidden_own_rules_);
-    hidden_own_rules_.clear();
     root_ = new TaggingRuleItem(false, QString(), QString(), QString(), QString(), QString(), NULL);
     for (GSList *r = list; r; r = g_slist_next(r)) {
         tag_rule_t *rule = (tag_rule_t *)r->data;
-        // The own rules are kept, but not shown, when only the parent's rules are used
-        if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
-            hidden_own_rules_ << new TaggingRuleItem(rule, NULL);
-        else
-            root_->appendChild(new TaggingRuleItem(rule, root_));
+        root_->appendChild(new TaggingRuleItem(rule, root_));
     }
     tag_rule_list_free(list);
     endResetModel();
@@ -224,16 +211,12 @@ bool TaggingRulesModel::loadFromPath(const QString &path, QString &err)
 
 bool TaggingRulesModel::writeToPath(const QString &path, const tag_prefs_t *prefs, bool prefs_changed, QString &err)
 {
-    // The profile's own rules are kept, but not used, when only the parent's
-    // rules are used. Without own rules there may be nothing to keep, and
-    // then no file is created for no rules.
-    bool has_own_rules = ownRowCount() > 0 || !hidden_own_rules_.isEmpty();
-    if (!has_own_rules && !prefs_changed && !fileHasRules(path))
+    // Without own rules there may be nothing to keep, and then no file is
+    // created for no rules
+    if (ownRowCount() == 0 && !prefs_changed && !fileHasRules(path))
         return true;
 
     GSList *list = createTagRuleList();
-    if (inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
-        list = g_slist_concat(list, createTagRuleList(hidden_own_rules_));
 
     char *err_msg = NULL;
     bool ok = tag_rules_write_path(list, path.toUtf8().constData(), prefs, &err_msg);
@@ -450,7 +433,7 @@ int TaggingRulesModel::columnCount(const QModelIndex &) const
 bool TaggingRulesModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     // New rules go into the own rules, before the inherited rules
-    if (row < 0 || inherit_mode_ == PROFILE_INHERIT_PARENT_ONLY)
+    if (row < 0)
         return false;
     row = qMin(row, ownRowCount());
 

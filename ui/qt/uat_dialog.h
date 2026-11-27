@@ -21,7 +21,7 @@
 class QComboBox;
 class QPushButton;
 class CopyFromProfileButton;
-class ProfileInheritComboBox;
+class IncludeParentCheckBox;
 class QItemSelection;
 
 struct epan_uat;
@@ -128,7 +128,7 @@ private slots:
      */
     void on_buttonBox_helpRequested();
 
-    void inheritModeChanged(profile_inherit_e mode);
+    void includeParentChanged(bool include_parent);
 
 private:
     /** @brief Qt Designer-generated UI members. */
@@ -151,7 +151,7 @@ private:
 
     CopyFromProfileButton *copy_button_;
 
-    ProfileInheritComboBox *inherit_combo_;
+    IncludeParentCheckBox *include_parent_check_box_;
 
     void updatePathLabel();
 

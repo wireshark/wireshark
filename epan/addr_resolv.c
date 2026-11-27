@@ -834,7 +834,7 @@ personal_files(const char *filename, const char *app_env_var_prefix)
 static bool
 use_global_files(void)
 {
-    return include_parent || !profile_can_inherit(NULL);
+    return include_parent || !profile_has_parent(NULL);
 }
 
 /* Read the personal files with a name resolution file name, farthest profile first */

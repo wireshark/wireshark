@@ -544,7 +544,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
             const QString source_profile = ColoringRuleUtils::inheritedFrom(rule_entry);
             if (!source_profile.isEmpty()) {
                 rule_action->setEnabled(false);
-                rule_action->setToolTip(tr("This coloring rule is inherited from profile '%1'. Change it there.").arg(source_profile));
+                rule_action->setToolTip(tr("This coloring rule is included from profile '%1'. Change it there.").arg(source_profile));
                 ctx_menu->setToolTipsVisible(true);
             }
         }

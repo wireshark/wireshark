@@ -20,7 +20,7 @@
 class QItemSelection;
 class CopyFromProfileButton;
 class FilterTreeDelegate;
-class ProfileInheritComboBox;
+class IncludeParentCheckBox;
 
 namespace Ui {
 class FilterDialog;
@@ -76,7 +76,7 @@ private:
     CopyFromProfileButton *copy_button_;
 
     /** Selects where the filters come from. */
-    ProfileInheritComboBox *inherit_combo_;
+    IncludeParentCheckBox *include_parent_check_box_;
 
     /**
      * @brief Shows the own file, and the parent profiles the filters are inherited from.
@@ -125,10 +125,10 @@ private slots:
     void clearClicked();
 
     /**
-     * @brief Slot triggered when another inherit mode is selected.
-     * @param mode The new mode.
+     * @brief Slot triggered when including the parent profiles is turned on or off.
+     * @param include_parent Whether the parent profiles are included.
      */
-    void inheritModeChanged(profile_inherit_e mode);
+    void includeParentChanged(bool include_parent);
 
     /**
      * @brief Adds the filters of another profile.

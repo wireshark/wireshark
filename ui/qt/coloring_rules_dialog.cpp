@@ -26,7 +26,7 @@
 #include "ui/qt/utils/qt_ui_utils.h"
 #include "ui/qt/utils/themes/themed_icon.h"
 #include "ui/qt/widgets/copy_from_profile_button.h"
-#include "ui/qt/widgets/profile_inherit_combo_box.h"
+#include "ui/qt/widgets/include_parent_check_box.h"
 #include "ui/qt/utils/inherit_selection.h"
 #include <ui/qt/utils/hide_overridden_rows.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
@@ -55,7 +55,7 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter, QS
     import_button_(nullptr),
     export_button_(nullptr),
     copy_button_(nullptr),
-    inherit_combo_(nullptr),
+    include_parent_check_box_(nullptr),
     colorRuleModel_(palette().color(QPalette::Text), palette().color(QPalette::Base), this),
     colorRuleDelegate_(this)
 {
@@ -98,12 +98,12 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter, QS
     connect(&colorRuleModel_, &ColoringRulesModel::rowsRemoved, this, &ColoringRulesDialog::rowCountChanged);
     connect(&colorRuleModel_, &ColoringRulesModel::rowsMoved, this, &ColoringRulesDialog::updateWidgets);
 
-    // Where the rules come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, COLORING_RULES_FILE_NAME);
-    connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &ColoringRulesDialog::inheritModeChanged);
+    // Whether the parent profiles are included, next to the button clearing them
+    include_parent_check_box_ = IncludeParentCheckBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, COLORING_RULES_FILE_NAME);
+    connect(include_parent_check_box_, &IncludeParentCheckBox::includeParentChanged, this, &ColoringRulesDialog::includeParentChanged);
 
     // Not used entries can be hidden, which is not stored
-    addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->coloringRulesTreeView, &colorRuleModel_);
+    addHideNotUsedCheckBox(this, ui->horizontalLayout, include_parent_check_box_, ui->coloringRulesTreeView, &colorRuleModel_);
 
     import_button_ = ui->buttonBox->addButton(tr("Import…"), QDialogButtonBox::ApplyRole);
     import_button_->setToolTip(tr("Select a file and add its filters to the end of the list."));
@@ -121,8 +121,6 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter, QS
     rowCountChanged();
 
     if (!add_filter.isEmpty()) {
-        // A new rule is an own rule, which is not used with the parent's rules only
-        inherit_combo_->useOwnEntries();
         colorRuleModel_.addColor(true, add_filter, palette().color(QPalette::Text), palette().color(QPalette::Base));
 
         if (!add_name.isEmpty()) {
@@ -176,33 +174,27 @@ void ColoringRulesDialog::rowCountChanged()
 
 void ColoringRulesDialog::updatePathLabel()
 {
-    inherit_combo_->updatePathLabel(ui->pathLabel, inheritedProfiles(&colorRuleModel_));
+    include_parent_check_box_->updatePathLabel(ui->pathLabel, inheritedProfiles(&colorRuleModel_));
 }
 
 void ColoringRulesDialog::updateWidgets()
 {
-    if (!inherit_combo_)
+    if (!include_parent_check_box_)
         return;
 
     InheritSelection sel = inheritSelection(&colorRuleModel_, ui->coloringRulesTreeView->selectionModel()->selectedIndexes(), ui->coloringRulesTreeView);
 
     // Inherited rules can be copied into the own rules, but not changed
     ui->editButtons->setSelection(sel);
-    if (copy_button_) {
-        copy_button_->setOwnEntriesUsed(sel.own_used);
-    }
 
     ui->fGPushButton->setVisible(sel.selected_count == 1 && !sel.inherited_selected);
     ui->bGPushButton->setVisible(sel.selected_count == 1 && !sel.inherited_selected);
     ui->displayFilterPushButton->setVisible(sel.selected_count == 1);
-    ProfileInheritComboBox::setOwnEntriesUsed(import_button_, sel.own_used);
-    if (import_button_)
-        import_button_->setEnabled(sel.own_used);
 }
 
-void ColoringRulesDialog::inheritModeChanged(profile_inherit_e mode)
+void ColoringRulesDialog::includeParentChanged(bool include_parent)
 {
-    colorRuleModel_.setInheritMode(mode);
+    colorRuleModel_.setIncludeParent(include_parent);
     for (int i = 0; i < colorRuleModel_.columnCount(); i++) {
         ui->coloringRulesTreeView->resizeColumnToContents(i);
     }
@@ -489,8 +481,8 @@ void ColoringRulesDialog::on_buttonBox_accepted()
     if (!colorRuleModel_.writeColors(err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
         ret = QDialog::Rejected;
-    } else if (!inherit_combo_->saveMode(err)) {
-        // The mode is only kept with the rules written for it
+    } else if (!include_parent_check_box_->saveIncludeParent(err)) {
+        // The include parent setting is only kept with the rules written for it
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
     }
     done(ret);

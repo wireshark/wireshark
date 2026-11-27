@@ -58,7 +58,7 @@ public:
  * @brief A list model for managing capture filters, display filters, and display macros.
  *
  * The profile's own filters come first, then the filters inherited from the
- * parent profiles, as the inherit mode of the file selects. A filter is
+ * parent profiles if the profile includes them. A filter is
  * identified by its name and its expression, a macro by its name only.
  */
 class FilterListModel : public InheritedRulesModel<FilterListItem>
@@ -156,8 +156,6 @@ public:
 
     /**
      * @brief Adds a new filter after the profile's own filters.
-     *
-     * Nothing is added while only the parent's filters are used.
      * @param name The name of the new filter.
      * @param expression The expression string of the new filter.
      * @return The model index of the newly added filter, or an invalid index.
@@ -243,9 +241,9 @@ public:
     virtual Qt::DropActions supportedDropActions() const override;
 
 protected:
-    QList<FilterListItem *> readInherited(profile_inherit_e mode) override;
-    void leavingInheritMode(profile_inherit_e mode) override;
-    void enteredInheritMode(profile_inherit_e mode) override;
+    QList<FilterListItem *> readInherited() override;
+    void includeParentAboutToChange() override;
+    void includeParentChanged() override;
     bool keyedByFilter() const override;
 
 private:

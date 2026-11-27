@@ -29,7 +29,7 @@
 #include <ui/qt/widgets/filter_edit.h>
 #include <ui/qt/utils/hide_overridden_rows.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 #include <ui/qt/models/capture_filter_validator.h>
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "main_application.h"
@@ -40,7 +40,7 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     filter_type_(filter_type),
     filter_tree_delegate_(new FilterTreeDelegate(this, filter_type)),
     copy_button_(nullptr),
-    inherit_combo_(nullptr)
+    include_parent_check_box_(nullptr)
 {
     ui->setupUi(this);
 
@@ -116,22 +116,19 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     connect(model_, &FilterListModel::rowsMoved, this, &FilterDialog::updateWidgets);
     connect(model_, &FilterListModel::modelReset, this, &FilterDialog::updateWidgets);
 
-    // Where the filters come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, filename_);
-    connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &FilterDialog::inheritModeChanged);
+    // Whether the parent profiles are included, next to the button clearing them
+    include_parent_check_box_ = IncludeParentCheckBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, filename_);
+    connect(include_parent_check_box_, &IncludeParentCheckBox::includeParentChanged, this, &FilterDialog::includeParentChanged);
 
     // Not used entries can be hidden, which is not stored
-    addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->filterTreeView, model_, -1);
+    addHideNotUsedCheckBox(this, ui->horizontalLayout, include_parent_check_box_, ui->filterTreeView, model_, -1);
 
     copy_button_ = new CopyFromProfileButton(this, filename_, copyToolTip);
     ui->buttonBox->addButton(copy_button_, QDialogButtonBox::ActionRole);
     connect(copy_button_, &CopyFromProfileButton::copyProfile, this, &FilterDialog::copyFromProfile);
 
-    if (new_filter_.length() > 0) {
-        // A new filter is an own filter, which is not used with the parent's filters only
-        inherit_combo_->useOwnEntries();
+    if (new_filter_.length() > 0)
         addFilter(newFilterText, new_filter_, true);
-    }
 
     ui->filterTreeView->resizeColumnToContents(FilterListModel::ColumnName);
 
@@ -162,19 +159,18 @@ void FilterDialog::addFilter(QString name, QString filter, bool start_editing)
 
 void FilterDialog::updatePathLabel()
 {
-    inherit_combo_->updatePathLabel(ui->pathLabel, inheritedProfiles(model_));
+    include_parent_check_box_->updatePathLabel(ui->pathLabel, inheritedProfiles(model_));
 }
 
 void FilterDialog::updateWidgets()
 {
-    if (! ui->filterTreeView->selectionModel() || ! inherit_combo_)
+    if (! ui->filterTreeView->selectionModel() || ! include_parent_check_box_)
         return;
 
     InheritSelection sel = inheritSelection(model_, ui->filterTreeView->selectionModel()->selectedIndexes(), ui->filterTreeView);
 
     // Inherited filters can be copied into the own filters, but not changed
     ui->editButtons->setSelection(sel);
-    copy_button_->setOwnEntriesUsed(sel.own_used);
 }
 
 void FilterDialog::selectionChanged(const QItemSelection &/*selected*/, const QItemSelection &/*deselected*/)
@@ -182,9 +178,9 @@ void FilterDialog::selectionChanged(const QItemSelection &/*selected*/, const QI
     updateWidgets();
 }
 
-void FilterDialog::inheritModeChanged(profile_inherit_e mode)
+void FilterDialog::includeParentChanged(bool include_parent)
 {
-    model_->setInheritMode(mode);
+    model_->setIncludeParent(include_parent);
     ui->filterTreeView->resizeColumnToContents(FilterListModel::ColumnName);
     updatePathLabel();
     updateWidgets();
@@ -255,9 +251,9 @@ void FilterDialog::on_buttonBox_accepted()
 {
     model_->saveList();
 
-    // The mode is only kept with the filters written for it, and before reloading them
+    // The include parent setting is only kept with the filters written for it, and before reloading them
     QString err;
-    if (!inherit_combo_->saveMode(err)) {
+    if (!include_parent_check_box_->saveIncludeParent(err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
     }
 
@@ -315,8 +311,8 @@ QSize FilterTreeDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 {
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
-    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
-                                                     false);
+    return IncludeParentCheckBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
+                                                    false);
 }
 
 QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const

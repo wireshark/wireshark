@@ -217,21 +217,19 @@ WS_DLL_PUBLIC bool color_filters_import(const char *path, void *user_data, char 
 /**
  * @brief Read the coloring rules inherited from the parent profiles.
  *
- * Reads the rules of the parent profile and up, nearest parent first, as
- * given by the mode. Rules disabled in a parent, conversation rules and
+ * Reads the rules of the parent profile and up, nearest parent first. Rules disabled in a parent, conversation rules and
  * rules duplicating the name or filter of a rule from a nearer parent are
- * skipped. A parent using its own rules only without a coloring rules file,
+ * skipped. A parent that does not inherit and has no coloring rules file,
  * like the Default profile, contributes the global rules. Each rule passed
  * to add_cb has inherited and source_profile set.
  *
- * @param mode The inherit mode of the current profile, e.g. one not yet saved.
  * @param user_data Data passed to add_cb.
  * @param err_msg Set to a g_malloc()'d error message on failure.
  * @param add_cb Called for each inherited rule.
  * @param app_env_var_prefix The prefix for the application environment variable.
  * @return true on success.
  */
-WS_DLL_PUBLIC bool color_filters_read_inherited(profile_inherit_e mode, void *user_data, char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix);
+WS_DLL_PUBLIC bool color_filters_read_inherited(void *user_data, char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix);
 
 /**
  * @brief Read filters from the global filter file (not the users file).

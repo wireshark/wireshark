@@ -13,7 +13,7 @@
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/models/uat_model.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/main_application.h>
 
@@ -121,8 +121,8 @@ void FilterExpressionToolBar::customMenu(QWidget* target, QAction * filterAction
                                        filterAction->property(dfe_property_expression_).toString());
         bool inherited = table && idx >= 0 && uat_record_is_inherited(table, static_cast<unsigned>(idx));
         if (inherited) {
-            QAction *actInherited = filterMenu->addAction(ProfileInheritComboBox::inheritedIcon(),
-                    tr("Inherited from profile '%1'").arg(QString::fromUtf8(uat_record_source(table, static_cast<unsigned>(idx)))));
+            QAction *actInherited = filterMenu->addAction(IncludeParentCheckBox::inheritedIcon(),
+                    tr("Included from profile '%1'").arg(QString::fromUtf8(uat_record_source(table, static_cast<unsigned>(idx)))));
             actInherited->setEnabled(false);
         }
         QAction * actEdit = filterMenu->addAction(tr("Edit"));
@@ -277,7 +277,6 @@ void FilterExpressionToolBar::onFilterDropped(QString description, QString filte
     if (filter.length() == 0)
         return;
 
-    filter_expressions_use_own(application_configuration_environment_prefix());
     filter_expression_new(qUtf8Printable(description),
             qUtf8Printable(filter), qUtf8Printable(description), true);
 

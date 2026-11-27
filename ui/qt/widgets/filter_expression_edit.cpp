@@ -567,7 +567,7 @@ void FilterExpressionEdit::updateRemoveEnabled()
     const bool match = bookmarkModel_ && bookmarkModel_->isRemovable(text());
     remove_action_->setEnabled(match);
     const bool inherited = bookmarkModel_ && bookmarkModel_->contains(text()) && !match;
-    remove_action_->setToolTip(inherited ? tr("This filter is inherited from the parent profile. Remove it there.") : QString());
+    remove_action_->setToolTip(inherited ? tr("This filter is included from the parent profile. Remove it there.") : QString());
 }
 
 void FilterExpressionEdit::updateBookmarkState()

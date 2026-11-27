@@ -20,7 +20,7 @@
 
 class QAbstractButton;
 class CopyFromProfileButton;
-class ProfileInheritComboBox;
+class IncludeParentCheckBox;
 
 namespace Ui {
 class ColoringRulesDialog;
@@ -159,10 +159,10 @@ private slots:
     void treeItemClicked(const QModelIndex &index);
 
     /**
-     * @brief Slot triggered when another source of the rules is selected.
-     * @param mode The inherit mode.
+     * @brief Slot triggered when including the parent profiles is turned on or off.
+     * @param include_parent Whether the parent profiles are included.
      */
-    void inheritModeChanged(profile_inherit_e mode);
+    void includeParentChanged(bool include_parent);
 
 private:
     /** Pointer to the generated UI elements. */
@@ -178,7 +178,7 @@ private:
     CopyFromProfileButton *copy_button_;
 
     /** Selects where the rules come from. */
-    ProfileInheritComboBox *inherit_combo_;
+    IncludeParentCheckBox *include_parent_check_box_;
 
     /** Updates the path label for the selected source of the rules. */
     void updatePathLabel();

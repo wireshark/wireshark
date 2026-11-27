@@ -443,7 +443,7 @@ read_layer_tagrules(const profile_inherit_layer_t *layer, const char *path, cons
  * rule in own_list, which may be NULL, are not inherited.
  */
 static void
-read_inherited_tagrules(profile_inherit_e mode, GSList *own_list, GSList **list)
+read_inherited_tagrules(GSList *own_list, GSList **list)
 {
     profile_inherit_seen_t *seen = profile_inherit_seen_new();
     char *err = NULL;
@@ -455,7 +455,7 @@ read_inherited_tagrules(profile_inherit_e mode, GSList *own_list, GSList **list)
     }
     profile_inherit_seen_next(seen);
 
-    if (!profile_inherit_read_layers(NULL, TAGRULES_FILE_NAME, NULL, false, mode, seen,
+    if (!profile_inherit_read_layers(NULL, TAGRULES_FILE_NAME, NULL, false, true, seen,
                                      read_layer_tagrules, list, &err)) {
         report_warning("%s", err);
     }
@@ -465,11 +465,11 @@ read_inherited_tagrules(profile_inherit_e mode, GSList *own_list, GSList **list)
 }
 
 GSList *
-tag_rules_read_inherited(profile_inherit_e mode)
+tag_rules_read_inherited(void)
 {
     GSList *list = NULL;
 
-    read_inherited_tagrules(mode, NULL, &list);
+    read_inherited_tagrules(NULL, &list);
     return list;
 }
 
@@ -477,7 +477,6 @@ void
 tag_rules_init(void)
 {
     char *path;
-    profile_inherit_e mode = profile_get_inherit(NULL, NULL, TAGRULES_FILE_NAME);
 
     tag_rule_list_delete(&tag_rule_list);
     /* A profile without the preferences uses the defaults */
@@ -485,16 +484,11 @@ tag_rules_init(void)
 
     /* Load current-profile rules from the profile directory */
     path = get_persconffile_path(TAGRULES_FILE_NAME, true, NULL);
-    if (mode != PROFILE_INHERIT_PARENT_ONLY) {
-        load_tagrules_from_path(path);
-    } else {
-        /* The own rules are not used, but the own preferences are */
-        tag_rule_list_free(tag_rules_read_path(path, NULL));
-    }
+    load_tagrules_from_path(path);
     g_free(path);
 
-    if (mode != PROFILE_INHERIT_PROFILE_ONLY) {
-        read_inherited_tagrules(mode, tag_rule_list, &tag_rule_list);
+    if (profile_get_include_parent(NULL, NULL, TAGRULES_FILE_NAME)) {
+        read_inherited_tagrules(tag_rule_list, &tag_rule_list);
     }
 }
 
@@ -573,29 +567,7 @@ tag_rules_write(void)
     }
 
     path = get_persconffile_path(TAGRULES_FILE_NAME, true, NULL);
-    if (profile_get_inherit(NULL, NULL, TAGRULES_FILE_NAME) == PROFILE_INHERIT_PARENT_ONLY) {
-        /* The own rules are not in use, and not in the list; keep them as they are */
-        GSList *own_list = NULL;
-        FILE *f = ws_fopen(path, "r");
-        if (f == NULL) {
-            /* No own rules to keep, and nothing to write */
-            g_free(path);
-            return true;
-        }
-        int ret = read_tagrules_file(path, f, &own_list, NULL, NULL, false);
-        fclose(f);
-        if (ret != 0) {
-            /* Do not overwrite the own rules with what could be read */
-            report_warning("Error reading tag rules file \"%s\": %s.", path, g_strerror(ret));
-            tag_rule_list_delete(&own_list);
-            g_free(path);
-            return false;
-        }
-        ok = tag_rules_write_path(own_list, path, &tag_prefs, &err_msg);
-        tag_rule_list_delete(&own_list);
-    } else {
-        ok = tag_rules_write_path(tag_rule_list, path, &tag_prefs, &err_msg);
-    }
+    ok = tag_rules_write_path(tag_rule_list, path, &tag_prefs, &err_msg);
     if (!ok) {
         report_warning("%s", err_msg);
         g_free(err_msg);

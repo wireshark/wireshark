@@ -58,7 +58,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/path_selection_edit.h
 	widgets/pref_module_view.h
 	widgets/list_edit_buttons.h
-	widgets/profile_inherit_combo_box.h
+	widgets/include_parent_check_box.h
 	widgets/profile_tree_view.h
 	widgets/qcp_axis_ticker_elided.h
 	widgets/qcp_axis_ticker_si.h
@@ -427,7 +427,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/path_selection_edit.cpp
 	widgets/pref_module_view.cpp
 	widgets/list_edit_buttons.cpp
-	widgets/profile_inherit_combo_box.cpp
+	widgets/include_parent_check_box.cpp
 	widgets/profile_tree_view.cpp
 	widgets/qcp_axis_ticker_elided.cpp
 	widgets/qcp_axis_ticker_si.cpp

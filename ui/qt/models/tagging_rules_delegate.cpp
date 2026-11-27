@@ -17,7 +17,7 @@
 #include <ui/qt/models/tagging_rules_model.h>
 #include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 
 TaggingRulesDelegate::TaggingRulesDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
@@ -56,8 +56,8 @@ QSize TaggingRulesDelegate::sizeHint(const QStyleOptionViewItem &option, const Q
 {
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
-    return ProfileInheritComboBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
-                                                     index.column() == TaggingRulesModel::colName);
+    return IncludeParentCheckBox::inheritedSizeHint(opt, QStyledItemDelegate::sizeHint(option, index),
+                                                    index.column() == TaggingRulesModel::colName);
 }
 
 QWidget *TaggingRulesDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &,

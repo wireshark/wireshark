@@ -69,14 +69,11 @@ struct epan_uat {
     uat_rep_free_cb_t    free_rep;         /**< Callback used to release the UAT-level GUI representation handle. */
     bool                 loaded;           /**< True if the UAT has been successfully loaded from its backing file. */
     GPtrArray*           sources;          /**< Parallel to raw_data: the parent profile a record is inherited from, or NULL for an own record. */
-    profile_inherit_e    inherit_mode;     /**< Where the records come from, for a UAT loaded from the profile. */
+    bool                 include_parent;   /**< True if the parent profiles are included, for a UAT loaded from the profile. */
     GArray*              key_fields;       /**< Indexes of the fields identifying a record when ignoring duplicates from parent profiles; empty for all fields. */
     int                  enabled_field;    /**< Index of a bool field which, if false, keeps a record from being inherited; -1 for none. */
     bool                 own_from_global;  /**< True if the own records were read from the global file, and are unchanged defaults. */
     bool                 loading_inherited; /**< True while reading a parent profile's file; its records are not exposed to the dissectors yet. */
-    GArray*              hidden_raw;       /**< The own records, kept but not used while only the parent's records are used. */
-    GArray*              hidden_valid;     /**< Parallel to hidden_raw: whether each record is valid. */
-    bool                 own_hidden;       /**< True if hidden_raw holds the own records, which are then saved from there. */
     GHashTable*          override_keys;    /**< While adding inherited records for editing: the keys of the own records, which an inherited record with the same key is kept for, but not used; NULL otherwise. */
     bool                 own_read;         /**< True if the own records had records when read: the profile's file, or the global records used without one. Only then is a file without records written. */
 };
@@ -199,12 +196,11 @@ bool uat_load_file(uat_t *uat, const char *fname, char **errx, bool *opened);
  * profiles, nearest parent first. Records from a parent duplicating a record
  * from a nearer profile, or disabled in the parent, are not inherited.
  * @param uat The UAT, which should be empty.
- * @param mode The inherit mode.
  * @param app_env_var_prefix The prefix for the application environment variable.
  * @param errx Set to a g_malloc()'d error message on failure.
  * @return true on success.
  */
-bool uat_load_inherited(uat_t *uat, profile_inherit_e mode, const char *app_env_var_prefix, char **errx);
+bool uat_load_inherited(uat_t *uat, const char *app_env_var_prefix, char **errx);
 
 /**
  * @brief Whether a record is inherited from a parent profile.
@@ -233,18 +229,15 @@ WS_DLL_PUBLIC
 unsigned uat_own_count(uat_t *uat);
 
 /**
- * @brief Selects where the records of a UAT come from, reloading the inherited records.
- *
- * In PROFILE_INHERIT_PARENT_ONLY mode the own records are removed, and the
- * profile's file is not written by uat_save(); another mode reads them again.
+ * @brief Selects whether the parent profiles are included in a UAT, reloading the inherited records.
  * @param uat The UAT.
- * @param mode The inherit mode.
+ * @param include_parent Whether the parent profiles are included.
  * @param app_env_var_prefix The prefix for the application environment variable.
  * @param errx Set to a g_malloc()'d error message on failure.
  * @return true on success.
  */
 WS_DLL_PUBLIC
-bool uat_set_inherit_mode(uat_t *uat, profile_inherit_e mode, const char *app_env_var_prefix, char **errx);
+bool uat_set_include_parent(uat_t *uat, bool include_parent, const char *app_env_var_prefix, char **errx);
 
 /**
  * @brief Moves the records inherited from parent profiles after the own records.
@@ -270,7 +263,7 @@ char *uat_record_key_string(uat_t *uat, unsigned idx);
  * @brief Marks the own records as changed by the user.
  *
  * Own records read from the global file are otherwise taken as defaults,
- * which are dropped when the records are inherited from the parents.
+ * which are dropped when the parent profiles are included.
  * @param uat The UAT.
  */
 WS_DLL_PUBLIC
@@ -284,7 +277,7 @@ WS_DLL_PUBLIC
 void uat_remove_inherited_records(uat_t *uat);
 
 /**
- * @brief Appends the records inherited from parent profiles for the selected mode.
+ * @brief Appends the records inherited from parent profiles, if they are inherited.
  *
  * Records duplicating a record already in the UAT are not inherited, so
  * this is used to refresh the inherited records after own records changed.
@@ -297,12 +290,12 @@ WS_DLL_PUBLIC
 bool uat_add_inherited_records(uat_t *uat, const char *app_env_var_prefix, char **errx);
 
 /**
- * @brief Where the records of a UAT come from.
+ * @brief Whether the parent profiles are included in a UAT.
  * @param uat The UAT.
- * @return The inherit mode.
+ * @return true if inherited.
  */
 WS_DLL_PUBLIC
-profile_inherit_e uat_get_inherit_mode(uat_t *uat);
+bool uat_get_include_parent(uat_t *uat);
 
 /**
  * @brief Loads the records for all registered UATs from file.

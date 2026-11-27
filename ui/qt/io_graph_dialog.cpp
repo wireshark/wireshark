@@ -34,7 +34,7 @@
 #include <ui/qt/widgets/qcp_axis_ticker_si.h>
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/hide_overridden_rows.h>
-#include <ui/qt/widgets/profile_inherit_combo_box.h>
+#include <ui/qt/widgets/include_parent_check_box.h>
 #include <ui/qt/utils/inherit_selection.h>
 #include <ui/qt/widgets/list_edit_buttons.h>
 #include <ui/qt/widgets/wireshark_file_dialog.h>
@@ -272,11 +272,11 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_
     ui->buttonBox->addButton(copy_profile_bt_, QDialogButtonBox::ActionRole);
     connect(copy_profile_bt_, &CopyFromProfileButton::copyProfile, this, &IOGraphDialog::copyFromProfile);
 
-    // Where the graphs come from, next to the button clearing them
-    inherit_combo_ = ProfileInheritComboBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, iog_uat_filename_);
+    // Whether the parent profiles are included, next to the button clearing them
+    include_parent_check_box_ = IncludeParentCheckBox::addNextTo(this, ui->horizontalLayout, ui->editButtons, iog_uat_filename_);
     if (iog_uat_)
-        inherit_combo_->syncMode(uat_get_inherit_mode(iog_uat_));
-    connect(inherit_combo_, &ProfileInheritComboBox::modeChanged, this, &IOGraphDialog::inheritModeChanged);
+        include_parent_check_box_->syncIncludeParent(uat_get_include_parent(iog_uat_));
+    connect(include_parent_check_box_, &IncludeParentCheckBox::includeParentChanged, this, &IOGraphDialog::includeParentChanged);
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt) {
@@ -404,7 +404,7 @@ void IOGraphDialog::initialize(QWidget& parent, uat_field_t* io_graph_fields, QS
                     filterExists = true;
                 }
             }
-        } else if (uat_model_->inheritMode() != PROFILE_INHERIT_PARENT_ONLY) {
+        } else {
             /* No existing graphs, insert default ones */
             insertGraph(true);
             insertGraph(true);
@@ -424,7 +424,7 @@ void IOGraphDialog::initialize(QWidget& parent, uat_field_t* io_graph_fields, QS
                 createIOGraph(i);
             }
         }
-        else if (uat_model_->inheritMode() != PROFILE_INHERIT_PARENT_ONLY) {
+        else {
             /* No existing graphs, insert default ones */
             insertGraph(true);
             insertGraph(true);
@@ -493,13 +493,9 @@ void IOGraphDialog::updateInheritWidgets()
 
     // Inherited entries can be copied into the own entries, but not changed
     ui->editButtons->setSelection(sel);
-    if (copy_profile_bt_) {
-        copy_profile_bt_->setEnabled(sel.own_used && copy_profile_bt_->menu() != nullptr);
-        ProfileInheritComboBox::setOwnEntriesUsed(copy_profile_bt_, sel.own_used);
-    }
 }
 
-void IOGraphDialog::inheritModeChanged(profile_inherit_e mode)
+void IOGraphDialog::includeParentChanged(bool include_parent)
 {
     if (!uat_model_)
         return;
@@ -507,11 +503,11 @@ void IOGraphDialog::inheritModeChanged(profile_inherit_e mode)
     // This dialog saves as it goes, so the selection is saved as well,
     // also if reading the inherited records failed
     QString error;
-    if (!uat_model_->setInheritMode(mode, error)) {
+    if (!uat_model_->setIncludeParent(include_parent, error)) {
         report_failure("%s", qPrintable(error));
     }
     error.clear();
-    if (!inherit_combo_->saveMode(error)) {
+    if (!include_parent_check_box_->saveIncludeParent(error)) {
         report_failure("%s", qPrintable(error));
     }
     updateInheritWidgets();
@@ -566,9 +562,6 @@ void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfi
 {
     if (uat_model_ == nullptr)
         return;
-
-        // A requested graph is an own one, which needs the own graphs in use
-    inherit_combo_->useOwnEntries();
 
     const QColor color = newGraphColor();
     QVariantList newRowData;
@@ -776,7 +769,7 @@ void IOGraphDialog::captureFileClosing()
     ui->editButtons->newButton()->setEnabled(false);
     ui->intervalComboBox->setEnabled(false);
     copy_profile_bt_->setEnabled(false);
-    inherit_combo_->setEnabled(false);
+    include_parent_check_box_->setEnabled(false);
     if (uat_model_) {
         applyChanges();
         disconnect(uat_model_, nullptr, this, nullptr);
@@ -1546,7 +1539,7 @@ void IOGraphDialog::loadProfileGraphs(uat_field_t* io_graph_fields)
     ui->graphUat->setItemDelegate(uat_delegate_);
 
     // Not used graphs can be hidden, which is not stored
-    addHideNotUsedCheckBox(this, ui->horizontalLayout, inherit_combo_, ui->graphUat, uat_model_.data(), colEnabled);
+    addHideNotUsedCheckBox(this, ui->horizontalLayout, include_parent_check_box_, ui->graphUat, uat_model_.data(), colEnabled);
 
     ui->graphUat->setHeader(new ResizeHeaderView(Qt::Horizontal, ui->graphUat));
 
@@ -1611,9 +1604,9 @@ void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int)
 
 void IOGraphDialog::modelRowsReset()
 {
-    // The model is shared with other I/O Graph dialogs, which may change the mode
-    if (inherit_combo_ && uat_model_)
-        inherit_combo_->syncMode(uat_model_->inheritMode());
+    // The model is shared with other I/O Graph dialogs, which may change whether it inherits
+    if (include_parent_check_box_ && uat_model_)
+        include_parent_check_box_->syncIncludeParent(uat_model_->includesParent());
 
     foreach(IOGraph* iog, ioGraphs_) {
         delete iog;

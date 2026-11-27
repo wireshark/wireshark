@@ -291,12 +291,11 @@ read_filter_file(FILE *ff, const char *ff_path, const char *ff_description, GLis
 }
 
 /*
- * Read the profile's own filters. A profile using the parent's filters only
- * has none, and only a profile using its own filters only falls back to the
- * global file.
+ * Read the profile's own filters. Only a profile that does not include its parent profiles
+ * falls back to the global file.
  */
 static filter_list_t *
-filter_list_read_own(filter_list_type_t list_type, const char* app_env_var_prefix, profile_inherit_e mode)
+filter_list_read_own(filter_list_type_t list_type, const char* app_env_var_prefix, bool include_parent)
 {
     const char *ff_name, *ff_description;
     char       *ff_path;
@@ -307,9 +306,6 @@ filter_list_read_own(filter_list_type_t list_type, const char* app_env_var_prefi
     list->list = NULL;
 
     ff_name = filter_list_file_name(list_type, &ff_description);
-
-    if (mode == PROFILE_INHERIT_PARENT_ONLY)
-        return list;
 
     /* try to open personal "cfilters"/"dfilters" file */
     ff_path = get_persconffile_path(ff_name, true, app_env_var_prefix);
@@ -328,7 +324,7 @@ filter_list_read_own(filter_list_type_t list_type, const char* app_env_var_prefi
         }
 
         g_free(ff_path);
-        if (mode != PROFILE_INHERIT_PROFILE_ONLY) {
+        if (include_parent) {
             /* The global filters come from the parent profiles */
             return list;
         }
@@ -407,10 +403,10 @@ ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix
     const char *ff_name, *ff_description;
 
     ff_name = filter_list_file_name(list_type, &ff_description);
-    profile_inherit_e mode = profile_get_inherit(app_env_var_prefix, NULL, ff_name);
+    bool include_parent = profile_get_include_parent(app_env_var_prefix, NULL, ff_name);
 
-    filter_list_t *list = filter_list_read_own(list_type, app_env_var_prefix, mode);
-    if (mode == PROFILE_INHERIT_PROFILE_ONLY)
+    filter_list_t *list = filter_list_read_own(list_type, app_env_var_prefix, include_parent);
+    if (!include_parent)
         return list;
 
     /* The profile's own filters come first, and win over duplicates from parents */
@@ -423,7 +419,7 @@ ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix
 
     read_layer_data_t data = { list_type, ff_description, NULL };
     char *err = NULL;
-    if (!profile_inherit_read_layers(app_env_var_prefix, ff_name, NULL, true, mode, seen,
+    if (!profile_inherit_read_layers(app_env_var_prefix, ff_name, NULL, true, true, seen,
                                      read_layer_filters, &data, &err)) {
         report_warning("%s", err);
     }
@@ -437,7 +433,7 @@ ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix
 filter_list_t *
 ws_filter_list_read_own(filter_list_type_t list_type, const char* app_env_var_prefix)
 {
-    return filter_list_read_own(list_type, app_env_var_prefix, PROFILE_INHERIT_PROFILE_ONLY);
+    return filter_list_read_own(list_type, app_env_var_prefix, false);
 }
 
 /*

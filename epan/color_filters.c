@@ -333,7 +333,7 @@ color_filter_list_clone(GSList *cfl)
  */
 static bool
 color_filters_get_own(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix,
-                      bool read_own, bool fallback_to_globals)
+                      bool fallback_to_globals)
 {
     char     *path;
     char     *legacy_path;
@@ -350,13 +350,6 @@ color_filters_get_own(char** err_msg, color_filter_add_cb_func add_cb, const cha
      */
     path = get_persconffile_path(COLORING_RULES_FILE_NAME, true, app_env_var_prefix);
     legacy_path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, app_env_var_prefix);
-
-    if (!read_own) {
-        /* Only entries from the parent profiles are used */
-        g_free(legacy_path);
-        g_free(path);
-        return true;
-    }
 
     /*
      * If the personal coloring_rules.jsonc exists, it is the user's rule
@@ -494,11 +487,11 @@ color_filters_add_inherited_cb(color_filter_t *colorf, void *user_data _U_)
 }
 
 /*
- * Read the inherited rules for a mode. Rules duplicating a rule in own_list,
- * which may be NULL, are not inherited.
+ * Read the inherited rules. Rules duplicating a rule in own_list, which may
+ * be NULL, are not inherited.
  */
 static bool
-color_filters_add_inherited(profile_inherit_e mode, GSList *own_list, void *user_data, char **err_msg,
+color_filters_add_inherited(GSList *own_list, void *user_data, char **err_msg,
                             color_filter_add_cb_func add_cb, const char *app_env_var_prefix)
 {
     profile_inherit_seen_t *seen = profile_inherit_seen_new();
@@ -514,38 +507,36 @@ color_filters_add_inherited(profile_inherit_e mode, GSList *own_list, void *user
     profile_inherit_seen_next(seen);
 
     bool ret = profile_inherit_read_layers(app_env_var_prefix, COLORING_RULES_FILE_NAME, COLORFILTERS_FILE_NAME, true,
-                                           mode, seen, color_filters_read_layer, &layer_read, err_msg);
+                                           true, seen, color_filters_read_layer, &layer_read, err_msg);
 
     profile_inherit_seen_free(seen);
     return ret;
 }
 
 bool
-color_filters_read_inherited(profile_inherit_e mode, void *user_data, char** err_msg,
+color_filters_read_inherited(void *user_data, char** err_msg,
                              color_filter_add_cb_func add_cb, const char* app_env_var_prefix)
 {
-    return color_filters_add_inherited(mode, NULL, user_data, err_msg, add_cb, app_env_var_prefix);
+    return color_filters_add_inherited(NULL, user_data, err_msg, add_cb, app_env_var_prefix);
 }
 
 static bool
 color_filters_get(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix)
 {
-    profile_inherit_e mode = profile_get_inherit(app_env_var_prefix, NULL, COLORING_RULES_FILE_NAME);
+    bool include_parent = profile_get_include_parent(app_env_var_prefix, NULL, COLORING_RULES_FILE_NAME);
 
     /* start the list with the temporary colorizing rules */
     color_filters_add_tmp(&color_filter_list);
 
-    if (!color_filters_get_own(err_msg, add_cb, app_env_var_prefix,
-                               mode != PROFILE_INHERIT_PARENT_ONLY,
-                               mode == PROFILE_INHERIT_PROFILE_ONLY)) {
+    if (!color_filters_get_own(err_msg, add_cb, app_env_var_prefix, !include_parent)) {
         return false;
     }
 
-    if (mode == PROFILE_INHERIT_PROFILE_ONLY) {
+    if (!include_parent) {
         return true;
     }
 
-    return color_filters_add_inherited(mode, color_filter_list, NULL, err_msg,
+    return color_filters_add_inherited(color_filter_list, NULL, err_msg,
                                        color_filters_add_inherited_cb, app_env_var_prefix);
 }
 
