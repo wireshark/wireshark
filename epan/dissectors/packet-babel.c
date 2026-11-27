@@ -426,7 +426,7 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     tvb, message + 2, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_babel_message_prefix,
                                     tvb, message + 4, len - 2, ENC_NA);
-                if (rc < len - 6)
+                if (rc >= 0 && rc < len - 6)
                     dissect_babel_subtlvs(tvb, type, message + 8 + rc,
                                           message + 2 + len, message_tree);
             } else if (type == MESSAGE_ROUTER_ID) {
