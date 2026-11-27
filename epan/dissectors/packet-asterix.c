@@ -379,8 +379,24 @@ static int probe_possible_record (tvbuff_t *tvb, unsigned offset, unsigned int c
     -2 recursive depth limit breached
 */
 // NOLINTNEXTLINE(misc-no-recursion)
-static int probe_possible_records (tvbuff_t *tvb, packet_info *pinfo, int offset, int datablock_end, unsigned int cat, unsigned int ed, uap_table_indexes *indexes, unsigned int *stack, unsigned int depth)
+static int probe_possible_records (tvbuff_t *tvb, packet_info *pinfo, int offset, int datablock_end, unsigned int cat, unsigned int ed, uap_table_indexes *indexes, unsigned int *stack, unsigned int depth, uint8_t *dead, int base_offset)
 {
+    /*
+     * The result of probing from an offset does not depend on how the
+     * offset was reached. An offset from which no interpretation was found
+     * (and the depth limit was not hit) is remembered in dead[] and never
+     * explored again, which keeps the probing linear in the datablock length
+     * instead of exponential.
+     */
+    const unsigned int entry_solution_count = solution_count;
+    const int entry_offset = offset;
+
+    if (offset < base_offset || offset > datablock_end) {
+        return 0;
+    }
+    if (dead[offset - base_offset]) {
+        return 0;
+    }
     for (volatile unsigned int i = indexes->start_index; i <= indexes->end_index; i++)
     {
         volatile int new_offset = (int)offset;
@@ -413,13 +429,16 @@ static int probe_possible_records (tvbuff_t *tvb, packet_info *pinfo, int offset
                 {
                     return -2;
                 }
-                int result = probe_possible_records (tvb, pinfo, new_offset, datablock_end, cat, ed, indexes, stack, depth + 1);
+                int result = probe_possible_records (tvb, pinfo, new_offset, datablock_end, cat, ed, indexes, stack, depth + 1, dead, base_offset);
                 if (result != 0)
                 {
                     return result;
                 }
             }
         }
+    }
+    if (solution_count == entry_solution_count) {
+        dead[entry_offset - base_offset] = 1;
     }
     return 0;
 }
@@ -535,7 +554,8 @@ static void dissect_asterix_records (tvbuff_t *tvb, packet_info *pinfo, int offs
     // if category unknown both start_index and end_index are 0
     if ((indexes.end_index - indexes.start_index) > 0)
     {
-        int result = probe_possible_records (tvb, pinfo, offset, datablock_end, cat, ed, &indexes, stack, 0);
+        uint8_t *dead = (uint8_t *)wmem_alloc0(pinfo->pool, (size_t)datablock_end - offset + 1);
+        int result = probe_possible_records (tvb, pinfo, offset, datablock_end, cat, ed, &indexes, stack, 0, dead, offset);
 
         unsigned int backup_offset = offset;
 
