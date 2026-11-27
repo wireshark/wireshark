@@ -13452,7 +13452,7 @@ class TestDissectAtnCm:
 class TestDissectAtnCpdlc:
     def test_atn_cpdlc_protocols(self, cmd_tshark, capture_file, test_env):
         '''Plain and protected mode CPDLC decode without malformed packets
-        or warnings, in one and two passes, with the same frames handed to
+        or warnings (except the unknown direction of frame 357), in one and two passes, with the same frames handed to
         ATN-CPDLC both times; the protocol item makes "atn-cpdlc" match.'''
         layers = []
         for passes in ((), ('-2',)):
@@ -13471,7 +13471,9 @@ class TestDissectAtnCpdlc:
                     '-Y', '_ws.malformed || _ws.expert.severity >= warning',
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
-            assert count_output(stdout) == 0
+            # frame 357: a protected CPDLC message between two ground
+            # systems, whose direction cannot be determined
+            assert stdout.split() == ['357']
             stdout = subprocess.check_output((cmd_tshark, *passes,
                     '-r', capture_file('atn_cpdlc_coverage.pcap.gz'),
                     '-Y', 'atn-cpdlc',

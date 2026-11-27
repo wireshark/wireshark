@@ -67,54 +67,11 @@ ProtectedAircraftPDUs/startdown protectedstartDownmessage
               dissect_atn_cpdlc_ATCUplinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx , tree, hf_index);
               break;
           default:
+              proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_atn_cpdlc_unknown_direction, tvb_usr, 0);
               break;
       }
     }
 
-#.END
-
-#.FN_BODY AircraftFlightIdentification
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,2, 8, false, ia5alpha , 127, NULL);
-#.END
-
-#.FN_BODY Airport
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,4, 4, false, ia5alpha , 127, NULL);
-#.END
-
-#.FN_BODY FacilityDesignation
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,4, 8, false, ia5alpha , 127, NULL);
-#.END
-
-#.FN_BODY FreeText
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,1, 256, false, ia5alpha , 127, NULL);
-#.END
-
-#.FN_BODY NavaidName
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,1, 4, false, ia5alpha , 127, NULL);
-#.END
-
-#.FN_BODY Procedure
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,1, 20, false, ia5alpha , 127, NULL);
-#.END
-
-#.FN_BODY ProcedureTransition
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,1, 5, false, ia5alpha , 127, NULL);
-#.END
-
-#.FN_BODY Fix
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,1, 5, false, ia5alpha , 127, NULL);
-#.END
-
-#.FN_BODY ATISCode
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,1, 1, false, ia5alpha , 127, NULL);
-#.END
-
-#.FN_BODY ATSRouteDesignator
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,2, 7, false, ia5alpha , 127, NULL);
-#.END
-
-#.FN_BODY FacilityName
-    offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,3, 18, false, ia5alpha , 127, NULL);
 #.END
 
 #
