@@ -1098,6 +1098,11 @@ For some of these identifiers the readable texts are read from configurable exte
 .Name resolution preferences
 image::images/ws-pref-name-resolution.png[{screenshot-attrs}]
 
+Selecting _Use name resolution entries from parent profiles_ causes the name resolution files, such as _hosts_, _subnets_, _ethers_ and _services_, to be read from the parent profiles up to the “Default” profile and from the global files, after the profile's own files.
+When it is off, only the profile's own files are read.
+It is on by default and disabled in the “Default” profile, which has no parent profile.
+See <<ChAppFilesNameResolution>>.
+
 Selecting _Resolve MAC addresses_ causes the OUI (Organizationally Unique Identifier) at the start of an Ethernet address to be translated into the name registered with the IEEE for that OUI.
 
 Selecting _Resolve transport names_ causes the UDP and TCP port numbers to be translated into the service registered to these ports by IANA.
@@ -1784,6 +1789,11 @@ setting of its own, the entries come from these profiles, nearest first:
 |Classic/Mine |Profile and Parent |Profile and Parent |“Classic/Mine”, “Classic”, global “Classic”
 |Classic/Mine |Profile and Parent |Profile only |“Classic/Mine”, “Classic”
 |===
+
+The name resolution files, such as _hosts_ and _subnets_, have no such
+selector. They are read from all parent profiles up to the “Default” profile
+unless the preference _Use name resolution entries from parent profiles_ is
+turned off, see <<ChAppFilesNameResolution>>.
 
 The profile's own entries always come before the entries from the parent
 profiles. New entries are added among the profile's own entries, at the top

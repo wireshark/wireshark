@@ -447,6 +447,32 @@ profile_inherit_parent_source(const char *app_env_var_prefix, const char *profil
     return profile_parent_name(profile_name);
 }
 
+GPtrArray *
+profile_inherit_parent_dirs(const char *app_env_var_prefix, const char *profile_name)
+{
+    GPtrArray *dirs = g_ptr_array_new_with_free_func(g_free);
+
+    profile_name = resolve_profile_name(profile_name);
+    if (!profile_can_inherit(profile_name))
+        return dirs;
+
+    char *name = g_strdup(profile_name);
+    for (int depth = 0; name != NULL && depth < PROFILE_INHERIT_MAX_DEPTH; depth++) {
+        if (depth > 0)
+            g_ptr_array_add(dirs, get_profile_dir(app_env_var_prefix,
+                                                  is_default_profile_name(name) ? NULL : name, false));
+        if (has_global_layer(app_env_var_prefix, name))
+            g_ptr_array_add(dirs, get_profile_dir(app_env_var_prefix, name, true));
+
+        char *parent = profile_parent_name(name);
+        g_free(name);
+        name = parent;
+    }
+    g_free(name);
+
+    return dirs;
+}
+
 struct profile_inherit_seen {
     GHashTable *seen;    /* keys of the nearer profiles */
     GHashTable *pending; /* keys of the profile being read */

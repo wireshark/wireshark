@@ -172,6 +172,7 @@ _/usr/local/etc_.
 |_dfilters_|Display filters.
 |__disabled_protos__|Disabled protocols.
 |__dmacros__|Display filter macros.
+|_enterprises_|Private enterprise number resolution.
 |_ethers_|Ethernet name resolution.
 |_hosts_|IPv4 and IPv6 name resolution.
 |_ipxnets_|IPX name resolution.
@@ -183,10 +184,32 @@ _/usr/local/etc_.
 |_ss7pcs_|SS7 point code resolution.
 |_subnets_|IPv4 subnet name resolution.
 |_subnetsipv6_|IPv6 subnet name resolution.
+|_tacs_|Tracking area code resolution.
 |_tagrules.jsonc_|Tagging rules.
 |_vlans_|VLAN ID name resolution.
 |_wka_|Well-known MAC addresses.
 |===
+
+[#ChAppFilesNameResolution]
+[discrete]
+===== Name resolution files
+
+The name resolution files _enterprises_, _ethers_, _hosts_, _ipxnets_, _manuf_,
+_services_, _ss7pcs_, _subnets_, _subnetsipv6_, _tacs_ and _vlans_ are read
+from the folder of the current configuration profile and from the folders of
+its parent profiles up to the “Default” profile, whose folder is the personal
+configuration folder. A global profile with the same name as one of these
+profiles is read right behind it. See <<ChCustConfigProfilesSection>>.
+
+An entry in a nearer profile overrides an entry for the same address, port
+or number in a profile further up, and the entries of all profiles override
+the global file, if there is one.
+
+When the preference _Use name resolution entries from parent profiles_ is
+turned off, only the files of the current profile are read, not those of the
+global profiles, the global configuration folder or the system configuration
+folder. The preference is on by default, and the “Default” profile has no
+parent profile.
 
 [discrete]
 ===== File contents
@@ -332,9 +355,11 @@ ethers::
 +
 --
 When Wireshark is trying to translate a hardware MAC or EUI-64 address to
-a name, it consults the _ethers_ file in the personal configuration
-folder first.  If the address is not found in that file, Wireshark
-consults the _ethers_ file in the system configuration folder.
+a name, it consults the _ethers_ files of the configuration profiles
+first, see <<ChAppFilesNameResolution>>.  If the address is not found in
+those files, Wireshark consults the _ethers_ file in the system
+configuration folder, unless the preference _Use name resolution entries from
+parent profiles_ is turned off.
 
 This file has a similar format to the _/etc/ethers_ file on some UNIX-like systems.
 Each line in these files consists of one hardware address and name separated by
@@ -363,22 +388,19 @@ hosts::
 Wireshark uses the entries in the _hosts_ files to translate IPv4 and
 IPv6 addresses into names.
 
-Wireshark reads hosts files from multiple locations in a hierarchical manner:
+The _hosts_ file in the global configuration folder is read first, for
+example:
 
-1. Global hosts file (e.g., `C:\Program Files\Wireshark\hosts` on Windows)
-2. Base personal hosts file (e.g., `%APPDATA%\Wireshark\hosts` on Windows)
-3. Profile hosts file (e.g., `%APPDATA%\Wireshark\profiles\<name>\hosts` on Windows)
+* `C:\Program Files\Wireshark\hosts` on Windows
+* `/usr/share/wireshark/hosts` on Linux
+* `/Applications/Wireshark.app/Contents/Resources/share/wireshark/hosts` on macOS
 
-All three files are read in sequence. When entries conflict, the last file
-loaded wins, creating a three-tier precedence system:
-- Enterprise/global settings (lowest priority)
-- User-wide personal overrides (medium priority)
-- Profile-specific overrides (highest priority)
-
-The profile hosts file is always loaded when name resolution is enabled. The
-base personal hosts file allows users to maintain user-wide name resolution
-mappings across all profiles without needing write access to system
-directories or duplicating entries in every profile.
+Then the _hosts_ files of the configuration profiles are read, see
+<<ChAppFilesNameResolution>>.
+An entry in a later file overrides an entry for the same address. The _hosts_
+file of the “Default” profile, in the personal configuration folder, holds
+entries used by all profiles, without write access to system folders or
+copying the entries into every profile.
 
 This file has the same format as the usual _/etc/hosts_ file on Unix systems.
 
@@ -398,9 +420,11 @@ ipxnets::
 +
 --
 When Wireshark is trying to translate an IPX network number to
-a name, it consults the _ipxnets_ file in the personal configuration
-folder first.  If the address is not found in that file, Wireshark
-consults the _ipxnets_ file in the system configuration folder.
+a name, it consults the _ipxnets_ files of the configuration profiles
+first, see <<ChAppFilesNameResolution>>.  If the address is not found in
+those files, Wireshark consults the _ipxnets_ file in the system
+configuration folder, unless the preference _Use name resolution entries from
+parent profiles_ is turned off.
 
 
 An example is:
@@ -419,10 +443,10 @@ manuf::
 +
 --
 At program start, if there is a _manuf_ file in the global configuration
-folder, it is read first.  Then, if there is a _manuf_ file in the personal
-configuration folder, that is read; if there is an entry for a given address
-prefix in both files, the setting in the personal file overrides the entry
-in the global file.
+folder, it is read first.  Then the _manuf_ files of the configuration
+profiles are read, see <<ChAppFilesNameResolution>>; if there is an entry for
+a given address prefix in more than one file, the entry in the nearest
+profile overrides the others.
 
 The entries in this file are used to translate MAC address prefixes into short and long manufacturer names.
 Each line consists of a MAC address prefix followed by an abbreviated manufacturer name and the full manufacturer name.
@@ -505,10 +529,10 @@ services::
 Wireshark uses the _services_ files to translate port numbers into names.
 
 At program start, if there is a _services_ file in the global
-configuration folder, it is read first.  Then, if there is a _services_
-file in the personal configuration folder, that is read; if there is an
-entry for a given port number in both files, the setting in the personal
-_services_ file overrides the entry in the global _services_ file.
+configuration folder, it is read first.  Then the _services_ files of the
+configuration profiles are read, see <<ChAppFilesNameResolution>>; if there
+is an entry for a given port number in more than one file, the entry in the
+nearest profile overrides the others.
 The format is that of the standard _services(5)_ file on UNIX-compatible
 systems.
 
@@ -538,8 +562,8 @@ ss7pcs::
 --
 Wireshark uses the _ss7pcs_ file to translate SS7 point codes to node names.
 
-At program start, if there is a _ss7pcs_ file in the personal
-configuration folder, it is read.
+At program start, the _ss7pcs_ files of the configuration profiles are
+read, see <<ChAppFilesNameResolution>>.
 
 Each line in this file consists of one network indicator followed by a dash followed by a point code in decimal and a node name separated by whitespace or tab.
 
@@ -562,10 +586,10 @@ DNS is found, Wireshark will attempt a partial match for the subnet of the
 address.
 
 At program start, if there is a _subnets_ or _subnetsipv6_ file in the
-personal configuration folder, it is read first.  Then, if there is a
-_subnets_ or _subnetsipv6_ file in the global configuration folder, that is
-read; if there is a preference set in both files, the setting in the global
-preferences file overrides the setting in the personal preference file.
+global configuration folder, it is read first.  Then the _subnets_ or
+_subnetsipv6_ files of the configuration profiles are read, see
+<<ChAppFilesNameResolution>>; if there is an entry for a given subnet in more
+than one file, the entry in the nearest profile overrides the others.
 
 Each line in one of these files consists of an IP address, a subnet
 mask length separated only by a “/” and a name separated by whitespace.
@@ -627,7 +651,7 @@ vlans::
 --
 Wireshark uses the _vlans_ file to translate VLAN tag IDs into names.
 
-If there is a _vlans_ file in the currently active profile folder, it is used. Otherwise, the _vlans_ file in the personal configuration folder is used.
+The _vlans_ files of the configuration profiles are used, see <<ChAppFilesNameResolution>>. The entry in the nearest profile is used for a VLAN ID.
 
 Each line in this file consists of one VLAN tag ID and a describing name separated by whitespace or tab.
 

@@ -21,6 +21,7 @@
 
 #include <epan/prefs-int.h>
 
+#include <wsutil/profile_inherit.h>
 #include <wsutil/utf8_entities.h>
 
 #include <QAbstractButton>
@@ -125,6 +126,13 @@ pref_show(pref_t *pref, void *user_data)
         QCheckBox *bool_cb = new QCheckBox(title_to_shortcut(prefs_get_title(pref)));
         bool_cb->setToolTip(tooltip);
         bool_cb->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
+        if (name == QStringLiteral("nameres.include_parent") && !profile_can_inherit(NULL)) {
+            // The Default profile has no parent to inherit from
+            bool_cb->setEnabled(false);
+            bool_cb->setToolTip(QStringLiteral("<span>%1</span><br/><br/>%2")
+                                .arg(QObject::tr("The Default profile has no parent profile."))
+                                .arg(name));
+        }
         vb->addWidget(bool_cb);
         break;
     }

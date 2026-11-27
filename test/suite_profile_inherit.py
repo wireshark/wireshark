@@ -237,3 +237,84 @@ class TestGlobalProfileInherit:
                            personal=[('OwnUDP', 'udp', True)], mode='profile_and_parent',
                            personal_parent_mode='profile_only')
         assert names == set()
+
+
+@pytest.fixture
+def run_nameres(cmd_tshark, capture_file, conf_path, test_env, tmp_path):
+    '''Returns a function writing the hosts files of the Default profile, the
+    profiles "Parent" and "Parent/Child" and the global profile "Parent", and
+    the global subnets file, and returning the names of the source and
+    destination addresses in a capture from the child profile.
+    In the build folder, the global hosts file is always read from the program
+    folder, so the global subnets file stands in for the global files.'''
+    def run_real(default=None, parent=None, child=None, global_subnets=None, global_parent=None, args=()):
+        parent_dir = os.path.join(conf_path, 'profiles', 'Parent')
+        child_dir = os.path.join(parent_dir, 'Child')
+        os.makedirs(child_dir)
+        files = [(conf_path, default), (parent_dir, parent), (child_dir, child)]
+        env = test_env
+        if global_subnets is not None or global_parent is not None:
+            data_dir = tmp_path / 'data'
+            global_parent_dir = os.path.join(data_dir, 'profiles', 'Parent')
+            os.makedirs(global_parent_dir)
+            files.append((global_parent_dir, global_parent))
+            if global_subnets is not None:
+                with open(os.path.join(data_dir, 'subnets'), 'w') as f:
+                    f.write(global_subnets)
+            env = dict(test_env)
+            env['WIRESHARK_DATA_DIR'] = str(data_dir)
+        for directory, content in files:
+            if content is not None:
+                with open(os.path.join(directory, 'hosts'), 'w') as f:
+                    f.write(content)
+        proc = subprocesstest.check_run(
+            (cmd_tshark, '-C', 'Parent/Child', '-N', 'n',
+             '-o', 'nameres.use_external_name_resolver:FALSE', *args,
+             '-r', capture_file('gitOverTCP.pcap'),
+             '-T', 'fields', '-e', 'ip.src_host'),
+            capture_output=True, env=env)
+        return {line.strip() for line in proc.stdout.splitlines() if line.strip()}
+    return run_real
+
+
+class TestNameResolutionInherit:
+    def test_all_parents_used(self, run_nameres):
+        '''The hosts files of all parent profiles up to the Default profile are read.'''
+        names = run_nameres(default='10.0.2.15 default-client\n',
+                            parent='147.75.58.133 parent-server\n')
+        assert names == {'default-client', 'parent-server'}
+
+    def test_nearest_profile_wins(self, run_nameres):
+        '''An entry in a nearer profile overrides the same address further up.'''
+        names = run_nameres(default='10.0.2.15 default-client\n147.75.58.133 default-server\n',
+                            parent='147.75.58.133 parent-server\n',
+                            child='10.0.2.15 child-client\n')
+        assert names == {'child-client', 'parent-server'}
+
+    def test_parents_not_used(self, run_nameres):
+        '''Without the preference only the files of the profile itself are read.'''
+        names = run_nameres(default='10.0.2.15 default-client\n',
+                            parent='147.75.58.133 parent-server\n',
+                            child='10.0.2.15 child-client\n',
+                            args=('-o', 'nameres.include_parent:FALSE'))
+        assert names == {'child-client', '147.75.58.133'}
+
+    def test_global_files_used(self, run_nameres):
+        '''The global file and the global profiles are read with the parent profiles.'''
+        names = run_nameres(global_subnets='10.0.2.0/24 global-net\n',
+                            global_parent='147.75.58.133 global-parent-server\n')
+        assert names == {'global-net.15', 'global-parent-server'}
+
+    def test_global_profile_before_parent(self, run_nameres):
+        '''The global profile comes right behind the personal profile with the same name.'''
+        names = run_nameres(default='10.0.2.15 default-client\n147.75.58.133 default-server\n',
+                            global_parent='10.0.2.15 global-parent-client\n147.75.58.133 global-parent-server\n',
+                            parent='147.75.58.133 parent-server\n')
+        assert names == {'global-parent-client', 'parent-server'}
+
+    def test_global_files_not_used(self, run_nameres):
+        '''Without the preference the global file and the global profiles are not read.'''
+        names = run_nameres(global_subnets='10.0.2.0/24 global-net\n',
+                            global_parent='147.75.58.133 global-parent-server\n',
+                            args=('-o', 'nameres.include_parent:FALSE'))
+        assert names == {'10.0.2.15', '147.75.58.133'}
