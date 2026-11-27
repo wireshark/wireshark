@@ -901,7 +901,7 @@ static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo _U_,
 static void dissect_batadv_tvlv_v15_gw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, uint8_t version);
 static void dissect_batadv_tvlv_v15_roam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, uint8_t version);
 static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, uint8_t version);
-static unsigned dissect_batadv_tvlv_v15_tt_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, uint8_t tt_flags, int changes_offset);
+static unsigned dissect_batadv_tvlv_v15_tt_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, uint8_t tt_flags, wmem_map_t *vid_map);
 static unsigned dissect_batadv_tvlv_v15_tt_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset);
 
 
@@ -4400,6 +4400,49 @@ static void dissect_batadv_tvlv_v15_roam(tvbuff_t *tvb, packet_info *pinfo,
 			       ett_batadv_tvlv_vid, flags, ENC_BIG_ENDIAN);
 }
 
+typedef struct {
+	uint32_t crc;
+	unsigned int num_entries;
+} batadv_tt_vid_sum_t;
+
+/* One pass over the change entries: crc and entry count per VLAN id. */
+static wmem_map_t *batadv_tvlv_v15_tt_vid_map(tvbuff_t *tvb,
+					      packet_info *pinfo,
+					      int offset)
+{
+	wmem_map_t *map = wmem_map_new(pinfo->pool, g_direct_hash,
+				       g_direct_equal);
+	const uint8_t *buf;
+	uint32_t crc32;
+	uint16_t vid;
+	batadv_tt_vid_sum_t *sum;
+	int length_remaining;
+
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
+	while (length_remaining >= TLVLV_TT_CHANGE_V15_SIZE) {
+		vid = tvb_get_ntohs(tvb, offset + 10);
+		buf = tvb_get_ptr(tvb, offset, TLVLV_TT_CHANGE_V15_SIZE);
+
+		sum = (batadv_tt_vid_sum_t *)wmem_map_lookup(map, GUINT_TO_POINTER(vid));
+		if (sum == NULL) {
+			sum = wmem_new0(pinfo->pool, batadv_tt_vid_sum_t);
+			wmem_map_insert(map, GUINT_TO_POINTER(vid), sum);
+		}
+		sum->num_entries++;
+
+		/* checksum over vid, flags, address */
+		crc32 = 0;
+		crc32 = crc32c_calculate_no_swap(&buf[10], 2, crc32);
+		crc32 = crc32c_calculate_no_swap(buf, 1, crc32);
+		crc32 = crc32c_calculate_no_swap(&buf[4], 6, crc32);
+		sum->crc ^= crc32;
+
+		offset += TLVLV_TT_CHANGE_V15_SIZE;
+		length_remaining = tvb_reported_length_remaining(tvb, offset);
+	}
+	return map;
+}
+
 static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo,
 				       proto_tree *tree, unsigned offset,
 				       uint8_t version)
@@ -4414,6 +4457,7 @@ static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo,
 	};
 	uint8_t tt_flags;
 	int changes_offset;
+	wmem_map_t *vid_map = NULL;
 
 	tt_flags = tvb_get_uint8(tvb, offset);
 
@@ -4439,10 +4483,15 @@ static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo,
 
 	changes_offset = offset + num_vlan * TLVLV_TT_VLAN_V15_SIZE;
 
+	/* Checksums are only verified for full responses. Walk the change
+	 * entries once instead of once per VLAN. */
+	if (tt_flags == (BATADV_TVLVL_TT_RESPONSE | BATADV_TVLVL_TT_FULL_TABLE))
+		vid_map = batadv_tvlv_v15_tt_vid_map(tvb, pinfo, changes_offset);
+
 	for (i = 0; i < num_vlan; i++)
 		offset = dissect_batadv_tvlv_v15_tt_vlan(tvb, pinfo, tree,
 							 offset, tt_flags,
-							 changes_offset);
+							 vid_map);
 
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	while (length_remaining > 0) {
@@ -4459,46 +4508,24 @@ static void dissect_batadv_tvlv_v15_tt_vlan_checksum(tvbuff_t *tvb,
 						     uint16_t vlan_id,
 						     int crc_offset,
 						     uint8_t tt_flags,
-						     unsigned offset)
+						     wmem_map_t *vid_map)
 {
-	const uint8_t *buf;
-	uint32_t crc32;
 	uint32_t crc = 0;
-	int length_remaining;
-	uint16_t vid;
 	unsigned int num_entries = 0;
+	const batadv_tt_vid_sum_t *sum;
 	uint8_t full_response = (BATADV_TVLVL_TT_RESPONSE | BATADV_TVLVL_TT_FULL_TABLE);
 
 	/* checksum checks are not possible with non full responses */
-	if (tt_flags != full_response) {
+	if (tt_flags != full_response || vid_map == NULL) {
 		proto_tree_add_item(tree, hf_batadv_tvlv_tt_vlan_crc, tvb,
 				    crc_offset, 4, ENC_BIG_ENDIAN);
 		return;
 	}
 
-	length_remaining = tvb_reported_length_remaining(tvb, offset);
-	while (length_remaining >= TLVLV_TT_CHANGE_V15_SIZE) {
-
-		vid = tvb_get_ntohs(tvb, offset + 10);
-		if (vid != vlan_id)
-			goto skip;
-
-		buf = tvb_get_ptr(tvb, offset, TLVLV_TT_CHANGE_V15_SIZE);
-		if (!buf)
-			goto skip;
-
-		num_entries++;
-
-		/* checksum over vid, flags, address */
-		crc32 = 0;
-		crc32 = crc32c_calculate_no_swap(&buf[10], 2, crc32);
-		crc32 = crc32c_calculate_no_swap(buf, 1, crc32);
-		crc32 = crc32c_calculate_no_swap(&buf[4], 6, crc32);
-		crc ^= crc32;
-
-skip:
-		offset += TLVLV_TT_CHANGE_V15_SIZE;
-		length_remaining = tvb_reported_length_remaining(tvb, offset);
+	sum = (const batadv_tt_vid_sum_t *)wmem_map_lookup(vid_map, GUINT_TO_POINTER(vlan_id));
+	if (sum != NULL) {
+		crc = sum->crc;
+		num_entries = sum->num_entries;
 	}
 
         proto_tree_add_checksum(tree, tvb, crc_offset,
@@ -4515,7 +4542,7 @@ static unsigned dissect_batadv_tvlv_v15_tt_vlan(tvbuff_t *tvb,
 					   packet_info *pinfo,
 					   proto_tree *tree, unsigned offset,
 					   uint8_t tt_flags,
-					   int changes_offset)
+					   wmem_map_t *vid_map)
 {
 	proto_tree *vlan_tree = NULL;
 	uint16_t vid;
@@ -4536,7 +4563,7 @@ static unsigned dissect_batadv_tvlv_v15_tt_vlan(tvbuff_t *tvb,
 
 	dissect_batadv_tvlv_v15_tt_vlan_checksum(tvb, ti, pinfo, vlan_tree, vid,
 						 offset, tt_flags,
-						 changes_offset);
+						 vid_map);
 	offset += 4;
 
 	proto_tree_add_bitmask(vlan_tree, tvb, offset,
