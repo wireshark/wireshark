@@ -433,14 +433,14 @@ dissect_asphodel_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item(asphodel_tree, hf_asphodel_connected, tvb, 1, 1, ENC_NA);
 
     incoming_cmd_buffer_size = tvb_get_ntohs(tvb, 2);
-    ti = proto_tree_add_uint(asphodel_tree, hf_asphodel_max_incoming_param_length, tvb, 2, 2, incoming_cmd_buffer_size - 2);
+    ti = proto_tree_add_uint(asphodel_tree, hf_asphodel_max_incoming_param_length, tvb, 2, 2, (incoming_cmd_buffer_size > 2 ? incoming_cmd_buffer_size - 2 : 0));
     if (incoming_cmd_buffer_size <= 2)
     {
         expert_add_info(pinfo, ti, &ei_asphodel_bad_param_length);
     }
 
     outgoing_cmd_buffer_size = tvb_get_ntohs(tvb, 4);
-    ti = proto_tree_add_uint(asphodel_tree, hf_asphodel_max_outgoing_param_length, tvb, 4, 2, outgoing_cmd_buffer_size - 2);
+    ti = proto_tree_add_uint(asphodel_tree, hf_asphodel_max_outgoing_param_length, tvb, 4, 2, (outgoing_cmd_buffer_size > 2 ? outgoing_cmd_buffer_size - 2 : 0));
     if (outgoing_cmd_buffer_size <= 2)
     {
         expert_add_info(pinfo, ti, &ei_asphodel_bad_param_length);
@@ -489,14 +489,14 @@ dissect_asphodel_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     if (protocol_type & ASPHODEL_PROTOCOL_TYPE_RADIO)
     {
         remote_incoming_cmd_buffer_size = tvb_get_ntohs(tvb, offset);
-        ti = proto_tree_add_uint(asphodel_tree, hf_asphodel_remote_max_incoming_param_length, tvb, offset, 2, remote_incoming_cmd_buffer_size - 2);
+        ti = proto_tree_add_uint(asphodel_tree, hf_asphodel_remote_max_incoming_param_length, tvb, offset, 2, (remote_incoming_cmd_buffer_size > 2 ? remote_incoming_cmd_buffer_size - 2 : 0));
         if (remote_incoming_cmd_buffer_size <= 2)
         {
             expert_add_info(pinfo, ti, &ei_asphodel_bad_param_length);
         }
 
         remote_outgoing_cmd_buffer_size = tvb_get_ntohs(tvb, offset + 2);
-        ti = proto_tree_add_uint(asphodel_tree, hf_asphodel_remote_max_outgoing_param_length, tvb, offset + 2, 2, remote_outgoing_cmd_buffer_size - 2);
+        ti = proto_tree_add_uint(asphodel_tree, hf_asphodel_remote_max_outgoing_param_length, tvb, offset + 2, 2, (remote_outgoing_cmd_buffer_size > 2 ? remote_outgoing_cmd_buffer_size - 2 : 0));
         if (remote_outgoing_cmd_buffer_size <= 2)
         {
             expert_add_info(pinfo, ti, &ei_asphodel_bad_param_length);
