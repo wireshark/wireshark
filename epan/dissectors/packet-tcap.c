@@ -3584,9 +3584,11 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
   {
     saved_offset = offset;
 
-    offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+    /* The dissect_ variants also record the identifier and length for the
+     * implicit dissect_ber_octet_string() call below. */
+    offset = dissect_ber_identifier(actx->pinfo, NULL, tvb, offset, &ber_class, &pc, &tag);
     tag_offset = offset;
-    offset = get_ber_length(tvb, offset, &len, &ind_field);
+    offset = dissect_ber_length(actx->pinfo, NULL, tvb, offset, &len, &ind_field);
     len_offset = offset;
 
     tag_length = tag_offset - saved_offset;
