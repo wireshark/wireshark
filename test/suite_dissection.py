@@ -16204,6 +16204,45 @@ class TestDissectBer:
                 '24\t\t\t61626364\t\t',
             ]
 
+    def test_ber_octet_string_nested(self, cmd_tshark, capture_file, test_env):
+        '''Constructed OCTET STRINGs in SNMP: the two strings of one frame
+        keep their own data in two passes, the segments of a string cut
+        short (an exception) do not reach the string of the next frame,
+        and a string nested 40 deep gets one "Reassembled OCTET STRING"
+        data source holding all the segments, not one per level. Past the
+        BER nesting limit the frame is malformed.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ber-octet-string.pcap'),
+                    '-Tfields', '-eframe.number', '-esnmp.contextEngineID',
+                    '-esnmp.contextName', '-esnmp.community', '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert [r[0] for r in rows] == ['1', '2', '3', '4', '5', '6']
+            assert rows[0][1:4] == ['41414242', 'CCDD', '']
+            assert rows[1][1:4] == ['', '', '']
+            assert rows[2][1:4] == ['43434444', 'ctx', '']
+            assert rows[3][1:4] == ['', '', 'A' * 20]
+            assert rows[4][1:4] == ['', '', 'B' * 2000]
+            assert rows[5][1:4] == ['', '', '']
+            assert [bool(r[4]) for r in rows] == [False, True, False, False, False, True]
+            sources = {}
+            for number in range(1, 7):
+                stdout = subprocess.check_output((cmd_tshark, *passes,
+                        '-r', capture_file('ber-octet-string.pcap'),
+                        '-Y', 'frame.number == %d' % number, '-x',
+                    ), encoding='utf-8', env=test_env)
+                sources[number] = [line for line in stdout.splitlines()
+                                   if line.startswith('Reassembled OCTET STRING')]
+            assert sources == {
+                1: ['Reassembled OCTET STRING (4 bytes):'] * 2,
+                2: [],
+                3: ['Reassembled OCTET STRING (4 bytes):'],
+                4: ['Reassembled OCTET STRING (60 bytes):'],
+                5: ['Reassembled OCTET STRING (2040 bytes):'],
+                6: [],
+            }
+
     def test_ber_times(self, cmd_tshark, capture_file, test_env):
         '''UTCTime with Z and with a +hhmm/-hhmm offset (a valid offset
         used to be reported as malformed), GeneralizedTime.'''
