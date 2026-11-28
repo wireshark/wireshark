@@ -81,9 +81,6 @@
    "epan/dissectors/packet-afp.c",
    "epan/dissectors/packet-ber.c"
   ],
-  "TestDissectAfs": [
-   "epan/dissectors/packet-afs.c"
-  ],
   "TestDissectAgentx": [
    "epan/dissectors/packet-agentx.c"
   ],
@@ -104,32 +101,17 @@
    "epan/dissectors/packet-text-media.c",
    "epan/dissectors/packet-x509af.c"
   ],
-  "TestDissectAlcap": [
-   "epan/dissectors/packet-alcap.c",
-   "epan/dissectors/packet-e164.c"
-  ],
-  "TestDissectAlljoyn": [
-   "epan/dissectors/packet-alljoyn.c"
-  ],
   "TestDissectAlp": [
    "epan/dissectors/packet-alp.c"
   ],
   "TestDissectAmp": [
    "epan/dissectors/packet-amp.c"
   ],
-  "TestDissectAmqp": [
-   "epan/dissectors/packet-amqp.c",
-   "epan/dissectors/packet-fix.c",
-   "epan/dissectors/packet-json.c"
-  ],
   "TestDissectAmr": [
    "epan/dissectors/packet-amr.c",
    "epan/dissectors/packet-h245.c",
    "epan/dissectors/packet-rtp.c",
    "epan/dissectors/packet-sdp.c"
-  ],
-  "TestDissectAmt": [
-   "epan/dissectors/packet-amt.c"
   ],
   "TestDissectAncp": [
    "epan/dissectors/packet-ancp.c"
@@ -214,16 +196,8 @@
   "TestDissectArmagetronad": [
    "epan/dissectors/packet-armagetronad.c"
   ],
-  "TestDissectArp": [
-   "epan/dissectors/packet-arp.c"
-  ],
   "TestDissectArtemis": [
    "epan/dissectors/packet-artemis.c"
-  ],
-  "TestDissectArtnet": [
-   "epan/dissectors/packet-artnet.c",
-   "epan/dissectors/packet-dmx.c",
-   "epan/dissectors/packet-rdm.c"
   ],
   "TestDissectArubaAdp": [
    "epan/dissectors/packet-aruba-adp.c"
@@ -257,18 +231,8 @@
    "epan/dissectors/packet-asf.c",
    "epan/dissectors/packet-x11.c"
   ],
-  "TestDissectAsphodel": [
-   "epan/dissectors/packet-asphodel.c"
-  ],
   "TestDissectAssaR3": [
    "epan/dissectors/packet-assa_r3.c"
-  ],
-  "TestDissectAsterix": [
-   "epan/dissectors/packet-asterix.c"
-  ],
-  "TestDissectAt": [
-   "epan/dissectors/packet-at.c",
-   "epan/dissectors/packet-gsm_sms.c"
   ],
   "TestDissectAtLdf": [
    "epan/dissectors/packet-at-ldf.c"
@@ -276,14 +240,6 @@
   "TestDissectAtRl": [
    "epan/dissectors/packet-at-rl.c",
    "epan/dissectors/packet-ff.c"
-  ],
-  "TestDissectAtalk": [
-   "epan/dissectors/packet-afp.c",
-   "epan/dissectors/packet-atalk.c",
-   "epan/dissectors/packet-eigrp.c"
-  ],
-  "TestDissectAth": [
-   "epan/dissectors/packet-ath.c"
   ],
   "TestDissectAtm": [
    "epan/dissectors/packet-atm.c",
@@ -324,9 +280,6 @@
   "TestDissectAutosarNm": [
    "epan/dissectors/packet-autosar-nm.c",
    "epan/dissectors/packet-pdu-transport.c"
-  ],
-  "TestDissectAvsp": [
-   "epan/dissectors/packet-avsp.c"
   ],
   "TestDissectAwdl": [
    "epan/dissectors/packet-awdl.c"
@@ -369,9 +322,6 @@
   "TestDissectBat": [
    "epan/dissectors/packet-bat.c"
   ],
-  "TestDissectBatadv": [
-   "epan/dissectors/packet-batadv.c"
-  ],
   "TestDissectBctp": [
    "epan/dissectors/packet-bctp.c",
    "epan/dissectors/packet-sdp.c",
@@ -379,20 +329,6 @@
   ],
   "TestDissectBeep": [
    "epan/dissectors/packet-beep.c"
-  ],
-  "TestDissectBencode": [
-   "epan/dissectors/packet-bencode.c"
-  ],
-  "TestDissectBer": [
-   "epan/dissectors/packet-ber.c",
-   "epan/dissectors/packet-glow.c",
-   "epan/dissectors/packet-goose.c",
-   "epan/dissectors/packet-inap.c",
-   "epan/dissectors/packet-kerberos.c"
-  ],
-  "TestDissectBfcp": [
-   "epan/dissectors/packet-bfcp.c",
-   "epan/dissectors/packet-sdp.c"
   ],
   "TestDissectBfd": [
    "epan/dissectors/packet-bfd.c",
@@ -724,9 +660,9 @@
    "epan/dissectors/packet-caneth.c"
   ],
   "TestDissectCanopen": [
-   "epan/dissectors/packet-autosar-nm.c",
    "epan/dissectors/packet-canopen.c",
    "epan/dissectors/packet-exported_pdu.c",
+   "epan/dissectors/packet-socketcan.c",
    "epan/dissectors/packet-x11.c"
   ],
   "TestDissectCapwap": [
@@ -1938,9 +1874,9 @@
   ],
   "TestDissectFileBlf": [
    "epan/dissectors/file-blf.c",
-   "epan/dissectors/packet-autosar-nm.c",
    "epan/dissectors/packet-flexray.c",
    "epan/dissectors/packet-lin.c",
+   "epan/dissectors/packet-socketcan.c",
    "epan/dissectors/packet-xml.c"
   ],
   "TestDissectFileBtsnoop": [
